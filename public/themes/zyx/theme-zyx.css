@@ -1,0 +1,86 @@
+/* ============================================================
+   ZYX THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-zyx {
+    --zyx-ink: #5d4b3f;
+    --zyx-border: #d8ba9c;
+    --zyx-surface: #fffdf9;
+    --zyx-surface-soft: #fff6ee;
+    --zyx-accent: #f4a26d;
+    --zyx-second: #b6d26b;
+    --zyx-third: #e9c37f;
+    --black: var(--zyx-ink);
+    --white: var(--zyx-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--zyx-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--zyx-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--zyx-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--zyx-border) 44%, transparent);
+    --track-bg: #f8efe4;
+    --muted-text: color-mix(in srgb, var(--zyx-ink) 58%, transparent);
+    background: radial-gradient(circle at 14% 14%, rgba(255,255,255,.90), transparent 24%), radial-gradient(circle at 84% 16%, rgba(255,255,255,.52), transparent 24%), radial-gradient(circle at 22% 84%, rgba(244,162,109,.10), transparent 24%), linear-gradient(160deg, #fff1e4 0%, #fff8ef 42%, #f4f0d6 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--zyx-ink) !important;
+}
+
+#zyx-background { position:fixed; inset:0; width:100vw; height:100vh; overflow:hidden; pointer-events:none; user-select:none; z-index:-1; }
+#zyx-background::before, #zyx-background::after { content:''; position:absolute; inset:-14%; pointer-events:none; }
+#zyx-background::before { background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.22), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%); animation: zyxLightSweep 9s ease-in-out infinite alternate; }
+body.theme-zyx #zyx-background { z-index:-1; }
+body.theme-zyx .view { position:relative; z-index:2; }
+body.theme-zyx .side-nav { position:relative; z-index:3; }
+body.theme-zyx header, body.theme-zyx .log-header-container { position:relative; z-index:4; }
+body.theme-zyx .modal, body.theme-zyx .modal-overlay, body.theme-zyx .overlay { z-index:10; }
+
+body.theme-zyx .day-box,
+body.theme-zyx .day-picker-box,
+body.theme-zyx .icon-btn,
+body.theme-zyx .small-icon-btn,
+body.theme-zyx input,
+body.theme-zyx textarea,
+body.theme-zyx select,
+body.theme-zyx .notes-editable,
+body.theme-zyx .phrase-card,
+body.theme-zyx .chip,
+body.theme-zyx .toolbox-item,
+body.theme-zyx .resource-card,
+body.theme-zyx .polaroid-card,
+body.theme-zyx .filter-tab,
+body.theme-zyx .day-target-box,
+body.theme-zyx .flashcard,
+body.theme-zyx .flashcard-mode-card,
+body.theme-zyx .day-badge,
+body.theme-zyx .video-placeholder,
+body.theme-zyx .theme-picker-card,
+body.theme-zyx .note-audio-row,
+body.theme-zyx .modal-box,
+body.theme-zyx .set-complete-box { background-color: var(--zyx-surface) !important; }
+
+body.theme-zyx input::placeholder,
+body.theme-zyx textarea::placeholder,
+body.theme-zyx .notes-editable:empty::before { color: color-mix(in srgb, var(--zyx-ink) 42%, transparent) !important; }
+body.theme-zyx .icon-btn:hover,
+body.theme-zyx .small-icon-btn:hover,
+body.theme-zyx .filter-tab:hover { background: var(--zyx-surface-soft) !important; color: var(--zyx-ink) !important; }
+body.theme-zyx .chip:hover,
+body.theme-zyx .phrase-card:hover,
+body.theme-zyx .day-picker-box.selected,
+body.theme-zyx .filter-tab.active,
+body.theme-zyx .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--zyx-surface-soft) 72%, var(--zyx-accent) 28%) !important; color: var(--zyx-ink) !important; border-color: var(--zyx-border) !important; }
+body.theme-zyx .progress-bar-fill { background: linear-gradient(90deg, var(--zyx-accent), var(--zyx-second), var(--zyx-third)) !important; }
+
+#zyx-background .zyx-item { position:absolute; display:block; height:auto; object-fit:contain; opacity:.95; transform-origin:center; translate:0 0; rotate:0deg; scale:1; filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--zyx-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30)); animation: zyxFloat var(--zyx-float-duration) ease-in-out var(--zyx-float-delay) infinite alternate; will-change:transform; }
+@keyframes zyxFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--zyx-float-x), var(--zyx-float-y), 0) rotate(var(--zyx-float-r)) scale(1.035)} }
+#zyx-background .zyx-item.zyx-intro-bop { animation:zyxIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--zyx-bop-delay) infinite !important; }
+@keyframes zyxIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+
+#zyx-background .zyx-extra { position:absolute; border-radius:50%; background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.75) 0 20%, color-mix(in srgb, #f4a26d 70%, #b6d26b 30%) 21% 100%); box-shadow:0 0 8px rgba(255,255,255,.22); opacity:.40; animation:zyxDotPulse var(--zyx-extra-duration) ease-in-out var(--zyx-extra-delay) infinite; }
+@keyframes zyxDotPulse { 0%,100%{opacity:.20; transform:scale(.72)} 50%{opacity:.52; transform:scale(1.08)} }
+
+
+@keyframes zyxLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #zyx-background .zyx-item { opacity:.72; } #zyx-background .zyx-extra { opacity:.38; } }
+@media (prefers-reduced-motion: reduce) { #zyx-background::before, #zyx-background .zyx-item, #zyx-background .zyx-extra { animation:none !important; } }

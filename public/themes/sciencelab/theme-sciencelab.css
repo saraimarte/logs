@@ -1,0 +1,602 @@
+/* ============================================================
+   SCIENCE LAB
+   ============================================================ */
+
+body.theme-sciencelab {
+    --black: #e8fffb;
+    --white: #061a20;
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid rgba(101, 224, 209, 0.4);
+    --thin-border: 2px solid rgba(101, 224, 209, 0.25);
+    --dashed-border: 2px dashed rgba(101, 224, 209, 0.25);
+    --dotted-border: 2px dotted rgba(101, 224, 209, 0.25);
+
+    --track-bg: rgba(101, 224, 209, 0.15);
+    --muted-text: rgba(232, 255, 251, 0.55);
+
+    background:
+        radial-gradient(
+            ellipse at 50% 0%,
+            rgba(101, 224, 209, .055),
+            transparent 42%
+        ),
+        radial-gradient(
+            ellipse at 85% 85%,
+            rgba(138, 183, 255, .035),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #071c21 0%,
+            #092b31 52%,
+            #061a20 100%
+        ) !important;
+
+    background-attachment: fixed !important;
+    color: var(--black) !important;
+}
+
+/* ============================================================
+   TRANSPARENT APP ELEMENTS
+   ============================================================ */
+
+body.theme-sciencelab .day-box,
+body.theme-sciencelab .day-picker-box,
+body.theme-sciencelab .icon-btn,
+body.theme-sciencelab .small-icon-btn,
+body.theme-sciencelab input,
+body.theme-sciencelab textarea,
+body.theme-sciencelab select,
+body.theme-sciencelab .notes-editable,
+body.theme-sciencelab .phrase-card,
+body.theme-sciencelab .chip,
+body.theme-sciencelab .toolbox-item,
+body.theme-sciencelab .resource-card,
+body.theme-sciencelab .polaroid-card,
+body.theme-sciencelab .filter-tab,
+body.theme-sciencelab .day-target-box,
+body.theme-sciencelab .flashcard,
+body.theme-sciencelab .flashcard-mode-card,
+body.theme-sciencelab .day-badge,
+body.theme-sciencelab .video-placeholder,
+body.theme-sciencelab .theme-picker-card,
+body.theme-sciencelab .note-audio-row {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* ============================================================
+   PLACEHOLDERS
+   ============================================================ */
+
+body.theme-sciencelab input::placeholder,
+body.theme-sciencelab textarea::placeholder,
+body.theme-sciencelab .notes-editable:empty::before {
+    color: rgba(232, 255, 251, 0.4) !important;
+}
+
+/* ============================================================
+   UI HOVERS
+   ============================================================ */
+
+body.theme-sciencelab .icon-btn:hover,
+body.theme-sciencelab .small-icon-btn:hover {
+    background: var(--track-bg) !important;
+    color: #ffffff !important;
+}
+
+body.theme-sciencelab .chip:hover,
+body.theme-sciencelab .phrase-card:hover,
+body.theme-sciencelab .day-picker-box.selected {
+    background: rgba(101, 224, 209, 0.2) !important;
+    color: #ffffff !important;
+    border-color: #65e0d1 !important;
+}
+
+/* ============================================================
+   BACKGROUND
+   ============================================================ */
+
+#sciencelab-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    pointer-events: none;
+    user-select: none;
+
+    z-index: 0;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+
+body.theme-sciencelab .filter-tab,
+body.theme-sciencelab .tab,
+body.theme-sciencelab .tab-button {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #ffffff !important;
+}
+
+body.theme-sciencelab .filter-tab:hover,
+body.theme-sciencelab .tab:hover,
+body.theme-sciencelab .tab-button:hover,
+body.theme-sciencelab .filter-tab.active,
+body.theme-sciencelab .tab.active,
+body.theme-sciencelab .tab-button.active,
+body.theme-sciencelab .filter-tab[aria-selected="true"],
+body.theme-sciencelab .tab[aria-selected="true"] {
+    background: rgba(101, 224, 209, 0.08) !important;
+    background-color: rgba(101, 224, 209, 0.08) !important;
+    color: #ffffff !important;
+}
+
+body.theme-sciencelab #start-quiz-btn {
+    color: #ffffff !important;
+}
+
+/* ============================================================
+   OBJECTS
+   ============================================================ */
+
+.sciencelab-item {
+    position: absolute;
+
+    pointer-events: none;
+    user-select: none;
+
+    transform-origin: center center;
+
+    opacity: 0.18;
+
+    filter:
+        drop-shadow(
+            0 5px 12px rgba(0, 0, 0, .3)
+        )
+        drop-shadow(
+            0 0 10px rgba(101, 224, 209, .45)
+        );
+
+    translate: 0 0;
+    rotate: 0deg;
+
+    will-change:
+        translate,
+        rotate;
+}
+
+.sciencelab-item.science-floating {
+    animation:
+        scienceLabFloat
+        var(--float-duration, 5.5s)
+        ease-in-out
+        infinite
+        alternate;
+}
+
+@keyframes scienceLabFloat {
+    0% {
+        translate: 0 0;
+        rotate: var(--rotation-start, -2deg);
+    }
+
+    25% {
+        translate:
+            var(--float-x, 7px)
+            var(--float-y, -8px);
+
+        rotate:
+            var(--rotation-mid, 2deg);
+    }
+
+    50% {
+        translate:
+            calc(var(--float-x, 7px) * -0.65)
+            calc(var(--float-y, -8px) * 1.15);
+
+        rotate:
+            var(--rotation-end, -1deg);
+    }
+
+    75% {
+        translate:
+            calc(var(--float-x, 7px) * 0.75)
+            calc(var(--float-y, -8px) * 0.45);
+
+        rotate:
+            var(--rotation-mid, 2deg);
+    }
+
+    100% {
+        translate: 0 0;
+        rotate: var(--rotation-start, -2deg);
+    }
+}
+
+.sciencelab-item:nth-child(2n) {
+    animation-duration: 6.5s;
+}
+
+.sciencelab-item:nth-child(3n) {
+    animation-duration: 8s;
+}
+
+.sciencelab-item:nth-child(4n) {
+    animation-duration: 5s;
+}
+
+/* ============================================================
+   SVG HIT DETECTION
+   ============================================================ */
+
+.sciencelab-item svg {
+    display: block;
+
+    width: auto;
+    height: auto;
+
+    overflow: visible;
+
+    pointer-events: none;
+}
+
+/* Only the actual painted SVG areas are hoverable */
+.sciencelab-sound-object svg {
+    pointer-events: visiblePainted;
+    cursor: default;
+}
+
+/* ============================================================
+   SOUND OBJECT HOVER
+   ============================================================ */
+
+.sciencelab-sound-object {
+    pointer-events: none;
+
+    transition:
+        opacity .18s ease,
+        filter .18s ease;
+}
+
+.sciencelab-sound-object svg:hover {
+    cursor: default;
+}
+
+.sciencelab-sound-object:hover {
+    opacity: .45;
+
+    filter:
+        drop-shadow(
+            0 5px 12px rgba(0, 0, 0, .35)
+        )
+        drop-shadow(
+            0 0 12px rgba(101, 224, 209, .6)
+        );
+}
+
+/* ============================================================
+   LIQUID
+   ============================================================ */
+
+.science-liquid {
+    transform-box: fill-box;
+    transform-origin: center center;
+
+    animation:
+        scienceLiquidMove
+        2.4s
+        ease-in-out
+        infinite
+        alternate;
+}
+
+@keyframes scienceLiquidMove {
+    0% {
+        transform:
+            scaleX(.96)
+            translateY(1px);
+    }
+
+    50% {
+        transform:
+            scaleX(1.02)
+            translateY(-1px);
+    }
+
+    100% {
+        transform:
+            scaleX(.98)
+            translateY(1px);
+    }
+}
+
+/* ============================================================
+   BUBBLES INSIDE OBJECTS
+   ============================================================ */
+
+.sciencelab-bubble {
+    transform-box: fill-box;
+    transform-origin: center center;
+
+    animation:
+        scienceBubbleInside
+        var(--bubble-duration, 2.8s)
+        ease-in
+        infinite;
+}
+
+@keyframes scienceBubbleInside {
+    0% {
+        opacity: 0;
+        transform:
+            translateY(12px)
+            scale(.35);
+    }
+
+    15% {
+        opacity: .65;
+    }
+
+    45% {
+        opacity: .50;
+        transform:
+            translate(2px, -15px)
+            scale(.75);
+    }
+
+    72% {
+        opacity: .35;
+        transform:
+            translate(-3px, -35px)
+            scale(.95);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(3px, -55px)
+            scale(.65);
+    }
+}
+
+/* ============================================================
+   PARTICLES
+   ============================================================ */
+
+.sciencelab-particle {
+    position: absolute;
+
+    width: 2px;
+    height: 2px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(101, 224, 209, .28);
+
+    pointer-events: none;
+
+    animation:
+        scienceParticleRise
+        var(--particle-duration, 15s)
+        linear
+        infinite;
+}
+
+@keyframes scienceParticleRise {
+    0% {
+        opacity: 0;
+        translate: 0 18vh;
+    }
+
+    12% {
+        opacity: .25;
+    }
+
+    85% {
+        opacity: .13;
+    }
+
+    100% {
+        opacity: 0;
+
+        translate:
+            var(--particle-drift, 35px)
+            -105vh;
+    }
+}
+
+/* ============================================================
+   LIGHT BEAMS
+   ============================================================ */
+
+.sciencelab-beam {
+    position: absolute;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(101, 224, 209, .16),
+            transparent
+        );
+
+    opacity: .25;
+
+    pointer-events: none;
+
+    animation:
+        scienceBeamMove
+        7s
+        ease-in-out
+        infinite
+        alternate;
+}
+
+@keyframes scienceBeamMove {
+    from {
+        translate: -20px 0;
+        opacity: .10;
+    }
+
+    to {
+        translate: 80px 0;
+        opacity: .25;
+    }
+}
+
+/* ============================================================
+   DEPTH
+   ============================================================ */
+
+.sciencelab-depth-1 {
+    z-index: 1;
+}
+
+.sciencelab-depth-2 {
+    z-index: 2;
+}
+
+.sciencelab-depth-3 {
+    z-index: 3;
+}
+
+/* ============================================================
+   PSEUDO ELEMENTS
+   ============================================================ */
+
+#sciencelab-background
+.sciencelab-item::before,
+#sciencelab-background
+.sciencelab-item::after {
+    content: none !important;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    #sciencelab-background *,
+    #sciencelab-background::before {
+        animation: none !important;
+    }
+}
+
+/* ============================================================
+   HOVER BUBBLES
+   ============================================================ */
+
+.sciencelab-hover-bubble {
+    position: absolute;
+
+    display: block;
+
+    border-radius: 50%;
+
+    border: 1.5px solid rgba(101, 224, 209, .55);
+
+    background: rgba(101, 224, 209, .08);
+
+    box-shadow:
+        0 0 6px rgba(101, 224, 209, .25);
+
+    pointer-events: none;
+
+    z-index: 20;
+
+    animation:
+        scienceHoverBubbleRise
+        1.7s
+        ease-out
+        forwards;
+}
+
+@keyframes scienceHoverBubbleRise {
+    0% {
+        opacity: 0;
+        transform:
+            translate(
+                0,
+                5px
+            )
+            scale(.35);
+    }
+
+    12% {
+        opacity: .8;
+    }
+
+    55% {
+        opacity: .65;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(
+                var(--bubble-drift),
+                calc(var(--bubble-rise) * -1)
+            )
+            scale(1);
+    }
+}
+
+/* ============================================================
+   LARGER BACKGROUND BUBBLES
+   ============================================================ */
+
+.sciencelab-particle {
+    width: 4px;
+    height: 4px;
+
+    box-shadow:
+        0 0 5px rgba(101, 224, 209, .18);
+}
+
+.sciencelab-particle:nth-child(3n) {
+    width: 5px;
+    height: 5px;
+}
+
+.sciencelab-particle:nth-child(5n) {
+    width: 6px;
+    height: 6px;
+}
+
+/* ============================================================
+   CYLINDER
+   ============================================================ */
+
+.science-cylinder {
+    opacity: .20;
+}
+
+.science-cylinder svg {
+    overflow: visible;
+}
+
+.science-cylinder .sciencelab-bubble {
+    animation-duration: var(--bubble-duration, 2.8s);
+}
+
+/* Make the cylinder slightly more glass-like */
+.science-cylinder:hover {
+    opacity: .46;
+
+    filter:
+        drop-shadow(
+            0 5px 12px rgba(0, 0, 0, .35)
+        )
+        drop-shadow(
+            0 0 12px rgba(101, 224, 209, .55)
+        );
+}

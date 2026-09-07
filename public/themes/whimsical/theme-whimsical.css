@@ -1,0 +1,16 @@
+body.theme-whimsical {
+--overlay-scrim: rgba(25, 15, 35, 0.62);
+--black: #5a4b8a;
+--white: #fffefc;
+--thick-border: 3px solid #b79aff;
+--thin-border: 2px solid #ffc6e0;
+--dashed-border: 2px dashed #a6e3d0;
+--dotted-border: 2px dotted #ffe08a;
+background: linear-gradient(120deg, #ffe9f4 0%, #eaf0ff 35%, #e6fff5 70%, #fff9e6 100%);
+background-attachment: fixed;
+}
+body.theme-whimsical .modal-box, body.theme-whimsical .day-box, body.theme-whimsical .chip,
+body.theme-whimsical .toolbox-item, body.theme-whimsical .resource-card, body.theme-whimsical select,
+body.theme-whimsical input, body.theme-whimsical textarea { background-color: #fffefc; }
+body.theme-whimsical .day-box, body.theme-whimsical .chip, body.theme-whimsical .modal-box,
+body.theme-whimsical .toolbox-item, body.theme-whimsical .resource-card { border-radius: 18px; }

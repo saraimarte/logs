@@ -1,0 +1,366 @@
+/* ============================================================
+   RETRO ARCADE
+   Decorative-only theme styling.
+
+   The template remains the source of truth for application layout,
+   cursor behavior, companion positioning, tabs, cards, buttons,
+   selectors, views, and modals.
+   ============================================================ */
+
+body.theme-retro {
+    --retro-night: #170b2e;
+    --retro-purple: #2b1452;
+    --retro-violet: #6d2bd9;
+    --retro-pink: #ff4fd8;
+    --retro-cyan: #43f4ff;
+    --retro-yellow: #ffe45c;
+    --retro-ink: #f8f3ff;
+    --retro-panel: #24113f;
+    --retro-panel-2: #311653;
+    --retro-muted: rgba(248, 243, 255, 0.62);
+
+    --black: var(--retro-ink);
+    --white: var(--retro-panel);
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid rgba(67, 244, 255, 0.70);
+    --thin-border: 2px solid rgba(255, 79, 216, 0.48);
+    --dashed-border: 2px dashed rgba(67, 244, 255, 0.42);
+    --dotted-border: 2px dotted rgba(255, 228, 92, 0.46);
+    --track-bg: rgba(255, 79, 216, 0.16);
+    --muted-text: var(--retro-muted);
+
+    background:
+        radial-gradient(circle at 16% 10%, rgba(255, 79, 216, 0.12), transparent 28%),
+        radial-gradient(circle at 82% 18%, rgba(67, 244, 255, 0.10), transparent 30%),
+        linear-gradient(180deg, #1c0d35 0%, #16092a 52%, #10051f 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--retro-ink) !important;
+}
+
+/* ============================================================
+   BACKGROUND LAYER
+   ============================================================ */
+
+#retro-arcade-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+/* Perspective arcade-floor grid. It stays entirely behind the app UI. */
+#retro-arcade-background .retro-arcade-grid {
+    position: absolute;
+    left: -12vw;
+    right: -12vw;
+    bottom: -8vh;
+    height: 44vh;
+    opacity: 0.30;
+    transform: perspective(420px) rotateX(59deg);
+    transform-origin: center bottom;
+    background-image:
+        linear-gradient(rgba(67, 244, 255, 0.30) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 79, 216, 0.26) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(to top, rgba(0,0,0,.95), transparent 92%);
+}
+
+/* Subtle scanlines add an arcade-monitor feel without covering the UI. */
+#retro-arcade-background::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        180deg,
+        rgba(255,255,255,0.018) 0px,
+        rgba(255,255,255,0.018) 1px,
+        transparent 1px,
+        transparent 4px
+    );
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* ============================================================
+   PIXEL SVG OBJECTS
+   ============================================================ */
+
+#retro-arcade-background .retro-arcade-item {
+    position: absolute;
+    width: var(--retro-size);
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--retro-rotate));
+    transform-origin: center center;
+    opacity: 0.78;
+    pointer-events: auto;
+    user-select: none;
+    image-rendering: pixelated;
+    cursor: inherit;
+    animation:
+        retroArcadeFloat
+        var(--retro-duration)
+        steps(18, end)
+        var(--retro-delay)
+        infinite;
+    will-change: transform;
+}
+
+#retro-arcade-background .retro-arcade-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    pointer-events: none;
+    user-select: none;
+    image-rendering: pixelated;
+    filter:
+        drop-shadow(0 0 5px rgba(67, 244, 255, 0.22))
+        drop-shadow(0 0 8px rgba(255, 79, 216, 0.14));
+}
+
+
+#retro-arcade-background .retro-arcade-item:hover,
+#retro-arcade-background .retro-arcade-item.retro-arcade-item-hovered {
+    opacity: 1;
+    filter:
+        drop-shadow(0 0 7px rgba(67, 244, 255, 0.50))
+        drop-shadow(0 0 11px rgba(255, 79, 216, 0.35));
+}
+
+#retro-arcade-background .retro-arcade-item:hover .retro-arcade-svg,
+#retro-arcade-background .retro-arcade-item.retro-arcade-item-hovered .retro-arcade-svg {
+    transform: scale(1.10);
+}
+
+#retro-arcade-background .retro-arcade-svg {
+    transition: transform 0.10s steps(2, end), filter 0.10s linear;
+}
+
+#retro-arcade-background .retro-arcade-depth-1 { z-index: 1; }
+#retro-arcade-background .retro-arcade-depth-2 { z-index: 2; }
+
+@keyframes retroArcadeFloat {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--retro-rotate));
+    }
+    25% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--retro-drift-x), 0, 0)
+            rotate(calc(var(--retro-rotate) + 1deg));
+    }
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--retro-drift-x), var(--retro-drift-y), 0)
+            rotate(calc(var(--retro-rotate) - 1deg));
+    }
+    75% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, var(--retro-drift-y), 0)
+            rotate(var(--retro-rotate));
+    }
+}
+
+/* ============================================================
+   PIXEL STARS
+   ============================================================ */
+
+#retro-arcade-background .retro-arcade-star {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: var(--retro-cyan);
+    box-shadow:
+        0 0 6px rgba(67, 244, 255, 0.75),
+        4px 0 0 rgba(255, 79, 216, 0.65),
+        -4px 0 0 rgba(255, 228, 92, 0.42);
+    opacity: 0.28;
+    animation: retroArcadeStarBlink var(--retro-star-duration) steps(2, end) var(--retro-star-delay) infinite;
+}
+
+@keyframes retroArcadeStarBlink {
+    0%, 100% { opacity: 0.12; transform: scale(0.8); }
+    50% { opacity: 0.70; transform: scale(1.15); }
+}
+
+/* ============================================================
+   THEME COLORS ONLY — NO LAYOUT CHANGES
+   ============================================================ */
+
+body.theme-retro .day-box,
+body.theme-retro .day-picker-box,
+body.theme-retro .icon-btn,
+body.theme-retro .small-icon-btn,
+body.theme-retro input,
+body.theme-retro textarea,
+body.theme-retro select,
+body.theme-retro .notes-editable,
+body.theme-retro .phrase-card,
+body.theme-retro .chip,
+body.theme-retro .toolbox-item,
+body.theme-retro .resource-card,
+body.theme-retro .polaroid-card,
+body.theme-retro .filter-tab,
+body.theme-retro .day-target-box,
+body.theme-retro .flashcard,
+body.theme-retro .flashcard-mode-card,
+body.theme-retro .day-badge,
+body.theme-retro .video-placeholder,
+body.theme-retro .theme-picker-card,
+body.theme-retro .note-audio-row,
+body.theme-retro .modal-box,
+body.theme-retro .set-complete-box {
+    background: rgba(36, 17, 63, 0.94) !important;
+    background-color: rgba(36, 17, 63, 0.94) !important;
+    color: var(--retro-ink) !important;
+}
+
+body.theme-retro input::placeholder,
+body.theme-retro textarea::placeholder,
+body.theme-retro .notes-editable:empty::before {
+    color: rgba(248, 243, 255, 0.42) !important;
+}
+
+body.theme-retro .icon-btn:hover,
+body.theme-retro .small-icon-btn:hover,
+body.theme-retro .filter-tab:hover {
+    background: rgba(109, 43, 217, 0.30) !important;
+    color: #ffffff !important;
+}
+
+body.theme-retro .filter-tab.active,
+body.theme-retro .day-picker-box.selected,
+body.theme-retro .chip:hover,
+body.theme-retro .phrase-card:hover {
+    background: rgba(255, 79, 216, 0.25) !important;
+    color: #ffffff !important;
+    border-color: var(--retro-cyan) !important;
+}
+
+body.theme-retro .progress-bar-fill {
+    background: linear-gradient(90deg, var(--retro-pink), var(--retro-cyan)) !important;
+}
+
+body.theme-retro .progress-bar-track {
+    background: rgba(67, 244, 255, 0.12) !important;
+}
+
+/* ============================================================
+   SAFE STACKING
+
+   Do not use body > * or broad wildcard layout selectors here.
+   The cursor and companion systems keep their template-owned positioning.
+   ============================================================ */
+
+body.theme-retro #retro-arcade-background {
+    z-index: 0;
+}
+
+body.theme-retro .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-retro .side-nav {
+    position: relative;
+    z-index: 3;
+}
+
+body.theme-retro header,
+body.theme-retro .log-header-container {
+    position: relative;
+    z-index: 4;
+}
+
+body.theme-retro .modal,
+body.theme-retro .modal-overlay,
+body.theme-retro .overlay {
+    z-index: 10;
+}
+
+/* ============================================================
+   MOBILE / REDUCED MOTION
+   ============================================================ */
+
+@media (max-width: 700px) {
+    #retro-arcade-background .retro-arcade-item {
+        width: calc(var(--retro-size) * 0.72);
+        opacity: 0.62;
+    }
+
+    #retro-arcade-background .retro-arcade-grid {
+        opacity: 0.22;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #retro-arcade-background,
+    #retro-arcade-background * {
+        animation: none !important;
+    }
+}
+
+
+/* ============================================================
+   RETRO INTRO DANCE
+   A subset of game characters bobs only while the intro track
+   is actually playing. Existing hover scaling still works.
+   ============================================================ */
+
+#retro-arcade-background.retro-intro-playing
+.retro-arcade-item.retro-intro-dancer
+.retro-arcade-svg {
+    animation:
+        retroArcadeIntroDance
+        var(--retro-dance-duration, .74s)
+        ease-in-out
+        var(--retro-dance-delay, 0s)
+        infinite;
+}
+
+@keyframes retroArcadeIntroDance {
+    0%, 100% {
+        translate: 0 0;
+    }
+
+    48% {
+        translate: 0 calc(var(--retro-dance-height, 14px) * -1);
+    }
+
+    68% {
+        translate: 0 -3px;
+    }
+}
+
+/*
+ * Hover still enlarges the character during the dance. The dance uses
+ * the individual translate property, while hover uses transform, so
+ * the two effects can run together without fighting each other.
+ */
+#retro-arcade-background.retro-intro-playing
+.retro-arcade-item.retro-intro-dancer:hover
+.retro-arcade-svg,
+#retro-arcade-background.retro-intro-playing
+.retro-arcade-item.retro-intro-dancer.retro-arcade-item-hovered
+.retro-arcade-svg {
+    transform: scale(1.10);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #retro-arcade-background.retro-intro-playing
+    .retro-arcade-item.retro-intro-dancer
+    .retro-arcade-svg {
+        animation: none !important;
+    }
+}

@@ -1,0 +1,376 @@
+body.theme-pony{--black:#fff4fb;--white:#ffe37e;--bg-overlay:transparent;--muted-text:color-mix(in srgb,#fff4fb 58%,transparent);--track-bg:color-mix(in srgb,#ff8fc7 14%,transparent);background:radial-gradient(circle at 50% 4%,rgba(255,255,255,.45),transparent 26%),radial-gradient(circle at 12% 80%,color-mix(in srgb,#ff8fc7 14%,transparent),transparent 28%),radial-gradient(circle at 88% 18%,color-mix(in srgb,#9d8df1 16%,transparent),transparent 26%),linear-gradient(180deg,#dff5ff 0%,#f4e7ff 48%,#ffeaf6 100%) !important;background-attachment:fixed !important;color:#fff4fb !important}
+body.theme-pony .view:not(#grid-view)::before{background:transparent !important;background-image:none !important;opacity:0 !important}
+#pony-background{--px:50vw;--py:50vh;--parx:0px;--pary:0px;position:fixed;inset:0;width:100vw;height:100vh;overflow:hidden;pointer-events:none;user-select:none;z-index:0;isolation:isolate}
+body.theme-pony .view{position:relative !important;z-index:2 !important}body.theme-pony .side-nav{z-index:3 !important}body.theme-pony header,body.theme-pony .log-header-container{position:relative;z-index:4 !important}
+#pony-background .theme-pony-glow,#pony-background .theme-pony-pattern,#pony-background .theme-pony-accents,#pony-background .theme-pony-floor{position:absolute;inset:0;pointer-events:none}
+#pony-background .theme-pony-glow{background:radial-gradient(circle 180px at var(--px) var(--py),color-mix(in srgb,#9d8df1 23%,transparent),transparent 72%),radial-gradient(circle at 50% 10%,rgba(255,255,255,.38),transparent 32%);mix-blend-mode:screen;opacity:.8}
+#pony-background .theme-pony-pattern{background:radial-gradient(circle at 18px 18px,rgba(157,141,241,.14) 0 3px,transparent 4px);background-size:72px 72px;opacity:.5;transform:translate3d(calc(var(--parx)*-.12),calc(var(--pary)*-.12),0);transition:transform .2s ease-out}
+#pony-background .theme-pony-accents{transform:translate3d(calc(var(--parx)*.18),calc(var(--pary)*.14),0);transition:transform .2s ease-out}
+#pony-background .theme-pony-accent-dot{position:absolute;width:var(--z);height:var(--z);border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.82),color-mix(in srgb,#9d8df1 55%,transparent) 45%,transparent 74%);opacity:.45;animation:ponyAccent var(--dur) ease-in-out var(--delay) infinite alternate}
+@keyframes ponyAccent{from{transform:translate3d(0,0,0) scale(.82);opacity:.22}to{transform:translate3d(var(--dx),var(--dy),0) scale(1.15);opacity:.68}}
+#pony-background .theme-pony-item{position:absolute;width:var(--w);max-width:30vw;transform:translate3d(-50%,-50%,0) rotate(var(--r)) scale(var(--s));transform-origin:center;opacity:.9;filter:drop-shadow(0 14px 18px rgba(0,0,0,.13)) drop-shadow(0 0 10px color-mix(in srgb,#ff8fc7 15%,transparent));animation:ponyFloat var(--dur) ease-in-out var(--delay) infinite;will-change:transform}
+#pony-background .theme-pony-item img{display:block;width:100%;height:auto;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
+@keyframes ponyFloat{0%,100%{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(var(--r)) scale(var(--s))}50%{transform:translate3d(-50%,-50%,0) translate3d(var(--dx),var(--dy),0) rotate(calc(var(--r)+2deg)) scale(calc(var(--s)*1.02))}}
+#pony-background .theme-pony-item.theme-pony-react{opacity:1;filter:drop-shadow(0 18px 24px rgba(0,0,0,.18)) drop-shadow(0 0 20px color-mix(in srgb,#ff8fc7 34%,transparent));animation:ponyReact .62s cubic-bezier(.18,.84,.26,1) both !important}
+@keyframes ponyReact{0%,100%{transform:translate3d(-50%,-50%,0) rotate(var(--r)) scale(var(--s))}30%{transform:translate3d(-50%,-50%,0) translate(-8px,-10px) rotate(calc(var(--r) - 6deg)) scale(calc(var(--s)*1.10))}60%{transform:translate3d(-50%,-50%,0) translate(10px,-15px) rotate(calc(var(--r) + 6deg)) scale(calc(var(--s)*1.14))}}
+#pony-background .theme-pony-burst{position:fixed;width:var(--bs);height:var(--bs);border-radius:50%;pointer-events:none;z-index:3;background:linear-gradient(135deg,#ff8fc7,#9d8df1);box-shadow:0 0 10px color-mix(in srgb,#9d8df1 46%,transparent);transform:translate(-50%,-50%);animation:ponyBurst .7s ease-out forwards}
+@keyframes ponyBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.35)}18%{opacity:.95}100%{opacity:0;transform:translate(-50%,-50%) translate3d(var(--bx),var(--by),0) scale(1.1)}}
+#pony-background .theme-pony-floor{background:radial-gradient(ellipse 28% 16% at 20% 100%,rgba(255,255,255,.42),transparent 72%),radial-gradient(ellipse 28% 16% at 50% 100%,rgba(255,255,255,.36),transparent 72%),radial-gradient(ellipse 28% 16% at 80% 100%,rgba(255,255,255,.42),transparent 72%)}
+body.theme-pony .day-box,body.theme-pony .day-picker-box,body.theme-pony .filter-tab,body.theme-pony .chip,body.theme-pony .phrase-card,body.theme-pony .toolbox-item,body.theme-pony .resource-card,body.theme-pony .flashcard,body.theme-pony .theme-picker-card,body.theme-pony input,body.theme-pony textarea,body.theme-pony select{background:rgba(255,255,255,.86) !important;color:#fff4fb !important;border-color:color-mix(in srgb,#ff8fc7 28%,transparent) !important;background-image:none !important}
+body.theme-pony .filter-tabs,body.theme-pony #library-filter-tabs,body.theme-pony #quiz-type-filters,body.theme-pony .set-size-picker{background:transparent !important;background-image:none !important;box-shadow:none !important}
+body.theme-pony .side-nav .icon-btn,body.theme-pony .side-nav .icon-btn:hover,body.theme-pony .side-nav .icon-btn:focus,body.theme-pony .side-nav .icon-btn:active{background:transparent !important;background-color:transparent !important;background-image:none !important;border:none !important;box-shadow:none !important}body.theme-pony .side-nav .icon-btn::before,body.theme-pony .side-nav .icon-btn::after{content:none !important}
+@media(max-width:700px){#pony-background .theme-pony-item{max-width:220px;width:min(var(--w),42vw)}}
+@media(prefers-reduced-motion:reduce){#pony-background *{animation:none !important}}
+
+
+/* Intro-dance: a subset of SVGs bop only while the intro is actually playing. */
+#pony-background.pony-intro-playing .theme-pony-item.theme-pony-intro-dancer img {
+    animation: themePonyIntroDance var(--dance-duration,.74s) ease-in-out var(--dance-delay,0s) infinite;
+    transform-origin:center bottom;
+    will-change:transform;
+}
+
+@keyframes themePonyIntroDance {
+    0%,100% { transform:translateY(0) scale(1); }
+    44% { transform:translateY(calc(var(--dance-height,16px) * -1)) scale(1.03); }
+    68% { transform:translateY(-3px) scale(1.01); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #pony-background.pony-intro-playing .theme-pony-item.theme-pony-intro-dancer img {
+        animation:none !important;
+    }
+}
+
+
+/* ============================================================
+   PONY READABILITY / COLOR CONSISTENCY FIX
+   Keeps the decorative theme, but gives every app surface a
+   predictable light surface + dark readable text.
+   ============================================================ */
+
+body.theme-pony {
+    --theme-ui-ink: #3b3452;
+    --theme-ui-muted: #6f6684;
+    --theme-ui-surface: #fff9fd;
+    --theme-ui-surface-soft: #f4edf9;
+    --theme-ui-hover: #ece2f6;
+    --theme-ui-active: #ded1ef;
+    --theme-ui-border: #8b78a6;
+    --theme-ui-modal: #f2ebf7;
+    --theme-ui-accent: #8f7bd8;
+    --theme-ui-accent-2: #d86fa9;
+
+    /* IMPORTANT: template components depend on these variables. */
+    --black: var(--theme-ui-ink);
+    --white: var(--theme-ui-surface);
+    --muted-text: var(--theme-ui-muted);
+    --track-bg: #e4d8ef;
+    --overlay-scrim: rgba(47, 38, 69, .32);
+
+    color: var(--theme-ui-ink) !important;
+}
+
+/* Main app text should never inherit a pale/white theme color. */
+body.theme-pony .view,
+body.theme-pony .view h1,
+body.theme-pony .view h2,
+body.theme-pony .view h3,
+body.theme-pony .view h4,
+body.theme-pony .section-header,
+body.theme-pony #current-date-title,
+body.theme-pony .save-indicator {
+    color: var(--theme-ui-ink) !important;
+}
+
+body.theme-pony .save-indicator,
+body.theme-pony .progress-hint,
+body.theme-pony .field-label,
+body.theme-pony .modal-label {
+    color: var(--theme-ui-muted) !important;
+}
+
+/* Day log and ordinary content surfaces. */
+body.theme-pony .day-box,
+body.theme-pony .day-picker-box,
+body.theme-pony .mini-day-box,
+body.theme-pony .day-badge,
+body.theme-pony .day-target-box,
+body.theme-pony .notes-editable,
+body.theme-pony .note-audio-row,
+body.theme-pony .phrase-card,
+body.theme-pony .toolbox-item,
+body.theme-pony .resource-card,
+body.theme-pony .polaroid-card,
+body.theme-pony .flashcard,
+body.theme-pony .flashcard-mode-card,
+body.theme-pony .video-placeholder,
+body.theme-pony .polaroid-video-placeholder,
+body.theme-pony .theme-picker-card,
+body.theme-pony .icon-option,
+body.theme-pony input[type="text"],
+body.theme-pony input[type="search"],
+body.theme-pony input[type="url"],
+body.theme-pony textarea,
+body.theme-pony select {
+    background: var(--theme-ui-surface) !important;
+    background-color: var(--theme-ui-surface) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-pony .notes-editable:empty::before,
+body.theme-pony input::placeholder,
+body.theme-pony textarea::placeholder {
+    color: var(--theme-ui-muted) !important;
+    opacity: .88 !important;
+}
+
+/* Hover states stay light. No white text on pale backgrounds. */
+body.theme-pony .day-box:hover,
+body.theme-pony .day-picker-box:hover,
+body.theme-pony .mini-day-box:hover,
+body.theme-pony .phrase-card:hover,
+body.theme-pony .toolbox-item:hover,
+body.theme-pony .resource-card:hover,
+body.theme-pony .polaroid-card:hover,
+body.theme-pony .flashcard-mode-card:hover,
+body.theme-pony .theme-picker-card:hover,
+body.theme-pony .icon-option:hover {
+    background: var(--theme-ui-hover) !important;
+    background-color: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+    filter: none !important;
+}
+
+/* Selected/active controls also keep dark text for contrast. */
+body.theme-pony .day-picker-box.selected,
+body.theme-pony .filter-tab.active,
+body.theme-pony .icon-option.selected {
+    background: var(--theme-ui-active) !important;
+    background-color: var(--theme-ui-active) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+}
+
+body.theme-pony .icon-option.selected small {
+    color: var(--theme-ui-ink) !important;
+}
+
+/* Filter tabs / chips are opaque enough to remain readable over SVGs. */
+body.theme-pony .filter-tab,
+body.theme-pony .chip {
+    background: var(--theme-ui-surface-soft) !important;
+    background-color: var(--theme-ui-surface-soft) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: none !important;
+}
+
+body.theme-pony .filter-tab:hover,
+body.theme-pony .chip:hover {
+    background: var(--theme-ui-hover) !important;
+    background-color: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+}
+
+/* Parent filter/category rows stay completely transparent. */
+html body.theme-pony .filter-tabs,
+html body.theme-pony .filter-tabs:hover,
+html body.theme-pony .filter-tabs:focus,
+html body.theme-pony .filter-tabs:focus-within,
+html body.theme-pony #library-filter-tabs,
+html body.theme-pony #library-filter-tabs:hover,
+html body.theme-pony #library-filter-tabs:focus-within,
+html body.theme-pony #quiz-type-filters,
+html body.theme-pony #quiz-type-filters:hover,
+html body.theme-pony #quiz-type-filters:focus-within,
+html body.theme-pony .set-size-picker,
+html body.theme-pony .set-size-picker:hover,
+html body.theme-pony .set-size-picker:focus,
+html body.theme-pony .set-size-picker:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* Settings + all modals use a solid matching surface, never transparent. */
+body.theme-pony .modal-overlay {
+    background: var(--overlay-scrim) !important;
+}
+
+body.theme-pony .modal-box {
+    background: var(--theme-ui-modal) !important;
+    background-color: var(--theme-ui-modal) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: 0 18px 48px rgba(27, 29, 43, .15) !important;
+    filter: none !important;
+}
+
+body.theme-pony .modal-header,
+body.theme-pony .modal-header h2,
+body.theme-pony .modal-section,
+body.theme-pony .modal-section label,
+body.theme-pony .parts-list,
+body.theme-pony .part-row {
+    color: var(--theme-ui-ink) !important;
+}
+
+body.theme-pony #phrase-modal-progress-label {
+    color: var(--theme-ui-muted) !important;
+}
+
+/* Controls inside modals get a slightly lighter solid backing. */
+body.theme-pony .modal-box input[type="text"],
+body.theme-pony .modal-box input[type="search"],
+body.theme-pony .modal-box input[type="url"],
+body.theme-pony .modal-box textarea,
+body.theme-pony .modal-box select,
+body.theme-pony .modal-box .notes-editable {
+    background: var(--theme-ui-surface) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+}
+
+/* Header/settings buttons: transparent with a dark border, including hover. */
+body.theme-pony .log-header-container .icon-btn,
+body.theme-pony #open-settings-btn {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border: 2px solid var(--theme-ui-ink) !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-pony .log-header-container .icon-btn:hover,
+body.theme-pony .log-header-container .icon-btn:focus,
+body.theme-pony #open-settings-btn:hover,
+body.theme-pony #open-settings-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+    opacity: .72;
+}
+
+/* Small action/close buttons stay readable on modal + log surfaces. */
+body.theme-pony .small-icon-btn,
+body.theme-pony .resource-card-btn,
+body.theme-pony .flashcard-nav-btn,
+body.theme-pony .flashcard-actions button {
+    background: var(--theme-ui-surface) !important;
+    background-color: var(--theme-ui-surface) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: none !important;
+}
+
+body.theme-pony .small-icon-btn:hover,
+body.theme-pony .resource-card-btn:hover,
+body.theme-pony .flashcard-nav-btn:hover,
+body.theme-pony .flashcard-actions button:hover {
+    background: var(--theme-ui-hover) !important;
+    background-color: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+}
+
+/* Main action buttons use a medium accent with dark readable text. */
+body.theme-pony .ai-generate-btn {
+    background: var(--theme-ui-active) !important;
+    background-color: var(--theme-ui-active) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+}
+
+body.theme-pony .ai-generate-btn:hover {
+    background: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+}
+
+/* Checkboxes/radios use the theme accent, not an unrelated yellow. */
+body.theme-pony input[type="checkbox"],
+body.theme-pony input[type="radio"] {
+    accent-color: var(--theme-ui-accent) !important;
+}
+
+/* Progress colors remain in-palette. */
+body.theme-pony .progress-bar-track {
+    background: #e4d8ef !important;
+}
+
+body.theme-pony .progress-bar-fill {
+    background: linear-gradient(
+        90deg,
+        var(--theme-ui-accent),
+        var(--theme-ui-accent-2)
+    ) !important;
+}
+
+/* Delete remains semantically red, but readable. */
+body.theme-pony .delete-btn {
+    background: var(--theme-ui-surface) !important;
+    color: #a13737 !important;
+    border-color: #b66a6a !important;
+}
+
+body.theme-pony .delete-btn:hover {
+    background: #a13737 !important;
+    color: #ffffff !important;
+    border-color: #a13737 !important;
+}
+
+/* Right-side nav must remain icon-only and transparent. */
+html body.theme-pony .side-nav .icon-btn,
+html body.theme-pony .side-nav .icon-btn:hover,
+html body.theme-pony .side-nav .icon-btn:focus,
+html body.theme-pony .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-pony .side-nav .icon-btn i {
+    color: var(--theme-ui-ink) !important;
+}
+
+html body.theme-pony .side-nav .icon-btn::before,
+html body.theme-pony .side-nav .icon-btn::after {
+    content: none !important;
+}
+
+/* Preserve the theme-picker's own guaranteed readable preview labels. */
+body.theme-pony #theme-picker .theme-picker-card,
+body.theme-pony .theme-picker-grid .theme-picker-card {
+    color: #222222 !important;
+}
+
+body.theme-pony #theme-picker .theme-picker-info,
+body.theme-pony .theme-picker-grid .theme-picker-info {
+    color: #222222 !important;
+}
+
+/* Keep modal stack safely above decorations. */
+body.theme-pony .modal,
+body.theme-pony .modal-overlay,
+body.theme-pony .overlay {
+    z-index: 1000 !important;
+}

@@ -1,0 +1,390 @@
+body.theme-cars{--black:#f8f4ea;--white:#29394f;--bg-overlay:transparent;--muted-text:color-mix(in srgb,#f8f4ea 58%,transparent);--track-bg:color-mix(in srgb,#f06b78 14%,transparent);background:radial-gradient(circle at 50% 4%,rgba(255,255,255,.45),transparent 26%),radial-gradient(circle at 12% 80%,color-mix(in srgb,#f06b78 14%,transparent),transparent 28%),radial-gradient(circle at 88% 18%,color-mix(in srgb,#77b7d8 16%,transparent),transparent 26%),linear-gradient(180deg,#dce8f0 0%,#f1ece3 52%,#d8d0c4 100%) !important;background-attachment:fixed !important;color:#f8f4ea !important}
+body.theme-cars .view:not(#grid-view)::before{background:transparent !important;background-image:none !important;opacity:0 !important}
+#cars-background{--px:50vw;--py:50vh;--parx:0px;--pary:0px;position:fixed;inset:0;width:100vw;height:100vh;overflow:hidden;pointer-events:none;user-select:none;z-index:0;isolation:isolate}
+body.theme-cars .view{position:relative !important;z-index:2 !important}body.theme-cars .side-nav{z-index:3 !important}body.theme-cars header,body.theme-cars .log-header-container{position:relative;z-index:4 !important}
+#cars-background .theme-cars-glow,#cars-background .theme-cars-pattern,#cars-background .theme-cars-accents,#cars-background .theme-cars-floor{position:absolute;inset:0;pointer-events:none}
+#cars-background .theme-cars-glow{background:radial-gradient(circle 180px at var(--px) var(--py),color-mix(in srgb,#77b7d8 23%,transparent),transparent 72%),radial-gradient(circle at 50% 10%,rgba(255,255,255,.38),transparent 32%);mix-blend-mode:screen;opacity:.8}
+#cars-background .theme-cars-pattern{background:repeating-linear-gradient(90deg,rgba(41,57,79,.06) 0 1px,transparent 1px 64px);background-size:72px 72px;opacity:.5;transform:translate3d(calc(var(--parx)*-.12),calc(var(--pary)*-.12),0);transition:transform .2s ease-out}
+#cars-background .theme-cars-accents{transform:translate3d(calc(var(--parx)*.18),calc(var(--pary)*.14),0);transition:transform .2s ease-out}
+#cars-background .theme-cars-accent-dot{position:absolute;width:var(--z);height:var(--z);border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.82),color-mix(in srgb,#77b7d8 55%,transparent) 45%,transparent 74%);opacity:.45;animation:carsAccent var(--dur) ease-in-out var(--delay) infinite alternate}
+@keyframes carsAccent{from{transform:translate3d(0,0,0) scale(.82);opacity:.22}to{transform:translate3d(var(--dx),var(--dy),0) scale(1.15);opacity:.68}}
+#cars-background .theme-cars-item{position:absolute;width:var(--w);max-width:30vw;transform:translate3d(-50%,-50%,0) rotate(var(--r)) scale(var(--s));transform-origin:center;opacity:.9;filter:drop-shadow(0 14px 18px rgba(0,0,0,.13)) drop-shadow(0 0 10px color-mix(in srgb,#f06b78 15%,transparent));animation:carsFloat var(--dur) ease-in-out var(--delay) infinite;will-change:transform}
+#cars-background .theme-cars-item img{display:block;width:100%;height:auto;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
+@keyframes carsFloat{0%,100%{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(var(--r)) scale(var(--s))}50%{transform:translate3d(-50%,-50%,0) translate3d(var(--dx),var(--dy),0) rotate(calc(var(--r)+2deg)) scale(calc(var(--s)*1.02))}}
+#cars-background .theme-cars-item.theme-cars-react{opacity:1;filter:drop-shadow(0 18px 24px rgba(0,0,0,.18)) drop-shadow(0 0 20px color-mix(in srgb,#f06b78 34%,transparent));animation:carsReact .62s cubic-bezier(.18,.84,.26,1) both !important}
+@keyframes carsReact{0%,100%{transform:translate3d(-50%,-50%,0) rotate(var(--r)) scale(var(--s))}36%{transform:translate3d(-50%,-50%,0) translateX(-14px) rotate(calc(var(--r) - 2deg)) scale(calc(var(--s)*1.07))}70%{transform:translate3d(-50%,-50%,0) translateX(20px) rotate(calc(var(--r) + 2deg)) scale(calc(var(--s)*1.11))}}
+#cars-background .theme-cars-burst{position:fixed;width:var(--bs);height:var(--bs);border-radius:50%;pointer-events:none;z-index:3;background:linear-gradient(135deg,#f06b78,#77b7d8);box-shadow:0 0 10px color-mix(in srgb,#77b7d8 46%,transparent);transform:translate(-50%,-50%);animation:carsBurst .7s ease-out forwards}
+@keyframes carsBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.35)}18%{opacity:.95}100%{opacity:0;transform:translate(-50%,-50%) translate3d(var(--bx),var(--by),0) scale(1.1)}}
+#cars-background .theme-cars-floor{background:repeating-linear-gradient(90deg,transparent 0 70px,rgba(41,57,79,.10) 70px 110px,transparent 110px 180px);clip-path:polygon(0 60%,100% 50%,100% 100%,0 100%);opacity:.55}
+body.theme-cars .day-box,body.theme-cars .day-picker-box,body.theme-cars .filter-tab,body.theme-cars .chip,body.theme-cars .phrase-card,body.theme-cars .toolbox-item,body.theme-cars .resource-card,body.theme-cars .flashcard,body.theme-cars .theme-picker-card,body.theme-cars input,body.theme-cars textarea,body.theme-cars select{background:rgba(255,255,255,.86) !important;color:#f8f4ea !important;border-color:color-mix(in srgb,#f06b78 28%,transparent) !important;background-image:none !important}
+body.theme-cars .filter-tabs,body.theme-cars #library-filter-tabs,body.theme-cars #quiz-type-filters,body.theme-cars .set-size-picker{background:transparent !important;background-image:none !important;box-shadow:none !important}
+body.theme-cars .side-nav .icon-btn,body.theme-cars .side-nav .icon-btn:hover,body.theme-cars .side-nav .icon-btn:focus,body.theme-cars .side-nav .icon-btn:active{background:transparent !important;background-color:transparent !important;background-image:none !important;border:none !important;box-shadow:none !important}body.theme-cars .side-nav .icon-btn::before,body.theme-cars .side-nav .icon-btn::after{content:none !important}
+@media(max-width:700px){#cars-background .theme-cars-item{max-width:220px;width:min(var(--w),42vw)}}
+@media(prefers-reduced-motion:reduce){#cars-background *{animation:none !important}}
+
+
+/* Intro-dance: a subset of SVGs bop only while the intro is actually playing. */
+#cars-background.cars-intro-playing .theme-cars-item.theme-cars-intro-dancer img {
+    animation: themeCarsIntroDance var(--dance-duration,.74s) ease-in-out var(--dance-delay,0s) infinite;
+    transform-origin:center bottom;
+    will-change:transform;
+}
+
+@keyframes themeCarsIntroDance {
+    0%,100% { transform:translateY(0) scale(1); }
+    44% { transform:translateY(calc(var(--dance-height,16px) * -1)) scale(1.03); }
+    68% { transform:translateY(-3px) scale(1.01); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #cars-background.cars-intro-playing .theme-cars-item.theme-cars-intro-dancer img {
+        animation:none !important;
+    }
+}
+
+
+/* ============================================================
+   CARS — READABILITY + COLOR CONSISTENCY PASS
+   ============================================================ */
+
+body.theme-cars {
+    --theme-ui-ink: #26384a;
+    --theme-ui-muted: #617180;
+    --theme-ui-surface: #f8f5ef;
+    --theme-ui-surface-soft: #f0ece6;
+    --theme-ui-hover: #e8ecee;
+    --theme-ui-active: #d9e2e6;
+    --theme-ui-border: #647789;
+    --theme-ui-modal: #e9e4dc;
+    --theme-ui-accent: #b94d5d;
+    --theme-ui-accent-2: #4f89ad;
+
+    --black: var(--theme-ui-ink);
+    --white: var(--theme-ui-surface);
+    --muted-text: var(--theme-ui-muted);
+    --track-bg: #d8dde0;
+    --overlay-scrim: rgba(29, 42, 55, .30);
+
+    color: var(--theme-ui-ink) !important;
+}
+
+/* Stop the template overlay from washing out individual tabs. */
+body.theme-cars .view:not(#grid-view)::before {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    opacity: 0 !important;
+}
+
+/* Main headers + ordinary text use one readable foreground. */
+body.theme-cars .view,
+body.theme-cars .view h1,
+body.theme-cars .view h2,
+body.theme-cars .view h3,
+body.theme-cars .view h4,
+body.theme-cars .view h5,
+body.theme-cars .view h6,
+body.theme-cars .section-header,
+body.theme-cars .log-header-container,
+body.theme-cars .log-header-container h1,
+body.theme-cars #current-date-title,
+body.theme-cars .day-title,
+body.theme-cars .card-title,
+body.theme-cars .resource-card-title,
+body.theme-cars .phrase-text,
+body.theme-cars .notes-editable,
+body.theme-cars label,
+body.theme-cars legend {
+    color: var(--theme-ui-ink) !important;
+}
+
+body.theme-cars .view :where(p, li, strong, em, small, span),
+body.theme-cars .modal-box :where(p, li, strong, em, small, span) {
+    color: inherit;
+}
+
+body.theme-cars .save-indicator,
+body.theme-cars .progress-hint,
+body.theme-cars .field-label,
+body.theme-cars .modal-label,
+body.theme-cars .helper-text,
+body.theme-cars .muted-text {
+    color: var(--theme-ui-muted) !important;
+}
+
+/* Opaque readable surfaces throughout day logs and content views. */
+body.theme-cars .day-box,
+body.theme-cars .day-picker-box,
+body.theme-cars .mini-day-box,
+body.theme-cars .day-badge,
+body.theme-cars .day-target-box,
+body.theme-cars .notes-editable,
+body.theme-cars .note-audio-row,
+body.theme-cars .phrase-card,
+body.theme-cars .toolbox-item,
+body.theme-cars .resource-card,
+body.theme-cars .polaroid-card,
+body.theme-cars .flashcard,
+body.theme-cars .flashcard-mode-card,
+body.theme-cars .video-placeholder,
+body.theme-cars .polaroid-video-placeholder,
+body.theme-cars .theme-picker-card,
+body.theme-cars .icon-option,
+body.theme-cars input[type="text"],
+body.theme-cars input[type="search"],
+body.theme-cars input[type="url"],
+body.theme-cars input[type="number"],
+body.theme-cars textarea,
+body.theme-cars select {
+    background: var(--theme-ui-surface) !important;
+    background-color: var(--theme-ui-surface) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-cars .notes-editable:empty::before,
+body.theme-cars input::placeholder,
+body.theme-cars textarea::placeholder {
+    color: var(--theme-ui-muted) !important;
+    opacity: .9 !important;
+}
+
+/* Hover states stay within palette and retain readable text. */
+body.theme-cars .day-box:hover,
+body.theme-cars .day-picker-box:hover,
+body.theme-cars .mini-day-box:hover,
+body.theme-cars .phrase-card:hover,
+body.theme-cars .toolbox-item:hover,
+body.theme-cars .resource-card:hover,
+body.theme-cars .polaroid-card:hover,
+body.theme-cars .flashcard-mode-card:hover,
+body.theme-cars .theme-picker-card:hover,
+body.theme-cars .icon-option:hover {
+    background: var(--theme-ui-hover) !important;
+    background-color: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    filter: none !important;
+}
+
+body.theme-cars .day-picker-box.selected,
+body.theme-cars .filter-tab.active,
+body.theme-cars .icon-option.selected {
+    background: var(--theme-ui-active) !important;
+    background-color: var(--theme-ui-active) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+}
+
+body.theme-cars .icon-option.selected small {
+    color: var(--theme-ui-ink) !important;
+}
+
+/* Tabs/chips never use pale text on pale fills. */
+body.theme-cars .filter-tab,
+body.theme-cars .chip {
+    background: var(--theme-ui-surface-soft) !important;
+    background-color: var(--theme-ui-surface-soft) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: none !important;
+}
+
+body.theme-cars .filter-tab:hover,
+body.theme-cars .chip:hover {
+    background: var(--theme-ui-hover) !important;
+    background-color: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+}
+
+/* Parent category containers remain transparent. */
+html body.theme-cars .filter-tabs,
+html body.theme-cars .filter-tabs:hover,
+html body.theme-cars .filter-tabs:focus,
+html body.theme-cars .filter-tabs:focus-within,
+html body.theme-cars #library-filter-tabs,
+html body.theme-cars #library-filter-tabs:hover,
+html body.theme-cars #library-filter-tabs:focus-within,
+html body.theme-cars #quiz-type-filters,
+html body.theme-cars #quiz-type-filters:hover,
+html body.theme-cars #quiz-type-filters:focus-within,
+html body.theme-cars .set-size-picker,
+html body.theme-cars .set-size-picker:hover,
+html body.theme-cars .set-size-picker:focus,
+html body.theme-cars .set-size-picker:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* Settings and all modal surfaces match the theme instead of going translucent. */
+body.theme-cars .modal-overlay {
+    background: var(--overlay-scrim) !important;
+}
+
+body.theme-cars .modal-box {
+    background: var(--theme-ui-modal) !important;
+    background-color: var(--theme-ui-modal) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: 0 18px 48px rgba(16, 19, 29, .22) !important;
+    filter: none !important;
+}
+
+body.theme-cars .modal-header,
+body.theme-cars .modal-header h2,
+body.theme-cars .modal-section,
+body.theme-cars .modal-section label,
+body.theme-cars .parts-list,
+body.theme-cars .part-row {
+    color: var(--theme-ui-ink) !important;
+}
+
+body.theme-cars .modal-section + .modal-section,
+body.theme-cars .part-row {
+    border-color: rgba(38,56,74,.10) !important;
+}
+
+body.theme-cars #phrase-modal-progress-label {
+    color: var(--theme-ui-muted) !important;
+}
+
+body.theme-cars .modal-box input[type="text"],
+body.theme-cars .modal-box input[type="search"],
+body.theme-cars .modal-box input[type="url"],
+body.theme-cars .modal-box input[type="number"],
+body.theme-cars .modal-box textarea,
+body.theme-cars .modal-box select,
+body.theme-cars .modal-box .notes-editable {
+    background: var(--theme-ui-surface) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+}
+
+/* Settings/header icon: transparent, simple, and in-palette. */
+body.theme-cars .log-header-container .icon-btn,
+body.theme-cars #open-settings-btn {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border: 2px solid var(--theme-ui-ink) !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-cars .log-header-container .icon-btn:hover,
+body.theme-cars .log-header-container .icon-btn:focus,
+body.theme-cars #open-settings-btn:hover,
+body.theme-cars #open-settings-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+    opacity: .72;
+}
+
+/* Regular small buttons stay readable. */
+body.theme-cars .small-icon-btn,
+body.theme-cars .resource-card-btn,
+body.theme-cars .flashcard-nav-btn,
+body.theme-cars .flashcard-actions button {
+    background: var(--theme-ui-surface) !important;
+    background-color: var(--theme-ui-surface) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: none !important;
+}
+
+body.theme-cars .small-icon-btn:hover,
+body.theme-cars .resource-card-btn:hover,
+body.theme-cars .flashcard-nav-btn:hover,
+body.theme-cars .flashcard-actions button:hover {
+    background: var(--theme-ui-hover) !important;
+    background-color: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+}
+
+body.theme-cars .ai-generate-btn {
+    background: var(--theme-ui-active) !important;
+    background-color: var(--theme-ui-active) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+}
+
+body.theme-cars .ai-generate-btn:hover {
+    background: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+}
+
+/* No unrelated yellow checkbox/radio accent. */
+body.theme-cars input[type="checkbox"],
+body.theme-cars input[type="radio"] {
+    accent-color: var(--theme-ui-accent) !important;
+}
+
+body.theme-cars .progress-bar-track {
+    background: #d8dde0 !important;
+}
+
+body.theme-cars .progress-bar-fill {
+    background: linear-gradient(
+        90deg,
+        var(--theme-ui-accent),
+        var(--theme-ui-accent-2)
+    ) !important;
+}
+
+/* Delete remains semantic but does not wreck the palette. */
+body.theme-cars .delete-btn {
+    background: #f8f5ef !important;
+    color: #9d3434 !important;
+    border-color: #b96c6c !important;
+}
+
+body.theme-cars .delete-btn:hover {
+    background: #9f3f4a !important;
+    color: #ffffff !important;
+    border-color: #9f3f4a !important;
+}
+
+/* Right side nav is always icon-only / transparent. */
+html body.theme-cars .side-nav .icon-btn,
+html body.theme-cars .side-nav .icon-btn:hover,
+html body.theme-cars .side-nav .icon-btn:focus,
+html body.theme-cars .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-cars .side-nav .icon-btn i {
+    color: var(--theme-ui-ink) !important;
+}
+
+html body.theme-cars .side-nav .icon-btn::before,
+html body.theme-cars .side-nav .icon-btn::after {
+    content: none !important;
+}
+
+/* Keep modal stack above all decorative SVGs. */
+body.theme-cars .modal,
+body.theme-cars .modal-overlay,
+body.theme-cars .overlay {
+    z-index: 1000 !important;
+}

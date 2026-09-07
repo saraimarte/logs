@@ -1,0 +1,197 @@
+/* ============================================================
+   POWERPUFF THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-powerpuff {
+    --powerpuff-ink: #28416c;
+    --powerpuff-border: #9fd1ff;
+    --powerpuff-surface: #fffefd;
+    --powerpuff-surface-soft: #fff6fd;
+    --powerpuff-accent: #7ed7ff;
+    --powerpuff-red: #7ed7ff;
+    --powerpuff-blue: #ff8fc6;
+    --powerpuff-green: #9fe073;
+    --powerpuff-pink: #7ed7ff;
+    --powerpuff-soft: #ff8fc6;
+    --powerpuff-gold: #9fe073;
+
+    --black: var(--powerpuff-ink);
+    --white: var(--powerpuff-surface);
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid color-mix(in srgb, var(--powerpuff-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--powerpuff-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--powerpuff-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--powerpuff-border) 44%, transparent);
+    --track-bg: #eef7ff;
+    --muted-text: rgba(40,65,108,.56);
+
+    background:
+        radial-gradient(circle at 14% 14%, rgba(255,255,255,.80), transparent 24%),
+        radial-gradient(circle at 85% 16%, rgba(255,255,255,.50), transparent 24%),
+        radial-gradient(circle at 22% 84%, rgba(255,143,198,.12), transparent 22%),
+        linear-gradient(160deg, #e5f6ff 0%, #fff0f8 42%, #f2ffd9 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--powerpuff-ink) !important;
+}
+
+#powerpuff-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: -1;
+}
+
+#powerpuff-background::before,
+#powerpuff-background::after {
+    content: '';
+    position: absolute;
+    inset: -14%;
+    pointer-events: none;
+}
+
+#powerpuff-background::before {
+    background:
+        radial-gradient(circle at 24% 22%, rgba(255,255,255,.22), transparent 20%),
+        radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%),
+        linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%);
+    animation: powerpuffLightSweep 9s ease-in-out infinite alternate;
+}
+
+body.theme-powerpuff #powerpuff-background { z-index: -1; }
+body.theme-powerpuff .view { position: relative; z-index: 2; }
+body.theme-powerpuff .side-nav { position: relative; z-index: 3; }
+body.theme-powerpuff header,
+body.theme-powerpuff .log-header-container { position: relative; z-index: 4; }
+body.theme-powerpuff .modal,
+body.theme-powerpuff .modal-overlay,
+body.theme-powerpuff .overlay { z-index: 10; }
+
+body.theme-powerpuff .day-box,
+body.theme-powerpuff .day-picker-box,
+body.theme-powerpuff .icon-btn,
+body.theme-powerpuff .small-icon-btn,
+body.theme-powerpuff input,
+body.theme-powerpuff textarea,
+body.theme-powerpuff select,
+body.theme-powerpuff .notes-editable,
+body.theme-powerpuff .phrase-card,
+body.theme-powerpuff .chip,
+body.theme-powerpuff .toolbox-item,
+body.theme-powerpuff .resource-card,
+body.theme-powerpuff .polaroid-card,
+body.theme-powerpuff .filter-tab,
+body.theme-powerpuff .day-target-box,
+body.theme-powerpuff .flashcard,
+body.theme-powerpuff .flashcard-mode-card,
+body.theme-powerpuff .day-badge,
+body.theme-powerpuff .video-placeholder,
+body.theme-powerpuff .theme-picker-card,
+body.theme-powerpuff .note-audio-row,
+body.theme-powerpuff .modal-box,
+body.theme-powerpuff .set-complete-box {
+    background-color: var(--powerpuff-surface) !important;
+}
+
+body.theme-powerpuff input::placeholder,
+body.theme-powerpuff textarea::placeholder,
+body.theme-powerpuff .notes-editable:empty::before {
+    color: color-mix(in srgb, var(--powerpuff-ink) 42%, transparent) !important;
+}
+
+body.theme-powerpuff .icon-btn:hover,
+body.theme-powerpuff .small-icon-btn:hover,
+body.theme-powerpuff .filter-tab:hover {
+    background: var(--powerpuff-surface-soft) !important;
+    color: var(--powerpuff-ink) !important;
+}
+
+body.theme-powerpuff .chip:hover,
+body.theme-powerpuff .phrase-card:hover,
+body.theme-powerpuff .day-picker-box.selected,
+body.theme-powerpuff .filter-tab.active,
+body.theme-powerpuff .filter-tab[aria-selected="true"] {
+    background: color-mix(in srgb, var(--powerpuff-surface-soft) 72%, var(--powerpuff-accent) 28%) !important;
+    color: var(--powerpuff-ink) !important;
+    border-color: var(--powerpuff-border) !important;
+}
+
+body.theme-powerpuff .progress-bar-fill {
+    background: linear-gradient(90deg, var(--powerpuff-blue), var(--powerpuff-pink), var(--powerpuff-green)) !important;
+}
+
+#powerpuff-background .powerpuff-item {
+    position: absolute;
+    display: block;
+    height: auto;
+    object-fit: contain;
+    opacity: .94;
+    transform-origin: center;
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    filter:
+        drop-shadow(0 9px 13px color-mix(in srgb, var(--powerpuff-ink) 14%, transparent))
+        drop-shadow(0 0 9px rgba(255,255,255,.30));
+    animation: powerpuffFloat var(--powerpuff-float-duration) ease-in-out var(--powerpuff-float-delay) infinite alternate;
+    will-change: transform;
+}
+
+@keyframes powerpuffFloat {
+    from {
+        transform: translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97);
+    }
+    to {
+        transform: translate3d(-50%,-50%,0) translate3d(var(--powerpuff-float-x), var(--powerpuff-float-y), 0) rotate(var(--powerpuff-float-r)) scale(1.035);
+    }
+}
+
+#powerpuff-background .powerpuff-item.powerpuff-intro-bop {
+    animation: powerpuffIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--powerpuff-bop-delay) infinite !important;
+}
+
+@keyframes powerpuffIntroBop {
+    0%,100% { transform: translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1); }
+    40% { transform: translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05); }
+    68% { transform: translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02); }
+}
+
+
+#powerpuff-background .powerpuff-extra {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.72);
+    background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.82) 0 12%, rgba(255,255,255,.22) 30%, transparent 72%);
+    box-shadow: inset 0 0 5px rgba(255,255,255,.34), 0 0 8px rgba(126,215,255,.16);
+    opacity: .58;
+    animation: powerpuffBubbleRise var(--powerpuff-extra-duration) linear var(--powerpuff-extra-delay) infinite;
+}
+@keyframes powerpuffBubbleRise {
+    from { transform: translate3d(0, 16vh, 0) scale(.72); opacity: 0; }
+    12% { opacity: .62; }
+    to { transform: translate3d(var(--powerpuff-extra-x), -120vh, 0) scale(1.06); opacity: 0; }
+}
+
+
+@keyframes powerpuffLightSweep {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); opacity: .7; }
+    to { transform: translate3d(2%, 1%, 0) scale(1.05); opacity: 1; }
+}
+
+@media (max-width: 700px) {
+    #powerpuff-background .powerpuff-item { opacity: .72; }
+    #powerpuff-background .powerpuff-extra { opacity: .38; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #powerpuff-background::before,
+    #powerpuff-background .powerpuff-item,
+    #powerpuff-background .powerpuff-extra {
+        animation: none !important;
+    }
+}

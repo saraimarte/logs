@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="270" viewBox="0 0 240 270" fill="none">
+<g transform="rotate(6 120 135)">
+  <path d="M72 34 C45 49 34 83 37 127 C40 174 65 214 108 226 C148 237 190 214 201 170 C211 128 204 81 181 51 C159 22 111 15 72 34 Z" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M39 119 C24 119 17 131 20 146 C23 160 35 167 46 158" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M194 118 C209 118 217 130 214 145 C211 160 199 166 188 158" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M103 224 C101 236 103 246 111 250 C119 252 128 245 129 233" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M 88 18 C 79 7 84 1 92 4 C 100 7 102 16 98 24" stroke="#202020" stroke-width="4.6" stroke-linecap="round" fill="none"/>
+<path d="M78 49 C90 39 108 34 127 34 C149 34 168 41 181 54" stroke="#f8ddb8" stroke-width="5" stroke-linecap="round" opacity=".65"/>
+</g><g transform="rotate(6 120 135)"><path d="M67 86 Q 81.0 78.5 95 81" stroke="#202020" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M139 82 Q 152.5 82.5 166 89" stroke="#202020" stroke-width="6" stroke-linecap="round" fill="none"/><ellipse cx="83" cy="117" rx="22" ry="27" fill="#fff" stroke="#202020" stroke-width="4"/><circle cx="90" cy="108" r="5" fill="#111111"/><ellipse cx="151" cy="114" rx="22" ry="27" fill="#fff" stroke="#202020" stroke-width="4"/><circle cx="148" cy="104" r="5" fill="#111111"/><g transform="translate(118 158) rotate(7) scale(0.92) translate(-118 -158)">
+<path d="M118 158 C110 148 93 149 82 159 C94 160 108 165 118 161Z" fill="#111111"/>
+<path d="M118 158 C126 148 143 149 154 159 C142 160 128 165 118 161Z" fill="#111111"/>
+</g></g></svg>

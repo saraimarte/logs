@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="270" viewBox="0 0 240 270" fill="none">
+<g transform="rotate(7 120 135)">
+  <path d="M72 34 C45 49 34 83 37 127 C40 174 65 214 108 226 C148 237 190 214 201 170 C211 128 204 81 181 51 C159 22 111 15 72 34 Z" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M39 119 C24 119 17 131 20 146 C23 160 35 167 46 158" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M194 118 C209 118 217 130 214 145 C211 160 199 166 188 158" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M103 224 C101 236 103 246 111 250 C119 252 128 245 129 233" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M 175 20 C 175 9 185 3 192 8 C 197 13 194 21 188 24" stroke="#202020" stroke-width="4.6" stroke-linecap="round" fill="none"/>
+<path d="M78 49 C90 39 108 34 127 34 C149 34 168 41 181 54" stroke="#f8ddb8" stroke-width="5" stroke-linecap="round" opacity=".65"/>
+</g><g transform="rotate(7 120 135)"><path d="M68 89 Q 84.5 86.0 101 87" stroke="#202020" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M136 80 Q 149.5 78.0 163 84" stroke="#202020" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M 65 117 Q 83 110 101 117" stroke="#202020" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="150" cy="114" rx="25" ry="29" fill="#fff" stroke="#202020" stroke-width="4"/><circle cx="157" cy="118" r="7" fill="#111111"/><g transform="translate(116 153) rotate(-2) scale(0.92) translate(-116 -153)">
+<path d="M116 153 C108 143 91 144 80 154 C92 155 106 160 116 156Z" fill="#111111"/>
+<path d="M116 153 C124 143 141 144 152 154 C140 155 126 160 116 156Z" fill="#111111"/>
+</g><path d="M143 169 Q160 182 169 166" stroke="#202020" stroke-width="4" fill="none" stroke-linecap="round"/></g></svg>

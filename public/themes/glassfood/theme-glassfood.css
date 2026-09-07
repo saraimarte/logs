@@ -1,0 +1,110 @@
+/* ============================================================
+   GLASSFOOD THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-glassfood {
+    --glassfood-ink: #3f4a72;
+    --glassfood-border: #b7c4ff;
+    --glassfood-surface: #fbfcff;
+    --glassfood-surface-soft: #f3f6ff;
+    --glassfood-accent: #88b6ff;
+    --glassfood-second: #f0a6d8;
+    --glassfood-third: #f6d880;
+    --black: var(--glassfood-ink);
+    --white: var(--glassfood-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--glassfood-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--glassfood-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--glassfood-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--glassfood-border) 44%, transparent);
+    --track-bg: #edf2ff;
+    --muted-text: color-mix(in srgb, var(--glassfood-ink) 58%, transparent);
+    background: radial-gradient(circle at 14% 14%, rgba(255,255,255,.82), transparent 24%), radial-gradient(circle at 84% 16%, rgba(255,255,255,.42), transparent 24%), radial-gradient(circle at 24% 82%, rgba(136,182,255,.10), transparent 23%), linear-gradient(155deg, #edf6ff 0%, #fff2fb 46%, #fff7df 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--glassfood-ink) !important;
+}
+
+#glassfood-background { position:fixed; inset:0; width:100vw; height:100vh; overflow:hidden; pointer-events:none; user-select:none; z-index:-1; }
+#glassfood-background::before, #glassfood-background::after { content:''; position:absolute; inset:-14%; pointer-events:none; }
+#glassfood-background::before {
+    background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.22), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%);
+    animation: glassfoodLightSweep 9s ease-in-out infinite alternate;
+}
+body.theme-glassfood #glassfood-background { z-index:-1; }
+body.theme-glassfood .view { position:relative; z-index:2; }
+body.theme-glassfood .side-nav { position:relative; z-index:3; }
+body.theme-glassfood header,
+body.theme-glassfood .log-header-container { position:relative; z-index:4; }
+body.theme-glassfood .modal,
+body.theme-glassfood .modal-overlay,
+body.theme-glassfood .overlay { z-index:10; }
+
+body.theme-glassfood .day-box,
+body.theme-glassfood .day-picker-box,
+body.theme-glassfood .icon-btn,
+body.theme-glassfood .small-icon-btn,
+body.theme-glassfood input,
+body.theme-glassfood textarea,
+body.theme-glassfood select,
+body.theme-glassfood .notes-editable,
+body.theme-glassfood .phrase-card,
+body.theme-glassfood .chip,
+body.theme-glassfood .toolbox-item,
+body.theme-glassfood .resource-card,
+body.theme-glassfood .polaroid-card,
+body.theme-glassfood .filter-tab,
+body.theme-glassfood .day-target-box,
+body.theme-glassfood .flashcard,
+body.theme-glassfood .flashcard-mode-card,
+body.theme-glassfood .day-badge,
+body.theme-glassfood .video-placeholder,
+body.theme-glassfood .theme-picker-card,
+body.theme-glassfood .note-audio-row,
+body.theme-glassfood .modal-box,
+body.theme-glassfood .set-complete-box { background-color: var(--glassfood-surface) !important; }
+
+body.theme-glassfood input::placeholder,
+body.theme-glassfood textarea::placeholder,
+body.theme-glassfood .notes-editable:empty::before { color: color-mix(in srgb, var(--glassfood-ink) 42%, transparent) !important; }
+body.theme-glassfood .icon-btn:hover,
+body.theme-glassfood .small-icon-btn:hover,
+body.theme-glassfood .filter-tab:hover { background: var(--glassfood-surface-soft) !important; color: var(--glassfood-ink) !important; }
+body.theme-glassfood .chip:hover,
+body.theme-glassfood .phrase-card:hover,
+body.theme-glassfood .day-picker-box.selected,
+body.theme-glassfood .filter-tab.active,
+body.theme-glassfood .filter-tab[aria-selected="true"] {
+    background: color-mix(in srgb, var(--glassfood-surface-soft) 72%, var(--glassfood-accent) 28%) !important;
+    color: var(--glassfood-ink) !important;
+    border-color: var(--glassfood-border) !important;
+}
+body.theme-glassfood .progress-bar-fill { background: linear-gradient(90deg, var(--glassfood-accent), var(--glassfood-second), var(--glassfood-third)) !important; }
+
+#glassfood-background .glassfood-item {
+    position:absolute; display:block; height:auto; object-fit:contain; opacity:.95;
+    transform-origin:center; translate:0 0; rotate:0deg; scale:1;
+    filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--glassfood-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30));
+    animation: glassfoodFloat var(--glassfood-float-duration) ease-in-out var(--glassfood-float-delay) infinite alternate;
+    will-change:transform;
+}
+@keyframes glassfoodFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--glassfood-float-x), var(--glassfood-float-y), 0) rotate(var(--glassfood-float-r)) scale(1.035)} }
+#glassfood-background .glassfood-item.glassfood-intro-bop { animation:glassfoodIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--glassfood-bop-delay) infinite !important; }
+@keyframes glassfoodIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+
+#glassfood-background .glassfood-extra {
+    position: absolute; width: 5px; height: 5px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 8px rgba(255,255,255,.92), 0 0 14px color-mix(in srgb, #88b6ff 35%, transparent);
+    opacity: 0; animation: glassfoodSparkle var(--glassfood-extra-duration) ease-in-out var(--glassfood-extra-delay) infinite;
+}
+#glassfood-background .glassfood-extra::before,
+#glassfood-background .glassfood-extra::after { content:''; position:absolute; left:50%; top:50%; background:rgba(255,255,255,.84); transform:translate(-50%,-50%); }
+#glassfood-background .glassfood-extra::before { width:14px; height:1px; }
+#glassfood-background .glassfood-extra::after { width:1px; height:14px; }
+@keyframes glassfoodSparkle { 0%,100%{opacity:0; transform:scale(.35)} 54%{opacity:.84; transform:scale(1.28)} 76%{opacity:.18; transform:scale(.62)} }
+
+
+@keyframes glassfoodLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #glassfood-background .glassfood-item { opacity:.72; } #glassfood-background .glassfood-extra { opacity:.38; } }
+@media (prefers-reduced-motion: reduce) { #glassfood-background::before, #glassfood-background .glassfood-item, #glassfood-background .glassfood-extra { animation:none !important; } }

@@ -1,0 +1,97 @@
+    /* ============================================================
+       SMURFY THEME
+       Decorative-only styling built from the winter theme structure.
+       ============================================================ */
+
+    body.theme-smurfy {
+        --smurfy-ink: #36577a;
+        --smurfy-border: #a9d1ff;
+        --smurfy-surface: #fbfdff;
+        --smurfy-surface-soft: #eef7ff;
+        --smurfy-accent: #62b0ff;
+        --smurfy-second: #9ad4ff;
+        --smurfy-third: #ffe592;
+        --black: var(--smurfy-ink);
+        --white: var(--smurfy-surface);
+        --bg-overlay: transparent;
+        --thick-border: 3px solid color-mix(in srgb, var(--smurfy-border) 60%, transparent);
+        --thin-border: 2px solid color-mix(in srgb, var(--smurfy-border) 48%, transparent);
+        --dashed-border: 2px dashed color-mix(in srgb, var(--smurfy-border) 44%, transparent);
+        --dotted-border: 2px dotted color-mix(in srgb, var(--smurfy-border) 44%, transparent);
+        --track-bg: #e9f4ff;
+        --muted-text: color-mix(in srgb, var(--smurfy-ink) 58%, transparent);
+        background: radial-gradient(circle at 14% 14%, rgba(255,255,255,.90), transparent 24%), radial-gradient(circle at 84% 16%, rgba(255,255,255,.56), transparent 24%), radial-gradient(circle at 24% 82%, rgba(98,176,255,.12), transparent 24%), linear-gradient(160deg, #dff0ff 0%, #eef7ff 44%, #fff9df 100%) !important;
+        background-attachment: fixed !important;
+        color: var(--smurfy-ink) !important;
+    }
+
+    #smurfy-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: -1; }
+    #smurfy-background::before, #smurfy-background::after { content:''; position:absolute; pointer-events:none; }
+    #smurfy-background::before { inset:-12%; background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.24), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%); animation:smurfyLightSweep 9s ease-in-out infinite alternate; }
+    body.theme-smurfy #smurfy-background { z-index: -1; }
+    body.theme-smurfy .view { position: relative; z-index: 2; }
+    body.theme-smurfy .side-nav { position: relative; z-index: 3; }
+    body.theme-smurfy header, body.theme-smurfy .log-header-container { position: relative; z-index: 4; }
+    body.theme-smurfy .modal, body.theme-smurfy .modal-overlay, body.theme-smurfy .overlay { z-index: 10; }
+
+    body.theme-smurfy .day-box,
+    body.theme-smurfy .day-picker-box,
+    body.theme-smurfy .icon-btn,
+    body.theme-smurfy .small-icon-btn,
+    body.theme-smurfy input,
+    body.theme-smurfy textarea,
+    body.theme-smurfy select,
+    body.theme-smurfy .notes-editable,
+    body.theme-smurfy .phrase-card,
+    body.theme-smurfy .chip,
+    body.theme-smurfy .toolbox-item,
+    body.theme-smurfy .resource-card,
+    body.theme-smurfy .polaroid-card,
+    body.theme-smurfy .filter-tab,
+    body.theme-smurfy .day-target-box,
+    body.theme-smurfy .flashcard,
+    body.theme-smurfy .flashcard-mode-card,
+    body.theme-smurfy .day-badge,
+    body.theme-smurfy .video-placeholder,
+    body.theme-smurfy .theme-picker-card,
+    body.theme-smurfy .note-audio-row,
+    body.theme-smurfy .modal-box,
+    body.theme-smurfy .set-complete-box { background-color: var(--smurfy-surface) !important; }
+
+    body.theme-smurfy input::placeholder,
+    body.theme-smurfy textarea::placeholder,
+    body.theme-smurfy .notes-editable:empty::before { color: color-mix(in srgb, var(--smurfy-ink) 42%, transparent) !important; }
+    body.theme-smurfy .icon-btn:hover,
+    body.theme-smurfy .small-icon-btn:hover,
+    body.theme-smurfy .filter-tab:hover { background: var(--smurfy-surface-soft) !important; color: var(--smurfy-ink) !important; }
+    body.theme-smurfy .chip:hover,
+    body.theme-smurfy .phrase-card:hover,
+    body.theme-smurfy .day-picker-box.selected,
+    body.theme-smurfy .filter-tab.active,
+    body.theme-smurfy .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--smurfy-surface-soft) 72%, var(--smurfy-accent) 28%) !important; color: var(--smurfy-ink) !important; border-color: var(--smurfy-border) !important; }
+    body.theme-smurfy .progress-bar-fill { background: linear-gradient(90deg, var(--smurfy-accent), var(--smurfy-second), var(--smurfy-third)) !important; }
+
+    #smurfy-background .smurfy-item {
+        position:absolute; display:block; height:auto; object-fit:contain; opacity:.95;
+        transform-origin:center; translate:0 0; rotate:0deg; scale:1;
+        filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--smurfy-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30));
+        animation: smurfyFloat var(--smurfy-float-duration) ease-in-out var(--smurfy-float-delay) infinite alternate; will-change:transform;
+    }
+    @keyframes smurfyFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--smurfy-float-x), var(--smurfy-float-y), 0) rotate(var(--smurfy-float-r)) scale(1.035)} }
+    #smurfy-background .smurfy-item.smurfy-intro-bop { animation:smurfyIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--smurfy-bop-delay) infinite !important; }
+    @keyframes smurfyIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+    #smurfy-background .smurfy-extra { position:absolute; }
+
+#smurfy-background .smurfy-bubble {
+    border-radius: 50%; border: 1px solid rgba(255,255,255,.72);
+    background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.82) 0 12%, rgba(255,255,255,.22) 30%, transparent 72%);
+    box-shadow: inset 0 0 5px rgba(255,255,255,.34), 0 0 8px rgba(98,176,255,.16);
+    opacity: .58; animation: smurfyBubbleRise var(--smurfy-extra-duration) linear var(--smurfy-extra-delay) infinite;
+}
+@keyframes smurfyBubbleRise { from{transform:translate3d(0,16vh,0) scale(.72); opacity:0} 12%{opacity:.62} to{transform:translate3d(var(--smurfy-extra-x), -120vh,0) scale(1.06); opacity:0} }
+
+
+    @keyframes smurfyLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+    @media (max-width:700px) { #smurfy-background .smurfy-item { opacity:.72; } #smurfy-background .smurfy-extra { opacity:.38; } }
+    @media (prefers-reduced-motion: reduce) { #smurfy-background::before, #smurfy-background .smurfy-item, #smurfy-background .smurfy-extra { animation:none !important; } }

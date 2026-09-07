@@ -1,0 +1,566 @@
+/* ============================================================
+   AURORA THEME
+   Based on the template's existing dark-theme behavior.
+   The theme changes colors/backgrounds only.
+   ============================================================ */
+
+body.theme-aurora {
+    --black: #eefcff;
+    --white: #07131d;
+
+    --border-radius: 12px;
+
+    --thick-border: 3px solid #294653;
+    --thin-border: 2px solid #294653;
+
+    --dashed-border: 2px dashed #294653;
+    --dotted-border: 2px dotted #294653;
+
+    --muted-text: #8faab5;
+    --track-bg: #172b36;
+
+    --overlay-scrim: rgba(0, 0, 0, 0.65);
+
+    /*
+     * IMPORTANT:
+     * The template normally puts this behind each view.
+     * Aurora must be completely transparent here so the
+     * Aurora background remains visible.
+     */
+    --bg-overlay: transparent;
+
+    background-color: #02070c !important;
+    color: #eefcff !important;
+}
+
+
+/* ============================================================
+   PAGE / VIEW BACKGROUND
+   ============================================================ */
+
+body.theme-aurora {
+    background-color: #02070c !important;
+}
+
+body.theme-aurora .view:not(#grid-view)::before {
+    background: transparent !important;
+}
+
+body.theme-aurora .view {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ============================================================
+   AURORA BACKGROUND
+   ============================================================ */
+
+#aurora-background {
+    position: fixed !important;
+
+    inset: 0 !important;
+
+    width: 100vw !important;
+    height: 100vh !important;
+
+    overflow: hidden !important;
+
+    pointer-events: none !important;
+
+    z-index: 0 !important;
+}
+
+#aurora-background svg {
+    position: absolute !important;
+
+    inset: -8% !important;
+
+    width: 116% !important;
+    height: 116% !important;
+
+    display: block !important;
+
+    pointer-events: none !important;
+}
+
+
+/* ============================================================
+   HEADINGS / TEXT
+   ============================================================ */
+
+body.theme-aurora h1,
+body.theme-aurora h2,
+body.theme-aurora h3,
+body.theme-aurora h4,
+body.theme-aurora h5,
+body.theme-aurora h6 {
+    color: #eefcff !important;
+}
+
+body.theme-aurora .section-header {
+    color: #eefcff !important;
+}
+
+body.theme-aurora .tool-row,
+body.theme-aurora .tool-row-name,
+body.theme-aurora .part-row,
+body.theme-aurora .part-row-label,
+body.theme-aurora .polaroid-label {
+    color: #eefcff !important;
+}
+
+body.theme-aurora .field-label,
+body.theme-aurora .progress-hint,
+body.theme-aurora .flashcard-hint-text,
+body.theme-aurora .tool-link,
+body.theme-aurora .save-indicator {
+    color: #8faab5 !important;
+}
+
+
+/* ============================================================
+   DAY BOXES
+   ============================================================ */
+
+body.theme-aurora .day-box,
+body.theme-aurora .day-picker-box,
+body.theme-aurora .mini-day-box {
+    background: #07131d !important;
+    color: #eefcff !important;
+    border-color: #294653 !important;
+}
+
+body.theme-aurora .day-box:hover,
+body.theme-aurora .mini-day-box:hover {
+    filter: brightness(1.25);
+}
+
+body.theme-aurora .day-picker-box.selected {
+    background: #eefcff !important;
+    color: #07131d !important;
+}
+
+
+/* ============================================================
+   DAY BADGE / TARGET
+   ============================================================ */
+
+body.theme-aurora .day-badge,
+body.theme-aurora .day-target-box {
+    background: #07131d !important;
+    color: #eefcff !important;
+    border-color: #294653 !important;
+}
+
+
+/* ============================================================
+   TABS
+   ============================================================ */
+
+body.theme-aurora .filter-tab {
+    background: #07131d !important;
+    color: #eefcff !important;
+    border-color: #294653 !important;
+}
+
+body.theme-aurora .filter-tab:hover {
+    background: #172b36 !important;
+    color: #eefcff !important;
+}
+
+body.theme-aurora .filter-tab.active {
+    background: #eefcff !important;
+    color: #07131d !important;
+}
+
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+body.theme-aurora .resource-card,
+body.theme-aurora .toolbox-item,
+body.theme-aurora .phrase-card,
+body.theme-aurora .flashcard,
+body.theme-aurora .flashcard-mode-card,
+body.theme-aurora .video-placeholder,
+body.theme-aurora .polaroid-card {
+    background: #07131d !important;
+    color: #eefcff !important;
+    border-color: #294653 !important;
+}
+
+body.theme-aurora .phrase-card:hover {
+    background: #eefcff !important;
+    color: #07131d !important;
+}
+
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+
+body.theme-aurora input[type="text"],
+body.theme-aurora textarea,
+body.theme-aurora select,
+body.theme-aurora .notes-editable {
+    background: #07131d !important;
+    color: #eefcff !important;
+    border-color: #294653 !important;
+}
+
+body.theme-aurora .notes-editable:empty::before {
+    color: #607985 !important;
+}
+
+
+/* ============================================================
+   CHIPS
+   ============================================================ */
+
+body.theme-aurora .chip {
+    background: #07131d !important;
+    color: #eefcff !important;
+    border-color: #294653 !important;
+}
+
+body.theme-aurora .chip:hover {
+    background: #eefcff !important;
+    color: #07131d !important;
+}
+
+
+/* ============================================================
+   ICON BUTTONS
+   ============================================================ */
+
+/*
+ * Side-nav buttons were ALREADY transparent in the template.
+ * Keep that behavior.
+ */
+
+body.theme-aurora .side-nav .icon-btn {
+    background: transparent !important;
+    color: #eefcff !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-aurora .side-nav .icon-btn i {
+    color: #eefcff !important;
+}
+
+body.theme-aurora .side-nav .icon-btn:hover {
+    background: transparent !important;
+}
+
+body.theme-aurora .side-nav .icon-btn:hover i {
+    color: #9fffe2 !important;
+    opacity: 1 !important;
+}
+
+
+/*
+ * Regular icon buttons:
+ * transparent by default, subtle dark surface on hover.
+ */
+
+body.theme-aurora .icon-btn,
+body.theme-aurora .small-icon-btn {
+    background: transparent !important;
+    color: #eefcff !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+body.theme-aurora .icon-btn:hover,
+body.theme-aurora .small-icon-btn:hover {
+    background: #172b36 !important;
+    color: #9fffe2 !important;
+    border-color: #294653 !important;
+}
+
+
+/* ============================================================
+   CLOSE / X BUTTONS
+   ============================================================ */
+
+body.theme-aurora .lightbox-close,
+body.theme-aurora .modal-close,
+body.theme-aurora .close-btn,
+body.theme-aurora .close-button {
+    background: transparent !important;
+    color: #eefcff !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+body.theme-aurora .lightbox-close:hover,
+body.theme-aurora .modal-close:hover,
+body.theme-aurora .close-btn:hover,
+body.theme-aurora .close-button:hover {
+    background: #172b36 !important;
+    color: #9fffe2 !important;
+    border-color: #294653 !important;
+}
+
+
+/* ============================================================
+   DELETE CHIP
+   ============================================================ */
+
+body.theme-aurora .delete-chip {
+    background: transparent !important;
+    color: #8faab5 !important;
+    border-color: transparent !important;
+}
+
+body.theme-aurora .delete-chip:hover {
+    background: #172b36 !important;
+    color: #ff9292 !important;
+}
+
+
+/* ============================================================
+   HEADER BACK BUTTON
+   ============================================================ */
+
+body.theme-aurora .header-back-btn {
+    background: none !important;
+    color: #eefcff !important;
+    border: none !important;
+}
+
+body.theme-aurora .header-back-btn:hover {
+    color: #9fffe2 !important;
+    opacity: 1 !important;
+}
+
+
+/* ============================================================
+   PROGRESS
+   ============================================================ */
+
+body.theme-aurora .progress-bar-track,
+body.theme-aurora .chip-progress-track {
+    background: #172b36 !important;
+}
+
+body.theme-aurora .progress-bar-fill,
+body.theme-aurora .chip-progress-fill {
+    background: #9fffe2 !important;
+}
+
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+
+body.theme-aurora .modal-box {
+    background: #07131d !important;
+    color: #eefcff !important;
+    border-color: #294653 !important;
+}
+
+body.theme-aurora .modal-header,
+body.theme-aurora .modal-section {
+    color: #eefcff !important;
+}
+
+body.theme-aurora .modal-header h2 {
+    color: #eefcff !important;
+}
+
+
+/* ============================================================
+   DELETE BUTTON
+   ============================================================ */
+
+body.theme-aurora .delete-btn {
+    background: transparent !important;
+    color: #ff9292 !important;
+    border-color: #294653 !important;
+}
+
+body.theme-aurora .delete-btn:hover {
+    background: #c0392b !important;
+    color: #fff !important;
+}
+
+
+/* ============================================================
+   AUDIO
+   ============================================================ */
+
+body.theme-aurora .audio-play-btn {
+    background: #eefcff !important;
+    color: #07131d !important;
+    border-color: #eefcff !important;
+}
+
+body.theme-aurora .audio-preview-btn {
+    background: transparent !important;
+    color: #eefcff !important;
+    border-color: transparent !important;
+}
+
+body.theme-aurora .chip-audio-btn {
+    color: #9fffe2 !important;
+}
+
+
+/* ============================================================
+   FLASHCARD NAVIGATION
+   ============================================================ */
+
+body.theme-aurora .flashcard-nav-btn,
+body.theme-aurora .flashcard-actions button,
+body.theme-aurora .anki-btn-group button {
+    background: #07131d !important;
+    color: #eefcff !important;
+    border-color: #294653 !important;
+}
+
+body.theme-aurora .flashcard-nav-btn:hover,
+body.theme-aurora .flashcard-actions button:hover,
+body.theme-aurora .anki-btn-group button:hover {
+    background: #172b36 !important;
+    color: #9fffe2 !important;
+}
+
+
+/* ============================================================
+   RESOURCE CARD BUTTONS
+   ============================================================ */
+
+body.theme-aurora .resource-card-btn {
+    background: transparent !important;
+    color: #eefcff !important;
+    border-color: transparent !important;
+}
+
+body.theme-aurora .resource-card-btn:hover {
+    background: #172b36 !important;
+    color: #9fffe2 !important;
+    border-color: #294653 !important;
+}
+
+
+/* ============================================================
+   CURSOR PICKER
+   ============================================================ */
+
+/*
+ * IMPORTANT:
+ * The template already owns the cursor picker.
+ * These rules preserve its layout and make it readable against
+ * the Aurora dark theme without changing its structure.
+ */
+
+body.theme-aurora .icon-grid {
+    background: #07131d !important;
+    border-color: #294653 !important;
+}
+
+body.theme-aurora .icon-option {
+    background: #07131d !important;
+    color: #eefcff !important;
+    border-color: #294653 !important;
+}
+
+body.theme-aurora .icon-option small {
+    color: #8faab5 !important;
+}
+
+body.theme-aurora .icon-option:hover {
+    background: #172b36 !important;
+    color: #9fffe2 !important;
+}
+
+body.theme-aurora .icon-option.selected {
+    background: #eefcff !important;
+    color: #07131d !important;
+    border-color: #eefcff !important;
+}
+
+body.theme-aurora .icon-option.selected small {
+    color: #07131d !important;
+}
+
+
+/* ============================================================
+   CUSTOM CURSOR
+   ============================================================ */
+
+/*
+ * Match the template exactly.
+ * Do NOT use generic [class*="cursor"] selectors.
+ */
+
+body.theme-aurora #cursor-fx-layer {
+    position: fixed !important;
+    inset: 0 !important;
+
+    pointer-events: none !important;
+
+    z-index: 2147483646 !important;
+}
+
+body.theme-aurora #custom-cursor-visual {
+    position: fixed !important;
+
+    top: 0 !important;
+    left: 0 !important;
+
+    width: 28px !important;
+    height: 28px !important;
+
+    pointer-events: none !important;
+
+    z-index: 2147483647 !important;
+
+    will-change: transform !important;
+
+    display: flex !important;
+}
+
+body.theme-aurora #custom-cursor-visual svg {
+    width: 100% !important;
+    height: 100% !important;
+
+    display: block !important;
+}
+
+
+/* ============================================================
+   COMPANIONS
+   ============================================================ */
+
+/*
+ * Leave companion positioning completely alone.
+ * The template already places land companions at the bottom
+ * and flying companions in their own viewport stage.
+ */
+
+body.theme-aurora .companion-stage {
+    z-index: 500 !important;
+}
+
+body.theme-aurora #companion-air-stage {
+    z-index: 500 !important;
+}
+
+
+/* ============================================================
+   MODAL STACKING
+   ============================================================ */
+
+body.theme-aurora .modal-overlay {
+    z-index: 1000 !important;
+}
+
+body.theme-aurora .modal-box {
+    position: relative;
+    z-index: 1001 !important;
+}

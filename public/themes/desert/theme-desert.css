@@ -1,0 +1,316 @@
+/* ============================================================
+   DESERT SUNSET THEME
+   ============================================================ */
+
+body.theme-desert {
+  --desert-cream: #fff4df;
+  --desert-ink: #4d3d35;
+  color: var(--desert-ink) !important;
+  background: linear-gradient(180deg, #eee4d4 0%, #e5d2b7 43%, #c79769 100%) fixed !important;
+  min-height: 100vh;
+}
+
+/* Background is isolated from the application. */
+#desert-background {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  z-index: 0 !important;
+  contain: paint;
+}
+
+/* Keep normal app content above the desert.
+   Modal overlays are excluded because they must remain fixed to the viewport. */
+body.theme-desert > *:not(#desert-background):not(#custom-cursor-visual):not(#cursor-fx-layer):not(.companion-stage):not(#companion-air-stage):not(.modal-overlay) {
+  position: relative;
+  z-index: 2;
+}
+
+/* Keep the normal app views transparent enough to reveal the scenery. */
+body.theme-desert .view:not(#grid-view)::before {
+  display: none !important;
+}
+
+/* Do NOT use wildcard selectors such as [class*="view"], [id*="cursor"],
+   or [class*="card"]. Those break theme thumbnails and cursor options. */
+
+.desert-sky-wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 78% 13%, rgba(255, 225, 163, .35), transparent 22%),
+    linear-gradient(180deg, #eee8dd 0%, #e7d7c2 42%, #cfa474 72%, #ad744c 100%);
+}
+
+.desert-sun-wrap {
+  position: absolute;
+  width: clamp(72px, 9vw, 132px);
+  aspect-ratio: 1;
+  top: 5%;
+  right: 7%;
+  opacity: .82;
+  filter: drop-shadow(0 0 26px rgba(235, 176, 92, .22));
+  animation: desertSunFloat 8s ease-in-out infinite;
+  z-index: 1;
+}
+.desert-sun-wrap svg { width: 100%; height: 100%; }
+.desert-sun-rays { transform-origin: 90px 90px; animation: desertRaySpin 38s linear infinite; }
+
+.desert-cloud {
+  position: absolute;
+  z-index: 1;
+  opacity: .72;
+  will-change: transform;
+}
+.desert-cloud svg { width: 100%; height: 100%; display: block; }
+.desert-cloud-a { width: clamp(180px, 25vw, 390px); top: 13%; left: -30%; animation: desertCloudDrift 72s linear infinite; }
+.desert-cloud-b { width: clamp(140px, 18vw, 300px); top: 25%; left: -24%; animation: desertCloudDrift 94s linear 18s infinite; opacity: .52; }
+
+.desert-birds {
+  position: absolute;
+  width: clamp(110px, 15vw, 220px);
+  top: 18%;
+  left: 17%;
+  z-index: 2;
+  animation: desertBirdDrift 24s ease-in-out infinite alternate;
+}
+.desert-birds svg { width: 100%; display: block; }
+
+.desert-svg-layer { position: absolute; left: 0; width: 100%; }
+.desert-svg-layer svg { display: block; width: 100%; height: 100%; }
+
+.desert-mountains-far {
+  bottom: 31%;
+  height: 40%;
+  z-index: 2;
+  opacity: .96;
+  animation: desertParallaxFar 22s ease-in-out infinite alternate;
+}
+.desert-mountains-near {
+  bottom: 27%;
+  height: 34%;
+  z-index: 3;
+  animation: desertParallaxNear 18s ease-in-out infinite alternate;
+}
+
+.desert-heat-haze {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 29%;
+  height: 12%;
+  z-index: 4;
+  opacity: .16;
+  background: repeating-linear-gradient(180deg, transparent 0 8px, rgba(255,255,255,.18) 9px 10px, transparent 11px 18px);
+  filter: blur(5px);
+  animation: desertHaze 7s ease-in-out infinite alternate;
+}
+
+.desert-dune-back { bottom: 19%; height: 33%; z-index: 5; }
+.desert-dune-mid { bottom: 7%; height: 32%; z-index: 9; }
+.desert-dune-front { bottom: -5%; height: 30%; z-index: 18; }
+
+.desert-camel {
+  position: absolute;
+  width: clamp(82px, 9vw, 132px);
+  bottom: 19%;
+  left: -13vw;
+  z-index: 7;
+  opacity: .88;
+  will-change: transform;
+  animation: desertCamelWalk 48s linear infinite;
+}
+.desert-camel svg { width: 100%; display: block; }
+.camel-leg { transform-box: fill-box; transform-origin: 50% 0; }
+.camel-leg-a { animation: desertCamelLegA .8s ease-in-out infinite alternate; }
+.camel-leg-b { animation: desertCamelLegB .8s ease-in-out infinite alternate; }
+.camel-tail { transform-box: fill-box; transform-origin: 100% 50%; animation: desertCamelTail 1.7s ease-in-out infinite alternate; }
+
+.desert-mid-plants,
+.desert-foreground {
+  position: absolute;
+  pointer-events: none;
+  transform-origin: bottom center;
+}
+.desert-mid-plants svg,
+.desert-foreground svg { width: 100%; height: auto; display: block; }
+
+.desert-mid-plants { z-index: 8; opacity: .53; }
+.desert-mid-plant-a { left: 10%; bottom: 21%; width: clamp(24px, 3vw, 48px); }
+.desert-mid-plant-b { right: 29%; bottom: 20%; width: clamp(22px, 2.7vw, 43px); transform: scaleX(-1); }
+.desert-mid-rocks { left: 55%; bottom: 20%; width: clamp(50px, 6vw, 88px); opacity: .37; }
+
+.desert-foreground { z-index: 16; }
+.desert-cactus-left {
+  left: -1.5%;
+  bottom: 1%;
+  width: clamp(78px, 9vw, 135px);
+  opacity: .74;
+  animation: desertPlantSway 9s ease-in-out infinite;
+}
+.desert-barrel-left {
+  left: 10%;
+  bottom: 2.5%;
+  width: clamp(85px, 10vw, 150px);
+  opacity: .66;
+  animation: desertPlantSwaySmall 11s ease-in-out infinite;
+}
+.desert-rock-right {
+  right: 13%;
+  bottom: 1.8%;
+  width: clamp(85px, 10vw, 145px);
+  opacity: .62;
+}
+.desert-cactus-right {
+  right: 4%;
+  bottom: 2%;
+  width: clamp(60px, 7vw, 105px);
+  opacity: .69;
+  transform: scaleX(-1);
+  animation: desertPlantSway 10s ease-in-out infinite reverse;
+}
+.desert-dead-tree {
+  right: -1%;
+  bottom: 13%;
+  width: clamp(55px, 6vw, 92px);
+  opacity: .46;
+  animation: desertTreeSway 12s ease-in-out infinite;
+}
+
+.desert-tumbleweed {
+  position: absolute;
+  left: -9vw;
+  bottom: 8%;
+  width: clamp(32px, 4vw, 58px);
+  z-index: 20;
+  opacity: .55;
+  animation: desertTumbleweed 37s linear 6s infinite;
+}
+.desert-tumbleweed svg { width: 100%; display: block; }
+
+.desert-sand-particles { position: absolute; inset: 0; z-index: 21; overflow: hidden; opacity: .32; }
+.desert-sand-particles i {
+  --x: calc((var(--i) * 17 + 7) * 1%);
+  position: absolute;
+  left: var(--x);
+  top: calc(48% + (var(--i) % 6) * 6%);
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(255, 232, 192, .9);
+  animation: desertSandDrift calc(11s + (var(--i) % 7) * 1.7s) linear calc((var(--i) % 5) * -2s) infinite;
+}
+
+/* App readability. Only exact UI components are made opaque. */
+/* Keep modal behavior identical to the base app. */
+body.theme-desert .modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+  background: rgba(35, 25, 20, .42) !important;
+  z-index: 9999 !important;
+}
+
+body.theme-desert .modal-overlay.hidden {
+  display: none !important;
+}
+
+body.theme-desert .modal-box {
+  position: relative !important;
+  margin: 0 !important;
+  flex: 0 1 auto !important;
+  background: #fff4df !important;
+  background-color: #fff4df !important;
+  background-image: none !important;
+  color: var(--desert-ink) !important;
+  opacity: 1 !important;
+  z-index: 10000 !important;
+}
+body.theme-desert .modal-box select,
+body.theme-desert .modal-box input,
+body.theme-desert .modal-box textarea {
+  background-color: #fffaf0 !important;
+  color: #4d3d35 !important;
+}
+
+/* Preserve the real theme preview thumbnails. */
+body.theme-desert #theme-picker.theme-picker-grid,
+body.theme-desert .theme-picker-grid {
+  background: #fffaf0 !important;
+}
+body.theme-desert #theme-picker .theme-picker-card,
+body.theme-desert .theme-picker-grid .theme-picker-card {
+  background: #fff !important;
+}
+body.theme-desert #theme-picker .theme-picker-preview,
+body.theme-desert .theme-picker-grid .theme-picker-preview {
+  background-color: transparent !important;
+  /* No background/background-image !important here: JS thumbnails need them. */
+}
+
+/* Preserve cursor option grid and SVG previews. */
+body.theme-desert .icon-grid {
+  background: #fffaf0 !important;
+}
+body.theme-desert .icon-option {
+  background: #fffdf8 !important;
+  color: #332820 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+body.theme-desert .icon-option.selected {
+  background: #4d3d35 !important;
+  color: #fff !important;
+}
+body.theme-desert .cursor-option-preview,
+body.theme-desert .cursor-option-preview svg {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+@keyframes desertSunFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(3px) scale(1.025)} }
+@keyframes desertRaySpin { to { transform: rotate(360deg); } }
+@keyframes desertCloudDrift { from{transform:translateX(0)} to{transform:translateX(150vw)} }
+@keyframes desertBirdDrift { from{transform:translate(0,0)} to{transform:translate(5vw,-8px)} }
+@keyframes desertParallaxFar { from{transform:translateX(-.7%)} to{transform:translateX(.7%)} }
+@keyframes desertParallaxNear { from{transform:translateX(.45%)} to{transform:translateX(-.45%)} }
+@keyframes desertHaze { from{transform:translateX(-5px) scaleY(.95)} to{transform:translateX(6px) scaleY(1.05)} }
+@keyframes desertCamelWalk { 0%{transform:translateX(0)} 100%{transform:translateX(126vw)} }
+@keyframes desertCamelLegA { from{transform:rotate(-10deg)} to{transform:rotate(10deg)} }
+@keyframes desertCamelLegB { from{transform:rotate(10deg)} to{transform:rotate(-10deg)} }
+@keyframes desertCamelTail { from{transform:rotate(-7deg)} to{transform:rotate(8deg)} }
+@keyframes desertPlantSway { 0%,100%{rotate:-.7deg} 50%{rotate:.8deg} }
+@keyframes desertPlantSwaySmall { 0%,100%{rotate:.5deg} 50%{rotate:-.55deg} }
+@keyframes desertTreeSway { 0%,100%{rotate:-.35deg} 50%{rotate:.45deg} }
+@keyframes desertTumbleweed { 0%{transform:translateX(0) translateY(0) rotate(0)} 30%{transform:translateX(38vw) translateY(-7px) rotate(420deg)} 58%{transform:translateX(73vw) translateY(2px) rotate(790deg)} 100%{transform:translateX(122vw) translateY(-4px) rotate(1320deg)} }
+@keyframes desertSandDrift { 0%{transform:translateX(-12vw) translateY(0);opacity:0} 12%{opacity:.8} 88%{opacity:.55} 100%{transform:translateX(110vw) translateY(-18px);opacity:0} }
+
+@media (max-width: 700px) {
+  .desert-sun-wrap { right: 4%; width: 78px; }
+  .desert-birds { left: 8%; top: 19%; }
+  .desert-mountains-far { height: 37%; }
+  .desert-mountains-near { height: 31%; }
+  .desert-camel { width: 88px; bottom: 19%; }
+  .desert-cactus-left { left: -5%; width: 86px; }
+  .desert-barrel-left { left: 8%; width: 92px; }
+  .desert-cactus-right { right: -3%; width: 72px; }
+  .desert-dead-tree { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #desert-background *,
+  #desert-background *::before,
+  #desert-background *::after {
+    animation: none !important;
+  }
+}

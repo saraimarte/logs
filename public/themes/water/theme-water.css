@@ -1,0 +1,14 @@
+body.theme-water {
+--overlay-scrim: rgba(5, 25, 35, 0.6);
+--black: #0c4a63;
+--white: #eafbff;
+--thick-border: 3px solid #3fb6d3;
+--thin-border: 2px solid #3fb6d3;
+--dashed-border: 2px dashed #7fd4e8;
+--dotted-border: 2px dotted #7fd4e8;
+background: linear-gradient(180deg, #d6f4ff 0%, #aee7f8 60%, #8fdcf0 100%);
+background-attachment: fixed;
+}
+body.theme-water .modal-box, body.theme-water .day-box, body.theme-water .chip,
+body.theme-water .toolbox-item, body.theme-water .resource-card, body.theme-water select,
+body.theme-water input, body.theme-water textarea { background-color: #eafbff; }

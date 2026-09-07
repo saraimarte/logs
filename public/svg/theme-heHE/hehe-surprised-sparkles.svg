@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360">
+<style>
+  .o{fill:none;stroke:#1a1617;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  .thin{fill:none;stroke:#1a1617;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+  .hair{fill:#1d1718;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .skin{fill:#fff7e6;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .skin2{fill:#fff7e6;stroke:#1a1617;stroke-width:4;stroke-linejoin:round}
+  .dress{fill:#f06a45;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .yellow{fill:#f6e84a;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .shoe{fill:#8b4b2e;stroke:#1a1617;stroke-width:4;stroke-linejoin:round}
+  .pink{fill:#f05093;stroke:#1a1617;stroke-width:3.2;stroke-linejoin:round}
+  .blue{fill:#4aa8e8;stroke:#1a1617;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  .spark{fill:#f7df35;stroke:#c3a916;stroke-width:2}
+</style>
+    <g transform="rotate(0 145 105)">
+      <path class="hair" d="M70,95 C65,33 97,8 147,6 C199,4 227,35 222,97 C218,132 198,154 179,160 L109,160 C89,148 72,129 70,95Z"/>
+      <path class="skin" d="M89,71 C101,44 127,36 155,38 C184,39 206,53 211,80 L208,132 C203,167 177,184 145,187 C112,183 88,164 82,133 C77,109 79,86 89,71Z"/>
+    </g>
+<circle cx="111" cy="109" r="12" class="o"/><circle cx="111" cy="109" r="3" fill="#1a1617"/>
+<circle cx="177" cy="109" r="12" class="o"/><circle cx="177" cy="109" r="3" fill="#1a1617"/>
+<path class="thin" d="M143 128 q6 5 12 0"/>
+<path class="o" d="M123 150 q21 -20 42 0 q-2 25 -21 25 q-19 0 -21 -25Z"/><path d="M129 153 q15 -9 30 0 q-15 13 -30 0Z" fill="#f38d9d" stroke="#1a1617" stroke-width="3"/>
+<path class="dress" d="M118 204 L171 204 L184 347 L105 347Z"/>
+<path class="yellow" d="M114 216 q-16 28 -4 64 l21 -8 -3 -53Z"/><path class="yellow" d="M175 216 q16 28 4 64 l-21 -8 3 -53Z"/>
+<rect x="133" y="240" width="25" height="42" rx="7" fill="#f5f0e5" stroke="#1a1617" stroke-width="4"/><circle cx="145.5" cy="250" r="4" class="thin"/><circle cx="145.5" cy="267" r="3" fill="#1a1617"/>
+<g>
+<path class="spark" d="M75 174 l5 12 13 5 -13 5 -5 13 -5 -13 -13 -5 13 -5Z"/><path class="spark" d="M213 168 l4 10 11 4 -11 4 -4 11 -4 -11 -10 -4 10 -4Z"/><path class="spark" d="M73 229 l4 9 9 4 -9 4 -4 10 -4 -10 -10 -4 10 -4Z"/><path class="spark" d="M220 237 l4 9 9 4 -9 4 -4 10 -4 -10 -10 -4 10 -4Z"/>
+</g></svg>

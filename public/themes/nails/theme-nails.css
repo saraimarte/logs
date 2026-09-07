@@ -1,0 +1,349 @@
+/* ============================================================
+   NAIL ART STUDIO
+   Theme-only styling. No application layout changes.
+   ============================================================ */
+
+body.theme-nails {
+    --nails-ink: #5d2037;
+    --nails-burgundy: #8c2949;
+    --nails-rose: #d8769d;
+    --nails-blush: #f7d7e4;
+    --nails-lilac: #d8cdf2;
+    --nails-cream: #fff8f5;
+    --nails-gold: #c99545;
+    --nails-aqua: #86cdd0;
+
+    --black: var(--nails-ink);
+    --white: #fffafc;
+    --bg-overlay: transparent;
+    --track-bg: rgba(140, 41, 73, .10);
+    --muted-text: rgba(93, 32, 55, .58);
+
+    --thick-border: 3px solid rgba(140, 41, 73, .40);
+    --thin-border: 2px solid rgba(140, 41, 73, .25);
+    --dashed-border: 2px dashed rgba(201, 149, 69, .42);
+    --dotted-border: 2px dotted rgba(216, 118, 157, .42);
+
+    background:
+        radial-gradient(circle at 12% 20%, rgba(216, 205, 242, .70), transparent 25%),
+        radial-gradient(circle at 89% 18%, rgba(134, 205, 208, .34), transparent 23%),
+        radial-gradient(circle at 20% 85%, rgba(247, 215, 228, .92), transparent 31%),
+        radial-gradient(circle at 82% 80%, rgba(255, 226, 186, .42), transparent 30%),
+        linear-gradient(145deg, #fff8fb 0%, #f9e8f0 38%, #f1ebfb 69%, #fff6f1 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--nails-ink) !important;
+}
+
+/* ============================================================
+   BACKGROUND LAYER
+   ============================================================ */
+
+body.theme-nails #nails-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+body.theme-nails #nails-background .nails-backdrop {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 8% 32%, rgba(255,255,255,.65) 0 2px, transparent 3px),
+        radial-gradient(circle at 88% 66%, rgba(255,255,255,.55) 0 2px, transparent 3px),
+        repeating-linear-gradient(
+            118deg,
+            transparent 0 48px,
+            rgba(201,149,69,.055) 49px,
+            transparent 51px 96px
+        );
+    background-size: 44px 44px, 56px 56px, auto;
+    opacity: .82;
+}
+
+/* Decorative salon-like scalloped trim. It is thin and kept at the very top. */
+body.theme-nails #nails-background .nails-top-trim {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 10px;
+    opacity: .65;
+    background:
+        radial-gradient(circle at 8px -1px, transparent 8px, rgba(140,41,73,.18) 9px 10px, transparent 11px) 0 0 / 24px 11px repeat-x;
+}
+
+body.theme-nails #nails-background .nails-gold-sweep {
+    position: absolute;
+    width: 42vw;
+    height: 42vw;
+    min-width: 300px;
+    min-height: 300px;
+    border: 1px solid rgba(201, 149, 69, .18);
+    border-radius: 50%;
+    opacity: .8;
+    animation: nailsSweepFloat 15s ease-in-out infinite alternate;
+}
+
+body.theme-nails #nails-background .nails-gold-sweep-a {
+    left: -24vw;
+    top: 30vh;
+}
+
+body.theme-nails #nails-background .nails-gold-sweep-b {
+    right: -25vw;
+    bottom: -12vh;
+    animation-delay: -6s;
+}
+
+@keyframes nailsSweepFloat {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(16px, -10px, 0) scale(1.025); }
+}
+
+/* ============================================================
+   FULL-COLOR NAIL ART
+   ============================================================ */
+
+body.theme-nails #nails-background .nails-art-item {
+    position: absolute;
+    width: clamp(90px, 8.5vw, 145px);
+    transform-origin: center;
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--nail-rotate))
+        scale(var(--nail-scale));
+    opacity: 1;
+    filter:
+        drop-shadow(0 8px 10px rgba(93, 32, 55, .12))
+        drop-shadow(0 1px 2px rgba(255, 255, 255, .55));
+    animation:
+        nailsArtFloat
+        var(--nail-duration)
+        ease-in-out
+        var(--nail-delay)
+        infinite;
+    will-change: transform;
+    pointer-events: none;
+}
+
+body.theme-nails #nails-background .nails-art-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 175px;
+    object-fit: contain;
+    opacity: 1;
+    filter: none;
+    pointer-events: none;
+    user-select: none;
+}
+
+@keyframes nailsArtFloat {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--nail-rotate))
+            scale(var(--nail-scale));
+    }
+    35% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--nail-drift-x), var(--nail-drift-y), 0)
+            rotate(calc(var(--nail-rotate) + 2deg))
+            scale(var(--nail-scale));
+    }
+    68% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(calc(var(--nail-drift-x) * -.55), calc(var(--nail-drift-y) * .45), 0)
+            rotate(calc(var(--nail-rotate) - 1deg))
+            scale(var(--nail-scale));
+    }
+}
+
+/* ============================================================
+   SPARKLES + PEARLS
+   ============================================================ */
+
+body.theme-nails #nails-background .nails-sparkle {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    opacity: .45;
+    animation: nailsSparkle var(--sparkle-duration) ease-in-out var(--sparkle-delay) infinite;
+}
+
+body.theme-nails #nails-background .nails-sparkle::before,
+body.theme-nails #nails-background .nails-sparkle::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 999px;
+    background: rgba(201,149,69,.72);
+    box-shadow: 0 0 7px rgba(201,149,69,.18);
+}
+
+body.theme-nails #nails-background .nails-sparkle::before { width: 1.5px; height: 100%; }
+body.theme-nails #nails-background .nails-sparkle::after  { width: 100%; height: 1.5px; }
+
+body.theme-nails #nails-background .nails-sparkle-1 { transform: scale(.72) rotate(45deg); }
+body.theme-nails #nails-background .nails-sparkle-2 { transform: scale(1.15); }
+
+@keyframes nailsSparkle {
+    0%, 100% { opacity: .12; filter: blur(.15px); }
+    50%      { opacity: .72; filter: blur(0); }
+}
+
+body.theme-nails #nails-background .nails-pearl {
+    position: absolute;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 32% 27%, #ffffff 0 14%, #f8edf7 28%, #d6c5df 63%, #b99dc7 100%);
+    box-shadow: 0 2px 5px rgba(93,32,55,.12);
+    opacity: .42;
+    animation: nailsPearlBob 6.8s ease-in-out var(--pearl-delay) infinite alternate;
+}
+
+@keyframes nailsPearlBob {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(5px, -10px, 0); }
+}
+
+/* ============================================================
+   APP COLOR TREATMENT ONLY
+   ============================================================ */
+
+body.theme-nails .day-box,
+body.theme-nails .day-picker-box,
+body.theme-nails input,
+body.theme-nails textarea,
+body.theme-nails select,
+body.theme-nails .notes-editable,
+body.theme-nails .phrase-card,
+body.theme-nails .chip,
+body.theme-nails .toolbox-item,
+body.theme-nails .resource-card,
+body.theme-nails .polaroid-card,
+body.theme-nails .filter-tab,
+body.theme-nails .day-target-box,
+body.theme-nails .flashcard,
+body.theme-nails .flashcard-mode-card,
+body.theme-nails .day-badge,
+body.theme-nails .video-placeholder,
+body.theme-nails .theme-picker-card,
+body.theme-nails .note-audio-row {
+    background: rgba(255, 250, 252, .72) !important;
+    background-color: rgba(255, 250, 252, .72) !important;
+}
+
+/* Icon buttons stay transparent instead of getting white squares. */
+body.theme-nails .icon-btn,
+body.theme-nails .small-icon-btn,
+body.theme-nails .header-back-btn {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+body.theme-nails .icon-btn:hover,
+body.theme-nails .small-icon-btn:hover,
+body.theme-nails .header-back-btn:hover {
+    background: rgba(216, 118, 157, .12) !important;
+}
+
+body.theme-nails input::placeholder,
+body.theme-nails textarea::placeholder,
+body.theme-nails .notes-editable:empty::before {
+    color: rgba(93,32,55,.42) !important;
+}
+
+body.theme-nails .chip:hover,
+body.theme-nails .phrase-card:hover,
+body.theme-nails .day-picker-box.selected,
+body.theme-nails .filter-tab.active,
+body.theme-nails .filter-tab[aria-selected="true"] {
+    background: rgba(140, 41, 73, .90) !important;
+    color: #fffafc !important;
+    border-color: rgba(140, 41, 73, .82) !important;
+}
+
+body.theme-nails .progress-bar-fill {
+    background: linear-gradient(90deg, var(--nails-burgundy), var(--nails-rose), var(--nails-gold)) !important;
+}
+
+/* ============================================================
+   SAFE STACKING
+   No catch-all body > * selectors. Cursor and companion stages
+   retain the template's own positioning and transform contexts.
+   ============================================================ */
+
+body.theme-nails #nails-background { z-index: 0; }
+
+body.theme-nails .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-nails .side-nav {
+    position: relative;
+    z-index: 3;
+}
+
+body.theme-nails header,
+body.theme-nails .log-header-container {
+    position: relative;
+    z-index: 4;
+}
+
+body.theme-nails .modal,
+body.theme-nails .modal-overlay,
+body.theme-nails .overlay {
+    z-index: 10;
+}
+
+@media (max-width: 700px) {
+    body.theme-nails #nails-background .nails-art-item {
+        width: clamp(72px, 17vw, 104px);
+    }
+
+    body.theme-nails #nails-background .nails-pearl:nth-of-type(2n),
+    body.theme-nails #nails-background .nails-sparkle:nth-of-type(3n) {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-nails #nails-background *,
+    body.theme-nails #nails-background *::before,
+    body.theme-nails #nails-background *::after {
+        animation: none !important;
+    }
+}
+
+body.theme-nails #nails-background .nails-art-item.nails-hover-shake {
+    animation: nailsHoverShake .42s ease-in-out !important;
+    filter:
+        drop-shadow(0 10px 14px rgba(93,32,55,.18))
+        drop-shadow(0 0 12px rgba(216,118,157,.28)) !important;
+}
+@keyframes nailsHoverShake {
+    0%,100% {
+        transform: translate3d(-50%,-50%,0) rotate(var(--nail-rotate)) scale(var(--nail-scale));
+    }
+    20% {
+        transform: translate3d(-50%,-50%,0) translateX(-5px) rotate(calc(var(--nail-rotate) - 4deg)) scale(calc(var(--nail-scale) * 1.04));
+    }
+    45% {
+        transform: translate3d(-50%,-50%,0) translateX(5px) rotate(calc(var(--nail-rotate) + 4deg)) scale(calc(var(--nail-scale) * 1.06));
+    }
+    70% {
+        transform: translate3d(-50%,-50%,0) translateX(-3px) rotate(calc(var(--nail-rotate) - 2deg)) scale(calc(var(--nail-scale) * 1.03));
+    }
+}

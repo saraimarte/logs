@@ -1,0 +1,489 @@
+/* ============================================================
+   GUITAR THEME
+   Warm vintage guitar / rehearsal-room palette.
+
+   Decorative only: no cursor, companion, selector, tab-layout,
+   transform, or application positioning rules are changed.
+   ============================================================ */
+
+body.theme-guitar {
+    --guitar-ink: #2f211d;
+    --guitar-cream: #f7fbff;
+    --guitar-paper: #eaf1f7;
+    --guitar-blue: #6f8798;
+    --guitar-slate: #506575;
+    --guitar-line: rgba(58, 77, 91, 0.24);
+
+    --black: var(--guitar-ink);
+    --white: var(--guitar-cream);
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid rgba(69, 43, 31, 0.52);
+    --thin-border: 2px solid rgba(69, 43, 31, 0.34);
+    --dashed-border: 2px dashed rgba(69, 43, 31, 0.30);
+    --dotted-border: 2px dotted rgba(69, 43, 31, 0.30);
+    --track-bg: rgba(78, 105, 124, 0.12);
+    --muted-text: rgba(47, 33, 29, 0.58);
+
+    background:
+        radial-gradient(circle at 12% 18%, rgba(142, 190, 219, 0.28), transparent 27%),
+        radial-gradient(circle at 83% 22%, rgba(186, 154, 205, 0.18), transparent 24%),
+        radial-gradient(circle at 84% 78%, rgba(111, 165, 190, 0.18), transparent 31%),
+        radial-gradient(circle at 28% 82%, rgba(205, 174, 119, 0.13), transparent 28%),
+        repeating-linear-gradient(
+            0deg,
+            rgba(69, 96, 116, 0.035) 0px,
+            rgba(69, 96, 116, 0.035) 1px,
+            transparent 1px,
+            transparent 24px
+        ),
+        linear-gradient(135deg, #e8f2f8 0%, #f7fbfe 46%, #e1edf5 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--guitar-ink) !important;
+}
+
+/* ============================================================
+   BACKGROUND LAYER
+   ============================================================ */
+
+#guitar-theme-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+/* Raise normal app views above the decorative layer without changing layout. */
+body.theme-guitar #guitar-theme-background { z-index: 0; }
+body.theme-guitar .view { position: relative; z-index: 2; }
+body.theme-guitar .side-nav { position: relative; z-index: 3; }
+body.theme-guitar header,
+body.theme-guitar .log-header-container { position: relative; z-index: 4; }
+body.theme-guitar .modal,
+body.theme-guitar .modal-overlay,
+body.theme-guitar .overlay { z-index: 10; }
+
+/* ============================================================
+   GUITAR OBJECTS
+   ============================================================ */
+
+#guitar-theme-background .guitar-theme-item {
+    position: absolute;
+    transform-origin: center center;
+    pointer-events: none;
+    user-select: none;
+    opacity: 1;
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--guitar-rotate))
+        scale(var(--guitar-scale));
+    filter: drop-shadow(0 10px 16px rgba(36, 49, 58, 0.16));
+    animation:
+        guitarThemeFloat var(--guitar-duration) ease-in-out var(--guitar-delay) infinite;
+    will-change: transform;
+}
+
+#guitar-theme-background .guitar-theme-svg {
+    display: block;
+    width: 195px;
+    height: auto;
+    max-width: 195px;
+    max-height: 315px;
+    overflow: visible;
+    pointer-events: none;
+    user-select: none;
+}
+
+#guitar-theme-background .guitar-theme-depth-1 { z-index: 1; }
+#guitar-theme-background .guitar-theme-depth-2 { z-index: 2; }
+
+@keyframes guitarThemeFloat {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--guitar-rotate))
+            scale(var(--guitar-scale));
+    }
+    30% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(calc(var(--guitar-drift-x) * .55), calc(var(--guitar-drift-y) * .55), 0)
+            rotate(calc(var(--guitar-rotate) + 1.2deg))
+            scale(var(--guitar-scale));
+    }
+    60% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--guitar-drift-x), var(--guitar-drift-y), 0)
+            rotate(calc(var(--guitar-rotate) - 1.4deg))
+            scale(var(--guitar-scale));
+    }
+}
+
+/* ============================================================
+   SUBTLE STRING / AMP-LINE DETAILS
+   ============================================================ */
+
+#guitar-theme-background .guitar-theme-string-line {
+    position: absolute;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(72, 94, 110, 0.14),
+        rgba(101, 132, 154, 0.28),
+        rgba(72, 94, 110, 0.14),
+        transparent
+    );
+    animation: guitarStringPulse 5.8s ease-in-out infinite alternate;
+}
+
+@keyframes guitarStringPulse {
+    from { opacity: 0.18; scale: .96 1; }
+    to   { opacity: 0.48; scale: 1.04 1; }
+}
+
+#guitar-theme-background .guitar-theme-speck {
+    position: absolute;
+    width: var(--speck-size);
+    height: var(--speck-size);
+    border-radius: 50%;
+    background: rgba(93, 122, 143, 0.22);
+    box-shadow: 0 0 7px rgba(93, 122, 143, 0.14);
+    pointer-events: none;
+    animation: guitarSpeckPulse var(--speck-duration) ease-in-out var(--speck-delay) infinite;
+}
+
+@keyframes guitarSpeckPulse {
+    0%, 100% { opacity: 0.05; transform: scale(.55); }
+    50% { opacity: 0.42; transform: scale(1.2); }
+}
+
+
+/* ============================================================
+   BUSIER MUSIC-ROOM BACKGROUND DETAILS
+   Decorative only and always behind the application UI.
+   ============================================================ */
+
+#guitar-theme-background .guitar-theme-staff {
+    position: absolute;
+    width: var(--staff-width);
+    height: 42px;
+    opacity: .16;
+    pointer-events: none;
+    transform: rotate(var(--staff-rotate));
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(66, 88, 104, .46) 0 1px,
+        transparent 1px 9px
+    );
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+#guitar-theme-background .guitar-theme-note {
+    position: absolute;
+    color: rgba(52, 75, 92, .20);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: var(--note-size);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    transform: rotate(var(--note-rotate));
+    animation: guitarNoteDrift var(--note-duration) ease-in-out var(--note-delay) infinite alternate;
+    text-shadow: 0 2px 8px rgba(67, 94, 112, .08);
+}
+
+@keyframes guitarNoteDrift {
+    from { transform: translate3d(0, 0, 0) rotate(var(--note-rotate)); opacity: .09; }
+    to   { transform: translate3d(var(--note-drift-x), var(--note-drift-y), 0) rotate(calc(var(--note-rotate) + 5deg)); opacity: .26; }
+}
+
+#guitar-theme-background .guitar-theme-pick {
+    position: absolute;
+    width: var(--pick-size);
+    aspect-ratio: 1 / 1.12;
+    border: 1.5px solid rgba(61, 84, 101, .20);
+    border-radius: 50% 50% 58% 58% / 46% 46% 72% 72%;
+    background: rgba(255, 255, 255, .10);
+    pointer-events: none;
+    transform: rotate(var(--pick-rotate));
+    box-shadow: inset 0 0 0 5px rgba(255,255,255,.035);
+}
+
+#guitar-theme-background .guitar-theme-record {
+    position: absolute;
+    width: var(--record-size);
+    height: var(--record-size);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: .10;
+    background:
+        radial-gradient(circle, rgba(236,246,252,.9) 0 8%, transparent 8.5% 18%, rgba(50,70,86,.68) 18.5% 21%, transparent 21.5%),
+        repeating-radial-gradient(circle, rgba(48,68,84,.52) 0 1px, transparent 1px 4px);
+    border: 1px solid rgba(48,68,84,.22);
+    animation: guitarRecordSpin var(--record-duration) linear infinite;
+}
+
+@keyframes guitarRecordSpin {
+    to { transform: rotate(360deg); }
+}
+
+#guitar-theme-background .guitar-theme-eq {
+    position: absolute;
+    display: flex;
+    align-items: end;
+    gap: 4px;
+    height: 44px;
+    opacity: .14;
+    pointer-events: none;
+}
+
+#guitar-theme-background .guitar-theme-eq > span {
+    width: 3px;
+    height: var(--bar-height);
+    border-radius: 4px;
+    background: rgba(66, 92, 111, .72);
+    transform-origin: bottom;
+    animation: guitarEqBounce var(--bar-duration) ease-in-out var(--bar-delay) infinite alternate;
+}
+
+@keyframes guitarEqBounce {
+    from { transform: scaleY(.38); }
+    to   { transform: scaleY(1); }
+}
+
+/* ============================================================
+   EXISTING UI — COLORS ONLY
+   ============================================================ */
+
+body.theme-guitar .day-box,
+body.theme-guitar .day-picker-box,
+body.theme-guitar .icon-btn,
+body.theme-guitar .small-icon-btn,
+body.theme-guitar input,
+body.theme-guitar textarea,
+body.theme-guitar select,
+body.theme-guitar .notes-editable,
+body.theme-guitar .phrase-card,
+body.theme-guitar .chip,
+body.theme-guitar .toolbox-item,
+body.theme-guitar .resource-card,
+body.theme-guitar .polaroid-card,
+body.theme-guitar .filter-tab,
+body.theme-guitar .day-target-box,
+body.theme-guitar .flashcard,
+body.theme-guitar .flashcard-mode-card,
+body.theme-guitar .day-badge,
+body.theme-guitar .video-placeholder,
+body.theme-guitar .theme-picker-card,
+body.theme-guitar .note-audio-row {
+    background-color: rgba(247, 251, 255, 0.90) !important;
+    color: var(--guitar-ink) !important;
+}
+
+body.theme-guitar input::placeholder,
+body.theme-guitar textarea::placeholder,
+body.theme-guitar .notes-editable:empty::before {
+    color: rgba(47, 33, 29, 0.42) !important;
+}
+
+body.theme-guitar .icon-btn:hover,
+body.theme-guitar .small-icon-btn:hover,
+body.theme-guitar .filter-tab:hover,
+body.theme-guitar .chip:hover,
+body.theme-guitar .phrase-card:hover,
+body.theme-guitar .day-picker-box.selected,
+body.theme-guitar .filter-tab.active {
+    background: rgba(107, 139, 162, 0.18) !important;
+    color: #263844 !important;
+    border-color: rgba(75, 102, 121, 0.52) !important;
+}
+
+body.theme-guitar .progress-bar-track {
+    background: rgba(70, 94, 111, 0.13) !important;
+}
+
+body.theme-guitar .progress-bar-fill {
+    background: linear-gradient(90deg, #526f84, #7fa1b8) !important;
+}
+
+/* Keep title and normal text strongly readable. */
+body.theme-guitar h1,
+body.theme-guitar h2,
+body.theme-guitar h3,
+body.theme-guitar .section-header,
+body.theme-guitar .tool-row,
+body.theme-guitar .tool-row-name,
+body.theme-guitar #current-date-title {
+    color: var(--guitar-ink) !important;
+}
+
+/* ============================================================
+   RESPONSIVE + REDUCED MOTION
+   ============================================================ */
+
+@media (max-width: 700px) {
+    #guitar-theme-background .guitar-theme-svg {
+        width: 148px;
+        max-width: 148px;
+        max-height: 235px;
+    }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #guitar-theme-background * {
+        animation: none !important;
+    }
+}
+
+/* ============================================================
+   GUITAR HOVER AUDIO HIT TARGETS
+   ============================================================ */
+
+/* The layer itself stays click-through. Only the guitar rectangles opt back in
+   to pointer events, so normal page controls continue to work elsewhere. */
+#guitar-theme-background .guitar-theme-item {
+    pointer-events: auto;
+}
+
+#guitar-theme-background .guitar-theme-svg {
+    pointer-events: none;
+}
+
+/* Preserve the requested transparent icon treatment for this theme. */
+body.theme-guitar .icon-btn,
+body.theme-guitar .small-icon-btn {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+
+/* ============================================================
+   READABILITY / CONTRAST FIX
+   ============================================================ */
+body.theme-guitar {
+    --theme-readable-surface: #f8fbfd;
+    --theme-readable-text: #263844;
+    --theme-readable-border: #6b8ba2;
+}
+
+body.theme-guitar h1,
+body.theme-guitar h2,
+body.theme-guitar h3,
+body.theme-guitar h4,
+body.theme-guitar .page-title,
+body.theme-guitar .view-title,
+body.theme-guitar .section-header,
+body.theme-guitar #current-date-title {
+    color: #263844 !important;
+    text-shadow: none !important;
+}
+
+body.theme-guitar input[type="search"],
+body.theme-guitar input[id*="search"],
+body.theme-guitar #phrases-search-bar {
+    background: #f8fbfd !important;
+    background-color: #f8fbfd !important;
+    background-image: none !important;
+    color: #263844 !important;
+    caret-color: #263844 !important;
+    border: 2px solid #6b8ba2 !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06) !important;
+}
+
+body.theme-guitar input[type="search"]::placeholder,
+body.theme-guitar input[id*="search"]::placeholder,
+body.theme-guitar #phrases-search-bar::placeholder {
+    color: #607682 !important;
+    opacity: .78 !important;
+}
+
+body.theme-guitar #settings-modal .modal-box,
+body.theme-guitar #daily-settings-modal .modal-box {
+    background: #f8fbfd !important;
+    background-color: #f8fbfd !important;
+    color: #263844 !important;
+    border-color: #6b8ba2 !important;
+}
+
+body.theme-guitar #settings-modal .modal-header,
+body.theme-guitar #settings-modal .modal-header h2,
+body.theme-guitar #settings-modal .modal-section,
+body.theme-guitar #settings-modal .field-label,
+body.theme-guitar #settings-modal label,
+body.theme-guitar #settings-modal p,
+body.theme-guitar #daily-settings-modal .modal-header,
+body.theme-guitar #daily-settings-modal .modal-header h2,
+body.theme-guitar #daily-settings-modal .modal-section,
+body.theme-guitar #daily-settings-modal .field-label,
+body.theme-guitar #daily-settings-modal label,
+body.theme-guitar #daily-settings-modal p {
+    color: #263844 !important;
+}
+
+body.theme-guitar #settings-modal input:not([type="checkbox"]):not([type="radio"]),
+body.theme-guitar #settings-modal textarea,
+body.theme-guitar #settings-modal select,
+body.theme-guitar #daily-settings-modal input:not([type="checkbox"]):not([type="radio"]),
+body.theme-guitar #daily-settings-modal textarea,
+body.theme-guitar #daily-settings-modal select {
+    background: #f8fbfd !important;
+    color: #263844 !important;
+    border-color: #6b8ba2 !important;
+}
+
+body.theme-guitar #settings-modal select option,
+body.theme-guitar #daily-settings-modal select option {
+    background: #f8fbfd !important;
+    color: #263844 !important;
+}
+
+body.theme-guitar .side-nav .icon-btn,
+body.theme-guitar .side-nav .icon-btn:hover,
+body.theme-guitar .side-nav .icon-btn:focus,
+body.theme-guitar .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    color: #263844 !important;
+}
+body.theme-guitar .side-nav .icon-btn i,
+body.theme-guitar .side-nav .icon-btn svg {
+    color: #263844 !important;
+}
+
+body.theme-guitar #open-settings-btn,
+body.theme-guitar #open-daily-settings-btn,
+body.theme-guitar .settings-button,
+body.theme-guitar [aria-label*="Settings"],
+body.theme-guitar [title*="Settings"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #263844 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+body.theme-guitar #open-settings-btn i,
+body.theme-guitar #open-daily-settings-btn i,
+body.theme-guitar [aria-label*="Settings"] i,
+body.theme-guitar [title*="Settings"] i {
+    color: #263844 !important;
+}
+
+
+/* Tab/sidebar icons should never get the Settings border */
+body.theme-guitar .side-nav .icon-btn,
+body.theme-guitar .side-nav .icon-btn:hover,
+body.theme-guitar .side-nav .icon-btn:focus,
+body.theme-guitar .side-nav .icon-btn:active {
+    border: none !important;
+}

@@ -1,0 +1,213 @@
+body.theme-cloud {
+--overlay-scrim: rgba(10, 25, 45, 0.6);
+--black: #3b5a80;
+--white: #ffffff;
+--thick-border: 3px solid #8fb8e0;
+--thin-border: 2px solid #8fb8e0;
+--dashed-border: 2px dashed #b7d4f0;
+--dotted-border: 2px dotted #b7d4f0;
+background: linear-gradient(180deg, #bcdcff 0%, #e8f4ff 100%);
+background-attachment: fixed;
+}
+body.theme-cloud .modal-box, body.theme-cloud .day-box, body.theme-cloud .chip,
+body.theme-cloud .toolbox-item, body.theme-cloud .resource-card, body.theme-cloud select,
+body.theme-cloud input, body.theme-cloud textarea { background-color: #ffffff; }
+
+#cloud-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: -1;
+}
+
+#cloud-background .cloud {
+    position: absolute;
+    width: 240px;
+    height: 100px;
+    pointer-events: none;
+}
+
+#cloud-background .cloud svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#cloud-background .cloud-1 {
+    top: 10%;
+    left: -260px;
+    animation: cloudMove1 90s linear infinite;
+}
+
+#cloud-background .cloud-2 {
+    top: 42%;
+    left: -260px;
+    transform: scale(0.75);
+    animation: cloudMove2 120s linear infinite;
+    animation-delay: -40s;
+}
+
+#cloud-background .cloud-3 {
+    top: 70%;
+    left: -260px;
+    transform: scale(0.9);
+    animation: cloudMove3 105s linear infinite;
+    animation-delay: -70s;
+}
+
+@keyframes cloudMove1 {
+    from { left: -260px; }
+    to { left: calc(100vw + 260px); }
+}
+
+@keyframes cloudMove2 {
+    from { left: -260px; }
+    to { left: calc(100vw + 260px); }
+}
+
+@keyframes cloudMove3 {
+    from { left: -260px; }
+    to { left: calc(100vw + 260px); }
+}
+
+/* ============================================================
+   CLOUD INTERACTION + SAFE STACKING
+   ============================================================ */
+
+body.theme-cloud {
+    --bg-overlay: transparent;
+    background:
+        radial-gradient(circle at 20% 12%, rgba(255,255,255,.68), transparent 24%),
+        radial-gradient(circle at 82% 20%, rgba(193,224,255,.54), transparent 27%),
+        linear-gradient(180deg, #a9d4fb 0%, #d7ebff 52%, #eef8ff 100%) !important;
+    background-attachment: fixed !important;
+}
+
+body.theme-cloud .view:not(#grid-view)::before {
+    background: transparent !important;
+    opacity: 0 !important;
+}
+
+body.theme-cloud #cloud-background {
+    z-index: 0;
+    pointer-events: none;
+}
+
+body.theme-cloud .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-cloud .side-nav {
+    position: relative;
+    z-index: 3;
+}
+
+body.theme-cloud #cloud-background .cloud {
+    pointer-events: auto;
+    width: clamp(230px, 20vw, 340px);
+    height: auto;
+    aspect-ratio: 2.4 / 1;
+    cursor: inherit;
+}
+
+body.theme-cloud #cloud-background .cloud-visual {
+    width: 100%;
+    height: 100%;
+    transform-origin: 50% 55%;
+    will-change: transform, opacity;
+}
+
+body.theme-cloud #cloud-background .cloud svg {
+    width: 100%;
+    height: 100%;
+    filter:
+        drop-shadow(0 12px 16px rgba(69, 113, 158, .12))
+        drop-shadow(0 1px 2px rgba(255,255,255,.45));
+}
+
+body.theme-cloud #cloud-background .cloud-bursting .cloud-visual {
+    animation: cloudHoverShakeUp .40s cubic-bezier(.2,.85,.25,1) both;
+}
+
+body.theme-cloud #cloud-background .cloud-popped .cloud-visual {
+    opacity: 0;
+    transform: translateY(-20px) scale(.82);
+    transition:
+        opacity .13s ease,
+        transform .13s ease;
+}
+
+@keyframes cloudHoverShakeUp {
+    0%   { transform: translate3d(0,0,0) rotate(0deg) scale(1); }
+    14%  { transform: translate3d(-6px,-4px,0) rotate(-2deg) scale(1.03); }
+    28%  { transform: translate3d(7px,-8px,0) rotate(2deg) scale(1.05); }
+    42%  { transform: translate3d(-5px,-13px,0) rotate(-2deg) scale(1.06); }
+    56%  { transform: translate3d(6px,-16px,0) rotate(1.7deg) scale(1.08); }
+    70%  { transform: translate3d(-4px,-20px,0) rotate(-1deg) scale(1.06); }
+    84%  { transform: translate3d(3px,-23px,0) rotate(.8deg) scale(1.03); }
+    100% { transform: translate3d(0,-25px,0) rotate(0deg) scale(.98); }
+}
+
+body.theme-cloud #cloud-background .cloud-water-drop {
+    position: fixed;
+    z-index: 4;
+    pointer-events: none;
+    border-radius: 60% 60% 68% 68% / 76% 76% 34% 34%;
+    background:
+        linear-gradient(
+            150deg,
+            rgba(255,255,255,.96) 0 14%,
+            rgba(175,227,255,.96) 35%,
+            rgba(111,197,246,.97) 68%,
+            rgba(73,170,232,.98) 100%
+        );
+    box-shadow:
+        inset 1px 1px 2px rgba(255,255,255,.58),
+        0 3px 7px rgba(50,111,162,.14);
+    transform: translate3d(0,0,0) rotate(8deg) scale(.72);
+    opacity: 0;
+    animation:
+        cloudDropFall
+        var(--drop-duration)
+        cubic-bezier(.18,.68,.3,1)
+        var(--drop-delay)
+        forwards;
+}
+
+@keyframes cloudDropFall {
+    0% {
+        opacity: 0;
+        transform: translate3d(0,-8px,0) rotate(8deg) scale(.58);
+    }
+    10% {
+        opacity: .98;
+    }
+    72% {
+        opacity: .90;
+    }
+    100% {
+        opacity: 0;
+        transform:
+            translate3d(var(--drop-drift), var(--drop-fall), 0)
+            rotate(24deg)
+            scale(1.02);
+    }
+}
+
+@media (max-width: 700px) {
+    body.theme-cloud #cloud-background .cloud {
+        width: clamp(180px, 45vw, 250px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-cloud #cloud-background .cloud-bursting .cloud-visual {
+        animation: none !important;
+        transform: translateY(-10px);
+    }
+}

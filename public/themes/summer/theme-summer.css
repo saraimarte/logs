@@ -1,0 +1,326 @@
+/* ============================================================
+   SUMMER THEME
+   Bright tropical styling with floating decorative SVGs.
+   ============================================================ */
+
+body.theme-summer {
+    --theme-ink: #5b4c4a;
+    --theme-paper: #fff9f3;
+    --theme-sand: #f7e6cd;
+    --theme-sky: #bfe8f6;
+    --theme-sea: #8ed8e9;
+    --theme-coral: #ff927e;
+    --theme-hibiscus: #ef6f9f;
+    --theme-sun: #ffd36e;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+
+    --thick-border: 2px solid rgba(91,76,74,.14);
+    --thin-border: 1px solid rgba(91,76,74,.12);
+    --dashed-border: 1px dashed rgba(91,76,74,.14);
+    --dotted-border: 1px dotted rgba(91,76,74,.14);
+    --track-bg: rgba(91,76,74,.08);
+    --muted-text: rgba(91,76,74,.58);
+
+    background:
+        radial-gradient(circle at 50% 5%, rgba(255,255,255,.58), transparent 32%),
+        radial-gradient(circle at 16% 82%, rgba(255,146,126,.18), transparent 30%),
+        radial-gradient(circle at 86% 16%, rgba(255,211,110,.20), transparent 28%),
+        linear-gradient(180deg, #bfe9fb 0%, #daf6ff 34%, #fef0ca 74%, #f9e1bf 100%) !important;
+
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#summer-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#summer-background .theme-summer-sky {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 12%, rgba(255,255,255,.48), transparent 36%),
+        radial-gradient(circle at 18% 42%, rgba(255,255,255,.25), transparent 16%),
+        radial-gradient(circle at 80% 28%, rgba(255,255,255,.22), transparent 14%);
+}
+
+#summer-background .theme-summer-light {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.14), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(255,211,110,.28), transparent 18%),
+        radial-gradient(circle at 10% 78%, rgba(239,111,159,.10), transparent 22%);
+    opacity: .88;
+}
+
+#summer-background .theme-summer-waves {
+    position: absolute;
+    left: -10vw;
+    right: -10vw;
+    bottom: 16vh;
+    height: 18vh;
+    background:
+        radial-gradient(120px 28px at 8% 100%, rgba(255,255,255,.48) 0 58%, transparent 59%),
+        radial-gradient(132px 30px at 24% 100%, rgba(255,255,255,.40) 0 58%, transparent 59%),
+        radial-gradient(120px 28px at 41% 100%, rgba(255,255,255,.46) 0 58%, transparent 59%),
+        radial-gradient(132px 30px at 58% 100%, rgba(255,255,255,.42) 0 58%, transparent 59%),
+        radial-gradient(120px 28px at 75% 100%, rgba(255,255,255,.46) 0 58%, transparent 59%),
+        radial-gradient(132px 30px at 92% 100%, rgba(255,255,255,.40) 0 58%, transparent 59%),
+        linear-gradient(180deg, rgba(142,216,233,.08), rgba(142,216,233,.22));
+    opacity: .84;
+}
+
+#summer-background .theme-summer-palmshadow {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(170px 260px at -2% 22%, rgba(91,76,74,.06), transparent 62%),
+        radial-gradient(210px 310px at 104% 18%, rgba(91,76,74,.06), transparent 62%),
+        radial-gradient(180px 220px at 4% 84%, rgba(91,76,74,.05), transparent 62%),
+        radial-gradient(220px 260px at 98% 88%, rgba(91,76,74,.05), transparent 62%);
+    filter: blur(1px);
+}
+
+#summer-background .theme-summer-shore {
+    position: absolute;
+    left: -8vw;
+    right: -8vw;
+    bottom: -10vh;
+    height: 35vh;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.05) 0%, rgba(247,230,205,.25) 16%, rgba(247,230,205,.78) 72%, rgba(243,212,170,.98) 100%);
+    clip-path: ellipse(84% 66% at 50% 100%);
+    opacity: .92;
+}
+
+#summer-background .theme-summer-item {
+    position: absolute;
+    opacity: var(--item-opacity, .78);
+    transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    transform-origin: center;
+    filter: drop-shadow(0 10px 16px rgba(91,76,74,.10)) drop-shadow(0 0 8px rgba(255,255,255,.18));
+    animation: themeSummerFloat var(--item-duration, 8.2s) ease-in-out var(--item-delay) infinite;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#summer-background .theme-summer-soft {
+    opacity: var(--item-opacity, .24);
+}
+
+#summer-background .theme-summer-emphasis {
+    opacity: var(--item-opacity, .86);
+}
+
+#summer-background .theme-summer-object-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    filter: none;
+}
+
+@keyframes themeSummerFloat {
+    0%, 100% {
+        transform: translate3d(-50%, -50%, 0) translate3d(0,0,0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+    25% {
+        transform: translate3d(-50%, -50%, 0) translate3d(calc(var(--item-x) * .45), calc(var(--item-y) * .45), 0) rotate(calc(var(--item-rotate) - 1.5deg)) scale(calc(var(--item-scale) * 1.02));
+    }
+    50% {
+        transform: translate3d(-50%, -50%, 0) translate3d(var(--item-x), var(--item-y), 0) rotate(calc(var(--item-rotate) + 2deg)) scale(var(--item-scale));
+    }
+    75% {
+        transform: translate3d(-50%, -50%, 0) translate3d(calc(var(--item-x) * -.35), calc(var(--item-y) * .35), 0) rotate(calc(var(--item-rotate) - 1deg)) scale(calc(var(--item-scale) * .99));
+    }
+}
+
+#summer-background .theme-summer-react {
+    opacity: .96 !important;
+    filter: drop-shadow(0 14px 18px rgba(91,76,74,.14)) drop-shadow(0 0 14px rgba(255,211,110,.30));
+    animation: themeSummerReact .56s cubic-bezier(.22,.8,.3,1) !important;
+}
+
+@keyframes themeSummerReact {
+    0% {
+        transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+    28% {
+        transform: translate3d(-50%, -50%, 0) translate3d(-4px, -12px, 0) rotate(calc(var(--item-rotate) - 9deg)) scale(calc(var(--item-scale) * 1.08));
+    }
+    58% {
+        transform: translate3d(-50%, -50%, 0) translate3d(5px, -16px, 0) rotate(calc(var(--item-rotate) + 11deg)) scale(calc(var(--item-scale) * 1.15));
+    }
+    100% {
+        transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+}
+
+body.theme-summer .day-box,
+body.theme-summer .day-picker-box,
+body.theme-summer .icon-btn,
+body.theme-summer .small-icon-btn,
+body.theme-summer input,
+body.theme-summer textarea,
+body.theme-summer select,
+body.theme-summer .notes-editable,
+body.theme-summer .phrase-card,
+body.theme-summer .chip,
+body.theme-summer .toolbox-item,
+body.theme-summer .resource-card,
+body.theme-summer .polaroid-card,
+body.theme-summer .filter-tab,
+body.theme-summer .day-target-box,
+body.theme-summer .flashcard,
+body.theme-summer .flashcard-mode-card,
+body.theme-summer .day-badge,
+body.theme-summer .video-placeholder,
+body.theme-summer .theme-picker-card,
+body.theme-summer .note-audio-row,
+body.theme-summer .modal-box {
+    background: rgba(255,249,243,.95) !important;
+    background-color: rgba(255,249,243,.95) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(91,76,74,.14) !important;
+    box-shadow: 0 1px 2px rgba(91,76,74,.03), 0 5px 14px rgba(91,76,74,.025) !important;
+    filter: none !important;
+}
+
+body.theme-summer .day-box:hover,
+body.theme-summer .day-picker-box:hover,
+body.theme-summer .small-icon-btn:hover,
+body.theme-summer .phrase-card:hover,
+body.theme-summer .chip:hover,
+body.theme-summer .toolbox-item:hover,
+body.theme-summer .resource-card:hover,
+body.theme-summer .polaroid-card:hover,
+body.theme-summer .filter-tab:hover,
+body.theme-summer .day-target-box:hover,
+body.theme-summer .flashcard-mode-card:hover,
+body.theme-summer .theme-picker-card:hover {
+    background: #fff1df !important;
+    background-color: #fff1df !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(91,76,74,.20) !important;
+}
+
+body.theme-summer .day-picker-box.selected,
+body.theme-summer .filter-tab.active {
+    background: #ffe4bf !important;
+    background-color: #ffe4bf !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(91,76,74,.24) !important;
+}
+
+html body.theme-summer .side-nav .icon-btn,
+html body.theme-summer .side-nav .icon-btn:hover,
+html body.theme-summer .side-nav .icon-btn:focus,
+html body.theme-summer .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-summer .side-nav .icon-btn::before,
+html body.theme-summer .side-nav .icon-btn::after {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-summer .side-nav .icon-btn:hover {
+    transform: scale(1.15);
+}
+
+body.theme-summer .progress-bar-track {
+    background: rgba(91,76,74,.10);
+}
+
+body.theme-summer .progress-bar-fill {
+    background: linear-gradient(90deg, #8ed8e9, #ffd36e, #ef6f9f);
+}
+
+body.theme-summer #summer-background { z-index: 0; }
+body.theme-summer .view { position: relative; z-index: 2; }
+body.theme-summer .side-nav { position: relative; z-index: 3; }
+body.theme-summer header,
+body.theme-summer .log-header-container { position: relative; z-index: 4; }
+body.theme-summer .modal,
+body.theme-summer .modal-overlay,
+body.theme-summer .overlay { z-index: 10; }
+
+@media (max-width: 700px) {
+    #summer-background .theme-summer-item {
+        max-width: 148px;
+        max-height: 148px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #summer-background * {
+        animation: none !important;
+    }
+}
+
+
+/* ============================================================
+   SUMMER INTRO DANCE
+   A subset of summer SVGs bobs while the intro music is actually
+   playing. Existing hover reactions remain on the wrapper.
+   ============================================================ */
+
+#summer-background.summer-intro-playing
+.theme-summer-item.theme-summer-intro-dancer
+.theme-summer-object-image {
+    animation:
+        themeSummerIntroDance
+        var(--summer-dance-duration, .78s)
+        ease-in-out
+        var(--summer-dance-delay, 0s)
+        infinite;
+    will-change: translate;
+}
+
+@keyframes themeSummerIntroDance {
+    0%, 100% {
+        translate: 0 0;
+    }
+
+    45% {
+        translate:
+            0
+            calc(var(--summer-dance-height, 14px) * -1);
+    }
+
+    68% {
+        translate: 0 -3px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #summer-background.summer-intro-playing
+    .theme-summer-item.theme-summer-intro-dancer
+    .theme-summer-object-image {
+        animation: none !important;
+    }
+}

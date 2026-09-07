@@ -1,0 +1,83 @@
+/* ============================================================
+   BIKINI BOTTOM THEME
+   Big randomized animated characters in an underwater scene.
+   ============================================================ */
+body.theme-bikinibottom {
+    --black:#24445a;
+    --white:#f7fffb;
+    --bg-overlay:transparent;
+    --muted-text:rgba(36,68,90,.58);
+    --track-bg:rgba(33,139,164,.14);
+    background:
+        radial-gradient(circle at 50% 0%,rgba(255,255,255,.72),transparent 28%),
+        linear-gradient(180deg,#8ee7ea 0%,#63ccd5 44%,#4fb3c0 72%,#e8d38f 100%) !important;
+    background-attachment:fixed !important;
+    color:#24445a !important;
+}
+body.theme-bikinibottom .view:not(#grid-view)::before{background:transparent!important;background-image:none!important;opacity:0!important}
+#bikinibottom-background{--px:50vw;--py:50vh;--parx:0px;--pary:0px;position:fixed;inset:0;width:100vw;height:100vh;overflow:hidden;pointer-events:none;user-select:none;z-index:0;isolation:isolate}
+body.theme-bikinibottom .view{position:relative!important;z-index:2!important}
+body.theme-bikinibottom .side-nav{z-index:3!important}
+body.theme-bikinibottom header,body.theme-bikinibottom .log-header-container{position:relative;z-index:4!important}
+#bikinibottom-background .theme-bikinibottom-water,#bikinibottom-background .theme-bikinibottom-rays,#bikinibottom-background .theme-bikinibottom-flowers,#bikinibottom-background .theme-bikinibottom-bubbles,#bikinibottom-background .theme-bikinibottom-sand{position:absolute;inset:0;pointer-events:none}
+#bikinibottom-background .theme-bikinibottom-water{background:radial-gradient(circle 190px at var(--px) var(--py),rgba(255,255,255,.28),rgba(114,226,231,.12) 46%,transparent 75%),radial-gradient(ellipse 45% 28% at 24% 20%,rgba(255,255,255,.20),transparent 75%);mix-blend-mode:screen}
+#bikinibottom-background .theme-bikinibottom-rays{inset:-12%;background:linear-gradient(108deg,transparent 10%,rgba(255,255,255,.20) 20%,transparent 31%),linear-gradient(76deg,transparent 34%,rgba(255,255,255,.16) 44%,transparent 54%),linear-gradient(110deg,transparent 58%,rgba(255,255,255,.14) 68%,transparent 78%);filter:blur(7px);opacity:.7;animation:bikiniRays 16s ease-in-out infinite alternate}
+@keyframes bikiniRays{from{transform:translate3d(-2%,-1%,0) skewX(-1deg)}to{transform:translate3d(2%,2%,0) skewX(1deg)}}
+#bikinibottom-background .theme-bikinibottom-flowers{transform:translate3d(calc(var(--parx)*.14),calc(var(--pary)*.11),0);transition:transform .2s ease-out}
+#bikinibottom-background .theme-bikinibottom-sea-flower{position:absolute;width:var(--sf-size);height:var(--sf-size);opacity:.22;transform:translate(-50%,-50%) rotate(var(--sf-rot));animation:bikiniFlower 7s ease-in-out var(--sf-delay) infinite alternate}
+#bikinibottom-background .theme-bikinibottom-sea-flower::before,#bikinibottom-background .theme-bikinibottom-sea-flower::after{content:"";position:absolute;inset:0;margin:auto;width:22%;height:100%;border-radius:999px;background:rgba(255,255,255,.68)}
+#bikinibottom-background .theme-bikinibottom-sea-flower::after{transform:rotate(60deg)}
+#bikinibottom-background .theme-bikinibottom-sea-flower{background:linear-gradient(60deg,transparent 41%,rgba(255,238,155,.55) 42% 58%,transparent 59%)}
+@keyframes bikiniFlower{from{translate:0 0;rotate:-3deg}to{translate:0 -9px;rotate:3deg}}
+#bikinibottom-background .theme-bikinibottom-bubble{position:absolute;display:block;width:var(--b-size);height:var(--b-size);border-radius:50%;border:1px solid rgba(238,255,255,.58);background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.32),transparent 68%);animation:bikiniBubble var(--b-dur) linear var(--b-delay) infinite}
+@keyframes bikiniBubble{from{transform:translate3d(0,12vh,0);opacity:0}14%{opacity:.62}to{transform:translate3d(var(--b-drift),-112vh,0);opacity:0}}
+#bikinibottom-background .theme-bikinibottom-sand{top:auto;bottom:-8vh;height:30vh;background:linear-gradient(180deg,rgba(242,220,145,.05),rgba(235,207,125,.82));clip-path:ellipse(84% 70% at 50% 100%)}
+#bikinibottom-background .theme-bikinibottom-item{position:absolute;width:var(--w);max-width:165px;transform:translate3d(-50%,-50%,0) rotate(var(--r)) scale(var(--s));transform-origin:center;opacity:.91;filter:drop-shadow(0 14px 18px rgba(24,74,86,.17)) drop-shadow(0 0 10px rgba(255,255,255,.16));animation:bikiniFloat var(--dur) ease-in-out var(--delay) infinite;will-change:transform}
+#bikinibottom-background .theme-bikinibottom-character-wrap{
+    width:100%;
+    height:100%;
+    transform-origin:center bottom;
+}
+#bikinibottom-background .theme-bikinibottom-item img{
+    display:block;
+    width:100%;
+    height:auto;
+    object-fit:contain;
+    pointer-events:none;
+    user-select:none;
+    -webkit-user-drag:none;
+    transform:scale(1);
+    transform-origin:center;
+    transition:transform .22s ease,filter .22s ease;
+}
+#bikinibottom-background .theme-bikinibottom-item.theme-bikinibottom-hovered img{
+    transform:scale(1.07);
+    filter:drop-shadow(0 4px 8px rgba(24,74,86,.10));
+}
+@keyframes bikiniFloat{0%,100%{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(var(--r)) scale(var(--s))}50%{transform:translate3d(-50%,-50%,0) translate3d(var(--dx),var(--dy),0) rotate(calc(var(--r)+2deg)) scale(calc(var(--s)*1.02))}}
+body.theme-bikinibottom .day-box,body.theme-bikinibottom .day-picker-box,body.theme-bikinibottom .filter-tab,body.theme-bikinibottom .chip,body.theme-bikinibottom .phrase-card,body.theme-bikinibottom .toolbox-item,body.theme-bikinibottom .resource-card,body.theme-bikinibottom .flashcard,body.theme-bikinibottom .theme-picker-card,body.theme-bikinibottom input,body.theme-bikinibottom textarea,body.theme-bikinibottom select{background:rgba(247,255,251,.88)!important;color:#24445a!important;border-color:rgba(36,68,90,.15)!important;background-image:none!important}
+body.theme-bikinibottom .filter-tabs,body.theme-bikinibottom #library-filter-tabs,body.theme-bikinibottom #quiz-type-filters,body.theme-bikinibottom .set-size-picker{background:transparent!important;background-image:none!important;box-shadow:none!important}
+body.theme-bikinibottom .side-nav .icon-btn,body.theme-bikinibottom .side-nav .icon-btn:hover,body.theme-bikinibottom .side-nav .icon-btn:focus,body.theme-bikinibottom .side-nav .icon-btn:active{background:transparent!important;background-color:transparent!important;background-image:none!important;border:none!important;box-shadow:none!important}
+body.theme-bikinibottom .side-nav .icon-btn::before,body.theme-bikinibottom .side-nav .icon-btn::after{content:none!important}
+@media(max-width:700px){#bikinibottom-background .theme-bikinibottom-item{width:min(var(--w),34vw);max-width:155px}}
+@media(prefers-reduced-motion:reduce){#bikinibottom-background *{animation:none!important}}
+
+
+/* Intro-dance: a subset of SVGs bop only while the intro is actually playing. */
+#bikinibottom-background.bikinibottom-intro-playing .theme-bikinibottom-item.theme-bikinibottom-intro-dancer .theme-bikinibottom-character-wrap {
+    animation: themeBikinibottomIntroDance var(--dance-duration,.74s) ease-in-out var(--dance-delay,0s) infinite;
+    transform-origin:center bottom;
+    will-change:transform;
+}
+
+@keyframes themeBikinibottomIntroDance {
+    0%,100% { transform:translateY(0) scale(1); }
+    44% { transform:translateY(calc(var(--dance-height,16px) * -1)) scale(1.03); }
+    68% { transform:translateY(-3px) scale(1.01); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #bikinibottom-background.bikinibottom-intro-playing .theme-bikinibottom-item.theme-bikinibottom-intro-dancer .theme-bikinibottom-character-wrap {
+        animation:none !important;
+    }
+}

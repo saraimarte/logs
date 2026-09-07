@@ -1,0 +1,592 @@
+/* ============================================================
+   FASHIONISTA
+   Decorative theme only.
+   Does not restructure the application.
+   ============================================================ */
+
+body.theme-fashionista {
+
+    --fashion-ink: #35101f;
+    --fashion-burgundy: #641a38;
+    --fashion-wine: #4b1028;
+
+    --fashion-gold: #c69b57;
+    --fashion-gold-soft: #ead19a;
+
+    --fashion-ivory: #f8f2e7;
+
+    --fashion-muted: rgba(53, 16, 31, .56);
+
+    /*
+     * Keep the application's existing theme variables working.
+     */
+    --black: var(--fashion-ink);
+    --white: var(--fashion-ivory);
+
+    --bg-overlay: transparent;
+
+    --thick-border:
+        2px solid rgba(100, 26, 56, .24);
+
+    --thin-border:
+        1px solid rgba(100, 26, 56, .18);
+
+    --dashed-border:
+        1px dashed rgba(100, 26, 56, .18);
+
+    --dotted-border:
+        1px dotted rgba(100, 26, 56, .18);
+
+    --track-bg:
+        rgba(100, 26, 56, .10);
+
+    --muted-text:
+        var(--fashion-muted);
+
+    background:
+        radial-gradient(
+            ellipse at 50% -10%,
+            rgba(255, 255, 255, .72),
+            transparent 48%
+        ),
+        radial-gradient(
+            ellipse at 10% 90%,
+            rgba(198, 155, 87, .09),
+            transparent 30%
+        ),
+        radial-gradient(
+            ellipse at 90% 15%,
+            rgba(100, 26, 56, .05),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #f6efe3 0%,
+            #fbf7ef 48%,
+            #f2e9da 100%
+        );
+
+    background-attachment: fixed;
+
+    color:
+        var(--fashion-ink);
+}
+
+
+/* ============================================================
+   BACKGROUND
+   ============================================================ */
+
+#fashionista-background {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    user-select: none;
+
+    /*
+     * The decorative layer is BELOW the application.
+     */
+    z-index: 0;
+
+    isolation: isolate;
+}
+
+
+/*
+ * Very subtle background illumination.
+ *
+ * This is NOT an overlay over the application.
+ * It exists only inside the dedicated background layer.
+ */
+
+#fashionista-background::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -10%;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 50%,
+            rgba(255, 250, 240, .22),
+            transparent 62%
+        );
+
+    z-index: 0;
+}
+
+
+/* ============================================================
+   DECORATIVE OBJECTS
+   ============================================================ */
+
+.fashionista-item {
+
+    position: absolute;
+
+    pointer-events: none;
+
+    user-select: none;
+
+    z-index: 2;
+
+    transform-origin: center center;
+
+    opacity: var(--fashion-opacity);
+
+    transform:
+        translate3d(0, 0, 0)
+        rotate(var(--fashion-rotate))
+        scale(var(--fashion-scale));
+
+    will-change: transform;
+
+    animation:
+        fashionistaFloat
+        var(--fashion-duration)
+        ease-in-out
+        var(--fashion-delay)
+        infinite;
+}
+
+
+/*
+ * Slight depth differences.
+ *
+ * These do NOT change application stacking.
+ * They only alter decorative movement.
+ */
+
+.fashionista-depth-1 {
+    filter:
+        drop-shadow(
+            0 5px 10px rgba(53, 16, 31, .10)
+        );
+}
+
+.fashionista-depth-2 {
+    filter:
+        drop-shadow(
+            0 6px 12px rgba(53, 16, 31, .12)
+        );
+}
+
+.fashionista-depth-3 {
+    filter:
+        drop-shadow(
+            0 7px 14px rgba(53, 16, 31, .14)
+        );
+}
+
+
+/* ============================================================
+   SVG
+   ============================================================ */
+
+/*
+ * IMPORTANT:
+ *
+ * No fill.
+ * No stroke.
+ * No color.
+ * No filter.
+ * No recoloring.
+ *
+ * The SVGs retain their original burgundy, gold, brown,
+ * pearl, garnet, etc. colors.
+ */
+
+.fashionista-item svg {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    max-width: none;
+
+    overflow: visible;
+
+    pointer-events: none;
+}
+
+
+/* ============================================================
+   FLOATING MOTION
+   ============================================================ */
+
+@keyframes fashionistaFloat {
+
+    0% {
+
+        transform:
+            translate3d(0, 0, 0)
+            rotate(var(--fashion-rotate))
+            scale(var(--fashion-scale));
+    }
+
+    25% {
+
+        transform:
+            translate3d(
+                calc(var(--fashion-drift-x) * .35),
+                calc(var(--fashion-drift-y) * -.35),
+                0
+            )
+            rotate(
+                calc(var(--fashion-rotate) + 1deg)
+            )
+            scale(var(--fashion-scale));
+    }
+
+    50% {
+
+        transform:
+            translate3d(
+                var(--fashion-drift-x),
+                var(--fashion-drift-y),
+                0
+            )
+            rotate(
+                calc(var(--fashion-rotate) - 1deg)
+            )
+            scale(
+                calc(var(--fashion-scale) * 1.015)
+            );
+    }
+
+    75% {
+
+        transform:
+            translate3d(
+                calc(var(--fashion-drift-x) * -.35),
+                calc(var(--fashion-drift-y) * .25),
+                0
+            )
+            rotate(
+                calc(var(--fashion-rotate) + .7deg)
+            )
+            scale(var(--fashion-scale));
+    }
+
+    100% {
+
+        transform:
+            translate3d(0, 0, 0)
+            rotate(var(--fashion-rotate))
+            scale(var(--fashion-scale));
+    }
+}
+
+
+/* ============================================================
+   GOLD GLINTS
+   ============================================================ */
+
+.fashionista-glint {
+
+    position: absolute;
+
+    width: var(--glint-size);
+    height: var(--glint-size);
+
+    border-radius: 50%;
+
+    background:
+        rgba(172, 133, 78, .48);
+
+    box-shadow:
+        0 0 8px rgba(172, 133, 78, .25);
+
+    pointer-events: none;
+
+    z-index: 1;
+
+    opacity: 0;
+
+    animation:
+        fashionistaGlint
+        var(--glint-duration)
+        ease-in-out
+        var(--glint-delay)
+        infinite;
+}
+
+
+@keyframes fashionistaGlint {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            scale(.35);
+    }
+
+    40% {
+
+        opacity: .38;
+
+        transform:
+            scale(1);
+    }
+
+    60% {
+
+        opacity: .12;
+
+        transform:
+            scale(.7);
+    }
+
+    100% {
+
+        opacity: 0;
+
+        transform:
+            scale(.3);
+    }
+}
+
+
+/* ============================================================
+   APPLICATION
+   ============================================================ */
+
+/*
+ * The app stays above the decorative layer.
+ *
+ * This is intentionally limited to the application's outer
+ * containers and does NOT touch the cursor or companion system.
+ */
+
+body.theme-fashionista #app {
+
+    position: relative;
+
+    z-index: 3;
+}
+
+
+/* ============================================================
+   TEXT
+   ============================================================ */
+
+body.theme-fashionista h1,
+body.theme-fashionista h2,
+body.theme-fashionista h3,
+body.theme-fashionista h4,
+body.theme-fashionista h5,
+body.theme-fashionista h6,
+body.theme-fashionista p,
+body.theme-fashionista label {
+
+    color:
+        var(--fashion-ink);
+}
+
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+
+body.theme-fashionista input::placeholder,
+body.theme-fashionista textarea::placeholder {
+
+    color:
+        rgba(53, 16, 31, .42);
+}
+
+
+/* ============================================================
+   ICON BUTTONS
+   ============================================================ */
+
+/*
+ * Transparent normally.
+ * Subtle surface only when hovered.
+ *
+ * These are scoped so the cursor picker is not accidentally
+ * affected.
+ */
+
+body.theme-fashionista .icon-btn,
+body.theme-fashionista .small-icon-btn {
+
+    background: transparent;
+
+    box-shadow: none;
+}
+
+
+body.theme-fashionista .icon-btn:hover,
+body.theme-fashionista .small-icon-btn:hover {
+
+    background:
+        rgba(100, 26, 56, .10);
+
+    color:
+        var(--fashion-burgundy);
+}
+
+
+/* ============================================================
+   TABS
+   ============================================================ */
+
+/*
+ * Do not move the tabs.
+ * Do not position them.
+ * Do not change their structure.
+ */
+
+body.theme-fashionista .filter-tab,
+body.theme-fashionista .tab,
+body.theme-fashionista .tab-button {
+
+    background: transparent;
+
+    background-image: none;
+
+    color:
+        var(--fashion-ink);
+}
+
+
+body.theme-fashionista .filter-tab:hover,
+body.theme-fashionista .tab:hover,
+body.theme-fashionista .tab-button:hover {
+
+    background:
+        rgba(100, 26, 56, .075);
+
+    color:
+        var(--fashion-burgundy);
+}
+
+
+body.theme-fashionista .filter-tab.active,
+body.theme-fashionista .tab.active,
+body.theme-fashionista .tab-button.active,
+body.theme-fashionista .filter-tab[aria-selected="true"],
+body.theme-fashionista .tab[aria-selected="true"] {
+
+    background:
+        rgba(100, 26, 56, .075);
+
+    color:
+        var(--fashion-burgundy);
+}
+
+
+/* ============================================================
+   CHIPS / SELECTIONS
+   ============================================================ */
+
+body.theme-fashionista .chip:hover,
+body.theme-fashionista .day-picker-box.selected {
+
+    background:
+        rgba(100, 26, 56, .10);
+
+    color:
+        var(--fashion-wine);
+
+    border-color:
+        rgba(198, 155, 87, .75);
+}
+
+
+/* ============================================================
+   DO NOT TOUCH CURSOR
+   ============================================================ */
+
+/*
+ * No generic cursor selectors are used here.
+ *
+ * The existing cursor system remains completely untouched.
+ */
+
+
+/* ============================================================
+   DO NOT TOUCH COMPANIONS
+   ============================================================ */
+
+/*
+ * No companion selectors.
+ * No walking positioning.
+ * No flying positioning.
+ * No animation overrides.
+ */
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .fashionista-item {
+
+        /*
+         * Slightly quieter on smaller screens so the actual
+         * application remains the visual priority.
+         */
+        opacity:
+            calc(var(--fashion-opacity) * .82);
+    }
+
+}
+
+
+@media (max-width: 620px) {
+
+    .fashionista-item {
+
+        opacity:
+            calc(var(--fashion-opacity) * .68);
+    }
+
+    /*
+     * Fewer decorative glints on phones.
+     */
+    .fashionista-glint {
+
+        opacity: .65;
+    }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    #fashionista-background *,
+    #fashionista-background::before {
+
+        animation: none !important;
+    }
+
+    .fashionista-item {
+
+        transform:
+            rotate(var(--fashion-rotate))
+            scale(var(--fashion-scale));
+    }
+}

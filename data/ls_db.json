@@ -1,0 +1,60 @@
+{
+  "days": {},
+  "tools": [],
+  "phrases": [],
+  "phrase_meta": {},
+  "srs": {},
+  "reading_gallery": [],
+  "startDate": null,
+  "settings": {
+    "categories": [
+      "Category"
+    ],
+    "categorySettings": {
+      "Category": {
+        "fields": []
+      }
+    },
+    "enableParts": true,
+    "ttsLang": "ko",
+    "libraryView": "list",
+    "hideCategoriesInPolaroid": false,
+    "companion": "none",
+    "cursorStyle": "default",
+    "cursorTrails": {
+      "sparkle": true,
+      "hearts": true,
+      "bubbles": true
+    },
+    "virtualKeyboardLanguage": "korean",
+    "hideDailyLogSearch": false,
+    "customTabs": [],
+    "trash": {
+      "tabs": [],
+      "components": [],
+      "kbItems": []
+    },
+    "weeklyReviewNotes": {},
+    "deletedThemes": [],
+    "customThemeDeleted": false,
+    "customTheme": {
+      "name": "My Custom Theme",
+      "background": "#f4f1ff",
+      "surface": "#ffffff",
+      "text": "#171717",
+      "border": "#171717",
+      "accent": "#7c3aed",
+      "muted": "#6b7280",
+      "radius": 14,
+      "shadow": 4,
+      "font": "hand",
+      "backgroundImage": "",
+      "introAudio": "",
+      "audioStart": 0,
+      "audioEnd": 20,
+      "audioFade": true,
+      "backgroundSvgs": []
+    },
+    "theme": "theme-sodapop"
+  }
+}

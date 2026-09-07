@@ -1,0 +1,3167 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-07T22:18:05.130Z",
+  "overrides": {
+    "theme-red": {
+      "id": "theme-red",
+      "name": "Hearts of Cards",
+      "theme": {
+        "kbCategoryBorderColorV97": "#d8aaad",
+        "kbCategoryHoverBorderColorV97": "#d8aaad",
+        "kbCategoryShadowSizeV97": 0,
+        "svgHoverSoundNoIntroV97": false,
+        "dailySearchRadiusV68": 10,
+        "knowledgeSearchRadiusV68": 10,
+        "customTabSearchRadiusV68": 11,
+        "useThemeCursor": true,
+        "themeCursorStyle": "default",
+        "useThemeCompanion": true,
+        "themeCompanion": "none",
+        "svgAllowOverlap": false,
+        "introSvgBopMode": "some",
+        "svgGlobalScale": 100,
+        "kbCategoryFocusBackgroundColor": "#e38a8e",
+        "kbCategoryFocusTextColor": "#5c1d1f",
+        "kbCategoryFocusBorderColor": "#d8aaad",
+        "backButtonColor": "#171717",
+        "tabNavIndividualBackgroundEnabled": false,
+        "tabNavIndividualBackgroundColor": "#ffffff",
+        "tabNavIndividualBackgroundOpacity": 88,
+        "kbCategoryBackgroundColor": "#fff7f5",
+        "kbCategoryTextColor": "#5c1d1f",
+        "kbCategoryHoverBackgroundColor": "#fde5e3",
+        "kbCategoryHoverTextColor": "#5c1d1f",
+        "svgDefaultAnimation": "float",
+        "svgScenePreset": "scatter",
+        "hoverColor": "#fde5e3",
+        "hoverOpacity": 28,
+        "introSvgBounceEnabled": false,
+        "svgHoverSoundsEnabled": false,
+        "svgHoverSoundMode": "random",
+        "svgHoverSounds": [],
+        "svgDistribution": "balanced-spread",
+        "tabNavBackgroundEnabled": false,
+        "tabNavBackgroundColor": "#ffffff",
+        "tabNavBackgroundOpacity": 88,
+        "name": "Hearts of Cards",
+        "background": "#fff8f5",
+        "surface": "#fff7f5",
+        "text": "#5c1d1f",
+        "border": "#d8aaad",
+        "accent": "#e38a8e",
+        "muted": "#8e5d60",
+        "radius": 12,
+        "shadow": 4,
+        "font": "hand",
+        "backgroundImage": "",
+        "backgroundImageName": "",
+        "introAudio": "/sounds/intros/lnplusmusic-cuban-latin-trap-beat-469610.mp3",
+        "introAudioName": "lnplusmusic-cuban-latin-trap-beat-469610.mp3",
+        "audioPlayMode": "segment",
+        "audioStart": 0,
+        "audioEnd": 20,
+        "audioFade": true,
+        "backgroundSvgs": [
+          {
+            "name": "theme-red-01.svg",
+            "url": "/svg/theme-red/theme-red-01.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-02.svg",
+            "url": "/svg/theme-red/theme-red-02.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-03.svg",
+            "url": "/svg/theme-red/theme-red-03.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-04.svg",
+            "url": "/svg/theme-red/theme-red-04.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-05.svg",
+            "url": "/svg/theme-red/theme-red-05.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-06.svg",
+            "url": "/svg/theme-red/theme-red-06.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-07.svg",
+            "url": "/svg/theme-red/theme-red-07.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-08.svg",
+            "url": "/svg/theme-red/theme-red-08.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-09.svg",
+            "url": "/svg/theme-red/theme-red-09.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-10.svg",
+            "url": "/svg/theme-red/theme-red-10.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-11.svg",
+            "url": "/svg/theme-red/theme-red-11.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-12.svg",
+            "url": "/svg/theme-red/theme-red-12.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-13.svg",
+            "url": "/svg/theme-red/theme-red-13.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-14.svg",
+            "url": "/svg/theme-red/theme-red-14.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-15.svg",
+            "url": "/svg/theme-red/theme-red-15.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-16.svg",
+            "url": "/svg/theme-red/theme-red-16.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-17.svg",
+            "url": "/svg/theme-red/theme-red-17.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-18.svg",
+            "url": "/svg/theme-red/theme-red-18.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100
+          },
+          {
+            "name": "theme-red-19.svg",
+            "url": "/svg/theme-red/theme-red-19.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": ""
+          },
+          {
+            "name": "theme-red-20.svg",
+            "url": "/svg/theme-red/theme-red-20.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": ""
+          },
+          {
+            "name": "theme-red-21.svg",
+            "url": "/svg/theme-red/theme-red-21.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": ""
+          },
+          {
+            "name": "theme-red-22.svg",
+            "url": "/svg/theme-red/theme-red-22.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": ""
+          },
+          {
+            "name": "theme-red-23.svg",
+            "url": "/svg/theme-red/theme-red-23.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": ""
+          },
+          {
+            "name": "theme-red-24.svg",
+            "url": "/svg/theme-red/theme-red-24.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": ""
+          },
+          {
+            "name": "theme-red-25.svg",
+            "url": "/svg/theme-red/theme-red-25.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": ""
+          },
+          {
+            "name": "theme-red-26.svg",
+            "url": "/svg/theme-red/theme-red-26.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": ""
+          },
+          {
+            "name": "theme-red-27.svg",
+            "url": "/svg/theme-red/theme-red-27.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": ""
+          }
+        ],
+        "tabIconColor": "#5c1d1f",
+        "tabTitleColor": "#5c1d1f",
+        "dailyLogBackgroundEnabled": false,
+        "dailyLogBackgroundColor": "#ffffff",
+        "dailyLogBackgroundOpacity": 90,
+        "contentBackdropEnabled": false,
+        "contentBackdropColor": "#ffffff",
+        "contentBackdropOpacity": 90,
+        "dashboardBackgroundV40": "#fff8f5",
+        "dashboardCardV40": "#fff7f5",
+        "dashboardTextV40": "#d8aaad",
+        "dashboardAccentV40": "#fff7f5",
+        "dashboardTitleColorV79": "#5c1d1f",
+        "dashboardIconColorV81": "#5c1d1f",
+        "dashboardLogIconColorV85": "#5c1d1f",
+        "dashboardLogIconBackgroundV107": "#fff7f5",
+        "dashboardCategoryBackgroundColorV98": "#fff7f5",
+        "dashboardCategoryTextColorV98": "#5c1d1f",
+        "dashboardCategoryHoverBackgroundColorV98": "#fde5e3",
+        "dashboardCategoryHoverTextColorV98": "#5c1d1f",
+        "dashboardCategorySelectedBackgroundColorV98": "#e38a8e",
+        "dashboardCategorySelectedTextColorV98": "#5c1d1f",
+        "dashboardCategoryBorderColorV98": "#d8aaad",
+        "dashboardCategoryHoverBorderColorV98": "#d8aaad",
+        "dashboardCategorySelectedBorderColorV98": "#d8aaad",
+        "dashboardCategoryShadowSizeV98": 0,
+        "backgroundImageProjectPath": "",
+        "introAudioProjectPath": "",
+        "manualPlacementSlotsV40": [
+          {
+            "x": 82,
+            "y": 50
+          },
+          {
+            "x": 81.13743585855437,
+            "y": 57.379707863758085
+          },
+          {
+            "x": 78.59624449034919,
+            "y": 64.36157376641479
+          },
+          {
+            "x": 74.51342217980729,
+            "y": 70.56920350996926
+          },
+          {
+            "x": 69.10907493448916,
+            "y": 75.6679421681614
+          },
+          {
+            "x": 62.67455251325302,
+            "y": 79.38291542016877
+          },
+          {
+            "x": 55.55674168534178,
+            "y": 81.51384809639066
+          },
+          {
+            "x": 48.139365474864775,
+            "y": 81.94586106468059
+          },
+          {
+            "x": 40.822296553245124,
+            "y": 80.65566439409565
+          },
+          {
+            "x": 34.00000000000001,
+            "y": 77.71281292110204
+          },
+          {
+            "x": 28.04026758820053,
+            "y": 73.27595653033757
+          },
+          {
+            "x": 23.26439003478604,
+            "y": 67.58428729826579
+          },
+          {
+            "x": 19.929836134850934,
+            "y": 60.944644586421404
+          },
+          {
+            "x": 18.216372552257823,
+            "y": 53.71497325200737
+          },
+          {
+            "x": 18.216372552257823,
+            "y": 46.28502674799264
+          },
+          {
+            "x": 19.92983613485093,
+            "y": 39.0553554135786
+          },
+          {
+            "x": 23.264390034786025,
+            "y": 32.41571270173422
+          },
+          {
+            "x": 28.040267588200525,
+            "y": 26.724043469662444
+          },
+          {
+            "x": 33.999999999999986,
+            "y": 22.287187078897972
+          },
+          {
+            "x": 40.822296553245096,
+            "y": 19.34433560590436
+          },
+          {
+            "x": 48.13936547486476,
+            "y": 18.05413893531942
+          },
+          {
+            "x": 55.55674168534176,
+            "y": 18.48615190360934
+          },
+          {
+            "x": 62.674552513253005,
+            "y": 20.61708457983123
+          },
+          {
+            "x": 69.10907493448914,
+            "y": 24.332057831838593
+          },
+          {
+            "x": 74.51342217980729,
+            "y": 29.430796490030733
+          },
+          {
+            "x": 78.59624449034919,
+            "y": 35.6384262335852
+          },
+          {
+            "x": 81.13743585855437,
+            "y": 42.62029213624191
+          }
+        ],
+        "audioVolume": 100,
+        "svgHoverVolume": 72,
+        "dashboardPlacementSlotsV47": [
+          {
+            "x": 10.708575354401546,
+            "y": 15.93136706514997
+          },
+          {
+            "x": 80.10644002916524,
+            "y": 88.86191478730325
+          },
+          {
+            "x": 88.94397187729737,
+            "y": 22.83865058464289
+          },
+          {
+            "x": 15.271343336757637,
+            "y": 71.6245001469506
+          },
+          {
+            "x": 57.23981245298637,
+            "y": 52.083637308698826
+          },
+          {
+            "x": 48.28160495627526,
+            "y": 20.102031313374027
+          },
+          {
+            "x": 10.562772107616183,
+            "y": 43.56128072336287
+          },
+          {
+            "x": 90.66168342450328,
+            "y": 55.608720830805396
+          },
+          {
+            "x": 39.104199328096,
+            "y": 87.40356799528672
+          },
+          {
+            "x": 68.51397363331489,
+            "y": 70.62815278884955
+          },
+          {
+            "x": 32.19973522653163,
+            "y": 55.50917092660484
+          },
+          {
+            "x": 67.28537464287729,
+            "y": 33.8201589640239
+          },
+          {
+            "x": 30.103210194938583,
+            "y": 32.693797588625785
+          },
+          {
+            "x": 48.58925458795995,
+            "y": 68.9536444885598
+          },
+          {
+            "x": 21.2281655866027,
+            "y": 88.1010310293932
+          },
+          {
+            "x": 45.8196040943003,
+            "y": 41.73811519185256
+          },
+          {
+            "x": 55.61450715792489,
+            "y": 86.51644950851187
+          },
+          {
+            "x": 33.572899534294265,
+            "y": 15.864086396321
+          },
+          {
+            "x": 79.77734064200195,
+            "y": 63.48162958746707
+          },
+          {
+            "x": 59.14635128263035,
+            "y": 16.828316000879568
+          },
+          {
+            "x": 84.99757728524855,
+            "y": 38.02953915749458
+          },
+          {
+            "x": 90.00181756581878,
+            "y": 77.24197684753017
+          },
+          {
+            "x": 9.956099409762828,
+            "y": 30.58124658478846
+          },
+          {
+            "x": 33.18458128834027,
+            "y": 70.029190884743
+          },
+          {
+            "x": 25.096582043077145,
+            "y": 44.170025462483565
+          },
+          {
+            "x": 69.6357999528065,
+            "y": 45.10406717197718
+          },
+          {
+            "x": 71.26816017462167,
+            "y": 23.061233802645194
+          }
+        ],
+        "backgroundGradientV56": "",
+        "backgroundGradientNameV56": "",
+        "interactiveBackgroundCodeV56": "",
+        "sectionHeadingBackgroundEnabledV59": false,
+        "sectionHeadingBackgroundColorV59": "#fff7f5",
+        "sectionHeadingBackgroundPaddingV59": 6,
+        "knowledgeCardOpacityV63": 100,
+        "dashboardTitleV69": "MY LOGS",
+        "svgHoverAnimationsEnabledV82": false,
+        "svgHoverAnimationV82": "lift",
+        "svgHoverSoundStopModeV87": "immediate",
+        "svgHoverSoundStopDelayV87": 1,
+        "svgHoverSoundFadeOnStopV88": false,
+        "dashboardCategorySelectedColorV85": "#e38a8e",
+        "dashboardCategoryHoverColorV85": "#fde5e3",
+        "_autoColorSeedV107": "#e38a8e"
+      },
+      "updatedAt": "2026-09-07T09:49:51.954Z"
+    },
+    "theme-gold": {
+      "id": "theme-gold",
+      "name": "Gold",
+      "theme": {
+        "kbCategoryBorderColorV97": "#d7c182",
+        "kbCategoryHoverBorderColorV97": "#d7c182",
+        "kbCategoryShadowSizeV97": 0,
+        "svgHoverSoundNoIntroV97": true,
+        "dailySearchRadiusV68": 10,
+        "knowledgeSearchRadiusV68": 10,
+        "customTabSearchRadiusV68": 11,
+        "useThemeCursor": true,
+        "themeCursorStyle": "star",
+        "useThemeCompanion": true,
+        "themeCompanion": "none",
+        "svgAllowOverlap": false,
+        "introSvgBopMode": "some",
+        "svgGlobalScale": 70,
+        "kbCategoryFocusBackgroundColor": "#ebcf76",
+        "kbCategoryFocusTextColor": "#5d4720",
+        "kbCategoryFocusBorderColor": "#d7c182",
+        "backButtonColor": "#171717",
+        "tabNavIndividualBackgroundEnabled": false,
+        "tabNavIndividualBackgroundColor": "#ffffff",
+        "tabNavIndividualBackgroundOpacity": 88,
+        "kbCategoryBackgroundColor": "#fffbf1",
+        "kbCategoryTextColor": "#5d4720",
+        "kbCategoryHoverBackgroundColor": "#f7ecd0",
+        "kbCategoryHoverTextColor": "#5d4720",
+        "svgDefaultAnimation": "float",
+        "svgScenePreset": "scatter",
+        "hoverColor": "#f7ecd0",
+        "hoverOpacity": 28,
+        "introSvgBounceEnabled": true,
+        "svgHoverSoundsEnabled": false,
+        "svgHoverSoundMode": "random",
+        "svgHoverSounds": [
+          {
+            "name": "Arcade Positive Selection",
+            "url": "/sounds/winx/cartoon_music-arcade-game-positive-selection-bling-489760.mp3"
+          },
+          {
+            "name": "Electricity",
+            "url": "/sounds/winx/freesound_community-electricity-sound-6066.mp3"
+          },
+          {
+            "name": "Match Sizzle",
+            "url": "/sounds/winx/freesound_community-match-sizzle-02-104778.mp3"
+          },
+          {
+            "name": "Get Coin",
+            "url": "/sounds/winx/koiroylers-get-coin-351945.mp3"
+          }
+        ],
+        "svgDistribution": "corner-garden",
+        "tabNavBackgroundEnabled": false,
+        "tabNavBackgroundColor": "#ffffff",
+        "tabNavBackgroundOpacity": 88,
+        "name": "Gold",
+        "background": "#fffdf6",
+        "surface": "#fffbf1",
+        "text": "#5d4720",
+        "border": "#d7c182",
+        "accent": "#ebcf76",
+        "muted": "#8b7750",
+        "radius": 8,
+        "shadow": 0,
+        "font": "hand",
+        "backgroundImage": "",
+        "backgroundImageName": "",
+        "introAudio": "/sounds/intros/grand_project-like-it_long-263118.mp3",
+        "introAudioName": "grand_project-like-it_long-263118.mp3",
+        "audioPlayMode": "segment",
+        "audioStart": 0,
+        "audioEnd": 20,
+        "audioFade": true,
+        "backgroundSvgs": [
+          {
+            "name": "theme-gold-01.svg",
+            "url": "/svg/theme-gold/theme-gold-01.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": true,
+            "showOnScreen": false,
+            "visibleV63": false,
+            "visible": false
+          },
+          {
+            "name": "theme-gold-04.svg",
+            "url": "/svg/theme-gold/theme-gold-04.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-05.svg",
+            "url": "/svg/theme-gold/theme-gold-05.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-06.svg",
+            "url": "/svg/theme-gold/theme-gold-06.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-07.svg",
+            "url": "/svg/theme-gold/theme-gold-07.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-08.svg",
+            "url": "/svg/theme-gold/theme-gold-08.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-09.svg",
+            "url": "/svg/theme-gold/theme-gold-09.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-10.svg",
+            "url": "/svg/theme-gold/theme-gold-10.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-11.svg",
+            "url": "/svg/theme-gold/theme-gold-11.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-12.svg",
+            "url": "/svg/theme-gold/theme-gold-12.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-13.svg",
+            "url": "/svg/theme-gold/theme-gold-13.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-14.svg",
+            "url": "/svg/theme-gold/theme-gold-14.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-15.svg",
+            "url": "/svg/theme-gold/theme-gold-15.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-16.svg",
+            "url": "/svg/theme-gold/theme-gold-16.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-18.svg",
+            "url": "/svg/theme-gold/theme-gold-18.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-19.svg",
+            "url": "/svg/theme-gold/theme-gold-19.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-20.svg",
+            "url": "/svg/theme-gold/theme-gold-20.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-21.svg",
+            "url": "/svg/theme-gold/theme-gold-21.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-22.svg",
+            "url": "/svg/theme-gold/theme-gold-22.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-24.svg",
+            "url": "/svg/theme-gold/theme-gold-24.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": true,
+            "showOnScreen": false,
+            "visibleV63": false,
+            "visible": false
+          },
+          {
+            "name": "theme-gold-25.svg",
+            "url": "/svg/theme-gold/theme-gold-25.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "theme-gold-26.svg",
+            "url": "/svg/theme-gold/theme-gold-26.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "6b5e405f-1784-532e-85d5-0057791026c6.svg",
+            "url": "/svg/theme-gold/6b5e405f-1784-532e-85d5-0057791026c6.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": true,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": false,
+            "visibleV63": false,
+            "visible": false
+          },
+          {
+            "name": "28d57312-4ed4-520c-83c0-ccd5fe9e44ca.svg",
+            "url": "/svg/theme-gold/28d57312-4ed4-520c-83c0-ccd5fe9e44ca.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": true,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": false,
+            "visibleV63": false,
+            "visible": false
+          },
+          {
+            "name": "61f91cf2-c139-5dc3-bb40-82c7ef1179d9.svg",
+            "url": "/svg/theme-gold/61f91cf2-c139-5dc3-bb40-82c7ef1179d9.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": true,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": false,
+            "visibleV63": false,
+            "visible": false
+          },
+          {
+            "name": "a55e5029-0b45-5156-9bdf-7a1664cbad8f.svg",
+            "url": "/svg/theme-gold/a55e5029-0b45-5156-9bdf-7a1664cbad8f.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "ad9e6670-d182-583b-b8a9-3d6cbbe48de8.svg",
+            "url": "/svg/theme-gold/ad9e6670-d182-583b-b8a9-3d6cbbe48de8.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "aff89a35-028f-5bb6-bf1d-ed02d390c73e.svg",
+            "url": "/svg/theme-gold/aff89a35-028f-5bb6-bf1d-ed02d390c73e.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "bb47e67b-cb1f-52a5-b066-003611fc5cc3.svg",
+            "url": "/svg/theme-gold/bb47e67b-cb1f-52a5-b066-003611fc5cc3.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "ChatGPT Image Sep 5, 2026, 04_26_10 PM (1).png",
+            "url": "/svg/theme-gold/ChatGPT%20Image%20Sep%205%2C%202026%2C%2004_26_10%20PM%20(1).png",
+            "type": "png",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "ChatGPT Image Sep 5, 2026, 04_26_11 PM (3).png",
+            "url": "/svg/theme-gold/ChatGPT%20Image%20Sep%205%2C%202026%2C%2004_26_11%20PM%20(3).png",
+            "type": "png",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "db5b4ff8-e01f-5abb-862d-c8931a0c573f.svg",
+            "url": "/svg/theme-gold/db5b4ff8-e01f-5abb-862d-c8931a0c573f.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "e09297c6-609c-519b-b646-0dce44c38bf2.svg",
+            "url": "/svg/theme-gold/e09297c6-609c-519b-b646-0dce44c38bf2.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "fa379c9b-e780-5e9e-a8d3-b4f3debb3027.svg",
+            "url": "/svg/theme-gold/fa379c9b-e780-5e9e-a8d3-b4f3debb3027.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "gold-ornament.svg",
+            "url": "/svg/theme-gold/gold-ornament.svg",
+            "type": "svg",
+            "inheritedBuiltInV109": true,
+            "inheritedBuiltInV121": true,
+            "inheritedBuiltInV123": true,
+            "inheritedBuiltInV127": true,
+            "assetKind": "image",
+            "animation": "float",
+            "animationOverride": "",
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "opacityV109": 100,
+            "inheritedBuiltInV30": true,
+            "inheritedBuiltInV126": true,
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          }
+        ],
+        "tabIconColor": "#5d4720",
+        "tabTitleColor": "#5d4720",
+        "dailyLogBackgroundEnabled": false,
+        "dailyLogBackgroundColor": "#fffdf6",
+        "dailyLogBackgroundOpacity": 90,
+        "contentBackdropEnabled": false,
+        "contentBackdropColor": "#fffdf6",
+        "contentBackdropOpacity": 90,
+        "dashboardBackgroundV40": "#fffdf6",
+        "dashboardCardV40": "#fffbf1",
+        "dashboardTextV40": "#d7c182",
+        "dashboardAccentV40": "#fffbf1",
+        "dashboardTitleColorV79": "#5d4720",
+        "dashboardIconColorV81": "#5d4720",
+        "dashboardLogIconColorV85": "#5d4720",
+        "dashboardLogIconBackgroundV107": "#fffbf1",
+        "dashboardCategoryBackgroundColorV98": "#fffbf1",
+        "dashboardCategoryTextColorV98": "#5d4720",
+        "dashboardCategoryHoverBackgroundColorV98": "#f7ecd0",
+        "dashboardCategoryHoverTextColorV98": "#5d4720",
+        "dashboardCategorySelectedBackgroundColorV98": "#ebcf76",
+        "dashboardCategorySelectedTextColorV98": "#5d4720",
+        "dashboardCategoryBorderColorV98": "#d7c182",
+        "dashboardCategoryHoverBorderColorV98": "#d7c182",
+        "dashboardCategorySelectedBorderColorV98": "#d7c182",
+        "dashboardCategoryShadowSizeV98": 0,
+        "backgroundImageProjectPath": "",
+        "introAudioProjectPath": "",
+        "manualPlacementSlotsV40": [
+          {
+            "x": 82,
+            "y": 50
+          },
+          {
+            "x": 81.48574683515615,
+            "y": 55.713820633556374
+          },
+          {
+            "x": 79.95951586047158,
+            "y": 61.24399437060296
+          },
+          {
+            "x": 77.47036139525972,
+            "y": 66.412776876989
+          },
+          {
+            "x": 74.09828691211555,
+            "y": 71.0540392300708
+          },
+          {
+            "x": 69.95167365947947,
+            "y": 75.01860743897696
+          },
+          {
+            "x": 65.16379719913596,
+            "y": 78.17905701941561
+          },
+          {
+            "x": 59.88854381999832,
+            "y": 80.43380852144492
+          },
+          {
+            "x": 54.295464506164976,
+            "y": 81.7103923765739
+          },
+          {
+            "x": 48.56432542878353,
+            "y": 81.96777812932207
+          },
+          {
+            "x": 42.87933011339794,
+            "y": 81.19769318981835
+          },
+          {
+            "x": 37.42319898707444,
+            "y": 79.42488872164643
+          },
+          {
+            "x": 32.37129659353272,
+            "y": 76.70634411908168
+          },
+          {
+            "x": 27.88599523242033,
+            "y": 73.12943564247652
+          },
+          {
+            "x": 24.111456180001685,
+            "y": 68.80912807335915
+          },
+          {
+            "x": 21.16899622712259,
+            "y": 63.884279651761865
+          },
+          {
+            "x": 19.153188457732696,
+            "y": 58.51317905813361
+          },
+          {
+            "x": 18.12882259215235,
+            "y": 52.86845788490987
+          },
+          {
+            "x": 18.12882259215235,
+            "y": 47.13154211509015
+          },
+          {
+            "x": 19.15318845773269,
+            "y": 41.48682094186641
+          },
+          {
+            "x": 21.168996227122587,
+            "y": 36.11572034823814
+          },
+          {
+            "x": 24.111456180001678,
+            "y": 31.190871926640863
+          },
+          {
+            "x": 27.885995232420328,
+            "y": 26.870564357523474
+          },
+          {
+            "x": 32.37129659353272,
+            "y": 23.29365588091832
+          },
+          {
+            "x": 37.42319898707444,
+            "y": 20.57511127835358
+          },
+          {
+            "x": 42.879330113397934,
+            "y": 18.802306810181644
+          },
+          {
+            "x": 48.56432542878352,
+            "y": 18.032221870677933
+          },
+          {
+            "x": 54.29546450616497,
+            "y": 18.289607623426086
+          },
+          {
+            "x": 59.88854381999831,
+            "y": 19.566191478555083
+          },
+          {
+            "x": 65.16379719913596,
+            "y": 21.82094298058438
+          },
+          {
+            "x": 69.95167365947947,
+            "y": 24.981392561023043
+          },
+          {
+            "x": 74.09828691211554,
+            "y": 28.94596076992919
+          },
+          {
+            "x": 77.47036139525972,
+            "y": 33.587223123011
+          },
+          {
+            "x": 79.95951586047158,
+            "y": 38.75600562939702
+          },
+          {
+            "x": 81.48574683515615,
+            "y": 44.28617936644362
+          }
+        ],
+        "audioVolume": 100,
+        "svgHoverVolume": 72,
+        "dashboardPlacementSlotsV47": [
+          {
+            "x": 9.430443179259555,
+            "y": 14.63563478342985
+          },
+          {
+            "x": 8.771673342387658,
+            "y": 80.1813990376686
+          },
+          {
+            "x": 90.18546690710264,
+            "y": 22.59721495617123
+          },
+          {
+            "x": 48.71539052634762,
+            "y": 89.0870521480534
+          },
+          {
+            "x": 50.62975854868709,
+            "y": 16.734305588882126
+          },
+          {
+            "x": 69.76293994361367,
+            "y": 64.35383042213653
+          },
+          {
+            "x": 27.549703065604263,
+            "y": 37.73342788196169
+          },
+          {
+            "x": 67.11600251491473,
+            "y": 38.65666933931061
+          },
+          {
+            "x": 30.56603155983612,
+            "y": 64.02448280838507
+          },
+          {
+            "x": 91.64769666476059,
+            "y": 66.1317344734598
+          },
+          {
+            "x": 69.92730045703138,
+            "y": 82.11083847060218
+          },
+          {
+            "x": 29.33241906844887,
+            "y": 81.5607546136348
+          },
+          {
+            "x": 87.68197260769011,
+            "y": 38.973834036427434
+          },
+          {
+            "x": 28.657107240094774,
+            "y": 19.91098027107364
+          },
+          {
+            "x": 72.4619656526711,
+            "y": 14.673083165202115
+          },
+          {
+            "x": 9.102312933608118,
+            "y": 64.52291920903969
+          },
+          {
+            "x": 9.553938244433084,
+            "y": 33.591923453572235
+          },
+          {
+            "x": 76.20242828196933,
+            "y": 27.860093670973583
+          },
+          {
+            "x": 19.805228737398465,
+            "y": 74.47634468409342
+          },
+          {
+            "x": 17.954090787505265,
+            "y": 26.199309292191174
+          },
+          {
+            "x": 80.47448531687405,
+            "y": 65.78867889671892
+          },
+          {
+            "x": 71.43982578717623,
+            "y": 72.69263926178974
+          },
+          {
+            "x": 32.95666657232505,
+            "y": 72.10578995424294
+          },
+          {
+            "x": 90.0400352953211,
+            "y": 14.331949055907899
+          },
+          {
+            "x": 77.58942250165273,
+            "y": 37.46701730157292
+          },
+          {
+            "x": 19.405548794391507,
+            "y": 16.084272104002594
+          },
+          {
+            "x": 20.630595251812338,
+            "y": 64.12959505120307
+          },
+          {
+            "x": 8.826241825598117,
+            "y": 23.277819513681607
+          },
+          {
+            "x": 90.62668360756288,
+            "y": 80.86040121339829
+          },
+          {
+            "x": 81.72489093334843,
+            "y": 19.195149136852706
+          }
+        ],
+        "backgroundGradientV56": "",
+        "backgroundGradientNameV56": "",
+        "interactiveBackgroundCodeV56": "<!DOCTYPE html> <html lang=\"en\"> <head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>Gold</title> <style> html, body { width:100%; height:100%; margin:0; overflow:hidden; max-width:100vw; max-height:100vh; }\n{\nbox-sizing:border-box;\n}\n\n:root {\n--base:#fffdf6;\n--surface:#fffbf1;\n--text:#5d4720;\n--muted:#8b7750;\n--accent:#ebcf76;\n--border:#d7c182;\n--mx:0;\n--my:0;\n}\n\nbody {\nbackground:var(--base);\n}\n\n.scene {\nposition:fixed;\ninset:0;\nwidth:100%;\nheight:100%;\nmax-width:100vw;\nmax-height:100vh;\noverflow:hidden;\npointer-events:none;\nbackground:\nradial-gradient(circle at 9% 12%, rgba(235,207,118,.18), transparent 24%),\nradial-gradient(circle at 91% 15%, rgba(215,193,130,.22), transparent 25%),\nradial-gradient(circle at 12% 87%, rgba(139,119,80,.07), transparent 23%),\nradial-gradient(circle at 88% 88%, rgba(235,207,118,.13), transparent 24%),\nlinear-gradient(145deg,#fffdf6 0%,#fffbf1 50%,#fff8e7 100%);\n}\n\n.shimmer {\nposition:absolute;\ninset:0;\nopacity:.56;\nbackground:\nlinear-gradient(\n115deg,\ntransparent 0%,\ntransparent 34%,\nrgba(255,255,255,.66) 42%,\nrgba(235,207,118,.12) 47%,\nrgba(255,255,255,.7) 53%,\ntransparent 62%,\ntransparent 100%\n);\ntransform:translate3d(calc(var(--mx)*9px),calc(var(--my)*4px),0);\nwill-change:transform;\n}\n\n.dots {\nposition:absolute;\ninset:0;\nopacity:.14;\nbackground-image:radial-gradient(circle,rgba(93,71,32,.28) 1px,transparent 1.4px);\nbackground-size:34px 34px;\nmask-image:linear-gradient(to right,#000 0%,transparent 29%,transparent 71%,#000 100%);\n-webkit-mask-image:linear-gradient(to right,#000 0%,transparent 29%,transparent 71%,#000 100%);\n}\n\n.glow {\nposition:absolute;\nborder-radius:50%;\nfilter:blur(22px);\nopacity:.45;\nwill-change:transform;\n}\n\n.glow.g1 {\nwidth:min(34vw,420px);\nheight:min(34vw,420px);\nleft:-11%;\ntop:20%;\nbackground:rgba(235,207,118,.22);\ntransform:translate3d(calc(var(--mx)*8px),calc(var(--my)*6px),0);\n}\n\n.glow.g2 {\nwidth:min(31vw,380px);\nheight:min(31vw,380px);\nright:-9%;\ntop:41%;\nbackground:rgba(215,193,130,.18);\ntransform:translate3d(calc(var(--mx)*-8px),calc(var(--my)*5px),0);\n}\n\n.glow.g3 {\nwidth:min(25vw,300px);\nheight:min(25vw,300px);\nleft:28%;\nbottom:-12%;\nbackground:rgba(235,207,118,.12);\ntransform:translate3d(calc(var(--mx)5px),calc(var(--my)-6px),0);\n}\n\n.ring {\nposition:absolute;\nborder:1.5px solid rgba(215,193,130,.36);\nborder-radius:50%;\nopacity:.55;\nwill-change:transform;\n}\n\n.ring::before,\n.ring::after {\ncontent:\"\";\nposition:absolute;\nborder-radius:50%;\n}\n\n.ring::before {\ninset:14%;\nborder:1px solid rgba(235,207,118,.46);\n}\n\n.ring::after {\ninset:32%;\nborder:1px solid rgba(139,119,80,.17);\n}\n\n.ring.r1 {\nwidth:clamp(105px,14vw,210px);\nheight:clamp(105px,14vw,210px);\nleft:-4%;\ntop:7%;\ntransform:translate3d(calc(var(--mx)*6px),calc(var(--my)*5px),0);\n}\n\n.ring.r2 {\nwidth:clamp(90px,12vw,180px);\nheight:clamp(90px,12vw,180px);\nright:-3%;\nbottom:8%;\ntransform:translate3d(calc(var(--mx)-6px),calc(var(--my)-5px),0);\n}\n\n.arc {\nposition:absolute;\nwidth:clamp(100px,13vw,190px);\nheight:clamp(100px,13vw,190px);\nborder:3px solid transparent;\nborder-top-color:rgba(235,207,118,.42);\nborder-right-color:rgba(215,193,130,.30);\nborder-radius:50%;\nopacity:.5;\nwill-change:transform;\n}\n\n.arc.a1 {\nleft:14%;\nbottom:9%;\ntransform:translate3d(calc(var(--mx)4px),calc(var(--my)-4px),0) rotate(-25deg);\n}\n\n.arc.a2 {\nright:14%;\ntop:17%;\ntransform:translate3d(calc(var(--mx)*-4px),calc(var(--my)*4px),0) rotate(48deg);\n}\n\n.spark {\nposition:absolute;\nwidth:13px;\nheight:13px;\nopacity:.3;\n}\n\n.spark::before,\n.spark::after {\ncontent:\"\";\nposition:absolute;\nleft:50%;\ntop:50%;\nbackground:#d0ad42;\nborder-radius:999px;\ntransform:translate(-50%,-50%);\n}\n\n.spark::before {\nwidth:2px;\nheight:100%;\n}\n\n.spark::after {\nwidth:100%;\nheight:2px;\n}\n\n.spark.s1 { left:22%; top:17%; }\n.spark.s2 { right:23%; top:29%; transform:rotate(45deg); }\n.spark.s3 { left:27%; bottom:20%; transform:rotate(25deg); }\n.spark.s4 { right:26%; bottom:18%; transform:rotate(70deg); }\n.spark.s5 { left:15%; top:56%; transform:rotate(15deg); opacity:.2; }\n.spark.s6 { right:15%; top:57%; transform:rotate(55deg); opacity:.2; }\n\n.fleck {\nposition:absolute;\nwidth:6px;\nheight:6px;\nborder-radius:50%;\nbackground:#ebcf76;\nopacity:.22;\n}\n\n.fleck.f1 { left:30%; top:31%; }\n.fleck.f2 { right:30%; top:38%; }\n.fleck.f3 { left:24%; bottom:32%; }\n.fleck.f4 { right:20%; bottom:34%; }\n.fleck.f5 { left:18%; top:70%; }\n.fleck.f6 { right:18%; top:18%; }\n\n.ripple {\nposition:absolute;\nwidth:12px;\nheight:12px;\nmargin-left:-6px;\nmargin-top:-6px;\nborder:1.5px solid rgba(215,193,130,.52);\nborder-radius:50%;\nopacity:0;\n}\n\n.ripple.active {\nanimation:ripple .9s ease-out forwards;\n}\n\n.particle {\nposition:absolute;\nwidth:5px;\nheight:5px;\nborder-radius:50%;\nopacity:0;\n}\n\n@keyframes ripple {\nfrom {\nopacity:.52;\ntransform:translate3d(0,0,0) scale(.2);\n}\nto {\nopacity:0;\ntransform:translate3d(0,0,0) scale(8);\n}\n}\n\n@media (prefers-reduced-motion:reduce) {\n.shimmer,\n.glow,\n.ring,\n.arc {\ntransform:none !important;\n}\n\n.ripple.active {\nanimation-duration:1ms;\n}\n}\n</style>\n\n</head> <body> <div class=\"scene\" id=\"scene\"> <div class=\"dots\"></div> <div class=\"shimmer\"></div> <div class=\"glow g1\"></div> <div class=\"glow g2\"></div> <div class=\"glow g3\"></div> <div class=\"ring r1\"></div> <div class=\"ring r2\"></div> <div class=\"arc a1\"></div> <div class=\"arc a2\"></div> <div class=\"spark s1\"></div> <div class=\"spark s2\"></div> <div class=\"spark s3\"></div> <div class=\"spark s4\"></div> <div class=\"spark s5\"></div> <div class=\"spark s6\"></div> <div class=\"fleck f1\"></div> <div class=\"fleck f2\"></div> <div class=\"fleck f3\"></div> <div class=\"fleck f4\"></div> <div class=\"fleck f5\"></div> <div class=\"fleck f6\"></div> <div class=\"ripple\" id=\"ripple\"></div> </div> <script> (() => { const scene = document.getElementById(\"scene\"); const ripple = document.getElementById(\"ripple\"); const reduced = matchMedia(\"(prefers-reduced-motion: reduce)\").matches; let tx = 0; let ty = 0; let cx = 0; let cy = 0; let raf = 0; function animate() { cx += (tx - cx) * .05; cy += (ty - cy) * .05; scene.style.setProperty(\"--mx\", cx.toFixed(4)); scene.style.setProperty(\"--my\", cy.toFixed(4)); raf = requestAnimationFrame(animate); } if (!reduced) { raf = requestAnimationFrame(animate); } addEventListener(\"pointermove\", event => { if (reduced) return; const w = Math.max(1, innerWidth); const h = Math.max(1, innerHeight); tx = Math.max(-1, Math.min(1, (event.clientX / w - .5) * 2)); ty = Math.max(-1, Math.min(1, (event.clientY / h - .5) * 2)); }, { passive:true }); addEventListener(\"pointerleave\", () => { tx = 0; ty = 0; }, { passive:true }); addEventListener(\"pointerdown\", event => { const x = Math.max(0, Math.min(innerWidth, event.clientX)); const y = Math.max(0, Math.min(innerHeight, event.clientY)); ripple.classList.remove(\"active\"); ripple.style.left = x + \"px\"; ripple.style.top = y + \"px\"; void ripple.offsetWidth; ripple.classList.add(\"active\"); if (!reduced) burst(x, y); }, { passive:true }); function burst(x, y) { const colors = [\"#ebcf76\",\"#d7c182\",\"#8b7750\",\"#fff1b8\"]; const count = 7; for (let i = 0; i < count; i++) { const p = document.createElement(\"div\"); p.className = \"particle\"; const size = 3 + Math.random() * 5; p.style.width = size + \"px\"; p.style.height = size + \"px\"; p.style.left = (x - size / 2) + \"px\"; p.style.top = (y - size / 2) + \"px\"; p.style.background = colors[i % colors.length]; scene.appendChild(p); const angle = Math.PI * 2 * i / count + (Math.random() - .5) * .3; const distance = 18 + Math.random() * 30; const dx = Math.cos(angle) * distance; const dy = Math.sin(angle) * distance; const animation = p.animate([ { opacity:.48, transform:\"translate3d(0,0,0) scale(.7)\" }, { opacity:0, transform:`translate3d(${dx}px,${dy}px,0) scale(1.15)` } ], { duration:620 + Math.random() * 240, easing:\"cubic-bezier(.2,.7,.25,1)\" }); animation.onfinish = () => p.remove(); } } addEventListener(\"resize\", () => { tx = 0; ty = 0; }, { passive:true }); addEventListener(\"pagehide\", () => { if (raf) cancelAnimationFrame(raf); }, { once:true }); })(); </script> </body> </html>",
+        "sectionHeadingBackgroundEnabledV59": false,
+        "sectionHeadingBackgroundColorV59": "#fffbf1",
+        "sectionHeadingBackgroundPaddingV59": 6,
+        "knowledgeCardOpacityV63": 100,
+        "dashboardTitleV69": "MY LOGS",
+        "svgHoverAnimationsEnabledV82": false,
+        "svgHoverAnimationV82": "lift",
+        "svgHoverSoundStopModeV87": "immediate",
+        "svgHoverSoundStopDelayV87": 0.1,
+        "svgHoverSoundFadeOnStopV88": false,
+        "dashboardCategorySelectedColorV85": "#ebcf76",
+        "dashboardCategoryHoverColorV85": "#f7ecd0",
+        "_autoColorSeedV107": "#ebcf76",
+        "decorationsOpacityV117": 100,
+        "replaceBuiltInDecorationsV30": true,
+        "authoritativeDecorationsV136": true
+      },
+      "updatedAt": "2026-09-07T13:30:32.071Z"
+    },
+    "theme-fancynancy": {
+      "id": "theme-fancynancy",
+      "name": "Fancy Nancy Party",
+      "theme": {
+        "kbCategoryBorderColorV97": "#000000",
+        "kbCategoryHoverBorderColorV97": "#000000",
+        "kbCategoryShadowSizeV97": 0,
+        "svgHoverSoundNoIntroV97": true,
+        "dailySearchRadiusV68": 10,
+        "knowledgeSearchRadiusV68": 10,
+        "customTabSearchRadiusV68": 11,
+        "useThemeCursor": true,
+        "themeCursorStyle": "default",
+        "useThemeCompanion": true,
+        "themeCompanion": "none",
+        "svgAllowOverlap": false,
+        "introSvgBopMode": "some",
+        "svgGlobalScale": 130,
+        "kbCategoryFocusBackgroundColor": "#e91e8c",
+        "kbCategoryFocusTextColor": "#ffffff",
+        "kbCategoryFocusBorderColor": "#000000",
+        "backButtonColor": "#171717",
+        "tabNavIndividualBackgroundEnabled": false,
+        "tabNavIndividualBackgroundColor": "#ffffff",
+        "tabNavIndividualBackgroundOpacity": 88,
+        "kbCategoryBackgroundColor": "#fffdf9",
+        "kbCategoryTextColor": "#5b264d",
+        "kbCategoryHoverBackgroundColor": "#e565aa",
+        "kbCategoryHoverTextColor": "#5b264d",
+        "svgDefaultAnimation": "float",
+        "svgScenePreset": "scatter",
+        "hoverColor": "#e565aa",
+        "hoverOpacity": 28,
+        "introSvgBounceEnabled": false,
+        "svgHoverSoundsEnabled": true,
+        "svgHoverSoundMode": "random",
+        "svgHoverSounds": [
+          {
+            "name": "Arcade Positive Selection",
+            "url": "/sounds/winx/cartoon_music-arcade-game-positive-selection-bling-489760.mp3"
+          },
+          {
+            "name": "Electricity",
+            "url": "/sounds/winx/freesound_community-electricity-sound-6066.mp3"
+          },
+          {
+            "name": "Match Sizzle",
+            "url": "/sounds/winx/freesound_community-match-sizzle-02-104778.mp3"
+          },
+          {
+            "name": "Get Coin",
+            "url": "/sounds/winx/koiroylers-get-coin-351945.mp3"
+          }
+        ],
+        "svgDistribution": "manual-fixed",
+        "tabNavBackgroundEnabled": false,
+        "tabNavBackgroundColor": "#ffffff",
+        "tabNavBackgroundOpacity": 88,
+        "name": "Fancy Nancy Party",
+        "background": "#fff6fb",
+        "surface": "#fffdf9",
+        "text": "#5b264d",
+        "border": "#000000",
+        "accent": "#e91e8c",
+        "muted": "#5b264d",
+        "radius": 8,
+        "shadow": 4,
+        "font": "hand",
+        "backgroundImage": "",
+        "backgroundImageName": "",
+        "introAudio": "/sounds/intros/starostin-whimsical-awkward-comic-music-261166.mp3",
+        "introAudioName": "starostin-whimsical-awkward-comic-music-261166.mp3",
+        "audioPlayMode": "segment",
+        "audioStart": 0,
+        "audioEnd": 35,
+        "audioFade": true,
+        "backgroundSvgs": [
+          {
+            "name": "artist-palette.svg",
+            "url": "/svg/theme-fancynancy/artist-palette.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false
+          },
+          {
+            "name": "feather-duster.svg",
+            "url": "/svg/theme-fancynancy/feather-duster.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false
+          },
+          {
+            "name": "feather-headband.svg",
+            "url": "/svg/theme-fancynancy/feather-headband.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false
+          },
+          {
+            "name": "keytar.svg",
+            "url": "/svg/theme-fancynancy/keytar.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false
+          },
+          {
+            "name": "magnifying-glass-binoculars.svg",
+            "url": "/svg/theme-fancynancy/magnifying-glass-binoculars.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false
+          },
+          {
+            "name": "parasol.svg",
+            "url": "/svg/theme-fancynancy/parasol.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false
+          },
+          {
+            "name": "poodle.svg",
+            "url": "/svg/theme-fancynancy/poodle.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false
+          },
+          {
+            "name": "teacup.svg",
+            "url": "/svg/theme-fancynancy/teacup.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false
+          }
+        ],
+        "tabIconColor": "#5b264d",
+        "tabTitleColor": "#5b264d",
+        "dailyLogBackgroundEnabled": false,
+        "dailyLogBackgroundColor": "#fff6fb",
+        "dailyLogBackgroundOpacity": 90,
+        "contentBackdropEnabled": false,
+        "contentBackdropColor": "#fff6fb",
+        "contentBackdropOpacity": 90,
+        "dashboardBackgroundV40": "#fff6fb",
+        "dashboardCardV40": "#fffdf9",
+        "dashboardTextV40": "#000000",
+        "dashboardAccentV40": "#fffdf9",
+        "dashboardTitleColorV79": "#5b264d",
+        "dashboardIconColorV81": "#5b264d",
+        "dashboardLogIconColorV85": "#5b264d",
+        "dashboardLogIconBackgroundV107": "#fffdf9",
+        "dashboardCategoryBackgroundColorV98": "#fffdf9",
+        "dashboardCategoryTextColorV98": "#5b264d",
+        "dashboardCategoryHoverBackgroundColorV98": "#e565aa",
+        "dashboardCategoryHoverTextColorV98": "#5b264d",
+        "dashboardCategorySelectedBackgroundColorV98": "#e91e8c",
+        "dashboardCategorySelectedTextColorV98": "#ffffff",
+        "dashboardCategoryBorderColorV98": "#000000",
+        "dashboardCategoryHoverBorderColorV98": "#000000",
+        "dashboardCategorySelectedBorderColorV98": "#000000",
+        "dashboardCategoryShadowSizeV98": 0,
+        "backgroundImageProjectPath": "",
+        "introAudioProjectPath": "",
+        "manualPlacementSlotsV40": [
+          {
+            "x": 88.54119829136691,
+            "y": 54.37334343051874
+          },
+          {
+            "x": 3,
+            "y": 74.51722832260508
+          },
+          {
+            "x": 91.59875224820144,
+            "y": 36.95569859901553
+          },
+          {
+            "x": 3.469255845323741,
+            "y": 26.050738356683073
+          },
+          {
+            "x": 8.505227068345324,
+            "y": 45.58879212419538
+          },
+          {
+            "x": 96.99443570143885,
+            "y": 66.03559257856872
+          },
+          {
+            "x": 89.35055080935251,
+            "y": 14.842862552063613
+          },
+          {
+            "x": 70.6455148381295,
+            "y": 11.359333585762968
+          }
+        ],
+        "audioVolume": 100,
+        "svgHoverVolume": 72,
+        "dashboardPlacementSlotsV47": [
+          {
+            "x": 88.54119829136691,
+            "y": 54.37334343051874
+          },
+          {
+            "x": 3,
+            "y": 74.51722832260508
+          },
+          {
+            "x": 91.59875224820144,
+            "y": 36.95569859901553
+          },
+          {
+            "x": 3.469255845323741,
+            "y": 26.050738356683073
+          },
+          {
+            "x": 8.505227068345324,
+            "y": 45.58879212419538
+          },
+          {
+            "x": 96.99443570143885,
+            "y": 66.03559257856872
+          },
+          {
+            "x": 89.35055080935251,
+            "y": 14.842862552063613
+          },
+          {
+            "x": 70.6455148381295,
+            "y": 11.359333585762968
+          }
+        ],
+        "backgroundGradientV56": "",
+        "backgroundGradientNameV56": "",
+        "interactiveBackgroundCodeV56": "",
+        "sectionHeadingBackgroundEnabledV59": false,
+        "sectionHeadingBackgroundColorV59": "#fffdf9",
+        "sectionHeadingBackgroundPaddingV59": 6,
+        "knowledgeCardOpacityV63": 100,
+        "dashboardTitleV69": "MY LOGS",
+        "svgHoverAnimationsEnabledV82": true,
+        "svgHoverAnimationV82": "lift",
+        "svgHoverSoundStopModeV87": "immediate",
+        "svgHoverSoundStopDelayV87": 0.1,
+        "svgHoverSoundFadeOnStopV88": false,
+        "dashboardCategorySelectedColorV85": "#e91e8c",
+        "dashboardCategoryHoverColorV85": "#e565aa",
+        "_autoColorSeedV107": "#e91e8c",
+        "decorationsOpacityV117": 100
+      },
+      "updatedAt": "2026-09-07T12:08:56.529Z"
+    },
+    "theme-diva": {
+      "id": "theme-diva",
+      "name": "Diva",
+      "theme": {
+        "kbCategoryBorderColorV97": "#eea3c6",
+        "kbCategoryHoverBorderColorV97": "#eea3c6",
+        "kbCategoryShadowSizeV97": 0,
+        "svgHoverSoundNoIntroV97": true,
+        "dailySearchRadiusV68": 10,
+        "knowledgeSearchRadiusV68": 10,
+        "customTabSearchRadiusV68": 11,
+        "useThemeCursor": true,
+        "themeCursorStyle": "default",
+        "useThemeCompanion": true,
+        "themeCompanion": "none",
+        "svgAllowOverlap": false,
+        "introSvgBopMode": "some",
+        "svgGlobalScale": 100,
+        "kbCategoryFocusBackgroundColor": "#ff7db4",
+        "kbCategoryFocusTextColor": "#171717",
+        "kbCategoryFocusBorderColor": "#eea3c6",
+        "backButtonColor": "#171717",
+        "tabNavIndividualBackgroundEnabled": false,
+        "tabNavIndividualBackgroundColor": "#ffffff",
+        "tabNavIndividualBackgroundOpacity": 88,
+        "kbCategoryBackgroundColor": "#fffdfd",
+        "kbCategoryTextColor": "#6a4160",
+        "kbCategoryHoverBackgroundColor": "#fff4f9",
+        "kbCategoryHoverTextColor": "#6a4160",
+        "svgDefaultAnimation": "float",
+        "svgScenePreset": "scatter",
+        "hoverColor": "#fff4f9",
+        "hoverOpacity": 28,
+        "introSvgBounceEnabled": false,
+        "svgHoverSoundsEnabled": false,
+        "svgHoverSoundMode": "random",
+        "svgHoverSounds": [
+          {
+            "name": "Arcade Positive Selection",
+            "url": "/sounds/winx/cartoon_music-arcade-game-positive-selection-bling-489760.mp3"
+          },
+          {
+            "name": "Electricity",
+            "url": "/sounds/winx/freesound_community-electricity-sound-6066.mp3"
+          },
+          {
+            "name": "Match Sizzle",
+            "url": "/sounds/winx/freesound_community-match-sizzle-02-104778.mp3"
+          },
+          {
+            "name": "Get Coin",
+            "url": "/sounds/winx/koiroylers-get-coin-351945.mp3"
+          }
+        ],
+        "svgDistribution": "manual-fixed",
+        "tabNavBackgroundEnabled": false,
+        "tabNavBackgroundColor": "#ffffff",
+        "tabNavBackgroundOpacity": 88,
+        "name": "Diva",
+        "background": "#eefcff",
+        "surface": "#fffdfd",
+        "text": "#6a4160",
+        "border": "#eea3c6",
+        "accent": "#ff7db4",
+        "muted": "#6a4160",
+        "radius": 8,
+        "shadow": 4,
+        "font": "hand",
+        "backgroundImage": "",
+        "backgroundImageName": "",
+        "introAudio": "",
+        "introAudioName": "",
+        "audioPlayMode": "full",
+        "audioStart": 0,
+        "audioEnd": 20,
+        "audioFade": true,
+        "backgroundSvgs": [
+          {
+            "name": "pink-disc-tote-bag.svg",
+            "url": "/svg/theme-diva/pink-disc-tote-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "silver-sequin-pearl-bag.svg",
+            "url": "/svg/theme-diva/silver-sequin-pearl-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "pink-beaded-halo-bag.svg",
+            "url": "/svg/theme-diva/pink-beaded-halo-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "rose-gold-sequin-bag.svg",
+            "url": "/svg/theme-diva/rose-gold-sequin-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "cream-beaded-drawstring-bag.svg",
+            "url": "/svg/theme-diva/cream-beaded-drawstring-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "blue-denim-studded-hobo-bag.svg",
+            "url": "/svg/theme-diva/blue-denim-studded-hobo-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "white-shell-shoulder-bag.svg",
+            "url": "/svg/theme-diva/white-shell-shoulder-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "cream-fringe-beaded-bag.svg",
+            "url": "/svg/theme-diva/cream-fringe-beaded-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "aqua-sequin-hobo-bag.svg",
+            "url": "/svg/theme-diva/aqua-sequin-hobo-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "pink-rhinestone-shoulder-bag.svg",
+            "url": "/svg/theme-diva/pink-rhinestone-shoulder-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "blue-beaded-floral-round-bag.svg",
+            "url": "/svg/theme-diva/blue-beaded-floral-round-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "gold-beaded-buckle-shoulder-bag.svg",
+            "url": "/svg/theme-diva/gold-beaded-buckle-shoulder-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "pink-scale-top-handle-bag.svg",
+            "url": "/svg/theme-diva/pink-scale-top-handle-bag.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          },
+          {
+            "name": "turquoise-starfish-chain-bag-2.svg",
+            "url": "/svg/theme-diva/turquoise-starfish-chain-bag-2.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true
+          }
+        ],
+        "tabIconColor": "#6a4160",
+        "tabTitleColor": "#6a4160",
+        "dailyLogBackgroundEnabled": false,
+        "dailyLogBackgroundColor": "#eefcff",
+        "dailyLogBackgroundOpacity": 90,
+        "contentBackdropEnabled": false,
+        "contentBackdropColor": "#eefcff",
+        "contentBackdropOpacity": 90,
+        "dashboardBackgroundV40": "#eefcff",
+        "dashboardCardV40": "#fffdfd",
+        "dashboardTextV40": "#eea3c6",
+        "dashboardAccentV40": "#fffdfd",
+        "dashboardTitleColorV79": "#6a4160",
+        "dashboardIconColorV81": "#6a4160",
+        "dashboardLogIconColorV85": "#6a4160",
+        "dashboardLogIconBackgroundV107": "#fffdfd",
+        "dashboardCategoryBackgroundColorV98": "#fffdfd",
+        "dashboardCategoryTextColorV98": "#6a4160",
+        "dashboardCategoryHoverBackgroundColorV98": "#fff4f9",
+        "dashboardCategoryHoverTextColorV98": "#6a4160",
+        "dashboardCategorySelectedBackgroundColorV98": "#ff7db4",
+        "dashboardCategorySelectedTextColorV98": "#171717",
+        "dashboardCategoryBorderColorV98": "#eea3c6",
+        "dashboardCategoryHoverBorderColorV98": "#eea3c6",
+        "dashboardCategorySelectedBorderColorV98": "#eea3c6",
+        "dashboardCategoryShadowSizeV98": 0,
+        "backgroundImageProjectPath": "",
+        "introAudioProjectPath": "",
+        "manualPlacementSlotsV40": [
+          {
+            "x": 9.527567933250648,
+            "y": 21.23740592011927
+          },
+          {
+            "x": 7.18232044198895,
+            "y": 57.556447928439184
+          },
+          {
+            "x": 22.606832788363963,
+            "y": 46.783850722581576
+          },
+          {
+            "x": 8.715751493967753,
+            "y": 86.95024887585062
+          },
+          {
+            "x": 83.6734693877551,
+            "y": 46.93774496837954
+          },
+          {
+            "x": 28.830758822866166,
+            "y": 83.25678697669944
+          },
+          {
+            "x": 26.30510767843049,
+            "y": 15.38942457979657
+          },
+          {
+            "x": 93.41526665914984,
+            "y": 78.63995960276048
+          },
+          {
+            "x": 74.92389220881724,
+            "y": 22.62245413230096
+          },
+          {
+            "x": 79.43398353816666,
+            "y": 78.33217111116456
+          },
+          {
+            "x": 61.75442552711693,
+            "y": 78.02438261956861
+          },
+          {
+            "x": 35.678515615465585,
+            "y": 60.21233994906288
+          },
+          {
+            "x": 88.09335889051754,
+            "y": 10.618702960059634
+          },
+          {
+            "x": 44.52587664900214,
+            "y": 88.64308557962825
+          }
+        ],
+        "audioVolume": 100,
+        "svgHoverVolume": 72,
+        "dashboardPlacementSlotsV47": [
+          {
+            "x": 9.527567933250648,
+            "y": 21.23740592011927
+          },
+          {
+            "x": 7.18232044198895,
+            "y": 57.556447928439184
+          },
+          {
+            "x": 22.606832788363963,
+            "y": 46.783850722581576
+          },
+          {
+            "x": 8.715751493967753,
+            "y": 86.95024887585062
+          },
+          {
+            "x": 83.6734693877551,
+            "y": 46.93774496837954
+          },
+          {
+            "x": 28.830758822866166,
+            "y": 83.25678697669944
+          },
+          {
+            "x": 26.30510767843049,
+            "y": 15.38942457979657
+          },
+          {
+            "x": 93.41526665914984,
+            "y": 78.63995960276048
+          },
+          {
+            "x": 74.92389220881724,
+            "y": 22.62245413230096
+          },
+          {
+            "x": 79.43398353816666,
+            "y": 78.33217111116456
+          },
+          {
+            "x": 61.75442552711693,
+            "y": 78.02438261956861
+          },
+          {
+            "x": 35.678515615465585,
+            "y": 60.21233994906288
+          },
+          {
+            "x": 88.09335889051754,
+            "y": 10.618702960059634
+          },
+          {
+            "x": 44.52587664900214,
+            "y": 88.64308557962825
+          }
+        ],
+        "backgroundGradientV56": "",
+        "backgroundGradientNameV56": "",
+        "interactiveBackgroundCodeV56": "",
+        "sectionHeadingBackgroundEnabledV59": false,
+        "sectionHeadingBackgroundColorV59": "#fffdfd",
+        "sectionHeadingBackgroundPaddingV59": 6,
+        "knowledgeCardOpacityV63": 100,
+        "dashboardTitleV69": "MY LOGS",
+        "svgHoverAnimationsEnabledV82": false,
+        "svgHoverAnimationV82": "lift",
+        "svgHoverSoundStopModeV87": "immediate",
+        "svgHoverSoundStopDelayV87": 0.1,
+        "svgHoverSoundFadeOnStopV88": false,
+        "dashboardCategorySelectedColorV85": "#ff7db4",
+        "dashboardCategoryHoverColorV85": "#fff4f9",
+        "_autoColorSeedV107": "#ff7db4",
+        "decorationsOpacityV117": 100,
+        "replaceBuiltInDecorationsV30": true,
+        "authoritativeDecorationsV136": true
+      },
+      "updatedAt": "2026-09-07T15:14:20.674Z"
+    },
+    "theme-summer": {
+      "id": "theme-summer",
+      "name": "Summer",
+      "theme": {
+        "kbCategoryBorderColorV97": "#f2fbff",
+        "kbCategoryHoverBorderColorV97": "#dff5fe",
+        "kbCategoryShadowSizeV97": 7,
+        "svgHoverSoundNoIntroV97": true,
+        "dailySearchRadiusV68": 10,
+        "knowledgeSearchRadiusV68": 10,
+        "customTabSearchRadiusV68": 11,
+        "useThemeCursor": true,
+        "themeCursorStyle": "default",
+        "useThemeCompanion": true,
+        "themeCompanion": "none",
+        "svgAllowOverlap": false,
+        "introSvgBopMode": "some",
+        "svgGlobalScale": 80,
+        "kbCategoryFocusBackgroundColor": "#7f8c91",
+        "kbCategoryFocusTextColor": "#ffffff",
+        "kbCategoryFocusBorderColor": "#7f8c91",
+        "backButtonColor": "#171717",
+        "tabNavIndividualBackgroundEnabled": false,
+        "tabNavIndividualBackgroundColor": "#474e51",
+        "tabNavIndividualBackgroundOpacity": 88,
+        "kbCategoryBackgroundColor": "#fbfeff",
+        "kbCategoryTextColor": "#474e51",
+        "kbCategoryHoverBackgroundColor": "#f4fcff",
+        "kbCategoryHoverTextColor": "#171717",
+        "svgDefaultAnimation": "float",
+        "svgScenePreset": "scatter",
+        "hoverColor": "#f4fcff",
+        "hoverOpacity": 28,
+        "introSvgBounceEnabled": false,
+        "svgHoverSoundsEnabled": true,
+        "svgHoverSoundMode": "random",
+        "svgHoverSounds": [
+          {
+            "name": "Arcade Positive Selection",
+            "url": "/sounds/winx/cartoon_music-arcade-game-positive-selection-bling-489760.mp3"
+          },
+          {
+            "name": "Electricity",
+            "url": "/sounds/winx/freesound_community-electricity-sound-6066.mp3"
+          },
+          {
+            "name": "Match Sizzle",
+            "url": "/sounds/winx/freesound_community-match-sizzle-02-104778.mp3"
+          },
+          {
+            "name": "Get Coin",
+            "url": "/sounds/winx/koiroylers-get-coin-351945.mp3"
+          },
+          {
+            "name": "cartoon_music-arcade-game-positive-selection-bling-489760.mp3",
+            "url": "/sounds/custom-builder-theme-studio-host/theme-audio-1788795600245.mp3",
+            "projectPath": "public/sounds/custom-builder-theme-studio-host/theme-audio-1788795600245.mp3"
+          },
+          {
+            "name": "freesound_community-electricity-sound-6066.mp3",
+            "url": "/sounds/custom-builder-theme-studio-host/theme-audio-1788795600253.mp3",
+            "projectPath": "public/sounds/custom-builder-theme-studio-host/theme-audio-1788795600253.mp3"
+          },
+          {
+            "name": "freesound_community-match-sizzle-02-104778.mp3",
+            "url": "/sounds/custom-builder-theme-studio-host/theme-audio-1788795600261.mp3",
+            "projectPath": "public/sounds/custom-builder-theme-studio-host/theme-audio-1788795600261.mp3"
+          },
+          {
+            "name": "koiroylers-get-coin-351945.mp3",
+            "url": "/sounds/custom-builder-theme-studio-host/theme-audio-1788795600265.mp3",
+            "projectPath": "public/sounds/custom-builder-theme-studio-host/theme-audio-1788795600265.mp3"
+          }
+        ],
+        "svgDistribution": "random-edges-safe",
+        "tabNavBackgroundEnabled": false,
+        "tabNavBackgroundColor": "#fbfeff",
+        "tabNavBackgroundOpacity": 88,
+        "name": "Summer",
+        "background": "#feffff",
+        "surface": "#fbfeff",
+        "text": "#474e51",
+        "border": "#f2fbff",
+        "accent": "#dff5fe",
+        "muted": "#869398",
+        "radius": 8,
+        "shadow": 7,
+        "font": "hand",
+        "backgroundImage": "",
+        "backgroundImageName": "",
+        "introAudio": "/sounds/intros/vibemode-summer-vibe-summer-581790.mp3",
+        "introAudioName": "vibemode-summer-vibe-summer-581790.mp3",
+        "audioPlayMode": "segment",
+        "audioStart": 0,
+        "audioEnd": 39,
+        "audioFade": true,
+        "backgroundSvgs": [
+          {
+            "name": "summer-19-papaya-half.svg",
+            "url": "/svg/theme-summer/summer-19-papaya-half.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-08-yellow-spiral-sun.svg",
+            "url": "/svg/theme-summer/summer-08-yellow-spiral-sun.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-09-pink-lily.svg",
+            "url": "/svg/theme-summer/summer-09-pink-lily.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-03-orange-hibiscus.svg",
+            "url": "/svg/theme-summer/summer-03-orange-hibiscus.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-01-pink-white-hibiscus.svg",
+            "url": "/svg/theme-summer/summer-01-pink-white-hibiscus.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-02-blue-flower.svg",
+            "url": "/svg/theme-summer/summer-02-blue-flower.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-04-pale-pink-starfish.svg",
+            "url": "/svg/theme-summer/summer-04-pale-pink-starfish.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-05-pink-orange-starfish.svg",
+            "url": "/svg/theme-summer/summer-05-pink-orange-starfish.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-06-green-sea-turtle.svg",
+            "url": "/svg/theme-summer/summer-06-green-sea-turtle.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-07-blue-sea-turtle.svg",
+            "url": "/svg/theme-summer/summer-07-blue-sea-turtle.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-11-blue-hibiscus.svg",
+            "url": "/svg/theme-summer/summer-11-blue-hibiscus.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-12-orange-lily-2.svg",
+            "url": "/svg/theme-summer/summer-12-orange-lily-2.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-13-magenta-hibiscus.svg",
+            "url": "/svg/theme-summer/summer-13-magenta-hibiscus.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-18-pale-pink-hibiscus-2.svg",
+            "url": "/svg/theme-summer/summer-18-pale-pink-hibiscus-2.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-20-orange-slice.svg",
+            "url": "/svg/theme-summer/summer-20-orange-slice.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-21-orange-hibiscus.svg",
+            "url": "/svg/theme-summer/summer-21-orange-hibiscus.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "summer-22-goldfish.svg",
+            "url": "/svg/theme-summer/summer-22-goldfish.svg",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "inheritedBuiltInV30": true,
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "svg"
+          },
+          {
+            "name": "ChatGPT Image Sep 6, 2026, 05_04_43 AM (1).png",
+            "url": "/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_43-AM-1.png",
+            "projectPath": "public/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_43-AM-1.png",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "png"
+          },
+          {
+            "name": "ChatGPT Image Sep 6, 2026, 05_04_44 AM (2).png",
+            "url": "/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_44-AM-2.png",
+            "projectPath": "public/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_44-AM-2.png",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "png"
+          },
+          {
+            "name": "ChatGPT Image Sep 6, 2026, 05_04_46 AM (3).png",
+            "url": "/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_46-AM-3.png",
+            "projectPath": "public/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_46-AM-3.png",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "png"
+          },
+          {
+            "name": "ChatGPT Image Sep 6, 2026, 05_04_47 AM (4).png",
+            "url": "/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_47-AM-4.png",
+            "projectPath": "public/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_47-AM-4.png",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "png"
+          },
+          {
+            "name": "ChatGPT Image Sep 6, 2026, 05_04_51 AM (7).png",
+            "url": "/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_51-AM-7.png",
+            "projectPath": "public/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_51-AM-7.png",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "png"
+          },
+          {
+            "name": "ChatGPT Image Sep 6, 2026, 05_04_54 AM (8).png",
+            "url": "/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_54-AM-8.png",
+            "projectPath": "public/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_54-AM-8.png",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "png"
+          },
+          {
+            "name": "ChatGPT Image Sep 6, 2026, 05_04_56 AM (10).png",
+            "url": "/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_56-AM-10.png",
+            "projectPath": "public/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-6-2026-05_04_56-AM-10.png",
+            "animation": "float",
+            "introBop": true,
+            "hoverSoundUrl": "",
+            "animationOverride": "",
+            "opacityV109": 100,
+            "hoverAnimationOverrideV82": "",
+            "bopModeV60": "auto",
+            "hiddenOnScreenV63": false,
+            "showOnScreen": true,
+            "visibleV63": true,
+            "visible": true,
+            "assetType": "png"
+          }
+        ],
+        "tabIconColor": "#474e51",
+        "tabTitleColor": "#474e51",
+        "dailyLogBackgroundEnabled": false,
+        "dailyLogBackgroundColor": "#feffff",
+        "dailyLogBackgroundOpacity": 90,
+        "contentBackdropEnabled": false,
+        "contentBackdropColor": "#feffff",
+        "contentBackdropOpacity": 90,
+        "dashboardBackgroundV40": "#fdfeff",
+        "dashboardCardV40": "#fbfeff",
+        "dashboardTextV40": "#b7c9d0",
+        "dashboardAccentV40": "#f9fdff",
+        "dashboardTitleColorV79": "#474e51",
+        "dashboardIconColorV81": "#474e51",
+        "dashboardLogIconColorV85": "#474e51",
+        "dashboardLogIconBackgroundV107": "#F8FDFF",
+        "dashboardCategoryBackgroundColorV98": "#fbfeff",
+        "dashboardCategoryTextColorV98": "#171717",
+        "dashboardCategoryHoverBackgroundColorV98": "#f6fcff",
+        "dashboardCategoryHoverTextColorV98": "#171717",
+        "dashboardCategorySelectedBackgroundColorV98": "#eefafe",
+        "dashboardCategorySelectedTextColorV98": "#171717",
+        "dashboardCategoryBorderColorV98": "#b7c9d0",
+        "dashboardCategoryHoverBorderColorV98": "#b7c9d0",
+        "dashboardCategorySelectedBorderColorV98": "#b7c9d0",
+        "dashboardCategoryShadowSizeV98": 7,
+        "backgroundImageProjectPath": "",
+        "introAudioProjectPath": "",
+        "manualPlacementSlotsV40": [
+          {
+            "x": 82,
+            "y": 50
+          },
+          {
+            "x": 80.90962644125018,
+            "y": 58.282209443280664
+          },
+          {
+            "x": 77.71281292110204,
+            "y": 66
+          },
+          {
+            "x": 72.62741699796952,
+            "y": 72.62741699796952
+          },
+          {
+            "x": 66,
+            "y": 77.71281292110203
+          },
+          {
+            "x": 58.282209443280664,
+            "y": 80.90962644125018
+          },
+          {
+            "x": 50,
+            "y": 82
+          },
+          {
+            "x": 41.717790556719336,
+            "y": 80.90962644125018
+          },
+          {
+            "x": 34.00000000000001,
+            "y": 77.71281292110204
+          },
+          {
+            "x": 27.37258300203048,
+            "y": 72.62741699796952
+          },
+          {
+            "x": 22.28718707889796,
+            "y": 66
+          },
+          {
+            "x": 19.090373558749818,
+            "y": 58.28220944328067
+          },
+          {
+            "x": 18,
+            "y": 50.00000000000001
+          },
+          {
+            "x": 19.09037355874981,
+            "y": 41.71779055671935
+          },
+          {
+            "x": 22.287187078897965,
+            "y": 34
+          },
+          {
+            "x": 27.372583002030474,
+            "y": 27.37258300203048
+          },
+          {
+            "x": 33.999999999999986,
+            "y": 22.287187078897972
+          },
+          {
+            "x": 41.717790556719336,
+            "y": 19.090373558749814
+          },
+          {
+            "x": 49.99999999999999,
+            "y": 18
+          },
+          {
+            "x": 58.28220944328065,
+            "y": 19.09037355874981
+          },
+          {
+            "x": 66,
+            "y": 22.287187078897965
+          },
+          {
+            "x": 72.62741699796952,
+            "y": 27.372583002030474
+          },
+          {
+            "x": 77.71281292110203,
+            "y": 33.999999999999986
+          },
+          {
+            "x": 80.90962644125018,
+            "y": 41.717790556719336
+          }
+        ],
+        "audioVolume": 100,
+        "svgHoverVolume": 72,
+        "dashboardPlacementSlotsV47": [
+          {
+            "x": 9.920429889010848,
+            "y": 86.12607122419286
+          },
+          {
+            "x": 89.73706379247596,
+            "y": 15.645290877539082
+          },
+          {
+            "x": 9.058461663102207,
+            "y": 16.49443879568571
+          },
+          {
+            "x": 90.92006894327642,
+            "y": 79.05624073579384
+          },
+          {
+            "x": 16.38638334799907,
+            "y": 51.1131856954089
+          },
+          {
+            "x": 51.155223970126826,
+            "y": 88.32907442476426
+          },
+          {
+            "x": 49.442081849934766,
+            "y": 17.791893290821463
+          },
+          {
+            "x": 80.51219501715968,
+            "y": 47.84851823499048
+          },
+          {
+            "x": 19.69195675230003,
+            "y": 32.953950575974886
+          },
+          {
+            "x": 73.5490106947982,
+            "y": 89.9505977123772
+          },
+          {
+            "x": 15.919643463232205,
+            "y": 69.27201017201878
+          },
+          {
+            "x": 32.08491907712596,
+            "y": 80.67725906534179
+          },
+          {
+            "x": 81.58071567841398,
+            "y": 31.05400998024561
+          },
+          {
+            "x": 69.61677726596827,
+            "y": 13.979629658788326
+          },
+          {
+            "x": 88.8865515444486,
+            "y": 62.99352966747756
+          },
+          {
+            "x": 28.903647501756495,
+            "y": 18.949331307550892
+          },
+          {
+            "x": 63.602688745449996,
+            "y": 80.37795437245222
+          },
+          {
+            "x": 79.23536014957062,
+            "y": 72.18776866869302
+          },
+          {
+            "x": 22.236203973836382,
+            "y": 88.22034771801555
+          },
+          {
+            "x": 90.9906709829811,
+            "y": 45.24454785470152
+          },
+          {
+            "x": 19.607971451390767,
+            "y": 14.525671073406556
+          },
+          {
+            "x": 58.82791322266712,
+            "y": 13.49849746527616
+          },
+          {
+            "x": 39.0881679768936,
+            "y": 15.46708349828259
+          },
+          {
+            "x": 42.01678282933426,
+            "y": 83.80003279256925
+          }
+        ],
+        "backgroundGradientV56": "radial-gradient(circle at 50% 5%,rgba(255,255,255,.58),transparent 32%),radial-gradient(circle at 16% 82%,rgba(255,146,126,.18),transparent 30%),radial-gradient(circle at 86% 16%,rgba(255,211,110,.20),transparent 28%),linear-gradient(180deg,#bfe9fb 0%,#daf6ff 34%,#fef0ca 74%,#f9e1bf 100%)",
+        "backgroundGradientNameV56": "Summer Shore",
+        "interactiveBackgroundCodeV56": "",
+        "sectionHeadingBackgroundEnabledV59": false,
+        "sectionHeadingBackgroundColorV59": "#fff9f3",
+        "sectionHeadingBackgroundPaddingV59": 6,
+        "knowledgeCardOpacityV63": 100,
+        "dashboardTitleV69": "MY LOGS",
+        "svgHoverAnimationsEnabledV82": true,
+        "svgHoverAnimationV82": "lift",
+        "svgHoverSoundStopModeV87": "immediate",
+        "svgHoverSoundStopDelayV87": 0.1,
+        "svgHoverSoundFadeOnStopV88": false,
+        "dashboardCategorySelectedColorV85": "#eefafe",
+        "dashboardCategoryHoverColorV85": "#f6fcff",
+        "_autoColorSeedV107": "#dff5fe",
+        "decorationsOpacityV117": 100,
+        "replaceBuiltInDecorationsV30": true,
+        "authoritativeDecorationsV136": true,
+        "introMusicReactionsEnabledV154": false
+      },
+      "updatedAt": "2026-09-07T22:18:05.127Z"
+    }
+  }
+}

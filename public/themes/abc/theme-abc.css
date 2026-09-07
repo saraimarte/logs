@@ -1,0 +1,529 @@
+/* ============================================================
+   ABC THEME
+   Red, playful, school-ish, and readable.
+   Decorative alphabet objects animate gently at rest and do a
+   stronger wiggle/pop when hovered nearby.
+   ============================================================ */
+
+body.theme-abc {
+    --theme-ink: #5b1f27;
+    --theme-ink-soft: rgba(91, 31, 39, 0.60);
+    --theme-paper: #fbf5ef;
+    --theme-paper-2: #f4ebe4;
+    --theme-red: #b8404a;
+    --theme-red-dark: #8f2430;
+    --theme-rose: #d36d78;
+    --theme-peach: #ead0c4;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+
+    --thick-border: 2px solid rgba(91,31,39,.14);
+    --thin-border: 1px solid rgba(91,31,39,.12);
+    --dashed-border: 1px dashed rgba(91,31,39,.14);
+    --dotted-border: 1px dotted rgba(91,31,39,.14);
+    --track-bg: rgba(91,31,39,.08);
+    --muted-text: rgba(91,31,39,.60);
+
+    background:
+        radial-gradient(circle at 50% 4%, rgba(255,255,255,.52), transparent 31%),
+        radial-gradient(circle at 16% 82%, rgba(211,109,120,.12), transparent 27%),
+        radial-gradient(circle at 88% 22%, rgba(184,64,74,.12), transparent 24%),
+        linear-gradient(145deg, #f7ebe6 0%, #f6efe8 46%, #f4e4e4 100%) !important;
+
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#abc-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#abc-background .theme-abc-wash {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 12%, rgba(255,255,255,.46), transparent 34%),
+        radial-gradient(circle at 18% 56%, rgba(211,109,120,.09), transparent 28%),
+        radial-gradient(circle at 82% 54%, rgba(184,64,74,.08), transparent 26%),
+        linear-gradient(180deg, rgba(255,255,255,.18), transparent 28%);
+}
+
+#abc-background .theme-abc-copybook {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(0deg, transparent 0 34px, rgba(184,64,74,.055) 34px 35px),
+        linear-gradient(90deg, transparent 0 11%, rgba(184,64,74,.08) 11% 11.2%, transparent 11.2% 100%),
+        repeating-linear-gradient(90deg, transparent 0 88px, rgba(91,31,39,.022) 88px 89px);
+    opacity: .66;
+}
+
+#abc-background .theme-abc-alphabet {
+    position: absolute;
+    inset: 0;
+}
+
+#abc-background .theme-abc-alphabet::before,
+#abc-background .theme-abc-alphabet::after {
+    position: absolute;
+    left: -4vw;
+    right: -4vw;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    letter-spacing: .22em;
+    color: rgba(184,64,74,.08);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+}
+
+#abc-background .theme-abc-alphabet::before {
+    content: "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z";
+    top: 13vh;
+    font-size: clamp(32px, 5vw, 84px);
+    transform: rotate(-5deg);
+}
+
+#abc-background .theme-abc-alphabet::after {
+    content: "Z Y X W V U T S R Q P O N M L K J I H G F E D C B A";
+    bottom: 14vh;
+    font-size: clamp(28px, 4.6vw, 72px);
+    transform: rotate(4deg);
+    text-align: right;
+}
+
+#abc-background .theme-abc-rings {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 9% 26%, transparent 0 40px, rgba(184,64,74,.10) 41px 43px, transparent 44px),
+        radial-gradient(circle at 92% 67%, transparent 0 58px, rgba(211,109,120,.09) 59px 61px, transparent 62px),
+        radial-gradient(circle at 76% 16%, transparent 0 28px, rgba(255,255,255,.22) 29px 31px, transparent 32px),
+        radial-gradient(circle at 24% 88%, transparent 0 54px, rgba(91,31,39,.05) 55px 57px, transparent 58px);
+    opacity: .86;
+}
+
+#abc-background .theme-abc-footer {
+    position: absolute;
+    left: -10vw;
+    right: -10vw;
+    bottom: -12vh;
+    height: 34vh;
+    background: linear-gradient(180deg, transparent 0%, rgba(184,64,74,.08) 24%, rgba(143,36,48,.14) 100%);
+    clip-path: ellipse(82% 64% at 50% 100%);
+    opacity: .84;
+}
+
+#abc-background .theme-abc-item {
+    position: absolute;
+    opacity: var(--item-opacity, .76);
+    transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    transform-origin: center;
+    filter: drop-shadow(0 9px 14px rgba(91,31,39,.10)) drop-shadow(0 2px 3px rgba(255,255,255,.18));
+    animation: themeAbcFloat var(--item-duration, 8s) ease-in-out var(--item-delay) infinite;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#abc-background .theme-abc-soft {
+    opacity: var(--item-opacity, .24);
+}
+
+#abc-background .theme-abc-emphasis {
+    opacity: var(--item-opacity, .84);
+}
+
+#abc-background .theme-abc-object-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    filter: none;
+}
+
+@keyframes themeAbcFloat {
+    0%, 100% {
+        transform: translate3d(-50%, -50%, 0) translate3d(0, 0, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+
+    25% {
+        transform: translate3d(-50%, -50%, 0) translate3d(calc(var(--item-x) * .55), calc(var(--item-y) * .35), 0) rotate(calc(var(--item-rotate) - 2deg)) scale(calc(var(--item-scale) * 1.02));
+    }
+
+    50% {
+        transform: translate3d(-50%, -50%, 0) translate3d(var(--item-x), var(--item-y), 0) rotate(calc(var(--item-rotate) + 2deg)) scale(var(--item-scale));
+    }
+
+    75% {
+        transform: translate3d(-50%, -50%, 0) translate3d(calc(var(--item-x) * -.35), calc(var(--item-y) * .4), 0) rotate(calc(var(--item-rotate) - 1deg)) scale(calc(var(--item-scale) * .99));
+    }
+}
+
+#abc-background .theme-abc-react {
+    opacity: .96 !important;
+    filter: drop-shadow(0 12px 18px rgba(91,31,39,.16)) drop-shadow(0 0 12px rgba(184,64,74,.20));
+    animation: themeAbcReact .54s cubic-bezier(.22,.8,.3,1) !important;
+}
+
+@keyframes themeAbcReact {
+    0% {
+        transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+
+    25% {
+        transform: translate3d(-50%, -50%, 0) translate3d(-4px, -10px, 0) rotate(calc(var(--item-rotate) - 10deg)) scale(calc(var(--item-scale) * 1.10));
+    }
+
+    50% {
+        transform: translate3d(-50%, -50%, 0) translate3d(4px, -14px, 0) rotate(calc(var(--item-rotate) + 12deg)) scale(calc(var(--item-scale) * 1.16));
+    }
+
+    100% {
+        transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+}
+
+body.theme-abc .day-box,
+body.theme-abc .day-picker-box,
+body.theme-abc .icon-btn,
+body.theme-abc .small-icon-btn,
+body.theme-abc input,
+body.theme-abc textarea,
+body.theme-abc select,
+body.theme-abc .notes-editable,
+body.theme-abc .phrase-card,
+body.theme-abc .chip,
+body.theme-abc .toolbox-item,
+body.theme-abc .resource-card,
+body.theme-abc .polaroid-card,
+body.theme-abc .filter-tab,
+body.theme-abc .day-target-box,
+body.theme-abc .flashcard,
+body.theme-abc .flashcard-mode-card,
+body.theme-abc .day-badge,
+body.theme-abc .video-placeholder,
+body.theme-abc .theme-picker-card,
+body.theme-abc .note-audio-row,
+body.theme-abc .modal-box,
+body.theme-abc .category-box,
+body.theme-abc .category-card,
+body.theme-abc .category-chip,
+body.theme-abc .knowledge-category,
+body.theme-abc .knowledge-category-box,
+body.theme-abc .knowledge-category-card,
+body.theme-abc .knowledge-tag,
+body.theme-abc .tag,
+body.theme-abc .label-box {
+    background: rgba(251, 245, 239, 0.96) !important;
+    background-color: rgba(251, 245, 239, 0.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(91,31,39,.15) !important;
+    box-shadow: 0 1px 2px rgba(91,31,39,.03), 0 4px 12px rgba(91,31,39,.025) !important;
+    filter: none !important;
+}
+
+body.theme-abc input::placeholder,
+body.theme-abc textarea::placeholder,
+body.theme-abc .notes-editable:empty::before {
+    color: rgba(91,31,39,.42);
+}
+
+body.theme-abc .day-box:hover,
+body.theme-abc .day-picker-box:hover,
+body.theme-abc .small-icon-btn:hover,
+body.theme-abc .phrase-card:hover,
+body.theme-abc .chip:hover,
+body.theme-abc .toolbox-item:hover,
+body.theme-abc .resource-card:hover,
+body.theme-abc .polaroid-card:hover,
+body.theme-abc .filter-tab:hover,
+body.theme-abc .day-target-box:hover,
+body.theme-abc .flashcard-mode-card:hover,
+body.theme-abc .theme-picker-card:hover,
+body.theme-abc .category-box:hover,
+body.theme-abc .category-card:hover,
+body.theme-abc .category-chip:hover,
+body.theme-abc .knowledge-category:hover,
+body.theme-abc .knowledge-category-box:hover,
+body.theme-abc .knowledge-category-card:hover,
+body.theme-abc .knowledge-tag:hover,
+body.theme-abc .tag:hover,
+body.theme-abc .label-box:hover {
+    background: #efe6df !important;
+    background-color: #efe6df !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(91,31,39,.22) !important;
+    box-shadow: 0 2px 7px rgba(91,31,39,.05) !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+body.theme-abc .day-picker-box.selected,
+body.theme-abc .filter-tab.active,
+body.theme-abc .category-box.active,
+body.theme-abc .category-card.active,
+body.theme-abc .category-chip.active,
+body.theme-abc .knowledge-category.active,
+body.theme-abc .knowledge-category-box.active,
+body.theme-abc .knowledge-category-card.active,
+body.theme-abc .knowledge-tag.active,
+body.theme-abc .tag.active,
+body.theme-abc .label-box.active,
+body.theme-abc .category-box.selected,
+body.theme-abc .category-card.selected,
+body.theme-abc .category-chip.selected {
+    background: #e6dad1 !important;
+    background-color: #e6dad1 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(91,31,39,.24) !important;
+    box-shadow: inset 0 0 0 1px rgba(91,31,39,.035) !important;
+    filter: none !important;
+}
+
+body.theme-abc .category-box::before,
+body.theme-abc .category-box::after,
+body.theme-abc .category-card::before,
+body.theme-abc .category-card::after,
+body.theme-abc .category-chip::before,
+body.theme-abc .category-chip::after,
+body.theme-abc .knowledge-category::before,
+body.theme-abc .knowledge-category::after,
+body.theme-abc .knowledge-category-box::before,
+body.theme-abc .knowledge-category-box::after,
+body.theme-abc .knowledge-category-card::before,
+body.theme-abc .knowledge-category-card::after,
+body.theme-abc .knowledge-tag::before,
+body.theme-abc .knowledge-tag::after,
+body.theme-abc .tag::before,
+body.theme-abc .tag::after,
+body.theme-abc .label-box::before,
+body.theme-abc .label-box::after,
+body.theme-abc .chip::before,
+body.theme-abc .chip::after,
+body.theme-abc .filter-tab::before,
+body.theme-abc .filter-tab::after {
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-abc .filter-tabs,
+html body.theme-abc .filter-tabs:hover,
+html body.theme-abc .filter-tabs:focus,
+html body.theme-abc .filter-tabs:focus-within,
+html body.theme-abc #library-filter-tabs,
+html body.theme-abc #library-filter-tabs:hover,
+html body.theme-abc #library-filter-tabs:focus-within,
+html body.theme-abc #quiz-type-filters,
+html body.theme-abc #quiz-type-filters:hover,
+html body.theme-abc #quiz-type-filters:focus-within,
+html body.theme-abc .set-size-picker,
+html body.theme-abc .set-size-picker:hover,
+html body.theme-abc .set-size-picker:focus,
+html body.theme-abc .set-size-picker:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+    border-color: transparent !important;
+}
+
+html body.theme-abc .filter-tabs::before,
+html body.theme-abc .filter-tabs::after,
+html body.theme-abc .filter-tabs:hover::before,
+html body.theme-abc .filter-tabs:hover::after,
+html body.theme-abc #library-filter-tabs::before,
+html body.theme-abc #library-filter-tabs::after,
+html body.theme-abc #quiz-type-filters::before,
+html body.theme-abc #quiz-type-filters::after,
+html body.theme-abc .set-size-picker::before,
+html body.theme-abc .set-size-picker::after,
+html body.theme-abc .set-size-picker:hover::before,
+html body.theme-abc .set-size-picker:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-abc .filter-tabs > .filter-tab,
+html body.theme-abc .set-size-picker > .filter-tab {
+    background: rgba(251,245,239,.96) !important;
+    background-color: rgba(251,245,239,.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(91,31,39,.15) !important;
+    box-shadow: 0 1px 2px rgba(91,31,39,.03) !important;
+    filter: none !important;
+}
+
+html body.theme-abc .filter-tabs > .filter-tab:hover,
+html body.theme-abc .set-size-picker > .filter-tab:hover {
+    background: #efe6df !important;
+    background-color: #efe6df !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(91,31,39,.22) !important;
+    box-shadow: 0 2px 7px rgba(91,31,39,.05) !important;
+    filter: none !important;
+}
+
+html body.theme-abc .filter-tabs > .filter-tab.active,
+html body.theme-abc .set-size-picker > .filter-tab.active {
+    background: #e6dad1 !important;
+    background-color: #e6dad1 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(91,31,39,.24) !important;
+    box-shadow: inset 0 0 0 1px rgba(91,31,39,.035) !important;
+    filter: none !important;
+}
+
+html body.theme-abc .side-nav .icon-btn,
+html body.theme-abc .side-nav .icon-btn:hover,
+html body.theme-abc .side-nav .icon-btn:focus,
+html body.theme-abc .side-nav .icon-btn:focus-visible,
+html body.theme-abc .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-abc .side-nav .icon-btn::before,
+html body.theme-abc .side-nav .icon-btn::after,
+html body.theme-abc .side-nav .icon-btn:hover::before,
+html body.theme-abc .side-nav .icon-btn:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-abc .side-nav .icon-btn:hover {
+    transform: scale(1.15);
+}
+
+html body.theme-abc .side-nav .icon-btn i {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    color: var(--theme-ink) !important;
+}
+
+html body.theme-abc .side-nav .icon-btn:hover i {
+    opacity: .62;
+}
+
+body.theme-abc .progress-bar-track {
+    background: rgba(91,31,39,.10);
+}
+
+body.theme-abc .progress-bar-fill {
+    background: linear-gradient(90deg, #b8404a, #d36d78, #8f2430);
+}
+
+body.theme-abc #abc-background { z-index: 0; }
+body.theme-abc .view { position: relative; z-index: 2; }
+body.theme-abc .side-nav { position: relative; z-index: 3; }
+body.theme-abc header,
+body.theme-abc .log-header-container { position: relative; z-index: 4; }
+body.theme-abc .modal,
+body.theme-abc .modal-overlay,
+body.theme-abc .overlay { z-index: 10; }
+
+@media (max-width: 700px) {
+    #abc-background .theme-abc-item {
+        max-width: 150px;
+        max-height: 150px;
+    }
+
+    #abc-background .theme-abc-alphabet::before {
+        top: 12vh;
+        font-size: clamp(24px, 6vw, 46px);
+    }
+
+    #abc-background .theme-abc-alphabet::after {
+        bottom: 15vh;
+        font-size: clamp(22px, 5vw, 40px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #abc-background * {
+        animation: none !important;
+    }
+}
+
+
+/* ============================================================
+   ABC INTRO DANCE
+   Some alphabet characters bob like they are dancing only while
+   the intro song is actually playing.
+   ============================================================ */
+
+#abc-background.abc-intro-playing
+.theme-abc-item.theme-abc-intro-dancer
+.theme-abc-object-image {
+    animation:
+        themeAbcIntroDance
+        var(--abc-dance-duration, .74s)
+        ease-in-out
+        var(--abc-dance-delay, 0s)
+        infinite;
+    will-change: translate;
+}
+
+@keyframes themeAbcIntroDance {
+    0%, 100% {
+        translate: 0 0;
+    }
+
+    45% {
+        translate:
+            0
+            calc(var(--abc-dance-height, 14px) * -1);
+    }
+
+    66% {
+        translate: 0 -3px;
+    }
+}
+
+/*
+ * The existing nearby hover wiggle still happens on the wrapper,
+ * so it can run at the same time as this image-level dance.
+ */
+@media (prefers-reduced-motion: reduce) {
+    #abc-background.abc-intro-playing
+    .theme-abc-item.theme-abc-intro-dancer
+    .theme-abc-object-image {
+        animation: none !important;
+    }
+}

@@ -1,0 +1,86 @@
+/* ============================================================
+   ICECREAM THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-icecream {
+    --icecream-ink: #704a62;
+    --icecream-border: #f1b8d0;
+    --icecream-surface: #fffdfd;
+    --icecream-surface-soft: #fff3f8;
+    --icecream-accent: #ff99c8;
+    --icecream-second: #9fdcff;
+    --icecream-third: #ffe38a;
+    --black: var(--icecream-ink);
+    --white: var(--icecream-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--icecream-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--icecream-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--icecream-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--icecream-border) 44%, transparent);
+    --track-bg: #fff0f6;
+    --muted-text: color-mix(in srgb, var(--icecream-ink) 58%, transparent);
+    background: radial-gradient(circle at 14% 14%, rgba(255,255,255,.88), transparent 24%), radial-gradient(circle at 84% 16%, rgba(255,255,255,.52), transparent 24%), radial-gradient(circle at 23% 82%, rgba(159,220,255,.12), transparent 24%), linear-gradient(160deg, #ffeaf5 0%, #e9f8ff 46%, #fff6d7 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--icecream-ink) !important;
+}
+
+#icecream-background { position:fixed; inset:0; width:100vw; height:100vh; overflow:hidden; pointer-events:none; user-select:none; z-index:-1; }
+#icecream-background::before, #icecream-background::after { content:''; position:absolute; inset:-14%; pointer-events:none; }
+#icecream-background::before { background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.22), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%); animation: icecreamLightSweep 9s ease-in-out infinite alternate; }
+body.theme-icecream #icecream-background { z-index:-1; }
+body.theme-icecream .view { position:relative; z-index:2; }
+body.theme-icecream .side-nav { position:relative; z-index:3; }
+body.theme-icecream header, body.theme-icecream .log-header-container { position:relative; z-index:4; }
+body.theme-icecream .modal, body.theme-icecream .modal-overlay, body.theme-icecream .overlay { z-index:10; }
+
+body.theme-icecream .day-box,
+body.theme-icecream .day-picker-box,
+body.theme-icecream .icon-btn,
+body.theme-icecream .small-icon-btn,
+body.theme-icecream input,
+body.theme-icecream textarea,
+body.theme-icecream select,
+body.theme-icecream .notes-editable,
+body.theme-icecream .phrase-card,
+body.theme-icecream .chip,
+body.theme-icecream .toolbox-item,
+body.theme-icecream .resource-card,
+body.theme-icecream .polaroid-card,
+body.theme-icecream .filter-tab,
+body.theme-icecream .day-target-box,
+body.theme-icecream .flashcard,
+body.theme-icecream .flashcard-mode-card,
+body.theme-icecream .day-badge,
+body.theme-icecream .video-placeholder,
+body.theme-icecream .theme-picker-card,
+body.theme-icecream .note-audio-row,
+body.theme-icecream .modal-box,
+body.theme-icecream .set-complete-box { background-color: var(--icecream-surface) !important; }
+
+body.theme-icecream input::placeholder,
+body.theme-icecream textarea::placeholder,
+body.theme-icecream .notes-editable:empty::before { color: color-mix(in srgb, var(--icecream-ink) 42%, transparent) !important; }
+body.theme-icecream .icon-btn:hover,
+body.theme-icecream .small-icon-btn:hover,
+body.theme-icecream .filter-tab:hover { background: var(--icecream-surface-soft) !important; color: var(--icecream-ink) !important; }
+body.theme-icecream .chip:hover,
+body.theme-icecream .phrase-card:hover,
+body.theme-icecream .day-picker-box.selected,
+body.theme-icecream .filter-tab.active,
+body.theme-icecream .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--icecream-surface-soft) 72%, var(--icecream-accent) 28%) !important; color: var(--icecream-ink) !important; border-color: var(--icecream-border) !important; }
+body.theme-icecream .progress-bar-fill { background: linear-gradient(90deg, var(--icecream-accent), var(--icecream-second), var(--icecream-third)) !important; }
+
+#icecream-background .icecream-item { position:absolute; display:block; height:auto; object-fit:contain; opacity:.95; transform-origin:center; translate:0 0; rotate:0deg; scale:1; filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--icecream-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30)); animation: icecreamFloat var(--icecream-float-duration) ease-in-out var(--icecream-float-delay) infinite alternate; will-change:transform; }
+@keyframes icecreamFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--icecream-float-x), var(--icecream-float-y), 0) rotate(var(--icecream-float-r)) scale(1.035)} }
+#icecream-background .icecream-item.icecream-intro-bop { animation:icecreamIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--icecream-bop-delay) infinite !important; }
+@keyframes icecreamIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+
+#icecream-background .icecream-extra { position:absolute; width:14px; height:4px; border-radius:999px; background:linear-gradient(90deg, #ff99c8, #9fdcff); opacity:.64; animation:icecreamSprinkleFloat var(--icecream-extra-duration) ease-in-out var(--icecream-extra-delay) infinite alternate; }
+@keyframes icecreamSprinkleFloat { from{transform:translate3d(0,0,0) rotate(0deg)} to{transform:translate3d(var(--icecream-extra-x), var(--icecream-extra-y),0) rotate(var(--icecream-extra-r))} }
+
+
+@keyframes icecreamLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #icecream-background .icecream-item { opacity:.72; } #icecream-background .icecream-extra { opacity:.38; } }
+@media (prefers-reduced-motion: reduce) { #icecream-background::before, #icecream-background .icecream-item, #icecream-background .icecream-extra { animation:none !important; } }

@@ -1,0 +1,107 @@
+/* ============================================================
+   ELLO THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-ello {
+    --ello-ink: #5e4c63;
+    --ello-border: #ffb2c1;
+    --ello-surface: #fffdfd;
+    --ello-surface-soft: #fff4f7;
+    --ello-accent: #ff82ad;
+    --ello-second: #8de3df;
+    --ello-third: #ffe184;
+    --black: var(--ello-ink);
+    --white: var(--ello-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--ello-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--ello-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--ello-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--ello-border) 44%, transparent);
+    --track-bg: #ffecf0;
+    --muted-text: rgba(94,76,99,.58);
+    background: radial-gradient(circle at 15% 16%, rgba(255,255,255,.86), transparent 23%), radial-gradient(circle at 84% 12%, rgba(255,255,255,.52), transparent 23%), radial-gradient(circle at 20% 88%, rgba(255,130,173,.12), transparent 22%), radial-gradient(circle at 82% 84%, rgba(141,227,223,.13), transparent 22%), linear-gradient(155deg, #ffe8ef 0%, #fff4d5 47%, #e6fffb 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--ello-ink) !important;
+}
+
+#ello-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: -1; }
+#ello-background::before, #ello-background::after { content:''; position:absolute; pointer-events:none; }
+#ello-background::before { inset:-12%; background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.24), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%); animation:elloLightSweep 9s ease-in-out infinite alternate; }
+body.theme-ello #ello-background { z-index: -1; }
+body.theme-ello .view { position: relative; z-index: 2; }
+body.theme-ello .side-nav { position: relative; z-index: 3; }
+body.theme-ello header, body.theme-ello .log-header-container { position: relative; z-index: 4; }
+body.theme-ello .modal, body.theme-ello .modal-overlay, body.theme-ello .overlay { z-index: 10; }
+
+body.theme-ello .day-box,
+body.theme-ello .day-picker-box,
+body.theme-ello .icon-btn,
+body.theme-ello .small-icon-btn,
+body.theme-ello input,
+body.theme-ello textarea,
+body.theme-ello select,
+body.theme-ello .notes-editable,
+body.theme-ello .phrase-card,
+body.theme-ello .chip,
+body.theme-ello .toolbox-item,
+body.theme-ello .resource-card,
+body.theme-ello .polaroid-card,
+body.theme-ello .filter-tab,
+body.theme-ello .day-target-box,
+body.theme-ello .flashcard,
+body.theme-ello .flashcard-mode-card,
+body.theme-ello .day-badge,
+body.theme-ello .video-placeholder,
+body.theme-ello .theme-picker-card,
+body.theme-ello .note-audio-row,
+body.theme-ello .modal-box,
+body.theme-ello .set-complete-box { background-color: var(--ello-surface) !important; }
+
+body.theme-ello input::placeholder,
+body.theme-ello textarea::placeholder,
+body.theme-ello .notes-editable:empty::before { color: color-mix(in srgb, var(--ello-ink) 42%, transparent) !important; }
+body.theme-ello .icon-btn:hover,
+body.theme-ello .small-icon-btn:hover,
+body.theme-ello .filter-tab:hover { background: var(--ello-surface-soft) !important; color: var(--ello-ink) !important; }
+body.theme-ello .chip:hover,
+body.theme-ello .phrase-card:hover,
+body.theme-ello .day-picker-box.selected,
+body.theme-ello .filter-tab.active,
+body.theme-ello .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--ello-surface-soft) 72%, var(--ello-accent) 28%) !important; color: var(--ello-ink) !important; border-color: var(--ello-border) !important; }
+body.theme-ello .progress-bar-fill { background: linear-gradient(90deg, var(--ello-accent), var(--ello-second), var(--ello-third)) !important; }
+
+#ello-background .ello-item {
+    position:absolute; display:block; height:auto; object-fit:contain; opacity:.95;
+    transform-origin:center; translate:0 0; rotate:0deg; scale:1;
+    filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--ello-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30));
+    animation: elloFloat var(--ello-float-duration) ease-in-out var(--ello-float-delay) infinite alternate; will-change:transform;
+}
+@keyframes elloFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--ello-float-x), var(--ello-float-y), 0) rotate(var(--ello-float-r)) scale(1.035)} }
+#ello-background .ello-item.ello-intro-bop { animation:elloIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--ello-bop-delay) infinite !important; }
+@keyframes elloIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+#ello-background .ello-extra { position:absolute; }
+
+#ello-background .ello-extra-a {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255,255,255,.94), 0 0 14px color-mix(in srgb, var(--ello-accent) 34%, transparent);
+    opacity: 0; animation: elloSparkle var(--ello-extra-duration) ease-in-out var(--ello-extra-delay) infinite;
+}
+#ello-background .ello-extra-a::before, #ello-background .ello-extra-a::after { content:''; position:absolute; left:50%; top:50%; background:rgba(255,255,255,.88); transform:translate(-50%,-50%); }
+#ello-background .ello-extra-a::before { width: 16px; height: 1px; }
+#ello-background .ello-extra-a::after { width: 1px; height: 16px; }
+#ello-background .ello-extra-b {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.72), rgba(255,130,173,.45) 45%, rgba(141,227,223,.55) 100%);
+    opacity: .34;
+    animation: elloBubble var(--ello-extra-duration) ease-in-out var(--ello-extra-delay) infinite alternate;
+}
+@keyframes elloSparkle { 0%,100%{opacity:0; transform:scale(.35)} 54%{opacity:.84; transform:scale(calc(var(--ello-extra-scale) * 1.15))} 76%{opacity:.18; transform:scale(.62)} }
+@keyframes elloBubble { from{transform:translate3d(0,0,0) scale(var(--ello-extra-scale)); opacity:.15} to{transform:translate3d(0,-12px,0) scale(calc(var(--ello-extra-scale) * 1.08)); opacity:.46} }
+
+
+@keyframes elloLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #ello-background .ello-item { opacity:.72; } #ello-background .ello-extra { opacity:.38; } }
+@media (prefers-reduced-motion: reduce) { #ello-background::before, #ello-background .ello-item, #ello-background .ello-extra { animation:none !important; } }

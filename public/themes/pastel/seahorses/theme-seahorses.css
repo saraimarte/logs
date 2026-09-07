@@ -1,0 +1,232 @@
+/* ============================================================
+   SEAHORSES THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-seahorses {
+    --seahorses-ink: #15535d;
+    --seahorses-border: #79c8c9;
+    --seahorses-surface: #f7fffe;
+    --seahorses-surface-soft: #ebfbf8;
+    --seahorses-aqua: #74d6d0;
+    --seahorses-teal: #3aa6aa;
+    --seahorses-coral: #f39b87;
+
+    --black: var(--seahorses-ink);
+    --white: var(--seahorses-surface);
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid rgba(58,166,170,.48);
+    --thin-border: 2px solid rgba(58,166,170,.34);
+    --dashed-border: 2px dashed rgba(58,166,170,.34);
+    --dotted-border: 2px dotted rgba(58,166,170,.34);
+    --track-bg: #d4f1ee;
+    --muted-text: rgba(21,83,93,.58);
+
+    background:
+        radial-gradient(circle at 16% 14%, rgba(255,255,255,.88) 0 4%, transparent 24%),
+        radial-gradient(circle at 83% 15%, rgba(255,255,255,.72) 0 4%, transparent 25%),
+        radial-gradient(ellipse at 50% 112%, rgba(83,190,190,.40) 0 31%, transparent 67%),
+        linear-gradient(180deg, #c9f4f2 0%, #effdfa 48%, #a9e0dc 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--seahorses-ink) !important;
+}
+
+#seahorses-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#seahorses-background::before,
+#seahorses-background::after {
+    content: "";
+    position: absolute;
+    inset: -15%;
+    pointer-events: none;
+}
+
+#seahorses-background::before {
+    background:
+        radial-gradient(ellipse at 22% 28%, rgba(255,255,255,.30), transparent 26%),
+        radial-gradient(ellipse at 76% 42%, rgba(255,255,255,.24), transparent 28%);
+    animation: seahorsesCaustic 8s ease-in-out infinite alternate;
+}
+
+#seahorses-background::after {
+    background: linear-gradient(110deg, transparent 38%, rgba(255,255,255,.18) 48%, transparent 58%);
+    transform: translateX(-22%);
+    animation: seahorsesLightSweep 10s ease-in-out infinite;
+}
+
+body.theme-seahorses #seahorses-background { z-index: 0; }
+body.theme-seahorses .view { position: relative; z-index: 2; }
+body.theme-seahorses .side-nav { position: relative; z-index: 3; }
+body.theme-seahorses header,
+body.theme-seahorses .log-header-container { position: relative; z-index: 4; }
+body.theme-seahorses .modal,
+body.theme-seahorses .modal-overlay,
+body.theme-seahorses .overlay { z-index: 10; }
+
+/* Existing app UI: colors only. */
+body.theme-seahorses .day-box,
+body.theme-seahorses .day-picker-box,
+body.theme-seahorses .icon-btn,
+body.theme-seahorses .small-icon-btn,
+body.theme-seahorses input,
+body.theme-seahorses textarea,
+body.theme-seahorses select,
+body.theme-seahorses .notes-editable,
+body.theme-seahorses .phrase-card,
+body.theme-seahorses .chip,
+body.theme-seahorses .toolbox-item,
+body.theme-seahorses .resource-card,
+body.theme-seahorses .polaroid-card,
+body.theme-seahorses .filter-tab,
+body.theme-seahorses .day-target-box,
+body.theme-seahorses .flashcard,
+body.theme-seahorses .flashcard-mode-card,
+body.theme-seahorses .day-badge,
+body.theme-seahorses .video-placeholder,
+body.theme-seahorses .theme-picker-card,
+body.theme-seahorses .note-audio-row,
+body.theme-seahorses .modal-box,
+body.theme-seahorses .set-complete-box {
+    background-color: var(--seahorses-surface) !important;
+}
+
+body.theme-seahorses input::placeholder,
+body.theme-seahorses textarea::placeholder,
+body.theme-seahorses .notes-editable:empty::before {
+    color: rgba(21,83,93,.42) !important;
+}
+
+body.theme-seahorses .icon-btn:hover,
+body.theme-seahorses .small-icon-btn:hover,
+body.theme-seahorses .filter-tab:hover {
+    background: var(--seahorses-surface-soft) !important;
+    color: var(--seahorses-ink) !important;
+}
+
+body.theme-seahorses .chip:hover,
+body.theme-seahorses .phrase-card:hover,
+body.theme-seahorses .day-picker-box.selected,
+body.theme-seahorses .filter-tab.active,
+body.theme-seahorses .filter-tab[aria-selected="true"] {
+    background: #d5f4ef !important;
+    color: var(--seahorses-ink) !important;
+    border-color: var(--seahorses-teal) !important;
+}
+
+body.theme-seahorses .progress-bar-fill {
+    background: linear-gradient(90deg, var(--seahorses-teal), var(--seahorses-coral)) !important;
+}
+
+/* Seahorses */
+#seahorses-background .seahorses-item {
+    position: absolute;
+    display: block;
+    height: auto;
+    object-fit: contain;
+    opacity: .94;
+    transform-origin: center;
+    /* Hover uses independent transform longhands, while swimming keeps ownership
+       of `transform`, so hover motion never resets the current swim position. */
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    filter:
+        drop-shadow(0 8px 11px rgba(27,113,119,.16))
+        drop-shadow(0 0 9px rgba(255,255,255,.34));
+    animation: seahorsesSwim var(--seahorses-swim-duration) ease-in-out var(--seahorses-swim-delay) infinite alternate;
+    will-change: transform;
+}
+
+@keyframes seahorsesSwim {
+    from {
+        transform: translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97);
+    }
+    to {
+        transform: translate3d(-50%,-50%,0) translate3d(var(--seahorses-swim-x),var(--seahorses-swim-y),0) rotate(var(--seahorses-swim-r)) scale(1.035);
+    }
+}
+
+/* Only selected seahorses bop to the intro song. */
+#seahorses-background .seahorses-item.seahorses-intro-bop {
+    animation: seahorsesIntroBop .66s cubic-bezier(.35,.05,.2,1) var(--seahorses-bop-delay) infinite !important;
+}
+
+@keyframes seahorsesIntroBop {
+    0%, 100% { transform: translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1); }
+    42% { transform: translate3d(-50%,-50%,0) translateY(-17px) rotate(4deg) scale(1.045); }
+    68% { transform: translate3d(-50%,-50%,0) translateY(-7px) rotate(-1deg) scale(1.02); }
+}
+
+/* The original hover hop/tilt/scale is applied in JavaScript using independent
+   translate/rotate/scale longhands, preserving the live swimming transform. */
+
+/* Bubbles */
+#seahorses-background .seahorses-bubble {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.72);
+    background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.78) 0 10%, rgba(255,255,255,.20) 28%, rgba(66,173,177,.13) 70%, transparent 72%);
+    box-shadow: inset 0 0 5px rgba(255,255,255,.42), 0 0 8px rgba(50,152,157,.12);
+    opacity: .62;
+    animation: seahorsesBubbleRise var(--seahorses-bubble-duration) linear var(--seahorses-bubble-delay) infinite;
+}
+
+@keyframes seahorsesBubbleRise {
+    from { transform: translate3d(0, 18vh, 0) scale(.75); opacity: 0; }
+    12% { opacity: .64; }
+    to { transform: translate3d(var(--seahorses-bubble-drift), -122vh, 0) scale(1.08); opacity: 0; }
+}
+
+/* Water sparkles */
+#seahorses-background .seahorses-sparkle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255,255,255,.92), 0 0 12px rgba(63,176,179,.38);
+    opacity: 0;
+    animation: seahorsesSparkle var(--seahorses-sparkle-duration) ease-in-out var(--seahorses-sparkle-delay) infinite;
+}
+
+@keyframes seahorsesSparkle {
+    0%,100% { opacity: 0; transform: scale(.4); }
+    48% { opacity: .25; transform: scale(.8); }
+    60% { opacity: .82; transform: scale(1.32); }
+    76% { opacity: .15; transform: scale(.6); }
+}
+
+@keyframes seahorsesCaustic {
+    from { transform: translate3d(-1.5%, -1%, 0) scale(1); opacity: .7; }
+    to { transform: translate3d(1.5%, 1%, 0) scale(1.045); opacity: 1; }
+}
+
+@keyframes seahorsesLightSweep {
+    0%,100% { transform: translateX(-35%) rotate(-4deg); opacity: .3; }
+    50% { transform: translateX(35%) rotate(4deg); opacity: .72; }
+}
+
+@media (max-width: 700px) {
+    #seahorses-background .seahorses-item { opacity: .72; }
+    #seahorses-background .seahorses-bubble { opacity: .42; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #seahorses-background::before,
+    #seahorses-background::after,
+    #seahorses-background .seahorses-item,
+    #seahorses-background .seahorses-bubble,
+    #seahorses-background .seahorses-sparkle {
+        animation: none !important;
+    }
+}

@@ -1,0 +1,18 @@
+body.theme-scrapbook {
+--overlay-scrim: rgba(30, 20, 5, 0.65);
+--black: #5b4630;
+--white: #fffdf6;
+--thick-border: 3px dashed #b58a52;
+--thin-border: 2px dashed #c9a066;
+--dashed-border: 2px dashed #c9a066;
+--dotted-border: 2px dotted #d9b87c;
+background-color: #f3e6d0;
+background-image: radial-gradient(rgba(91,70,48,0.10) 1px, transparent 1px);
+background-size: 18px 18px;
+background-attachment: fixed;
+}
+body.theme-scrapbook .modal-box, body.theme-scrapbook .day-box, body.theme-scrapbook .chip,
+body.theme-scrapbook .toolbox-item, body.theme-scrapbook .resource-card, body.theme-scrapbook select,
+body.theme-scrapbook input, body.theme-scrapbook textarea { background-color: #fffdf6; }
+body.theme-scrapbook .day-box, body.theme-scrapbook .chip, body.theme-scrapbook .modal-box,
+body.theme-scrapbook .toolbox-item, body.theme-scrapbook .resource-card { transform: rotate(-0.4deg); }

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="520" viewBox="0 0 320 520" fill="none">
+<defs>
+  <linearGradient id="vine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#534335"/><stop offset="1" stop-color="#231a16"/></linearGradient>
+  <radialGradient id="roseA" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#8d3940"/><stop offset="1" stop-color="#371416"/></radialGradient>
+</defs>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <path d="M258 20 C250 70,260 110,274 153 C288 195,292 233,286 272 C281 306,266 340,244 382 C223 422,214 454,211 500" stroke="url(#vine)" stroke-width="12" fill="none"/>
+  <path d="M241 67 C225 84,209 100,191 112" stroke="#42342c" stroke-width="6"/>
+  <path d="M272 134 C292 150,305 169,311 192" stroke="#42342c" stroke-width="6"/>
+  <path d="M252 204 C232 224,219 247,212 274" stroke="#42342c" stroke-width="6"/>
+  <path d="M279 275 C298 291,307 311,308 334" stroke="#42342c" stroke-width="6"/>
+  <path d="M241 357 C223 375,212 395,206 419" stroke="#42342c" stroke-width="6"/>
+  <g fill="#3a2e28" stroke="#2a201b" stroke-width="3.5">
+    <path d="M190 113 C172 101,154 99,133 107 C143 123,158 133,178 138"/>
+    <path d="M312 193 C301 176,285 168,264 166 C270 184,281 196,300 203"/>
+    <path d="M211 274 C191 264,173 264,152 273 C164 288,180 296,200 299"/>
+    <path d="M308 334 C296 318,280 310,259 309 C265 326,277 338,295 345"/>
+    <path d="M206 419 C185 412,167 414,148 426 C162 439,179 444,198 443"/>
+  </g>
+  <g stroke="#40181b" stroke-width="3.5">
+    <path d="M214 85 C225 63,248 56,266 70 C282 82,282 107,264 119 C246 131,224 119,214 101 C205 118,184 127,166 118 C149 109,147 83,162 69 C178 56,201 63,214 85 Z" fill="url(#roseA)"/>
+    <path d="M286 233 C297 211,320 204,338 218 C354 230,354 255,336 267 C318 279,296 267,286 249 C277 266,256 275,238 266 C221 257,219 231,234 217 C250 204,273 211,286 233 Z" fill="url(#roseA)"/>
+    <path d="M198 318 C209 296,232 289,250 303 C266 315,266 340,248 352 C230 364,208 352,198 334 C189 351,168 360,150 351 C133 342,131 316,146 302 C162 289,185 296,198 318 Z" fill="url(#roseA)"/>
+    <path d="M293 386 C304 364,327 357,345 371 C361 383,361 408,343 420 C325 432,303 420,293 402 C284 419,263 428,245 419 C228 410,226 384,241 370 C257 357,280 364,293 386 Z" fill="url(#roseA)"/>
+  </g>
+</g>
+</svg>

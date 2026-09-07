@@ -1,0 +1,278 @@
+/* ============================================================
+   80S
+   Scoped visual theme. No global layout/cursor/companion overrides.
+   ============================================================ */
+
+body.theme-80s {
+    --theme-ink: #f8f3ff;
+    --theme-paper: #21153f;
+    --theme-accent: #ff4fa3;
+    --theme-accent-2: #4ee2e6;
+    --theme-gold: #ffd24f;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+
+    --thick-border: 2px solid color-mix(in srgb, var(--theme-accent) 44%, transparent);
+    --thin-border: 1px solid color-mix(in srgb, var(--theme-accent) 30%, transparent);
+    --dashed-border: 1px dashed color-mix(in srgb, var(--theme-accent) 30%, transparent);
+    --dotted-border: 1px dotted color-mix(in srgb, var(--theme-accent) 30%, transparent);
+
+    --track-bg: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+    --muted-text: color-mix(in srgb, var(--theme-ink) 58%, transparent);
+
+    background:
+        radial-gradient(circle at 50% 4%, color-mix(in srgb, var(--theme-accent-2) 16%, transparent), transparent 34%),
+        radial-gradient(circle at 12% 80%, color-mix(in srgb, var(--theme-accent) 12%, transparent), transparent 30%),
+        linear-gradient(145deg, #1a1036, #3d1760) !important;
+
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#80s-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#80s-background .theme-80s-haze {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 14%, color-mix(in srgb, var(--theme-paper) 42%, transparent), transparent 34%),
+        radial-gradient(circle at 15% 55%, color-mix(in srgb, var(--theme-accent) 10%, transparent), transparent 30%),
+        radial-gradient(circle at 85% 58%, color-mix(in srgb, var(--theme-accent-2) 10%, transparent), transparent 30%);
+}
+
+#80s-background .theme-80s-pattern {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(transparent 95%, rgba(78,226,230,.12) 96%),linear-gradient(90deg, transparent 95%, rgba(255,79,163,.12) 96%);
+    background-size: 80px 80px;
+    opacity: .65;
+}
+
+#80s-background .theme-80s-horizon {
+    position: absolute;
+    left: -7vw;
+    right: -7vw;
+    bottom: -8vh;
+    height: 29vh;
+    background:
+        linear-gradient(180deg, transparent, color-mix(in srgb, var(--theme-accent) 8%, transparent) 35%, color-mix(in srgb, var(--theme-ink) 12%, transparent));
+    clip-path: polygon(0 35%, 100% 12%, 100% 100%, 0 100%);
+    opacity: .65;
+}
+
+#80s-background .theme-80s-item {
+    position: absolute;
+    width: 125px;
+    height: 125px;
+    color: color-mix(in srgb, var(--theme-ink) 82%, var(--theme-accent));
+    opacity: .30;
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--item-rotate))
+        scale(var(--item-scale));
+    filter:
+        drop-shadow(0 8px 13px rgba(0,0,0,.16))
+        drop-shadow(0 0 9px color-mix(in srgb, var(--theme-accent) 16%, transparent));
+    animation:
+        theme80SFloat
+        7.8s
+        ease-in-out
+        var(--item-delay)
+        infinite;
+    transform-origin: center center;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#80s-background .theme-80s-item svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+    pointer-events: none;
+}
+
+#80s-background .theme-80s-item:nth-of-type(3n) {
+    width: 105px;
+    height: 105px;
+    opacity: .24;
+}
+
+#80s-background .theme-80s-item:nth-of-type(4n) {
+    animation-duration: 9.4s;
+}
+
+@keyframes theme80SFloat {
+    0%,100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0,0,0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--item-x), var(--item-y), 0)
+            rotate(calc(var(--item-rotate) + 2deg))
+            scale(var(--item-scale));
+    }
+}
+
+#80s-background .theme-80s-react {
+    opacity: .56;
+    filter:
+        drop-shadow(0 10px 16px rgba(0,0,0,.20))
+        drop-shadow(0 0 14px color-mix(in srgb, var(--theme-accent) 34%, transparent));
+    animation:
+        theme80SReact
+        .5s
+        ease-out !important;
+}
+
+@keyframes theme80SReact {
+    0% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+    45% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0,-10px,0)
+            rotate(calc(var(--item-rotate) + 7deg))
+            scale(calc(var(--item-scale) * 1.09));
+    }
+    100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+}
+
+/* UI adaptation only. Sizes and positions remain template-owned. */
+body.theme-80s .day-box,
+body.theme-80s .day-picker-box,
+body.theme-80s .icon-btn,
+body.theme-80s .small-icon-btn,
+body.theme-80s input,
+body.theme-80s textarea,
+body.theme-80s select,
+body.theme-80s .notes-editable,
+body.theme-80s .phrase-card,
+body.theme-80s .chip,
+body.theme-80s .toolbox-item,
+body.theme-80s .resource-card,
+body.theme-80s .polaroid-card,
+body.theme-80s .filter-tab,
+body.theme-80s .day-target-box,
+body.theme-80s .flashcard,
+body.theme-80s .flashcard-mode-card,
+body.theme-80s .day-badge,
+body.theme-80s .video-placeholder,
+body.theme-80s .theme-picker-card,
+body.theme-80s .note-audio-row,
+body.theme-80s .modal-box {
+    background-color: color-mix(in srgb, var(--theme-paper) 91%, transparent);
+    color: var(--theme-ink);
+    border-color: color-mix(in srgb, var(--theme-accent) 28%, transparent);
+}
+
+body.theme-80s input::placeholder,
+body.theme-80s textarea::placeholder,
+body.theme-80s .notes-editable:empty::before {
+    color: color-mix(in srgb, var(--theme-ink) 43%, transparent);
+}
+
+body.theme-80s .icon-btn:hover,
+body.theme-80s .small-icon-btn:hover,
+body.theme-80s .filter-tab:hover {
+    background: color-mix(in srgb, var(--theme-accent) 14%, var(--theme-paper));
+    color: var(--theme-ink);
+}
+
+body.theme-80s .chip:hover,
+body.theme-80s .phrase-card:hover,
+body.theme-80s .filter-tab.active,
+body.theme-80s .day-picker-box.selected {
+    background:
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--theme-accent) 90%, var(--theme-paper)),
+            color-mix(in srgb, var(--theme-accent-2) 76%, var(--theme-paper))
+        );
+    color: var(--theme-paper);
+    border-color: color-mix(in srgb, var(--theme-accent) 58%, transparent);
+}
+
+body.theme-80s .progress-bar-track {
+    background: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+}
+
+body.theme-80s .progress-bar-fill {
+    background:
+        linear-gradient(
+            90deg,
+            var(--theme-accent),
+            var(--theme-gold),
+            var(--theme-accent-2)
+        );
+}
+
+/* Safe stacking: no broad direct-child wildcard selectors. */
+body.theme-80s #80s-background {
+    z-index: 0;
+}
+
+body.theme-80s .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-80s .side-nav {
+    position: relative;
+    z-index: 3;
+}
+
+body.theme-80s header,
+body.theme-80s .log-header-container {
+    position: relative;
+    z-index: 4;
+}
+
+body.theme-80s .modal,
+body.theme-80s .modal-overlay,
+body.theme-80s .overlay {
+    z-index: 10;
+}
+
+@media (max-width: 700px) {
+    #80s-background .theme-80s-item {
+        width: 94px;
+        height: 94px;
+        opacity: .21;
+    }
+
+    #80s-background .theme-80s-item:nth-of-type(2n) {
+        opacity: .14;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #80s-background * {
+        animation: none !important;
+    }
+}

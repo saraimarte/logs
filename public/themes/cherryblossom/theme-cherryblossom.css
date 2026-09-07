@@ -1,0 +1,310 @@
+/* ============================================================
+   CHERRY BLOSSOM
+   Decorative theme only.
+   Application layout remains owned by template.css.
+   ============================================================ */
+
+body.theme-cherryblossom {
+    --cherry-ink: #4c3440;
+    --cherry-paper: #fff8fb;
+    --cherry-pink: #ef9fbd;
+    --cherry-deep: #c96c94;
+    --cherry-border: rgba(126, 76, 98, .26);
+    --cherry-muted: rgba(76, 52, 64, .60);
+
+    --black: var(--cherry-ink);
+    --white: var(--cherry-paper);
+    --bg-overlay: transparent;
+    --track-bg: rgba(201, 108, 148, .12);
+    --muted-text: var(--cherry-muted);
+
+    --thick-border: 2px solid rgba(126, 76, 98, .34);
+    --thin-border: 1px solid rgba(126, 76, 98, .24);
+    --dashed-border: 1px dashed rgba(126, 76, 98, .24);
+    --dotted-border: 1px dotted rgba(126, 76, 98, .24);
+
+    background:
+        linear-gradient(
+            180deg,
+            #f8e9f0 0%,
+            #fceff4 25%,
+            #fff8fb 58%,
+            #f8efe9 100%
+        ) !important;
+
+    background-attachment: fixed !important;
+    color: var(--cherry-ink);
+}
+
+/* ============================================================
+   BACKGROUND LAYER
+   ============================================================ */
+
+#cherryblossom-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    pointer-events: none;
+    user-select: none;
+
+    z-index: 0;
+}
+
+#cherryblossom-background .cherry-sky-wash {
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(circle at 50% 8%, rgba(255,255,255,.74), transparent 34%),
+        radial-gradient(circle at 18% 22%, rgba(245,165,197,.22), transparent 31%),
+        radial-gradient(circle at 83% 25%, rgba(246,173,202,.18), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0));
+
+    pointer-events: none;
+}
+
+#cherryblossom-background .cherry-distant-hills {
+    position: absolute;
+    left: -8vw;
+    right: -8vw;
+    bottom: -7vh;
+    height: 35vh;
+
+    background:
+        radial-gradient(ellipse at 14% 100%, rgba(166,178,151,.20) 0 48%, transparent 49%),
+        radial-gradient(ellipse at 47% 100%, rgba(176,187,158,.18) 0 52%, transparent 53%),
+        radial-gradient(ellipse at 79% 100%, rgba(154,173,148,.19) 0 50%, transparent 51%);
+
+    filter: blur(4px);
+    opacity: .8;
+}
+
+#cherryblossom-background .cherry-ground-mist {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -8vh;
+    height: 25vh;
+
+    background:
+        radial-gradient(ellipse at center, rgba(255,255,255,.68), rgba(255,255,255,0) 68%);
+
+    filter: blur(12px);
+}
+
+/* ============================================================
+   FALLING PETALS
+   ============================================================ */
+
+#cherryblossom-background .cherry-petal {
+    position: absolute;
+    top: -8vh;
+
+    display: block;
+
+    border-radius: 68% 32% 70% 30% / 61% 48% 52% 39%;
+
+    background:
+        radial-gradient(circle at 32% 28%, #fff9fc 0 14%, transparent 15%),
+        linear-gradient(135deg, #ffd8e7 0%, #f5a7c5 72%, #df83aa 100%);
+
+    box-shadow:
+        0 1px 2px rgba(109, 59, 80, .09);
+
+    opacity: var(--petal-opacity, .7);
+
+    transform:
+        translate3d(var(--gust-x, 0px), var(--gust-y, 0px), 0)
+        rotate(var(--gust-rotate, 0deg))
+        scale(var(--petal-scale, 1));
+
+    animation:
+        cherryPetalFall
+        var(--petal-duration, 16s)
+        linear
+        var(--petal-delay, 0s)
+        infinite;
+
+    will-change: transform;
+
+    pointer-events: none;
+}
+
+#cherryblossom-background .cherry-petal:nth-of-type(3n) {
+    border-radius: 45% 55% 36% 64% / 62% 40% 60% 38%;
+}
+
+#cherryblossom-background .cherry-petal:nth-of-type(5n) {
+    filter: blur(.15px);
+    opacity: calc(var(--petal-opacity, .7) * .75);
+}
+
+@keyframes cherryPetalFall {
+    0% {
+        translate: 0 -12vh;
+        rotate: 0deg;
+    }
+
+    25% {
+        translate:
+            calc(var(--petal-sway, 60px) * .55)
+            26vh;
+
+        rotate:
+            calc(var(--petal-rotate, 360deg) * .28);
+    }
+
+    50% {
+        translate:
+            calc(var(--petal-sway, 60px) * -.35)
+            53vh;
+
+        rotate:
+            calc(var(--petal-rotate, 360deg) * .54);
+    }
+
+    75% {
+        translate:
+            var(--petal-sway, 60px)
+            79vh;
+
+        rotate:
+            calc(var(--petal-rotate, 360deg) * .79);
+    }
+
+    100% {
+        translate:
+            calc(var(--petal-sway, 60px) * .15)
+            112vh;
+
+        rotate:
+            var(--petal-rotate, 360deg);
+    }
+}
+
+/*
+ * Mouse proximity does not require pointer-events on the petals.
+ * JS reads their screen positions from the normal mousemove event,
+ * so these remain completely non-blocking for app controls.
+ */
+#cherryblossom-background .cherry-petal-gust {
+    filter:
+        drop-shadow(0 3px 5px rgba(201, 108, 148, .20));
+}
+
+/* ============================================================
+   UI COLOR ADAPTATION
+   Structural dimensions/positions are intentionally unchanged.
+   ============================================================ */
+
+body.theme-cherryblossom .day-box,
+body.theme-cherryblossom .day-picker-box,
+body.theme-cherryblossom .icon-btn,
+body.theme-cherryblossom .small-icon-btn,
+body.theme-cherryblossom input,
+body.theme-cherryblossom textarea,
+body.theme-cherryblossom select,
+body.theme-cherryblossom .notes-editable,
+body.theme-cherryblossom .phrase-card,
+body.theme-cherryblossom .chip,
+body.theme-cherryblossom .toolbox-item,
+body.theme-cherryblossom .resource-card,
+body.theme-cherryblossom .polaroid-card,
+body.theme-cherryblossom .filter-tab,
+body.theme-cherryblossom .day-target-box,
+body.theme-cherryblossom .flashcard,
+body.theme-cherryblossom .flashcard-mode-card,
+body.theme-cherryblossom .day-badge,
+body.theme-cherryblossom .video-placeholder,
+body.theme-cherryblossom .theme-picker-card,
+body.theme-cherryblossom .note-audio-row,
+body.theme-cherryblossom .modal-box {
+    background-color: rgba(255, 248, 251, .91);
+    color: var(--cherry-ink);
+    border-color: var(--cherry-border);
+}
+
+body.theme-cherryblossom .icon-btn:hover,
+body.theme-cherryblossom .small-icon-btn:hover,
+body.theme-cherryblossom .filter-tab:hover {
+    background: rgba(239, 159, 189, .18);
+    color: var(--cherry-ink);
+}
+
+body.theme-cherryblossom .chip:hover,
+body.theme-cherryblossom .phrase-card:hover,
+body.theme-cherryblossom .filter-tab.active,
+body.theme-cherryblossom .day-picker-box.selected {
+    background: rgba(221, 128, 166, .86);
+    color: #fff;
+    border-color: rgba(176, 86, 126, .52);
+}
+
+body.theme-cherryblossom input::placeholder,
+body.theme-cherryblossom textarea::placeholder,
+body.theme-cherryblossom .notes-editable:empty::before {
+    color: rgba(76, 52, 64, .43);
+}
+
+body.theme-cherryblossom .progress-bar-fill {
+    background: linear-gradient(90deg, #efa0bf, #cc6d96);
+}
+
+body.theme-cherryblossom .progress-bar-track {
+    background: rgba(201, 108, 148, .14);
+}
+
+/* ============================================================
+   SAFE UI STACKING
+   Only known application surfaces are raised.
+   No body > * wildcard selectors are used.
+   ============================================================ */
+
+body.theme-cherryblossom #cherryblossom-background {
+    z-index: 0;
+}
+
+body.theme-cherryblossom .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-cherryblossom .side-nav {
+    position: relative;
+    z-index: 3;
+}
+
+body.theme-cherryblossom header,
+body.theme-cherryblossom .log-header-container {
+    position: relative;
+    z-index: 4;
+}
+
+body.theme-cherryblossom .modal-overlay,
+body.theme-cherryblossom .modal,
+body.theme-cherryblossom .overlay {
+    z-index: 10;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+#cherryblossom-background .cherry-petal:nth-of-type(2n) {
+        display: none;
+    }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    #cherryblossom-background .cherry-petal {
+        animation: none !important;
+    }
+}

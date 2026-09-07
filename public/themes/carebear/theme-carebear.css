@@ -1,0 +1,1519 @@
+
+body.theme-carebear {
+    --black: #675680;
+    --white: #675680;
+    --muted-text: #675680;
+    --track-bg: rgba(255,255,255,.26);
+    --bg-overlay: transparent;
+    background:
+        radial-gradient(circle at 50% 5%, rgba(255,255,255,.52), transparent 24%),
+        radial-gradient(circle at 14% 78%, rgba(255,255,255,.48), transparent 28%),
+        radial-gradient(circle at 86% 22%, rgba(255,164,203,.18), transparent 28%),
+        radial-gradient(circle at 70% 70%, rgba(121,211,255,.18), transparent 30%),
+        linear-gradient(180deg,#dff6ff 0%,#f7ebff 44%,#fff0f5 100%) !important;
+    color: #675680 !important;
+}
+body.theme-carebear .view:not(#grid-view)::before {
+    background: transparent !important;
+    background-image: none !important;
+    opacity: 0 !important;
+}
+#carebear-background {
+    position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; z-index: 0; isolation: isolate;
+}
+#carebear-background > * { position: absolute; inset: 0; pointer-events: none; }
+body.theme-carebear .view, body.theme-carebear #grid-view { position: relative; z-index: 1; }
+body.theme-carebear header, body.theme-carebear .log-header-container, body.theme-carebear .side-nav { position: relative; z-index: 2; }
+#carebear-background .theme-carebear-glow {
+    background:
+        radial-gradient(circle at 16% 16%, rgba(255,255,255,.48), transparent 20%),
+        radial-gradient(circle at 84% 20%, rgba(255,164,203,.18), transparent 23%),
+        radial-gradient(circle at 20% 84%, rgba(255,255,255,.48), transparent 26%),
+        radial-gradient(circle at 74% 78%, rgba(121,211,255,.18), transparent 24%);
+    filter: blur(10px);
+}
+#carebear-background .theme-carebear-pattern { opacity: .45; background: radial-gradient(circle at 26px 26px, rgba(255,255,255,.55) 0 6px, transparent 7px); background-size: 76px 76px; }
+#carebear-background .theme-carebear-dot {
+    position: absolute; width: var(--dot-size); height: var(--dot-size); border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), #ff9cc9 44%, transparent 72%);
+    animation: carebearDotFloat var(--dot-duration) ease-in-out var(--dot-delay) infinite alternate; opacity: .60;
+}
+@keyframes carebearDotFloat {
+    from { transform: translate3d(0, 0, 0) scale(.86); opacity: .28; }
+    to { transform: translate3d(var(--dot-dx), var(--dot-dy), 0) scale(1.10); opacity: .82; }
+}
+#carebear-background .theme-carebear-floor {
+    background:
+        linear-gradient(180deg, transparent 0 72%, rgba(255,255,255,.06) 72% 100%),
+        radial-gradient(ellipse 32% 12% at 18% 100%, rgba(255,255,255,.16), transparent 72%),
+        radial-gradient(ellipse 32% 12% at 82% 100%, rgba(255,255,255,.12), transparent 72%);
+}
+#carebear-background .theme-carebear-item {
+    position: absolute; width: var(--item-width); max-width: 29vw;
+    transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    transform-origin: center; will-change: transform; pointer-events: auto; opacity: .97;
+    filter: drop-shadow(0 16px 22px rgba(0,0,0,.12)) drop-shadow(0 0 12px rgba(255,255,255,.22));
+    animation: carebearItemFloat var(--item-duration) ease-in-out var(--item-delay) infinite;
+}
+#carebear-background .theme-carebear-item img {
+    display: block; width: 100%; height: auto; pointer-events: none; user-select: none; -webkit-user-drag: none;
+}
+@keyframes carebearItemFloat {
+    0%,100% { transform: translate3d(-50%, -50%, 0) translate3d(0,0,0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    50% { transform: translate3d(-50%, -50%, 0) translate3d(var(--item-float-x), var(--item-float-y), 0) rotate(calc(var(--item-rotate) + 2deg)) scale(calc(var(--item-scale) * 1.02)); }
+}
+#carebear-background .theme-carebear-item.theme-carebear-dancing {
+    animation: carebearDance .66s ease-in-out var(--dance-delay) infinite alternate, carebearGlowPulse 1.18s ease-in-out var(--dance-delay) infinite alternate;
+}
+@keyframes carebearDance {
+    0%,100% { transform: translate3d(-50%, -50%, 0) translate3d(0,0,0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    50% { transform: translate3d(-50%, -50%, 0) translate3d(0,-18px,0) rotate(calc(var(--item-rotate) + 4deg)) scale(calc(var(--item-scale) * 1.05)); }
+}
+@keyframes carebearGlowPulse {
+    from { filter: drop-shadow(0 16px 22px rgba(0,0,0,.12)) drop-shadow(0 0 10px rgba(255,255,255,.22)); }
+    to { filter: drop-shadow(0 18px 24px rgba(0,0,0,.16)) drop-shadow(0 0 16px rgba(255,255,255,.30)); }
+}
+#carebear-background .theme-carebear-item.theme-carebear-pop { animation: carebearPop .54s cubic-bezier(.2,.82,.24,1) both !important; }
+@keyframes carebearPop {
+    0%,100% { transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    45% { transform: translate3d(-50%, -50%, 0) translateY(-12px) rotate(calc(var(--item-rotate) - 4deg)) scale(calc(var(--item-scale) * 1.12)); }
+    75% { transform: translate3d(-50%, -50%, 0) translateY(-4px) rotate(calc(var(--item-rotate) + 2deg)) scale(calc(var(--item-scale) * 1.06)); }
+}
+#carebear-background .theme-carebear-burst-layer { position: fixed; inset: 0; pointer-events: none; }
+#carebear-background .theme-carebear-burst {
+    position: fixed; width: var(--burst-size); height: var(--burst-size); border-radius: 50%; transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #ff9cc9, #79d3ff); box-shadow: 0 0 10px rgba(255,255,255,.26); animation: carebearSpark .72s ease-out forwards;
+}
+@keyframes carebearSpark {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.35); }
+    18% { opacity: .95; }
+    100% { opacity: 0; transform: translate(-50%, -50%) translate3d(var(--burst-x), var(--burst-y), 0) scale(1.06); }
+}
+body.theme-carebear .day-box,
+body.theme-carebear .day-picker-box,
+body.theme-carebear .filter-tab,
+body.theme-carebear .chip,
+body.theme-carebear .phrase-card,
+body.theme-carebear .toolbox-item,
+body.theme-carebear .resource-card,
+body.theme-carebear .flashcard,
+body.theme-carebear input,
+body.theme-carebear textarea,
+body.theme-carebear select {
+    background: rgba(255,255,255,.84) !important; color: #675680 !important; border-color: rgba(255,255,255,.24) !important; background-image: none !important;
+}
+body.theme-carebear h1,
+body.theme-carebear h2,
+body.theme-carebear h3,
+body.theme-carebear .page-title,
+body.theme-carebear .view-title,
+body.theme-carebear .section-title,
+body.theme-carebear #current-date-title { color: #675680 !important; }
+body.theme-carebear .filter-tabs,
+body.theme-carebear #library-filter-tabs,
+body.theme-carebear #quiz-type-filters,
+body.theme-carebear .set-size-picker { background: transparent !important; background-image: none !important; box-shadow: none !important; }
+body.theme-carebear .side-nav .icon-btn,
+body.theme-carebear .side-nav .icon-btn:hover,
+body.theme-carebear .side-nav .icon-btn:focus,
+body.theme-carebear .side-nav .icon-btn:active {
+    background: transparent !important; background-image: none !important; border: none !important; box-shadow: none !important; color: #675680 !important;
+}
+body.theme-carebear .side-nav .icon-btn::before,
+body.theme-carebear .side-nav .icon-btn::after { content: none !important; }
+@media (max-width: 900px) {
+    #carebear-background .theme-carebear-item { width: min(var(--item-width), 34vw); max-width: 240px; }
+}
+@media (prefers-reduced-motion: reduce) { #carebear-background * { animation: none !important; } }
+
+
+/* ============================================================
+   FINAL CONTRAST / READABILITY FIX
+   Explicit UI colors so template defaults cannot produce
+   dark-on-dark or light-on-light text.
+   ============================================================ */
+
+body.theme-carebear {
+    --theme-safe-surface: #fffafd;
+    --theme-safe-surface-2: #edf8ff;
+    --theme-safe-text: #56456f;
+    --theme-safe-muted: #7c708d;
+    --theme-safe-border: #c9bce0;
+    --theme-safe-search-bg: #fffafd;
+    --theme-safe-search-text: #56456f;
+    --theme-safe-search-placeholder: #7c708d;
+}
+
+/* PAGE TITLES / SECTION TITLES */
+body.theme-carebear h1,
+body.theme-carebear h2,
+body.theme-carebear h3,
+body.theme-carebear h4,
+body.theme-carebear h5,
+body.theme-carebear h6,
+body.theme-carebear .page-title,
+body.theme-carebear .view-title,
+body.theme-carebear .section-title,
+body.theme-carebear .section-header,
+body.theme-carebear .tool-row-name,
+body.theme-carebear .part-row-label,
+body.theme-carebear #current-date-title {
+    color: var(--theme-safe-text) !important;
+    text-shadow: none !important;
+}
+
+/* SEARCH BARS — always force a clearly contrasting field + text pair. */
+body.theme-carebear input[type="search"],
+body.theme-carebear input[id*="search"],
+body.theme-carebear #phrases-search-bar {
+    background: var(--theme-safe-search-bg) !important;
+    background-color: var(--theme-safe-search-bg) !important;
+    background-image: none !important;
+    color: var(--theme-safe-search-text) !important;
+    caret-color: var(--theme-safe-search-text) !important;
+    border-color: var(--theme-safe-border) !important;
+    box-shadow: none !important;
+}
+
+body.theme-carebear input[type="search"]::placeholder,
+body.theme-carebear input[id*="search"]::placeholder,
+body.theme-carebear #phrases-search-bar::placeholder {
+    color: var(--theme-safe-search-placeholder) !important;
+    opacity: 1 !important;
+}
+
+/* General editable controls. */
+body.theme-carebear input:not([type="checkbox"]):not([type="radio"]),
+body.theme-carebear textarea,
+body.theme-carebear select {
+    background-color: var(--theme-safe-surface) !important;
+    background-image: none !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-carebear select option,
+body.theme-carebear select optgroup {
+    background: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-carebear input:not([type="checkbox"]):not([type="radio"])::placeholder,
+body.theme-carebear textarea::placeholder,
+body.theme-carebear .notes-editable:empty::before {
+    color: var(--theme-safe-muted) !important;
+    opacity: 1 !important;
+}
+
+/* SETTINGS MODALS — solid surface + guaranteed readable text. */
+body.theme-carebear #settings-modal,
+body.theme-carebear #daily-settings-modal {
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-carebear #settings-modal .modal-box,
+body.theme-carebear #daily-settings-modal .modal-box {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+    background-image: none !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+    box-shadow: 0 18px 48px rgba(0,0,0,.18) !important;
+}
+
+body.theme-carebear #settings-modal .modal-header,
+body.theme-carebear #settings-modal .modal-header h2,
+body.theme-carebear #settings-modal .modal-section,
+body.theme-carebear #settings-modal .field-label,
+body.theme-carebear #settings-modal .progress-hint,
+body.theme-carebear #settings-modal label,
+body.theme-carebear #settings-modal p,
+body.theme-carebear #daily-settings-modal .modal-header,
+body.theme-carebear #daily-settings-modal .modal-header h2,
+body.theme-carebear #daily-settings-modal .modal-section,
+body.theme-carebear #daily-settings-modal .field-label,
+body.theme-carebear #daily-settings-modal .progress-hint,
+body.theme-carebear #daily-settings-modal label,
+body.theme-carebear #daily-settings-modal p {
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-carebear #settings-modal .progress-hint,
+body.theme-carebear #daily-settings-modal .progress-hint {
+    color: var(--theme-safe-muted) !important;
+}
+
+body.theme-carebear #settings-modal input:not([type="checkbox"]):not([type="radio"]),
+body.theme-carebear #settings-modal textarea,
+body.theme-carebear #settings-modal select,
+body.theme-carebear #daily-settings-modal input:not([type="checkbox"]):not([type="radio"]),
+body.theme-carebear #daily-settings-modal textarea,
+body.theme-carebear #daily-settings-modal select {
+    background: var(--theme-safe-surface-2) !important;
+    background-color: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-carebear #settings-modal select option,
+body.theme-carebear #settings-modal select optgroup,
+body.theme-carebear #daily-settings-modal select option,
+body.theme-carebear #daily-settings-modal select optgroup {
+    background: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-carebear #settings-modal .small-icon-btn,
+body.theme-carebear #daily-settings-modal .small-icon-btn {
+    background: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-carebear #settings-modal .small-icon-btn i,
+body.theme-carebear #daily-settings-modal .small-icon-btn i {
+    color: var(--theme-safe-text) !important;
+}
+
+/* Theme/companion/cursor option cards inside settings. */
+body.theme-carebear #settings-modal .icon-option,
+body.theme-carebear #daily-settings-modal .icon-option,
+body.theme-carebear #settings-modal .kb-view-btn,
+body.theme-carebear #daily-settings-modal .kb-view-btn {
+    background: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-carebear #settings-modal .icon-option small,
+body.theme-carebear #daily-settings-modal .icon-option small {
+    color: var(--theme-safe-text) !important;
+}
+
+/* Theme preview cards keep their artwork, but their text footer is readable. */
+body.theme-carebear #theme-picker .theme-picker-info {
+    background: rgba(255,255,255,.95) !important;
+    color: #242424 !important;
+}
+
+body.theme-carebear #theme-picker .theme-picker-name {
+    color: #242424 !important;
+}
+
+body.theme-carebear #theme-picker .theme-picker-hint {
+    color: #5c5c5c !important;
+}
+
+/* POLAROIDS */
+body.theme-carebear .polaroid-card {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-carebear .polaroid-label,
+body.theme-carebear .polaroid-label .chip-text,
+body.theme-carebear .polaroid-card .chip-text {
+    color: var(--theme-safe-text) !important;
+    text-shadow: none !important;
+}
+
+body.theme-carebear .polaroid-label {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+}
+
+/* CARDS / TABS */
+body.theme-carebear .phrase-card,
+body.theme-carebear .chip,
+body.theme-carebear .toolbox-item,
+body.theme-carebear .resource-card,
+body.theme-carebear .flashcard,
+body.theme-carebear .day-box,
+body.theme-carebear .day-picker-box,
+body.theme-carebear .day-target-box,
+body.theme-carebear .category-box,
+body.theme-carebear .category-card,
+body.theme-carebear .category-chip {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-carebear .filter-tab {
+    background: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-carebear .filter-tab:hover {
+    background: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-carebear .filter-tab.active,
+body.theme-carebear .filter-tab[aria-selected="true"],
+body.theme-carebear .day-picker-box.selected {
+    background: var(--theme-safe-text) !important;
+    color: var(--theme-safe-surface) !important;
+    border-color: var(--theme-safe-text) !important;
+}
+
+/* Preserve transparent parent tab rows and side-nav button backgrounds. */
+body.theme-carebear .filter-tabs,
+body.theme-carebear #library-filter-tabs,
+body.theme-carebear #quiz-type-filters,
+body.theme-carebear .set-size-picker {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-carebear .side-nav .icon-btn,
+body.theme-carebear .side-nav .icon-btn:hover,
+body.theme-carebear .side-nav .icon-btn:focus,
+body.theme-carebear .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-carebear .side-nav .icon-btn i,
+body.theme-carebear .side-nav .icon-btn svg {
+    color: var(--theme-safe-text) !important;
+}
+
+
+/* ============================================================
+   READABILITY / CONTRAST FIX
+   ============================================================ */
+body.theme-carebear {
+    --theme-readable-surface: #fffafd;
+    --theme-readable-text: #514268;
+    --theme-readable-border: #b9abd1;
+}
+
+body.theme-carebear h1,
+body.theme-carebear h2,
+body.theme-carebear h3,
+body.theme-carebear h4,
+body.theme-carebear .page-title,
+body.theme-carebear .view-title,
+body.theme-carebear .section-header,
+body.theme-carebear #current-date-title {
+    color: #514268 !important;
+    text-shadow: none !important;
+}
+
+body.theme-carebear input[type="search"],
+body.theme-carebear input[id*="search"],
+body.theme-carebear #phrases-search-bar {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #514268 !important;
+    caret-color: #514268 !important;
+    border: 2px solid #b9abd1 !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06) !important;
+}
+
+body.theme-carebear input[type="search"]::placeholder,
+body.theme-carebear input[id*="search"]::placeholder,
+body.theme-carebear #phrases-search-bar::placeholder {
+    color: #7c718d !important;
+    opacity: .78 !important;
+}
+
+body.theme-carebear #settings-modal .modal-box,
+body.theme-carebear #daily-settings-modal .modal-box {
+    background: #fffafd !important;
+    background-color: #fffafd !important;
+    color: #514268 !important;
+    border-color: #b9abd1 !important;
+}
+
+body.theme-carebear #settings-modal .modal-header,
+body.theme-carebear #settings-modal .modal-header h2,
+body.theme-carebear #settings-modal .modal-section,
+body.theme-carebear #settings-modal .field-label,
+body.theme-carebear #settings-modal label,
+body.theme-carebear #settings-modal p,
+body.theme-carebear #daily-settings-modal .modal-header,
+body.theme-carebear #daily-settings-modal .modal-header h2,
+body.theme-carebear #daily-settings-modal .modal-section,
+body.theme-carebear #daily-settings-modal .field-label,
+body.theme-carebear #daily-settings-modal label,
+body.theme-carebear #daily-settings-modal p {
+    color: #514268 !important;
+}
+
+body.theme-carebear #settings-modal input:not([type="checkbox"]):not([type="radio"]),
+body.theme-carebear #settings-modal textarea,
+body.theme-carebear #settings-modal select,
+body.theme-carebear #daily-settings-modal input:not([type="checkbox"]):not([type="radio"]),
+body.theme-carebear #daily-settings-modal textarea,
+body.theme-carebear #daily-settings-modal select {
+    background: #ffffff !important;
+    color: #514268 !important;
+    border-color: #b9abd1 !important;
+}
+
+body.theme-carebear #settings-modal select option,
+body.theme-carebear #daily-settings-modal select option {
+    background: #fffafd !important;
+    color: #514268 !important;
+}
+
+body.theme-carebear .side-nav .icon-btn,
+body.theme-carebear .side-nav .icon-btn:hover,
+body.theme-carebear .side-nav .icon-btn:focus,
+body.theme-carebear .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    color: #514268 !important;
+}
+body.theme-carebear .side-nav .icon-btn i,
+body.theme-carebear .side-nav .icon-btn svg {
+    color: #514268 !important;
+}
+
+body.theme-carebear #open-settings-btn,
+body.theme-carebear #open-daily-settings-btn,
+body.theme-carebear .settings-button,
+body.theme-carebear [aria-label*="Settings"],
+body.theme-carebear [title*="Settings"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #514268 !important;
+    border: 2px solid #b9abd1 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+body.theme-carebear #open-settings-btn i,
+body.theme-carebear #open-daily-settings-btn i,
+body.theme-carebear [aria-label*="Settings"] i,
+body.theme-carebear [title*="Settings"] i {
+    color: #514268 !important;
+}
+
+
+
+/* Care Bears are intentionally a little smaller so the page breathes more. */
+#carebear-background .theme-carebear-item {
+    max-width: 250px !important;
+}
+
+/* Care Bears: slightly smaller decorative characters. */
+#carebear-background .theme-carebear-item {
+    max-width: 215px !important;
+}
+
+/* ============================================================
+   FINAL MODAL + DAILY UI READABILITY PASS
+   This block intentionally comes LAST.
+   - Search bar background EXACTLY matches numbered day boxes.
+   - Every modal title contrasts with the modal surface.
+   - CTRL / SHIFT / D / M shortcut keys and shortcut text are readable.
+   - Modal close X icons are always visible.
+   - Daily settings gear uses NO fill: accent border + accent icon.
+   - Daily-log back/previous/next arrows use the page accent, never white.
+   ============================================================ */
+
+/* Numbered day boxes are the source surface for the search field. */
+html body.theme-carebear .day-box,
+html body.theme-carebear .day-box.has-data,
+html body.theme-carebear .day-picker-box,
+html body.theme-carebear .mini-day-box {
+    background: #fffafd !important;
+    background-color: #fffafd !important;
+    background-image: none !important;
+    color: #514268 !important;
+    border-color: #bdaed5 !important;
+}
+
+html body.theme-carebear .day-box *,
+html body.theme-carebear .day-picker-box *,
+html body.theme-carebear .mini-day-box * {
+    color: inherit !important;
+}
+
+/* Search bar = the SAME background and text colors as numbered day boxes. */
+html body.theme-carebear input[type="search"],
+html body.theme-carebear input[id*="search"],
+html body.theme-carebear .search-input,
+html body.theme-carebear .search-bar input,
+html body.theme-carebear #phrases-search-bar {
+    background: #fffafd !important;
+    background-color: #fffafd !important;
+    background-image: none !important;
+    color: #514268 !important;
+    caret-color: #514268 !important;
+    border: 2px solid #bdaed5 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-carebear input[type="search"]::placeholder,
+html body.theme-carebear input[id*="search"]::placeholder,
+html body.theme-carebear .search-input::placeholder,
+html body.theme-carebear .search-bar input::placeholder,
+html body.theme-carebear #phrases-search-bar::placeholder {
+    color: #514268 !important;
+    opacity: .62 !important;
+}
+
+/* Daily title is the theme accent. */
+html body.theme-carebear #current-date-title,
+html body.theme-carebear .log-header-container > h1,
+html body.theme-carebear .log-header-container > h2 {
+    color: #6f548f !important;
+    text-shadow: none !important;
+}
+
+/* Daily-log back / previous / next arrows: transparent, accent colored. */
+html body.theme-carebear #back-btn,
+html body.theme-carebear #prev-day-btn,
+html body.theme-carebear #next-day-btn,
+html body.theme-carebear .log-header-container .header-back-btn,
+html body.theme-carebear .log-header-container .header-back-btn:hover,
+html body.theme-carebear .log-header-container .header-back-btn:focus,
+html body.theme-carebear .log-header-container .header-back-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #6f548f !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-carebear #back-btn i,
+html body.theme-carebear #prev-day-btn i,
+html body.theme-carebear #next-day-btn i,
+html body.theme-carebear .log-header-container .header-back-btn i,
+html body.theme-carebear .log-header-container .header-back-btn i::before,
+html body.theme-carebear .log-header-container .header-back-btn svg {
+    color: #6f548f !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Daily View Settings gear:
+   border version = NO background; border/icon match title accent. */
+html body.theme-carebear #open-daily-settings-btn,
+html body.theme-carebear header #open-daily-settings-btn,
+html body.theme-carebear button[title="Daily View Settings"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #6f548f !important;
+    border: 2px solid #6f548f !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-carebear #open-daily-settings-btn:hover,
+html body.theme-carebear #open-daily-settings-btn:focus,
+html body.theme-carebear #open-daily-settings-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #6f548f !important;
+    border-color: #6f548f !important;
+}
+
+html body.theme-carebear #open-daily-settings-btn i,
+html body.theme-carebear #open-daily-settings-btn i::before,
+html body.theme-carebear #open-daily-settings-btn svg {
+    color: #6f548f !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Every modal gets one explicit readable surface/text pair. */
+html body.theme-carebear .modal-box,
+html body.theme-carebear .modal-overlay .modal-box,
+html body.theme-carebear .modal .modal-box,
+html body.theme-carebear #settings-modal .modal-box,
+html body.theme-carebear #daily-settings-modal .modal-box {
+    background: #fffafd !important;
+    background-color: #fffafd !important;
+    background-image: none !important;
+    color: #514268 !important;
+    border-color: #bdaed5 !important;
+}
+
+/* Modal headers/titles can NEVER use the modal background color. */
+html body.theme-carebear .modal-box .modal-header,
+html body.theme-carebear .modal-box .modal-header h1,
+html body.theme-carebear .modal-box .modal-header h2,
+html body.theme-carebear .modal-box .modal-header h3,
+html body.theme-carebear .modal-box > h1,
+html body.theme-carebear .modal-box > h2,
+html body.theme-carebear .modal-box > h3,
+html body.theme-carebear .modal-box .modal-title,
+html body.theme-carebear .modal-box [class*="modal-title"],
+html body.theme-carebear .modal-box [id$="-modal-title"],
+html body.theme-carebear .modal-box [role="heading"] {
+    color: #6f548f !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Modal body text, including keyboard shortcut descriptions. */
+html body.theme-carebear .modal-box .modal-section,
+html body.theme-carebear .modal-box .modal-label,
+html body.theme-carebear .modal-box .field-label,
+html body.theme-carebear .modal-box .progress-hint,
+html body.theme-carebear .modal-box p,
+html body.theme-carebear .modal-box label,
+html body.theme-carebear .modal-box small,
+html body.theme-carebear .modal-box li,
+html body.theme-carebear .modal-box dt,
+html body.theme-carebear .modal-box dd,
+html body.theme-carebear .modal-box strong,
+html body.theme-carebear .modal-box em,
+html body.theme-carebear .modal-box .shortcut-row,
+html body.theme-carebear .modal-box .shortcut-item,
+html body.theme-carebear .modal-box .shortcut-label,
+html body.theme-carebear .modal-box .shortcut-description,
+html body.theme-carebear .modal-box [class*="shortcut"]:not([class*="key"]),
+html body.theme-carebear .modal-box [id*="shortcut"] {
+    color: #514268 !important;
+    opacity: 1 !important;
+}
+
+/* Plain buttons in a modal also remain readable. */
+html body.theme-carebear .modal-box button:not(.small-icon-btn):not(.theme-picker-card):not(.icon-option) {
+    color: #514268 !important;
+    border-color: #bdaed5 !important;
+}
+
+/* Modal form controls. */
+html body.theme-carebear .modal-box input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-carebear .modal-box textarea,
+html body.theme-carebear .modal-box select {
+    background: #fffafd !important;
+    background-color: #fffafd !important;
+    background-image: none !important;
+    color: #514268 !important;
+    caret-color: #514268 !important;
+    border-color: #bdaed5 !important;
+}
+
+html body.theme-carebear .modal-box select option,
+html body.theme-carebear .modal-box select optgroup {
+    background: #fffafd !important;
+    color: #514268 !important;
+}
+
+html body.theme-carebear .modal-box input::placeholder,
+html body.theme-carebear .modal-box textarea::placeholder {
+    color: #514268 !important;
+    opacity: .58 !important;
+}
+
+/* General modal button/icon visibility. */
+html body.theme-carebear .modal-box button i,
+html body.theme-carebear .modal-box button i::before,
+html body.theme-carebear .modal-box button .ph {
+    color: #514268 !important;
+    opacity: 1 !important;
+}
+
+/* Close X: transparent with accent border/icon.
+   This specifically fixes invisible X icons on same-color button fills. */
+html body.theme-carebear .modal-box .modal-header .small-icon-btn,
+html body.theme-carebear .modal-box [id$="-close"],
+html body.theme-carebear .modal-box .lightbox-close,
+html body.theme-carebear #daily-settings-close,
+html body.theme-carebear #settings-close {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #6f548f !important;
+    border: 2px solid #6f548f !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-carebear .modal-box .modal-header .small-icon-btn i,
+html body.theme-carebear .modal-box .modal-header .small-icon-btn i::before,
+html body.theme-carebear .modal-box [id$="-close"] i,
+html body.theme-carebear .modal-box [id$="-close"] i::before,
+html body.theme-carebear .modal-box .lightbox-close i,
+html body.theme-carebear .modal-box .lightbox-close i::before,
+html body.theme-carebear #daily-settings-close i,
+html body.theme-carebear #daily-settings-close i::before,
+html body.theme-carebear #settings-close i,
+html body.theme-carebear #settings-close i::before {
+    color: #6f548f !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* CTRL / SHIFT / D / M keycaps and any equivalent keyboard shortcut markup. */
+html body.theme-carebear .modal-box kbd,
+html body.theme-carebear .modal-box .keycap,
+html body.theme-carebear .modal-box .shortcut-key,
+html body.theme-carebear .modal-box .keyboard-key,
+html body.theme-carebear .modal-box .hotkey,
+html body.theme-carebear .modal-box [class*="kbd"],
+html body.theme-carebear .modal-box [class*="keycap"],
+html body.theme-carebear .modal-box [class*="hotkey"],
+html body.theme-carebear .modal-box [class*="shortcut"][class*="key"],
+html body.theme-carebear .modal-box [class*="shortcut"] kbd,
+html body.theme-carebear .modal-box [class*="shortcut"] .key,
+html body.theme-carebear .modal-box [id*="shortcut"] kbd {
+    background: #6f548f !important;
+    background-color: #6f548f !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    border: 1px solid #bdaed5 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* Theme / companion / cursor / shortcut option cards inside settings. */
+html body.theme-carebear .modal-box .filter-tab,
+html body.theme-carebear .modal-box .icon-option,
+html body.theme-carebear .modal-box .kb-view-btn {
+    background: #fffafd !important;
+    background-color: #fffafd !important;
+    color: #514268 !important;
+    border-color: #bdaed5 !important;
+}
+
+html body.theme-carebear .modal-box .filter-tab.active,
+html body.theme-carebear .modal-box .filter-tab[aria-selected="true"],
+html body.theme-carebear .modal-box .icon-option.selected,
+html body.theme-carebear .modal-box .kb-view-btn.active {
+    background: #6f548f !important;
+    background-color: #6f548f !important;
+    color: #ffffff !important;
+    border-color: #6f548f !important;
+}
+
+html body.theme-carebear .modal-box .filter-tab.active *,
+html body.theme-carebear .modal-box .filter-tab[aria-selected="true"] *,
+html body.theme-carebear .modal-box .icon-option.selected *,
+html body.theme-carebear .modal-box .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* Preserve preview-label contrast in the Theme picker. */
+html body.theme-carebear #theme-picker .theme-picker-card.theme-dark .theme-picker-info,
+html body.theme-carebear #theme-picker .theme-picker-card.theme-dark .theme-picker-name,
+html body.theme-carebear #theme-picker .theme-picker-card.theme-dark .theme-picker-hint {
+    color: #ffffff !important;
+}
+html body.theme-carebear #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-info,
+html body.theme-carebear #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-name {
+    color: #222222 !important;
+}
+html body.theme-carebear #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-hint {
+    color: #555555 !important;
+}
+
+/* Parent tab/filter rows remain transparent. */
+html body.theme-carebear .filter-tabs,
+html body.theme-carebear #library-filter-tabs,
+html body.theme-carebear #quiz-type-filters,
+html body.theme-carebear .set-size-picker {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+
+/* ============================================================
+   WINTER-STYLE UNIFIED UI SYSTEM
+   ------------------------------------------------------------
+   The Winter theme is the reference:
+   - one readable surface/text system across every view
+   - the SAME search styling in every tab and modal
+   - the SAME settings/plus/button styling across tabs
+   - visible icon choices before hover
+   - readable icon-search inputs
+   - readable Developer Mode / shortcut modal
+   - no changes to app layout, companion positioning, or theme SVG logic
+   ============================================================ */
+
+html body.theme-carebear {
+    --unified-ui-surface: #fffafd;
+    --unified-ui-surface-soft: #f4eefa;
+    --unified-ui-text: #514268;
+    --unified-ui-muted: #7e718e;
+    --unified-ui-border: #bdaed5;
+    --unified-ui-accent: #d8b8eb;
+    --unified-ui-accent-text: #4b3b5f;
+
+    --black: var(--unified-ui-text) !important;
+    --white: var(--unified-ui-surface) !important;
+    --muted-text: var(--unified-ui-muted) !important;
+    --track-bg: var(--unified-ui-surface-soft) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE INPUT / SEARCH STYLE EVERYWHERE
+   Includes Knowledge Base, Daily View, theme search, icon search,
+   category inputs, settings inputs, and add-tab/create-tab modals.
+   ------------------------------------------------------------ */
+html body.theme-carebear input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-carebear textarea,
+html body.theme-carebear select,
+html body.theme-carebear .notes-editable {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    caret-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-carebear input:not([type="checkbox"]):not([type="radio"])::placeholder,
+html body.theme-carebear textarea::placeholder,
+html body.theme-carebear .notes-editable:empty::before {
+    color: var(--unified-ui-muted) !important;
+    -webkit-text-fill-color: var(--unified-ui-muted) !important;
+    opacity: .82 !important;
+}
+
+html body.theme-carebear select option,
+html body.theme-carebear select optgroup {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE BUTTON STYLE THROUGHOUT THE APP
+   Settings, plus, save/generate, Start Quiz, modal icon buttons, etc.
+   ------------------------------------------------------------ */
+html body.theme-carebear .view .icon-btn,
+html body.theme-carebear .view .small-icon-btn,
+html body.theme-carebear .modal-box .icon-btn,
+html body.theme-carebear .modal-box .small-icon-btn,
+html body.theme-carebear .modal-box .save-btn,
+html body.theme-carebear #start-quiz-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-carebear .view .icon-btn i,
+html body.theme-carebear .view .small-icon-btn i,
+html body.theme-carebear .modal-box .icon-btn i,
+html body.theme-carebear .modal-box .small-icon-btn i,
+html body.theme-carebear #start-quiz-btn i,
+html body.theme-carebear .view .icon-btn svg,
+html body.theme-carebear .view .small-icon-btn svg,
+html body.theme-carebear #start-quiz-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-carebear .view .icon-btn:hover,
+html body.theme-carebear .view .small-icon-btn:hover,
+html body.theme-carebear .modal-box .icon-btn:hover,
+html body.theme-carebear .modal-box .small-icon-btn:hover,
+html body.theme-carebear .modal-box .save-btn:hover,
+html body.theme-carebear #start-quiz-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+/* Disabled Start Quiz remains readable instead of losing its label/icon. */
+html body.theme-carebear #start-quiz-btn:disabled,
+html body.theme-carebear #start-quiz-btn.disabled-btn {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: .58 !important;
+}
+html body.theme-carebear #start-quiz-btn:disabled i,
+html body.theme-carebear #start-quiz-btn.disabled-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Side navigation remains the template's bare-icon treatment. */
+html body.theme-carebear .side-nav .icon-btn,
+html body.theme-carebear .side-nav .icon-btn:hover,
+html body.theme-carebear .side-nav .icon-btn:focus,
+html body.theme-carebear .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-carebear .side-nav .icon-btn i,
+html body.theme-carebear .side-nav .icon-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Back arrows stay simple and visible, like Winter. */
+html body.theme-carebear .header-back-btn,
+html body.theme-carebear .header-back-btn:hover,
+html body.theme-carebear .header-back-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--unified-ui-text) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+html body.theme-carebear .header-back-btn i,
+html body.theme-carebear .header-back-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   CARDS / DAY BOXES / POLAROIDS
+   ------------------------------------------------------------ */
+html body.theme-carebear .day-box,
+html body.theme-carebear .day-picker-box,
+html body.theme-carebear .mini-day-box,
+html body.theme-carebear .day-badge,
+html body.theme-carebear .day-target-box,
+html body.theme-carebear .phrase-card,
+html body.theme-carebear .chip,
+html body.theme-carebear .toolbox-item,
+html body.theme-carebear .resource-card,
+html body.theme-carebear .polaroid-card,
+html body.theme-carebear .flashcard,
+html body.theme-carebear .flashcard-mode-card,
+html body.theme-carebear .video-placeholder,
+html body.theme-carebear .note-audio-row,
+html body.theme-carebear .set-complete-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-carebear .polaroid-label,
+html body.theme-carebear .polaroid-label *,
+html body.theme-carebear .day-box *,
+html body.theme-carebear .day-picker-box *,
+html body.theme-carebear .day-badge * {
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   FILTER TABS
+   Parent rows are transparent; actual buttons have visible surfaces.
+   ------------------------------------------------------------ */
+html body.theme-carebear .filter-tabs,
+html body.theme-carebear #library-filter-tabs,
+html body.theme-carebear #quiz-type-filters,
+html body.theme-carebear .set-size-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-carebear .filter-tab,
+html body.theme-carebear .kb-view-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-carebear .filter-tab:hover,
+html body.theme-carebear .kb-view-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-carebear .filter-tab.active,
+html body.theme-carebear .filter-tab[aria-selected="true"],
+html body.theme-carebear .kb-view-btn.active {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-carebear .filter-tab.active *,
+html body.theme-carebear .filter-tab[aria-selected="true"] *,
+html body.theme-carebear .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* ------------------------------------------------------------
+   ICON PICKERS / ADD-TAB PICKERS
+   Every icon is visible before hover. The containing grid is also neutral.
+   ------------------------------------------------------------ */
+html body.theme-carebear .icon-grid,
+html body.theme-carebear #icon-picker,
+html body.theme-carebear #companion-picker,
+html body.theme-carebear #cursor-picker,
+html body.theme-carebear [id*="icon"][id*="picker"] {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-carebear .icon-option {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-carebear .icon-option i,
+html body.theme-carebear .icon-option svg,
+html body.theme-carebear .icon-option small,
+html body.theme-carebear .icon-option span {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html body.theme-carebear .icon-option:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-carebear .icon-option.selected {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-carebear .icon-option.selected i,
+html body.theme-carebear .icon-option.selected svg,
+html body.theme-carebear .icon-option.selected small,
+html body.theme-carebear .icon-option.selected span {
+    color: var(--unified-ui-accent-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   ALL MODALS
+   ------------------------------------------------------------ */
+html body.theme-carebear .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-carebear .modal-box .modal-header,
+html body.theme-carebear .modal-box .modal-header h1,
+html body.theme-carebear .modal-box .modal-header h2,
+html body.theme-carebear .modal-box .modal-header h3,
+html body.theme-carebear .modal-box .modal-title,
+html body.theme-carebear .modal-box .field-label,
+html body.theme-carebear .modal-box .modal-label,
+html body.theme-carebear .modal-box .progress-hint,
+html body.theme-carebear .modal-box label,
+html body.theme-carebear .modal-box p {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Close X uses exactly the same small-button treatment as other modal icons. */
+html body.theme-carebear .modal-box [id$="-close"],
+html body.theme-carebear .modal-box .modal-header .small-icon-btn,
+html body.theme-carebear .modal-box .close-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+html body.theme-carebear .modal-box [id$="-close"] i,
+html body.theme-carebear .modal-box .modal-header .small-icon-btn i,
+html body.theme-carebear .modal-box .close-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* ------------------------------------------------------------
+   DEVELOPER MODE / CTRL+SHIFT+D / CTRL+SHIFT+M
+   Covers dynamically-created developer/shortcut modals as well.
+   ------------------------------------------------------------ */
+html body.theme-carebear :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-carebear :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    .shortcut-row,
+    .shortcut-item,
+    .developer-row,
+    .developer-item,
+    .developer-card,
+    .dev-card,
+    [class*="shortcut"][class*="card"],
+    [class*="developer"][class*="card"]
+) {
+    background: var(--unified-ui-surface-soft) !important;
+    background-color: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-carebear :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    p, span, label, small, strong, em,
+    .field-label, .modal-label, .progress-hint,
+    .shortcut-label, .shortcut-description
+) {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-carebear .modal-box kbd,
+html body.theme-carebear .modal-box .keycap,
+html body.theme-carebear .modal-box .shortcut-key,
+html body.theme-carebear .modal-box .keyboard-key,
+html body.theme-carebear .modal-box .hotkey {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------
+   THEME PICKER PREVIEW LABELS
+   Do not wipe out thumbnail artwork; only make the information strip readable.
+   ------------------------------------------------------------ */
+html body.theme-carebear #theme-picker .theme-picker-info {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-carebear #theme-picker .theme-picker-name {
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-carebear #theme-picker .theme-picker-hint {
+    color: var(--unified-ui-muted) !important;
+}
+
+/* ------------------------------------------------------------
+   TITLES stay above decorative art.
+   ------------------------------------------------------------ */
+html body.theme-carebear header,
+html body.theme-carebear .log-header-container {
+    position: relative !important;
+    z-index: 40 !important;
+}
+
+
+/* ============================================================
+   CLEAN ADD-TAB / THEME-SETTINGS PICKER PASS
+   Based on the Winx treatment:
+   - no nested border inside the icon search field
+   - modal titles always readable
+   - no dark tile behind every tab/cursor/companion icon
+   - theme cards use a clean light shell without wiping preview artwork
+   ============================================================ */
+
+html body.theme-carebear {
+    --picker-clean-surface: #fffafd;
+    --picker-clean-text: #514268;
+    --picker-clean-soft: #f2ecf8;
+    --picker-clean-border: #c6b8da;
+    --picker-clean-accent: #d8b8eb;
+    --picker-clean-accent-text: #4b3b5f;
+}
+
+/* Target the theme/settings picker and any add-tab modal that contains
+   an icon grid. This does NOT change modal dimensions or positioning. */
+html body.theme-carebear #settings-modal .modal-box,
+html body.theme-carebear #daily-settings-modal .modal-box,
+html body.theme-carebear #add-tab-modal .modal-box,
+html body.theme-carebear [id*="add-tab"] .modal-box,
+html body.theme-carebear [id*="tab"][id*="modal"] .modal-box,
+html body.theme-carebear [class*="add-tab"][class*="modal"] .modal-box,
+html body.theme-carebear [class*="tab"][class*="modal"] .modal-box,
+html body.theme-carebear .modal-box:has(#theme-picker),
+html body.theme-carebear .modal-box:has(#companion-picker),
+html body.theme-carebear .modal-box:has(#cursor-picker),
+html body.theme-carebear .modal-box:has(.icon-grid) {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+}
+
+/* TITLES: force both color and WebKit text fill so old theme rules cannot
+   make them disappear into the modal background. */
+html body.theme-carebear #settings-modal .modal-header h1,
+html body.theme-carebear #settings-modal .modal-header h2,
+html body.theme-carebear #daily-settings-modal .modal-header h1,
+html body.theme-carebear #daily-settings-modal .modal-header h2,
+html body.theme-carebear #add-tab-modal .modal-header h1,
+html body.theme-carebear #add-tab-modal .modal-header h2,
+html body.theme-carebear [id*="tab"][id*="modal"] .modal-header h1,
+html body.theme-carebear [id*="tab"][id*="modal"] .modal-header h2,
+html body.theme-carebear .modal-box:has(.icon-grid) .modal-header h1,
+html body.theme-carebear .modal-box:has(.icon-grid) .modal-header h2,
+html body.theme-carebear .modal-box:has(#theme-picker) .modal-header h1,
+html body.theme-carebear .modal-box:has(#theme-picker) .modal-header h2 {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Normal picker/modal labels stay readable too. */
+html body.theme-carebear #settings-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-carebear #daily-settings-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-carebear #add-tab-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-carebear .modal-box:has(.icon-grid) :is(.field-label,.modal-label,.progress-hint,label,p,small) {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+/* ICON SEARCH FIELD:
+   the OUTER search control can keep its shape; remove the extra INNER border. */
+html body.theme-carebear input[id*="icon"][id*="search"],
+html body.theme-carebear input[class*="icon"][class*="search"],
+html body.theme-carebear input[placeholder*="icon" i],
+html body.theme-carebear #add-tab-modal input[type="search"],
+html body.theme-carebear [id*="tab"][id*="modal"] input[type="search"],
+html body.theme-carebear .modal-box:has(.icon-grid) input[type="search"],
+html body.theme-carebear .modal-box:has(.icon-grid) input[type="text"][placeholder*="Search" i] {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    caret-color: var(--picker-clean-text) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-carebear input[id*="icon"][id*="search"]::placeholder,
+html body.theme-carebear input[class*="icon"][class*="search"]::placeholder,
+html body.theme-carebear input[placeholder*="icon" i]::placeholder,
+html body.theme-carebear .modal-box:has(.icon-grid) input[type="search"]::placeholder,
+html body.theme-carebear .modal-box:has(.icon-grid) input[type="text"][placeholder*="Search" i]::placeholder {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: .62 !important;
+}
+
+/* If the search is wrapped by its own little search shell, the shell gets
+   the single visible border. */
+html body.theme-carebear :is(
+    .icon-search,
+    .icon-search-wrap,
+    .icon-search-wrapper,
+    [class*="icon-search"][class*="wrap"],
+    [class*="icon-search"][class*="box"]
+) {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    border: 1px solid var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+/* The GRID itself should not become one giant dark rectangle. */
+html body.theme-carebear #settings-modal .icon-grid,
+html body.theme-carebear #daily-settings-modal .icon-grid,
+html body.theme-carebear #add-tab-modal .icon-grid,
+html body.theme-carebear [id*="tab"][id*="modal"] .icon-grid,
+html body.theme-carebear .modal-box:has(.icon-grid) .icon-grid,
+html body.theme-carebear #companion-picker,
+html body.theme-carebear #cursor-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+/* Tab icons / cursor icons / companion icons are visible BEFORE hover. */
+html body.theme-carebear #settings-modal .icon-option,
+html body.theme-carebear #daily-settings-modal .icon-option,
+html body.theme-carebear #add-tab-modal .icon-option,
+html body.theme-carebear [id*="tab"][id*="modal"] .icon-option,
+html body.theme-carebear .modal-box:has(.icon-grid) .icon-option,
+html body.theme-carebear #companion-picker .icon-option,
+html body.theme-carebear #cursor-picker .icon-option {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-carebear #settings-modal .icon-option :is(i,span,small),
+html body.theme-carebear #daily-settings-modal .icon-option :is(i,span,small),
+html body.theme-carebear #add-tab-modal .icon-option :is(i,span,small),
+html body.theme-carebear [id*="tab"][id*="modal"] .icon-option :is(i,span,small),
+html body.theme-carebear .modal-box:has(.icon-grid) .icon-option :is(i,span,small),
+html body.theme-carebear #companion-picker .icon-option :is(i,span,small),
+html body.theme-carebear #cursor-picker .icon-option :is(i,span,small) {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-carebear #settings-modal .icon-option:hover,
+html body.theme-carebear #daily-settings-modal .icon-option:hover,
+html body.theme-carebear #add-tab-modal .icon-option:hover,
+html body.theme-carebear [id*="tab"][id*="modal"] .icon-option:hover,
+html body.theme-carebear .modal-box:has(.icon-grid) .icon-option:hover {
+    background: var(--picker-clean-soft) !important;
+    background-color: var(--picker-clean-soft) !important;
+    color: var(--picker-clean-text) !important;
+}
+
+html body.theme-carebear #settings-modal .icon-option.selected,
+html body.theme-carebear #daily-settings-modal .icon-option.selected,
+html body.theme-carebear #add-tab-modal .icon-option.selected,
+html body.theme-carebear [id*="tab"][id*="modal"] .icon-option.selected,
+html body.theme-carebear .modal-box:has(.icon-grid) .icon-option.selected {
+    background: var(--picker-clean-accent) !important;
+    background-color: var(--picker-clean-accent) !important;
+    color: var(--picker-clean-accent-text) !important;
+    border-color: var(--picker-clean-border) !important;
+}
+
+html body.theme-carebear .modal-box:has(.icon-grid) .icon-option.selected :is(i,span,small) {
+    color: var(--picker-clean-accent-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-accent-text) !important;
+}
+
+/* Theme picker: clean shell/card/info backgrounds, but NEVER touch
+   .theme-picker-preview background-image. */
+html body.theme-carebear #theme-picker,
+html body.theme-carebear .theme-picker-grid {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-carebear #theme-picker .theme-picker-card {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-carebear #theme-picker .theme-picker-info {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+}
+
+html body.theme-carebear #theme-picker .theme-picker-name {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+}
+html body.theme-carebear #theme-picker .theme-picker-hint {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: .64 !important;
+}
+
+/* Close X in these modals is clean/light too — no dark square behind it. */
+html body.theme-carebear #settings-modal .modal-header .small-icon-btn,
+html body.theme-carebear #daily-settings-modal .modal-header .small-icon-btn,
+html body.theme-carebear #add-tab-modal .modal-header .small-icon-btn,
+html body.theme-carebear [id*="tab"][id*="modal"] .modal-header .small-icon-btn,
+html body.theme-carebear .modal-box:has(.icon-grid) .modal-header .small-icon-btn {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-carebear .modal-box:has(.icon-grid) .modal-header .small-icon-btn i,
+html body.theme-carebear #settings-modal .modal-header .small-icon-btn i,
+html body.theme-carebear #daily-settings-modal .modal-header .small-icon-btn i {
+    color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+
+

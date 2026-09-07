@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="260" viewBox="0 0 360 260" fill="none">
+<defs>
+  <linearGradient id="crownGold" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff1be"/>
+    <stop offset="0.4" stop-color="#d1a34a"/>
+    <stop offset="1" stop-color="#8d6122"/>
+  </linearGradient>
+  <radialGradient id="gemRed" cx="35%" cy="35%" r="75%">
+    <stop offset="0" stop-color="#d94e59"/>
+    <stop offset="1" stop-color="#701d27"/>
+  </radialGradient>
+</defs>
+<path d="M46 178 L69 70 L122 152 L179 45 L238 153 L291 70 L314 178 C280 200, 241 212, 180 214 C119 212, 80 200, 46 178 Z" fill="url(#crownGold)" stroke="#6e4d20" stroke-width="5" stroke-linejoin="round"/>
+<path d="M52 180 C91 198, 127 204, 180 205 C233 204, 269 198, 308 180 L314 197 C269 218, 228 226, 180 227 C132 226, 91 218, 46 197 Z" fill="#aa7a2f" stroke="#6e4d20" stroke-width="5" stroke-linejoin="round"/>
+<path d="M64 182 L82 107" stroke="#f7da8f" stroke-width="5" stroke-linecap="round"/>
+<path d="M121 156 L145 92" stroke="#f7da8f" stroke-width="5" stroke-linecap="round"/>
+<path d="M180 49 L180 162" stroke="#f7da8f" stroke-width="5" stroke-linecap="round"/>
+<path d="M239 156 L215 92" stroke="#f7da8f" stroke-width="5" stroke-linecap="round"/>
+<path d="M296 107 L278 182" stroke="#f7da8f" stroke-width="5" stroke-linecap="round"/>
+<circle cx="179" cy="183" r="20" fill="url(#gemRed)" stroke="#6e2430" stroke-width="5"/>
+<circle cx="110" cy="177" r="14" fill="url(#gemRed)" stroke="#6e2430" stroke-width="4"/>
+<circle cx="249" cy="177" r="14" fill="url(#gemRed)" stroke="#6e2430" stroke-width="4"/>
+<circle cx="69" cy="70" r="6" fill="#f4deb0" stroke="#7b5928" stroke-width="3"/>
+<circle cx="122" cy="152" r="6" fill="#f4deb0" stroke="#7b5928" stroke-width="3"/>
+<circle cx="179" cy="45" r="6" fill="#f4deb0" stroke="#7b5928" stroke-width="3"/>
+<circle cx="238" cy="153" r="6" fill="#f4deb0" stroke="#7b5928" stroke-width="3"/>
+<circle cx="291" cy="70" r="6" fill="#f4deb0" stroke="#7b5928" stroke-width="3"/>
+</svg>

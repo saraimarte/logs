@@ -1,0 +1,195 @@
+/* ============================================================
+   MIRACULOUS THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-miraculous {
+    --miraculous-ink: #431317;
+    --miraculous-border: #ff8b95;
+    --miraculous-surface: #fff7f8;
+    --miraculous-surface-soft: #ffecef;
+    --miraculous-accent: #e63946;
+    --miraculous-red: #e63946;
+    --miraculous-blue: #e63946;
+    --miraculous-green: #ffffff;
+    --miraculous-pink: #e63946;
+    --miraculous-soft: #171717;
+    --miraculous-gold: #ffffff;
+
+    --black: var(--miraculous-ink);
+    --white: var(--miraculous-surface);
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid color-mix(in srgb, var(--miraculous-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--miraculous-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--miraculous-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--miraculous-border) 44%, transparent);
+    --track-bg: #ffe1e6;
+    --muted-text: rgba(67,19,23,.58);
+
+    background:
+        radial-gradient(circle at 12% 15%, rgba(255,255,255,.58), transparent 22%),
+        radial-gradient(circle at 85% 14%, rgba(255,255,255,.28), transparent 20%),
+        radial-gradient(circle at 20% 82%, rgba(230,57,70,.10), transparent 22%),
+        linear-gradient(145deg, #fff7f8 0%, #ffe1e7 48%, #ffd3db 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--miraculous-ink) !important;
+}
+
+#miraculous-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: -1;
+}
+
+#miraculous-background::before,
+#miraculous-background::after {
+    content: '';
+    position: absolute;
+    inset: -14%;
+    pointer-events: none;
+}
+
+#miraculous-background::before {
+    background:
+        radial-gradient(circle at 24% 22%, rgba(255,255,255,.22), transparent 20%),
+        radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%),
+        linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%);
+    animation: miraculousLightSweep 9s ease-in-out infinite alternate;
+}
+
+body.theme-miraculous #miraculous-background { z-index: -1; }
+body.theme-miraculous .view { position: relative; z-index: 2; }
+body.theme-miraculous .side-nav { position: relative; z-index: 3; }
+body.theme-miraculous header,
+body.theme-miraculous .log-header-container { position: relative; z-index: 4; }
+body.theme-miraculous .modal,
+body.theme-miraculous .modal-overlay,
+body.theme-miraculous .overlay { z-index: 10; }
+
+body.theme-miraculous .day-box,
+body.theme-miraculous .day-picker-box,
+body.theme-miraculous .icon-btn,
+body.theme-miraculous .small-icon-btn,
+body.theme-miraculous input,
+body.theme-miraculous textarea,
+body.theme-miraculous select,
+body.theme-miraculous .notes-editable,
+body.theme-miraculous .phrase-card,
+body.theme-miraculous .chip,
+body.theme-miraculous .toolbox-item,
+body.theme-miraculous .resource-card,
+body.theme-miraculous .polaroid-card,
+body.theme-miraculous .filter-tab,
+body.theme-miraculous .day-target-box,
+body.theme-miraculous .flashcard,
+body.theme-miraculous .flashcard-mode-card,
+body.theme-miraculous .day-badge,
+body.theme-miraculous .video-placeholder,
+body.theme-miraculous .theme-picker-card,
+body.theme-miraculous .note-audio-row,
+body.theme-miraculous .modal-box,
+body.theme-miraculous .set-complete-box {
+    background-color: var(--miraculous-surface) !important;
+}
+
+body.theme-miraculous input::placeholder,
+body.theme-miraculous textarea::placeholder,
+body.theme-miraculous .notes-editable:empty::before {
+    color: color-mix(in srgb, var(--miraculous-ink) 42%, transparent) !important;
+}
+
+body.theme-miraculous .icon-btn:hover,
+body.theme-miraculous .small-icon-btn:hover,
+body.theme-miraculous .filter-tab:hover {
+    background: var(--miraculous-surface-soft) !important;
+    color: var(--miraculous-ink) !important;
+}
+
+body.theme-miraculous .chip:hover,
+body.theme-miraculous .phrase-card:hover,
+body.theme-miraculous .day-picker-box.selected,
+body.theme-miraculous .filter-tab.active,
+body.theme-miraculous .filter-tab[aria-selected="true"] {
+    background: color-mix(in srgb, var(--miraculous-surface-soft) 72%, var(--miraculous-accent) 28%) !important;
+    color: var(--miraculous-ink) !important;
+    border-color: var(--miraculous-border) !important;
+}
+
+body.theme-miraculous .progress-bar-fill {
+    background: linear-gradient(90deg, var(--miraculous-red), #111, var(--miraculous-red)) !important;
+}
+
+#miraculous-background .miraculous-item {
+    position: absolute;
+    display: block;
+    height: auto;
+    object-fit: contain;
+    opacity: .94;
+    transform-origin: center;
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    filter:
+        drop-shadow(0 9px 13px color-mix(in srgb, var(--miraculous-ink) 14%, transparent))
+        drop-shadow(0 0 9px rgba(255,255,255,.30));
+    animation: miraculousFloat var(--miraculous-float-duration) ease-in-out var(--miraculous-float-delay) infinite alternate;
+    will-change: transform;
+}
+
+@keyframes miraculousFloat {
+    from {
+        transform: translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97);
+    }
+    to {
+        transform: translate3d(-50%,-50%,0) translate3d(var(--miraculous-float-x), var(--miraculous-float-y), 0) rotate(var(--miraculous-float-r)) scale(1.035);
+    }
+}
+
+#miraculous-background .miraculous-item.miraculous-intro-bop {
+    animation: miraculousIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--miraculous-bop-delay) infinite !important;
+}
+
+@keyframes miraculousIntroBop {
+    0%,100% { transform: translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1); }
+    40% { transform: translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05); }
+    68% { transform: translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02); }
+}
+
+
+#miraculous-background .miraculous-extra {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.75) 0 20%, #e63946 21% 100%);
+    box-shadow: 0 0 8px rgba(255,255,255,.22);
+    opacity: .44;
+    animation: miraculousSpotPulse var(--miraculous-extra-duration) ease-in-out var(--miraculous-extra-delay) infinite;
+}
+@keyframes miraculousSpotPulse {
+    0%,100% { opacity: .22; transform: scale(.75); }
+    50% { opacity: .56; transform: scale(1.08); }
+}
+
+
+@keyframes miraculousLightSweep {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); opacity: .7; }
+    to { transform: translate3d(2%, 1%, 0) scale(1.05); opacity: 1; }
+}
+
+@media (max-width: 700px) {
+    #miraculous-background .miraculous-item { opacity: .72; }
+    #miraculous-background .miraculous-extra { opacity: .38; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #miraculous-background::before,
+    #miraculous-background .miraculous-item,
+    #miraculous-background .miraculous-extra {
+        animation: none !important;
+    }
+}

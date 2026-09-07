@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360">
+<style>
+  .o{fill:none;stroke:#1a1617;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  .thin{fill:none;stroke:#1a1617;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+  .hair{fill:#1d1718;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .skin{fill:#fff7e6;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .skin2{fill:#fff7e6;stroke:#1a1617;stroke-width:4;stroke-linejoin:round}
+  .dress{fill:#f06a45;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .yellow{fill:#f6e84a;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .shoe{fill:#8b4b2e;stroke:#1a1617;stroke-width:4;stroke-linejoin:round}
+  .pink{fill:#f05093;stroke:#1a1617;stroke-width:3.2;stroke-linejoin:round}
+  .blue{fill:#4aa8e8;stroke:#1a1617;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  .spark{fill:#f7df35;stroke:#c3a916;stroke-width:2}
+</style>
+    <g transform="rotate(-8 145 98)">
+      <path class="hair" d="M70,88 C65,26 97,1 147,-1 C199,-3 227,28 222,90 C218,125 198,147 179,153 L109,153 C89,141 72,122 70,88Z"/>
+      <path class="skin" d="M89,64 C101,37 127,29 155,31 C184,32 206,46 211,73 L208,125 C203,160 177,177 145,180 C112,176 88,157 82,126 C77,102 79,79 89,64Z"/>
+    </g>
+<g transform="rotate(-8 145 98)">
+  <path class="thin" d="M110 103 q12 10 24 0 M164 101 q11 10 22 0"/>
+  <path class="thin" d="M111 97 q3 -8 6 -11 M174 95 q2 -7 6 -10"/>
+  <path class="thin" d="M143 122 q5 4 11 0"/>
+  <path class="o" d="M128 145 q16 -14 31 0 q-15 15 -31 0Z"/>
+  <path class="thin" d="M137 144 q6 7 13 0"/>
+  <ellipse cx="108" cy="136" rx="11" ry="6" fill="#f4a0a7"/><ellipse cx="180" cy="132" rx="11" ry="6" fill="#f4a0a7"/>
+</g>
+<path class="dress" d="M127 184 L177 184 L187 303 L119 303Z"/>
+<path class="yellow" d="M120 205 q-13 30 -3 56 l19 -7 -4 -46Z"/><path class="yellow" d="M182 205 q13 30 3 56 l-19 -7 4 -46Z"/>
+<path class="skin2" d="M133 303 q-19 20 -9 42 q8 14 23 5 l8 -18 -5 -29Z"/><path class="skin2" d="M163 303 q15 17 11 41 q-4 15 -20 10 l-10 -16 5 -35Z"/>
+<path class="shoe" d="M121 340 q6 17 26 9 l-4 -10Z"/><path class="shoe" d="M153 345 q7 16 26 5 l-7 -10Z"/></svg>

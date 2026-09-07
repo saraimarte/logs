@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360">
+<style>
+  .o{fill:none;stroke:#1a1617;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  .thin{fill:none;stroke:#1a1617;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+  .hair{fill:#1d1718;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .skin{fill:#fff7e6;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .skin2{fill:#fff7e6;stroke:#1a1617;stroke-width:4;stroke-linejoin:round}
+  .dress{fill:#f06a45;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .yellow{fill:#f6e84a;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .shoe{fill:#8b4b2e;stroke:#1a1617;stroke-width:4;stroke-linejoin:round}
+  .pink{fill:#f05093;stroke:#1a1617;stroke-width:3.2;stroke-linejoin:round}
+  .blue{fill:#4aa8e8;stroke:#1a1617;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  .spark{fill:#f7df35;stroke:#c3a916;stroke-width:2}
+</style>
+    <g transform="rotate(-3 145 105)">
+      <path class="hair" d="M70,95 C65,33 97,8 147,6 C199,4 227,35 222,97 C218,132 198,154 179,160 L109,160 C89,148 72,129 70,95Z"/>
+      <path class="skin" d="M89,71 C101,44 127,36 155,38 C184,39 206,53 211,80 L208,132 C203,167 177,184 145,187 C112,183 88,164 82,133 C77,109 79,86 89,71Z"/>
+    </g>
+<g transform="rotate(-3 145 105)">
+  <circle cx="112" cy="108" r="13" class="o"/><circle cx="112" cy="108" r="3" fill="#1a1617"/>
+  <path class="o" d="M166 103 q13 12 25 -1"/><path class="thin" d="M171 94 q4 -8 8 -10 M181 96 q4 -7 8 -8"/>
+  <path class="thin" d="M143 124 q6 5 12 0"/>
+  <path class="o" d="M126 148 q9 -10 18 0 q9 -10 18 0 q-7 14 -18 14 q-11 0 -18 -14Z"/>
+  <path class="thin" d="M130 166 q14 6 29 0"/>
+</g>
+<path class="dress" d="M111 190 L178 190 L190 344 L100 344Z"/>
+<path class="yellow" d="M108 207 q-22 8 -35 34 l17 13 q11 -22 27 -23Z"/>
+<path class="skin2" d="M69 240 q-11 6 -10 18 q3 12 16 9 l17 -13 -17 -14Z"/>
+<path class="yellow" d="M181 207 q23 8 37 34 l-17 13 q-12 -23 -29 -23Z"/>
+<path class="skin2" d="M221 240 q11 6 10 18 q-3 12 -16 9 l-17 -13 17 -14Z"/></svg>

@@ -1,0 +1,464 @@
+/* ============================================================
+   KOREAN
+   Real /svg/theme-korean assets + neutral UI styling.
+   - No global layout/cursor/companion overrides
+   - Parent filter/category containers remain transparent
+   - Small cards/buttons use neutral hover states
+   ============================================================ */
+
+body.theme-korean {
+    --theme-ink: #24354f;
+    --theme-paper: #faf6ef;
+    --theme-accent: #ca5665;
+    --theme-accent-2: #4e74a7;
+    --theme-gold: #cda866;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+    --thick-border: 2px solid rgba(36, 53, 79, 0.14);
+    --thin-border: 1px solid rgba(36, 53, 79, 0.12);
+    --dashed-border: 1px dashed rgba(36, 53, 79, 0.14);
+    --dotted-border: 1px dotted rgba(36, 53, 79, 0.14);
+    --track-bg: rgba(36, 53, 79, 0.08);
+    --muted-text: rgba(36, 53, 79, 0.62);
+
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,0.54), transparent 34%),
+        radial-gradient(circle at 12% 80%, rgba(78,116,167,0.08), transparent 26%),
+        radial-gradient(circle at 88% 22%, rgba(202,86,101,0.08), transparent 24%),
+        linear-gradient(145deg, #faf5ec 0%, #f1ebdf 46%, #ece6dc 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#korean-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#korean-background .theme-korean-haze {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 14%, rgba(255,255,255,0.52), transparent 34%),
+        radial-gradient(circle at 18% 56%, rgba(205,168,102,0.08), transparent 24%),
+        radial-gradient(circle at 82% 54%, rgba(78,116,167,0.06), transparent 28%);
+}
+
+#korean-background .theme-korean-bands {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg,
+            rgba(78,116,167,0.10) 0%,
+            rgba(78,116,167,0.10) 9%,
+            transparent 9%,
+            transparent 91%,
+            rgba(202,86,101,0.10) 91%,
+            rgba(202,86,101,0.10) 100%
+        ),
+        linear-gradient(90deg,
+            transparent 0%,
+            transparent 16%,
+            rgba(255,255,255,0.18) 16%,
+            rgba(255,255,255,0.18) 18%,
+            transparent 18%,
+            transparent 82%,
+            rgba(255,255,255,0.18) 82%,
+            rgba(255,255,255,0.18) 84%,
+            transparent 84%,
+            transparent 100%
+        );
+    opacity: 0.88;
+}
+
+#korean-background .theme-korean-pattern {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(0deg, transparent 0 54px, rgba(36,53,79,0.035) 54px 55px),
+        repeating-linear-gradient(90deg, transparent 0 54px, rgba(36,53,79,0.025) 54px 55px),
+        radial-gradient(circle at 28px 28px, rgba(205,168,102,0.10) 0 2px, transparent 3px);
+    background-size: 100% 100%, 100% 100%, 82px 82px;
+    opacity: .52;
+}
+
+#korean-background .theme-korean-horizon {
+    position: absolute;
+    left: -8vw;
+    right: -8vw;
+    bottom: -10vh;
+    height: 34vh;
+    background: linear-gradient(180deg, transparent 0%, rgba(36,53,79,0.03) 26%, rgba(36,53,79,0.08) 100%);
+    clip-path: ellipse(78% 62% at 50% 100%);
+    opacity: .84;
+}
+
+#korean-background .theme-korean-item {
+    position: absolute;
+    width: 144px;
+    height: 144px;
+    opacity: var(--item-opacity, .72);
+    transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    filter: drop-shadow(0 8px 14px rgba(24,24,24,.12));
+    animation: themeKoreanFloat 8.4s ease-in-out var(--item-delay) infinite;
+    transform-origin: center center;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#korean-background .theme-korean-item.theme-korean-soft {
+    opacity: var(--item-opacity, .28);
+}
+
+#korean-background .theme-korean-item.theme-korean-emphasis {
+    opacity: var(--item-opacity, .80);
+}
+
+#korean-background .theme-korean-object-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    filter: none;
+}
+
+#korean-background .theme-korean-bibimbap { width: 156px; height: 156px; }
+#korean-background .theme-korean-buldak-cup { width: 126px; height: 162px; }
+#korean-background .theme-korean-cheese-buldak { width: 150px; height: 132px; }
+#korean-background .theme-korean-cheese-tteokbokki { width: 156px; height: 138px; }
+#korean-background .theme-korean-finger-heart { width: 118px; height: 148px; }
+#korean-background .theme-korean-fish-pastry-bag { width: 132px; height: 160px; }
+#korean-background .theme-korean-fruit-sandwich { width: 132px; height: 132px; }
+#korean-background .theme-korean-gimbap-plate { width: 158px; height: 128px; }
+#korean-background .theme-korean-grapefruit-soju { width: 114px; height: 160px; }
+#korean-background .theme-korean-passport { width: 128px; height: 154px; }
+#korean-background .theme-korean-matcha-drink { width: 114px; height: 160px; }
+#korean-background .theme-korean-onggi-kimchi { width: 136px; height: 156px; }
+#korean-background .theme-korean-palace-sticker { width: 168px; height: 142px; }
+#korean-background .theme-korean-seoul-photo { width: 160px; height: 126px; }
+#korean-background .theme-korean-seoul-postcard { width: 160px; height: 124px; }
+#korean-background .theme-korean-seoul-wordmark { width: 176px; height: 96px; }
+#korean-background .theme-korean-tmoney { width: 144px; height: 96px; }
+#korean-background .theme-korean-tteokkochi { width: 110px; height: 176px; }
+#korean-background .theme-korean-taegukgi-plaque { width: 160px; height: 126px; }
+
+@keyframes themeKoreanFloat {
+    0%, 100% {
+        transform: translate3d(-50%, -50%, 0) translate3d(0,0,0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+    50% {
+        transform: translate3d(-50%, -50%, 0) translate3d(var(--item-x), var(--item-y), 0) rotate(calc(var(--item-rotate) + 2deg)) scale(var(--item-scale));
+    }
+}
+
+#korean-background .theme-korean-react {
+    opacity: .92 !important;
+    filter: drop-shadow(0 11px 17px rgba(24,24,24,.16)) drop-shadow(0 0 13px rgba(205,168,102,.30));
+    animation: themeKoreanReact .48s ease-out !important;
+}
+
+@keyframes themeKoreanReact {
+    0% { transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    45% { transform: translate3d(-50%, -50%, 0) translate3d(0, -11px, 0) rotate(calc(var(--item-rotate) + 7deg)) scale(calc(var(--item-scale) * 1.08)); }
+    100% { transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+}
+
+/* Neutral small boxes/cards only */
+body.theme-korean .day-box,
+body.theme-korean .day-picker-box,
+body.theme-korean .icon-btn,
+body.theme-korean .small-icon-btn,
+body.theme-korean input,
+body.theme-korean textarea,
+body.theme-korean select,
+body.theme-korean .notes-editable,
+body.theme-korean .phrase-card,
+body.theme-korean .chip,
+body.theme-korean .toolbox-item,
+body.theme-korean .resource-card,
+body.theme-korean .polaroid-card,
+body.theme-korean .filter-tab,
+body.theme-korean .day-target-box,
+body.theme-korean .flashcard,
+body.theme-korean .flashcard-mode-card,
+body.theme-korean .day-badge,
+body.theme-korean .video-placeholder,
+body.theme-korean .theme-picker-card,
+body.theme-korean .note-audio-row,
+body.theme-korean .modal-box,
+body.theme-korean .category-box,
+body.theme-korean .category-card,
+body.theme-korean .category-chip,
+body.theme-korean .knowledge-category,
+body.theme-korean .knowledge-category-box,
+body.theme-korean .knowledge-category-card,
+body.theme-korean .knowledge-tag,
+body.theme-korean .tag,
+body.theme-korean .label-box {
+    background: rgba(248, 244, 237, 0.96) !important;
+    background-color: rgba(248, 244, 237, 0.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(36, 53, 79, 0.17) !important;
+    box-shadow: 0 1px 2px rgba(36,53,79,.035), 0 4px 12px rgba(36,53,79,.025) !important;
+    filter: none !important;
+}
+
+body.theme-korean input::placeholder,
+body.theme-korean textarea::placeholder,
+body.theme-korean .notes-editable:empty::before {
+    color: rgba(36,53,79,.43);
+}
+
+body.theme-korean .day-box:hover,
+body.theme-korean .day-picker-box:hover,
+body.theme-korean .small-icon-btn:hover,
+body.theme-korean .phrase-card:hover,
+body.theme-korean .chip:hover,
+body.theme-korean .toolbox-item:hover,
+body.theme-korean .resource-card:hover,
+body.theme-korean .polaroid-card:hover,
+body.theme-korean .filter-tab:hover,
+body.theme-korean .day-target-box:hover,
+body.theme-korean .flashcard-mode-card:hover,
+body.theme-korean .theme-picker-card:hover,
+body.theme-korean .category-box:hover,
+body.theme-korean .category-card:hover,
+body.theme-korean .category-chip:hover,
+body.theme-korean .knowledge-category:hover,
+body.theme-korean .knowledge-category-box:hover,
+body.theme-korean .knowledge-category-card:hover,
+body.theme-korean .knowledge-tag:hover,
+body.theme-korean .tag:hover,
+body.theme-korean .label-box:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(36,53,79,.22) !important;
+    box-shadow: 0 1px 2px rgba(36,53,79,.045), 0 5px 14px rgba(36,53,79,.035) !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+body.theme-korean .day-picker-box.selected,
+body.theme-korean .filter-tab.active,
+body.theme-korean .category-box.active,
+body.theme-korean .category-card.active,
+body.theme-korean .category-chip.active,
+body.theme-korean .knowledge-category.active,
+body.theme-korean .knowledge-category-box.active,
+body.theme-korean .knowledge-category-card.active,
+body.theme-korean .knowledge-tag.active,
+body.theme-korean .tag.active,
+body.theme-korean .label-box.active,
+body.theme-korean .category-box.selected,
+body.theme-korean .category-card.selected,
+body.theme-korean .category-chip.selected {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(36,53,79,.26) !important;
+    box-shadow: inset 0 0 0 1px rgba(36,53,79,.035) !important;
+    filter: none !important;
+}
+
+body.theme-korean .category-box::before,
+body.theme-korean .category-box::after,
+body.theme-korean .category-card::before,
+body.theme-korean .category-card::after,
+body.theme-korean .category-chip::before,
+body.theme-korean .category-chip::after,
+body.theme-korean .knowledge-category::before,
+body.theme-korean .knowledge-category::after,
+body.theme-korean .knowledge-category-box::before,
+body.theme-korean .knowledge-category-box::after,
+body.theme-korean .knowledge-category-card::before,
+body.theme-korean .knowledge-category-card::after,
+body.theme-korean .knowledge-tag::before,
+body.theme-korean .knowledge-tag::after,
+body.theme-korean .tag::before,
+body.theme-korean .tag::after,
+body.theme-korean .label-box::before,
+body.theme-korean .label-box::after,
+body.theme-korean .chip::before,
+body.theme-korean .chip::after,
+body.theme-korean .filter-tab::before,
+body.theme-korean .filter-tab::after {
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* Parent rows/containers must stay transparent */
+html body.theme-korean .filter-tabs,
+html body.theme-korean .filter-tabs:hover,
+html body.theme-korean .filter-tabs:focus,
+html body.theme-korean .filter-tabs:focus-within,
+html body.theme-korean #library-filter-tabs,
+html body.theme-korean #library-filter-tabs:hover,
+html body.theme-korean #library-filter-tabs:focus-within,
+html body.theme-korean #quiz-type-filters,
+html body.theme-korean #quiz-type-filters:hover,
+html body.theme-korean #quiz-type-filters:focus-within,
+html body.theme-korean .set-size-picker,
+html body.theme-korean .set-size-picker:hover,
+html body.theme-korean .set-size-picker:focus,
+html body.theme-korean .set-size-picker:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+    border-color: transparent !important;
+}
+
+html body.theme-korean .filter-tabs::before,
+html body.theme-korean .filter-tabs::after,
+html body.theme-korean .filter-tabs:hover::before,
+html body.theme-korean .filter-tabs:hover::after,
+html body.theme-korean #library-filter-tabs::before,
+html body.theme-korean #library-filter-tabs::after,
+html body.theme-korean #quiz-type-filters::before,
+html body.theme-korean #quiz-type-filters::after,
+html body.theme-korean .set-size-picker::before,
+html body.theme-korean .set-size-picker::after,
+html body.theme-korean .set-size-picker:hover::before,
+html body.theme-korean .set-size-picker:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-korean .filter-tabs > .filter-tab,
+html body.theme-korean .set-size-picker > .filter-tab {
+    background: rgba(248, 244, 237, 0.96) !important;
+    background-color: rgba(248, 244, 237, 0.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(36,53,79,.17) !important;
+    box-shadow: 0 1px 2px rgba(36,53,79,.035) !important;
+    filter: none !important;
+}
+
+html body.theme-korean .filter-tabs > .filter-tab:hover,
+html body.theme-korean .set-size-picker > .filter-tab:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(36,53,79,.22) !important;
+    box-shadow: 0 2px 7px rgba(36,53,79,.05) !important;
+    filter: none !important;
+}
+
+html body.theme-korean .filter-tabs > .filter-tab.active,
+html body.theme-korean .set-size-picker > .filter-tab.active {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(36,53,79,.26) !important;
+    box-shadow: inset 0 0 0 1px rgba(36,53,79,.035) !important;
+    filter: none !important;
+}
+
+/* Side tab icons stay backgroundless */
+html body.theme-korean .side-nav .icon-btn,
+html body.theme-korean .side-nav .icon-btn:hover,
+html body.theme-korean .side-nav .icon-btn:focus,
+html body.theme-korean .side-nav .icon-btn:focus-visible,
+html body.theme-korean .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-korean .side-nav .icon-btn::before,
+html body.theme-korean .side-nav .icon-btn::after,
+html body.theme-korean .side-nav .icon-btn:hover::before,
+html body.theme-korean .side-nav .icon-btn:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-korean .side-nav .icon-btn:hover {
+    transform: scale(1.15);
+}
+
+html body.theme-korean .side-nav .icon-btn i {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    color: var(--theme-ink) !important;
+}
+
+html body.theme-korean .side-nav .icon-btn:hover i {
+    opacity: .62;
+}
+
+body.theme-korean .progress-bar-track {
+    background: rgba(36,53,79,.10);
+}
+
+body.theme-korean .progress-bar-fill {
+    background: linear-gradient(90deg, var(--theme-accent), var(--theme-gold), var(--theme-accent-2));
+}
+
+body.theme-korean #korean-background { z-index: 0; }
+body.theme-korean .view { position: relative; z-index: 2; }
+body.theme-korean .side-nav { position: relative; z-index: 3; }
+body.theme-korean header,
+body.theme-korean .log-header-container { position: relative; z-index: 4; }
+body.theme-korean .modal,
+body.theme-korean .modal-overlay,
+body.theme-korean .overlay { z-index: 10; }
+
+@media (max-width: 700px) {
+    #korean-background .theme-korean-item { width: 108px; height: 108px; }
+    #korean-background .theme-korean-bibimbap,
+    #korean-background .theme-korean-cheese-buldak,
+    #korean-background .theme-korean-cheese-tteokbokki,
+    #korean-background .theme-korean-gimbap-plate,
+    #korean-background .theme-korean-palace-sticker,
+    #korean-background .theme-korean-seoul-photo,
+    #korean-background .theme-korean-seoul-postcard,
+    #korean-background .theme-korean-taegukgi-plaque { width: 128px; height: auto; }
+    #korean-background .theme-korean-seoul-wordmark,
+    #korean-background .theme-korean-tmoney { width: 126px; height: auto; }
+    #korean-background .theme-korean-buldak-cup,
+    #korean-background .theme-korean-grapefruit-soju,
+    #korean-background .theme-korean-matcha-drink,
+    #korean-background .theme-korean-tteokkochi { width: 92px; height: auto; }
+    #korean-background .theme-korean-item.theme-korean-soft { opacity: .20; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #korean-background * { animation: none !important; }
+}

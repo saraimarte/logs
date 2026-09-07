@@ -1,0 +1,99 @@
+    /* ============================================================
+       GIRLS THEME
+       Decorative-only styling built from the winter theme structure.
+       ============================================================ */
+
+    body.theme-girls {
+        --girls-ink: #6b4d61;
+        --girls-border: #efb7ca;
+        --girls-surface: #fffdfd;
+        --girls-surface-soft: #fff4f8;
+        --girls-accent: #ff92bb;
+        --girls-second: #ffb86f;
+        --girls-third: #b6d784;
+        --black: var(--girls-ink);
+        --white: var(--girls-surface);
+        --bg-overlay: transparent;
+        --thick-border: 3px solid color-mix(in srgb, var(--girls-border) 60%, transparent);
+        --thin-border: 2px solid color-mix(in srgb, var(--girls-border) 48%, transparent);
+        --dashed-border: 2px dashed color-mix(in srgb, var(--girls-border) 44%, transparent);
+        --dotted-border: 2px dotted color-mix(in srgb, var(--girls-border) 44%, transparent);
+        --track-bg: #ffedf5;
+        --muted-text: color-mix(in srgb, var(--girls-ink) 58%, transparent);
+        background: radial-gradient(circle at 14% 14%, rgba(255,255,255,.90), transparent 24%), radial-gradient(circle at 84% 16%, rgba(255,255,255,.56), transparent 24%), radial-gradient(circle at 23% 83%, rgba(255,146,187,.11), transparent 24%), linear-gradient(160deg, #ffe7f2 0%, #fff3e2 48%, #f4ffd6 100%) !important;
+        background-attachment: fixed !important;
+        color: var(--girls-ink) !important;
+    }
+
+    #girls-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: -1; }
+    #girls-background::before, #girls-background::after { content:''; position:absolute; pointer-events:none; }
+    #girls-background::before { inset:-12%; background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.24), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%); animation:girlsLightSweep 9s ease-in-out infinite alternate; }
+    body.theme-girls #girls-background { z-index: -1; }
+    body.theme-girls .view { position: relative; z-index: 2; }
+    body.theme-girls .side-nav { position: relative; z-index: 3; }
+    body.theme-girls header, body.theme-girls .log-header-container { position: relative; z-index: 4; }
+    body.theme-girls .modal, body.theme-girls .modal-overlay, body.theme-girls .overlay { z-index: 10; }
+
+    body.theme-girls .day-box,
+    body.theme-girls .day-picker-box,
+    body.theme-girls .icon-btn,
+    body.theme-girls .small-icon-btn,
+    body.theme-girls input,
+    body.theme-girls textarea,
+    body.theme-girls select,
+    body.theme-girls .notes-editable,
+    body.theme-girls .phrase-card,
+    body.theme-girls .chip,
+    body.theme-girls .toolbox-item,
+    body.theme-girls .resource-card,
+    body.theme-girls .polaroid-card,
+    body.theme-girls .filter-tab,
+    body.theme-girls .day-target-box,
+    body.theme-girls .flashcard,
+    body.theme-girls .flashcard-mode-card,
+    body.theme-girls .day-badge,
+    body.theme-girls .video-placeholder,
+    body.theme-girls .theme-picker-card,
+    body.theme-girls .note-audio-row,
+    body.theme-girls .modal-box,
+    body.theme-girls .set-complete-box { background-color: var(--girls-surface) !important; }
+
+    body.theme-girls input::placeholder,
+    body.theme-girls textarea::placeholder,
+    body.theme-girls .notes-editable:empty::before { color: color-mix(in srgb, var(--girls-ink) 42%, transparent) !important; }
+    body.theme-girls .icon-btn:hover,
+    body.theme-girls .small-icon-btn:hover,
+    body.theme-girls .filter-tab:hover { background: var(--girls-surface-soft) !important; color: var(--girls-ink) !important; }
+    body.theme-girls .chip:hover,
+    body.theme-girls .phrase-card:hover,
+    body.theme-girls .day-picker-box.selected,
+    body.theme-girls .filter-tab.active,
+    body.theme-girls .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--girls-surface-soft) 72%, var(--girls-accent) 28%) !important; color: var(--girls-ink) !important; border-color: var(--girls-border) !important; }
+    body.theme-girls .progress-bar-fill { background: linear-gradient(90deg, var(--girls-accent), var(--girls-second), var(--girls-third)) !important; }
+
+    #girls-background .girls-item {
+        position:absolute; display:block; height:auto; object-fit:contain; opacity:.95;
+        transform-origin:center; translate:0 0; rotate:0deg; scale:1;
+        filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--girls-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30));
+        animation: girlsFloat var(--girls-float-duration) ease-in-out var(--girls-float-delay) infinite alternate; will-change:transform;
+    }
+    @keyframes girlsFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--girls-float-x), var(--girls-float-y), 0) rotate(var(--girls-float-r)) scale(1.035)} }
+    #girls-background .girls-item.girls-intro-bop { animation:girlsIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--girls-bop-delay) infinite !important; }
+    @keyframes girlsIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+    #girls-background .girls-extra { position:absolute; }
+
+#girls-background .girls-star {
+    width: 6px; height: 6px; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 8px rgba(255,255,255,.95), 0 0 14px color-mix(in srgb, var(--girls-accent) 34%, transparent);
+    opacity: 0; animation: girlsSparkle var(--girls-extra-duration) ease-in-out var(--girls-extra-delay) infinite;
+}
+#girls-background .girls-star::before, #girls-background .girls-star::after { content:''; position:absolute; left:50%; top:50%; background:rgba(255,255,255,.88); transform:translate(-50%,-50%); }
+#girls-background .girls-star::before { width: 14px; height: 1px; }
+#girls-background .girls-star::after { width: 1px; height: 14px; }
+@keyframes girlsSparkle { 0%,100%{opacity:0; transform:scale(.35)} 54%{opacity:.84; transform:scale(1.28)} 76%{opacity:.18; transform:scale(.62)} }
+
+
+    @keyframes girlsLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+    @media (max-width:700px) { #girls-background .girls-item { opacity:.72; } #girls-background .girls-extra { opacity:.38; } }
+    @media (prefers-reduced-motion: reduce) { #girls-background::before, #girls-background .girls-item, #girls-background .girls-extra { animation:none !important; } }

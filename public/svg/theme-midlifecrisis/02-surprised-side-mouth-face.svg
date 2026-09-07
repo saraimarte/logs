@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="260" viewBox="0 0 220 260" fill="none">
+
+  <g transform="rotate(3 110 125)">
+    <path d="M68 30
+             C 42 48, 35 82, 41 129
+             C 46 171, 71 210, 112 218
+             C 151 224, 182 203, 191 162
+             C 200 120, 194 75, 172 47
+             C 153 23, 108 15, 68 30 Z"
+          fill="#f4cf9f" stroke="#1d1d1d" stroke-width="4.2" stroke-linejoin="round"/>
+    <path d="M35 116 C 20 117, 15 131, 18 145 C 21 160, 33 165, 44 157" fill="#f4cf9f" stroke="#1d1d1d" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M186 116 C 201 117, 206 131, 203 145 C 200 160, 188 165, 177 157" fill="#f4cf9f" stroke="#1d1d1d" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M98 213 C 95 225, 96 235, 104 239 C 112 241, 120 234, 121 223" fill="#f4cf9f" stroke="#1d1d1d" stroke-width="4.2" stroke-linejoin="round"/>
+    <path d="M85 18 C 80 8, 86 1, 95 3 C 102 6, 103 15, 97 23" stroke="#1d1d1d" stroke-width="4.2" stroke-linecap="round" fill="none"/>
+</g>
+
+  <g transform="rotate(3 110 125)">
+    <path d="M 66 82 Q 83.0 76.0 100 78" stroke="#1d1d1d" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M 126 77 Q 141.0 77.0 156 83" stroke="#1d1d1d" stroke-width="6" stroke-linecap="round" fill="none"/>
+    
+    <ellipse cx="82" cy="111" rx="17" ry="21" fill="#ffffff" stroke="#1d1d1d" stroke-width="4"/>
+    <circle cx="84" cy="114" r="5" fill="#111111"/>
+
+    
+    <ellipse cx="144" cy="113" rx="17" ry="21" fill="#ffffff" stroke="#1d1d1d" stroke-width="4"/>
+    <circle cx="142" cy="116" r="5" fill="#111111"/>
+
+    
+    <g transform="translate(114 149) scale(0.95) rotate(0) translate(-114 -149)">
+      <path d="M 114 149 C 106 140, 90 140, 80 149 C 89 150, 101 154, 114 151"
+            fill="#111111" stroke="#1d1d1d" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M 114 149 C 122 140, 138 140, 148 149 C 139 150, 127 154, 114 151"
+            fill="#111111" stroke="#1d1d1d" stroke-width="3" stroke-linejoin="round"/>
+    </g>
+
+    <path d="M 73 152 Q 90 142 109 146 Q 100 158 73 166 Z" fill="#ffffff" stroke="#1d1d1d" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M 73 159 Q 94 151 109 152" stroke="#1d1d1d" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </g>
+</svg>

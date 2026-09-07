@@ -1,0 +1,537 @@
+
+body.theme-red{--bg-overlay:transparent;--black:#5c1d1f;--white:#fff7f5;--muted-text:#8e5d60;
+background:radial-gradient(circle at 12% 15%,rgba(255,255,255,.56),transparent 22%),
+radial-gradient(circle at 86% 16%,rgba(255,125,135,.18),transparent 24%),
+radial-gradient(circle at 22% 82%,rgba(255,175,175,.16),transparent 24%),
+linear-gradient(145deg,#fff8f5,#ffe2de 48%,#ffd4dc)!important;color:#5c1d1f!important}
+body.theme-red .view:not(#grid-view)::before{background:transparent!important;opacity:0!important}
+#red-background{position:fixed;inset:0;width:100vw;height:100vh;overflow:hidden;pointer-events:none;z-index:0}
+body.theme-red .view{position:relative;z-index:2}body.theme-red .side-nav{z-index:3}body.theme-red header,body.theme-red .log-header-container{position:relative;z-index:4}
+#red-background .theme-red-item{position:absolute;width:var(--w);max-width:18vw;transform:translate(-50%,-50%) rotate(var(--r));filter:drop-shadow(0 13px 18px rgba(96,29,33,.16));animation:redFloat var(--dur) ease-in-out var(--delay) infinite}
+#red-background .theme-red-item img{display:block;width:100%;height:auto;pointer-events:none}
+@keyframes redFloat{0%,100%{transform:translate(-50%,-50%) translate(0,0) rotate(var(--r))}50%{transform:translate(-50%,-50%) translate(var(--dx),var(--dy)) rotate(calc(var(--r) + 2deg))}}
+body.theme-red .filter-tabs,body.theme-red #library-filter-tabs,body.theme-red #quiz-type-filters,body.theme-red .set-size-picker{background:transparent!important}
+body.theme-red .side-nav .icon-btn,body.theme-red .side-nav .icon-btn:hover{background:transparent!important;box-shadow:none!important}
+
+/* Red title-safe / spacing pass */
+body.theme-red .log-header-container {
+    position: relative !important;
+    z-index: 50 !important;
+}
+body.theme-red .log-header-container h1,
+body.theme-red .log-header-container h2 {
+    position: relative !important;
+    z-index: 51 !important;
+}
+#red-background .theme-red-item {
+    max-width: 18vw !important;
+}
+
+
+/* ============================================================
+   RED HOVER REACTION
+   Normal floating animation resumes automatically after the short reaction.
+   ============================================================ */
+#red-background .theme-red-item.red-hover-react {
+    animation: redHoverReact .54s cubic-bezier(.2,.82,.24,1) both !important;
+    filter:
+        drop-shadow(0 16px 22px rgba(96,29,33,.20))
+        drop-shadow(0 0 15px rgba(227,75,83,.28)) !important;
+}
+
+@keyframes redHoverReact {
+    0%,100% {
+        transform:
+            translate(-50%,-50%)
+            rotate(var(--r))
+            scale(1);
+    }
+    28% {
+        transform:
+            translate(-50%,-50%)
+            translateY(-12px)
+            rotate(calc(var(--r) - 4deg))
+            scale(1.08);
+    }
+    58% {
+        transform:
+            translate(-50%,-50%)
+            translateY(-5px)
+            rotate(calc(var(--r) + 4deg))
+            scale(1.05);
+    }
+    82% {
+        transform:
+            translate(-50%,-50%)
+            translateY(-2px)
+            rotate(calc(var(--r) - 2deg))
+            scale(1.02);
+    }
+}
+
+
+/* ============================================================
+   WINTER-STYLE UNIFIED UI SYSTEM
+   ------------------------------------------------------------
+   The Winter theme is the reference:
+   - one readable surface/text system across every view
+   - the SAME search styling in every tab and modal
+   - the SAME settings/plus/button styling across tabs
+   - visible icon choices before hover
+   - readable icon-search inputs
+   - readable Developer Mode / shortcut modal
+   - no changes to app layout, companion positioning, or theme SVG logic
+   ============================================================ */
+
+html body.theme-red {
+    --unified-ui-surface: #fff7f5;
+    --unified-ui-surface-soft: #fde5e3;
+    --unified-ui-text: #5c1d1f;
+    --unified-ui-muted: #8e5d60;
+    --unified-ui-border: #d8aaad;
+    --unified-ui-accent: #e38a8e;
+    --unified-ui-accent-text: #5c1d1f;
+
+    --black: var(--unified-ui-text) !important;
+    --white: var(--unified-ui-surface) !important;
+    --muted-text: var(--unified-ui-muted) !important;
+    --track-bg: var(--unified-ui-surface-soft) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE INPUT / SEARCH STYLE EVERYWHERE
+   Includes Knowledge Base, Daily View, theme search, icon search,
+   category inputs, settings inputs, and add-tab/create-tab modals.
+   ------------------------------------------------------------ */
+html body.theme-red input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-red textarea,
+html body.theme-red select,
+html body.theme-red .notes-editable {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    caret-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-red input:not([type="checkbox"]):not([type="radio"])::placeholder,
+html body.theme-red textarea::placeholder,
+html body.theme-red .notes-editable:empty::before {
+    color: var(--unified-ui-muted) !important;
+    -webkit-text-fill-color: var(--unified-ui-muted) !important;
+    opacity: .82 !important;
+}
+
+html body.theme-red select option,
+html body.theme-red select optgroup {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE BUTTON STYLE THROUGHOUT THE APP
+   Settings, plus, save/generate, Start Quiz, modal icon buttons, etc.
+   ------------------------------------------------------------ */
+html body.theme-red .view .icon-btn,
+html body.theme-red .view .small-icon-btn,
+html body.theme-red .modal-box .icon-btn,
+html body.theme-red .modal-box .small-icon-btn,
+html body.theme-red .modal-box .save-btn,
+html body.theme-red #start-quiz-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-red .view .icon-btn i,
+html body.theme-red .view .small-icon-btn i,
+html body.theme-red .modal-box .icon-btn i,
+html body.theme-red .modal-box .small-icon-btn i,
+html body.theme-red #start-quiz-btn i,
+html body.theme-red .view .icon-btn svg,
+html body.theme-red .view .small-icon-btn svg,
+html body.theme-red #start-quiz-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-red .view .icon-btn:hover,
+html body.theme-red .view .small-icon-btn:hover,
+html body.theme-red .modal-box .icon-btn:hover,
+html body.theme-red .modal-box .small-icon-btn:hover,
+html body.theme-red .modal-box .save-btn:hover,
+html body.theme-red #start-quiz-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+/* Disabled Start Quiz remains readable instead of losing its label/icon. */
+html body.theme-red #start-quiz-btn:disabled,
+html body.theme-red #start-quiz-btn.disabled-btn {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: .58 !important;
+}
+html body.theme-red #start-quiz-btn:disabled i,
+html body.theme-red #start-quiz-btn.disabled-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Side navigation remains the template's bare-icon treatment. */
+html body.theme-red .side-nav .icon-btn,
+html body.theme-red .side-nav .icon-btn:hover,
+html body.theme-red .side-nav .icon-btn:focus,
+html body.theme-red .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-red .side-nav .icon-btn i,
+html body.theme-red .side-nav .icon-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Back arrows stay simple and visible, like Winter. */
+html body.theme-red .header-back-btn,
+html body.theme-red .header-back-btn:hover,
+html body.theme-red .header-back-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--unified-ui-text) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+html body.theme-red .header-back-btn i,
+html body.theme-red .header-back-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   CARDS / DAY BOXES / POLAROIDS
+   ------------------------------------------------------------ */
+html body.theme-red .day-box,
+html body.theme-red .day-picker-box,
+html body.theme-red .mini-day-box,
+html body.theme-red .day-badge,
+html body.theme-red .day-target-box,
+html body.theme-red .phrase-card,
+html body.theme-red .chip,
+html body.theme-red .toolbox-item,
+html body.theme-red .resource-card,
+html body.theme-red .polaroid-card,
+html body.theme-red .flashcard,
+html body.theme-red .flashcard-mode-card,
+html body.theme-red .video-placeholder,
+html body.theme-red .note-audio-row,
+html body.theme-red .set-complete-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-red .polaroid-label,
+html body.theme-red .polaroid-label *,
+html body.theme-red .day-box *,
+html body.theme-red .day-picker-box *,
+html body.theme-red .day-badge * {
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   FILTER TABS
+   Parent rows are transparent; actual buttons have visible surfaces.
+   ------------------------------------------------------------ */
+html body.theme-red .filter-tabs,
+html body.theme-red #library-filter-tabs,
+html body.theme-red #quiz-type-filters,
+html body.theme-red .set-size-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-red .filter-tab,
+html body.theme-red .kb-view-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-red .filter-tab:hover,
+html body.theme-red .kb-view-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-red .filter-tab.active,
+html body.theme-red .filter-tab[aria-selected="true"],
+html body.theme-red .kb-view-btn.active {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-red .filter-tab.active *,
+html body.theme-red .filter-tab[aria-selected="true"] *,
+html body.theme-red .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* ------------------------------------------------------------
+   ICON PICKERS / ADD-TAB PICKERS
+   Every icon is visible before hover. The containing grid is also neutral.
+   ------------------------------------------------------------ */
+html body.theme-red .icon-grid,
+html body.theme-red #icon-picker,
+html body.theme-red #companion-picker,
+html body.theme-red #cursor-picker,
+html body.theme-red [id*="icon"][id*="picker"] {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-red .icon-option {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-red .icon-option i,
+html body.theme-red .icon-option svg,
+html body.theme-red .icon-option small,
+html body.theme-red .icon-option span {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html body.theme-red .icon-option:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-red .icon-option.selected {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-red .icon-option.selected i,
+html body.theme-red .icon-option.selected svg,
+html body.theme-red .icon-option.selected small,
+html body.theme-red .icon-option.selected span {
+    color: var(--unified-ui-accent-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   ALL MODALS
+   ------------------------------------------------------------ */
+html body.theme-red .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-red .modal-box .modal-header,
+html body.theme-red .modal-box .modal-header h1,
+html body.theme-red .modal-box .modal-header h2,
+html body.theme-red .modal-box .modal-header h3,
+html body.theme-red .modal-box .modal-title,
+html body.theme-red .modal-box .field-label,
+html body.theme-red .modal-box .modal-label,
+html body.theme-red .modal-box .progress-hint,
+html body.theme-red .modal-box label,
+html body.theme-red .modal-box p {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Close X uses exactly the same small-button treatment as other modal icons. */
+html body.theme-red .modal-box [id$="-close"],
+html body.theme-red .modal-box .modal-header .small-icon-btn,
+html body.theme-red .modal-box .close-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+html body.theme-red .modal-box [id$="-close"] i,
+html body.theme-red .modal-box .modal-header .small-icon-btn i,
+html body.theme-red .modal-box .close-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* ------------------------------------------------------------
+   DEVELOPER MODE / CTRL+SHIFT+D / CTRL+SHIFT+M
+   Covers dynamically-created developer/shortcut modals as well.
+   ------------------------------------------------------------ */
+html body.theme-red :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-red :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    .shortcut-row,
+    .shortcut-item,
+    .developer-row,
+    .developer-item,
+    .developer-card,
+    .dev-card,
+    [class*="shortcut"][class*="card"],
+    [class*="developer"][class*="card"]
+) {
+    background: var(--unified-ui-surface-soft) !important;
+    background-color: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-red :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    p, span, label, small, strong, em,
+    .field-label, .modal-label, .progress-hint,
+    .shortcut-label, .shortcut-description
+) {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-red .modal-box kbd,
+html body.theme-red .modal-box .keycap,
+html body.theme-red .modal-box .shortcut-key,
+html body.theme-red .modal-box .keyboard-key,
+html body.theme-red .modal-box .hotkey {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------
+   THEME PICKER PREVIEW LABELS
+   Do not wipe out thumbnail artwork; only make the information strip readable.
+   ------------------------------------------------------------ */
+html body.theme-red #theme-picker .theme-picker-info {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-red #theme-picker .theme-picker-name {
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-red #theme-picker .theme-picker-hint {
+    color: var(--unified-ui-muted) !important;
+}
+
+/* ------------------------------------------------------------
+   TITLES stay above decorative art.
+   ------------------------------------------------------------ */
+html body.theme-red header,
+html body.theme-red .log-header-container {
+    position: relative !important;
+    z-index: 40 !important;
+}
+
+
+/* Intro bop while the song plays */
+#red-background .theme-red-item.red-intro-bop img {
+    animation: redIntroBop var(--red-bop-duration, .76s) ease-in-out var(--red-bop-delay, 0s) infinite;
+    transform-origin: center bottom;
+    will-change: transform;
+}
+
+@keyframes redIntroBop {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    28% {
+        transform: translateY(calc(var(--red-bop-lift, 16px) * -1)) scale(var(--red-bop-scale, 1.06));
+    }
+    54% {
+        transform: translateY(3px) scale(.985);
+    }
+    76% {
+        transform: translateY(calc(var(--red-bop-lift, 16px) * -0.30)) scale(1.01);
+    }
+}

@@ -1,0 +1,197 @@
+
+/* ============================================================
+   BAKING THEME
+   Decorative-only theme styling.
+   ============================================================ */
+
+body.theme-baking {
+    --baking-ink: #7a4d68;
+    --baking-border: #efb0c6;
+    --baking-surface: #fffdfd;
+    --baking-surface-soft: #fff3f8;
+    --baking-accent: #ff85b1;
+    --baking-second: #ffcf70;
+    --baking-third: #caa7ff;
+
+    --black: var(--baking-ink);
+    --white: var(--baking-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--baking-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--baking-border) 46%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--baking-border) 42%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--baking-border) 42%, transparent);
+    --track-bg: #ffeef6;
+    --muted-text: rgba(122,77,104,.56);
+
+    background: radial-gradient(circle at 16% 18%, rgba(255,255,255,.92), transparent 18%), radial-gradient(circle at 84% 16%, rgba(255,255,255,.72), transparent 20%), linear-gradient(180deg, #ffe5ef 0%, #fff0cf 48%, #f7e6ff 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--baking-ink) !important;
+}
+
+body.theme-baking::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .12;
+    background-image: radial-gradient(circle, rgba(0,0,0,.09) 1px, transparent 1.7px);
+    background-size: 38px 38px;
+    z-index: 0;
+}
+
+#baking-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#baking-background::before {
+    content: '';
+    position: absolute;
+    inset: -10%;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,.18), transparent 18%),
+        radial-gradient(circle at 82% 20%, rgba(255,255,255,.14), transparent 20%),
+        linear-gradient(112deg, transparent 42%, rgba(255,255,255,.08) 50%, transparent 58%);
+    animation: bakingLightSweep 9s ease-in-out infinite alternate;
+}
+
+body.theme-baking .view { position: relative; z-index: 2; }
+body.theme-baking .side-nav { position: relative; z-index: 3; }
+body.theme-baking header,
+body.theme-baking .log-header-container { position: relative; z-index: 4; }
+body.theme-baking .modal,
+body.theme-baking .modal-overlay,
+body.theme-baking .overlay { z-index: 10; }
+
+body.theme-baking .day-box,
+body.theme-baking .day-picker-box,
+body.theme-baking .icon-btn,
+body.theme-baking .small-icon-btn,
+body.theme-baking input,
+body.theme-baking textarea,
+body.theme-baking select,
+body.theme-baking .notes-editable,
+body.theme-baking .phrase-card,
+body.theme-baking .chip,
+body.theme-baking .toolbox-item,
+body.theme-baking .resource-card,
+body.theme-baking .polaroid-card,
+body.theme-baking .filter-tab,
+body.theme-baking .day-target-box,
+body.theme-baking .flashcard,
+body.theme-baking .flashcard-mode-card,
+body.theme-baking .day-badge,
+body.theme-baking .video-placeholder,
+body.theme-baking .theme-picker-card,
+body.theme-baking .note-audio-row,
+body.theme-baking .modal-box,
+body.theme-baking .set-complete-box {
+    background-color: var(--baking-surface) !important;
+}
+
+body.theme-baking input::placeholder,
+body.theme-baking textarea::placeholder,
+body.theme-baking .notes-editable:empty::before {
+    color: color-mix(in srgb, var(--baking-ink) 42%, transparent) !important;
+}
+
+body.theme-baking .icon-btn:hover,
+body.theme-baking .small-icon-btn:hover,
+body.theme-baking .filter-tab:hover {
+    background: var(--baking-surface-soft) !important;
+    color: var(--baking-ink) !important;
+}
+
+body.theme-baking .chip:hover,
+body.theme-baking .phrase-card:hover,
+body.theme-baking .day-picker-box.selected,
+body.theme-baking .filter-tab.active,
+body.theme-baking .filter-tab[aria-selected="true"] {
+    background: color-mix(in srgb, var(--baking-surface-soft) 72%, var(--baking-accent) 28%) !important;
+    color: var(--baking-ink) !important;
+    border-color: var(--baking-border) !important;
+}
+
+body.theme-baking .progress-bar-fill {
+    background: linear-gradient(90deg, var(--baking-accent), var(--baking-second), var(--baking-third)) !important;
+}
+
+#baking-background .baking-item {
+    position: absolute;
+    display: block;
+    height: auto;
+    object-fit: contain;
+    opacity: .96;
+    filter: drop-shadow(0 10px 14px rgba(122,77,104,.16)) drop-shadow(0 0 8px rgba(255,255,255,.14));
+    animation: bakingFloat var(--baking-float-duration) ease-in-out var(--baking-float-delay) infinite alternate;
+    will-change: transform;
+}
+
+@keyframes bakingFloat {
+    from { transform: translate3d(-50%, -50%, 0) translate3d(0, 0, 0) rotate(-2deg) scale(.985); }
+    to { transform: translate3d(-50%, -50%, 0) translate3d(var(--baking-float-x), var(--baking-float-y), 0) rotate(var(--baking-float-r)) scale(1.03); }
+}
+
+#baking-background .baking-item.baking-intro-bop {
+    animation: bakingIntroBop .70s cubic-bezier(.34,.06,.18,1) var(--baking-bop-delay) infinite !important;
+}
+
+@keyframes bakingIntroBop {
+    0%, 100% { transform: translate3d(-50%, -50%, 0) translateY(0) rotate(-2deg) scale(1); }
+    40% { transform: translate3d(-50%, -50%, 0) translateY(-14px) rotate(5deg) scale(1.05); }
+    68% { transform: translate3d(-50%, -50%, 0) translateY(-5px) rotate(-3deg) scale(1.02); }
+}
+
+#baking-background .baking-extra { position: absolute; }
+
+#baking-background .baking-extra-a {
+    width: 12px;
+    height: 12px;
+    transform: rotate(45deg);
+    background: color-mix(in srgb, var(--baking-accent) 68%, white 32%);
+    opacity: .16;
+    animation: bakingConfetti var(--baking-extra-duration) ease-in-out var(--baking-extra-delay) infinite alternate;
+}
+#baking-background .baking-extra-b {
+    width: 16px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.28);
+    box-shadow: 0 0 10px rgba(255,255,255,.16);
+    opacity: .16;
+    animation: bakingFrosting var(--baking-extra-duration) ease-in-out var(--baking-extra-delay) infinite alternate;
+}
+@keyframes bakingConfetti {
+    from { transform: rotate(45deg) translate3d(0,0,0) scale(var(--baking-extra-scale)); opacity: .08; }
+    to { transform: rotate(65deg) translate3d(7px,-8px,0) scale(calc(var(--baking-extra-scale) * 1.08)); opacity: .22; }
+}
+@keyframes bakingFrosting {
+    from { transform: translate3d(0,0,0) scale(var(--baking-extra-scale)); }
+    to { transform: translate3d(0,-10px,0) scale(calc(var(--baking-extra-scale) * 1.06)); }
+}
+
+
+@keyframes bakingLightSweep {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); opacity: .70; }
+    to { transform: translate3d(2%, 1%, 0) scale(1.04); opacity: 1; }
+}
+
+@media (max-width: 700px) {
+    #baking-background .baking-item { opacity: .78; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-baking::before,
+    #baking-background::before,
+    #baking-background .baking-item,
+    #baking-background .baking-extra {
+        animation: none !important;
+    }
+}

@@ -1,0 +1,376 @@
+body.theme-moody{--black:#2f334b;--white:#edbe67;--bg-overlay:transparent;--muted-text:color-mix(in srgb,#2f334b 58%,transparent);--track-bg:color-mix(in srgb,#7284c8 14%,transparent);background:radial-gradient(circle at 50% 4%,rgba(255,255,255,.45),transparent 26%),radial-gradient(circle at 12% 80%,color-mix(in srgb,#7284c8 14%,transparent),transparent 28%),radial-gradient(circle at 88% 18%,color-mix(in srgb,#d876a8 16%,transparent),transparent 26%),linear-gradient(145deg,#e8e8f5 0%,#f3e5ef 44%,#e8f0e5 100%) !important;background-attachment:fixed !important;color:#2f334b !important}
+body.theme-moody .view:not(#grid-view)::before{background:transparent !important;background-image:none !important;opacity:0 !important}
+#moody-background{--px:50vw;--py:50vh;--parx:0px;--pary:0px;position:fixed;inset:0;width:100vw;height:100vh;overflow:hidden;pointer-events:none;user-select:none;z-index:0;isolation:isolate}
+body.theme-moody .view{position:relative !important;z-index:2 !important}body.theme-moody .side-nav{z-index:3 !important}body.theme-moody header,body.theme-moody .log-header-container{position:relative;z-index:4 !important}
+#moody-background .theme-moody-glow,#moody-background .theme-moody-pattern,#moody-background .theme-moody-accents,#moody-background .theme-moody-floor{position:absolute;inset:0;pointer-events:none}
+#moody-background .theme-moody-glow{background:radial-gradient(circle 180px at var(--px) var(--py),color-mix(in srgb,#d876a8 23%,transparent),transparent 72%),radial-gradient(circle at 50% 10%,rgba(255,255,255,.38),transparent 32%);mix-blend-mode:screen;opacity:.8}
+#moody-background .theme-moody-pattern{background:radial-gradient(circle at 24px 24px,rgba(47,51,75,.10) 0 2px,transparent 3px);background-size:72px 72px;opacity:.5;transform:translate3d(calc(var(--parx)*-.12),calc(var(--pary)*-.12),0);transition:transform .2s ease-out}
+#moody-background .theme-moody-accents{transform:translate3d(calc(var(--parx)*.18),calc(var(--pary)*.14),0);transition:transform .2s ease-out}
+#moody-background .theme-moody-accent-dot{position:absolute;width:var(--z);height:var(--z);border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.82),color-mix(in srgb,#d876a8 55%,transparent) 45%,transparent 74%);opacity:.45;animation:moodyAccent var(--dur) ease-in-out var(--delay) infinite alternate}
+@keyframes moodyAccent{from{transform:translate3d(0,0,0) scale(.82);opacity:.22}to{transform:translate3d(var(--dx),var(--dy),0) scale(1.15);opacity:.68}}
+#moody-background .theme-moody-item{position:absolute;width:var(--w);max-width:30vw;transform:translate3d(-50%,-50%,0) rotate(var(--r)) scale(var(--s));transform-origin:center;opacity:.9;filter:drop-shadow(0 14px 18px rgba(0,0,0,.13)) drop-shadow(0 0 10px color-mix(in srgb,#7284c8 15%,transparent));animation:moodyFloat var(--dur) ease-in-out var(--delay) infinite;will-change:transform}
+#moody-background .theme-moody-item img{display:block;width:100%;height:auto;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
+@keyframes moodyFloat{0%,100%{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(var(--r)) scale(var(--s))}50%{transform:translate3d(-50%,-50%,0) translate3d(var(--dx),var(--dy),0) rotate(calc(var(--r)+2deg)) scale(calc(var(--s)*1.02))}}
+#moody-background .theme-moody-item.theme-moody-react{opacity:1;filter:drop-shadow(0 18px 24px rgba(0,0,0,.18)) drop-shadow(0 0 20px color-mix(in srgb,#7284c8 34%,transparent));animation:moodyReact .62s cubic-bezier(.18,.84,.26,1) both !important}
+@keyframes moodyReact{0%,100%{transform:translate3d(-50%,-50%,0) rotate(var(--r)) scale(var(--s))}50%{transform:translate3d(-50%,-50%,0) translateY(-18px) rotate(calc(var(--r) + 8deg)) scale(calc(var(--s)*1.13))}}
+#moody-background .theme-moody-burst{position:fixed;width:var(--bs);height:var(--bs);border-radius:50%;pointer-events:none;z-index:3;background:linear-gradient(135deg,#7284c8,#d876a8);box-shadow:0 0 10px color-mix(in srgb,#d876a8 46%,transparent);transform:translate(-50%,-50%);animation:moodyBurst .7s ease-out forwards}
+@keyframes moodyBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.35)}18%{opacity:.95}100%{opacity:0;transform:translate(-50%,-50%) translate3d(var(--bx),var(--by),0) scale(1.1)}}
+
+body.theme-moody .day-box,body.theme-moody .day-picker-box,body.theme-moody .filter-tab,body.theme-moody .chip,body.theme-moody .phrase-card,body.theme-moody .toolbox-item,body.theme-moody .resource-card,body.theme-moody .flashcard,body.theme-moody .theme-picker-card,body.theme-moody input,body.theme-moody textarea,body.theme-moody select{background:rgba(255,255,255,.86) !important;color:#2f334b !important;border-color:color-mix(in srgb,#7284c8 28%,transparent) !important;background-image:none !important}
+body.theme-moody .filter-tabs,body.theme-moody #library-filter-tabs,body.theme-moody #quiz-type-filters,body.theme-moody .set-size-picker{background:transparent !important;background-image:none !important;box-shadow:none !important}
+body.theme-moody .side-nav .icon-btn,body.theme-moody .side-nav .icon-btn:hover,body.theme-moody .side-nav .icon-btn:focus,body.theme-moody .side-nav .icon-btn:active{background:transparent !important;background-color:transparent !important;background-image:none !important;border:none !important;box-shadow:none !important}body.theme-moody .side-nav .icon-btn::before,body.theme-moody .side-nav .icon-btn::after{content:none !important}
+@media(max-width:700px){#moody-background .theme-moody-item{max-width:220px;width:min(var(--w),42vw)}}
+@media(prefers-reduced-motion:reduce){#moody-background *{animation:none !important}}
+
+
+/* Intro-dance: a subset of SVGs bop only while the intro is actually playing. */
+#moody-background.moody-intro-playing .theme-moody-item.theme-moody-intro-dancer img {
+    animation: themeMoodyIntroDance var(--dance-duration,.74s) ease-in-out var(--dance-delay,0s) infinite;
+    transform-origin:center bottom;
+    will-change:transform;
+}
+
+@keyframes themeMoodyIntroDance {
+    0%,100% { transform:translateY(0) scale(1); }
+    44% { transform:translateY(calc(var(--dance-height,16px) * -1)) scale(1.03); }
+    68% { transform:translateY(-3px) scale(1.01); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #moody-background.moody-intro-playing .theme-moody-item.theme-moody-intro-dancer img {
+        animation:none !important;
+    }
+}
+
+
+/* ============================================================
+   MOODY READABILITY / COLOR CONSISTENCY FIX
+   Keeps the decorative theme, but gives every app surface a
+   predictable light surface + dark readable text.
+   ============================================================ */
+
+body.theme-moody {
+    --theme-ui-ink: #2f334b;
+    --theme-ui-muted: #646980;
+    --theme-ui-surface: #f7f4f7;
+    --theme-ui-surface-soft: #efebf1;
+    --theme-ui-hover: #e5dfe8;
+    --theme-ui-active: #d9d1de;
+    --theme-ui-border: #716a7e;
+    --theme-ui-modal: #ede8ef;
+    --theme-ui-accent: #7284c8;
+    --theme-ui-accent-2: #a56f94;
+
+    /* IMPORTANT: template components depend on these variables. */
+    --black: var(--theme-ui-ink);
+    --white: var(--theme-ui-surface);
+    --muted-text: var(--theme-ui-muted);
+    --track-bg: #ddd8e2;
+    --overlay-scrim: rgba(37, 40, 59, .34);
+
+    color: var(--theme-ui-ink) !important;
+}
+
+/* Main app text should never inherit a pale/white theme color. */
+body.theme-moody .view,
+body.theme-moody .view h1,
+body.theme-moody .view h2,
+body.theme-moody .view h3,
+body.theme-moody .view h4,
+body.theme-moody .section-header,
+body.theme-moody #current-date-title,
+body.theme-moody .save-indicator {
+    color: var(--theme-ui-ink) !important;
+}
+
+body.theme-moody .save-indicator,
+body.theme-moody .progress-hint,
+body.theme-moody .field-label,
+body.theme-moody .modal-label {
+    color: var(--theme-ui-muted) !important;
+}
+
+/* Day log and ordinary content surfaces. */
+body.theme-moody .day-box,
+body.theme-moody .day-picker-box,
+body.theme-moody .mini-day-box,
+body.theme-moody .day-badge,
+body.theme-moody .day-target-box,
+body.theme-moody .notes-editable,
+body.theme-moody .note-audio-row,
+body.theme-moody .phrase-card,
+body.theme-moody .toolbox-item,
+body.theme-moody .resource-card,
+body.theme-moody .polaroid-card,
+body.theme-moody .flashcard,
+body.theme-moody .flashcard-mode-card,
+body.theme-moody .video-placeholder,
+body.theme-moody .polaroid-video-placeholder,
+body.theme-moody .theme-picker-card,
+body.theme-moody .icon-option,
+body.theme-moody input[type="text"],
+body.theme-moody input[type="search"],
+body.theme-moody input[type="url"],
+body.theme-moody textarea,
+body.theme-moody select {
+    background: var(--theme-ui-surface) !important;
+    background-color: var(--theme-ui-surface) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-moody .notes-editable:empty::before,
+body.theme-moody input::placeholder,
+body.theme-moody textarea::placeholder {
+    color: var(--theme-ui-muted) !important;
+    opacity: .88 !important;
+}
+
+/* Hover states stay light. No white text on pale backgrounds. */
+body.theme-moody .day-box:hover,
+body.theme-moody .day-picker-box:hover,
+body.theme-moody .mini-day-box:hover,
+body.theme-moody .phrase-card:hover,
+body.theme-moody .toolbox-item:hover,
+body.theme-moody .resource-card:hover,
+body.theme-moody .polaroid-card:hover,
+body.theme-moody .flashcard-mode-card:hover,
+body.theme-moody .theme-picker-card:hover,
+body.theme-moody .icon-option:hover {
+    background: var(--theme-ui-hover) !important;
+    background-color: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+    filter: none !important;
+}
+
+/* Selected/active controls also keep dark text for contrast. */
+body.theme-moody .day-picker-box.selected,
+body.theme-moody .filter-tab.active,
+body.theme-moody .icon-option.selected {
+    background: var(--theme-ui-active) !important;
+    background-color: var(--theme-ui-active) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+}
+
+body.theme-moody .icon-option.selected small {
+    color: var(--theme-ui-ink) !important;
+}
+
+/* Filter tabs / chips are opaque enough to remain readable over SVGs. */
+body.theme-moody .filter-tab,
+body.theme-moody .chip {
+    background: var(--theme-ui-surface-soft) !important;
+    background-color: var(--theme-ui-surface-soft) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: none !important;
+}
+
+body.theme-moody .filter-tab:hover,
+body.theme-moody .chip:hover {
+    background: var(--theme-ui-hover) !important;
+    background-color: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+}
+
+/* Parent filter/category rows stay completely transparent. */
+html body.theme-moody .filter-tabs,
+html body.theme-moody .filter-tabs:hover,
+html body.theme-moody .filter-tabs:focus,
+html body.theme-moody .filter-tabs:focus-within,
+html body.theme-moody #library-filter-tabs,
+html body.theme-moody #library-filter-tabs:hover,
+html body.theme-moody #library-filter-tabs:focus-within,
+html body.theme-moody #quiz-type-filters,
+html body.theme-moody #quiz-type-filters:hover,
+html body.theme-moody #quiz-type-filters:focus-within,
+html body.theme-moody .set-size-picker,
+html body.theme-moody .set-size-picker:hover,
+html body.theme-moody .set-size-picker:focus,
+html body.theme-moody .set-size-picker:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* Settings + all modals use a solid matching surface, never transparent. */
+body.theme-moody .modal-overlay {
+    background: var(--overlay-scrim) !important;
+}
+
+body.theme-moody .modal-box {
+    background: var(--theme-ui-modal) !important;
+    background-color: var(--theme-ui-modal) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: 0 18px 48px rgba(27, 29, 43, .15) !important;
+    filter: none !important;
+}
+
+body.theme-moody .modal-header,
+body.theme-moody .modal-header h2,
+body.theme-moody .modal-section,
+body.theme-moody .modal-section label,
+body.theme-moody .parts-list,
+body.theme-moody .part-row {
+    color: var(--theme-ui-ink) !important;
+}
+
+body.theme-moody #phrase-modal-progress-label {
+    color: var(--theme-ui-muted) !important;
+}
+
+/* Controls inside modals get a slightly lighter solid backing. */
+body.theme-moody .modal-box input[type="text"],
+body.theme-moody .modal-box input[type="search"],
+body.theme-moody .modal-box input[type="url"],
+body.theme-moody .modal-box textarea,
+body.theme-moody .modal-box select,
+body.theme-moody .modal-box .notes-editable {
+    background: var(--theme-ui-surface) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+}
+
+/* Header/settings buttons: transparent with a dark border, including hover. */
+body.theme-moody .log-header-container .icon-btn,
+body.theme-moody #open-settings-btn {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border: 2px solid var(--theme-ui-ink) !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-moody .log-header-container .icon-btn:hover,
+body.theme-moody .log-header-container .icon-btn:focus,
+body.theme-moody #open-settings-btn:hover,
+body.theme-moody #open-settings-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+    opacity: .72;
+}
+
+/* Small action/close buttons stay readable on modal + log surfaces. */
+body.theme-moody .small-icon-btn,
+body.theme-moody .resource-card-btn,
+body.theme-moody .flashcard-nav-btn,
+body.theme-moody .flashcard-actions button {
+    background: var(--theme-ui-surface) !important;
+    background-color: var(--theme-ui-surface) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-border) !important;
+    box-shadow: none !important;
+}
+
+body.theme-moody .small-icon-btn:hover,
+body.theme-moody .resource-card-btn:hover,
+body.theme-moody .flashcard-nav-btn:hover,
+body.theme-moody .flashcard-actions button:hover {
+    background: var(--theme-ui-hover) !important;
+    background-color: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+}
+
+/* Main action buttons use a medium accent with dark readable text. */
+body.theme-moody .ai-generate-btn {
+    background: var(--theme-ui-active) !important;
+    background-color: var(--theme-ui-active) !important;
+    background-image: none !important;
+    color: var(--theme-ui-ink) !important;
+    border-color: var(--theme-ui-ink) !important;
+}
+
+body.theme-moody .ai-generate-btn:hover {
+    background: var(--theme-ui-hover) !important;
+    color: var(--theme-ui-ink) !important;
+}
+
+/* Checkboxes/radios use the theme accent, not an unrelated yellow. */
+body.theme-moody input[type="checkbox"],
+body.theme-moody input[type="radio"] {
+    accent-color: var(--theme-ui-accent) !important;
+}
+
+/* Progress colors remain in-palette. */
+body.theme-moody .progress-bar-track {
+    background: #ddd8e2 !important;
+}
+
+body.theme-moody .progress-bar-fill {
+    background: linear-gradient(
+        90deg,
+        var(--theme-ui-accent),
+        var(--theme-ui-accent-2)
+    ) !important;
+}
+
+/* Delete remains semantically red, but readable. */
+body.theme-moody .delete-btn {
+    background: var(--theme-ui-surface) !important;
+    color: #a13737 !important;
+    border-color: #b66a6a !important;
+}
+
+body.theme-moody .delete-btn:hover {
+    background: #a13737 !important;
+    color: #ffffff !important;
+    border-color: #a13737 !important;
+}
+
+/* Right-side nav must remain icon-only and transparent. */
+html body.theme-moody .side-nav .icon-btn,
+html body.theme-moody .side-nav .icon-btn:hover,
+html body.theme-moody .side-nav .icon-btn:focus,
+html body.theme-moody .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-moody .side-nav .icon-btn i {
+    color: var(--theme-ui-ink) !important;
+}
+
+html body.theme-moody .side-nav .icon-btn::before,
+html body.theme-moody .side-nav .icon-btn::after {
+    content: none !important;
+}
+
+/* Preserve the theme-picker's own guaranteed readable preview labels. */
+body.theme-moody #theme-picker .theme-picker-card,
+body.theme-moody .theme-picker-grid .theme-picker-card {
+    color: #222222 !important;
+}
+
+body.theme-moody #theme-picker .theme-picker-info,
+body.theme-moody .theme-picker-grid .theme-picker-info {
+    color: #222222 !important;
+}
+
+/* Keep modal stack safely above decorations. */
+body.theme-moody .modal,
+body.theme-moody .modal-overlay,
+body.theme-moody .overlay {
+    z-index: 1000 !important;
+}

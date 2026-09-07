@@ -1,0 +1,88 @@
+/* ============================================================
+   MINECRAFT THEME
+   Decorative-only styling.
+   ============================================================ */
+
+body.theme-minecraft {
+    --minecraft-ink: #d8f0cf;
+    --minecraft-border: #71b86a;
+    --minecraft-surface: #0f1b14;
+    --minecraft-surface-soft: #15261b;
+    --minecraft-accent: #7fe26d;
+    --minecraft-second: #6ad4b6;
+    --minecraft-third: #e8d068;
+    --black: var(--minecraft-ink);
+    --white: var(--minecraft-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--minecraft-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--minecraft-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--minecraft-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--minecraft-border) 44%, transparent);
+    --track-bg: #15231a;
+    --muted-text: rgba(216,240,207,.58);
+    background: linear-gradient(180deg, #7cc4ff 0%, #9ad1ff 28%, #71b55e 28%, #4f8a41 60%, #2e4f26 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--minecraft-ink) !important;
+}
+
+#minecraft-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: 0; }
+#minecraft-background::before { content:''; position:absolute; inset:-12%; pointer-events:none; background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.18), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.14), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.08) 50%, transparent 58%); animation:minecraftLightSweep 9s ease-in-out infinite alternate; }
+body.theme-minecraft .view { position: relative; z-index: 2; }
+body.theme-minecraft .side-nav { position: relative; z-index: 3; }
+body.theme-minecraft header, body.theme-minecraft .log-header-container { position: relative; z-index: 4; }
+body.theme-minecraft .modal, body.theme-minecraft .modal-overlay, body.theme-minecraft .overlay { z-index: 10; }
+
+body.theme-minecraft .day-box,
+body.theme-minecraft .day-picker-box,
+body.theme-minecraft .icon-btn,
+body.theme-minecraft .small-icon-btn,
+body.theme-minecraft input,
+body.theme-minecraft textarea,
+body.theme-minecraft select,
+body.theme-minecraft .notes-editable,
+body.theme-minecraft .phrase-card,
+body.theme-minecraft .chip,
+body.theme-minecraft .toolbox-item,
+body.theme-minecraft .resource-card,
+body.theme-minecraft .polaroid-card,
+body.theme-minecraft .filter-tab,
+body.theme-minecraft .day-target-box,
+body.theme-minecraft .flashcard,
+body.theme-minecraft .flashcard-mode-card,
+body.theme-minecraft .day-badge,
+body.theme-minecraft .video-placeholder,
+body.theme-minecraft .theme-picker-card,
+body.theme-minecraft .note-audio-row,
+body.theme-minecraft .modal-box,
+body.theme-minecraft .set-complete-box { background-color: var(--minecraft-surface) !important; }
+
+body.theme-minecraft input::placeholder,
+body.theme-minecraft textarea::placeholder,
+body.theme-minecraft .notes-editable:empty::before { color: color-mix(in srgb, var(--minecraft-ink) 42%, transparent) !important; }
+body.theme-minecraft .icon-btn:hover, body.theme-minecraft .small-icon-btn:hover, body.theme-minecraft .filter-tab:hover { background: var(--minecraft-surface-soft) !important; color: var(--minecraft-ink) !important; }
+body.theme-minecraft .chip:hover, body.theme-minecraft .phrase-card:hover, body.theme-minecraft .day-picker-box.selected, body.theme-minecraft .filter-tab.active, body.theme-minecraft .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--minecraft-surface-soft) 72%, var(--minecraft-accent) 28%) !important; color: var(--minecraft-ink) !important; border-color: var(--minecraft-border) !important; }
+body.theme-minecraft .progress-bar-fill { background: linear-gradient(90deg, var(--minecraft-accent), var(--minecraft-second), var(--minecraft-third)) !important; }
+
+#minecraft-background .minecraft-item { position:absolute; display:block; height:auto; object-fit:contain; opacity:.96; filter: drop-shadow(0 9px 13px rgba(0,0,0,.28)) drop-shadow(0 0 8px rgba(255,255,255,.18)); animation:minecraftFloat var(--minecraft-float-duration) ease-in-out var(--minecraft-float-delay) infinite alternate; will-change:transform; }
+@keyframes minecraftFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.98)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--minecraft-float-x), var(--minecraft-float-y), 0) rotate(var(--minecraft-float-r)) scale(1.03)} }
+#minecraft-background .minecraft-item.minecraft-intro-bop { animation:minecraftIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--minecraft-bop-delay) infinite !important; }
+@keyframes minecraftIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-15px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+#minecraft-background .minecraft-extra { position:absolute; }
+
+#minecraft-background .minecraft-extra-a {
+    width: 10px; height: 10px; background: color-mix(in srgb, var(--minecraft-accent) 75%, black 25%); opacity:.18;
+    box-shadow: 12px 0 0 color-mix(in srgb, var(--minecraft-second) 70%, black 30%), 0 12px 0 color-mix(in srgb, var(--minecraft-third) 70%, black 30%);
+    image-rendering: pixelated; animation:minecraftPixelPulse var(--minecraft-extra-duration) steps(2, end) var(--minecraft-extra-delay) infinite;
+}
+#minecraft-background .minecraft-extra-b {
+    width: 16px; height: 16px; background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0)); opacity:.16;
+    border:1px solid rgba(255,255,255,.15); image-rendering: pixelated; animation:minecraftPixelFloat var(--minecraft-extra-duration) steps(3,end) var(--minecraft-extra-delay) infinite alternate;
+}
+@keyframes minecraftPixelPulse { 0%,100%{transform:scale(var(--minecraft-extra-scale)); opacity:.12} 50%{transform:scale(calc(var(--minecraft-extra-scale) * 1.15)); opacity:.28} }
+@keyframes minecraftPixelFloat { from{transform:translateY(0) scale(var(--minecraft-extra-scale))} to{transform:translateY(-10px) scale(calc(var(--minecraft-extra-scale) * 1.08))} }
+
+
+@keyframes minecraftLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #minecraft-background .minecraft-item { opacity:.74; } }
+@media (prefers-reduced-motion: reduce) { #minecraft-background::before, #minecraft-background .minecraft-item, #minecraft-background .minecraft-extra { animation:none !important; } }

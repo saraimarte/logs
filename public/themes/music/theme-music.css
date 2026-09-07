@@ -1,0 +1,577 @@
+/* ============================================================
+   MUSIC THEME
+   ============================================================ */
+
+body.theme-music {
+    --overlay-scrim: rgba(25, 10, 35, 0.62);
+
+    /*
+     * Transparent because the normal app view already has
+     * its own background-overlay mechanism.
+     */
+    --bg-overlay: rgba(0, 0, 0, 0);
+
+    --black: #4a2f6b;
+    --white: #fffaf3;
+
+    --thick-border:
+        3px solid #7a4fb0;
+
+    --thin-border:
+        2px solid #b79ae0;
+
+    --dashed-border:
+        2px dashed #b79ae0;
+
+    --dotted-border:
+        2px dotted #e0a6d8;
+
+    --muted-text:
+        rgba(74, 47, 107, 0.58);
+
+    --track-bg:
+        rgba(122, 79, 176, 0.12);
+
+    background-color:
+        #fbf4ff;
+
+    background-image:
+        repeating-linear-gradient(
+            180deg,
+            rgba(122, 79, 176, 0.09) 0px,
+            rgba(122, 79, 176, 0.09) 2px,
+            transparent 2px,
+            transparent 22px
+        );
+
+    background-attachment:
+        fixed;
+}
+
+
+/* ============================================================
+   MUSIC THEME COLORS
+   ============================================================ */
+
+body.theme-music .modal-box,
+body.theme-music .day-box,
+body.theme-music .chip,
+body.theme-music .toolbox-item,
+body.theme-music .resource-card,
+body.theme-music select,
+body.theme-music input,
+body.theme-music textarea {
+    background-color:
+        #fffaf3;
+}
+
+body.theme-music h1,
+body.theme-music h2 {
+    font-style: italic;
+}
+
+
+/* ============================================================
+   MUSIC BACKGROUND
+   ============================================================ */
+
+#music-background {
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+
+    /*
+     * CRITICAL:
+     * The background can NEVER block the app.
+     */
+    pointer-events: none;
+
+    /*
+     * Keep the decoration at the background level.
+     */
+    z-index: 0;
+
+    user-select: none;
+
+    contain: layout paint;
+}
+
+
+/* ============================================================
+   FLOATING MUSICAL NOTES
+   ============================================================ */
+
+#music-background .music-background-note {
+    position: absolute;
+
+    display: block;
+
+    pointer-events: none;
+
+    user-select: none;
+
+    color:
+        rgba(174, 145, 215, 0.34);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-weight: 400;
+
+    line-height: 1;
+
+    text-shadow:
+        0 0 7px
+        rgba(174, 145, 215, 0.12);
+
+    opacity: 0.78;
+
+    transform-origin:
+        center center;
+
+    transition:
+        color 0.15s ease,
+        opacity 0.15s ease,
+        filter 0.15s ease;
+
+    will-change:
+        transform;
+}
+
+
+/*
+ * When the cursor is over a note, it gets slightly brighter.
+ * Still intentionally subtle.
+ */
+
+#music-background
+.music-background-note.music-note-playing {
+    color:
+        rgba(174, 145, 215, 0.62);
+
+    opacity: 1;
+
+    filter:
+        drop-shadow(
+            0 0 8px
+            rgba(174, 145, 215, 0.30)
+        );
+}
+
+
+/* ============================================================
+   SHEET MUSIC
+   ============================================================ */
+
+#music-background
+.music-background-staff {
+    position: absolute;
+
+    left: -5%;
+
+    width: 110%;
+
+    height: 90px;
+
+    pointer-events: none;
+
+    opacity: 0.085;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgba(122, 79, 176, 0.75) 0px,
+            rgba(122, 79, 176, 0.75) 1px,
+            transparent 1px,
+            transparent 18px
+        );
+}
+
+
+/* ============================================================
+   TREBLE CLEFS
+   ============================================================ */
+
+#music-background
+.music-background-clef {
+    position: absolute;
+
+    pointer-events: none;
+
+    user-select: none;
+
+    font-family:
+        "Times New Roman",
+        Georgia,
+        serif;
+
+    font-size: 72px;
+
+    line-height: 1;
+
+    color:
+        rgba(224, 166, 216, 0.12);
+
+    opacity: 0.8;
+
+    animation:
+        music-clef-drift
+        8s
+        ease-in-out
+        infinite
+        alternate;
+
+    will-change:
+        transform;
+}
+
+
+@keyframes music-clef-drift {
+    from {
+        transform:
+            translateY(-5px)
+            rotate(-3deg);
+    }
+
+    to {
+        transform:
+            translateY(7px)
+            rotate(3deg);
+    }
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+    #music-background
+    .music-background-note {
+        opacity: 0.60;
+    }
+
+    #music-background
+    .music-background-clef {
+        font-size: 56px;
+    }
+
+    #music-background
+    .music-background-staff {
+        opacity: 0.055;
+    }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    #music-background
+    .music-background-note,
+    #music-background
+    .music-background-clef {
+        animation: none !important;
+    }
+}
+
+/* ============================================================
+   ENHANCED MUSIC BACKGROUND
+   Additional decoration stays behind the app and never blocks UI.
+   ============================================================ */
+
+body.theme-music {
+    background:
+        radial-gradient(circle at 12% 16%, rgba(224, 166, 216, 0.18), transparent 28%),
+        radial-gradient(circle at 84% 18%, rgba(183, 154, 224, 0.18), transparent 28%),
+        radial-gradient(circle at 78% 80%, rgba(246, 202, 172, 0.15), transparent 30%),
+        repeating-linear-gradient(
+            180deg,
+            rgba(122, 79, 176, 0.08) 0px,
+            rgba(122, 79, 176, 0.08) 1px,
+            transparent 1px,
+            transparent 22px
+        ),
+        linear-gradient(135deg, #fbf4ff 0%, #fffaf6 48%, #f4efff 100%) !important;
+    background-attachment: fixed !important;
+}
+
+#music-background {
+    isolation: isolate;
+}
+
+#music-background::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            circle 180px at var(--music-mouse-x, 50%) var(--music-mouse-y, 50%),
+            rgba(183, 154, 224, 0.13),
+            transparent 72%
+        );
+    opacity: .9;
+    transition: opacity .2s ease;
+}
+
+#music-background .music-background-note {
+    animation:
+        music-note-bob var(--music-note-duration, 8s)
+        ease-in-out
+        var(--music-note-delay, 0s)
+        infinite
+        alternate;
+}
+
+@keyframes music-note-bob {
+    0% {
+        translate: 0 0;
+        scale: .94;
+    }
+    50% {
+        translate: var(--music-drift-x, 8px) var(--music-drift-y, -6px);
+        scale: 1.05;
+    }
+    100% {
+        translate: calc(var(--music-drift-x, 8px) * -.55) calc(var(--music-drift-y, -6px) * .75);
+        scale: .98;
+    }
+}
+
+#music-background .music-background-note.music-note-playing {
+    animation:
+        music-note-bob var(--music-note-duration, 8s)
+        ease-in-out
+        var(--music-note-delay, 0s)
+        infinite
+        alternate,
+        music-note-pop .48s ease-out;
+}
+
+@keyframes music-note-pop {
+    0%   { scale: 1; }
+    35%  { scale: 1.36; }
+    100% { scale: 1; }
+}
+
+#music-background .music-background-staff {
+    animation: music-staff-slide 13s ease-in-out infinite alternate;
+}
+
+#music-background .music-background-staff:nth-of-type(2) {
+    animation-duration: 16s;
+    animation-direction: alternate-reverse;
+}
+
+#music-background .music-background-staff:nth-of-type(3) {
+    animation-duration: 19s;
+}
+
+@keyframes music-staff-slide {
+    from {
+        translate: -12px 0;
+        opacity: .055;
+    }
+    to {
+        translate: 18px 0;
+        opacity: .12;
+    }
+}
+
+/* Vinyl records */
+#music-background .music-background-record {
+    position: absolute;
+    width: var(--record-size);
+    height: var(--record-size);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: .11;
+    background:
+        radial-gradient(circle,
+            rgba(255,250,243,.9) 0 7%,
+            rgba(224,166,216,.65) 7.5% 11%,
+            transparent 11.5% 18%,
+            rgba(74,47,107,.38) 18.5% 20%,
+            transparent 20.5%
+        ),
+        repeating-radial-gradient(
+            circle,
+            rgba(74,47,107,.38) 0 1px,
+            transparent 1px 4px
+        );
+    border: 1px solid rgba(74,47,107,.15);
+    animation: music-record-spin var(--record-duration) linear infinite;
+}
+
+@keyframes music-record-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Equalizer groups */
+#music-background .music-background-eq {
+    position: absolute;
+    display: flex;
+    align-items: end;
+    gap: 4px;
+    height: 52px;
+    opacity: .16;
+    pointer-events: none;
+    transform: rotate(var(--eq-rotate));
+}
+
+#music-background .music-background-eq span {
+    display: block;
+    width: 4px;
+    height: var(--eq-height);
+    border-radius: 5px 5px 2px 2px;
+    background: linear-gradient(
+        to top,
+        rgba(122,79,176,.58),
+        rgba(224,166,216,.42)
+    );
+    transform-origin: bottom;
+    animation: music-eq-bounce var(--eq-duration) ease-in-out var(--eq-delay) infinite alternate;
+}
+
+@keyframes music-eq-bounce {
+    from { transform: scaleY(.30); opacity: .45; }
+    to   { transform: scaleY(1); opacity: 1; }
+}
+
+/* Waveform ribbons */
+#music-background .music-background-wave {
+    position: absolute;
+    width: var(--wave-width);
+    height: 44px;
+    pointer-events: none;
+    opacity: .16;
+    overflow: hidden;
+    transform: rotate(var(--wave-rotate));
+}
+
+#music-background .music-background-wave::before {
+    content: "";
+    position: absolute;
+    inset: 8px 0;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 5px,
+            rgba(122,79,176,.48) 5px 7px,
+            transparent 7px 12px
+        );
+    clip-path: polygon(
+        0 50%, 4% 32%, 8% 68%, 12% 20%, 16% 78%, 20% 38%, 24% 62%,
+        28% 12%, 32% 88%, 36% 42%, 40% 58%, 44% 26%, 48% 74%, 52% 18%,
+        56% 82%, 60% 36%, 64% 64%, 68% 22%, 72% 76%, 76% 30%, 80% 70%,
+        84% 40%, 88% 60%, 92% 28%, 96% 72%, 100% 50%
+    );
+    animation: music-wave-pulse 4.8s ease-in-out infinite alternate;
+}
+
+@keyframes music-wave-pulse {
+    from { transform: scaleY(.62); opacity: .42; }
+    to   { transform: scaleY(1.18); opacity: .85; }
+}
+
+/* Soft glints */
+#music-background .music-background-glint {
+    position: absolute;
+    width: var(--glint-size);
+    height: var(--glint-size);
+    border-radius: 50%;
+    pointer-events: none;
+    background: rgba(224,166,216,.50);
+    box-shadow: 0 0 10px rgba(183,154,224,.25);
+    animation: music-glint var(--glint-duration) ease-in-out var(--glint-delay) infinite;
+}
+
+@keyframes music-glint {
+    0%, 100% { opacity: 0; transform: scale(.45); }
+    45% { opacity: .34; transform: scale(1); }
+    60% { opacity: .68; transform: scale(1.25); }
+}
+
+/* Click/hover note trail particles */
+#music-background .music-note-trail {
+    position: fixed;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    font-family: Georgia, "Times New Roman", serif;
+    color: rgba(122,79,176,.72);
+    text-shadow: 0 0 6px rgba(224,166,216,.26);
+    font-size: var(--trail-size);
+    animation: music-note-trail-rise .95s ease-out forwards;
+    z-index: 3;
+}
+
+@keyframes music-note-trail-rise {
+    0% {
+        opacity: .9;
+        transform: translate3d(var(--trail-x), var(--trail-y), 0) scale(.6) rotate(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform:
+            translate3d(
+                calc(var(--trail-x) + var(--trail-drift-x)),
+                calc(var(--trail-y) - 58px),
+                0
+            )
+            scale(1.05)
+            rotate(var(--trail-rotate));
+    }
+}
+
+/* Side-nav remains icon-only */
+body.theme-music .side-nav .icon-btn,
+body.theme-music .side-nav .icon-btn:hover,
+body.theme-music .side-nav .icon-btn:focus,
+body.theme-music .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-music .side-nav .icon-btn::before,
+body.theme-music .side-nav .icon-btn::after {
+    content: none !important;
+}
+
+/* App content remains above decorative layer */
+body.theme-music .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-music .side-nav {
+    z-index: 500 !important;
+}
+
+body.theme-music .modal,
+body.theme-music .modal-overlay,
+body.theme-music .overlay {
+    z-index: 1000 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #music-background .music-background-record,
+    #music-background .music-background-eq span,
+    #music-background .music-background-wave::before,
+    #music-background .music-background-glint,
+    #music-background .music-note-trail,
+    #music-background .music-background-staff {
+        animation: none !important;
+    }
+}

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" fill="none">
+<defs>
+  <linearGradient id="wingR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#74202a"/><stop offset="0.5" stop-color="#a23b49"/><stop offset="1" stop-color="#d6b091"/></linearGradient>
+</defs>
+<g stroke="#312622" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M156 112 C103 43,49 53,34 118 C65 132,97 152,130 185 C147 170,155 145,156 112 Z" fill="url(#wingR)"/>
+  <path d="M164 112 C217 43,271 53,286 118 C255 132,223 152,190 185 C173 170,165 145,164 112 Z" fill="url(#wingR)"/>
+  <path d="M154 126 C106 133,79 167,86 212 C116 201,138 183,156 156 Z" fill="#b74a55"/>
+  <path d="M166 126 C214 133,241 167,234 212 C204 201,182 183,164 156 Z" fill="#b74a55"/>
+  <path d="M160 88 C168 88,173 97,173 114 C173 137,168 161,160 188 C152 161,147 137,147 114 C147 97,152 88,160 88 Z" fill="#2a2523"/>
+  <path d="M157 92 C142 74,131 58,125 42"/>
+  <path d="M163 92 C178 74,189 58,195 42"/>
+  <path d="M70 122 C92 136,110 155,125 178" stroke="#efe8cf" stroke-width="2.8"/>
+  <path d="M250 122 C228 136,210 155,195 178" stroke="#efe8cf" stroke-width="2.8"/>
+  <path d="M60 97 C86 100,112 108,139 123" stroke="#efe8cf" stroke-width="2.8"/>
+  <path d="M260 97 C234 100,208 108,181 123" stroke="#efe8cf" stroke-width="2.8"/>
+  <circle cx="42" cy="118" r="4" fill="#eadbbd"/>
+  <circle cx="279" cy="118" r="4" fill="#eadbbd"/>
+  <circle cx="90" cy="193" r="4" fill="#eadbbd"/>
+  <circle cx="230" cy="193" r="4" fill="#eadbbd"/>
+</g>
+</svg>

@@ -1,0 +1,150 @@
+/* ============================================================
+   BATHINGSUIT THEME
+   Built from the winter theme's decorative mount/unmount pattern.
+   ============================================================ */
+
+
+body.theme-bathingsuit {
+    --bathingsuit-ink: #5d5477;
+    --bathingsuit-border: #bfc8ff;
+    --bathingsuit-surface: #fffdfd;
+    --bathingsuit-surface-soft: #f6f8ff;
+    --bathingsuit-accent: #7fc7ff;
+    --bathingsuit-second: #ffb0c8;
+    --bathingsuit-third: #ffe39b;
+    --black: var(--bathingsuit-ink);
+    --white: var(--bathingsuit-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--bathingsuit-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--bathingsuit-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--bathingsuit-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--bathingsuit-border) 44%, transparent);
+    --track-bg: #edf4ff;
+    --muted-text: color-mix(in srgb, var(--bathingsuit-ink) 58%, transparent);
+    background:
+        radial-gradient(circle at 15% 13%, rgba(255,255,255,.88), transparent 18%),
+        radial-gradient(circle at 83% 14%, rgba(255,255,255,.50), transparent 20%),
+        radial-gradient(circle at 78% 78%, rgba(255,227,155,.30), transparent 22%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.24) 0 22px, rgba(255,255,255,0) 22px 44px),
+        linear-gradient(180deg, #89d7ff 0%, #c9efff 24%, #fff1f6 52%, #ffe4b2 76%, #fff8dc 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--bathingsuit-ink) !important;
+}
+
+#bathingsuit-background {
+    position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: -1;
+}
+#bathingsuit-background::before,
+#bathingsuit-background::after {
+    content: ''; position: absolute; pointer-events: none;
+}
+#bathingsuit-background::before {
+    inset: -10%;
+    background:
+        radial-gradient(circle at 82% 18%, rgba(255,230,140,.88) 0 5%, rgba(255,230,140,.40) 6% 12%, transparent 13%),
+        conic-gradient(from 0deg at 82% 18%, rgba(255,255,255,.00) 0 12deg, rgba(255,230,140,.24) 12deg 20deg, rgba(255,255,255,0) 20deg 32deg, rgba(255,176,200,.20) 32deg 40deg, rgba(255,255,255,0) 40deg 52deg, rgba(127,199,255,.20) 52deg 60deg, rgba(255,255,255,0) 60deg 360deg),
+        radial-gradient(circle at 18% 80%, rgba(255,255,255,.16) 0 15%, transparent 16%),
+        radial-gradient(circle at 18% 80%, rgba(255,176,200,.22) 0 23%, transparent 24%),
+        linear-gradient(115deg, transparent 42%, rgba(255,255,255,.14) 50%, transparent 58%);
+    animation: bathingsuitLightSweep 10s ease-in-out infinite alternate;
+}
+#bathingsuit-background::after {
+    left: -6%; right: -6%; bottom: -8%; height: 42%;
+    background:
+        radial-gradient(ellipse at 10% 100%, rgba(255,255,255,.34) 0 14%, transparent 15%),
+        radial-gradient(ellipse at 25% 100%, rgba(255,255,255,.34) 0 14%, transparent 15%),
+        radial-gradient(ellipse at 40% 100%, rgba(255,255,255,.34) 0 14%, transparent 15%),
+        radial-gradient(ellipse at 55% 100%, rgba(255,255,255,.34) 0 14%, transparent 15%),
+        radial-gradient(ellipse at 70% 100%, rgba(255,255,255,.34) 0 14%, transparent 15%),
+        radial-gradient(ellipse at 85% 100%, rgba(255,255,255,.34) 0 14%, transparent 15%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 20%),
+        linear-gradient(180deg, rgba(255,176,200,.28) 0%, rgba(255,240,180,.28) 52%, rgba(127,199,255,.18) 100%);
+    opacity: .85;
+    transform: translateY(8px);
+}
+body.theme-bathingsuit #bathingsuit-background { z-index: -1; }
+body.theme-bathingsuit .view { position: relative; z-index: 2; }
+body.theme-bathingsuit .side-nav { position: relative; z-index: 3; }
+body.theme-bathingsuit header,
+body.theme-bathingsuit .log-header-container { position: relative; z-index: 4; }
+body.theme-bathingsuit .modal,
+body.theme-bathingsuit .modal-overlay,
+body.theme-bathingsuit .overlay { z-index: 10; }
+
+body.theme-bathingsuit .day-box,
+body.theme-bathingsuit .day-picker-box,
+body.theme-bathingsuit .icon-btn,
+body.theme-bathingsuit .small-icon-btn,
+body.theme-bathingsuit input,
+body.theme-bathingsuit textarea,
+body.theme-bathingsuit select,
+body.theme-bathingsuit .notes-editable,
+body.theme-bathingsuit .phrase-card,
+body.theme-bathingsuit .chip,
+body.theme-bathingsuit .toolbox-item,
+body.theme-bathingsuit .resource-card,
+body.theme-bathingsuit .polaroid-card,
+body.theme-bathingsuit .filter-tab,
+body.theme-bathingsuit .day-target-box,
+body.theme-bathingsuit .flashcard,
+body.theme-bathingsuit .flashcard-mode-card,
+body.theme-bathingsuit .day-badge,
+body.theme-bathingsuit .video-placeholder,
+body.theme-bathingsuit .theme-picker-card,
+body.theme-bathingsuit .note-audio-row,
+body.theme-bathingsuit .modal-box,
+body.theme-bathingsuit .set-complete-box { background-color: var(--bathingsuit-surface) !important; }
+body.theme-bathingsuit input::placeholder,
+body.theme-bathingsuit textarea::placeholder,
+body.theme-bathingsuit .notes-editable:empty::before { color: color-mix(in srgb, var(--bathingsuit-ink) 42%, transparent) !important; }
+body.theme-bathingsuit .icon-btn:hover,
+body.theme-bathingsuit .small-icon-btn:hover,
+body.theme-bathingsuit .filter-tab:hover { background: var(--bathingsuit-surface-soft) !important; color: var(--bathingsuit-ink) !important; }
+body.theme-bathingsuit .chip:hover,
+body.theme-bathingsuit .phrase-card:hover,
+body.theme-bathingsuit .day-picker-box.selected,
+body.theme-bathingsuit .filter-tab.active,
+body.theme-bathingsuit .filter-tab[aria-selected="true"] {
+    background: color-mix(in srgb, var(--bathingsuit-surface-soft) 72%, var(--bathingsuit-accent) 28%) !important;
+    color: var(--bathingsuit-ink) !important;
+    border-color: var(--bathingsuit-border) !important;
+}
+body.theme-bathingsuit .progress-bar-fill { background: linear-gradient(90deg, var(--bathingsuit-accent), var(--bathingsuit-second), var(--bathingsuit-third)) !important; }
+
+#bathingsuit-background .bathingsuit-item {
+    position: absolute; display: block; height: auto; object-fit: contain; opacity: .95;
+    transform-origin: center; translate: 0 0; rotate: 0deg; scale: 1;
+    filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--bathingsuit-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30));
+    animation: bathingsuitFloat var(--bathingsuit-float-duration) ease-in-out var(--bathingsuit-float-delay) infinite alternate;
+    will-change: transform;
+}
+@keyframes bathingsuitFloat {
+    from { transform: translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97); }
+    to   { transform: translate3d(-50%,-50%,0) translate3d(var(--bathingsuit-float-x), var(--bathingsuit-float-y), 0) rotate(var(--bathingsuit-float-r)) scale(1.035); }
+}
+#bathingsuit-background .bathingsuit-item.bathingsuit-intro-bop { animation: bathingsuitIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--bathingsuit-bop-delay) infinite !important; }
+@keyframes bathingsuitIntroBop {
+    0%,100% { transform: translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1); }
+    40% { transform: translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05); }
+    68% { transform: translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02); }
+}
+
+#bathingsuit-background .bathingsuit-extra {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.72);
+    background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.82) 0 12%, rgba(255,255,255,.22) 30%, transparent 72%);
+    box-shadow: inset 0 0 5px rgba(255,255,255,.34), 0 0 8px rgba(127,199,255,.16);
+    opacity: .58;
+    animation: bathingsuitBubbleRise var(--bathingsuit-extra-duration) linear var(--bathingsuit-extra-delay) infinite;
+}
+@keyframes bathingsuitBubbleRise {
+    from { transform: translate3d(0,16vh,0) scale(.72); opacity: 0; }
+    12% { opacity: .62; }
+    to   { transform: translate3d(var(--bathingsuit-extra-x), -120vh,0) scale(1.06); opacity: 0; }
+}
+@keyframes bathingsuitLightSweep {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); opacity: .7; }
+    to   { transform: translate3d(2%, 1%, 0) scale(1.05); opacity: 1; }
+}
+@media (max-width:700px) { #bathingsuit-background .bathingsuit-item { opacity: .72; } #bathingsuit-background .bathingsuit-extra { opacity: .38; } }
+@media (prefers-reduced-motion: reduce) { #bathingsuit-background::before, #bathingsuit-background::after, #bathingsuit-background .bathingsuit-item, #bathingsuit-background .bathingsuit-extra { animation: none !important; } }

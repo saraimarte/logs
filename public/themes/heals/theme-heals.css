@@ -1,0 +1,213 @@
+/* ============================================================
+   HEALS THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-heals {
+    --heals-ink: #5d214b;
+    --heals-border: #e4a4ca;
+    --heals-surface: #fff9fd;
+    --heals-surface-soft: #fff0f8;
+    --heals-pink: #f3a7ce;
+    --heals-pink-deep: #c95796;
+    --heals-plum: #7d2e66;
+
+    --black: var(--heals-ink);
+    --white: var(--heals-surface);
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid rgba(201, 87, 150, 0.48);
+    --thin-border: 2px solid rgba(201, 87, 150, 0.34);
+    --dashed-border: 2px dashed rgba(201, 87, 150, 0.34);
+    --dotted-border: 2px dotted rgba(201, 87, 150, 0.34);
+    --track-bg: #f8d9ea;
+    --muted-text: rgba(93, 33, 75, 0.58);
+
+    background:
+        radial-gradient(circle at 14% 16%, rgba(255,255,255,.92) 0 4%, transparent 23%),
+        radial-gradient(circle at 85% 13%, rgba(255,255,255,.76) 0 4%, transparent 24%),
+        radial-gradient(ellipse at 50% 112%, rgba(229,158,198,.54) 0 30%, transparent 66%),
+        linear-gradient(180deg, #ffe9f5 0%, #fff8fc 48%, #f5cfe4 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--heals-ink) !important;
+}
+
+#heals-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+body.theme-heals #heals-background { z-index: 0; }
+body.theme-heals .view { position: relative; z-index: 2; }
+body.theme-heals .side-nav { position: relative; z-index: 3; }
+body.theme-heals header,
+body.theme-heals .log-header-container { position: relative; z-index: 4; }
+body.theme-heals .modal,
+body.theme-heals .modal-overlay,
+body.theme-heals .overlay { z-index: 10; }
+
+/* Existing app UI: colors only. */
+body.theme-heals .day-box,
+body.theme-heals .day-picker-box,
+body.theme-heals .icon-btn,
+body.theme-heals .small-icon-btn,
+body.theme-heals input,
+body.theme-heals textarea,
+body.theme-heals select,
+body.theme-heals .notes-editable,
+body.theme-heals .phrase-card,
+body.theme-heals .chip,
+body.theme-heals .toolbox-item,
+body.theme-heals .resource-card,
+body.theme-heals .polaroid-card,
+body.theme-heals .filter-tab,
+body.theme-heals .day-target-box,
+body.theme-heals .flashcard,
+body.theme-heals .flashcard-mode-card,
+body.theme-heals .day-badge,
+body.theme-heals .video-placeholder,
+body.theme-heals .theme-picker-card,
+body.theme-heals .note-audio-row,
+body.theme-heals .modal-box,
+body.theme-heals .set-complete-box {
+    background-color: var(--heals-surface) !important;
+}
+
+body.theme-heals input::placeholder,
+body.theme-heals textarea::placeholder,
+body.theme-heals .notes-editable:empty::before {
+    color: rgba(93, 33, 75, 0.42) !important;
+}
+
+body.theme-heals .icon-btn:hover,
+body.theme-heals .small-icon-btn:hover,
+body.theme-heals .filter-tab:hover {
+    background: var(--heals-surface-soft) !important;
+    color: var(--heals-ink) !important;
+}
+
+body.theme-heals .chip:hover,
+body.theme-heals .phrase-card:hover,
+body.theme-heals .day-picker-box.selected,
+body.theme-heals .filter-tab.active,
+body.theme-heals .filter-tab[aria-selected="true"] {
+    background: #f8d9ea !important;
+    color: var(--heals-ink) !important;
+    border-color: var(--heals-pink-deep) !important;
+}
+
+body.theme-heals .progress-bar-fill {
+    background: linear-gradient(90deg, var(--heals-pink-deep), var(--heals-plum)) !important;
+}
+
+/* Heels */
+#heals-background .heals-item {
+    position: absolute;
+    display: block;
+    height: auto;
+    object-fit: contain;
+    opacity: .94;
+    transform-origin: 50% 70%;
+    filter:
+        drop-shadow(0 8px 10px rgba(126, 44, 100, .18))
+        drop-shadow(0 0 8px rgba(255,255,255,.38));
+    animation: healsFloat var(--heals-float-duration) ease-in-out var(--heals-float-delay) infinite alternate;
+    will-change: transform;
+}
+
+@keyframes healsFloat {
+    from {
+        transform: translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-2deg) scale(.97);
+    }
+    to {
+        transform: translate3d(-50%,-50%,0) translate3d(var(--heals-float-x),var(--heals-float-y),0) rotate(var(--heals-float-r)) scale(1.035);
+    }
+}
+
+/* Only selected heels receive this class during the 20-second intro. */
+#heals-background .heals-item.heals-intro-bop {
+    animation: healsIntroBop .62s cubic-bezier(.35,.05,.2,1) var(--heals-bop-delay) infinite !important;
+}
+
+@keyframes healsIntroBop {
+    0%, 100% { transform: translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1); }
+    45% { transform: translate3d(-50%,-50%,0) translateY(-16px) rotate(3deg) scale(1.045); }
+    68% { transform: translate3d(-50%,-50%,0) translateY(-7px) rotate(0deg) scale(1.02); }
+}
+
+#heals-background .heals-item.heals-hover {
+    animation: healsHover .54s ease-out !important;
+}
+
+@keyframes healsHover {
+    0%, 100% { transform: translate3d(-50%,-50%,0) rotate(0deg) scale(1); }
+    35% { transform: translate3d(-50%,-50%,0) translateY(-10px) rotate(-7deg) scale(1.12); }
+    68% { transform: translate3d(-50%,-50%,0) translateY(-4px) rotate(6deg) scale(1.075); }
+}
+
+/* Sparkles */
+#heals-background .heals-sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255,255,255,.95), 0 0 14px rgba(221,91,165,.48);
+    opacity: 0;
+    animation: healsSparkle var(--heals-sparkle-duration) ease-in-out var(--heals-sparkle-delay) infinite;
+}
+
+#heals-background .heals-sparkle::before,
+#heals-background .heals-sparkle::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background: rgba(255,255,255,.88);
+    transform: translate(-50%,-50%);
+}
+#heals-background .heals-sparkle::before { width: 14px; height: 1px; }
+#heals-background .heals-sparkle::after { width: 1px; height: 14px; }
+
+@keyframes healsSparkle {
+    0%, 100% { opacity: 0; transform: scale(.35); }
+    46% { opacity: .34; transform: scale(calc(var(--heals-sparkle-scale) * .82)); }
+    58% { opacity: .86; transform: scale(var(--heals-sparkle-scale)); }
+    74% { opacity: .15; transform: scale(.6); }
+}
+
+/* A soft dotted runway along the bottom. */
+#heals-background .heals-runway-dot {
+    position: absolute;
+    bottom: 2.4vh;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(201,87,150,.46);
+    box-shadow: 0 0 12px rgba(201,87,150,.28);
+    animation: healsRunwayPulse 2.2s ease-in-out var(--heals-dot-delay) infinite;
+}
+
+@keyframes healsRunwayPulse {
+    0%,100% { opacity: .25; transform: scale(.72); }
+    50% { opacity: .84; transform: scale(1.22); }
+}
+
+@media (max-width: 700px) {
+    #heals-background .heals-item { opacity: .72; }
+    #heals-background .heals-runway-dot { opacity: .5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #heals-background .heals-item,
+    #heals-background .heals-sparkle,
+    #heals-background .heals-runway-dot {
+        animation: none !important;
+    }
+}

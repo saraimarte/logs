@@ -1,0 +1,354 @@
+/* ============================================================
+   STARS
+   Deep-space night sky with nebula glow, constellations,
+   shooting stars, and a subtle horizon.
+   ============================================================ */
+
+body.theme-stars {
+    --overlay-scrim: rgba(0, 0, 0, 0.55);
+    --black: #eef1ff;
+    --white: #131a44;
+    --thick-border: 3px solid #cfd6ff;
+    --thin-border: 2px solid #cfd6ff;
+    --dashed-border: 2px dashed #cfd6ff;
+    --dotted-border: 2px dotted #cfd6ff;
+    --muted-text: rgba(238,241,255,.6);
+    --track-bg: rgba(0,0,0,0.10);
+
+    background:
+        radial-gradient(circle at 50% -8%, rgba(115,126,255,.22), transparent 34%),
+        radial-gradient(circle at 12% 76%, rgba(86,196,255,.10), transparent 28%),
+        radial-gradient(circle at 88% 30%, rgba(190,115,255,.13), transparent 30%),
+        linear-gradient(180deg, #0d143d 0%, #09102f 48%, #060a21 100%) !important;
+
+    background-attachment: fixed !important;
+    color: var(--black);
+}
+
+body.theme-stars .modal-box,
+body.theme-stars .day-box,
+body.theme-stars .chip,
+body.theme-stars .toolbox-item,
+body.theme-stars .resource-card,
+body.theme-stars select,
+body.theme-stars input,
+body.theme-stars textarea {
+    background-color: rgba(19,26,68,.95);
+    color: var(--black);
+    border-color: rgba(207,214,255,.32);
+}
+
+body.theme-stars .day-box.has-data {
+    background: #0b1030;
+    color: var(--black);
+}
+
+body.theme-stars ::placeholder {
+    color: rgba(238,241,255,.6);
+}
+
+body.theme-stars .theme-effects-layer {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    user-select: none !important;
+}
+
+/* Dense star field */
+body.theme-stars .theme-star {
+    position: absolute;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow:
+        0 0 5px rgba(255,255,255,.70),
+        0 0 11px rgba(154,175,255,.36);
+    animation:
+        themeStarPulse var(--star-duration, 4s)
+        ease-in-out
+        var(--star-delay, 0s)
+        infinite;
+    transition: opacity .8s ease;
+}
+
+@keyframes themeStarPulse {
+    0%, 100% {
+        transform: scale(.72);
+        filter: brightness(.86);
+    }
+    50% {
+        transform: scale(1.28);
+        filter: brightness(1.35);
+    }
+}
+
+/* Soft colorful nebulae */
+body.theme-stars .theme-stars-nebula {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(44px);
+    opacity: .58;
+    animation: themeNebulaDrift 14s ease-in-out infinite alternate;
+}
+
+body.theme-stars .theme-stars-nebula-a {
+    width: 42vw;
+    height: 38vw;
+    left: -12vw;
+    top: 12vh;
+    background:
+        radial-gradient(circle,
+            rgba(75,145,255,.28) 0%,
+            rgba(111,92,255,.16) 42%,
+            transparent 72%);
+}
+
+body.theme-stars .theme-stars-nebula-b {
+    width: 46vw;
+    height: 42vw;
+    right: -14vw;
+    top: 20vh;
+    background:
+        radial-gradient(circle,
+            rgba(197,98,255,.23) 0%,
+            rgba(119,95,255,.13) 44%,
+            transparent 72%);
+    animation-delay: -5s;
+}
+
+body.theme-stars .theme-stars-nebula-c {
+    width: 38vw;
+    height: 28vw;
+    left: 32vw;
+    bottom: -13vw;
+    background:
+        radial-gradient(circle,
+            rgba(83,220,255,.17) 0%,
+            rgba(93,124,255,.10) 46%,
+            transparent 74%);
+    animation-delay: -9s;
+}
+
+@keyframes themeNebulaDrift {
+    from {
+        transform: translate3d(-2vw, -1vh, 0) scale(1);
+    }
+    to {
+        transform: translate3d(2vw, 2vh, 0) scale(1.08);
+    }
+}
+
+/* Large moon-like light bloom */
+body.theme-stars .theme-stars-moon-glow {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    right: 8vw;
+    top: 7vh;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle,
+            rgba(255,255,255,.24) 0%,
+            rgba(207,218,255,.14) 30%,
+            rgba(151,168,255,.05) 55%,
+            transparent 72%);
+    box-shadow:
+        0 0 44px rgba(189,205,255,.10),
+        0 0 96px rgba(136,157,255,.08);
+}
+
+/* Horizon glow adds depth without covering UI */
+body.theme-stars .theme-stars-horizon-glow {
+    position: absolute;
+    left: -10vw;
+    right: -10vw;
+    bottom: -13vh;
+    height: 36vh;
+    background:
+        radial-gradient(ellipse at 50% 100%,
+            rgba(78,111,255,.16) 0%,
+            rgba(43,63,152,.12) 34%,
+            rgba(14,23,75,.06) 62%,
+            transparent 74%);
+    opacity: .95;
+}
+
+/* Tiny decorative constellation */
+body.theme-stars .theme-stars-constellation {
+    position: absolute;
+    left: 10vw;
+    top: 15vh;
+    width: 210px;
+    height: 150px;
+    opacity: .30;
+    transform: rotate(-8deg);
+}
+
+body.theme-stars .theme-stars-constellation::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(154deg, transparent 0 18%, rgba(210,220,255,.30) 18.3% 18.8%, transparent 19.1% 100%),
+        linear-gradient(18deg, transparent 0 36%, rgba(210,220,255,.25) 36.3% 36.8%, transparent 37.1% 100%),
+        linear-gradient(150deg, transparent 0 54%, rgba(210,220,255,.22) 54.3% 54.8%, transparent 55.1% 100%);
+}
+
+body.theme-stars .theme-stars-constellation span {
+    position: absolute;
+    left: var(--cx);
+    top: var(--cy);
+    width: 5px;
+    height: 5px;
+    margin: -2.5px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+        0 0 7px rgba(255,255,255,.75),
+        0 0 14px rgba(158,179,255,.46);
+}
+
+/* Occasional shooting stars */
+body.theme-stars .theme-shooting-star {
+    position: absolute;
+    top: var(--shoot-top);
+    left: var(--shoot-left);
+    width: 115px;
+    height: 2px;
+    opacity: 0;
+    transform: rotate(-27deg);
+    transform-origin: right center;
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255,255,255,.16) 34%,
+            rgba(255,255,255,.92) 100%
+        );
+    filter: drop-shadow(0 0 6px rgba(188,205,255,.72));
+    animation:
+        themeShootingStar
+        14s
+        ease-out
+        var(--shoot-delay)
+        infinite;
+}
+
+body.theme-stars .theme-shooting-star::after {
+    content: "";
+    position: absolute;
+    right: -2px;
+    top: -2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(255,255,255,.95);
+}
+
+@keyframes themeShootingStar {
+    0%, 78% {
+        opacity: 0;
+        transform: translate3d(0,0,0) rotate(-27deg) scaleX(.65);
+    }
+    80% {
+        opacity: 0;
+    }
+    82% {
+        opacity: 1;
+    }
+    87% {
+        opacity: .90;
+        transform: translate3d(-170px, 105px, 0) rotate(-27deg) scaleX(1);
+    }
+    90%, 100% {
+        opacity: 0;
+        transform: translate3d(-280px, 170px, 0) rotate(-27deg) scaleX(.82);
+    }
+}
+
+/* Keep right-side navigation icons backgroundless */
+html body.theme-stars .side-nav .icon-btn,
+html body.theme-stars .side-nav .icon-btn:hover,
+html body.theme-stars .side-nav .icon-btn:focus,
+html body.theme-stars .side-nav .icon-btn:focus-visible,
+html body.theme-stars .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-stars .side-nav .icon-btn::before,
+html body.theme-stars .side-nav .icon-btn::after {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-stars .side-nav .icon-btn:hover {
+    transform: scale(1.15);
+}
+
+html body.theme-stars .side-nav .icon-btn:hover i {
+    opacity: .62;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-stars .theme-star,
+    body.theme-stars .theme-stars-nebula,
+    body.theme-stars .theme-shooting-star {
+        animation: none !important;
+    }
+}
+
+/* ============================================================
+   STARS — CONSISTENT BACKGROUND ON EVERY TAB/VIEW
+   ============================================================ */
+body.theme-stars {
+    --bg-overlay: transparent !important;
+}
+body.theme-stars .view,
+body.theme-stars #log-view,
+body.theme-stars #grid-view,
+body.theme-stars #phrases-library-view,
+body.theme-stars #quizzes-view,
+body.theme-stars #quiz-learn-view,
+body.theme-stars #toolbox-view {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+body.theme-stars .view::before,
+body.theme-stars .view::after,
+body.theme-stars .view:not(#grid-view)::before {
+    background: transparent !important;
+    background-image: none !important;
+    opacity: 0 !important;
+}
+body.theme-stars .filter-tabs,
+body.theme-stars #library-filter-tabs,
+body.theme-stars #quiz-type-filters,
+body.theme-stars .set-size-picker {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+body.theme-stars #phrases-search-bar,
+body.theme-stars input[type="search"],
+body.theme-stars input[id*="search"] {
+    background: #131a44 !important;
+    color: #eef1ff !important;
+    border: 2px solid #59669a !important;
+}
+body.theme-stars #phrases-search-bar::placeholder,
+body.theme-stars input[type="search"]::placeholder,
+body.theme-stars input[id*="search"]::placeholder {
+    color: #aeb8de !important;
+    opacity: 1 !important;
+}

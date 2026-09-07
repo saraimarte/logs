@@ -1,0 +1,84 @@
+/* ============================================================
+   CAREBEARS THEME
+   Decorative-only styling.
+   ============================================================ */
+
+body.theme-carebears {
+    --carebears-ink: #734b8f;
+    --carebears-border: #f2a6cf;
+    --carebears-surface: #fffdfd;
+    --carebears-surface-soft: #fff4fb;
+    --carebears-accent: #ff7fbd;
+    --carebears-second: #8dddf4;
+    --carebears-third: #ffd973;
+    --black: var(--carebears-ink);
+    --white: var(--carebears-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--carebears-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--carebears-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--carebears-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--carebears-border) 44%, transparent);
+    --track-bg: #ffeef8;
+    --muted-text: rgba(115,75,143,.56);
+    background: radial-gradient(circle at 15% 18%, rgba(255,255,255,.95), transparent 19%), radial-gradient(circle at 84% 17%, rgba(255,255,255,.78), transparent 20%), linear-gradient(180deg, #bce8ff 0%, #e5c6ff 36%, #ffd3ea 68%, #fff0b8 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--carebears-ink) !important;
+}
+
+#carebears-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: 0; }
+#carebears-background::before { content:''; position:absolute; inset:-12%; pointer-events:none; background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.18), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.14), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.08) 50%, transparent 58%); animation:carebearsLightSweep 9s ease-in-out infinite alternate; }
+body.theme-carebears .view { position: relative; z-index: 2; }
+body.theme-carebears .side-nav { position: relative; z-index: 3; }
+body.theme-carebears header, body.theme-carebears .log-header-container { position: relative; z-index: 4; }
+body.theme-carebears .modal, body.theme-carebears .modal-overlay, body.theme-carebears .overlay { z-index: 10; }
+
+body.theme-carebears .day-box,
+body.theme-carebears .day-picker-box,
+body.theme-carebears .icon-btn,
+body.theme-carebears .small-icon-btn,
+body.theme-carebears input,
+body.theme-carebears textarea,
+body.theme-carebears select,
+body.theme-carebears .notes-editable,
+body.theme-carebears .phrase-card,
+body.theme-carebears .chip,
+body.theme-carebears .toolbox-item,
+body.theme-carebears .resource-card,
+body.theme-carebears .polaroid-card,
+body.theme-carebears .filter-tab,
+body.theme-carebears .day-target-box,
+body.theme-carebears .flashcard,
+body.theme-carebears .flashcard-mode-card,
+body.theme-carebears .day-badge,
+body.theme-carebears .video-placeholder,
+body.theme-carebears .theme-picker-card,
+body.theme-carebears .note-audio-row,
+body.theme-carebears .modal-box,
+body.theme-carebears .set-complete-box { background-color: var(--carebears-surface) !important; }
+
+body.theme-carebears input::placeholder,
+body.theme-carebears textarea::placeholder,
+body.theme-carebears .notes-editable:empty::before { color: color-mix(in srgb, var(--carebears-ink) 42%, transparent) !important; }
+body.theme-carebears .icon-btn:hover, body.theme-carebears .small-icon-btn:hover, body.theme-carebears .filter-tab:hover { background: var(--carebears-surface-soft) !important; color: var(--carebears-ink) !important; }
+body.theme-carebears .chip:hover, body.theme-carebears .phrase-card:hover, body.theme-carebears .day-picker-box.selected, body.theme-carebears .filter-tab.active, body.theme-carebears .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--carebears-surface-soft) 72%, var(--carebears-accent) 28%) !important; color: var(--carebears-ink) !important; border-color: var(--carebears-border) !important; }
+body.theme-carebears .progress-bar-fill { background: linear-gradient(90deg, var(--carebears-accent), var(--carebears-second), var(--carebears-third)) !important; }
+
+#carebears-background .carebears-item { position:absolute; display:block; height:auto; object-fit:contain; opacity:.96; filter: drop-shadow(0 9px 13px rgba(115,75,143,.16)) drop-shadow(0 0 8px rgba(255,255,255,.18)); animation:carebearsFloat var(--carebears-float-duration) ease-in-out var(--carebears-float-delay) infinite alternate; will-change:transform; }
+@keyframes carebearsFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.98)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--carebears-float-x), var(--carebears-float-y), 0) rotate(var(--carebears-float-r)) scale(1.03)} }
+#carebears-background .carebears-item.carebears-intro-bop { animation:carebearsIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--carebears-bop-delay) infinite !important; }
+@keyframes carebearsIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-15px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+#carebears-background .carebears-extra { position:absolute; }
+
+#carebears-background .carebears-extra-a { width:12px; height:12px; transform:rotate(45deg); background: color-mix(in srgb, var(--carebears-accent) 72%, white 28%); opacity:.18; animation:carebearsHeartDrift var(--carebears-extra-duration) ease-in-out var(--carebears-extra-delay) infinite alternate; }
+#carebears-background .carebears-extra-a::before, #carebears-background .carebears-extra-a::after { content:''; position:absolute; width:12px; height:12px; border-radius:50%; background:inherit; }
+#carebears-background .carebears-extra-a::before { left:-6px; top:0; }
+#carebears-background .carebears-extra-a::after { left:0; top:-6px; }
+#carebears-background .carebears-extra-b { width:22px; height:12px; border-radius:999px; background:rgba(255,255,255,.28); box-shadow: 12px 4px 0 rgba(255,255,255,.22), -10px 4px 0 rgba(255,255,255,.22); opacity:.18; animation:carebearsCloudFloat var(--carebears-extra-duration) ease-in-out var(--carebears-extra-delay) infinite alternate; }
+@keyframes carebearsHeartDrift { from{transform:rotate(45deg) translateY(0) scale(var(--carebears-extra-scale));} to{transform:rotate(45deg) translateY(-12px) scale(calc(var(--carebears-extra-scale)*1.06));} }
+@keyframes carebearsCloudFloat { from{transform:translate3d(0,0,0) scale(var(--carebears-extra-scale));} to{transform:translate3d(12px,-6px,0) scale(calc(var(--carebears-extra-scale)*1.04));} }
+
+
+@keyframes carebearsLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #carebears-background .carebears-item { opacity:.74; } }
+@media (prefers-reduced-motion: reduce) { #carebears-background::before, #carebears-background .carebears-item, #carebears-background .carebears-extra { animation:none !important; } }

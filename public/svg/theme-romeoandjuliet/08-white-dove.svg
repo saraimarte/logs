@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="340" viewBox="0 0 320 340" fill="none">
+<defs>
+  <radialGradient id="feather" cx="45%" cy="30%" r="75%">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="1" stop-color="#d7d4c8"/>
+  </radialGradient>
+</defs>
+<path d="M172 143 C148 78, 101 52, 49 59 C64 90, 81 116, 107 140 C73 148, 44 172, 31 207 C74 199, 107 201, 143 217 C164 227, 180 246, 198 274 C221 256, 239 236, 252 208 C270 171, 272 132, 255 94 C240 102, 228 117, 220 138 C205 131, 189 132, 172 143 Z" fill="url(#feather)" stroke="#a7a396" stroke-width="4" stroke-linejoin="round"/>
+<path d="M182 149 C194 123, 214 104, 242 90 C234 121, 222 147, 202 169" fill="#f8f6f1" stroke="#a7a396" stroke-width="4" stroke-linejoin="round"/>
+<path d="M153 162 C125 164, 100 171, 79 184" stroke="#c0beb4" stroke-width="4" stroke-linecap="round"/>
+<path d="M160 187 C130 193, 104 205, 84 224" stroke="#c0beb4" stroke-width="4" stroke-linecap="round"/>
+<path d="M176 220 C154 244, 135 256, 109 267" stroke="#c0beb4" stroke-width="4" stroke-linecap="round"/>
+<path d="M171 143 C184 146, 193 155, 198 168" stroke="#b9b5a9" stroke-width="4" stroke-linecap="round"/>
+<circle cx="193" cy="151" r="4.5" fill="#615f57"/>
+<path d="M200 160 L215 166 L202 173 Z" fill="#d7b47c" stroke="#a98a55" stroke-width="2"/>
+</svg>

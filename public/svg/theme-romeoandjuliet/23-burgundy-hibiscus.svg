@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="320" viewBox="0 0 340 320" fill="none">
+<defs>
+  <radialGradient id="petal1" cx="45%" cy="42%" r="70%"><stop offset="0" stop-color="#8c2030"/><stop offset="0.55" stop-color="#54101d"/><stop offset="1" stop-color="#2b0911"/></radialGradient>
+</defs>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <path d="M171 152 C126 85, 65 58, 23 84 C5 96, 5 126, 21 145 C39 166, 76 171, 112 165 C78 190, 63 221, 73 246 C82 268, 112 277, 137 266 C154 258, 165 242,171 220" fill="url(#petal1)" stroke="#4f1420" stroke-width="4"/>
+  <path d="M171 152 C214 85, 277 58, 319 84 C337 96, 337 126, 321 145 C303 166, 266 171, 230 165 C264 190, 279 221, 269 246 C260 268, 230 277, 205 266 C188 258, 177 242,171 220" fill="url(#petal1)" stroke="#4f1420" stroke-width="4"/>
+  <path d="M171 152 C145 81, 161 24, 204 14 C224 9, 246 20, 255 39 C265 58, 259 83, 241 102 C222 121, 196 137, 171 152 Z" fill="url(#petal1)" stroke="#4f1420" stroke-width="4"/>
+  <path d="M171 152 C196 224, 181 279, 136 291 C115 297, 95 287, 85 268 C75 250, 80 224, 98 204 C117 184, 144 168, 171 152 Z" fill="url(#petal1)" stroke="#4f1420" stroke-width="4"/>
+  <path d="M171 152 C154 239, 212 304, 269 267 C289 254, 296 232, 290 212 C283 188, 261 172, 231 164" fill="url(#petal1)" stroke="#4f1420" stroke-width="4"/>
+  <path d="M171 152 C185 117, 208 95, 242 85" stroke="#d17c89" stroke-width="3.2"/>
+  <path d="M171 152 C132 158, 99 177, 78 205" stroke="#d17c89" stroke-width="3.2"/>
+  <path d="M171 152 C167 115, 176 76, 203 42" stroke="#d17c89" stroke-width="3.2"/>
+  <path d="M173 144 C179 138, 190 137, 197 144 C205 152, 205 165, 196 173 C188 181, 176 181, 168 173 C160 165, 160 152, 168 144 C170 142, 171 143, 173 144 Z" fill="#45121d" stroke="#d7a45f" stroke-width="3"/>
+  <path d="M197 162 C227 158, 252 164, 269 177" stroke="#8c6a2c" stroke-width="4"/>
+  <path d="M271 178 C276 184, 281 191, 285 199" stroke="#8c6a2c" stroke-width="4"/>
+  <path d="M287 200 C279 207, 273 213, 267 218" stroke="#d8b261" stroke-width="4"/>
+  <circle cx="286" cy="199" r="6" fill="#e1bd6a"/>
+  <circle cx="277" cy="188" r="5" fill="#e1bd6a"/>
+  <circle cx="268" cy="178" r="4.5" fill="#e1bd6a"/>
+</g>
+</svg>

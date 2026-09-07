@@ -1,0 +1,855 @@
+/* ============================================================
+   FASHIONISTA
+   Decorative-only theme styling.
+
+   The application template remains the source of truth for:
+   - selector positioning
+   - cursor system
+   - companion positioning
+   - tabs
+   - views
+   - cards
+   - modals
+   - buttons
+   ============================================================ */
+
+body.theme-fashionista {
+    --fashion-ink: #35101f;
+    --fashion-burgundy: #641a38;
+    --fashion-wine: #4b1028;
+    --fashion-gold: #c69b57;
+    --fashion-gold-soft: #ead19a;
+    --fashion-ivory: #f8f2e7;
+    --fashion-muted: rgba(53, 16, 31, .56);
+
+    --black: var(--fashion-ink);
+    --white: var(--fashion-ivory);
+    --bg-overlay: transparent;
+
+    --thick-border: 2px solid rgba(100, 26, 56, .24);
+    --thin-border: 1px solid rgba(100, 26, 56, .18);
+    --dashed-border: 1px dashed rgba(100, 26, 56, .18);
+    --dotted-border: 1px dotted rgba(100, 26, 56, .18);
+
+    --track-bg: rgba(100, 26, 56, .10);
+    --muted-text: var(--fashion-muted);
+
+    /*
+     * Keep the base page background solid.
+     * The actual visual background is the separate SVG layer below.
+     */
+    background: #f5eee4;
+    background-attachment: fixed;
+    color: var(--fashion-ink);
+}
+
+/* ============================================================
+   BACKGROUND SVG
+   ============================================================ */
+
+#fashionista-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    pointer-events: none;
+    user-select: none;
+
+    z-index: 0;
+}
+
+#fashionista-background .fashionista-background-svg {
+    position: absolute;
+    inset: 0;
+
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    pointer-events: none;
+    user-select: none;
+}
+
+/*
+ * Do NOT assign z-index, position, transform, opacity, or fixed
+ * positioning to application containers here.
+ *
+ * The background is decorative only.
+ */
+
+/* ============================================================
+   FASHION OBJECTS
+   ============================================================ */
+
+#fashionista-background .fashionista-item {
+    position: absolute;
+
+    pointer-events: none;
+    user-select: none;
+
+    transform-origin: center center;
+
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--object-rotate))
+        scale(var(--object-scale));
+    opacity: 1;
+
+    filter: none;
+
+    animation:
+        fashionistaObjectFloat
+        var(--fashion-duration)
+        ease-in-out
+        var(--fashion-delay)
+        infinite;
+
+    will-change: transform;
+}
+
+#fashionista-background .fashionista-svg-object {
+    display: block;
+
+    width: 175px;
+    height: auto;
+    max-width: 175px;
+    max-height: 190px;
+
+    overflow: visible;
+
+    pointer-events: none;
+    user-select: none;
+}
+
+#fashionista-background .fashionista-depth-1 {
+    z-index: 1;
+}
+
+#fashionista-background .fashionista-depth-2 {
+    z-index: 2;
+}
+
+@keyframes fashionistaObjectFloat {
+    0% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--object-rotate))
+            scale(var(--object-scale));
+    }
+
+    25% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(
+                calc(var(--fashion-drift-x) * .55),
+                calc(var(--fashion-drift-y) * .55),
+                0
+            )
+            rotate(calc(var(--object-rotate) - 1deg))
+            scale(var(--object-scale));
+    }
+
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--fashion-drift-x), var(--fashion-drift-y), 0)
+            rotate(calc(var(--object-rotate) + 2deg))
+            scale(var(--object-scale));
+    }
+
+    75% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(
+                calc(var(--fashion-drift-x) * -.65),
+                calc(var(--fashion-drift-y) * .35),
+                0
+            )
+            rotate(calc(var(--object-rotate) - 1deg))
+            scale(var(--object-scale));
+    }
+
+    100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--object-rotate))
+            scale(var(--object-scale));
+    }
+}
+
+/* ============================================================
+   EDITORIAL GOLD RULES
+   ============================================================ */
+
+#fashionista-background .fashionista-rule {
+    position: absolute;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(198, 155, 87, .30),
+            transparent
+        );
+
+    pointer-events: none;
+
+    transform-origin: center;
+
+    animation:
+        fashionRuleBreath
+        7s
+        ease-in-out
+        infinite
+        alternate;
+}
+
+@keyframes fashionRuleBreath {
+    from {
+        opacity: .14;
+    }
+
+    to {
+        opacity: .42;
+    }
+}
+
+/* ============================================================
+   SOFT GLINTS
+   ============================================================ */
+
+#fashionista-background .fashionista-glint {
+    position: absolute;
+
+    width: 3px;
+    height: 3px;
+
+    border-radius: 50%;
+
+    background: rgba(198, 155, 87, .48);
+
+    box-shadow:
+        0 0 7px rgba(198, 155, 87, .26);
+
+    pointer-events: none;
+
+    animation:
+        fashionGlint
+        var(--glint-duration)
+        ease-in-out
+        infinite;
+
+    animation-delay: var(--glint-delay);
+}
+
+@keyframes fashionGlint {
+    0%,
+    100% {
+        opacity: 0;
+        transform: scale(.35);
+    }
+
+    35% {
+        opacity: .25;
+        transform: scale(var(--glint-scale));
+    }
+
+    55% {
+        opacity: .48;
+        transform: scale(
+            calc(var(--glint-scale) * 1.18)
+        );
+    }
+
+    75% {
+        opacity: .12;
+        transform: scale(.55);
+    }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    #fashionista-background *,
+    #fashionista-background {
+        animation: none !important;
+    }
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+    #fashionista-background .fashionista-item {
+        opacity: calc(var(--object-opacity) * .72);
+    }
+
+    #fashionista-background .fashionista-svg-object {
+        width: 125px;
+        max-width: 125px;
+        max-height: 140px;
+    }
+}
+
+
+/* ============================================================
+   FASHIONISTA OBJECT TIMING VARIATION
+   ============================================================ */
+
+#fashionista-background .fashionista-item:nth-child(2n) {
+    animation-duration: 8.5s;
+}
+
+#fashionista-background .fashionista-item:nth-child(3n) {
+    animation-duration: 10s;
+}
+
+#fashionista-background .fashionista-item:nth-child(4n) {
+    animation-duration: 7.2s;
+}
+
+
+/* ============================================================
+   PAGE UI DEPTH
+   ============================================================ */
+
+/*
+ * The fashion artwork is a true background layer.
+ *
+ * IMPORTANT:
+ * Do not use body > * or a catch-all direct-child selector here.
+ * The template has fixed-position companion/cursor systems that must keep
+ * their own positioning contexts.
+ *
+ * The views are raised above the Fashionista background without changing
+ * their normal layout, sizing, or positioning behavior.
+ */
+body.theme-fashionista #fashionista-background {
+    z-index: 0;
+}
+
+body.theme-fashionista .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-fashionista .side-nav {
+    position: relative;
+    z-index: 3;
+}
+
+body.theme-fashionista .modal,
+body.theme-fashionista .modal-overlay,
+body.theme-fashionista .overlay {
+    z-index: 10;
+}
+
+
+/* ============================================================
+   TITLE-SAFE DECORATION
+   ============================================================ */
+
+/*
+ * The object grid starts below the header/title region. These selectors
+ * only establish stacking, not layout or positioning of the application's
+ * content.
+ */
+body.theme-fashionista header,
+body.theme-fashionista .log-header-container {
+    position: relative;
+    z-index: 4;
+}
+
+
+/* ============================================================
+   FASHIONISTA — INTERACTIVE EDITORIAL EXPANSION
+   ============================================================ */
+
+body.theme-fashionista {
+    background:
+        radial-gradient(circle at 14% 16%, rgba(201,155,87,.16), transparent 27%),
+        radial-gradient(circle at 86% 18%, rgba(116,43,76,.15), transparent 30%),
+        radial-gradient(circle at 50% 92%, rgba(224,190,160,.20), transparent 34%),
+        linear-gradient(148deg, #f0e4d7 0%, #f7f0e8 42%, #ead8cf 70%, #efe3d8 100%) !important;
+    background-attachment: fixed !important;
+}
+
+/* Keep the template overlay from washing out the richer background. */
+body.theme-fashionista .view:not(#grid-view)::before {
+    background: transparent !important;
+    background-image: none !important;
+    opacity: 0 !important;
+}
+
+#fashionista-background {
+    --fashion-pointer-x: 50%;
+    --fashion-pointer-y: 50%;
+    --fashion-parallax-x: 0px;
+    --fashion-parallax-y: 0px;
+}
+
+/*
+ * The original full-screen fashion background now shifts subtly with
+ * pointer movement. This is purely decorative and remains behind the app.
+ */
+#fashionista-background .fashionista-background-svg {
+    transform:
+        translate3d(
+            calc(var(--fashion-parallax-x) * .25),
+            calc(var(--fashion-parallax-y) * .25),
+            0
+        )
+        scale(1.018);
+    transition: transform .22s ease-out;
+    opacity: .78;
+}
+
+/* Mouse-following fashion-show spotlight. */
+#fashionista-background .fashionista-pointer-spotlight {
+    position: absolute;
+    inset: -12%;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            circle 190px at
+            var(--fashion-pointer-x)
+            var(--fashion-pointer-y),
+            rgba(255,248,223,.32) 0%,
+            rgba(234,199,143,.13) 35%,
+            transparent 72%
+        );
+    mix-blend-mode: screen;
+    opacity: .76;
+    transition: opacity .18s ease;
+}
+
+/* Runway-style perspective floor accents. */
+#fashionista-background .fashionista-runway {
+    position: absolute;
+    left: 17%;
+    right: 17%;
+    bottom: -9%;
+    height: 46%;
+    pointer-events: none;
+    opacity: .24;
+    clip-path: polygon(37% 0%, 63% 0%, 100% 100%, 0 100%);
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 8%,
+            rgba(100,26,56,.12) 8.2% 8.6%,
+            transparent 8.8% 16%
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 42px,
+            rgba(198,155,87,.13) 43px 44px,
+            transparent 45px 86px
+        ),
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.12),
+            rgba(87,36,59,.06)
+        );
+    transform:
+        translate3d(
+            calc(var(--fashion-parallax-x) * -.20),
+            calc(var(--fashion-parallax-y) * -.12),
+            0
+        )
+        perspective(700px)
+        rotateX(8deg);
+    transform-origin: bottom center;
+    transition: transform .24s ease-out;
+}
+
+/* Thin editorial frame, like a fashion-magazine spread. */
+#fashionista-background .fashionista-editorial-frame {
+    position: absolute;
+    inset: 18px;
+    border: 1px solid rgba(198,155,87,.16);
+    pointer-events: none;
+    opacity: .75;
+}
+
+#fashionista-background .fashionista-editorial-frame::before,
+#fashionista-background .fashionista-editorial-frame::after {
+    content: "";
+    position: absolute;
+    width: 74px;
+    height: 74px;
+    border-color: rgba(100,26,56,.22);
+    pointer-events: none;
+}
+
+#fashionista-background .fashionista-editorial-frame::before {
+    top: 9px;
+    left: 9px;
+    border-top: 2px solid;
+    border-left: 2px solid;
+}
+
+#fashionista-background .fashionista-editorial-frame::after {
+    right: 9px;
+    bottom: 9px;
+    border-right: 2px solid;
+    border-bottom: 2px solid;
+}
+
+/* Large drifting editorial rings. */
+#fashionista-background .fashionista-orbit {
+    position: absolute;
+    width: clamp(180px, 20vw, 340px);
+    aspect-ratio: 1;
+    border: 1px solid rgba(198,155,87,.15);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: .34;
+    animation:
+        fashionOrbitDrift
+        var(--orbit-duration)
+        ease-in-out
+        var(--orbit-delay)
+        infinite alternate;
+}
+
+#fashionista-background .fashionista-orbit::after {
+    content: "";
+    position: absolute;
+    inset: 13%;
+    border: 1px dashed rgba(100,26,56,.10);
+    border-radius: 50%;
+}
+
+#fashionista-background .fashionista-orbit-1 {
+    left: -8%;
+    top: 17%;
+}
+
+#fashionista-background .fashionista-orbit-2 {
+    right: -9%;
+    top: 32%;
+}
+
+#fashionista-background .fashionista-orbit-3 {
+    left: 18%;
+    bottom: -17%;
+}
+
+#fashionista-background .fashionista-orbit-4 {
+    right: 18%;
+    bottom: -14%;
+}
+
+@keyframes fashionOrbitDrift {
+    from {
+        transform:
+            translate3d(
+                calc(var(--fashion-parallax-x) * -.20),
+                0,
+                0
+            )
+            rotate(-7deg)
+            scale(.96);
+    }
+    to {
+        transform:
+            translate3d(
+                calc(var(--fashion-parallax-x) * .28),
+                -12px,
+                0
+            )
+            rotate(9deg)
+            scale(1.045);
+    }
+}
+
+/* Little moving stitch/rule details to make the background feel designed. */
+#fashionista-background .fashionista-stitch {
+    position: absolute;
+    width: clamp(42px, 5vw, 86px);
+    height: 5px;
+    pointer-events: none;
+    opacity: .23;
+    transform: rotate(var(--stitch-rotate));
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(100,26,56,.42) 0 5px,
+            transparent 5px 11px
+        );
+    animation:
+        fashionStitchPulse
+        5.8s
+        ease-in-out
+        var(--stitch-delay)
+        infinite alternate;
+}
+
+@keyframes fashionStitchPulse {
+    from {
+        opacity: .11;
+        translate: -5px 0;
+    }
+    to {
+        opacity: .34;
+        translate: 7px -3px;
+    }
+}
+
+/* ============================================================
+   HOVER / POINTER INTERACTION FOR FASHION ITEMS
+   ============================================================ */
+
+/*
+ * The JS detects pointer proximity instead of enabling pointer-events
+ * on the decorative SVGs, so the theme never steals clicks from the app.
+ */
+#fashionista-background .fashionista-item {
+    pointer-events: none !important;
+}
+
+#fashionista-background .fashionista-svg-object {
+    transform-origin: 50% 55%;
+    transition:
+        transform .28s cubic-bezier(.2,.85,.25,1),
+        filter .28s ease,
+        opacity .2s ease;
+    will-change: transform, filter;
+}
+
+#fashionista-background .fashionista-item.fashionista-hovered
+.fashionista-svg-object {
+    transform:
+        translateY(-10px)
+        scale(1.14)
+        rotate(-2deg);
+    filter:
+        drop-shadow(0 15px 18px rgba(73,31,50,.20))
+        drop-shadow(0 0 11px rgba(198,155,87,.26));
+}
+
+#fashionista-background .fashionista-item.fashionista-hover-pop
+.fashionista-svg-object {
+    animation:
+        fashionistaHoverPop
+        .72s
+        cubic-bezier(.18,1.35,.28,1)
+        both;
+}
+
+@keyframes fashionistaHoverPop {
+    0% {
+        transform:
+            translateY(0)
+            scale(1)
+            rotate(0deg);
+    }
+    30% {
+        transform:
+            translateY(-15px)
+            scale(1.20)
+            rotate(4deg);
+    }
+    58% {
+        transform:
+            translateY(-8px)
+            scale(1.10)
+            rotate(-4deg);
+    }
+    78% {
+        transform:
+            translateY(-12px)
+            scale(1.16)
+            rotate(2deg);
+    }
+    100% {
+        transform:
+            translateY(-10px)
+            scale(1.14)
+            rotate(-2deg);
+    }
+}
+
+/* Sparkle burst produced when a fashion item is entered. */
+#fashionista-background .fashionista-hover-spark {
+    position: fixed;
+    width: var(--spark-size);
+    height: var(--spark-size);
+    pointer-events: none;
+    z-index: 4;
+    border-radius: 50%;
+    background: #d7aa63;
+    box-shadow:
+        0 0 0 2px rgba(255,250,232,.40),
+        0 0 10px rgba(198,155,87,.34);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.35);
+    animation:
+        fashionHoverSpark
+        .72s
+        cubic-bezier(.18,.75,.25,1)
+        forwards;
+}
+
+#fashionista-background .fashionista-hover-spark:nth-of-type(2n) {
+    border-radius: 0;
+    rotate: 45deg;
+    background: #8a4166;
+}
+
+@keyframes fashionHoverSpark {
+    0% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            translate3d(0,0,0)
+            scale(.25);
+    }
+    18% {
+        opacity: .95;
+    }
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            translate3d(
+                var(--spark-x),
+                var(--spark-y),
+                0
+            )
+            scale(1.1);
+    }
+}
+
+/* More interesting motion on the existing editorial rules. */
+#fashionista-background .fashionista-rule {
+    filter: drop-shadow(0 0 4px rgba(198,155,87,.14));
+}
+
+#fashionista-background .fashionista-glint {
+    box-shadow:
+        0 0 9px rgba(198,155,87,.34),
+        0 0 18px rgba(255,243,210,.13);
+}
+
+@media (max-width: 700px) {
+    #fashionista-background .fashionista-pointer-spotlight {
+        opacity: .45;
+    }
+
+    #fashionista-background .fashionista-runway {
+        left: 4%;
+        right: 4%;
+        height: 38%;
+    }
+
+    #fashionista-background .fashionista-editorial-frame {
+        inset: 10px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #fashionista-background .fashionista-background-svg,
+    #fashionista-background .fashionista-runway {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    #fashionista-background .fashionista-item.fashionista-hover-pop
+    .fashionista-svg-object {
+        animation: none !important;
+    }
+
+    #fashionista-background .fashionista-item.fashionista-hovered
+    .fashionista-svg-object {
+        transform: scale(1.08);
+    }
+}
+
+
+/* ============================================================
+   FASHIONISTA TAB ICON FIX
+   No white squares/backplates. Icons themselves stay white.
+   ============================================================ */
+
+html body.theme-fashionista .side-nav .icon-btn,
+html body.theme-fashionista .side-nav .icon-btn:hover,
+html body.theme-fashionista .side-nav .icon-btn:focus,
+html body.theme-fashionista .side-nav .icon-btn:focus-visible,
+html body.theme-fashionista .side-nav .icon-btn:active,
+html body.theme-fashionista .side-nav .icon-btn.active,
+html body.theme-fashionista .side-nav .icon-btn.selected {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-fashionista .side-nav .icon-btn::before,
+html body.theme-fashionista .side-nav .icon-btn::after,
+html body.theme-fashionista .side-nav .icon-btn:hover::before,
+html body.theme-fashionista .side-nav .icon-btn:hover::after,
+html body.theme-fashionista .side-nav .icon-btn:focus::before,
+html body.theme-fashionista .side-nav .icon-btn:focus::after,
+html body.theme-fashionista .side-nav .icon-btn:active::before,
+html body.theme-fashionista .side-nav .icon-btn:active::after {
+    content: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-fashionista .side-nav .icon-btn i,
+html body.theme-fashionista .side-nav .icon-btn .ph,
+html body.theme-fashionista .side-nav .icon-btn svg {
+    color: var(--fashion-ink) !important;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+html body.theme-fashionista .side-nav .icon-btn svg {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+html body.theme-fashionista .side-nav .icon-btn:hover i,
+html body.theme-fashionista .side-nav .icon-btn:hover .ph,
+html body.theme-fashionista .side-nav .icon-btn:hover svg {
+    color: var(--fashion-ink) !important;
+    opacity: .72 !important;
+}
+
+/* Remove any stale backplate class left on the DOM by an older loaded version. */
+html body.theme-fashionista .fashionista-icon-backplate,
+html body.theme-fashionista .fashionista-icon-backplate:hover,
+html body.theme-fashionista .fashionista-icon-backplate:focus,
+html body.theme-fashionista .fashionista-icon-backplate:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-fashionista .fashionista-icon-backplate::before,
+html body.theme-fashionista .fashionista-icon-backplate::after {
+    content: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}

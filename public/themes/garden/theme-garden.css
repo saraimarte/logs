@@ -1,0 +1,1591 @@
+/* ============================================================
+   GARDEN
+   Uses the real /svg/theme-garden assets.
+   Layout, cursor, companions, tabs, spacing, and component
+   sizes are preserved. Only backgrounds and UI state styling
+   are adjusted.
+   ============================================================ */
+
+body.theme-garden {
+    --theme-ink: #2f4438;
+    --theme-paper: #f8f6ee;
+    --theme-accent: #6e9b62;
+    --theme-accent-2: #c38d67;
+    --theme-gold: #d2b15e;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+
+    --thick-border: 2px solid rgba(47, 68, 56, 0.14);
+    --thin-border: 1px solid rgba(47, 68, 56, 0.12);
+    --dashed-border: 1px dashed rgba(47, 68, 56, 0.14);
+    --dotted-border: 1px dotted rgba(47, 68, 56, 0.14);
+
+    --track-bg: rgba(47, 68, 56, 0.08);
+    --muted-text: rgba(47, 68, 56, 0.58);
+
+    background:
+        radial-gradient(circle at 50% 4%, rgba(255,255,255,0.34), transparent 30%),
+        radial-gradient(circle at 14% 82%, rgba(110,155,98,0.12), transparent 28%),
+        radial-gradient(circle at 86% 24%, rgba(195,141,103,0.11), transparent 24%),
+        linear-gradient(145deg, #e7f0de 0%, #f1eddc 48%, #e4edd7 100%) !important;
+
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#garden-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#garden-background .theme-garden-skyglow {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 12%, rgba(255,255,255,0.45), transparent 34%),
+        radial-gradient(circle at 18% 56%, rgba(110,155,98,0.08), transparent 28%),
+        radial-gradient(circle at 82% 54%, rgba(195,141,103,0.08), transparent 26%);
+}
+
+#garden-background .theme-garden-dapple {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 18px 18px, rgba(110,155,98,.10) 0 3px, transparent 4px),
+        radial-gradient(circle at 56px 52px, rgba(195,141,103,.09) 0 4px, transparent 5px),
+        radial-gradient(circle at 88px 26px, rgba(255,255,255,.18) 0 5px, transparent 6px);
+    background-size: 92px 92px;
+    opacity: .6;
+}
+
+#garden-background .theme-garden-vines {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 7% 30%, transparent 0 54px, rgba(110,155,98,.08) 55px 57px, transparent 58px),
+        radial-gradient(circle at 92% 65%, transparent 0 66px, rgba(195,141,103,.07) 67px 69px, transparent 70px),
+        radial-gradient(circle at 76% 16%, transparent 0 34px, rgba(255,255,255,.22) 35px 37px, transparent 38px);
+    opacity: .78;
+}
+
+#garden-background .theme-garden-meadow {
+    position: absolute;
+    left: -8vw;
+    right: -8vw;
+    bottom: -10vh;
+    height: 34vh;
+    background:
+        linear-gradient(180deg, transparent 0%, rgba(110,155,98,.07) 32%, rgba(47,68,56,.12) 100%);
+    clip-path: ellipse(78% 62% at 50% 100%);
+    opacity: .78;
+}
+
+#garden-background .theme-garden-item {
+    position: absolute;
+    opacity: var(--item-opacity, .70);
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--item-rotate))
+        scale(var(--item-scale));
+    transform-origin: center;
+    filter: drop-shadow(0 8px 13px rgba(0,0,0,.14));
+    animation: themeGardenFloat 8.2s ease-in-out var(--item-delay) infinite;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#garden-background .theme-garden-soft {
+    opacity: var(--item-opacity, .24);
+}
+
+#garden-background .theme-garden-emphasis {
+    opacity: var(--item-opacity, .80);
+}
+
+#garden-background .theme-garden-object-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    filter: none;
+}
+
+@keyframes themeGardenFloat {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--item-x), var(--item-y), 0)
+            rotate(calc(var(--item-rotate) + 2deg))
+            scale(var(--item-scale));
+    }
+}
+
+#garden-background .theme-garden-react {
+    opacity: .92 !important;
+    filter:
+        drop-shadow(0 10px 16px rgba(0,0,0,.16))
+        drop-shadow(0 0 10px rgba(110,155,98,.24));
+    animation: themeGardenReact .48s ease-out !important;
+}
+
+@keyframes themeGardenReact {
+    0% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+
+    45% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, -10px, 0)
+            rotate(calc(var(--item-rotate) + 6deg))
+            scale(calc(var(--item-scale) * 1.08));
+    }
+
+    100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+}
+
+/* ------------------------------------------------------------
+   SMALL UI BOXES ONLY
+   Neutral paper styling for controls, cards, and chips.
+   ------------------------------------------------------------ */
+body.theme-garden .day-box,
+body.theme-garden .day-picker-box,
+body.theme-garden .icon-btn,
+body.theme-garden .small-icon-btn,
+body.theme-garden input,
+body.theme-garden textarea,
+body.theme-garden select,
+body.theme-garden .notes-editable,
+body.theme-garden .phrase-card,
+body.theme-garden .chip,
+body.theme-garden .toolbox-item,
+body.theme-garden .resource-card,
+body.theme-garden .polaroid-card,
+body.theme-garden .filter-tab,
+body.theme-garden .day-target-box,
+body.theme-garden .flashcard,
+body.theme-garden .flashcard-mode-card,
+body.theme-garden .day-badge,
+body.theme-garden .video-placeholder,
+body.theme-garden .theme-picker-card,
+body.theme-garden .note-audio-row,
+body.theme-garden .modal-box,
+body.theme-garden .category-box,
+body.theme-garden .category-card,
+body.theme-garden .category-chip,
+body.theme-garden .knowledge-category,
+body.theme-garden .knowledge-category-box,
+body.theme-garden .knowledge-category-card,
+body.theme-garden .knowledge-tag,
+body.theme-garden .tag,
+body.theme-garden .label-box {
+    background: rgba(248, 244, 237, 0.96) !important;
+    background-color: rgba(248, 244, 237, 0.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(47,68,56,.16) !important;
+    box-shadow:
+        0 1px 2px rgba(47,68,56,.035),
+        0 4px 12px rgba(47,68,56,.025) !important;
+    filter: none !important;
+}
+
+body.theme-garden input::placeholder,
+body.theme-garden textarea::placeholder,
+body.theme-garden .notes-editable:empty::before {
+    color: rgba(47,68,56,.43);
+}
+
+body.theme-garden .day-box:hover,
+body.theme-garden .day-picker-box:hover,
+body.theme-garden .small-icon-btn:hover,
+body.theme-garden .phrase-card:hover,
+body.theme-garden .chip:hover,
+body.theme-garden .toolbox-item:hover,
+body.theme-garden .resource-card:hover,
+body.theme-garden .polaroid-card:hover,
+body.theme-garden .filter-tab:hover,
+body.theme-garden .day-target-box:hover,
+body.theme-garden .flashcard-mode-card:hover,
+body.theme-garden .theme-picker-card:hover,
+body.theme-garden .category-box:hover,
+body.theme-garden .category-card:hover,
+body.theme-garden .category-chip:hover,
+body.theme-garden .knowledge-category:hover,
+body.theme-garden .knowledge-category-box:hover,
+body.theme-garden .knowledge-category-card:hover,
+body.theme-garden .knowledge-tag:hover,
+body.theme-garden .tag:hover,
+body.theme-garden .label-box:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(47,68,56,.22) !important;
+    box-shadow: 0 2px 7px rgba(47,68,56,.05) !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+body.theme-garden .day-picker-box.selected,
+body.theme-garden .filter-tab.active,
+body.theme-garden .category-box.active,
+body.theme-garden .category-card.active,
+body.theme-garden .category-chip.active,
+body.theme-garden .knowledge-category.active,
+body.theme-garden .knowledge-category-box.active,
+body.theme-garden .knowledge-category-card.active,
+body.theme-garden .knowledge-tag.active,
+body.theme-garden .tag.active,
+body.theme-garden .label-box.active,
+body.theme-garden .category-box.selected,
+body.theme-garden .category-card.selected,
+body.theme-garden .category-chip.selected {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(47,68,56,.25) !important;
+    box-shadow: inset 0 0 0 1px rgba(47,68,56,.035) !important;
+    filter: none !important;
+}
+
+body.theme-garden .category-box::before,
+body.theme-garden .category-box::after,
+body.theme-garden .category-card::before,
+body.theme-garden .category-card::after,
+body.theme-garden .category-chip::before,
+body.theme-garden .category-chip::after,
+body.theme-garden .knowledge-category::before,
+body.theme-garden .knowledge-category::after,
+body.theme-garden .knowledge-category-box::before,
+body.theme-garden .knowledge-category-box::after,
+body.theme-garden .knowledge-category-card::before,
+body.theme-garden .knowledge-category-card::after,
+body.theme-garden .knowledge-tag::before,
+body.theme-garden .knowledge-tag::after,
+body.theme-garden .tag::before,
+body.theme-garden .tag::after,
+body.theme-garden .label-box::before,
+body.theme-garden .label-box::after,
+body.theme-garden .chip::before,
+body.theme-garden .chip::after,
+body.theme-garden .filter-tab::before,
+body.theme-garden .filter-tab::after {
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* ------------------------------------------------------------
+   PARENT FILTER/CATEGORY ROWS
+   Always transparent.
+   ------------------------------------------------------------ */
+html body.theme-garden .filter-tabs,
+html body.theme-garden .filter-tabs:hover,
+html body.theme-garden .filter-tabs:focus,
+html body.theme-garden .filter-tabs:focus-within,
+html body.theme-garden #library-filter-tabs,
+html body.theme-garden #library-filter-tabs:hover,
+html body.theme-garden #library-filter-tabs:focus-within,
+html body.theme-garden #quiz-type-filters,
+html body.theme-garden #quiz-type-filters:hover,
+html body.theme-garden #quiz-type-filters:focus-within,
+html body.theme-garden .set-size-picker,
+html body.theme-garden .set-size-picker:hover,
+html body.theme-garden .set-size-picker:focus,
+html body.theme-garden .set-size-picker:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+    border-color: transparent !important;
+}
+
+html body.theme-garden .filter-tabs::before,
+html body.theme-garden .filter-tabs::after,
+html body.theme-garden .filter-tabs:hover::before,
+html body.theme-garden .filter-tabs:hover::after,
+html body.theme-garden #library-filter-tabs::before,
+html body.theme-garden #library-filter-tabs::after,
+html body.theme-garden #quiz-type-filters::before,
+html body.theme-garden #quiz-type-filters::after,
+html body.theme-garden .set-size-picker::before,
+html body.theme-garden .set-size-picker::after,
+html body.theme-garden .set-size-picker:hover::before,
+html body.theme-garden .set-size-picker:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-garden .filter-tabs > .filter-tab,
+html body.theme-garden .set-size-picker > .filter-tab {
+    background: rgba(248,244,237,.96) !important;
+    background-color: rgba(248,244,237,.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(47,68,56,.16) !important;
+    box-shadow: 0 1px 2px rgba(47,68,56,.035) !important;
+    filter: none !important;
+}
+
+html body.theme-garden .filter-tabs > .filter-tab:hover,
+html body.theme-garden .set-size-picker > .filter-tab:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(47,68,56,.22) !important;
+    box-shadow: 0 2px 7px rgba(47,68,56,.05) !important;
+    filter: none !important;
+}
+
+html body.theme-garden .filter-tabs > .filter-tab.active,
+html body.theme-garden .set-size-picker > .filter-tab.active {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(47,68,56,.25) !important;
+    box-shadow: inset 0 0 0 1px rgba(47,68,56,.035) !important;
+    filter: none !important;
+}
+
+/* ------------------------------------------------------------
+   RIGHT-SIDE TAB ICONS
+   Must remain backgroundless.
+   ------------------------------------------------------------ */
+html body.theme-garden .side-nav .icon-btn,
+html body.theme-garden .side-nav .icon-btn:hover,
+html body.theme-garden .side-nav .icon-btn:focus,
+html body.theme-garden .side-nav .icon-btn:focus-visible,
+html body.theme-garden .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-garden .side-nav .icon-btn::before,
+html body.theme-garden .side-nav .icon-btn::after,
+html body.theme-garden .side-nav .icon-btn:hover::before,
+html body.theme-garden .side-nav .icon-btn:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-garden .side-nav .icon-btn:hover {
+    transform: scale(1.15);
+}
+
+html body.theme-garden .side-nav .icon-btn i {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    color: var(--theme-ink) !important;
+}
+
+html body.theme-garden .side-nav .icon-btn:hover i {
+    opacity: .62;
+}
+
+body.theme-garden .progress-bar-track {
+    background: rgba(47,68,56,.10);
+}
+
+body.theme-garden .progress-bar-fill {
+    background: linear-gradient(90deg, #7aa06e, #d1b163, #8db58b);
+}
+
+body.theme-garden #garden-background { z-index: 0; }
+body.theme-garden .view { position: relative; z-index: 2; }
+body.theme-garden .side-nav { position: relative; z-index: 3; }
+body.theme-garden header,
+body.theme-garden .log-header-container { position: relative; z-index: 4; }
+body.theme-garden .modal,
+body.theme-garden .modal-overlay,
+body.theme-garden .overlay { z-index: 10; }
+
+@media (max-width: 700px) {
+    #garden-background .theme-garden-item {
+        max-width: 126px;
+        max-height: 126px;
+    }
+
+    #garden-background .theme-garden-soft {
+        opacity: .18;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #garden-background * {
+        animation: none !important;
+    }
+}
+
+
+/* ============================================================
+   GARDEN — LARGE ART + RICHER BACKDROP
+   ============================================================ */
+
+body.theme-garden {
+    background:
+        radial-gradient(ellipse at 50% -7%, rgba(255,250,203,.76), transparent 34%),
+        radial-gradient(circle at 8% 48%, rgba(90,145,74,.24), transparent 28%),
+        radial-gradient(circle at 92% 52%, rgba(119,155,87,.22), transparent 29%),
+        radial-gradient(circle at 50% 100%, rgba(184,153,89,.15), transparent 34%),
+        linear-gradient(180deg, #dff0d7 0%, #f5efd5 48%, #d6e6bf 100%) !important;
+    background-attachment: fixed !important;
+}
+
+body.theme-garden #garden-background::before {
+    content: "";
+    position: absolute;
+    inset: -8%;
+    pointer-events: none;
+    opacity: .44;
+    background:
+        linear-gradient(114deg, transparent 7%, rgba(255,249,210,.42) 16%, transparent 27%),
+        linear-gradient(74deg, transparent 32%, rgba(255,255,235,.30) 42%, transparent 53%),
+        linear-gradient(112deg, transparent 61%, rgba(255,246,200,.28) 70%, transparent 81%);
+    filter: blur(14px);
+    animation: gardenSunSweep 16s ease-in-out infinite alternate;
+}
+
+body.theme-garden #garden-background::after {
+    content: "";
+    position: absolute;
+    left: -5%;
+    right: -5%;
+    bottom: -4%;
+    height: 31vh;
+    pointer-events: none;
+    opacity: .62;
+    background:
+        radial-gradient(ellipse at 6% 100%, rgba(55,99,57,.24) 0 28%, transparent 29%),
+        radial-gradient(ellipse at 22% 108%, rgba(80,124,67,.20) 0 31%, transparent 32%),
+        radial-gradient(ellipse at 44% 108%, rgba(71,115,63,.18) 0 29%, transparent 30%),
+        radial-gradient(ellipse at 66% 106%, rgba(83,127,70,.20) 0 31%, transparent 32%),
+        radial-gradient(ellipse at 86% 103%, rgba(58,106,60,.23) 0 30%, transparent 31%),
+        linear-gradient(180deg, transparent 0%, rgba(79,116,61,.08) 42%, rgba(49,81,48,.13) 100%);
+    filter: blur(.3px);
+}
+
+@keyframes gardenSunSweep {
+    from { transform: translate3d(-1.5%, -1%, 0) scale(1.01); opacity: .34; }
+    to   { transform: translate3d(1.8%, 1%, 0) scale(1.04); opacity: .52; }
+}
+
+body.theme-garden #garden-background .theme-garden-skyglow {
+    background:
+        radial-gradient(circle at 50% 7%, rgba(255,252,220,.72), transparent 30%),
+        radial-gradient(circle at 18% 42%, rgba(140,186,111,.14), transparent 26%),
+        radial-gradient(circle at 84% 35%, rgba(203,165,105,.12), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.10), transparent 55%);
+}
+
+body.theme-garden #garden-background .theme-garden-dapple {
+    background:
+        radial-gradient(ellipse at 16px 18px, rgba(91,139,76,.13) 0 5px, transparent 6px),
+        radial-gradient(ellipse at 58px 45px, rgba(188,151,92,.10) 0 6px, transparent 7px),
+        radial-gradient(ellipse at 88px 20px, rgba(255,255,237,.32) 0 7px, transparent 8px);
+    background-size: 104px 90px;
+    opacity: .72;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,.45), transparent 72%);
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.45), transparent 72%);
+}
+
+body.theme-garden #garden-background .theme-garden-vines {
+    background:
+        radial-gradient(circle at 0% 29%, transparent 0 92px, rgba(66,112,64,.13) 93px 96px, transparent 97px),
+        radial-gradient(circle at 100% 61%, transparent 0 112px, rgba(79,120,66,.12) 113px 116px, transparent 117px),
+        radial-gradient(circle at 7% 76%, transparent 0 62px, rgba(179,142,85,.10) 63px 66px, transparent 67px),
+        radial-gradient(circle at 93% 19%, transparent 0 54px, rgba(255,255,235,.28) 55px 58px, transparent 59px);
+    opacity: .95;
+}
+
+body.theme-garden #garden-background .theme-garden-meadow {
+    left: -12vw;
+    right: -12vw;
+    bottom: -13vh;
+    height: 42vh;
+    opacity: .90;
+    background:
+        repeating-linear-gradient(
+            96deg,
+            transparent 0 22px,
+            rgba(72,116,61,.05) 23px 24px,
+            transparent 25px 46px
+        ),
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(132,157,90,.10) 28%,
+            rgba(73,111,58,.18) 100%
+        );
+    clip-path: ellipse(76% 64% at 50% 100%);
+}
+
+body.theme-garden #garden-background .theme-garden-item {
+    filter:
+        drop-shadow(0 13px 18px rgba(43,65,43,.16))
+        drop-shadow(0 2px 3px rgba(255,255,255,.34));
+}
+
+body.theme-garden #garden-background .theme-garden-soft {
+    opacity: var(--item-opacity, .70);
+}
+
+@media (max-width: 700px) {
+    body.theme-garden #garden-background .theme-garden-item {
+        max-width: 190px;
+        max-height: 230px;
+    }
+}
+
+/* ============================================================
+   FINAL MODAL + DAILY UI READABILITY PASS
+   This block intentionally comes LAST.
+   - Search bar background EXACTLY matches numbered day boxes.
+   - Every modal title contrasts with the modal surface.
+   - CTRL / SHIFT / D / M shortcut keys and shortcut text are readable.
+   - Modal close X icons are always visible.
+   - Daily settings gear uses NO fill: accent border + accent icon.
+   - Daily-log back/previous/next arrows use the page accent, never white.
+   ============================================================ */
+
+/* Numbered day boxes are the source surface for the search field. */
+html body.theme-garden .day-box,
+html body.theme-garden .day-box.has-data,
+html body.theme-garden .day-picker-box,
+html body.theme-garden .mini-day-box {
+    background: #fbfff7 !important;
+    background-color: #fbfff7 !important;
+    background-image: none !important;
+    color: #34482d !important;
+    border-color: #9fbd91 !important;
+}
+
+html body.theme-garden .day-box *,
+html body.theme-garden .day-picker-box *,
+html body.theme-garden .mini-day-box * {
+    color: inherit !important;
+}
+
+/* Search bar = the SAME background and text colors as numbered day boxes. */
+html body.theme-garden input[type="search"],
+html body.theme-garden input[id*="search"],
+html body.theme-garden .search-input,
+html body.theme-garden .search-bar input,
+html body.theme-garden #phrases-search-bar {
+    background: #fbfff7 !important;
+    background-color: #fbfff7 !important;
+    background-image: none !important;
+    color: #34482d !important;
+    caret-color: #34482d !important;
+    border: 2px solid #9fbd91 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-garden input[type="search"]::placeholder,
+html body.theme-garden input[id*="search"]::placeholder,
+html body.theme-garden .search-input::placeholder,
+html body.theme-garden .search-bar input::placeholder,
+html body.theme-garden #phrases-search-bar::placeholder {
+    color: #34482d !important;
+    opacity: .62 !important;
+}
+
+/* Daily title is the theme accent. */
+html body.theme-garden #current-date-title,
+html body.theme-garden .log-header-container > h1,
+html body.theme-garden .log-header-container > h2 {
+    color: #4f7a3b !important;
+    text-shadow: none !important;
+}
+
+/* Daily-log back / previous / next arrows: transparent, accent colored. */
+html body.theme-garden #back-btn,
+html body.theme-garden #prev-day-btn,
+html body.theme-garden #next-day-btn,
+html body.theme-garden .log-header-container .header-back-btn,
+html body.theme-garden .log-header-container .header-back-btn:hover,
+html body.theme-garden .log-header-container .header-back-btn:focus,
+html body.theme-garden .log-header-container .header-back-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #4f7a3b !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-garden #back-btn i,
+html body.theme-garden #prev-day-btn i,
+html body.theme-garden #next-day-btn i,
+html body.theme-garden .log-header-container .header-back-btn i,
+html body.theme-garden .log-header-container .header-back-btn i::before,
+html body.theme-garden .log-header-container .header-back-btn svg {
+    color: #4f7a3b !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Daily View Settings gear:
+   border version = NO background; border/icon match title accent. */
+html body.theme-garden #open-daily-settings-btn,
+html body.theme-garden header #open-daily-settings-btn,
+html body.theme-garden button[title="Daily View Settings"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #4f7a3b !important;
+    border: 2px solid #4f7a3b !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-garden #open-daily-settings-btn:hover,
+html body.theme-garden #open-daily-settings-btn:focus,
+html body.theme-garden #open-daily-settings-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #4f7a3b !important;
+    border-color: #4f7a3b !important;
+}
+
+html body.theme-garden #open-daily-settings-btn i,
+html body.theme-garden #open-daily-settings-btn i::before,
+html body.theme-garden #open-daily-settings-btn svg {
+    color: #4f7a3b !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Every modal gets one explicit readable surface/text pair. */
+html body.theme-garden .modal-box,
+html body.theme-garden .modal-overlay .modal-box,
+html body.theme-garden .modal .modal-box,
+html body.theme-garden #settings-modal .modal-box,
+html body.theme-garden #daily-settings-modal .modal-box {
+    background: #fbfff7 !important;
+    background-color: #fbfff7 !important;
+    background-image: none !important;
+    color: #34482d !important;
+    border-color: #9fbd91 !important;
+}
+
+/* Modal headers/titles can NEVER use the modal background color. */
+html body.theme-garden .modal-box .modal-header,
+html body.theme-garden .modal-box .modal-header h1,
+html body.theme-garden .modal-box .modal-header h2,
+html body.theme-garden .modal-box .modal-header h3,
+html body.theme-garden .modal-box > h1,
+html body.theme-garden .modal-box > h2,
+html body.theme-garden .modal-box > h3,
+html body.theme-garden .modal-box .modal-title,
+html body.theme-garden .modal-box [class*="modal-title"],
+html body.theme-garden .modal-box [id$="-modal-title"],
+html body.theme-garden .modal-box [role="heading"] {
+    color: #4f7a3b !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Modal body text, including keyboard shortcut descriptions. */
+html body.theme-garden .modal-box .modal-section,
+html body.theme-garden .modal-box .modal-label,
+html body.theme-garden .modal-box .field-label,
+html body.theme-garden .modal-box .progress-hint,
+html body.theme-garden .modal-box p,
+html body.theme-garden .modal-box label,
+html body.theme-garden .modal-box small,
+html body.theme-garden .modal-box li,
+html body.theme-garden .modal-box dt,
+html body.theme-garden .modal-box dd,
+html body.theme-garden .modal-box strong,
+html body.theme-garden .modal-box em,
+html body.theme-garden .modal-box .shortcut-row,
+html body.theme-garden .modal-box .shortcut-item,
+html body.theme-garden .modal-box .shortcut-label,
+html body.theme-garden .modal-box .shortcut-description,
+html body.theme-garden .modal-box [class*="shortcut"]:not([class*="key"]),
+html body.theme-garden .modal-box [id*="shortcut"] {
+    color: #34482d !important;
+    opacity: 1 !important;
+}
+
+/* Plain buttons in a modal also remain readable. */
+html body.theme-garden .modal-box button:not(.small-icon-btn):not(.theme-picker-card):not(.icon-option) {
+    color: #34482d !important;
+    border-color: #9fbd91 !important;
+}
+
+/* Modal form controls. */
+html body.theme-garden .modal-box input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-garden .modal-box textarea,
+html body.theme-garden .modal-box select {
+    background: #fbfff7 !important;
+    background-color: #fbfff7 !important;
+    background-image: none !important;
+    color: #34482d !important;
+    caret-color: #34482d !important;
+    border-color: #9fbd91 !important;
+}
+
+html body.theme-garden .modal-box select option,
+html body.theme-garden .modal-box select optgroup {
+    background: #fbfff7 !important;
+    color: #34482d !important;
+}
+
+html body.theme-garden .modal-box input::placeholder,
+html body.theme-garden .modal-box textarea::placeholder {
+    color: #34482d !important;
+    opacity: .58 !important;
+}
+
+/* General modal button/icon visibility. */
+html body.theme-garden .modal-box button i,
+html body.theme-garden .modal-box button i::before,
+html body.theme-garden .modal-box button .ph {
+    color: #34482d !important;
+    opacity: 1 !important;
+}
+
+/* Close X: transparent with accent border/icon.
+   This specifically fixes invisible X icons on same-color button fills. */
+html body.theme-garden .modal-box .modal-header .small-icon-btn,
+html body.theme-garden .modal-box [id$="-close"],
+html body.theme-garden .modal-box .lightbox-close,
+html body.theme-garden #daily-settings-close,
+html body.theme-garden #settings-close {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #4f7a3b !important;
+    border: 2px solid #4f7a3b !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-garden .modal-box .modal-header .small-icon-btn i,
+html body.theme-garden .modal-box .modal-header .small-icon-btn i::before,
+html body.theme-garden .modal-box [id$="-close"] i,
+html body.theme-garden .modal-box [id$="-close"] i::before,
+html body.theme-garden .modal-box .lightbox-close i,
+html body.theme-garden .modal-box .lightbox-close i::before,
+html body.theme-garden #daily-settings-close i,
+html body.theme-garden #daily-settings-close i::before,
+html body.theme-garden #settings-close i,
+html body.theme-garden #settings-close i::before {
+    color: #4f7a3b !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* CTRL / SHIFT / D / M keycaps and any equivalent keyboard shortcut markup. */
+html body.theme-garden .modal-box kbd,
+html body.theme-garden .modal-box .keycap,
+html body.theme-garden .modal-box .shortcut-key,
+html body.theme-garden .modal-box .keyboard-key,
+html body.theme-garden .modal-box .hotkey,
+html body.theme-garden .modal-box [class*="kbd"],
+html body.theme-garden .modal-box [class*="keycap"],
+html body.theme-garden .modal-box [class*="hotkey"],
+html body.theme-garden .modal-box [class*="shortcut"][class*="key"],
+html body.theme-garden .modal-box [class*="shortcut"] kbd,
+html body.theme-garden .modal-box [class*="shortcut"] .key,
+html body.theme-garden .modal-box [id*="shortcut"] kbd {
+    background: #4f7a3b !important;
+    background-color: #4f7a3b !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    border: 1px solid #9fbd91 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* Theme / companion / cursor / shortcut option cards inside settings. */
+html body.theme-garden .modal-box .filter-tab,
+html body.theme-garden .modal-box .icon-option,
+html body.theme-garden .modal-box .kb-view-btn {
+    background: #fbfff7 !important;
+    background-color: #fbfff7 !important;
+    color: #34482d !important;
+    border-color: #9fbd91 !important;
+}
+
+html body.theme-garden .modal-box .filter-tab.active,
+html body.theme-garden .modal-box .filter-tab[aria-selected="true"],
+html body.theme-garden .modal-box .icon-option.selected,
+html body.theme-garden .modal-box .kb-view-btn.active {
+    background: #4f7a3b !important;
+    background-color: #4f7a3b !important;
+    color: #ffffff !important;
+    border-color: #4f7a3b !important;
+}
+
+html body.theme-garden .modal-box .filter-tab.active *,
+html body.theme-garden .modal-box .filter-tab[aria-selected="true"] *,
+html body.theme-garden .modal-box .icon-option.selected *,
+html body.theme-garden .modal-box .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* Preserve preview-label contrast in the Theme picker. */
+html body.theme-garden #theme-picker .theme-picker-card.theme-dark .theme-picker-info,
+html body.theme-garden #theme-picker .theme-picker-card.theme-dark .theme-picker-name,
+html body.theme-garden #theme-picker .theme-picker-card.theme-dark .theme-picker-hint {
+    color: #ffffff !important;
+}
+html body.theme-garden #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-info,
+html body.theme-garden #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-name {
+    color: #222222 !important;
+}
+html body.theme-garden #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-hint {
+    color: #555555 !important;
+}
+
+/* Parent tab/filter rows remain transparent. */
+html body.theme-garden .filter-tabs,
+html body.theme-garden #library-filter-tabs,
+html body.theme-garden #quiz-type-filters,
+html body.theme-garden .set-size-picker {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+
+/* ============================================================
+   WINTER-STYLE UNIFIED UI SYSTEM
+   ------------------------------------------------------------
+   The Winter theme is the reference:
+   - one readable surface/text system across every view
+   - the SAME search styling in every tab and modal
+   - the SAME settings/plus/button styling across tabs
+   - visible icon choices before hover
+   - readable icon-search inputs
+   - readable Developer Mode / shortcut modal
+   - no changes to app layout, companion positioning, or theme SVG logic
+   ============================================================ */
+
+html body.theme-garden {
+    --unified-ui-surface: #fbfff7;
+    --unified-ui-surface-soft: #edf7e7;
+    --unified-ui-text: #34482d;
+    --unified-ui-muted: #66725f;
+    --unified-ui-border: #9fbd91;
+    --unified-ui-accent: #a9d28e;
+    --unified-ui-accent-text: #304426;
+
+    --black: var(--unified-ui-text) !important;
+    --white: var(--unified-ui-surface) !important;
+    --muted-text: var(--unified-ui-muted) !important;
+    --track-bg: var(--unified-ui-surface-soft) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE INPUT / SEARCH STYLE EVERYWHERE
+   Includes Knowledge Base, Daily View, theme search, icon search,
+   category inputs, settings inputs, and add-tab/create-tab modals.
+   ------------------------------------------------------------ */
+html body.theme-garden input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-garden textarea,
+html body.theme-garden select,
+html body.theme-garden .notes-editable {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    caret-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-garden input:not([type="checkbox"]):not([type="radio"])::placeholder,
+html body.theme-garden textarea::placeholder,
+html body.theme-garden .notes-editable:empty::before {
+    color: var(--unified-ui-muted) !important;
+    -webkit-text-fill-color: var(--unified-ui-muted) !important;
+    opacity: .82 !important;
+}
+
+html body.theme-garden select option,
+html body.theme-garden select optgroup {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE BUTTON STYLE THROUGHOUT THE APP
+   Settings, plus, save/generate, Start Quiz, modal icon buttons, etc.
+   ------------------------------------------------------------ */
+html body.theme-garden .view .icon-btn,
+html body.theme-garden .view .small-icon-btn,
+html body.theme-garden .modal-box .icon-btn,
+html body.theme-garden .modal-box .small-icon-btn,
+html body.theme-garden .modal-box .save-btn,
+html body.theme-garden #start-quiz-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-garden .view .icon-btn i,
+html body.theme-garden .view .small-icon-btn i,
+html body.theme-garden .modal-box .icon-btn i,
+html body.theme-garden .modal-box .small-icon-btn i,
+html body.theme-garden #start-quiz-btn i,
+html body.theme-garden .view .icon-btn svg,
+html body.theme-garden .view .small-icon-btn svg,
+html body.theme-garden #start-quiz-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-garden .view .icon-btn:hover,
+html body.theme-garden .view .small-icon-btn:hover,
+html body.theme-garden .modal-box .icon-btn:hover,
+html body.theme-garden .modal-box .small-icon-btn:hover,
+html body.theme-garden .modal-box .save-btn:hover,
+html body.theme-garden #start-quiz-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+/* Disabled Start Quiz remains readable instead of losing its label/icon. */
+html body.theme-garden #start-quiz-btn:disabled,
+html body.theme-garden #start-quiz-btn.disabled-btn {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: .58 !important;
+}
+html body.theme-garden #start-quiz-btn:disabled i,
+html body.theme-garden #start-quiz-btn.disabled-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Side navigation remains the template's bare-icon treatment. */
+html body.theme-garden .side-nav .icon-btn,
+html body.theme-garden .side-nav .icon-btn:hover,
+html body.theme-garden .side-nav .icon-btn:focus,
+html body.theme-garden .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-garden .side-nav .icon-btn i,
+html body.theme-garden .side-nav .icon-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Back arrows stay simple and visible, like Winter. */
+html body.theme-garden .header-back-btn,
+html body.theme-garden .header-back-btn:hover,
+html body.theme-garden .header-back-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--unified-ui-text) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+html body.theme-garden .header-back-btn i,
+html body.theme-garden .header-back-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   CARDS / DAY BOXES / POLAROIDS
+   ------------------------------------------------------------ */
+html body.theme-garden .day-box,
+html body.theme-garden .day-picker-box,
+html body.theme-garden .mini-day-box,
+html body.theme-garden .day-badge,
+html body.theme-garden .day-target-box,
+html body.theme-garden .phrase-card,
+html body.theme-garden .chip,
+html body.theme-garden .toolbox-item,
+html body.theme-garden .resource-card,
+html body.theme-garden .polaroid-card,
+html body.theme-garden .flashcard,
+html body.theme-garden .flashcard-mode-card,
+html body.theme-garden .video-placeholder,
+html body.theme-garden .note-audio-row,
+html body.theme-garden .set-complete-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-garden .polaroid-label,
+html body.theme-garden .polaroid-label *,
+html body.theme-garden .day-box *,
+html body.theme-garden .day-picker-box *,
+html body.theme-garden .day-badge * {
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   FILTER TABS
+   Parent rows are transparent; actual buttons have visible surfaces.
+   ------------------------------------------------------------ */
+html body.theme-garden .filter-tabs,
+html body.theme-garden #library-filter-tabs,
+html body.theme-garden #quiz-type-filters,
+html body.theme-garden .set-size-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-garden .filter-tab,
+html body.theme-garden .kb-view-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-garden .filter-tab:hover,
+html body.theme-garden .kb-view-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-garden .filter-tab.active,
+html body.theme-garden .filter-tab[aria-selected="true"],
+html body.theme-garden .kb-view-btn.active {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-garden .filter-tab.active *,
+html body.theme-garden .filter-tab[aria-selected="true"] *,
+html body.theme-garden .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* ------------------------------------------------------------
+   ICON PICKERS / ADD-TAB PICKERS
+   Every icon is visible before hover. The containing grid is also neutral.
+   ------------------------------------------------------------ */
+html body.theme-garden .icon-grid,
+html body.theme-garden #icon-picker,
+html body.theme-garden #companion-picker,
+html body.theme-garden #cursor-picker,
+html body.theme-garden [id*="icon"][id*="picker"] {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-garden .icon-option {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-garden .icon-option i,
+html body.theme-garden .icon-option svg,
+html body.theme-garden .icon-option small,
+html body.theme-garden .icon-option span {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html body.theme-garden .icon-option:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-garden .icon-option.selected {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-garden .icon-option.selected i,
+html body.theme-garden .icon-option.selected svg,
+html body.theme-garden .icon-option.selected small,
+html body.theme-garden .icon-option.selected span {
+    color: var(--unified-ui-accent-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   ALL MODALS
+   ------------------------------------------------------------ */
+html body.theme-garden .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-garden .modal-box .modal-header,
+html body.theme-garden .modal-box .modal-header h1,
+html body.theme-garden .modal-box .modal-header h2,
+html body.theme-garden .modal-box .modal-header h3,
+html body.theme-garden .modal-box .modal-title,
+html body.theme-garden .modal-box .field-label,
+html body.theme-garden .modal-box .modal-label,
+html body.theme-garden .modal-box .progress-hint,
+html body.theme-garden .modal-box label,
+html body.theme-garden .modal-box p {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Close X uses exactly the same small-button treatment as other modal icons. */
+html body.theme-garden .modal-box [id$="-close"],
+html body.theme-garden .modal-box .modal-header .small-icon-btn,
+html body.theme-garden .modal-box .close-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+html body.theme-garden .modal-box [id$="-close"] i,
+html body.theme-garden .modal-box .modal-header .small-icon-btn i,
+html body.theme-garden .modal-box .close-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* ------------------------------------------------------------
+   DEVELOPER MODE / CTRL+SHIFT+D / CTRL+SHIFT+M
+   Covers dynamically-created developer/shortcut modals as well.
+   ------------------------------------------------------------ */
+html body.theme-garden :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-garden :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    .shortcut-row,
+    .shortcut-item,
+    .developer-row,
+    .developer-item,
+    .developer-card,
+    .dev-card,
+    [class*="shortcut"][class*="card"],
+    [class*="developer"][class*="card"]
+) {
+    background: var(--unified-ui-surface-soft) !important;
+    background-color: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-garden :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    p, span, label, small, strong, em,
+    .field-label, .modal-label, .progress-hint,
+    .shortcut-label, .shortcut-description
+) {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-garden .modal-box kbd,
+html body.theme-garden .modal-box .keycap,
+html body.theme-garden .modal-box .shortcut-key,
+html body.theme-garden .modal-box .keyboard-key,
+html body.theme-garden .modal-box .hotkey {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------
+   THEME PICKER PREVIEW LABELS
+   Do not wipe out thumbnail artwork; only make the information strip readable.
+   ------------------------------------------------------------ */
+html body.theme-garden #theme-picker .theme-picker-info {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-garden #theme-picker .theme-picker-name {
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-garden #theme-picker .theme-picker-hint {
+    color: var(--unified-ui-muted) !important;
+}
+
+/* ------------------------------------------------------------
+   TITLES stay above decorative art.
+   ------------------------------------------------------------ */
+html body.theme-garden header,
+html body.theme-garden .log-header-container {
+    position: relative !important;
+    z-index: 40 !important;
+}
+
+
+/* ============================================================
+   CLEAN ADD-TAB / THEME-SETTINGS PICKER PASS
+   Based on the Winx treatment:
+   - no nested border inside the icon search field
+   - modal titles always readable
+   - no dark tile behind every tab/cursor/companion icon
+   - theme cards use a clean light shell without wiping preview artwork
+   ============================================================ */
+
+html body.theme-garden {
+    --picker-clean-surface: #fbfff7;
+    --picker-clean-text: #34482d;
+    --picker-clean-soft: #edf7e7;
+    --picker-clean-border: #a7c499;
+    --picker-clean-accent: #b7d9a2;
+    --picker-clean-accent-text: #304426;
+}
+
+/* Target the theme/settings picker and any add-tab modal that contains
+   an icon grid. This does NOT change modal dimensions or positioning. */
+html body.theme-garden #settings-modal .modal-box,
+html body.theme-garden #daily-settings-modal .modal-box,
+html body.theme-garden #add-tab-modal .modal-box,
+html body.theme-garden [id*="add-tab"] .modal-box,
+html body.theme-garden [id*="tab"][id*="modal"] .modal-box,
+html body.theme-garden [class*="add-tab"][class*="modal"] .modal-box,
+html body.theme-garden [class*="tab"][class*="modal"] .modal-box,
+html body.theme-garden .modal-box:has(#theme-picker),
+html body.theme-garden .modal-box:has(#companion-picker),
+html body.theme-garden .modal-box:has(#cursor-picker),
+html body.theme-garden .modal-box:has(.icon-grid) {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+}
+
+/* TITLES: force both color and WebKit text fill so old theme rules cannot
+   make them disappear into the modal background. */
+html body.theme-garden #settings-modal .modal-header h1,
+html body.theme-garden #settings-modal .modal-header h2,
+html body.theme-garden #daily-settings-modal .modal-header h1,
+html body.theme-garden #daily-settings-modal .modal-header h2,
+html body.theme-garden #add-tab-modal .modal-header h1,
+html body.theme-garden #add-tab-modal .modal-header h2,
+html body.theme-garden [id*="tab"][id*="modal"] .modal-header h1,
+html body.theme-garden [id*="tab"][id*="modal"] .modal-header h2,
+html body.theme-garden .modal-box:has(.icon-grid) .modal-header h1,
+html body.theme-garden .modal-box:has(.icon-grid) .modal-header h2,
+html body.theme-garden .modal-box:has(#theme-picker) .modal-header h1,
+html body.theme-garden .modal-box:has(#theme-picker) .modal-header h2 {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Normal picker/modal labels stay readable too. */
+html body.theme-garden #settings-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-garden #daily-settings-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-garden #add-tab-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-garden .modal-box:has(.icon-grid) :is(.field-label,.modal-label,.progress-hint,label,p,small) {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+/* ICON SEARCH FIELD:
+   the OUTER search control can keep its shape; remove the extra INNER border. */
+html body.theme-garden input[id*="icon"][id*="search"],
+html body.theme-garden input[class*="icon"][class*="search"],
+html body.theme-garden input[placeholder*="icon" i],
+html body.theme-garden #add-tab-modal input[type="search"],
+html body.theme-garden [id*="tab"][id*="modal"] input[type="search"],
+html body.theme-garden .modal-box:has(.icon-grid) input[type="search"],
+html body.theme-garden .modal-box:has(.icon-grid) input[type="text"][placeholder*="Search" i] {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    caret-color: var(--picker-clean-text) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-garden input[id*="icon"][id*="search"]::placeholder,
+html body.theme-garden input[class*="icon"][class*="search"]::placeholder,
+html body.theme-garden input[placeholder*="icon" i]::placeholder,
+html body.theme-garden .modal-box:has(.icon-grid) input[type="search"]::placeholder,
+html body.theme-garden .modal-box:has(.icon-grid) input[type="text"][placeholder*="Search" i]::placeholder {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: .62 !important;
+}
+
+/* If the search is wrapped by its own little search shell, the shell gets
+   the single visible border. */
+html body.theme-garden :is(
+    .icon-search,
+    .icon-search-wrap,
+    .icon-search-wrapper,
+    [class*="icon-search"][class*="wrap"],
+    [class*="icon-search"][class*="box"]
+) {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    border: 1px solid var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+/* The GRID itself should not become one giant dark rectangle. */
+html body.theme-garden #settings-modal .icon-grid,
+html body.theme-garden #daily-settings-modal .icon-grid,
+html body.theme-garden #add-tab-modal .icon-grid,
+html body.theme-garden [id*="tab"][id*="modal"] .icon-grid,
+html body.theme-garden .modal-box:has(.icon-grid) .icon-grid,
+html body.theme-garden #companion-picker,
+html body.theme-garden #cursor-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+/* Tab icons / cursor icons / companion icons are visible BEFORE hover. */
+html body.theme-garden #settings-modal .icon-option,
+html body.theme-garden #daily-settings-modal .icon-option,
+html body.theme-garden #add-tab-modal .icon-option,
+html body.theme-garden [id*="tab"][id*="modal"] .icon-option,
+html body.theme-garden .modal-box:has(.icon-grid) .icon-option,
+html body.theme-garden #companion-picker .icon-option,
+html body.theme-garden #cursor-picker .icon-option {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-garden #settings-modal .icon-option :is(i,span,small),
+html body.theme-garden #daily-settings-modal .icon-option :is(i,span,small),
+html body.theme-garden #add-tab-modal .icon-option :is(i,span,small),
+html body.theme-garden [id*="tab"][id*="modal"] .icon-option :is(i,span,small),
+html body.theme-garden .modal-box:has(.icon-grid) .icon-option :is(i,span,small),
+html body.theme-garden #companion-picker .icon-option :is(i,span,small),
+html body.theme-garden #cursor-picker .icon-option :is(i,span,small) {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-garden #settings-modal .icon-option:hover,
+html body.theme-garden #daily-settings-modal .icon-option:hover,
+html body.theme-garden #add-tab-modal .icon-option:hover,
+html body.theme-garden [id*="tab"][id*="modal"] .icon-option:hover,
+html body.theme-garden .modal-box:has(.icon-grid) .icon-option:hover {
+    background: var(--picker-clean-soft) !important;
+    background-color: var(--picker-clean-soft) !important;
+    color: var(--picker-clean-text) !important;
+}
+
+html body.theme-garden #settings-modal .icon-option.selected,
+html body.theme-garden #daily-settings-modal .icon-option.selected,
+html body.theme-garden #add-tab-modal .icon-option.selected,
+html body.theme-garden [id*="tab"][id*="modal"] .icon-option.selected,
+html body.theme-garden .modal-box:has(.icon-grid) .icon-option.selected {
+    background: var(--picker-clean-accent) !important;
+    background-color: var(--picker-clean-accent) !important;
+    color: var(--picker-clean-accent-text) !important;
+    border-color: var(--picker-clean-border) !important;
+}
+
+html body.theme-garden .modal-box:has(.icon-grid) .icon-option.selected :is(i,span,small) {
+    color: var(--picker-clean-accent-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-accent-text) !important;
+}
+
+/* Theme picker: clean shell/card/info backgrounds, but NEVER touch
+   .theme-picker-preview background-image. */
+html body.theme-garden #theme-picker,
+html body.theme-garden .theme-picker-grid {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-garden #theme-picker .theme-picker-card {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-garden #theme-picker .theme-picker-info {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+}
+
+html body.theme-garden #theme-picker .theme-picker-name {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+}
+html body.theme-garden #theme-picker .theme-picker-hint {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: .64 !important;
+}
+
+/* Close X in these modals is clean/light too — no dark square behind it. */
+html body.theme-garden #settings-modal .modal-header .small-icon-btn,
+html body.theme-garden #daily-settings-modal .modal-header .small-icon-btn,
+html body.theme-garden #add-tab-modal .modal-header .small-icon-btn,
+html body.theme-garden [id*="tab"][id*="modal"] .modal-header .small-icon-btn,
+html body.theme-garden .modal-box:has(.icon-grid) .modal-header .small-icon-btn {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-garden .modal-box:has(.icon-grid) .modal-header .small-icon-btn i,
+html body.theme-garden #settings-modal .modal-header .small-icon-btn i,
+html body.theme-garden #daily-settings-modal .modal-header .small-icon-btn i {
+    color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+
+

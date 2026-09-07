@@ -1,0 +1,9 @@
+body.theme-sunset {
+--overlay-scrim: rgba(40, 15, 5, 0.62);
+--black: #a13d3d;
+--white: #fff3e6;
+--thick-border: 3px solid #d9743f;
+--thin-border: 2px solid #d9743f;
+--dashed-border: 2px dashed #d9743f;
+--dotted-border: 2px dotted #d9743f;
+}

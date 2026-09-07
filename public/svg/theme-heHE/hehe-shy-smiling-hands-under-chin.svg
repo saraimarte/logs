@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360">
+<style>
+  .o{fill:none;stroke:#1a1617;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  .thin{fill:none;stroke:#1a1617;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+  .hair{fill:#1d1718;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .skin{fill:#fff7e6;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .skin2{fill:#fff7e6;stroke:#1a1617;stroke-width:4;stroke-linejoin:round}
+  .dress{fill:#f06a45;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .yellow{fill:#f6e84a;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .shoe{fill:#8b4b2e;stroke:#1a1617;stroke-width:4;stroke-linejoin:round}
+  .pink{fill:#f05093;stroke:#1a1617;stroke-width:3.2;stroke-linejoin:round}
+  .blue{fill:#4aa8e8;stroke:#1a1617;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  .spark{fill:#f7df35;stroke:#c3a916;stroke-width:2}
+</style>
+    <g transform="rotate(6 150 105)">
+      <path class="hair" d="M75,95 C70,33 102,8 152,6 C204,4 232,35 227,97 C223,132 203,154 184,160 L114,160 C94,148 77,129 75,95Z"/>
+      <path class="skin" d="M94,71 C106,44 132,36 160,38 C189,39 211,53 216,80 L213,132 C208,167 182,184 150,187 C117,183 93,164 87,133 C82,109 84,86 94,71Z"/>
+    </g>
+<g transform="rotate(6 150 105)">
+  <path class="thin" d="M107 108 q10 12 23 2"/><path class="thin" d="M163 103 q11 9 21 -3"/>
+  <path class="thin" d="M113 101 q-4 8 -2 13 M124 100 q-3 8 -1 13 M168 96 q-2 8 0 12 M180 94 q-1 8 2 12"/>
+  <path class="thin" d="M143 124 q6 5 12 0"/>
+  <path class="o" d="M123 142 q27 24 55 0 q-18 33 -55 0Z"/>
+  <path d="M132 149 q18 12 36 0 q-14 17 -36 0Z" fill="#f09a9c" stroke="#1a1617" stroke-width="3"/>
+</g>
+<path class="yellow" d="M109 210 q-12 44 15 66 l23 -19 -10 -53Z"/><path class="yellow" d="M191 211 q11 43 -17 66 l-23 -19 10 -53Z"/>
+<path class="skin2" d="M112 213 q12 -24 35 -4 l12 18 q-9 8 -18 4 l-7 -10 q-9 5 -12 14 q-7 -4 -10 -22Z"/>
+<path class="skin2" d="M188 214 q-13 -23 -35 -4 l-12 18 q9 8 18 4 l7 -10 q9 5 12 14 q7 -4 10 -22Z"/>
+<path class="dress" d="M126 253 L174 253 L184 338 L116 338Z"/></svg>

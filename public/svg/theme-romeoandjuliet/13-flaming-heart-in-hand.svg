@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="340" viewBox="0 0 360 340" fill="none">
+<defs>
+  <linearGradient id="skinC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8a789"/><stop offset="1" stop-color="#8e5d44"/></linearGradient>
+  <radialGradient id="heartC" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#e9a1a1"/><stop offset="0.5" stop-color="#b53935"/><stop offset="1" stop-color="#671d1b"/></radialGradient>
+  <linearGradient id="flame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff5dc"/><stop offset="0.35" stop-color="#e8d4b3"/><stop offset="0.65" stop-color="#9a6745"/><stop offset="1" stop-color="#351d15"/></linearGradient>
+</defs>
+<g stroke="#55372a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M34 220 C78 205,112 197,145 194 C183 190,205 196,223 211 C239 225,245 244,242 266 C240 286,230 301,211 308 C196 314,180 312,165 303 C151 294,142 279,137 257 C134 290,121 314,97 326 C89 286,73 255,49 232" fill="url(#skinC)"/>
+  <path d="M142 257 C144 236,150 218,160 203"/>
+  <path d="M163 247 C163 229,167 212,175 198"/>
+  <path d="M186 241 C184 223,186 207,193 194"/>
+  <path d="M208 242 C206 224,208 210,214 198"/>
+  <path d="M89 326 C78 334,67 338,54 340" fill="none"/>
+  <path d="M168 154 C184 118,222 111,238 143 C253 173,229 196,168 239 C107 196,83 173,98 143 C114 111,152 118,168 154 Z" fill="url(#heartC)"/>
+  <path d="M124 130 C137 78,189 50,240 58 C223 86,225 121,249 152 C270 179,305 195,334 199 C321 231,294 248,259 250 C233 251,208 242,188 225" fill="url(#flame)"/>
+  <path d="M152 168 C163 156,175 146,189 140" stroke="#f5d2bf" stroke-width="3"/>
+</g>
+</svg>

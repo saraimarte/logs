@@ -1,0 +1,139 @@
+/* ============================================================
+   SHOPKINS THEME
+   Built from the winter theme's decorative mount/unmount pattern.
+   ============================================================ */
+
+
+body.theme-shopkins {
+    --shopkins-ink: #66486b;
+    --shopkins-border: #f2afd9;
+    --shopkins-surface: #fffdfd;
+    --shopkins-surface-soft: #fff3fa;
+    --shopkins-accent: #ff92c8;
+    --shopkins-second: #7ad8ff;
+    --shopkins-third: #ffe784;
+    --black: var(--shopkins-ink);
+    --white: var(--shopkins-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--shopkins-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--shopkins-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--shopkins-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--shopkins-border) 44%, transparent);
+    --track-bg: #ffedf8;
+    --muted-text: color-mix(in srgb, var(--shopkins-ink) 58%, transparent);
+    background:
+        radial-gradient(circle at 14% 14%, rgba(255,255,255,.88), transparent 24%),
+        radial-gradient(circle at 84% 16%, rgba(255,255,255,.52), transparent 24%),
+        radial-gradient(circle at 20% 82%, rgba(255,146,200,.12), transparent 24%),
+        radial-gradient(circle at 76% 82%, rgba(122,216,255,.12), transparent 24%),
+        linear-gradient(160deg, #ffe7f6 0%, #fff9df 46%, #eaf8ff 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--shopkins-ink) !important;
+}
+
+#shopkins-background {
+    position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: -1;
+}
+#shopkins-background::before,
+#shopkins-background::after { content: ''; position: absolute; inset: -12%; pointer-events: none; }
+#shopkins-background::before {
+    background:
+        radial-gradient(circle at 24% 22%, rgba(255,255,255,.22), transparent 20%),
+        radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%),
+        radial-gradient(circle at 15% 80%, rgba(255,255,255,.16), transparent 20%),
+        linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%);
+    animation: shopkinsLightSweep 9s ease-in-out infinite alternate;
+}
+#shopkins-background::after {
+    background:
+        radial-gradient(circle at 14% 18%, rgba(255,146,200,.18) 0 10px, transparent 10px 34px),
+        radial-gradient(circle at 36% 30%, rgba(122,216,255,.16) 0 10px, transparent 10px 34px),
+        radial-gradient(circle at 62% 16%, rgba(255,231,132,.16) 0 10px, transparent 10px 34px),
+        radial-gradient(circle at 84% 28%, rgba(176,242,138,.16) 0 10px, transparent 10px 34px),
+        radial-gradient(circle at 20% 60%, rgba(255,231,132,.14) 0 10px, transparent 10px 34px),
+        radial-gradient(circle at 76% 68%, rgba(255,146,200,.14) 0 10px, transparent 10px 34px);
+    opacity: .75;
+}
+body.theme-shopkins #shopkins-background { z-index: -1; }
+body.theme-shopkins .view { position: relative; z-index: 2; }
+body.theme-shopkins .side-nav { position: relative; z-index: 3; }
+body.theme-shopkins header,
+body.theme-shopkins .log-header-container { position: relative; z-index: 4; }
+body.theme-shopkins .modal,
+body.theme-shopkins .modal-overlay,
+body.theme-shopkins .overlay { z-index: 10; }
+
+body.theme-shopkins .day-box,
+body.theme-shopkins .day-picker-box,
+body.theme-shopkins .icon-btn,
+body.theme-shopkins .small-icon-btn,
+body.theme-shopkins input,
+body.theme-shopkins textarea,
+body.theme-shopkins select,
+body.theme-shopkins .notes-editable,
+body.theme-shopkins .phrase-card,
+body.theme-shopkins .chip,
+body.theme-shopkins .toolbox-item,
+body.theme-shopkins .resource-card,
+body.theme-shopkins .polaroid-card,
+body.theme-shopkins .filter-tab,
+body.theme-shopkins .day-target-box,
+body.theme-shopkins .flashcard,
+body.theme-shopkins .flashcard-mode-card,
+body.theme-shopkins .day-badge,
+body.theme-shopkins .video-placeholder,
+body.theme-shopkins .theme-picker-card,
+body.theme-shopkins .note-audio-row,
+body.theme-shopkins .modal-box,
+body.theme-shopkins .set-complete-box { background-color: var(--shopkins-surface) !important; }
+body.theme-shopkins input::placeholder,
+body.theme-shopkins textarea::placeholder,
+body.theme-shopkins .notes-editable:empty::before { color: color-mix(in srgb, var(--shopkins-ink) 42%, transparent) !important; }
+body.theme-shopkins .icon-btn:hover,
+body.theme-shopkins .small-icon-btn:hover,
+body.theme-shopkins .filter-tab:hover { background: var(--shopkins-surface-soft) !important; color: var(--shopkins-ink) !important; }
+body.theme-shopkins .chip:hover,
+body.theme-shopkins .phrase-card:hover,
+body.theme-shopkins .day-picker-box.selected,
+body.theme-shopkins .filter-tab.active,
+body.theme-shopkins .filter-tab[aria-selected="true"] {
+    background: color-mix(in srgb, var(--shopkins-surface-soft) 72%, var(--shopkins-accent) 28%) !important;
+    color: var(--shopkins-ink) !important;
+    border-color: var(--shopkins-border) !important;
+}
+body.theme-shopkins .progress-bar-fill { background: linear-gradient(90deg, var(--shopkins-accent), var(--shopkins-second), var(--shopkins-third)) !important; }
+
+#shopkins-background .shopkins-item {
+    position: absolute; display: block; height: auto; object-fit: contain; opacity: .95;
+    transform-origin: center; translate: 0 0; rotate: 0deg; scale: 1;
+    filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--shopkins-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30));
+    animation: shopkinsFloat var(--shopkins-float-duration) ease-in-out var(--shopkins-float-delay) infinite alternate;
+    will-change: transform;
+}
+@keyframes shopkinsFloat {
+    from { transform: translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97); }
+    to   { transform: translate3d(-50%,-50%,0) translate3d(var(--shopkins-float-x), var(--shopkins-float-y), 0) rotate(var(--shopkins-float-r)) scale(1.035); }
+}
+#shopkins-background .shopkins-item.shopkins-intro-bop { animation: shopkinsIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--shopkins-bop-delay) infinite !important; }
+@keyframes shopkinsIntroBop {
+    0%,100% { transform: translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1); }
+    40% { transform: translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05); }
+    68% { transform: translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02); }
+}
+
+#shopkins-background .shopkins-extra {
+    position: absolute; width: 14px; height: 4px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--shopkins-accent), var(--shopkins-second));
+    opacity: .64;
+    animation: shopkinsSprinkleFloat var(--shopkins-extra-duration) ease-in-out var(--shopkins-extra-delay) infinite alternate;
+}
+@keyframes shopkinsSprinkleFloat {
+    from { transform: translate3d(0,0,0) rotate(0deg); }
+    to   { transform: translate3d(var(--shopkins-extra-x), var(--shopkins-extra-y),0) rotate(var(--shopkins-extra-r)); }
+}
+@keyframes shopkinsLightSweep {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); opacity: .7; }
+    to   { transform: translate3d(2%, 1%, 0) scale(1.05); opacity: 1; }
+}
+@media (max-width:700px) { #shopkins-background .shopkins-item { opacity: .72; } #shopkins-background .shopkins-extra { opacity: .38; } }
+@media (prefers-reduced-motion: reduce) { #shopkins-background::before, #shopkins-background::after, #shopkins-background .shopkins-item, #shopkins-background .shopkins-extra { animation: none !important; } }

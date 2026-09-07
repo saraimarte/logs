@@ -1,0 +1,208 @@
+/* ============================================================
+   PINKALICIOUS THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-pinkalicious {
+    --pinkalicious-ink: #6b345a;
+    --pinkalicious-border: #f2a9d6;
+    --pinkalicious-surface: #fff9fd;
+    --pinkalicious-surface-soft: #fff0f8;
+    --pinkalicious-accent: #ff88ca;
+    --pinkalicious-red: #ff88ca;
+    --pinkalicious-blue: #f5b2e6;
+    --pinkalicious-green: #ffd5ea;
+    --pinkalicious-pink: #ff88ca;
+    --pinkalicious-soft: #f5b2e6;
+    --pinkalicious-gold: #ffd5ea;
+
+    --black: var(--pinkalicious-ink);
+    --white: var(--pinkalicious-surface);
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid color-mix(in srgb, var(--pinkalicious-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--pinkalicious-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--pinkalicious-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--pinkalicious-border) 44%, transparent);
+    --track-bg: #ffeaf6;
+    --muted-text: rgba(107,52,90,.56);
+
+    background:
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,.88), transparent 24%),
+        radial-gradient(circle at 84% 16%, rgba(255,255,255,.52), transparent 24%),
+        radial-gradient(circle at 18% 82%, rgba(255,136,202,.12), transparent 24%),
+        linear-gradient(160deg, #ffe8f5 0%, #fff5fb 42%, #ffd9ef 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--pinkalicious-ink) !important;
+}
+
+#pinkalicious-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: -1;
+}
+
+#pinkalicious-background::before,
+#pinkalicious-background::after {
+    content: '';
+    position: absolute;
+    inset: -14%;
+    pointer-events: none;
+}
+
+#pinkalicious-background::before {
+    background:
+        radial-gradient(circle at 24% 22%, rgba(255,255,255,.22), transparent 20%),
+        radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%),
+        linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%);
+    animation: pinkaliciousLightSweep 9s ease-in-out infinite alternate;
+}
+
+body.theme-pinkalicious #pinkalicious-background { z-index: -1; }
+body.theme-pinkalicious .view { position: relative; z-index: 2; }
+body.theme-pinkalicious .side-nav { position: relative; z-index: 3; }
+body.theme-pinkalicious header,
+body.theme-pinkalicious .log-header-container { position: relative; z-index: 4; }
+body.theme-pinkalicious .modal,
+body.theme-pinkalicious .modal-overlay,
+body.theme-pinkalicious .overlay { z-index: 10; }
+
+body.theme-pinkalicious .day-box,
+body.theme-pinkalicious .day-picker-box,
+body.theme-pinkalicious .icon-btn,
+body.theme-pinkalicious .small-icon-btn,
+body.theme-pinkalicious input,
+body.theme-pinkalicious textarea,
+body.theme-pinkalicious select,
+body.theme-pinkalicious .notes-editable,
+body.theme-pinkalicious .phrase-card,
+body.theme-pinkalicious .chip,
+body.theme-pinkalicious .toolbox-item,
+body.theme-pinkalicious .resource-card,
+body.theme-pinkalicious .polaroid-card,
+body.theme-pinkalicious .filter-tab,
+body.theme-pinkalicious .day-target-box,
+body.theme-pinkalicious .flashcard,
+body.theme-pinkalicious .flashcard-mode-card,
+body.theme-pinkalicious .day-badge,
+body.theme-pinkalicious .video-placeholder,
+body.theme-pinkalicious .theme-picker-card,
+body.theme-pinkalicious .note-audio-row,
+body.theme-pinkalicious .modal-box,
+body.theme-pinkalicious .set-complete-box {
+    background-color: var(--pinkalicious-surface) !important;
+}
+
+body.theme-pinkalicious input::placeholder,
+body.theme-pinkalicious textarea::placeholder,
+body.theme-pinkalicious .notes-editable:empty::before {
+    color: color-mix(in srgb, var(--pinkalicious-ink) 42%, transparent) !important;
+}
+
+body.theme-pinkalicious .icon-btn:hover,
+body.theme-pinkalicious .small-icon-btn:hover,
+body.theme-pinkalicious .filter-tab:hover {
+    background: var(--pinkalicious-surface-soft) !important;
+    color: var(--pinkalicious-ink) !important;
+}
+
+body.theme-pinkalicious .chip:hover,
+body.theme-pinkalicious .phrase-card:hover,
+body.theme-pinkalicious .day-picker-box.selected,
+body.theme-pinkalicious .filter-tab.active,
+body.theme-pinkalicious .filter-tab[aria-selected="true"] {
+    background: color-mix(in srgb, var(--pinkalicious-surface-soft) 72%, var(--pinkalicious-accent) 28%) !important;
+    color: var(--pinkalicious-ink) !important;
+    border-color: var(--pinkalicious-border) !important;
+}
+
+body.theme-pinkalicious .progress-bar-fill {
+    background: linear-gradient(90deg, var(--pinkalicious-pink), var(--pinkalicious-soft), #ffc5e3) !important;
+}
+
+#pinkalicious-background .pinkalicious-item {
+    position: absolute;
+    display: block;
+    height: auto;
+    object-fit: contain;
+    opacity: .94;
+    transform-origin: center;
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    filter:
+        drop-shadow(0 9px 13px color-mix(in srgb, var(--pinkalicious-ink) 14%, transparent))
+        drop-shadow(0 0 9px rgba(255,255,255,.30));
+    animation: pinkaliciousFloat var(--pinkalicious-float-duration) ease-in-out var(--pinkalicious-float-delay) infinite alternate;
+    will-change: transform;
+}
+
+@keyframes pinkaliciousFloat {
+    from {
+        transform: translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97);
+    }
+    to {
+        transform: translate3d(-50%,-50%,0) translate3d(var(--pinkalicious-float-x), var(--pinkalicious-float-y), 0) rotate(var(--pinkalicious-float-r)) scale(1.035);
+    }
+}
+
+#pinkalicious-background .pinkalicious-item.pinkalicious-intro-bop {
+    animation: pinkaliciousIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--pinkalicious-bop-delay) infinite !important;
+}
+
+@keyframes pinkaliciousIntroBop {
+    0%,100% { transform: translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1); }
+    40% { transform: translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05); }
+    68% { transform: translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02); }
+}
+
+
+#pinkalicious-background .pinkalicious-extra {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    transform: rotate(-45deg);
+    background: rgba(255,136,202,.42);
+    border-radius: 3px 3px 0 0;
+    opacity: .46;
+    animation: pinkaliciousHeartFloat var(--pinkalicious-extra-duration) ease-in-out var(--pinkalicious-extra-delay) infinite alternate;
+}
+#pinkalicious-background .pinkalicious-extra::before,
+#pinkalicious-background .pinkalicious-extra::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: inherit;
+    border-radius: 50%;
+}
+#pinkalicious-background .pinkalicious-extra::before { left: 0; top: -7px; }
+#pinkalicious-background .pinkalicious-extra::after { left: 7px; top: 0; }
+@keyframes pinkaliciousHeartFloat {
+    from { transform: rotate(-45deg) translate3d(0,0,0) scale(.82); }
+    to { transform: rotate(-45deg) translate3d(0,-12px,0) scale(1.04); }
+}
+
+
+@keyframes pinkaliciousLightSweep {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); opacity: .7; }
+    to { transform: translate3d(2%, 1%, 0) scale(1.05); opacity: 1; }
+}
+
+@media (max-width: 700px) {
+    #pinkalicious-background .pinkalicious-item { opacity: .72; }
+    #pinkalicious-background .pinkalicious-extra { opacity: .38; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #pinkalicious-background::before,
+    #pinkalicious-background .pinkalicious-item,
+    #pinkalicious-background .pinkalicious-extra {
+        animation: none !important;
+    }
+}

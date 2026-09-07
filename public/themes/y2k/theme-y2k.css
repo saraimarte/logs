@@ -1,0 +1,482 @@
+/* ============================================================
+   Y2K
+   Chrome / gadget / denim inspired background using the supplied
+   Y2K objects. UI hover states are intentionally neutral.
+   ============================================================ */
+
+body.theme-y2k {
+    --theme-ink: #25282e;
+    --theme-paper: #f7f4ee;
+    --theme-metal: #aeb7c2;
+    --theme-metal-dark: #65707c;
+    --theme-cool: #8ea5bd;
+    --theme-warm: #c6b39d;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+
+    --thick-border: 2px solid rgba(37, 40, 46, 0.14);
+    --thin-border: 1px solid rgba(37, 40, 46, 0.12);
+    --dashed-border: 1px dashed rgba(37, 40, 46, 0.14);
+    --dotted-border: 1px dotted rgba(37, 40, 46, 0.14);
+
+    --track-bg: rgba(37, 40, 46, 0.08);
+    --muted-text: rgba(37, 40, 46, 0.58);
+
+    background:
+        radial-gradient(circle at 52% 5%, rgba(255,255,255,.68), transparent 31%),
+        radial-gradient(circle at 12% 78%, rgba(142,165,189,.14), transparent 28%),
+        radial-gradient(circle at 88% 27%, rgba(198,179,157,.12), transparent 26%),
+        linear-gradient(145deg, #e5e7e8 0%, #d9dde0 32%, #ece8df 68%, #d4d9de 100%) !important;
+
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#y2k-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#y2k-background .theme-y2k-sheen {
+    position: absolute;
+    inset: -8%;
+    background:
+        radial-gradient(ellipse at 38% 18%, rgba(255,255,255,.46), transparent 22%),
+        radial-gradient(ellipse at 73% 38%, rgba(155,178,202,.14), transparent 24%),
+        radial-gradient(ellipse at 32% 72%, rgba(208,191,173,.13), transparent 28%);
+    filter: blur(7px);
+    opacity: .85;
+}
+
+#y2k-background .theme-y2k-grid {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(0deg, transparent 0 47px, rgba(53,60,69,.045) 47px 48px),
+        repeating-linear-gradient(90deg, transparent 0 47px, rgba(53,60,69,.035) 47px 48px);
+    opacity: .58;
+}
+
+#y2k-background .theme-y2k-rings {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 14% 24%, transparent 0 54px, rgba(255,255,255,.28) 55px 57px, transparent 58px),
+        radial-gradient(circle at 83% 68%, transparent 0 72px, rgba(104,117,130,.08) 73px 75px, transparent 76px),
+        radial-gradient(circle at 71% 14%, transparent 0 34px, rgba(255,255,255,.24) 35px 37px, transparent 38px);
+    opacity: .8;
+}
+
+#y2k-background .theme-y2k-floor {
+    position: absolute;
+    left: -8vw;
+    right: -8vw;
+    bottom: -10vh;
+    height: 34vh;
+    background:
+        linear-gradient(180deg, transparent, rgba(75,83,92,.035) 28%, rgba(75,83,92,.10) 100%);
+    clip-path: ellipse(78% 62% at 50% 100%);
+    opacity: .8;
+}
+
+#y2k-background .theme-y2k-item {
+    position: absolute;
+    opacity: var(--item-opacity, .68);
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--item-rotate))
+        scale(var(--item-scale));
+    transform-origin: center;
+    filter: drop-shadow(0 8px 13px rgba(25,29,34,.14));
+    animation: themeY2KFloat 8.1s ease-in-out var(--item-delay) infinite;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#y2k-background .theme-y2k-soft {
+    opacity: var(--item-opacity, .24);
+}
+
+#y2k-background .theme-y2k-emphasis {
+    opacity: var(--item-opacity, .78);
+}
+
+#y2k-background .theme-y2k-object-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    filter: none;
+}
+
+@keyframes themeY2KFloat {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--item-x), var(--item-y), 0)
+            rotate(calc(var(--item-rotate) + 2deg))
+            scale(var(--item-scale));
+    }
+}
+
+#y2k-background .theme-y2k-react {
+    opacity: .92 !important;
+    filter:
+        drop-shadow(0 10px 16px rgba(25,29,34,.17))
+        drop-shadow(0 0 10px rgba(181,193,204,.28));
+    animation: themeY2KReact .48s ease-out !important;
+}
+
+@keyframes themeY2KReact {
+    0% {
+        transform: translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+    45% {
+        transform: translate3d(-50%, -50%, 0)
+            translate3d(0,-10px,0)
+            rotate(calc(var(--item-rotate) + 7deg))
+            scale(calc(var(--item-scale) * 1.08));
+    }
+    100% {
+        transform: translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+}
+
+/* ------------------------------------------------------------
+   SMALL UI BOXES ONLY
+   Neutral paper/beige. No pink/purple gradients or glow.
+   ------------------------------------------------------------ */
+body.theme-y2k .day-box,
+body.theme-y2k .day-picker-box,
+body.theme-y2k .icon-btn,
+body.theme-y2k .small-icon-btn,
+body.theme-y2k input,
+body.theme-y2k textarea,
+body.theme-y2k select,
+body.theme-y2k .notes-editable,
+body.theme-y2k .phrase-card,
+body.theme-y2k .chip,
+body.theme-y2k .toolbox-item,
+body.theme-y2k .resource-card,
+body.theme-y2k .polaroid-card,
+body.theme-y2k .filter-tab,
+body.theme-y2k .day-target-box,
+body.theme-y2k .flashcard,
+body.theme-y2k .flashcard-mode-card,
+body.theme-y2k .day-badge,
+body.theme-y2k .video-placeholder,
+body.theme-y2k .theme-picker-card,
+body.theme-y2k .note-audio-row,
+body.theme-y2k .modal-box,
+body.theme-y2k .category-box,
+body.theme-y2k .category-card,
+body.theme-y2k .category-chip,
+body.theme-y2k .knowledge-category,
+body.theme-y2k .knowledge-category-box,
+body.theme-y2k .knowledge-category-card,
+body.theme-y2k .knowledge-tag,
+body.theme-y2k .tag,
+body.theme-y2k .label-box {
+    background: rgba(248, 244, 237, 0.96) !important;
+    background-color: rgba(248, 244, 237, 0.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(37,40,46,.17) !important;
+    box-shadow:
+        0 1px 2px rgba(37,40,46,.035),
+        0 4px 12px rgba(37,40,46,.025) !important;
+    filter: none !important;
+}
+
+body.theme-y2k input::placeholder,
+body.theme-y2k textarea::placeholder,
+body.theme-y2k .notes-editable:empty::before {
+    color: rgba(37,40,46,.43);
+}
+
+body.theme-y2k .day-box:hover,
+body.theme-y2k .day-picker-box:hover,
+body.theme-y2k .small-icon-btn:hover,
+body.theme-y2k .phrase-card:hover,
+body.theme-y2k .chip:hover,
+body.theme-y2k .toolbox-item:hover,
+body.theme-y2k .resource-card:hover,
+body.theme-y2k .polaroid-card:hover,
+body.theme-y2k .filter-tab:hover,
+body.theme-y2k .day-target-box:hover,
+body.theme-y2k .flashcard-mode-card:hover,
+body.theme-y2k .theme-picker-card:hover,
+body.theme-y2k .category-box:hover,
+body.theme-y2k .category-card:hover,
+body.theme-y2k .category-chip:hover,
+body.theme-y2k .knowledge-category:hover,
+body.theme-y2k .knowledge-category-box:hover,
+body.theme-y2k .knowledge-category-card:hover,
+body.theme-y2k .knowledge-tag:hover,
+body.theme-y2k .tag:hover,
+body.theme-y2k .label-box:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(37,40,46,.22) !important;
+    box-shadow: 0 2px 7px rgba(37,40,46,.05) !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+body.theme-y2k .day-picker-box.selected,
+body.theme-y2k .filter-tab.active,
+body.theme-y2k .category-box.active,
+body.theme-y2k .category-card.active,
+body.theme-y2k .category-chip.active,
+body.theme-y2k .knowledge-category.active,
+body.theme-y2k .knowledge-category-box.active,
+body.theme-y2k .knowledge-category-card.active,
+body.theme-y2k .knowledge-tag.active,
+body.theme-y2k .tag.active,
+body.theme-y2k .label-box.active,
+body.theme-y2k .category-box.selected,
+body.theme-y2k .category-card.selected,
+body.theme-y2k .category-chip.selected {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(37,40,46,.26) !important;
+    box-shadow: inset 0 0 0 1px rgba(37,40,46,.035) !important;
+    filter: none !important;
+}
+
+/* Remove pseudo-element color/gradient overlays from little controls. */
+body.theme-y2k .category-box::before,
+body.theme-y2k .category-box::after,
+body.theme-y2k .category-card::before,
+body.theme-y2k .category-card::after,
+body.theme-y2k .category-chip::before,
+body.theme-y2k .category-chip::after,
+body.theme-y2k .knowledge-category::before,
+body.theme-y2k .knowledge-category::after,
+body.theme-y2k .knowledge-category-box::before,
+body.theme-y2k .knowledge-category-box::after,
+body.theme-y2k .knowledge-category-card::before,
+body.theme-y2k .knowledge-category-card::after,
+body.theme-y2k .knowledge-tag::before,
+body.theme-y2k .knowledge-tag::after,
+body.theme-y2k .tag::before,
+body.theme-y2k .tag::after,
+body.theme-y2k .label-box::before,
+body.theme-y2k .label-box::after,
+body.theme-y2k .chip::before,
+body.theme-y2k .chip::after,
+body.theme-y2k .filter-tab::before,
+body.theme-y2k .filter-tab::after {
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* ------------------------------------------------------------
+   PARENT FILTER/CATEGORY ROWS
+   Always transparent, including hover/focus/focus-within.
+   ------------------------------------------------------------ */
+html body.theme-y2k .filter-tabs,
+html body.theme-y2k .filter-tabs:hover,
+html body.theme-y2k .filter-tabs:focus,
+html body.theme-y2k .filter-tabs:focus-within,
+html body.theme-y2k #library-filter-tabs,
+html body.theme-y2k #library-filter-tabs:hover,
+html body.theme-y2k #library-filter-tabs:focus-within,
+html body.theme-y2k #quiz-type-filters,
+html body.theme-y2k #quiz-type-filters:hover,
+html body.theme-y2k #quiz-type-filters:focus-within,
+html body.theme-y2k .set-size-picker,
+html body.theme-y2k .set-size-picker:hover,
+html body.theme-y2k .set-size-picker:focus,
+html body.theme-y2k .set-size-picker:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+    border-color: transparent !important;
+}
+
+html body.theme-y2k .filter-tabs::before,
+html body.theme-y2k .filter-tabs::after,
+html body.theme-y2k .filter-tabs:hover::before,
+html body.theme-y2k .filter-tabs:hover::after,
+html body.theme-y2k #library-filter-tabs::before,
+html body.theme-y2k #library-filter-tabs::after,
+html body.theme-y2k #quiz-type-filters::before,
+html body.theme-y2k #quiz-type-filters::after,
+html body.theme-y2k .set-size-picker::before,
+html body.theme-y2k .set-size-picker::after,
+html body.theme-y2k .set-size-picker:hover::before,
+html body.theme-y2k .set-size-picker:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+/* Only the small children receive neutral box styling. */
+html body.theme-y2k .filter-tabs > .filter-tab,
+html body.theme-y2k .set-size-picker > .filter-tab {
+    background: rgba(248,244,237,.96) !important;
+    background-color: rgba(248,244,237,.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(37,40,46,.17) !important;
+    box-shadow: 0 1px 2px rgba(37,40,46,.035) !important;
+    filter: none !important;
+}
+
+html body.theme-y2k .filter-tabs > .filter-tab:hover,
+html body.theme-y2k .set-size-picker > .filter-tab:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(37,40,46,.22) !important;
+    box-shadow: 0 2px 7px rgba(37,40,46,.05) !important;
+    filter: none !important;
+}
+
+html body.theme-y2k .filter-tabs > .filter-tab.active,
+html body.theme-y2k .set-size-picker > .filter-tab.active {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(37,40,46,.26) !important;
+    box-shadow: inset 0 0 0 1px rgba(37,40,46,.035) !important;
+    filter: none !important;
+}
+
+/* ------------------------------------------------------------
+   RIGHT-SIDE TAB ICONS
+   Bare icons only. No background in any state.
+   ------------------------------------------------------------ */
+html body.theme-y2k .side-nav .icon-btn,
+html body.theme-y2k .side-nav .icon-btn:hover,
+html body.theme-y2k .side-nav .icon-btn:focus,
+html body.theme-y2k .side-nav .icon-btn:focus-visible,
+html body.theme-y2k .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-y2k .side-nav .icon-btn::before,
+html body.theme-y2k .side-nav .icon-btn::after,
+html body.theme-y2k .side-nav .icon-btn:hover::before,
+html body.theme-y2k .side-nav .icon-btn:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-y2k .side-nav .icon-btn:hover {
+    transform: scale(1.15);
+}
+
+html body.theme-y2k .side-nav .icon-btn i {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    color: var(--theme-ink) !important;
+}
+
+html body.theme-y2k .side-nav .icon-btn:hover i {
+    opacity: .62;
+}
+
+/* Keep progress styling subtle and metallic rather than pink/purple. */
+body.theme-y2k .progress-bar-track {
+    background: rgba(37,40,46,.10);
+}
+
+body.theme-y2k .progress-bar-fill {
+    background: #87939f;
+}
+
+/* Safe stacking. */
+body.theme-y2k #y2k-background { z-index: 0; }
+body.theme-y2k .view { position: relative; z-index: 2; }
+body.theme-y2k .side-nav { position: relative; z-index: 3; }
+body.theme-y2k header,
+body.theme-y2k .log-header-container { position: relative; z-index: 4; }
+body.theme-y2k .modal,
+body.theme-y2k .modal-overlay,
+body.theme-y2k .overlay { z-index: 10; }
+
+@media (max-width: 700px) {
+    #y2k-background .theme-y2k-item {
+        max-width: 166px;
+        max-height: 166px;
+    }
+
+    #y2k-background .theme-y2k-soft {
+        opacity: .18;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #y2k-background * {
+        animation: none !important;
+    }
+}
+
+
+/* Visibility safeguard for the Y2K decorative layer. */
+html body #y2k-background {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+html body #y2k-background .theme-y2k-item {
+    visibility: visible !important;
+}
+
+html body #y2k-background .theme-y2k-object-image {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}

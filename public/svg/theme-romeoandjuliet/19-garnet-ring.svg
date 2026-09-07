@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="260" viewBox="0 0 320 260" fill="none">
+<defs>
+  <linearGradient id="gold1" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#f7e3a8"/>
+    <stop offset="0.45" stop-color="#bc8731"/>
+    <stop offset="1" stop-color="#7f5322"/>
+  </linearGradient>
+  <radialGradient id="gem1" cx="38%" cy="35%" r="72%">
+    <stop offset="0" stop-color="#c96b59"/>
+    <stop offset="0.45" stop-color="#7f1f1b"/>
+    <stop offset="1" stop-color="#421113"/>
+  </radialGradient>
+</defs>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <path d="M84 132 C83 83, 113 52, 165 52 C217 52, 247 83, 246 132 C245 181, 215 212, 163 212 C113 212, 85 181, 84 132 Z"
+        fill="url(#gold1)" stroke="#7e4f22" stroke-width="5"/>
+  <path d="M104 132 C105 94, 127 72, 165 72 C203 72, 225 94, 226 132 C227 170, 204 192, 165 192 C126 192, 103 170, 104 132 Z"
+        fill="#7d1d1c" fill-opacity="0.22" stroke="#bf8f42" stroke-width="3"/>
+  <path d="M93 110 C114 94, 130 90, 149 89" stroke="#f6d89a" stroke-width="4"/>
+  <path d="M235 107 C220 93, 206 87, 183 84" stroke="#f6d89a" stroke-width="4"/>
+  <path d="M106 159 C123 171, 145 177, 168 177" stroke="#6a3c17" stroke-opacity="0.45" stroke-width="4"/>
+  <g transform="translate(166 124)">
+    <path d="M0 -60 L32 -46 L54 -16 L50 22 L22 48 L-20 55 L-49 30 L-53 -9 L-31 -44 Z"
+          fill="url(#gem1)" stroke="#5a1615" stroke-width="5"/>
+    <path d="M0 -60 L0 55 M32 -46 L22 48 M54 -16 L-20 55 M50 22 L-49 30 M-31 -44 L22 48" stroke="#d09a77" stroke-opacity="0.5" stroke-width="3"/>
+    <path d="M-8 -34 C7 -39, 19 -34, 27 -21 C13 -18, 1 -9, -8 3 C-18 -8, -20 -22, -8 -34 Z" fill="#f2c0a2" fill-opacity="0.34"/>
+  </g>
+</g>
+</svg>

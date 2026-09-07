@@ -1,0 +1,236 @@
+/* ============================================================
+   LIZZY THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-lizzy {
+    --lizzy-ink: #6b4c6c;
+    --lizzy-border: #efafd6;
+    --lizzy-surface: #fffdfd;
+    --lizzy-surface-soft: #fff4fb;
+    --lizzy-accent: #ff8ec5;
+    --lizzy-second: #b798ff;
+    --lizzy-third: #c6ec7a;
+
+    --black: var(--lizzy-ink);
+    --white: var(--lizzy-surface);
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid color-mix(in srgb, var(--lizzy-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--lizzy-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--lizzy-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--lizzy-border) 44%, transparent);
+    --track-bg: #ffedf8;
+    --muted-text: color-mix(in srgb, var(--lizzy-ink) 58%, transparent);
+
+    background:
+        radial-gradient(circle at 14% 14%, rgba(255,255,255,.90), transparent 24%),
+        radial-gradient(circle at 84% 16%, rgba(255,255,255,.52), transparent 24%),
+        radial-gradient(circle at 20% 82%, rgba(255,142,197,.11), transparent 24%),
+        radial-gradient(circle at 80% 74%, rgba(183,152,255,.12), transparent 24%),
+        linear-gradient(160deg, #ffe7f6 0%, #f4efff 46%, #f4ffd9 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--lizzy-ink) !important;
+}
+
+#lizzy-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: -1;
+}
+
+#lizzy-background::before,
+#lizzy-background::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+}
+
+#lizzy-background::before {
+    inset: -12%;
+    background:
+        radial-gradient(circle at 24% 22%, rgba(255,255,255,.24), transparent 20%),
+        radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%),
+        linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%);
+    animation: lizzyLightSweep 9s ease-in-out infinite alternate;
+}
+
+#lizzy-background::after {
+    inset: 0;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(255,142,197,.14) 0 12px, transparent 13px 36px),
+        radial-gradient(circle at 32% 10%, rgba(198,236,122,.15) 0 10px, transparent 11px 34px),
+        radial-gradient(circle at 62% 18%, rgba(183,152,255,.14) 0 10px, transparent 11px 36px),
+        radial-gradient(circle at 85% 24%, rgba(255,142,197,.12) 0 12px, transparent 13px 38px),
+        radial-gradient(circle at 20% 66%, rgba(183,152,255,.12) 0 9px, transparent 10px 34px),
+        radial-gradient(circle at 80% 70%, rgba(198,236,122,.12) 0 11px, transparent 12px 34px);
+    opacity: .8;
+}
+
+body.theme-lizzy #lizzy-background { z-index: -1; }
+body.theme-lizzy .view { position: relative; z-index: 2; }
+body.theme-lizzy .side-nav { position: relative; z-index: 3; }
+body.theme-lizzy header,
+body.theme-lizzy .log-header-container { position: relative; z-index: 4; }
+body.theme-lizzy .modal,
+body.theme-lizzy .modal-overlay,
+body.theme-lizzy .overlay { z-index: 10; }
+
+body.theme-lizzy .day-box,
+body.theme-lizzy .day-picker-box,
+body.theme-lizzy .icon-btn,
+body.theme-lizzy .small-icon-btn,
+body.theme-lizzy input,
+body.theme-lizzy textarea,
+body.theme-lizzy select,
+body.theme-lizzy .notes-editable,
+body.theme-lizzy .phrase-card,
+body.theme-lizzy .chip,
+body.theme-lizzy .toolbox-item,
+body.theme-lizzy .resource-card,
+body.theme-lizzy .polaroid-card,
+body.theme-lizzy .filter-tab,
+body.theme-lizzy .day-target-box,
+body.theme-lizzy .flashcard,
+body.theme-lizzy .flashcard-mode-card,
+body.theme-lizzy .day-badge,
+body.theme-lizzy .video-placeholder,
+body.theme-lizzy .theme-picker-card,
+body.theme-lizzy .note-audio-row,
+body.theme-lizzy .modal-box,
+body.theme-lizzy .set-complete-box {
+    background-color: var(--lizzy-surface) !important;
+}
+
+body.theme-lizzy input::placeholder,
+body.theme-lizzy textarea::placeholder,
+body.theme-lizzy .notes-editable:empty::before {
+    color: color-mix(in srgb, var(--lizzy-ink) 42%, transparent) !important;
+}
+
+body.theme-lizzy .icon-btn:hover,
+body.theme-lizzy .small-icon-btn:hover,
+body.theme-lizzy .filter-tab:hover {
+    background: var(--lizzy-surface-soft) !important;
+    color: var(--lizzy-ink) !important;
+}
+
+body.theme-lizzy .chip:hover,
+body.theme-lizzy .phrase-card:hover,
+body.theme-lizzy .day-picker-box.selected,
+body.theme-lizzy .filter-tab.active,
+body.theme-lizzy .filter-tab[aria-selected="true"] {
+    background: color-mix(in srgb, var(--lizzy-surface-soft) 72%, var(--lizzy-accent) 28%) !important;
+    color: var(--lizzy-ink) !important;
+    border-color: var(--lizzy-border) !important;
+}
+
+body.theme-lizzy .progress-bar-fill {
+    background: linear-gradient(90deg, var(--lizzy-accent), var(--lizzy-second), var(--lizzy-third)) !important;
+}
+
+#lizzy-background .lizzy-item {
+    position: absolute;
+    display: block;
+    height: auto;
+    object-fit: contain;
+    opacity: .95;
+    transform-origin: center;
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    filter:
+        drop-shadow(0 9px 13px color-mix(in srgb, var(--lizzy-ink) 14%, transparent))
+        drop-shadow(0 0 9px rgba(255,255,255,.30));
+    animation: lizzyFloat var(--lizzy-float-duration) ease-in-out var(--lizzy-float-delay) infinite alternate;
+    will-change: transform;
+}
+
+@keyframes lizzyFloat {
+    from {
+        transform: translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97);
+    }
+    to {
+        transform: translate3d(-50%,-50%,0) translate3d(var(--lizzy-float-x), var(--lizzy-float-y), 0) rotate(var(--lizzy-float-r)) scale(1.035);
+    }
+}
+
+#lizzy-background .lizzy-item.lizzy-intro-bop {
+    animation: lizzyIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--lizzy-bop-delay) infinite !important;
+}
+
+@keyframes lizzyIntroBop {
+    0%,100% { transform: translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1); }
+    40% { transform: translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05); }
+    68% { transform: translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02); }
+}
+
+#lizzy-background .lizzy-extra {
+    position: absolute;
+}
+
+#lizzy-background .lizzy-star {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255,255,255,.95), 0 0 14px rgba(183,152,255,.34);
+    opacity: 0;
+    animation: lizzySparkle var(--lizzy-extra-duration) ease-in-out var(--lizzy-extra-delay) infinite;
+}
+
+#lizzy-background .lizzy-star::before,
+#lizzy-background .lizzy-star::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background: rgba(255,255,255,.88);
+    transform: translate(-50%, -50%);
+}
+
+#lizzy-background .lizzy-star::before { width: 16px; height: 1px; }
+#lizzy-background .lizzy-star::after  { width: 1px; height: 16px; }
+
+#lizzy-background .lizzy-blob {
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255,142,197,.35), rgba(183,152,255,.35), rgba(198,236,122,.35));
+    transform: rotate(var(--lizzy-extra-rot));
+    opacity: .58;
+    animation: lizzyBlobFloat var(--lizzy-extra-duration) ease-in-out var(--lizzy-extra-delay) infinite alternate;
+}
+
+@keyframes lizzySparkle {
+    0%,100% { opacity: 0; transform: scale(.35); }
+    54% { opacity: .84; transform: scale(1.28); }
+    76% { opacity: .18; transform: scale(.62); }
+}
+
+@keyframes lizzyBlobFloat {
+    from { transform: rotate(var(--lizzy-extra-rot)) translate3d(0,0,0) scale(.9); }
+    to   { transform: rotate(calc(var(--lizzy-extra-rot) + 10deg)) translate3d(0,-10px,0) scale(1.05); }
+}
+
+@keyframes lizzyLightSweep {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); opacity: .7; }
+    to   { transform: translate3d(2%, 1%, 0) scale(1.05); opacity: 1; }
+}
+
+@media (max-width: 700px) {
+    #lizzy-background .lizzy-item { opacity: .74; }
+    #lizzy-background .lizzy-extra { opacity: .42; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #lizzy-background::before,
+    #lizzy-background::after,
+    #lizzy-background .lizzy-item,
+    #lizzy-background .lizzy-extra {
+        animation: none !important;
+    }
+}

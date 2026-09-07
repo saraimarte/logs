@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="520" viewBox="0 0 320 520" fill="none">
+<defs>
+  <linearGradient id="fabricGrad" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#5a1d16"/>
+    <stop offset="0.22" stop-color="#8d2b20"/>
+    <stop offset="0.5" stop-color="#6a231b"/>
+    <stop offset="0.78" stop-color="#9a3a2a"/>
+    <stop offset="1" stop-color="#5e2118"/>
+  </linearGradient>
+  <linearGradient id="tasselGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#d5b06d"/>
+    <stop offset="1" stop-color="#8f6730"/>
+  </linearGradient>
+</defs>
+<g>
+  <path d="M56 18 C28 78, 22 136, 30 200 C38 276, 47 360, 54 500 C97 492, 124 474, 147 449 C159 435, 166 420, 170 405 C173 390, 174 375, 168 354 C163 334, 160 313, 164 287 C168 259, 179 235, 180 214 C182 190, 175 158, 154 121 C133 82, 114 46, 108 18 Z" fill="url(#fabricGrad)" stroke="#472018" stroke-width="4"/>
+  <path d="M73 26 C52 86, 51 136, 60 202 C69 269, 79 346, 84 484" stroke="#b66d59" stroke-opacity="0.42" stroke-width="5"/>
+  <path d="M94 24 C80 88, 82 145, 91 217 C100 284, 110 354, 112 471" stroke="#b66d59" stroke-opacity="0.35" stroke-width="4.5"/>
+  <path d="M118 24 C112 86, 114 147, 122 219 C128 282, 136 347, 136 454" stroke="#b66d59" stroke-opacity="0.3" stroke-width="4.5"/>
+  <path d="M44 262 C79 238, 118 230, 154 236 C155 275, 149 319, 138 360 C100 347, 66 320, 44 262 Z" fill="#7a241c" stroke="#472018" stroke-width="4"/>
+  <path d="M146 236 C172 250, 188 262, 208 280" stroke="#7a241c" stroke-width="8" stroke-linecap="round"/>
+  <path d="M208 274 C225 295, 226 331, 211 354 C195 343, 187 325, 186 304 C185 289, 193 279, 208 274 Z" fill="url(#tasselGrad)" stroke="#6f522a" stroke-width="4"/>
+  <path d="M203 349 C214 365, 219 380, 220 400 C207 398, 197 386, 194 370 Z" fill="#8d6732" stroke="#6f522a" stroke-width="3"/>
+  <path d="M82 34 C67 34, 56 31, 44 22" stroke="#f2d9ae" stroke-opacity="0.45" stroke-width="7" stroke-linecap="round"/>
+</g>
+</svg>

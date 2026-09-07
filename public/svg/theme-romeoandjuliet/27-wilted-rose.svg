@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="270" viewBox="0 0 240 270" fill="none">
+<defs>
+  <radialGradient id="rose2" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#93424a"/><stop offset="0.55" stop-color="#531920"/><stop offset="1" stop-color="#28080e"/></radialGradient>
+</defs>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <path d="M124 95 C137 66, 165 59, 189 74 C211 88, 215 114, 198 133 C210 146, 211 162, 202 177 C192 193, 174 201, 152 198 C146 213, 134 222, 119 225 C99 228, 79 219, 70 201 C60 182, 64 160, 80 146 C66 131, 62 114, 70 99 C79 82, 99 74, 124 95 Z" fill="url(#rose2)" stroke="#44131a" stroke-width="4"/>
+  <path d="M91 102 C104 96, 117 95, 129 99" stroke="#ad6670" stroke-width="2.8"/>
+  <path d="M144 83 C138 96, 135 109, 137 122" stroke="#ad6670" stroke-width="2.8"/>
+  <path d="M168 112 C156 112, 144 115, 132 123" stroke="#ad6670" stroke-width="2.8"/>
+  <path d="M102 154 C116 151, 128 153, 139 160" stroke="#8a414d" stroke-width="2.6"/>
+  <path d="M138 162 C134 176, 128 188, 117 198" stroke="#8a414d" stroke-width="2.6"/>
+  <path d="M121 225 L121 266" stroke="#4f4231" stroke-width="6"/>
+  <path d="M120 235 C141 227, 159 231, 176 247 C157 254, 140 252, 124 243" fill="#5c5040" stroke="#413629" stroke-width="3"/>
+  <path d="M120 248 C102 240, 86 242, 70 254 C87 261, 101 261, 117 256" fill="#5c5040" stroke="#413629" stroke-width="3"/>
+</g>
+</svg>

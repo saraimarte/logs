@@ -1,0 +1,99 @@
+    /* ============================================================
+       PINKPANTHER THEME
+       Decorative-only styling built from the winter theme structure.
+       ============================================================ */
+
+    body.theme-pinkpanther {
+        --pinkpanther-ink: #7b4f71;
+        --pinkpanther-border: #f5b7d5;
+        --pinkpanther-surface: #fffdfd;
+        --pinkpanther-surface-soft: #fff2f9;
+        --pinkpanther-accent: #ff99ca;
+        --pinkpanther-second: #ffcb8d;
+        --pinkpanther-third: #f8b3d9;
+        --black: var(--pinkpanther-ink);
+        --white: var(--pinkpanther-surface);
+        --bg-overlay: transparent;
+        --thick-border: 3px solid color-mix(in srgb, var(--pinkpanther-border) 60%, transparent);
+        --thin-border: 2px solid color-mix(in srgb, var(--pinkpanther-border) 48%, transparent);
+        --dashed-border: 2px dashed color-mix(in srgb, var(--pinkpanther-border) 44%, transparent);
+        --dotted-border: 2px dotted color-mix(in srgb, var(--pinkpanther-border) 44%, transparent);
+        --track-bg: #ffedf7;
+        --muted-text: color-mix(in srgb, var(--pinkpanther-ink) 58%, transparent);
+        background: radial-gradient(circle at 14% 14%, rgba(255,255,255,.90), transparent 24%), radial-gradient(circle at 84% 16%, rgba(255,255,255,.50), transparent 24%), radial-gradient(circle at 24% 82%, rgba(255,153,202,.11), transparent 24%), linear-gradient(160deg, #ffeaf5 0%, #fff5df 45%, #ffe3f1 100%) !important;
+        background-attachment: fixed !important;
+        color: var(--pinkpanther-ink) !important;
+    }
+
+    #pinkpanther-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: -1; }
+    #pinkpanther-background::before, #pinkpanther-background::after { content:''; position:absolute; pointer-events:none; }
+    #pinkpanther-background::before { inset:-12%; background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.24), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%); animation:pinkpantherLightSweep 9s ease-in-out infinite alternate; }
+    body.theme-pinkpanther #pinkpanther-background { z-index: -1; }
+    body.theme-pinkpanther .view { position: relative; z-index: 2; }
+    body.theme-pinkpanther .side-nav { position: relative; z-index: 3; }
+    body.theme-pinkpanther header, body.theme-pinkpanther .log-header-container { position: relative; z-index: 4; }
+    body.theme-pinkpanther .modal, body.theme-pinkpanther .modal-overlay, body.theme-pinkpanther .overlay { z-index: 10; }
+
+    body.theme-pinkpanther .day-box,
+    body.theme-pinkpanther .day-picker-box,
+    body.theme-pinkpanther .icon-btn,
+    body.theme-pinkpanther .small-icon-btn,
+    body.theme-pinkpanther input,
+    body.theme-pinkpanther textarea,
+    body.theme-pinkpanther select,
+    body.theme-pinkpanther .notes-editable,
+    body.theme-pinkpanther .phrase-card,
+    body.theme-pinkpanther .chip,
+    body.theme-pinkpanther .toolbox-item,
+    body.theme-pinkpanther .resource-card,
+    body.theme-pinkpanther .polaroid-card,
+    body.theme-pinkpanther .filter-tab,
+    body.theme-pinkpanther .day-target-box,
+    body.theme-pinkpanther .flashcard,
+    body.theme-pinkpanther .flashcard-mode-card,
+    body.theme-pinkpanther .day-badge,
+    body.theme-pinkpanther .video-placeholder,
+    body.theme-pinkpanther .theme-picker-card,
+    body.theme-pinkpanther .note-audio-row,
+    body.theme-pinkpanther .modal-box,
+    body.theme-pinkpanther .set-complete-box { background-color: var(--pinkpanther-surface) !important; }
+
+    body.theme-pinkpanther input::placeholder,
+    body.theme-pinkpanther textarea::placeholder,
+    body.theme-pinkpanther .notes-editable:empty::before { color: color-mix(in srgb, var(--pinkpanther-ink) 42%, transparent) !important; }
+    body.theme-pinkpanther .icon-btn:hover,
+    body.theme-pinkpanther .small-icon-btn:hover,
+    body.theme-pinkpanther .filter-tab:hover { background: var(--pinkpanther-surface-soft) !important; color: var(--pinkpanther-ink) !important; }
+    body.theme-pinkpanther .chip:hover,
+    body.theme-pinkpanther .phrase-card:hover,
+    body.theme-pinkpanther .day-picker-box.selected,
+    body.theme-pinkpanther .filter-tab.active,
+    body.theme-pinkpanther .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--pinkpanther-surface-soft) 72%, var(--pinkpanther-accent) 28%) !important; color: var(--pinkpanther-ink) !important; border-color: var(--pinkpanther-border) !important; }
+    body.theme-pinkpanther .progress-bar-fill { background: linear-gradient(90deg, var(--pinkpanther-accent), var(--pinkpanther-second), var(--pinkpanther-third)) !important; }
+
+    #pinkpanther-background .pinkpanther-item {
+        position:absolute; display:block; height:auto; object-fit:contain; opacity:.95;
+        transform-origin:center; translate:0 0; rotate:0deg; scale:1;
+        filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--pinkpanther-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30));
+        animation: pinkpantherFloat var(--pinkpanther-float-duration) ease-in-out var(--pinkpanther-float-delay) infinite alternate; will-change:transform;
+    }
+    @keyframes pinkpantherFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--pinkpanther-float-x), var(--pinkpanther-float-y), 0) rotate(var(--pinkpanther-float-r)) scale(1.035)} }
+    #pinkpanther-background .pinkpanther-item.pinkpanther-intro-bop { animation:pinkpantherIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--pinkpanther-bop-delay) infinite !important; }
+    @keyframes pinkpantherIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+    #pinkpanther-background .pinkpanther-extra { position:absolute; }
+
+#pinkpanther-background .pinkpanther-heart {
+    width: 14px; height: 14px; transform: rotate(-45deg);
+    background: color-mix(in srgb, var(--pinkpanther-accent) 68%, white 32%); border-radius: 3px 3px 0 0;
+    opacity: .44; animation: pinkpantherHeartFloat var(--pinkpanther-extra-duration) ease-in-out var(--pinkpanther-extra-delay) infinite alternate;
+}
+#pinkpanther-background .pinkpanther-heart::before, #pinkpanther-background .pinkpanther-heart::after { content:''; position:absolute; width:14px; height:14px; background:inherit; border-radius:50%; }
+#pinkpanther-background .pinkpanther-heart::before { left:0; top:-7px; }
+#pinkpanther-background .pinkpanther-heart::after { left:7px; top:0; }
+@keyframes pinkpantherHeartFloat { from{transform:rotate(-45deg) translate3d(0,0,0) scale(.82)} to{transform:rotate(-45deg) translate3d(0,-12px,0) scale(1.04)} }
+
+
+    @keyframes pinkpantherLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+    @media (max-width:700px) { #pinkpanther-background .pinkpanther-item { opacity:.72; } #pinkpanther-background .pinkpanther-extra { opacity:.38; } }
+    @media (prefers-reduced-motion: reduce) { #pinkpanther-background::before, #pinkpanther-background .pinkpanther-item, #pinkpanther-background .pinkpanther-extra { animation:none !important; } }

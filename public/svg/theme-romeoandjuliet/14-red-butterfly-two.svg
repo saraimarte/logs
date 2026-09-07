@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="330" height="250" viewBox="0 0 330 250" fill="none">
+<defs>
+  <linearGradient id="wingR2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8c2430"/><stop offset="0.55" stop-color="#c56a66"/><stop offset="1" stop-color="#efe0b6"/></linearGradient>
+</defs>
+<g stroke="#2d2422" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M161 111 C120 52,68 57,40 108 C73 121,110 140,147 181 C158 165,163 141,161 111 Z" fill="url(#wingR2)"/>
+  <path d="M169 111 C210 52,262 57,290 108 C257 121,220 140,183 181 C172 165,167 141,169 111 Z" fill="url(#wingR2)"/>
+  <path d="M152 130 C118 139,88 161,81 205 C110 201,137 186,159 162" fill="#b6434e"/>
+  <path d="M178 130 C212 139,242 161,249 205 C220 201,193 186,171 162" fill="#b6434e"/>
+  <path d="M165 82 C172 82,178 92,178 110 C178 137,173 162,165 190 C157 162,152 137,152 110 C152 92,158 82,165 82 Z" fill="#24201f"/>
+  <path d="M161 88 C148 68,139 52,136 37"/>
+  <path d="M169 88 C182 68,191 52,194 37"/>
+  <path d="M53 111 C86 120,113 132,141 150" stroke="#efe7d0" stroke-width="2.8"/>
+  <path d="M277 111 C244 120,217 132,189 150" stroke="#efe7d0" stroke-width="2.8"/>
+  <path d="M88 203 C111 189,129 174,146 149" stroke="#efe7d0" stroke-width="2.8"/>
+  <path d="M242 203 C219 189,201 174,184 149" stroke="#efe7d0" stroke-width="2.8"/>
+  <circle cx="39" cy="108" r="4" fill="#ead7ae"/><circle cx="291" cy="108" r="4" fill="#ead7ae"/>
+</g>
+</svg>

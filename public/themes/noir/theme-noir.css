@@ -1,0 +1,18 @@
+body.theme-noir {
+--bg-overlay: rgba(0, 0, 0, 0.85);
+--overlay-scrim: rgba(0, 0, 0, 0.85);
+--black: #ffffff;
+--white: #000000;
+--thick-border: 3px solid #ffffff;
+--thin-border: 2px solid #ffffff;
+--dashed-border: 2px dashed #ffffff;
+--dotted-border: 2px dotted #ffffff;
+background-color: #000000;
+--muted-text: rgba(255, 255, 255, 0.65);
+--track-bg: rgba(255,255,255,0.2);
+}
+body.theme-noir .modal-box, body.theme-noir .day-box, body.theme-noir .chip,
+body.theme-noir .toolbox-item, body.theme-noir .resource-card, body.theme-noir select,
+body.theme-noir input, body.theme-noir textarea { background-color: #0a0a0a; }
+body.theme-noir .day-box.has-data { background: #1a1a1a; color: var(--black); }
+body.theme-noir ::placeholder { color: var(--muted-text); }

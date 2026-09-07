@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="280" viewBox="0 0 400 280" fill="none">
+<defs>
+  <radialGradient id="heartRed" cx="45%" cy="35%" r="70%">
+    <stop offset="0" stop-color="#eea2a0"/>
+    <stop offset="0.4" stop-color="#cc4a42"/>
+    <stop offset="1" stop-color="#8c221e"/>
+  </radialGradient>
+  <linearGradient id="wingTint" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ece0c4"/>
+    <stop offset="1" stop-color="#8d6e44"/>
+  </linearGradient>
+</defs>
+<g>
+  <path d="M198 108 C216 75, 261 74, 274 111 C286 146, 259 173, 198 226 C137 173, 110 146, 122 111 C135 74, 180 75, 198 108 Z" fill="url(#heartRed)" stroke="#6e231d" stroke-width="5"/>
+  <path d="M198 118 C210 131, 216 147, 216 166" stroke="#f5c0b9" stroke-width="3" stroke-linecap="round"/>
+  <path d="M158 169 C174 173, 185 181, 192 192" stroke="#74251f" stroke-opacity="0.55" stroke-width="3" stroke-linecap="round"/>
+  <path d="M132 98 C88 55, 39 57, 25 124 C53 128, 82 142, 110 166 C137 189, 153 211, 166 239 C190 196, 174 139, 132 98 Z" fill="url(#wingTint)" stroke="#634b2f" stroke-width="4"/>
+  <path d="M264 98 C308 55, 357 57, 371 124 C343 128, 314 142, 286 166 C259 189, 243 211, 230 239 C206 196, 222 139, 264 98 Z" fill="url(#wingTint)" stroke="#634b2f" stroke-width="4"/>
+  <g stroke="#8f6d42" stroke-width="3" stroke-linecap="round">
+    <path d="M53 118 C83 126, 112 143, 140 169"/>
+    <path d="M80 87 C112 105, 138 128, 157 159"/>
+    <path d="M347 118 C317 126, 288 143, 260 169"/>
+    <path d="M320 87 C288 105, 262 128, 243 159"/>
+  </g>
+</g>
+</svg>

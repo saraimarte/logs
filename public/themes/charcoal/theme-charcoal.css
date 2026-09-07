@@ -1,0 +1,18 @@
+body.theme-charcoal {
+--bg-overlay: rgba(0, 0, 0, 0.85);
+--overlay-scrim: rgba(0, 0, 0, 0.8);
+--black: #ececec;
+--white: #1c1c1c;
+--thick-border: 3px solid #6e6e6e;
+--thin-border: 2px solid #4a4a4a;
+--dashed-border: 2px dashed #4a4a4a;
+--dotted-border: 2px dotted #4a4a4a;
+background-color: #1c1c1c;
+--muted-text: rgba(236, 236, 236, 0.6);
+--track-bg: rgba(255,255,255,0.15);
+}
+body.theme-charcoal .modal-box, body.theme-charcoal .day-box, body.theme-charcoal .chip,
+body.theme-charcoal .toolbox-item, body.theme-charcoal .resource-card, body.theme-charcoal select,
+body.theme-charcoal input, body.theme-charcoal textarea { background-color: #262626; }
+body.theme-charcoal .day-box.has-data { background: #333; color: var(--black); }
+body.theme-charcoal ::placeholder { color: #8a8a8a; }

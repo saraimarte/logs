@@ -1,0 +1,342 @@
+/* ============================================================
+   FANCY NANCY THEME
+   Decorative-only styling. The template remains the source of truth
+   for cursor, companions, tabs, selectors, buttons, views and layout.
+   ============================================================ */
+
+body.theme-fancynancy {
+    --fancy-ink: #5b264d;
+    --fancy-plum: #83386f;
+    --fancy-pink: #e565aa;
+    --fancy-rose: #f4a9cf;
+    --fancy-lilac: #c7a8df;
+    --fancy-blue: #9ecde0;
+    --fancy-cream: #fff9f1;
+
+    --black: var(--fancy-ink);
+    --white: #fffdf9;
+    --bg-overlay: transparent;
+    --thick-border: 2px solid rgba(131, 56, 111, .34);
+    --thin-border: 1.5px solid rgba(131, 56, 111, .27);
+    --dashed-border: 1.5px dashed rgba(131, 56, 111, .26);
+    --dotted-border: 1.5px dotted rgba(131, 56, 111, .26);
+    --track-bg: rgba(229, 101, 170, .13);
+    --muted-text: rgba(91, 38, 77, .55);
+
+    background:
+        radial-gradient(circle at 10% 15%, rgba(255, 221, 239, .74), transparent 28%),
+        radial-gradient(circle at 90% 30%, rgba(224, 211, 248, .63), transparent 27%),
+        radial-gradient(circle at 48% 88%, rgba(207, 232, 242, .52), transparent 30%),
+        linear-gradient(145deg, #fff6fb 0%, #fceefa 35%, #f6f0ff 67%, #eef8fb 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--fancy-ink) !important;
+}
+
+/* ============================================================
+   DECORATIVE BACKGROUND LAYER
+   ============================================================ */
+
+#fancynancy-theme-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+/* Fine scalloped trim near the very top, behind the header. */
+#fancynancy-theme-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 12px;
+    opacity: .38;
+    background:
+        radial-gradient(circle at 8px -2px, transparent 8px, rgba(229, 101, 170, .34) 8.5px 10px, transparent 10.5px) 0 0 / 22px 13px repeat-x;
+    pointer-events: none;
+}
+
+#fancynancy-theme-background::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: .20;
+    background-image:
+        linear-gradient(45deg, rgba(255,255,255,.34) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.34) 75%),
+        linear-gradient(-45deg, rgba(255,255,255,.24) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.24) 75%);
+    background-size: 44px 44px;
+    pointer-events: none;
+}
+
+/* ============================================================
+   FULL-COLOR SVG OBJECTS
+   ============================================================ */
+
+#fancynancy-theme-background .fancynancy-theme-item {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    transform-origin: center center;
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--fancy-rotate))
+        scale(var(--fancy-scale));
+    opacity: 1;
+    filter: drop-shadow(0 9px 16px rgba(105, 54, 91, .16));
+    animation: fancynancyFloat var(--fancy-duration) ease-in-out var(--fancy-delay) infinite;
+    will-change: transform;
+}
+
+#fancynancy-theme-background .fancynancy-theme-svg {
+    display: block;
+    width: 178px;
+    height: auto;
+    max-width: 178px;
+    max-height: 225px;
+    overflow: visible;
+    opacity: 1;
+    pointer-events: none;
+    user-select: none;
+}
+
+#fancynancy-theme-background .fancynancy-theme-depth-1 { z-index: 1; }
+#fancynancy-theme-background .fancynancy-theme-depth-2 { z-index: 2; }
+
+@keyframes fancynancyFloat {
+    0%, 100% {
+        transform: translate3d(-50%, -50%, 0) translate3d(0, 0, 0)
+            rotate(var(--fancy-rotate)) scale(var(--fancy-scale));
+    }
+    32% {
+        transform: translate3d(-50%, -50%, 0)
+            translate3d(calc(var(--fancy-drift-x) * .6), calc(var(--fancy-drift-y) * .6), 0)
+            rotate(calc(var(--fancy-rotate) + 1.5deg)) scale(var(--fancy-scale));
+    }
+    66% {
+        transform: translate3d(-50%, -50%, 0)
+            translate3d(var(--fancy-drift-x), var(--fancy-drift-y), 0)
+            rotate(calc(var(--fancy-rotate) - 1.2deg)) scale(var(--fancy-scale));
+    }
+}
+
+/* ============================================================
+   EXTRA BUSY/FANCY DETAILS
+   ============================================================ */
+
+#fancynancy-theme-background .fancynancy-dot {
+    position: absolute;
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border-radius: 50%;
+    opacity: var(--dot-opacity);
+    background: #d75a9e;
+    box-shadow: 0 0 0 3px rgba(255,255,255,.15);
+}
+
+#fancynancy-theme-background .fancynancy-pearl {
+    position: absolute;
+    width: var(--pearl-size);
+    height: var(--pearl-size);
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 28%, #ffffff 0 28%, #f8e7f1 44%, #d9bfd0 100%);
+    box-shadow: 0 1px 4px rgba(115, 67, 100, .16);
+    animation: fancyPearlShimmer var(--pearl-duration) ease-in-out var(--pearl-delay) infinite;
+}
+
+@keyframes fancyPearlShimmer {
+    0%, 100% { opacity: .28; transform: scale(.8); }
+    50% { opacity: .72; transform: scale(1.15); }
+}
+
+#fancynancy-theme-background .fancynancy-sparkle {
+    position: absolute;
+    color: rgba(191, 113, 163, .48);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: var(--sparkle-size);
+    line-height: 1;
+    transform: rotate(var(--sparkle-rotate));
+    text-shadow: 0 0 8px rgba(255,255,255,.66);
+    animation: fancySparkle var(--sparkle-duration) ease-in-out var(--sparkle-delay) infinite;
+}
+
+@keyframes fancySparkle {
+    0%, 100% { opacity: .10; scale: .72; }
+    50% { opacity: .62; scale: 1.22; }
+}
+
+#fancynancy-theme-background .fancynancy-ribbon-swirl {
+    position: absolute;
+    height: 16px;
+    border-top: 2px solid rgba(215, 90, 158, .22);
+    border-radius: 50%;
+    opacity: .75;
+    animation: fancyRibbonBreathe 6s ease-in-out infinite alternate;
+}
+
+#fancynancy-theme-background .fancynancy-ribbon-swirl::after {
+    content: '';
+    position: absolute;
+    left: 14%;
+    right: 10%;
+    top: 5px;
+    height: 12px;
+    border-bottom: 1px solid rgba(142, 98, 176, .20);
+    border-radius: 50%;
+}
+
+@keyframes fancyRibbonBreathe {
+    from { opacity: .32; scale: .97 1; }
+    to   { opacity: .74; scale: 1.04 1; }
+}
+
+/* CSS-only little bows. */
+#fancynancy-theme-background .fancynancy-bow {
+    position: absolute;
+    width: 34px;
+    height: 24px;
+    transform: rotate(var(--bow-rotate)) scale(var(--bow-scale));
+    opacity: .31;
+    animation: fancyBowFloat 6.8s ease-in-out infinite alternate;
+}
+
+#fancynancy-theme-background .fancynancy-bow i,
+#fancynancy-theme-background .fancynancy-bow b {
+    position: absolute;
+    top: 4px;
+    width: 16px;
+    height: 14px;
+    border: 1.5px solid rgba(161, 67, 130, .55);
+    background: rgba(242, 167, 207, .26);
+}
+
+#fancynancy-theme-background .fancynancy-bow i {
+    left: 1px;
+    border-radius: 70% 35% 55% 65%;
+    transform: rotate(14deg);
+}
+
+#fancynancy-theme-background .fancynancy-bow b {
+    right: 1px;
+    border-radius: 35% 70% 65% 55%;
+    transform: rotate(-14deg);
+}
+
+#fancynancy-theme-background .fancynancy-bow em {
+    position: absolute;
+    left: 13px;
+    top: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(131, 56, 111, .48);
+}
+
+@keyframes fancyBowFloat {
+    from { translate: 0 0; }
+    to { translate: 0 -5px; }
+}
+
+/* ============================================================
+   APPLICATION LAYERING — TARGETED ONLY
+   No body > * catch-all selectors; cursor/companions keep their own contexts.
+   ============================================================ */
+
+body.theme-fancynancy #fancynancy-theme-background { z-index: 0; }
+body.theme-fancynancy .view { position: relative; z-index: 2; }
+body.theme-fancynancy .side-nav { position: relative; z-index: 3; }
+body.theme-fancynancy header,
+body.theme-fancynancy .log-header-container { position: relative; z-index: 4; }
+body.theme-fancynancy .modal,
+body.theme-fancynancy .modal-overlay,
+body.theme-fancynancy .overlay { z-index: 10; }
+
+/* ============================================================
+   EXISTING UI — COLORS ONLY
+   ============================================================ */
+
+body.theme-fancynancy .day-box,
+body.theme-fancynancy .day-picker-box,
+body.theme-fancynancy input,
+body.theme-fancynancy textarea,
+body.theme-fancynancy select,
+body.theme-fancynancy .notes-editable,
+body.theme-fancynancy .phrase-card,
+body.theme-fancynancy .chip,
+body.theme-fancynancy .toolbox-item,
+body.theme-fancynancy .resource-card,
+body.theme-fancynancy .polaroid-card,
+body.theme-fancynancy .filter-tab,
+body.theme-fancynancy .day-target-box,
+body.theme-fancynancy .flashcard,
+body.theme-fancynancy .flashcard-mode-card,
+body.theme-fancynancy .day-badge,
+body.theme-fancynancy .video-placeholder,
+body.theme-fancynancy .theme-picker-card,
+body.theme-fancynancy .note-audio-row {
+    background-color: rgba(255, 251, 254, .87) !important;
+    color: var(--fancy-ink) !important;
+}
+
+/* Keep icon controls transparent, matching the cleaner treatment requested
+   for the other decorative theme. */
+body.theme-fancynancy .icon-btn,
+body.theme-fancynancy .small-icon-btn {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--fancy-ink) !important;
+}
+
+body.theme-fancynancy input::placeholder,
+body.theme-fancynancy textarea::placeholder,
+body.theme-fancynancy .notes-editable:empty::before {
+    color: rgba(91, 38, 77, .42) !important;
+}
+
+body.theme-fancynancy .icon-btn:hover,
+body.theme-fancynancy .small-icon-btn:hover,
+body.theme-fancynancy .filter-tab:hover,
+body.theme-fancynancy .chip:hover,
+body.theme-fancynancy .phrase-card:hover,
+body.theme-fancynancy .day-picker-box.selected,
+body.theme-fancynancy .filter-tab.active {
+    background: rgba(229, 101, 170, .15) !important;
+    color: #6d2859 !important;
+    border-color: rgba(155, 66, 129, .52) !important;
+}
+
+body.theme-fancynancy .progress-bar-track {
+    background: rgba(183, 111, 157, .14) !important;
+}
+
+body.theme-fancynancy .progress-bar-fill {
+    background: linear-gradient(90deg, #d75a9e, #b998d1, #87bfd5) !important;
+}
+
+body.theme-fancynancy h1,
+body.theme-fancynancy h2,
+body.theme-fancynancy h3,
+body.theme-fancynancy .section-header,
+body.theme-fancynancy .tool-row,
+body.theme-fancynancy .tool-row-name,
+body.theme-fancynancy #current-date-title {
+    color: var(--fancy-ink) !important;
+}
+
+@media (max-width: 700px) {
+    #fancynancy-theme-background .fancynancy-theme-svg {
+        width: 132px;
+        max-width: 132px;
+        max-height: 176px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #fancynancy-theme-background * {
+        animation: none !important;
+    }
+}

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="330" height="280" viewBox="0 0 330 280" fill="none">
+<defs>
+  <linearGradient id="lace1" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#82343f"/>
+    <stop offset="1" stop-color="#401018"/>
+  </linearGradient>
+</defs>
+<g stroke="#52212c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M165 137 C134 85, 95 67, 43 73 C52 101, 65 122, 87 140 C58 147, 35 164, 22 191 C61 184, 97 190, 137 213 C153 197, 162 170, 165 137 Z" fill="url(#lace1)" fill-opacity="0.32"/>
+  <path d="M165 137 C196 85, 235 67, 287 73 C278 101, 265 122, 243 140 C272 147, 295 164, 308 191 C269 184, 233 190, 193 213 C177 197, 168 170, 165 137 Z" fill="url(#lace1)" fill-opacity="0.32"/>
+  <path d="M140 130 C118 108, 95 95, 66 93 C83 117, 104 133, 135 145" fill="none"/>
+  <path d="M190 130 C212 108, 235 95, 264 93 C247 117, 226 133, 195 145" fill="none"/>
+  <path d="M143 211 C111 183, 81 171, 42 171 C66 191, 95 204, 134 219" fill="none"/>
+  <path d="M187 211 C219 183, 249 171, 288 171 C264 191, 235 204, 196 219" fill="none"/>
+  <path d="M141 104 C107 119, 80 140, 58 170" fill="none"/>
+  <path d="M189 104 C223 119, 250 140, 272 170" fill="none"/>
+  <path d="M136 118 C89 110, 52 122, 23 156" fill="none" stroke-dasharray="1 9"/>
+  <path d="M194 118 C241 110, 278 122, 307 156" fill="none" stroke-dasharray="1 9"/>
+  <path d="M143 127 C154 118, 176 118, 187 127 C194 133, 197 144, 193 154 C188 165, 177 171, 165 171 C153 171, 142 165, 137 154 C133 144, 136 133, 143 127 Z" fill="#5f1924"/>
+  <path d="M157 171 C156 204, 144 228, 118 256" fill="none"/>
+  <path d="M173 171 C174 204, 186 228, 212 256" fill="none"/>
+</g>
+</svg>

@@ -1,0 +1,2029 @@
+
+body.theme-walkingdead {
+    --black: #e8dfcf;
+    --white: #e8dfcf;
+    --muted-text: #e8dfcf;
+    --track-bg: rgba(255,255,255,.26);
+    --bg-overlay: transparent;
+    background:
+        radial-gradient(circle at 50% 5%, rgba(255,255,255,.52), transparent 24%),
+        radial-gradient(circle at 14% 78%, rgba(255,255,255,.08), transparent 28%),
+        radial-gradient(circle at 86% 22%, rgba(163,143,109,.10), transparent 28%),
+        radial-gradient(circle at 70% 70%, rgba(67,78,63,.08), transparent 30%),
+        linear-gradient(180deg,#24272b 0%,#2f322d 44%,#4a483f 100%) !important;
+    color: #e8dfcf !important;
+}
+body.theme-walkingdead .view:not(#grid-view)::before {
+    background: transparent !important;
+    background-image: none !important;
+    opacity: 0 !important;
+}
+#walkingdead-background {
+    position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; z-index: 0; isolation: isolate;
+}
+#walkingdead-background > * { position: absolute; inset: 0; pointer-events: none; }
+body.theme-walkingdead .view, body.theme-walkingdead #grid-view { position: relative; z-index: 1; }
+body.theme-walkingdead header, body.theme-walkingdead .log-header-container, body.theme-walkingdead .side-nav { position: relative; z-index: 2; }
+#walkingdead-background .theme-walkingdead-glow {
+    background:
+        radial-gradient(circle at 16% 16%, rgba(255,255,255,.48), transparent 20%),
+        radial-gradient(circle at 84% 20%, rgba(163,143,109,.10), transparent 23%),
+        radial-gradient(circle at 20% 84%, rgba(255,255,255,.08), transparent 26%),
+        radial-gradient(circle at 74% 78%, rgba(67,78,63,.08), transparent 24%);
+    filter: blur(10px);
+}
+#walkingdead-background .theme-walkingdead-pattern { opacity: .45; background: radial-gradient(circle at 24px 24px, rgba(255,255,255,.04) 0 2px, transparent 3px); background-size: 76px 76px; }
+#walkingdead-background .theme-walkingdead-dot {
+    position: absolute; width: var(--dot-size); height: var(--dot-size); border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), #b39b73 44%, transparent 72%);
+    animation: walkingdeadDotFloat var(--dot-duration) ease-in-out var(--dot-delay) infinite alternate; opacity: .60;
+}
+@keyframes walkingdeadDotFloat {
+    from { transform: translate3d(0, 0, 0) scale(.86); opacity: .28; }
+    to { transform: translate3d(var(--dot-dx), var(--dot-dy), 0) scale(1.10); opacity: .82; }
+}
+#walkingdead-background .theme-walkingdead-floor {
+    background:
+        linear-gradient(180deg, transparent 0 72%, rgba(255,255,255,.06) 72% 100%),
+        radial-gradient(ellipse 32% 12% at 18% 100%, rgba(255,255,255,.16), transparent 72%),
+        radial-gradient(ellipse 32% 12% at 82% 100%, rgba(255,255,255,.12), transparent 72%);
+}
+#walkingdead-background .theme-walkingdead-item {
+    position: absolute; width: var(--item-width); max-width: 29vw;
+    transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    transform-origin: center; will-change: transform; pointer-events: auto; opacity: .97;
+    filter: drop-shadow(0 16px 22px rgba(0,0,0,.12)) drop-shadow(0 0 12px rgba(255,255,255,.22));
+    animation: walkingdeadItemFloat var(--item-duration) ease-in-out var(--item-delay) infinite;
+}
+#walkingdead-background .theme-walkingdead-item img {
+    display: block; width: 100%; height: auto; pointer-events: none; user-select: none; -webkit-user-drag: none;
+}
+@keyframes walkingdeadItemFloat {
+    0%,100% { transform: translate3d(-50%, -50%, 0) translate3d(0,0,0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    50% { transform: translate3d(-50%, -50%, 0) translate3d(var(--item-float-x), var(--item-float-y), 0) rotate(calc(var(--item-rotate) + 2deg)) scale(calc(var(--item-scale) * 1.02)); }
+}
+#walkingdead-background .theme-walkingdead-item.theme-walkingdead-dancing {
+    animation: walkingdeadDance .66s ease-in-out var(--dance-delay) infinite alternate, walkingdeadGlowPulse 1.18s ease-in-out var(--dance-delay) infinite alternate;
+}
+@keyframes walkingdeadDance {
+    0%,100% { transform: translate3d(-50%, -50%, 0) translate3d(0,0,0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    50% { transform: translate3d(-50%, -50%, 0) translate3d(0,-18px,0) rotate(calc(var(--item-rotate) + 4deg)) scale(calc(var(--item-scale) * 1.05)); }
+}
+@keyframes walkingdeadGlowPulse {
+    from { filter: drop-shadow(0 16px 22px rgba(0,0,0,.12)) drop-shadow(0 0 10px rgba(255,255,255,.22)); }
+    to { filter: drop-shadow(0 18px 24px rgba(0,0,0,.16)) drop-shadow(0 0 16px rgba(255,255,255,.30)); }
+}
+#walkingdead-background .theme-walkingdead-item.theme-walkingdead-pop { animation: walkingdeadPop .54s cubic-bezier(.2,.82,.24,1) both !important; }
+@keyframes walkingdeadPop {
+    0%,100% { transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    45% { transform: translate3d(-50%, -50%, 0) translateY(-12px) rotate(calc(var(--item-rotate) - 4deg)) scale(calc(var(--item-scale) * 1.12)); }
+    75% { transform: translate3d(-50%, -50%, 0) translateY(-4px) rotate(calc(var(--item-rotate) + 2deg)) scale(calc(var(--item-scale) * 1.06)); }
+}
+#walkingdead-background .theme-walkingdead-burst-layer { position: fixed; inset: 0; pointer-events: none; }
+#walkingdead-background .theme-walkingdead-burst {
+    position: fixed; width: var(--burst-size); height: var(--burst-size); border-radius: 50%; transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #b39b73, #69715d); box-shadow: 0 0 10px rgba(255,255,255,.26); animation: walkingdeadSpark .72s ease-out forwards;
+}
+@keyframes walkingdeadSpark {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.35); }
+    18% { opacity: .95; }
+    100% { opacity: 0; transform: translate(-50%, -50%) translate3d(var(--burst-x), var(--burst-y), 0) scale(1.06); }
+}
+body.theme-walkingdead .day-box,
+body.theme-walkingdead .day-picker-box,
+body.theme-walkingdead .filter-tab,
+body.theme-walkingdead .chip,
+body.theme-walkingdead .phrase-card,
+body.theme-walkingdead .toolbox-item,
+body.theme-walkingdead .resource-card,
+body.theme-walkingdead .flashcard,
+body.theme-walkingdead input,
+body.theme-walkingdead textarea,
+body.theme-walkingdead select {
+    background: rgba(41,44,47,.76) !important; color: #e8dfcf !important; border-color: rgba(255,255,255,.24) !important; background-image: none !important;
+}
+body.theme-walkingdead h1,
+body.theme-walkingdead h2,
+body.theme-walkingdead h3,
+body.theme-walkingdead .page-title,
+body.theme-walkingdead .view-title,
+body.theme-walkingdead .section-title,
+body.theme-walkingdead #current-date-title { color: #e8dfcf !important; }
+body.theme-walkingdead .filter-tabs,
+body.theme-walkingdead #library-filter-tabs,
+body.theme-walkingdead #quiz-type-filters,
+body.theme-walkingdead .set-size-picker { background: transparent !important; background-image: none !important; box-shadow: none !important; }
+body.theme-walkingdead .side-nav .icon-btn,
+body.theme-walkingdead .side-nav .icon-btn:hover,
+body.theme-walkingdead .side-nav .icon-btn:focus,
+body.theme-walkingdead .side-nav .icon-btn:active {
+    background: transparent !important; background-image: none !important; border: none !important; box-shadow: none !important; color: #e8dfcf !important;
+}
+body.theme-walkingdead .side-nav .icon-btn::before,
+body.theme-walkingdead .side-nav .icon-btn::after { content: none !important; }
+@media (max-width: 900px) {
+    #walkingdead-background .theme-walkingdead-item { width: min(var(--item-width), 34vw); max-width: 240px; }
+}
+@media (prefers-reduced-motion: reduce) { #walkingdead-background * { animation: none !important; } }
+
+
+/* ============================================================
+   FINAL CONTRAST / READABILITY FIX
+   Explicit UI colors so template defaults cannot produce
+   dark-on-dark or light-on-light text.
+   ============================================================ */
+
+body.theme-walkingdead {
+    --theme-safe-surface: #2c2f2b;
+    --theme-safe-surface-2: #373a34;
+    --theme-safe-text: #f1e8d8;
+    --theme-safe-muted: #c3b9a7;
+    --theme-safe-border: #777367;
+    --theme-safe-search-bg: #f7f1e6;
+    --theme-safe-search-text: #332f29;
+    --theme-safe-search-placeholder: #756e63;
+}
+
+/* PAGE TITLES / SECTION TITLES */
+body.theme-walkingdead h1,
+body.theme-walkingdead h2,
+body.theme-walkingdead h3,
+body.theme-walkingdead h4,
+body.theme-walkingdead h5,
+body.theme-walkingdead h6,
+body.theme-walkingdead .page-title,
+body.theme-walkingdead .view-title,
+body.theme-walkingdead .section-title,
+body.theme-walkingdead .section-header,
+body.theme-walkingdead .tool-row-name,
+body.theme-walkingdead .part-row-label,
+body.theme-walkingdead #current-date-title {
+    color: var(--theme-safe-text) !important;
+    text-shadow: none !important;
+}
+
+/* SEARCH BARS — always force a clearly contrasting field + text pair. */
+body.theme-walkingdead input[type="search"],
+body.theme-walkingdead input[id*="search"],
+body.theme-walkingdead #phrases-search-bar {
+    background: var(--theme-safe-search-bg) !important;
+    background-color: var(--theme-safe-search-bg) !important;
+    background-image: none !important;
+    color: var(--theme-safe-search-text) !important;
+    caret-color: var(--theme-safe-search-text) !important;
+    border-color: var(--theme-safe-border) !important;
+    box-shadow: none !important;
+}
+
+body.theme-walkingdead input[type="search"]::placeholder,
+body.theme-walkingdead input[id*="search"]::placeholder,
+body.theme-walkingdead #phrases-search-bar::placeholder {
+    color: var(--theme-safe-search-placeholder) !important;
+    opacity: 1 !important;
+}
+
+/* General editable controls. */
+body.theme-walkingdead input:not([type="checkbox"]):not([type="radio"]),
+body.theme-walkingdead textarea,
+body.theme-walkingdead select {
+    background-color: var(--theme-safe-surface) !important;
+    background-image: none !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-walkingdead select option,
+body.theme-walkingdead select optgroup {
+    background: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-walkingdead input:not([type="checkbox"]):not([type="radio"])::placeholder,
+body.theme-walkingdead textarea::placeholder,
+body.theme-walkingdead .notes-editable:empty::before {
+    color: var(--theme-safe-muted) !important;
+    opacity: 1 !important;
+}
+
+/* SETTINGS MODALS — solid surface + guaranteed readable text. */
+body.theme-walkingdead #settings-modal,
+body.theme-walkingdead #daily-settings-modal {
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-walkingdead #settings-modal .modal-box,
+body.theme-walkingdead #daily-settings-modal .modal-box {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+    background-image: none !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+    box-shadow: 0 18px 48px rgba(0,0,0,.18) !important;
+}
+
+body.theme-walkingdead #settings-modal .modal-header,
+body.theme-walkingdead #settings-modal .modal-header h2,
+body.theme-walkingdead #settings-modal .modal-section,
+body.theme-walkingdead #settings-modal .field-label,
+body.theme-walkingdead #settings-modal .progress-hint,
+body.theme-walkingdead #settings-modal label,
+body.theme-walkingdead #settings-modal p,
+body.theme-walkingdead #daily-settings-modal .modal-header,
+body.theme-walkingdead #daily-settings-modal .modal-header h2,
+body.theme-walkingdead #daily-settings-modal .modal-section,
+body.theme-walkingdead #daily-settings-modal .field-label,
+body.theme-walkingdead #daily-settings-modal .progress-hint,
+body.theme-walkingdead #daily-settings-modal label,
+body.theme-walkingdead #daily-settings-modal p {
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-walkingdead #settings-modal .progress-hint,
+body.theme-walkingdead #daily-settings-modal .progress-hint {
+    color: var(--theme-safe-muted) !important;
+}
+
+body.theme-walkingdead #settings-modal input:not([type="checkbox"]):not([type="radio"]),
+body.theme-walkingdead #settings-modal textarea,
+body.theme-walkingdead #settings-modal select,
+body.theme-walkingdead #daily-settings-modal input:not([type="checkbox"]):not([type="radio"]),
+body.theme-walkingdead #daily-settings-modal textarea,
+body.theme-walkingdead #daily-settings-modal select {
+    background: var(--theme-safe-surface-2) !important;
+    background-color: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-walkingdead #settings-modal select option,
+body.theme-walkingdead #settings-modal select optgroup,
+body.theme-walkingdead #daily-settings-modal select option,
+body.theme-walkingdead #daily-settings-modal select optgroup {
+    background: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-walkingdead #settings-modal .small-icon-btn,
+body.theme-walkingdead #daily-settings-modal .small-icon-btn {
+    background: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-walkingdead #settings-modal .small-icon-btn i,
+body.theme-walkingdead #daily-settings-modal .small-icon-btn i {
+    color: var(--theme-safe-text) !important;
+}
+
+/* Theme/companion/cursor option cards inside settings. */
+body.theme-walkingdead #settings-modal .icon-option,
+body.theme-walkingdead #daily-settings-modal .icon-option,
+body.theme-walkingdead #settings-modal .kb-view-btn,
+body.theme-walkingdead #daily-settings-modal .kb-view-btn {
+    background: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-walkingdead #settings-modal .icon-option small,
+body.theme-walkingdead #daily-settings-modal .icon-option small {
+    color: var(--theme-safe-text) !important;
+}
+
+/* Theme preview cards keep their artwork, but their text footer is readable. */
+body.theme-walkingdead #theme-picker .theme-picker-info {
+    background: rgba(255,255,255,.95) !important;
+    color: #242424 !important;
+}
+
+body.theme-walkingdead #theme-picker .theme-picker-name {
+    color: #242424 !important;
+}
+
+body.theme-walkingdead #theme-picker .theme-picker-hint {
+    color: #5c5c5c !important;
+}
+
+/* POLAROIDS */
+body.theme-walkingdead .polaroid-card {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-walkingdead .polaroid-label,
+body.theme-walkingdead .polaroid-label .chip-text,
+body.theme-walkingdead .polaroid-card .chip-text {
+    color: var(--theme-safe-text) !important;
+    text-shadow: none !important;
+}
+
+body.theme-walkingdead .polaroid-label {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+}
+
+/* CARDS / TABS */
+body.theme-walkingdead .phrase-card,
+body.theme-walkingdead .chip,
+body.theme-walkingdead .toolbox-item,
+body.theme-walkingdead .resource-card,
+body.theme-walkingdead .flashcard,
+body.theme-walkingdead .day-box,
+body.theme-walkingdead .day-picker-box,
+body.theme-walkingdead .day-target-box,
+body.theme-walkingdead .category-box,
+body.theme-walkingdead .category-card,
+body.theme-walkingdead .category-chip {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-walkingdead .filter-tab {
+    background: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-walkingdead .filter-tab:hover {
+    background: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-walkingdead .filter-tab.active,
+body.theme-walkingdead .filter-tab[aria-selected="true"],
+body.theme-walkingdead .day-picker-box.selected {
+    background: var(--theme-safe-text) !important;
+    color: var(--theme-safe-surface) !important;
+    border-color: var(--theme-safe-text) !important;
+}
+
+/* Preserve transparent parent tab rows and side-nav button backgrounds. */
+body.theme-walkingdead .filter-tabs,
+body.theme-walkingdead #library-filter-tabs,
+body.theme-walkingdead #quiz-type-filters,
+body.theme-walkingdead .set-size-picker {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-walkingdead .side-nav .icon-btn,
+body.theme-walkingdead .side-nav .icon-btn:hover,
+body.theme-walkingdead .side-nav .icon-btn:focus,
+body.theme-walkingdead .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-walkingdead .side-nav .icon-btn i,
+body.theme-walkingdead .side-nav .icon-btn svg {
+    color: var(--theme-safe-text) !important;
+}
+
+/* ============================================================
+   FINAL MODAL + DAILY UI READABILITY PASS
+   This block intentionally comes LAST.
+   - Search bar background EXACTLY matches numbered day boxes.
+   - Every modal title contrasts with the modal surface.
+   - CTRL / SHIFT / D / M shortcut keys and shortcut text are readable.
+   - Modal close X icons are always visible.
+   - Daily settings gear uses NO fill: accent border + accent icon.
+   - Daily-log back/previous/next arrows use the page accent, never white.
+   ============================================================ */
+
+/* Numbered day boxes are the source surface for the search field. */
+html body.theme-walkingdead .day-box,
+html body.theme-walkingdead .day-box.has-data,
+html body.theme-walkingdead .day-picker-box,
+html body.theme-walkingdead .mini-day-box {
+    background: #2c2f2b !important;
+    background-color: #2c2f2b !important;
+    background-image: none !important;
+    color: #f1e8d8 !important;
+    border-color: #777367 !important;
+}
+
+html body.theme-walkingdead .day-box *,
+html body.theme-walkingdead .day-picker-box *,
+html body.theme-walkingdead .mini-day-box * {
+    color: inherit !important;
+}
+
+/* Search bar = the SAME background and text colors as numbered day boxes. */
+html body.theme-walkingdead input[type="search"],
+html body.theme-walkingdead input[id*="search"],
+html body.theme-walkingdead .search-input,
+html body.theme-walkingdead .search-bar input,
+html body.theme-walkingdead #phrases-search-bar {
+    background: #2c2f2b !important;
+    background-color: #2c2f2b !important;
+    background-image: none !important;
+    color: #f1e8d8 !important;
+    caret-color: #f1e8d8 !important;
+    border: 2px solid #777367 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead input[type="search"]::placeholder,
+html body.theme-walkingdead input[id*="search"]::placeholder,
+html body.theme-walkingdead .search-input::placeholder,
+html body.theme-walkingdead .search-bar input::placeholder,
+html body.theme-walkingdead #phrases-search-bar::placeholder {
+    color: #f1e8d8 !important;
+    opacity: .62 !important;
+}
+
+/* Daily title is the theme accent. */
+html body.theme-walkingdead #current-date-title,
+html body.theme-walkingdead .log-header-container > h1,
+html body.theme-walkingdead .log-header-container > h2 {
+    color: #e0caa9 !important;
+    text-shadow: none !important;
+}
+
+/* Daily-log back / previous / next arrows: transparent, accent colored. */
+html body.theme-walkingdead #back-btn,
+html body.theme-walkingdead #prev-day-btn,
+html body.theme-walkingdead #next-day-btn,
+html body.theme-walkingdead .log-header-container .header-back-btn,
+html body.theme-walkingdead .log-header-container .header-back-btn:hover,
+html body.theme-walkingdead .log-header-container .header-back-btn:focus,
+html body.theme-walkingdead .log-header-container .header-back-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #e0caa9 !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead #back-btn i,
+html body.theme-walkingdead #prev-day-btn i,
+html body.theme-walkingdead #next-day-btn i,
+html body.theme-walkingdead .log-header-container .header-back-btn i,
+html body.theme-walkingdead .log-header-container .header-back-btn i::before,
+html body.theme-walkingdead .log-header-container .header-back-btn svg {
+    color: #e0caa9 !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Daily View Settings gear:
+   border version = NO background; border/icon match title accent. */
+html body.theme-walkingdead #open-daily-settings-btn,
+html body.theme-walkingdead header #open-daily-settings-btn,
+html body.theme-walkingdead button[title="Daily View Settings"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #e0caa9 !important;
+    border: 2px solid #e0caa9 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead #open-daily-settings-btn:hover,
+html body.theme-walkingdead #open-daily-settings-btn:focus,
+html body.theme-walkingdead #open-daily-settings-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #e0caa9 !important;
+    border-color: #e0caa9 !important;
+}
+
+html body.theme-walkingdead #open-daily-settings-btn i,
+html body.theme-walkingdead #open-daily-settings-btn i::before,
+html body.theme-walkingdead #open-daily-settings-btn svg {
+    color: #e0caa9 !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Every modal gets one explicit readable surface/text pair. */
+html body.theme-walkingdead .modal-box,
+html body.theme-walkingdead .modal-overlay .modal-box,
+html body.theme-walkingdead .modal .modal-box,
+html body.theme-walkingdead #settings-modal .modal-box,
+html body.theme-walkingdead #daily-settings-modal .modal-box {
+    background: #2c2f2b !important;
+    background-color: #2c2f2b !important;
+    background-image: none !important;
+    color: #f1e8d8 !important;
+    border-color: #777367 !important;
+}
+
+/* Modal headers/titles can NEVER use the modal background color. */
+html body.theme-walkingdead .modal-box .modal-header,
+html body.theme-walkingdead .modal-box .modal-header h1,
+html body.theme-walkingdead .modal-box .modal-header h2,
+html body.theme-walkingdead .modal-box .modal-header h3,
+html body.theme-walkingdead .modal-box > h1,
+html body.theme-walkingdead .modal-box > h2,
+html body.theme-walkingdead .modal-box > h3,
+html body.theme-walkingdead .modal-box .modal-title,
+html body.theme-walkingdead .modal-box [class*="modal-title"],
+html body.theme-walkingdead .modal-box [id$="-modal-title"],
+html body.theme-walkingdead .modal-box [role="heading"] {
+    color: #e0caa9 !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Modal body text, including keyboard shortcut descriptions. */
+html body.theme-walkingdead .modal-box .modal-section,
+html body.theme-walkingdead .modal-box .modal-label,
+html body.theme-walkingdead .modal-box .field-label,
+html body.theme-walkingdead .modal-box .progress-hint,
+html body.theme-walkingdead .modal-box p,
+html body.theme-walkingdead .modal-box label,
+html body.theme-walkingdead .modal-box small,
+html body.theme-walkingdead .modal-box li,
+html body.theme-walkingdead .modal-box dt,
+html body.theme-walkingdead .modal-box dd,
+html body.theme-walkingdead .modal-box strong,
+html body.theme-walkingdead .modal-box em,
+html body.theme-walkingdead .modal-box .shortcut-row,
+html body.theme-walkingdead .modal-box .shortcut-item,
+html body.theme-walkingdead .modal-box .shortcut-label,
+html body.theme-walkingdead .modal-box .shortcut-description,
+html body.theme-walkingdead .modal-box [class*="shortcut"]:not([class*="key"]),
+html body.theme-walkingdead .modal-box [id*="shortcut"] {
+    color: #f1e8d8 !important;
+    opacity: 1 !important;
+}
+
+/* Plain buttons in a modal also remain readable. */
+html body.theme-walkingdead .modal-box button:not(.small-icon-btn):not(.theme-picker-card):not(.icon-option) {
+    color: #f1e8d8 !important;
+    border-color: #777367 !important;
+}
+
+/* Modal form controls. */
+html body.theme-walkingdead .modal-box input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-walkingdead .modal-box textarea,
+html body.theme-walkingdead .modal-box select {
+    background: #2c2f2b !important;
+    background-color: #2c2f2b !important;
+    background-image: none !important;
+    color: #f1e8d8 !important;
+    caret-color: #f1e8d8 !important;
+    border-color: #777367 !important;
+}
+
+html body.theme-walkingdead .modal-box select option,
+html body.theme-walkingdead .modal-box select optgroup {
+    background: #2c2f2b !important;
+    color: #f1e8d8 !important;
+}
+
+html body.theme-walkingdead .modal-box input::placeholder,
+html body.theme-walkingdead .modal-box textarea::placeholder {
+    color: #f1e8d8 !important;
+    opacity: .58 !important;
+}
+
+/* General modal button/icon visibility. */
+html body.theme-walkingdead .modal-box button i,
+html body.theme-walkingdead .modal-box button i::before,
+html body.theme-walkingdead .modal-box button .ph {
+    color: #f1e8d8 !important;
+    opacity: 1 !important;
+}
+
+/* Close X: transparent with accent border/icon.
+   This specifically fixes invisible X icons on same-color button fills. */
+html body.theme-walkingdead .modal-box .modal-header .small-icon-btn,
+html body.theme-walkingdead .modal-box [id$="-close"],
+html body.theme-walkingdead .modal-box .lightbox-close,
+html body.theme-walkingdead #daily-settings-close,
+html body.theme-walkingdead #settings-close {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #e0caa9 !important;
+    border: 2px solid #e0caa9 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-walkingdead .modal-box .modal-header .small-icon-btn i,
+html body.theme-walkingdead .modal-box .modal-header .small-icon-btn i::before,
+html body.theme-walkingdead .modal-box [id$="-close"] i,
+html body.theme-walkingdead .modal-box [id$="-close"] i::before,
+html body.theme-walkingdead .modal-box .lightbox-close i,
+html body.theme-walkingdead .modal-box .lightbox-close i::before,
+html body.theme-walkingdead #daily-settings-close i,
+html body.theme-walkingdead #daily-settings-close i::before,
+html body.theme-walkingdead #settings-close i,
+html body.theme-walkingdead #settings-close i::before {
+    color: #e0caa9 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* CTRL / SHIFT / D / M keycaps and any equivalent keyboard shortcut markup. */
+html body.theme-walkingdead .modal-box kbd,
+html body.theme-walkingdead .modal-box .keycap,
+html body.theme-walkingdead .modal-box .shortcut-key,
+html body.theme-walkingdead .modal-box .keyboard-key,
+html body.theme-walkingdead .modal-box .hotkey,
+html body.theme-walkingdead .modal-box [class*="kbd"],
+html body.theme-walkingdead .modal-box [class*="keycap"],
+html body.theme-walkingdead .modal-box [class*="hotkey"],
+html body.theme-walkingdead .modal-box [class*="shortcut"][class*="key"],
+html body.theme-walkingdead .modal-box [class*="shortcut"] kbd,
+html body.theme-walkingdead .modal-box [class*="shortcut"] .key,
+html body.theme-walkingdead .modal-box [id*="shortcut"] kbd {
+    background: #e0caa9 !important;
+    background-color: #e0caa9 !important;
+    background-image: none !important;
+    color: #2c2f2b !important;
+    border: 1px solid #777367 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* Theme / companion / cursor / shortcut option cards inside settings. */
+html body.theme-walkingdead .modal-box .filter-tab,
+html body.theme-walkingdead .modal-box .icon-option,
+html body.theme-walkingdead .modal-box .kb-view-btn {
+    background: #2c2f2b !important;
+    background-color: #2c2f2b !important;
+    color: #f1e8d8 !important;
+    border-color: #777367 !important;
+}
+
+html body.theme-walkingdead .modal-box .filter-tab.active,
+html body.theme-walkingdead .modal-box .filter-tab[aria-selected="true"],
+html body.theme-walkingdead .modal-box .icon-option.selected,
+html body.theme-walkingdead .modal-box .kb-view-btn.active {
+    background: #e0caa9 !important;
+    background-color: #e0caa9 !important;
+    color: #2c2f2b !important;
+    border-color: #e0caa9 !important;
+}
+
+html body.theme-walkingdead .modal-box .filter-tab.active *,
+html body.theme-walkingdead .modal-box .filter-tab[aria-selected="true"] *,
+html body.theme-walkingdead .modal-box .icon-option.selected *,
+html body.theme-walkingdead .modal-box .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* Preserve preview-label contrast in the Theme picker. */
+html body.theme-walkingdead #theme-picker .theme-picker-card.theme-dark .theme-picker-info,
+html body.theme-walkingdead #theme-picker .theme-picker-card.theme-dark .theme-picker-name,
+html body.theme-walkingdead #theme-picker .theme-picker-card.theme-dark .theme-picker-hint {
+    color: #ffffff !important;
+}
+html body.theme-walkingdead #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-info,
+html body.theme-walkingdead #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-name {
+    color: #222222 !important;
+}
+html body.theme-walkingdead #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-hint {
+    color: #555555 !important;
+}
+
+/* Parent tab/filter rows remain transparent. */
+html body.theme-walkingdead .filter-tabs,
+html body.theme-walkingdead #library-filter-tabs,
+html body.theme-walkingdead #quiz-type-filters,
+html body.theme-walkingdead .set-size-picker {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+
+/* ============================================================
+   USER-SPECIFIC UI FIX PASS — FINAL OVERRIDE
+   ============================================================ */
+
+/* Numbered day boxes */
+html body.theme-walkingdead .day-box,
+html body.theme-walkingdead .day-box.has-data,
+html body.theme-walkingdead .day-picker-box,
+html body.theme-walkingdead .mini-day-box {
+    background: rgba(41,44,47,.76) !important;
+    background-color: rgba(41,44,47,.76) !important;
+    background-image: none !important;
+    color: #e8dfcf !important;
+    border-color: #777367 !important;
+}
+
+html body.theme-walkingdead .day-box *,
+html body.theme-walkingdead .day-picker-box *,
+html body.theme-walkingdead .mini-day-box * {
+    color: #e8dfcf !important;
+}
+
+/* Search bar */
+html body.theme-walkingdead #phrases-search-bar,
+html body.theme-walkingdead input[type="search"],
+html body.theme-walkingdead input[id*="search"] {
+    background: #f7f1e6 !important;
+    background-color: #f7f1e6 !important;
+    background-image: none !important;
+    color: #211c17 !important;
+    caret-color: #211c17 !important;
+    border: 2px solid #777367 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead #phrases-search-bar::placeholder,
+html body.theme-walkingdead input[type="search"]::placeholder,
+html body.theme-walkingdead input[id*="search"]::placeholder {
+    color: #211c17 !important;
+    opacity: .60 !important;
+}
+
+/* Knowledge Base Settings + Plus buttons:
+   same visual family as the numbered day boxes. */
+html body.theme-walkingdead #phrases-library-view #open-settings-btn,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn {
+    background: rgba(41,44,47,.76) !important;
+    background-color: rgba(41,44,47,.76) !important;
+    background-image: none !important;
+    color: #e8dfcf !important;
+    border: 2px solid #777367 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead #phrases-library-view #open-settings-btn:hover,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn:hover,
+html body.theme-walkingdead #phrases-library-view #open-settings-btn:focus,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn:focus {
+    background: rgba(41,44,47,.76) !important;
+    color: #d7c3a4 !important;
+    border-color: #d7c3a4 !important;
+}
+
+html body.theme-walkingdead #phrases-library-view #open-settings-btn i,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn i,
+html body.theme-walkingdead #phrases-library-view #open-settings-btn svg,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn svg {
+    color: #e8dfcf !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Developer-mode controls — no invisible same-color text/icons. */
+html body.theme-walkingdead [id*="developer"],
+html body.theme-walkingdead [class*="developer"],
+html body.theme-walkingdead [id*="dev-mode"],
+html body.theme-walkingdead [class*="dev-mode"] {
+    color: #e8dfcf !important;
+}
+
+html body.theme-walkingdead button[id*="developer"],
+html body.theme-walkingdead button[class*="developer"],
+html body.theme-walkingdead button[id*="dev-mode"],
+html body.theme-walkingdead button[class*="dev-mode"] {
+    background: rgba(41,44,47,.76) !important;
+    background-color: rgba(41,44,47,.76) !important;
+    color: #e8dfcf !important;
+    border: 2px solid #777367 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead button[id*="developer"] i,
+html body.theme-walkingdead button[class*="developer"] i,
+html body.theme-walkingdead button[id*="dev-mode"] i,
+html body.theme-walkingdead button[class*="dev-mode"] i {
+    color: #e8dfcf !important;
+    opacity: 1 !important;
+}
+
+/* Strong modal text pass.
+   Apply text color to ALL descendants first, then intentionally recolor
+   titles / X / keycaps below. This fixes CTRL SHIFT D M descriptions. */
+html body.theme-walkingdead .modal-box,
+html body.theme-walkingdead [class*="shortcut"][class*="modal"],
+html body.theme-walkingdead [id*="shortcut"][id*="modal"],
+html body.theme-walkingdead [class*="developer"][class*="modal"],
+html body.theme-walkingdead [id*="developer"][id*="modal"] {
+    color: #e8dfcf !important;
+}
+
+html body.theme-walkingdead .modal-box *,
+html body.theme-walkingdead [class*="shortcut"][class*="modal"] *,
+html body.theme-walkingdead [id*="shortcut"][id*="modal"] *,
+html body.theme-walkingdead [class*="developer"][class*="modal"] *,
+html body.theme-walkingdead [id*="developer"][id*="modal"] * {
+    color: #e8dfcf !important;
+}
+
+/* Keep modal titles clearly distinct. */
+html body.theme-walkingdead .modal-box .modal-header h1,
+html body.theme-walkingdead .modal-box .modal-header h2,
+html body.theme-walkingdead .modal-box .modal-header h3,
+html body.theme-walkingdead .modal-box .modal-title,
+html body.theme-walkingdead .modal-box [class*="modal-title"],
+html body.theme-walkingdead [class*="shortcut"][class*="modal"] h1,
+html body.theme-walkingdead [class*="shortcut"][class*="modal"] h2,
+html body.theme-walkingdead [class*="shortcut"][class*="modal"] h3,
+html body.theme-walkingdead [id*="shortcut"][id*="modal"] h1,
+html body.theme-walkingdead [id*="shortcut"][id*="modal"] h2,
+html body.theme-walkingdead [id*="shortcut"][id*="modal"] h3 {
+    color: #d7c3a4 !important;
+    opacity: 1 !important;
+}
+
+/* X / close button stays visible. */
+html body.theme-walkingdead .modal-box [id$="-close"],
+html body.theme-walkingdead .modal-box .modal-header .small-icon-btn,
+html body.theme-walkingdead [class*="shortcut"][class*="modal"] [class*="close"],
+html body.theme-walkingdead [id*="shortcut"][id*="modal"] [class*="close"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #d7c3a4 !important;
+    border-color: #d7c3a4 !important;
+}
+
+html body.theme-walkingdead .modal-box [id$="-close"] i,
+html body.theme-walkingdead .modal-box .modal-header .small-icon-btn i,
+html body.theme-walkingdead [class*="shortcut"][class*="modal"] [class*="close"] i,
+html body.theme-walkingdead [id*="shortcut"][id*="modal"] [class*="close"] i {
+    color: #d7c3a4 !important;
+    opacity: 1 !important;
+}
+
+/* CTRL / SHIFT / D / M keycaps */
+html body.theme-walkingdead .modal-box kbd,
+html body.theme-walkingdead .modal-box .keycap,
+html body.theme-walkingdead .modal-box .shortcut-key,
+html body.theme-walkingdead .modal-box .keyboard-key,
+html body.theme-walkingdead .modal-box .hotkey,
+html body.theme-walkingdead [class*="shortcut"] kbd,
+html body.theme-walkingdead [id*="shortcut"] kbd,
+html body.theme-walkingdead [class*="shortcut"] .key,
+html body.theme-walkingdead [id*="shortcut"] .key {
+    background: #d7c3a4 !important;
+    background-color: #d7c3a4 !important;
+    color: #25211d !important;
+    border: 1px solid #777367 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* Daily settings button stays readable too. */
+html body.theme-walkingdead #open-daily-settings-btn {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #d7c3a4 !important;
+    border: 2px solid #d7c3a4 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead #open-daily-settings-btn i,
+html body.theme-walkingdead #open-daily-settings-btn svg {
+    color: #d7c3a4 !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+
+/* ============================================================
+   FINAL VISIBILITY FIX V3
+   ============================================================ */
+
+/* SEARCH BAR: explicit typed text + caret + placeholder contrast */
+html body.theme-walkingdead #phrases-search-bar,
+html body.theme-walkingdead input[type="search"],
+html body.theme-walkingdead input[id*="search"] {
+    background: #f4ede1 !important;
+    background-color: #f4ede1 !important;
+    background-image: none !important;
+    color: #1e1a16 !important;
+    -webkit-text-fill-color: #1e1a16 !important;
+    caret-color: #1e1a16 !important;
+    border: 2px solid #777367 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead #phrases-search-bar::placeholder,
+html body.theme-walkingdead input[type="search"]::placeholder,
+html body.theme-walkingdead input[id*="search"]::placeholder {
+    color: #1e1a16 !important;
+    -webkit-text-fill-color: #1e1a16 !important;
+    opacity: .62 !important;
+}
+
+/* Keep the numbered day boxes in the same family as the search bar
+   except Walking Dead, which intentionally keeps its own dark day boxes. */
+html body.theme-walkingdead .day-box,
+html body.theme-walkingdead .day-box.has-data,
+html body.theme-walkingdead .day-picker-box,
+html body.theme-walkingdead .mini-day-box {
+    background: rgba(41,44,47,.82) !important;
+    background-color: rgba(41,44,47,.82) !important;
+    background-image: none !important;
+    color: #f0e6d5 !important;
+    border-color: #777367 !important;
+}
+
+html body.theme-walkingdead .day-box *,
+html body.theme-walkingdead .day-picker-box *,
+html body.theme-walkingdead .mini-day-box * {
+    color: #f0e6d5 !important;
+}
+
+/* KNOWLEDGE BASE SETTINGS + PLUS BUTTONS */
+html body.theme-walkingdead #phrases-library-view #open-settings-btn,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn {
+    background: #d5c09d !important;
+    background-color: #d5c09d !important;
+    background-image: none !important;
+    color: #211d18 !important;
+    border: 2px solid #777367 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-walkingdead #phrases-library-view #open-settings-btn i,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn i,
+html body.theme-walkingdead #phrases-library-view #open-settings-btn i::before,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn i::before,
+html body.theme-walkingdead #phrases-library-view #open-settings-btn svg,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn svg {
+    display: inline-block !important;
+    color: #211d18 !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* START QUIZ: force both label and play icon to a visible contrast pair */
+html body.theme-walkingdead #start-quiz-btn {
+    background: #d5c09d !important;
+    background-color: #d5c09d !important;
+    background-image: none !important;
+    color: #211d18 !important;
+    -webkit-text-fill-color: #211d18 !important;
+    border: 2px solid #777367 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-walkingdead #start-quiz-btn i,
+html body.theme-walkingdead #start-quiz-btn i::before,
+html body.theme-walkingdead #start-quiz-btn svg,
+html body.theme-walkingdead #start-quiz-btn span {
+    display: inline-block !important;
+    color: #211d18 !important;
+    -webkit-text-fill-color: #211d18 !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-walkingdead #start-quiz-btn.disabled-btn,
+html body.theme-walkingdead #start-quiz-btn:disabled {
+    opacity: .62 !important;
+    color: #211d18 !important;
+    -webkit-text-fill-color: #211d18 !important;
+}
+
+html body.theme-walkingdead #start-quiz-btn.disabled-btn i,
+html body.theme-walkingdead #start-quiz-btn:disabled i {
+    color: #211d18 !important;
+    opacity: 1 !important;
+}
+
+/* ============================================================
+   DEVELOPER MODE / CTRL SHIFT D M MODAL
+   Catch common developer modal ids/classes and also a generic modal
+   containing developer-mode controls via :has().
+   ============================================================ */
+html body.theme-walkingdead :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-box {
+    background: #292b28 !important;
+    background-color: #292b28 !important;
+    color: #f4ead9 !important;
+    border-color: #777367 !important;
+}
+
+/* The two large content boxes in Developer Mode get a darker panel
+   so LIGHT text cannot disappear against the box surface. */
+html body.theme-walkingdead :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-box > :is(div, section):not(.modal-header) {
+    background: #3b3d38 !important;
+    background-color: #3b3d38 !important;
+    color: #f4ead9 !important;
+    border-color: #777367 !important;
+}
+
+/* Force all normal developer-modal text/icons to light/readable. */
+html body.theme-walkingdead :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-box :is(
+    p, span, label, small, strong, em, li,
+    .field-label, .modal-label, .shortcut-row, .shortcut-item,
+    [class*="shortcut"], [class*="description"], [class*="text"]
+) {
+    color: #f4ead9 !important;
+    -webkit-text-fill-color: #f4ead9 !important;
+    opacity: 1 !important;
+}
+
+/* Developer modal inputs/selects/buttons inside the two boxes */
+html body.theme-walkingdead :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-box :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select, button) {
+    color: #f4ead9 !important;
+    -webkit-text-fill-color: #f4ead9 !important;
+    border-color: #777367 !important;
+}
+
+html body.theme-walkingdead :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-box :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+    background: #3b3d38 !important;
+    background-color: #3b3d38 !important;
+}
+
+/* Developer modal title + close X remain visible and separate from body text */
+html body.theme-walkingdead :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-header :is(h1,h2,h3) {
+    color: #f4ead9 !important;
+    -webkit-text-fill-color: #f4ead9 !important;
+}
+
+html body.theme-walkingdead :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-header :is(button,button i,button i::before) {
+    color: #f4ead9 !important;
+    -webkit-text-fill-color: #f4ead9 !important;
+    opacity: 1 !important;
+}
+
+/* ============================================================
+   TITLE SAFE ZONE
+   Keep decorative SVG centers lower so none sit behind the top
+   tab headings such as QUIZZES / KNOWLEDGE BASE / TOOL BOX.
+   Header itself also stays above decorations.
+   ============================================================ */
+html body.theme-walkingdead .log-header-container {
+    position: relative !important;
+    z-index: 40 !important;
+}
+
+html body.theme-walkingdead .log-header-container h1,
+html body.theme-walkingdead .log-header-container h2 {
+    position: relative !important;
+    z-index: 41 !important;
+}
+
+
+/* ============================================================
+   LATEST SEARCH / KNOWLEDGE-BASE VISIBILITY CORRECTION
+   ============================================================ */
+
+/* Search field typed text */
+html body.theme-walkingdead #phrases-search-bar,
+html body.theme-walkingdead input[type="search"],
+html body.theme-walkingdead input[id*="search"] {
+    background: #2c2f2b !important;
+    background-color: #2c2f2b !important;
+    background-image: none !important;
+    color: #fff4e3 !important;
+    -webkit-text-fill-color: #fff4e3 !important;
+    caret-color: #fff4e3 !important;
+    border: 2px solid #777367 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead #phrases-search-bar::placeholder,
+html body.theme-walkingdead input[type="search"]::placeholder,
+html body.theme-walkingdead input[id*="search"]::placeholder {
+    color: #fff4e3 !important;
+    -webkit-text-fill-color: #fff4e3 !important;
+    opacity: .58 !important;
+}
+
+/* Knowledge Base gear + plus */
+html body.theme-walkingdead #phrases-library-view #open-settings-btn,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn {
+    background: #2c2f2b !important;
+    background-color: #2c2f2b !important;
+    background-image: none !important;
+    color: #fff4e3 !important;
+    border: 2px solid #777367 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-walkingdead #phrases-library-view #open-settings-btn i,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn i,
+html body.theme-walkingdead #phrases-library-view #open-settings-btn i::before,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn i::before,
+html body.theme-walkingdead #phrases-library-view #open-settings-btn svg,
+html body.theme-walkingdead #phrases-library-view #add-phrase-library-btn svg {
+    display: inline-block !important;
+    color: #fff4e3 !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    -webkit-text-fill-color: #fff4e3 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Start Quiz button remains readable even when disabled. */
+html body.theme-walkingdead #start-quiz-btn {
+    background: #2c2f2b !important;
+    background-color: #2c2f2b !important;
+    background-image: none !important;
+    color: #fff4e3 !important;
+    -webkit-text-fill-color: #fff4e3 !important;
+    border: 2px solid #777367 !important;
+    box-shadow: none !important;
+    visibility: visible !important;
+}
+
+html body.theme-walkingdead #start-quiz-btn i,
+html body.theme-walkingdead #start-quiz-btn i::before,
+html body.theme-walkingdead #start-quiz-btn svg,
+html body.theme-walkingdead #start-quiz-btn span {
+    color: #fff4e3 !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    -webkit-text-fill-color: #fff4e3 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-walkingdead #start-quiz-btn.disabled-btn,
+html body.theme-walkingdead #start-quiz-btn:disabled {
+    opacity: .62 !important;
+    color: #fff4e3 !important;
+    -webkit-text-fill-color: #fff4e3 !important;
+}
+
+/* Keep modal text usable if older theme rules try to recolor it. */
+html body.theme-walkingdead .modal-box p,
+html body.theme-walkingdead .modal-box label,
+html body.theme-walkingdead .modal-box span,
+html body.theme-walkingdead .modal-box small,
+html body.theme-walkingdead .modal-box .field-label,
+html body.theme-walkingdead .modal-box .modal-label {
+    opacity: 1 !important;
+}
+
+/* Header/title always above decorative SVGs. */
+html body.theme-walkingdead .log-header-container {
+    position: relative !important;
+    z-index: 50 !important;
+}
+html body.theme-walkingdead .log-header-container h1,
+html body.theme-walkingdead .log-header-container h2 {
+    position: relative !important;
+    z-index: 51 !important;
+}
+
+
+/* ============================================================
+   DAILY / APP SEARCH FIELD — LIGHT TEXT ONLY
+   Scoped away from the Theme picker so its search colors stay unchanged.
+   ============================================================ */
+html body.theme-walkingdead #phrases-search-bar,
+html body.theme-walkingdead #log-view input[type="search"],
+html body.theme-walkingdead #log-view input[id*="search"],
+html body.theme-walkingdead #daily-view input[type="search"],
+html body.theme-walkingdead #daily-view input[id*="search"],
+html body.theme-walkingdead input#daily-search-bar,
+html body.theme-walkingdead input#log-search-bar {
+    background: #2c2f2b !important;
+    background-color: #2c2f2b !important;
+    background-image: none !important;
+    color: #fff4e3 !important;
+    -webkit-text-fill-color: #fff4e3 !important;
+    caret-color: #fff4e3 !important;
+    border-color: #777367 !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead #phrases-search-bar::placeholder,
+html body.theme-walkingdead #log-view input[type="search"]::placeholder,
+html body.theme-walkingdead #log-view input[id*="search"]::placeholder,
+html body.theme-walkingdead #daily-view input[type="search"]::placeholder,
+html body.theme-walkingdead #daily-view input[id*="search"]::placeholder,
+html body.theme-walkingdead input#daily-search-bar::placeholder,
+html body.theme-walkingdead input#log-search-bar::placeholder {
+    color: #fff4e3 !important;
+    -webkit-text-fill-color: #fff4e3 !important;
+    opacity: .62 !important;
+}
+
+
+/* ============================================================
+   FINAL APP-VIEW SEARCH COLOR FIX
+   Theme picker/search modal is NOT touched by this block.
+   ============================================================ */
+html body.theme-walkingdead .view input[type="search"],
+html body.theme-walkingdead .view input[type="text"][id*="search"],
+html body.theme-walkingdead .view input[type="text"][class*="search"],
+html body.theme-walkingdead .view input[type="text"][placeholder*="Search"],
+html body.theme-walkingdead .view input[type="text"][placeholder*="search"],
+html body.theme-walkingdead #phrases-search-bar,
+html body.theme-walkingdead #log-view input[id*="search"],
+html body.theme-walkingdead #daily-view input[id*="search"],
+html body.theme-walkingdead input#daily-search-bar,
+html body.theme-walkingdead input#log-search-bar {
+    background: #f4ede1 !important;
+    background-color: #f4ede1 !important;
+    background-image: none !important;
+    color: #1e1a16 !important;
+    -webkit-text-fill-color: #1e1a16 !important;
+    caret-color: #1e1a16 !important;
+    border-color: #8c8172 !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead .view input[type="search"]::placeholder,
+html body.theme-walkingdead .view input[type="text"][id*="search"]::placeholder,
+html body.theme-walkingdead .view input[type="text"][class*="search"]::placeholder,
+html body.theme-walkingdead .view input[type="text"][placeholder*="Search"]::placeholder,
+html body.theme-walkingdead .view input[type="text"][placeholder*="search"]::placeholder,
+html body.theme-walkingdead #phrases-search-bar::placeholder,
+html body.theme-walkingdead #log-view input[id*="search"]::placeholder,
+html body.theme-walkingdead #daily-view input[id*="search"]::placeholder,
+html body.theme-walkingdead input#daily-search-bar::placeholder,
+html body.theme-walkingdead input#log-search-bar::placeholder {
+    color: #1e1a16 !important;
+    -webkit-text-fill-color: #1e1a16 !important;
+    opacity: .62 !important;
+}
+
+
+/* ============================================================
+   WINTER-STYLE UNIFIED UI SYSTEM
+   ------------------------------------------------------------
+   The Winter theme is the reference:
+   - one readable surface/text system across every view
+   - the SAME search styling in every tab and modal
+   - the SAME settings/plus/button styling across tabs
+   - visible icon choices before hover
+   - readable icon-search inputs
+   - readable Developer Mode / shortcut modal
+   - no changes to app layout, companion positioning, or theme SVG logic
+   ============================================================ */
+
+html body.theme-walkingdead {
+    --unified-ui-surface: #f4ede1;
+    --unified-ui-surface-soft: #e8dfd0;
+    --unified-ui-text: #211c17;
+    --unified-ui-muted: #665d54;
+    --unified-ui-border: #948777;
+    --unified-ui-accent: #b79e78;
+    --unified-ui-accent-text: #221d18;
+
+    --black: var(--unified-ui-text) !important;
+    --white: var(--unified-ui-surface) !important;
+    --muted-text: var(--unified-ui-muted) !important;
+    --track-bg: var(--unified-ui-surface-soft) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE INPUT / SEARCH STYLE EVERYWHERE
+   Includes Knowledge Base, Daily View, theme search, icon search,
+   category inputs, settings inputs, and add-tab/create-tab modals.
+   ------------------------------------------------------------ */
+html body.theme-walkingdead input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-walkingdead textarea,
+html body.theme-walkingdead select,
+html body.theme-walkingdead .notes-editable {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    caret-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead input:not([type="checkbox"]):not([type="radio"])::placeholder,
+html body.theme-walkingdead textarea::placeholder,
+html body.theme-walkingdead .notes-editable:empty::before {
+    color: var(--unified-ui-muted) !important;
+    -webkit-text-fill-color: var(--unified-ui-muted) !important;
+    opacity: .82 !important;
+}
+
+html body.theme-walkingdead select option,
+html body.theme-walkingdead select optgroup {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE BUTTON STYLE THROUGHOUT THE APP
+   Settings, plus, save/generate, Start Quiz, modal icon buttons, etc.
+   ------------------------------------------------------------ */
+html body.theme-walkingdead .view .icon-btn,
+html body.theme-walkingdead .view .small-icon-btn,
+html body.theme-walkingdead .modal-box .icon-btn,
+html body.theme-walkingdead .modal-box .small-icon-btn,
+html body.theme-walkingdead .modal-box .save-btn,
+html body.theme-walkingdead #start-quiz-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-walkingdead .view .icon-btn i,
+html body.theme-walkingdead .view .small-icon-btn i,
+html body.theme-walkingdead .modal-box .icon-btn i,
+html body.theme-walkingdead .modal-box .small-icon-btn i,
+html body.theme-walkingdead #start-quiz-btn i,
+html body.theme-walkingdead .view .icon-btn svg,
+html body.theme-walkingdead .view .small-icon-btn svg,
+html body.theme-walkingdead #start-quiz-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-walkingdead .view .icon-btn:hover,
+html body.theme-walkingdead .view .small-icon-btn:hover,
+html body.theme-walkingdead .modal-box .icon-btn:hover,
+html body.theme-walkingdead .modal-box .small-icon-btn:hover,
+html body.theme-walkingdead .modal-box .save-btn:hover,
+html body.theme-walkingdead #start-quiz-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+/* Disabled Start Quiz remains readable instead of losing its label/icon. */
+html body.theme-walkingdead #start-quiz-btn:disabled,
+html body.theme-walkingdead #start-quiz-btn.disabled-btn {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: .58 !important;
+}
+html body.theme-walkingdead #start-quiz-btn:disabled i,
+html body.theme-walkingdead #start-quiz-btn.disabled-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Side navigation remains the template's bare-icon treatment. */
+html body.theme-walkingdead .side-nav .icon-btn,
+html body.theme-walkingdead .side-nav .icon-btn:hover,
+html body.theme-walkingdead .side-nav .icon-btn:focus,
+html body.theme-walkingdead .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-walkingdead .side-nav .icon-btn i,
+html body.theme-walkingdead .side-nav .icon-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Back arrows stay simple and visible, like Winter. */
+html body.theme-walkingdead .header-back-btn,
+html body.theme-walkingdead .header-back-btn:hover,
+html body.theme-walkingdead .header-back-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--unified-ui-text) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+html body.theme-walkingdead .header-back-btn i,
+html body.theme-walkingdead .header-back-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   CARDS / DAY BOXES / POLAROIDS
+   ------------------------------------------------------------ */
+html body.theme-walkingdead .day-box,
+html body.theme-walkingdead .day-picker-box,
+html body.theme-walkingdead .mini-day-box,
+html body.theme-walkingdead .day-badge,
+html body.theme-walkingdead .day-target-box,
+html body.theme-walkingdead .phrase-card,
+html body.theme-walkingdead .chip,
+html body.theme-walkingdead .toolbox-item,
+html body.theme-walkingdead .resource-card,
+html body.theme-walkingdead .polaroid-card,
+html body.theme-walkingdead .flashcard,
+html body.theme-walkingdead .flashcard-mode-card,
+html body.theme-walkingdead .video-placeholder,
+html body.theme-walkingdead .note-audio-row,
+html body.theme-walkingdead .set-complete-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-walkingdead .polaroid-label,
+html body.theme-walkingdead .polaroid-label *,
+html body.theme-walkingdead .day-box *,
+html body.theme-walkingdead .day-picker-box *,
+html body.theme-walkingdead .day-badge * {
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   FILTER TABS
+   Parent rows are transparent; actual buttons have visible surfaces.
+   ------------------------------------------------------------ */
+html body.theme-walkingdead .filter-tabs,
+html body.theme-walkingdead #library-filter-tabs,
+html body.theme-walkingdead #quiz-type-filters,
+html body.theme-walkingdead .set-size-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead .filter-tab,
+html body.theme-walkingdead .kb-view-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead .filter-tab:hover,
+html body.theme-walkingdead .kb-view-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-walkingdead .filter-tab.active,
+html body.theme-walkingdead .filter-tab[aria-selected="true"],
+html body.theme-walkingdead .kb-view-btn.active {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-walkingdead .filter-tab.active *,
+html body.theme-walkingdead .filter-tab[aria-selected="true"] *,
+html body.theme-walkingdead .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* ------------------------------------------------------------
+   ICON PICKERS / ADD-TAB PICKERS
+   Every icon is visible before hover. The containing grid is also neutral.
+   ------------------------------------------------------------ */
+html body.theme-walkingdead .icon-grid,
+html body.theme-walkingdead #icon-picker,
+html body.theme-walkingdead #companion-picker,
+html body.theme-walkingdead #cursor-picker,
+html body.theme-walkingdead [id*="icon"][id*="picker"] {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead .icon-option {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead .icon-option i,
+html body.theme-walkingdead .icon-option svg,
+html body.theme-walkingdead .icon-option small,
+html body.theme-walkingdead .icon-option span {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead .icon-option:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-walkingdead .icon-option.selected {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-walkingdead .icon-option.selected i,
+html body.theme-walkingdead .icon-option.selected svg,
+html body.theme-walkingdead .icon-option.selected small,
+html body.theme-walkingdead .icon-option.selected span {
+    color: var(--unified-ui-accent-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   ALL MODALS
+   ------------------------------------------------------------ */
+html body.theme-walkingdead .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-walkingdead .modal-box .modal-header,
+html body.theme-walkingdead .modal-box .modal-header h1,
+html body.theme-walkingdead .modal-box .modal-header h2,
+html body.theme-walkingdead .modal-box .modal-header h3,
+html body.theme-walkingdead .modal-box .modal-title,
+html body.theme-walkingdead .modal-box .field-label,
+html body.theme-walkingdead .modal-box .modal-label,
+html body.theme-walkingdead .modal-box .progress-hint,
+html body.theme-walkingdead .modal-box label,
+html body.theme-walkingdead .modal-box p {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Close X uses exactly the same small-button treatment as other modal icons. */
+html body.theme-walkingdead .modal-box [id$="-close"],
+html body.theme-walkingdead .modal-box .modal-header .small-icon-btn,
+html body.theme-walkingdead .modal-box .close-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+html body.theme-walkingdead .modal-box [id$="-close"] i,
+html body.theme-walkingdead .modal-box .modal-header .small-icon-btn i,
+html body.theme-walkingdead .modal-box .close-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* ------------------------------------------------------------
+   DEVELOPER MODE / CTRL+SHIFT+D / CTRL+SHIFT+M
+   Covers dynamically-created developer/shortcut modals as well.
+   ------------------------------------------------------------ */
+html body.theme-walkingdead :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-walkingdead :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    .shortcut-row,
+    .shortcut-item,
+    .developer-row,
+    .developer-item,
+    .developer-card,
+    .dev-card,
+    [class*="shortcut"][class*="card"],
+    [class*="developer"][class*="card"]
+) {
+    background: var(--unified-ui-surface-soft) !important;
+    background-color: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-walkingdead :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    p, span, label, small, strong, em,
+    .field-label, .modal-label, .progress-hint,
+    .shortcut-label, .shortcut-description
+) {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead .modal-box kbd,
+html body.theme-walkingdead .modal-box .keycap,
+html body.theme-walkingdead .modal-box .shortcut-key,
+html body.theme-walkingdead .modal-box .keyboard-key,
+html body.theme-walkingdead .modal-box .hotkey {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------
+   THEME PICKER PREVIEW LABELS
+   Do not wipe out thumbnail artwork; only make the information strip readable.
+   ------------------------------------------------------------ */
+html body.theme-walkingdead #theme-picker .theme-picker-info {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-walkingdead #theme-picker .theme-picker-name {
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-walkingdead #theme-picker .theme-picker-hint {
+    color: var(--unified-ui-muted) !important;
+}
+
+/* ------------------------------------------------------------
+   TITLES stay above decorative art.
+   ------------------------------------------------------------ */
+html body.theme-walkingdead header,
+html body.theme-walkingdead .log-header-container {
+    position: relative !important;
+    z-index: 40 !important;
+}
+
+
+/* ============================================================
+   CLEAN ADD-TAB / THEME-SETTINGS PICKER PASS
+   Based on the Winx treatment:
+   - no nested border inside the icon search field
+   - modal titles always readable
+   - no dark tile behind every tab/cursor/companion icon
+   - theme cards use a clean light shell without wiping preview artwork
+   ============================================================ */
+
+html body.theme-walkingdead {
+    --picker-clean-surface: #f4ede1;
+    --picker-clean-text: #211c17;
+    --picker-clean-soft: #e7ddcf;
+    --picker-clean-border: #9b8d7b;
+    --picker-clean-accent: #b79e78;
+    --picker-clean-accent-text: #221d18;
+}
+
+/* Target the theme/settings picker and any add-tab modal that contains
+   an icon grid. This does NOT change modal dimensions or positioning. */
+html body.theme-walkingdead #settings-modal .modal-box,
+html body.theme-walkingdead #daily-settings-modal .modal-box,
+html body.theme-walkingdead #add-tab-modal .modal-box,
+html body.theme-walkingdead [id*="add-tab"] .modal-box,
+html body.theme-walkingdead [id*="tab"][id*="modal"] .modal-box,
+html body.theme-walkingdead [class*="add-tab"][class*="modal"] .modal-box,
+html body.theme-walkingdead [class*="tab"][class*="modal"] .modal-box,
+html body.theme-walkingdead .modal-box:has(#theme-picker),
+html body.theme-walkingdead .modal-box:has(#companion-picker),
+html body.theme-walkingdead .modal-box:has(#cursor-picker),
+html body.theme-walkingdead .modal-box:has(.icon-grid) {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+}
+
+/* TITLES: force both color and WebKit text fill so old theme rules cannot
+   make them disappear into the modal background. */
+html body.theme-walkingdead #settings-modal .modal-header h1,
+html body.theme-walkingdead #settings-modal .modal-header h2,
+html body.theme-walkingdead #daily-settings-modal .modal-header h1,
+html body.theme-walkingdead #daily-settings-modal .modal-header h2,
+html body.theme-walkingdead #add-tab-modal .modal-header h1,
+html body.theme-walkingdead #add-tab-modal .modal-header h2,
+html body.theme-walkingdead [id*="tab"][id*="modal"] .modal-header h1,
+html body.theme-walkingdead [id*="tab"][id*="modal"] .modal-header h2,
+html body.theme-walkingdead .modal-box:has(.icon-grid) .modal-header h1,
+html body.theme-walkingdead .modal-box:has(.icon-grid) .modal-header h2,
+html body.theme-walkingdead .modal-box:has(#theme-picker) .modal-header h1,
+html body.theme-walkingdead .modal-box:has(#theme-picker) .modal-header h2 {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Normal picker/modal labels stay readable too. */
+html body.theme-walkingdead #settings-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-walkingdead #daily-settings-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-walkingdead #add-tab-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-walkingdead .modal-box:has(.icon-grid) :is(.field-label,.modal-label,.progress-hint,label,p,small) {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+/* ICON SEARCH FIELD:
+   the OUTER search control can keep its shape; remove the extra INNER border. */
+html body.theme-walkingdead input[id*="icon"][id*="search"],
+html body.theme-walkingdead input[class*="icon"][class*="search"],
+html body.theme-walkingdead input[placeholder*="icon" i],
+html body.theme-walkingdead #add-tab-modal input[type="search"],
+html body.theme-walkingdead [id*="tab"][id*="modal"] input[type="search"],
+html body.theme-walkingdead .modal-box:has(.icon-grid) input[type="search"],
+html body.theme-walkingdead .modal-box:has(.icon-grid) input[type="text"][placeholder*="Search" i] {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    caret-color: var(--picker-clean-text) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead input[id*="icon"][id*="search"]::placeholder,
+html body.theme-walkingdead input[class*="icon"][class*="search"]::placeholder,
+html body.theme-walkingdead input[placeholder*="icon" i]::placeholder,
+html body.theme-walkingdead .modal-box:has(.icon-grid) input[type="search"]::placeholder,
+html body.theme-walkingdead .modal-box:has(.icon-grid) input[type="text"][placeholder*="Search" i]::placeholder {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: .62 !important;
+}
+
+/* If the search is wrapped by its own little search shell, the shell gets
+   the single visible border. */
+html body.theme-walkingdead :is(
+    .icon-search,
+    .icon-search-wrap,
+    .icon-search-wrapper,
+    [class*="icon-search"][class*="wrap"],
+    [class*="icon-search"][class*="box"]
+) {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    border: 1px solid var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+/* The GRID itself should not become one giant dark rectangle. */
+html body.theme-walkingdead #settings-modal .icon-grid,
+html body.theme-walkingdead #daily-settings-modal .icon-grid,
+html body.theme-walkingdead #add-tab-modal .icon-grid,
+html body.theme-walkingdead [id*="tab"][id*="modal"] .icon-grid,
+html body.theme-walkingdead .modal-box:has(.icon-grid) .icon-grid,
+html body.theme-walkingdead #companion-picker,
+html body.theme-walkingdead #cursor-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+/* Tab icons / cursor icons / companion icons are visible BEFORE hover. */
+html body.theme-walkingdead #settings-modal .icon-option,
+html body.theme-walkingdead #daily-settings-modal .icon-option,
+html body.theme-walkingdead #add-tab-modal .icon-option,
+html body.theme-walkingdead [id*="tab"][id*="modal"] .icon-option,
+html body.theme-walkingdead .modal-box:has(.icon-grid) .icon-option,
+html body.theme-walkingdead #companion-picker .icon-option,
+html body.theme-walkingdead #cursor-picker .icon-option {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead #settings-modal .icon-option :is(i,span,small),
+html body.theme-walkingdead #daily-settings-modal .icon-option :is(i,span,small),
+html body.theme-walkingdead #add-tab-modal .icon-option :is(i,span,small),
+html body.theme-walkingdead [id*="tab"][id*="modal"] .icon-option :is(i,span,small),
+html body.theme-walkingdead .modal-box:has(.icon-grid) .icon-option :is(i,span,small),
+html body.theme-walkingdead #companion-picker .icon-option :is(i,span,small),
+html body.theme-walkingdead #cursor-picker .icon-option :is(i,span,small) {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-walkingdead #settings-modal .icon-option:hover,
+html body.theme-walkingdead #daily-settings-modal .icon-option:hover,
+html body.theme-walkingdead #add-tab-modal .icon-option:hover,
+html body.theme-walkingdead [id*="tab"][id*="modal"] .icon-option:hover,
+html body.theme-walkingdead .modal-box:has(.icon-grid) .icon-option:hover {
+    background: var(--picker-clean-soft) !important;
+    background-color: var(--picker-clean-soft) !important;
+    color: var(--picker-clean-text) !important;
+}
+
+html body.theme-walkingdead #settings-modal .icon-option.selected,
+html body.theme-walkingdead #daily-settings-modal .icon-option.selected,
+html body.theme-walkingdead #add-tab-modal .icon-option.selected,
+html body.theme-walkingdead [id*="tab"][id*="modal"] .icon-option.selected,
+html body.theme-walkingdead .modal-box:has(.icon-grid) .icon-option.selected {
+    background: var(--picker-clean-accent) !important;
+    background-color: var(--picker-clean-accent) !important;
+    color: var(--picker-clean-accent-text) !important;
+    border-color: var(--picker-clean-border) !important;
+}
+
+html body.theme-walkingdead .modal-box:has(.icon-grid) .icon-option.selected :is(i,span,small) {
+    color: var(--picker-clean-accent-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-accent-text) !important;
+}
+
+/* Theme picker: clean shell/card/info backgrounds, but NEVER touch
+   .theme-picker-preview background-image. */
+html body.theme-walkingdead #theme-picker,
+html body.theme-walkingdead .theme-picker-grid {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead #theme-picker .theme-picker-card {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead #theme-picker .theme-picker-info {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+}
+
+html body.theme-walkingdead #theme-picker .theme-picker-name {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+}
+html body.theme-walkingdead #theme-picker .theme-picker-hint {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: .64 !important;
+}
+
+/* Close X in these modals is clean/light too — no dark square behind it. */
+html body.theme-walkingdead #settings-modal .modal-header .small-icon-btn,
+html body.theme-walkingdead #daily-settings-modal .modal-header .small-icon-btn,
+html body.theme-walkingdead #add-tab-modal .modal-header .small-icon-btn,
+html body.theme-walkingdead [id*="tab"][id*="modal"] .modal-header .small-icon-btn,
+html body.theme-walkingdead .modal-box:has(.icon-grid) .modal-header .small-icon-btn {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-walkingdead .modal-box:has(.icon-grid) .modal-header .small-icon-btn i,
+html body.theme-walkingdead #settings-modal .modal-header .small-icon-btn i,
+html body.theme-walkingdead #daily-settings-modal .modal-header .small-icon-btn i {
+    color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+
+

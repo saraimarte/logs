@@ -1,0 +1,541 @@
+
+body.theme-winx{--bg-overlay:transparent;--black:#5b3e72;--white:#fff9ff;--muted-text:#806d91;
+background:radial-gradient(circle at 12% 15%,rgba(255,255,255,.52),transparent 22%),
+radial-gradient(circle at 88% 18%,rgba(108,210,255,.22),transparent 24%),
+linear-gradient(145deg,#fff1fb,#eee8ff 48%,#e8f8ff)!important;color:#5b3e72!important}
+body.theme-winx .view:not(#grid-view)::before{background:transparent!important;opacity:0!important}
+#winx-background{position:fixed;inset:0;width:100vw;height:100vh;overflow:hidden;pointer-events:none;z-index:0}
+body.theme-winx .view{position:relative;z-index:2}body.theme-winx .side-nav{z-index:3}body.theme-winx header,body.theme-winx .log-header-container{position:relative;z-index:4}
+#winx-background .theme-winx-item{position:absolute;width:var(--w);max-width:18vw;transform:translate(-50%,-50%) rotate(var(--r));filter:drop-shadow(0 13px 18px rgba(65,42,90,.16));animation:winxFloat var(--dur) ease-in-out var(--delay) infinite}
+#winx-background .theme-winx-item img{display:block;width:100%;height:auto;pointer-events:none}
+@keyframes winxFloat{0%,100%{transform:translate(-50%,-50%) translate(0,0) rotate(var(--r))}50%{transform:translate(-50%,-50%) translate(var(--dx),var(--dy)) rotate(calc(var(--r) + 2deg))}}
+body.theme-winx .filter-tabs,body.theme-winx #library-filter-tabs,body.theme-winx #quiz-type-filters,body.theme-winx .set-size-picker{background:transparent!important}
+body.theme-winx .side-nav .icon-btn,body.theme-winx .side-nav .icon-btn:hover{background:transparent!important;box-shadow:none!important}
+
+/* Winx title-safe / spacing pass */
+body.theme-winx .log-header-container {
+    position: relative !important;
+    z-index: 50 !important;
+}
+body.theme-winx .log-header-container h1,
+body.theme-winx .log-header-container h2 {
+    position: relative !important;
+    z-index: 51 !important;
+}
+#winx-background .theme-winx-item {
+    max-width: 17vw !important;
+}
+
+
+/* ============================================================
+   WINX HOVER REACTION
+   Normal floating animation resumes automatically after the short reaction.
+   ============================================================ */
+#winx-background .theme-winx-item.winx-hover-react {
+    animation: winxHoverReact .54s cubic-bezier(.2,.82,.24,1) both !important;
+    filter:
+        drop-shadow(0 16px 22px rgba(65,42,90,.18))
+        drop-shadow(0 0 15px rgba(182,119,255,.30)) !important;
+}
+
+@keyframes winxHoverReact {
+    0%,100% {
+        transform:
+            translate(-50%,-50%)
+            rotate(var(--r))
+            scale(1);
+    }
+    28% {
+        transform:
+            translate(-50%,-50%)
+            translateY(-12px)
+            rotate(calc(var(--r) - 4deg))
+            scale(1.08);
+    }
+    58% {
+        transform:
+            translate(-50%,-50%)
+            translateY(-5px)
+            rotate(calc(var(--r) + 4deg))
+            scale(1.05);
+    }
+    82% {
+        transform:
+            translate(-50%,-50%)
+            translateY(-2px)
+            rotate(calc(var(--r) - 2deg))
+            scale(1.02);
+    }
+}
+
+
+/* ============================================================
+   WINX INTRO SONG BOP
+   Only selected characters bop while the intro audio is actually playing.
+   Everyone else keeps the normal winxFloat animation the whole time.
+   Removing .winx-intro-playing restores the selected characters too.
+   ============================================================ */
+#winx-background.winx-intro-playing .theme-winx-item.winx-intro-bopper {
+    animation: winxIntroBop .68s ease-in-out infinite !important;
+}
+
+@keyframes winxIntroBop {
+    0%, 100% {
+        transform:
+            translate(-50%, -50%)
+            translateY(5px)
+            rotate(var(--r))
+            scale(1);
+    }
+    50% {
+        transform:
+            translate(-50%, -50%)
+            translateY(-15px)
+            rotate(var(--r))
+            scale(1.035);
+    }
+}
+
+
+/* ============================================================
+   WINTER-STYLE UNIFIED UI SYSTEM
+   ------------------------------------------------------------
+   The Winter theme is the reference:
+   - one readable surface/text system across every view
+   - the SAME search styling in every tab and modal
+   - the SAME settings/plus/button styling across tabs
+   - visible icon choices before hover
+   - readable icon-search inputs
+   - readable Developer Mode / shortcut modal
+   - no changes to app layout, companion positioning, or theme SVG logic
+   ============================================================ */
+
+html body.theme-winx {
+    --unified-ui-surface: #fff7fd;
+    --unified-ui-surface-soft: #f1e9fb;
+    --unified-ui-text: #5b3e72;
+    --unified-ui-muted: #816f91;
+    --unified-ui-border: #ba9fd2;
+    --unified-ui-accent: #d0a8ef;
+    --unified-ui-accent-text: #50365f;
+
+    --black: var(--unified-ui-text) !important;
+    --white: var(--unified-ui-surface) !important;
+    --muted-text: var(--unified-ui-muted) !important;
+    --track-bg: var(--unified-ui-surface-soft) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE INPUT / SEARCH STYLE EVERYWHERE
+   Includes Knowledge Base, Daily View, theme search, icon search,
+   category inputs, settings inputs, and add-tab/create-tab modals.
+   ------------------------------------------------------------ */
+html body.theme-winx input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-winx textarea,
+html body.theme-winx select,
+html body.theme-winx .notes-editable {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    caret-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-winx input:not([type="checkbox"]):not([type="radio"])::placeholder,
+html body.theme-winx textarea::placeholder,
+html body.theme-winx .notes-editable:empty::before {
+    color: var(--unified-ui-muted) !important;
+    -webkit-text-fill-color: var(--unified-ui-muted) !important;
+    opacity: .82 !important;
+}
+
+html body.theme-winx select option,
+html body.theme-winx select optgroup {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE BUTTON STYLE THROUGHOUT THE APP
+   Settings, plus, save/generate, Start Quiz, modal icon buttons, etc.
+   ------------------------------------------------------------ */
+html body.theme-winx .view .icon-btn,
+html body.theme-winx .view .small-icon-btn,
+html body.theme-winx .modal-box .icon-btn,
+html body.theme-winx .modal-box .small-icon-btn,
+html body.theme-winx .modal-box .save-btn,
+html body.theme-winx #start-quiz-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-winx .view .icon-btn i,
+html body.theme-winx .view .small-icon-btn i,
+html body.theme-winx .modal-box .icon-btn i,
+html body.theme-winx .modal-box .small-icon-btn i,
+html body.theme-winx #start-quiz-btn i,
+html body.theme-winx .view .icon-btn svg,
+html body.theme-winx .view .small-icon-btn svg,
+html body.theme-winx #start-quiz-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-winx .view .icon-btn:hover,
+html body.theme-winx .view .small-icon-btn:hover,
+html body.theme-winx .modal-box .icon-btn:hover,
+html body.theme-winx .modal-box .small-icon-btn:hover,
+html body.theme-winx .modal-box .save-btn:hover,
+html body.theme-winx #start-quiz-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+/* Disabled Start Quiz remains readable instead of losing its label/icon. */
+html body.theme-winx #start-quiz-btn:disabled,
+html body.theme-winx #start-quiz-btn.disabled-btn {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: .58 !important;
+}
+html body.theme-winx #start-quiz-btn:disabled i,
+html body.theme-winx #start-quiz-btn.disabled-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Side navigation remains the template's bare-icon treatment. */
+html body.theme-winx .side-nav .icon-btn,
+html body.theme-winx .side-nav .icon-btn:hover,
+html body.theme-winx .side-nav .icon-btn:focus,
+html body.theme-winx .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-winx .side-nav .icon-btn i,
+html body.theme-winx .side-nav .icon-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Back arrows stay simple and visible, like Winter. */
+html body.theme-winx .header-back-btn,
+html body.theme-winx .header-back-btn:hover,
+html body.theme-winx .header-back-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--unified-ui-text) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+html body.theme-winx .header-back-btn i,
+html body.theme-winx .header-back-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   CARDS / DAY BOXES / POLAROIDS
+   ------------------------------------------------------------ */
+html body.theme-winx .day-box,
+html body.theme-winx .day-picker-box,
+html body.theme-winx .mini-day-box,
+html body.theme-winx .day-badge,
+html body.theme-winx .day-target-box,
+html body.theme-winx .phrase-card,
+html body.theme-winx .chip,
+html body.theme-winx .toolbox-item,
+html body.theme-winx .resource-card,
+html body.theme-winx .polaroid-card,
+html body.theme-winx .flashcard,
+html body.theme-winx .flashcard-mode-card,
+html body.theme-winx .video-placeholder,
+html body.theme-winx .note-audio-row,
+html body.theme-winx .set-complete-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-winx .polaroid-label,
+html body.theme-winx .polaroid-label *,
+html body.theme-winx .day-box *,
+html body.theme-winx .day-picker-box *,
+html body.theme-winx .day-badge * {
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   FILTER TABS
+   Parent rows are transparent; actual buttons have visible surfaces.
+   ------------------------------------------------------------ */
+html body.theme-winx .filter-tabs,
+html body.theme-winx #library-filter-tabs,
+html body.theme-winx #quiz-type-filters,
+html body.theme-winx .set-size-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-winx .filter-tab,
+html body.theme-winx .kb-view-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-winx .filter-tab:hover,
+html body.theme-winx .kb-view-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-winx .filter-tab.active,
+html body.theme-winx .filter-tab[aria-selected="true"],
+html body.theme-winx .kb-view-btn.active {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-winx .filter-tab.active *,
+html body.theme-winx .filter-tab[aria-selected="true"] *,
+html body.theme-winx .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* ------------------------------------------------------------
+   ICON PICKERS / ADD-TAB PICKERS
+   Every icon is visible before hover. The containing grid is also neutral.
+   ------------------------------------------------------------ */
+html body.theme-winx .icon-grid,
+html body.theme-winx #icon-picker,
+html body.theme-winx #companion-picker,
+html body.theme-winx #cursor-picker,
+html body.theme-winx [id*="icon"][id*="picker"] {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-winx .icon-option {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-winx .icon-option i,
+html body.theme-winx .icon-option svg,
+html body.theme-winx .icon-option small,
+html body.theme-winx .icon-option span {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html body.theme-winx .icon-option:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-winx .icon-option.selected {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-winx .icon-option.selected i,
+html body.theme-winx .icon-option.selected svg,
+html body.theme-winx .icon-option.selected small,
+html body.theme-winx .icon-option.selected span {
+    color: var(--unified-ui-accent-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   ALL MODALS
+   ------------------------------------------------------------ */
+html body.theme-winx .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-winx .modal-box .modal-header,
+html body.theme-winx .modal-box .modal-header h1,
+html body.theme-winx .modal-box .modal-header h2,
+html body.theme-winx .modal-box .modal-header h3,
+html body.theme-winx .modal-box .modal-title,
+html body.theme-winx .modal-box .field-label,
+html body.theme-winx .modal-box .modal-label,
+html body.theme-winx .modal-box .progress-hint,
+html body.theme-winx .modal-box label,
+html body.theme-winx .modal-box p {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Close X uses exactly the same small-button treatment as other modal icons. */
+html body.theme-winx .modal-box [id$="-close"],
+html body.theme-winx .modal-box .modal-header .small-icon-btn,
+html body.theme-winx .modal-box .close-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+html body.theme-winx .modal-box [id$="-close"] i,
+html body.theme-winx .modal-box .modal-header .small-icon-btn i,
+html body.theme-winx .modal-box .close-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* ------------------------------------------------------------
+   DEVELOPER MODE / CTRL+SHIFT+D / CTRL+SHIFT+M
+   Covers dynamically-created developer/shortcut modals as well.
+   ------------------------------------------------------------ */
+html body.theme-winx :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-winx :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    .shortcut-row,
+    .shortcut-item,
+    .developer-row,
+    .developer-item,
+    .developer-card,
+    .dev-card,
+    [class*="shortcut"][class*="card"],
+    [class*="developer"][class*="card"]
+) {
+    background: var(--unified-ui-surface-soft) !important;
+    background-color: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-winx :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    p, span, label, small, strong, em,
+    .field-label, .modal-label, .progress-hint,
+    .shortcut-label, .shortcut-description
+) {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-winx .modal-box kbd,
+html body.theme-winx .modal-box .keycap,
+html body.theme-winx .modal-box .shortcut-key,
+html body.theme-winx .modal-box .keyboard-key,
+html body.theme-winx .modal-box .hotkey {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------
+   THEME PICKER PREVIEW LABELS
+   Do not wipe out thumbnail artwork; only make the information strip readable.
+   ------------------------------------------------------------ */
+html body.theme-winx #theme-picker .theme-picker-info {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-winx #theme-picker .theme-picker-name {
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-winx #theme-picker .theme-picker-hint {
+    color: var(--unified-ui-muted) !important;
+}
+
+/* ------------------------------------------------------------
+   TITLES stay above decorative art.
+   ------------------------------------------------------------ */
+html body.theme-winx header,
+html body.theme-winx .log-header-container {
+    position: relative !important;
+    z-index: 40 !important;
+}

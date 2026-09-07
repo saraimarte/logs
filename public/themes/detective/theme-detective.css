@@ -1,0 +1,82 @@
+/* ============================================================
+   DETECTIVE THEME
+   Decorative-only styling.
+   ============================================================ */
+
+body.theme-detective {
+    --detective-ink: #4c3826;
+    --detective-border: #c0a07b;
+    --detective-surface: #fffdf8;
+    --detective-surface-soft: #f7efe4;
+    --detective-accent: #b98b58;
+    --detective-second: #d3c1a5;
+    --detective-third: #7b6152;
+    --black: var(--detective-ink);
+    --white: var(--detective-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--detective-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--detective-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--detective-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--detective-border) 44%, transparent);
+    --track-bg: #efe4d2;
+    --muted-text: rgba(76,56,38,.56);
+    background: radial-gradient(circle at 18% 16%, rgba(255,255,255,.7), transparent 18%), radial-gradient(circle at 82% 14%, rgba(255,255,255,.36), transparent 18%), linear-gradient(160deg, #f0e3c8 0%, #dbc29d 40%, #b69063 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--detective-ink) !important;
+}
+
+#detective-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: 0; }
+#detective-background::before { content:''; position:absolute; inset:-12%; pointer-events:none; background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.18), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.14), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.08) 50%, transparent 58%); animation:detectiveLightSweep 9s ease-in-out infinite alternate; }
+body.theme-detective .view { position: relative; z-index: 2; }
+body.theme-detective .side-nav { position: relative; z-index: 3; }
+body.theme-detective header, body.theme-detective .log-header-container { position: relative; z-index: 4; }
+body.theme-detective .modal, body.theme-detective .modal-overlay, body.theme-detective .overlay { z-index: 10; }
+
+body.theme-detective .day-box,
+body.theme-detective .day-picker-box,
+body.theme-detective .icon-btn,
+body.theme-detective .small-icon-btn,
+body.theme-detective input,
+body.theme-detective textarea,
+body.theme-detective select,
+body.theme-detective .notes-editable,
+body.theme-detective .phrase-card,
+body.theme-detective .chip,
+body.theme-detective .toolbox-item,
+body.theme-detective .resource-card,
+body.theme-detective .polaroid-card,
+body.theme-detective .filter-tab,
+body.theme-detective .day-target-box,
+body.theme-detective .flashcard,
+body.theme-detective .flashcard-mode-card,
+body.theme-detective .day-badge,
+body.theme-detective .video-placeholder,
+body.theme-detective .theme-picker-card,
+body.theme-detective .note-audio-row,
+body.theme-detective .modal-box,
+body.theme-detective .set-complete-box { background-color: var(--detective-surface) !important; }
+
+body.theme-detective input::placeholder,
+body.theme-detective textarea::placeholder,
+body.theme-detective .notes-editable:empty::before { color: color-mix(in srgb, var(--detective-ink) 42%, transparent) !important; }
+body.theme-detective .icon-btn:hover, body.theme-detective .small-icon-btn:hover, body.theme-detective .filter-tab:hover { background: var(--detective-surface-soft) !important; color: var(--detective-ink) !important; }
+body.theme-detective .chip:hover, body.theme-detective .phrase-card:hover, body.theme-detective .day-picker-box.selected, body.theme-detective .filter-tab.active, body.theme-detective .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--detective-surface-soft) 72%, var(--detective-accent) 28%) !important; color: var(--detective-ink) !important; border-color: var(--detective-border) !important; }
+body.theme-detective .progress-bar-fill { background: linear-gradient(90deg, var(--detective-accent), var(--detective-second), var(--detective-third)) !important; }
+
+#detective-background .detective-item { position:absolute; display:block; height:auto; object-fit:contain; opacity:.96; filter: drop-shadow(0 9px 13px rgba(76,56,38,.18)) drop-shadow(0 0 8px rgba(255,255,255,.18)); animation:detectiveFloat var(--detective-float-duration) ease-in-out var(--detective-float-delay) infinite alternate; will-change:transform; }
+@keyframes detectiveFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.98)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--detective-float-x), var(--detective-float-y), 0) rotate(var(--detective-float-r)) scale(1.03)} }
+#detective-background .detective-item.detective-intro-bop { animation:detectiveIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--detective-bop-delay) infinite !important; }
+@keyframes detectiveIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-15px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+#detective-background .detective-extra { position:absolute; }
+
+#detective-background .detective-extra-a { width:16px; height:16px; border:2px solid rgba(255,255,255,.28); border-radius:50%; opacity:.18; animation:detectiveClueFloat var(--detective-extra-duration) ease-in-out var(--detective-extra-delay) infinite alternate; }
+#detective-background .detective-extra-a::after { content:''; position:absolute; width:9px; height:2px; background:rgba(255,255,255,.24); right:-6px; bottom:-2px; transform:rotate(40deg); transform-origin:left center; }
+#detective-background .detective-extra-b { width:8px; height:8px; border-radius:50%; background:rgba(255,245,214,.46); box-shadow:0 0 10px rgba(255,255,255,.25); opacity:.2; animation:detectiveClueTwinkle var(--detective-extra-duration) ease-in-out var(--detective-extra-delay) infinite; }
+@keyframes detectiveClueFloat { from{transform:translate3d(0,0,0) scale(var(--detective-extra-scale));} to{transform:translate3d(0,-9px,0) scale(calc(var(--detective-extra-scale)*1.04));} }
+@keyframes detectiveClueTwinkle { 0%,100%{opacity:.05; transform:scale(.45)} 50%{opacity:.26; transform:scale(calc(var(--detective-extra-scale)*1.15))} }
+
+
+@keyframes detectiveLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #detective-background .detective-item { opacity:.74; } }
+@media (prefers-reduced-motion: reduce) { #detective-background::before, #detective-background .detective-item, #detective-background .detective-extra { animation:none !important; } }

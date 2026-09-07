@@ -1,0 +1,1474 @@
+/* ============================================================
+   FITNESS THEME
+   Cute gym / energetic pet workout aesthetic.
+   Decorative SVGs stay behind the app UI.
+   ============================================================ */
+
+body.theme-fitness {
+    --theme-ink: #27314b;
+    --theme-paper: #fff8ef;
+    --theme-peach: #ffb06b;
+    --theme-coral: #ff7d59;
+    --theme-yellow: #ffe08a;
+    --theme-mint: #bde8cf;
+    --theme-blue: #9fd0ff;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+    --muted-text: rgba(39,49,75,.58);
+    --track-bg: rgba(39,49,75,.09);
+    --thin-border: 1px solid rgba(39,49,75,.12);
+    --thick-border: 2px solid rgba(39,49,75,.15);
+    --dashed-border: 1px dashed rgba(39,49,75,.14);
+    --dotted-border: 1px dotted rgba(39,49,75,.14);
+
+    background:
+        radial-gradient(circle at 50% 6%, rgba(255,255,255,.52), transparent 30%),
+        radial-gradient(circle at 12% 82%, rgba(255,176,107,.18), transparent 28%),
+        radial-gradient(circle at 88% 20%, rgba(159,208,255,.18), transparent 28%),
+        linear-gradient(145deg, #fff0d4 0%, #ffdcb2 40%, #ffc892 70%, #ffdfb8 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#fitness-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0 !important;
+}
+
+#fitness-background .theme-fitness-gradient,
+#fitness-background .theme-fitness-rays,
+#fitness-background .theme-fitness-grid,
+#fitness-background .theme-fitness-floor,
+#fitness-background .theme-fitness-sparkles,
+#fitness-background .theme-fitness-item {
+    z-index: 0 !important;
+    pointer-events: none !important;
+}
+
+#fitness-background .theme-fitness-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 10%, rgba(255,255,255,.36), transparent 28%),
+        radial-gradient(circle at 18% 34%, rgba(255,224,138,.18), transparent 20%),
+        radial-gradient(circle at 82% 34%, rgba(189,232,207,.18), transparent 20%),
+        radial-gradient(circle at 50% 78%, rgba(255,125,89,.10), transparent 32%);
+}
+
+#fitness-background .theme-fitness-rays {
+    position: absolute;
+    inset: 0;
+    background:
+        conic-gradient(
+            from 0deg at 50% 40%,
+            rgba(255,255,255,0) 0deg 10deg,
+            rgba(255,255,255,.16) 10deg 14deg,
+            rgba(255,255,255,0) 14deg 28deg,
+            rgba(255,255,255,.14) 28deg 32deg,
+            rgba(255,255,255,0) 32deg 46deg,
+            rgba(255,255,255,.15) 46deg 50deg,
+            rgba(255,255,255,0) 50deg 360deg
+        );
+    opacity: .75;
+}
+
+#fitness-background .theme-fitness-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(39,49,75,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(39,49,75,.05) 1px, transparent 1px);
+    background-size: 36px 36px;
+    opacity: .36;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,.2), rgba(0,0,0,.75));
+}
+
+#fitness-background .theme-fitness-floor {
+    position: absolute;
+    left: -6vw;
+    right: -6vw;
+    bottom: -8vh;
+    height: 30vh;
+    background:
+        radial-gradient(circle at 15% 55%, rgba(255,255,255,.20) 0 28px, transparent 29px),
+        radial-gradient(circle at 36% 70%, rgba(255,255,255,.16) 0 22px, transparent 23px),
+        radial-gradient(circle at 60% 58%, rgba(255,255,255,.18) 0 25px, transparent 26px),
+        radial-gradient(circle at 83% 68%, rgba(255,255,255,.16) 0 21px, transparent 22px),
+        linear-gradient(180deg, transparent 0%, rgba(255,176,107,.16) 60%, rgba(255,125,89,.20) 100%);
+    clip-path: ellipse(82% 100% at 50% 100%);
+    opacity: .82;
+}
+
+#fitness-background .theme-fitness-sparkles {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 10% 16%, rgba(255,255,255,.50) 0 2px, transparent 3px),
+        radial-gradient(circle at 24% 10%, rgba(255,255,255,.36) 0 2px, transparent 3px),
+        radial-gradient(circle at 71% 13%, rgba(255,255,255,.46) 0 2px, transparent 3px),
+        radial-gradient(circle at 88% 18%, rgba(255,255,255,.40) 0 2px, transparent 3px),
+        radial-gradient(circle at 18% 65%, rgba(255,255,255,.30) 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 72%, rgba(255,255,255,.32) 0 2px, transparent 3px);
+    opacity: .9;
+}
+
+#fitness-background .theme-fitness-item {
+    position: absolute;
+    opacity: var(--item-opacity, .96);
+    transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    transform-origin: center;
+    filter: drop-shadow(0 12px 18px rgba(39,49,75,.12)) drop-shadow(0 0 10px rgba(255,255,255,.14));
+    animation: themeFitnessFloat var(--item-duration, 7s) ease-in-out var(--item-delay) infinite;
+    will-change: transform;
+}
+
+#fitness-background .theme-fitness-soft {
+    opacity: var(--item-opacity, .44);
+}
+
+#fitness-background .theme-fitness-emphasis {
+    opacity: var(--item-opacity, .98);
+}
+
+#fitness-background .theme-fitness-object-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    filter: none;
+}
+
+@keyframes themeFitnessFloat {
+    0%, 100% {
+        transform: translate3d(-50%, -50%, 0) translate3d(0,0,0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+    25% {
+        transform: translate3d(-50%, -50%, 0) translate3d(calc(var(--item-x) * .4), calc(var(--item-y) * .25), 0) rotate(calc(var(--item-rotate) - 2deg)) scale(calc(var(--item-scale) * 1.012));
+    }
+    50% {
+        transform: translate3d(-50%, -50%, 0) translate3d(var(--item-x), var(--item-y), 0) rotate(calc(var(--item-rotate) + 2.6deg)) scale(calc(var(--item-scale) * 1.02));
+    }
+    75% {
+        transform: translate3d(-50%, -50%, 0) translate3d(calc(var(--item-x) * -.3), calc(var(--item-y) * .4), 0) rotate(calc(var(--item-rotate) - 1.2deg)) scale(calc(var(--item-scale) * .996));
+    }
+}
+
+#fitness-background .theme-fitness-react {
+    opacity: 1 !important;
+    filter: drop-shadow(0 16px 22px rgba(39,49,75,.16)) drop-shadow(0 0 14px rgba(255,255,255,.24));
+    animation: themeFitnessReact .56s cubic-bezier(.18,.86,.28,1) !important;
+}
+
+@keyframes themeFitnessReact {
+    0% {
+        transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+    28% {
+        transform: translate3d(-50%, -50%, 0) translate3d(-4px, -13px, 0) rotate(calc(var(--item-rotate) - 7deg)) scale(calc(var(--item-scale) * 1.08));
+    }
+    56% {
+        transform: translate3d(-50%, -50%, 0) translate3d(6px, -18px, 0) rotate(calc(var(--item-rotate) + 8deg)) scale(calc(var(--item-scale) * 1.17));
+    }
+    100% {
+        transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+}
+
+/* Light theme adaptation without changing app structure */
+body.theme-fitness .day-box,
+body.theme-fitness .day-picker-box,
+body.theme-fitness .small-icon-btn,
+body.theme-fitness input,
+body.theme-fitness textarea,
+body.theme-fitness select,
+body.theme-fitness .notes-editable,
+body.theme-fitness .phrase-card,
+body.theme-fitness .chip,
+body.theme-fitness .toolbox-item,
+body.theme-fitness .resource-card,
+body.theme-fitness .polaroid-card,
+body.theme-fitness .filter-tab,
+body.theme-fitness .day-target-box,
+body.theme-fitness .flashcard,
+body.theme-fitness .flashcard-mode-card,
+body.theme-fitness .day-badge,
+body.theme-fitness .video-placeholder,
+body.theme-fitness .theme-picker-card,
+body.theme-fitness .note-audio-row,
+body.theme-fitness .modal-box {
+    background: rgba(255,248,239,.96) !important;
+    background-color: rgba(255,248,239,.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(39,49,75,.14) !important;
+    box-shadow: 0 1px 2px rgba(39,49,75,.04) !important;
+}
+
+body.theme-fitness .day-box:hover,
+body.theme-fitness .day-picker-box:hover,
+body.theme-fitness .small-icon-btn:hover,
+body.theme-fitness .phrase-card:hover,
+body.theme-fitness .chip:hover,
+body.theme-fitness .toolbox-item:hover,
+body.theme-fitness .resource-card:hover,
+body.theme-fitness .polaroid-card:hover,
+body.theme-fitness .filter-tab:hover,
+body.theme-fitness .day-target-box:hover,
+body.theme-fitness .flashcard-mode-card:hover,
+body.theme-fitness .theme-picker-card:hover {
+    background: #ffeccf !important;
+    background-color: #ffeccf !important;
+}
+
+body.theme-fitness .day-picker-box.selected,
+body.theme-fitness .filter-tab.active {
+    background: #ffd8a2 !important;
+    background-color: #ffd8a2 !important;
+}
+
+html body.theme-fitness .side-nav .icon-btn,
+html body.theme-fitness .side-nav .icon-btn:hover,
+html body.theme-fitness .side-nav .icon-btn:focus,
+html body.theme-fitness .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-fitness .side-nav .icon-btn::before,
+html body.theme-fitness .side-nav .icon-btn::after {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    opacity: 0 !important;
+}
+
+body.theme-fitness .progress-bar-track {
+    background: rgba(39,49,75,.10);
+}
+
+body.theme-fitness .progress-bar-fill {
+    background: linear-gradient(90deg, #ff7d59, #ffb06b, #ffe08a);
+}
+
+/* Keep normal app content above the decorative fitness layer. */
+html body.theme-fitness .view {
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+html body.theme-fitness header,
+html body.theme-fitness .log-header-container {
+    position: relative !important;
+    z-index: 4 !important;
+}
+
+/*
+ * IMPORTANT:
+ * Do not force modal / overlay elements to position:relative.
+ * Their positioning is owned by the base app CSS. Only raise their stacking
+ * level so they stay above the fitness decorations and page content.
+ */
+html body.theme-fitness .modal,
+html body.theme-fitness .modal-overlay,
+html body.theme-fitness .overlay {
+    z-index: 1000 !important;
+}
+
+@media (max-width: 700px) {
+    #fitness-background .theme-fitness-item {
+        max-width: 240px;
+        max-height: 240px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #fitness-background * {
+        animation: none !important;
+    }
+}
+
+
+/* Fitness modal safety: keep full-screen backdrops attached to viewport. */
+html body.theme-fitness .modal-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+}
+
+html body.theme-fitness .modal-box {
+    position: relative !important;
+    z-index: 1001 !important;
+}
+
+
+/* ============================================================
+   FITNESS THEME UPDATE
+   - random all-over placement (handled in JS)
+   - stronger, more theme-matched background
+   ============================================================ */
+
+body.theme-fitness {
+    background:
+        radial-gradient(circle at 50% 6%, rgba(255,255,255,.64), transparent 24%),
+        radial-gradient(circle at 12% 18%, rgba(255,125,89,.22), transparent 24%),
+        radial-gradient(circle at 88% 18%, rgba(159,208,255,.22), transparent 24%),
+        radial-gradient(circle at 20% 80%, rgba(189,232,207,.20), transparent 24%),
+        linear-gradient(160deg, #fff5df 0%, #ffe4bd 30%, #ffd4a9 58%, #ffe6c9 100%) !important;
+}
+
+#fitness-background .theme-fitness-gradient,
+#fitness-background .theme-fitness-rays,
+#fitness-background .theme-fitness-rings,
+#fitness-background .theme-fitness-grid,
+#fitness-background .theme-fitness-track,
+#fitness-background .theme-fitness-floor,
+#fitness-background .theme-fitness-sparkles,
+#fitness-background .theme-fitness-item {
+    z-index: 0 !important;
+    pointer-events: none !important;
+}
+
+#fitness-background .theme-fitness-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 12%, rgba(255,255,255,.48), transparent 24%),
+        radial-gradient(circle at 15% 32%, rgba(255,224,138,.22), transparent 20%),
+        radial-gradient(circle at 85% 28%, rgba(159,208,255,.16), transparent 22%),
+        radial-gradient(circle at 20% 82%, rgba(189,232,207,.20), transparent 26%),
+        radial-gradient(circle at 80% 78%, rgba(255,125,89,.14), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
+}
+
+#fitness-background .theme-fitness-rays {
+    position: absolute;
+    inset: -8%;
+    background:
+        repeating-conic-gradient(
+            from 0deg at 50% 34%,
+            rgba(255,255,255,0) 0deg 12deg,
+            rgba(255,255,255,.13) 12deg 14deg,
+            rgba(255,255,255,0) 14deg 28deg
+        );
+    opacity: .48;
+    filter: blur(1px);
+    animation: themeFitnessRaysSpin 22s linear infinite;
+}
+
+@keyframes themeFitnessRaysSpin {
+    from { transform: rotate(0deg) scale(1); }
+    to   { transform: rotate(360deg) scale(1); }
+}
+
+#fitness-background .theme-fitness-rings {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 14% 24%, transparent 0 58px, rgba(39,49,75,.08) 59px 67px, transparent 68px 82px, rgba(255,255,255,.34) 83px 89px, transparent 90px),
+        radial-gradient(circle at 86% 26%, transparent 0 44px, rgba(39,49,75,.07) 45px 52px, transparent 53px 64px, rgba(255,255,255,.24) 65px 69px, transparent 70px),
+        radial-gradient(circle at 12% 76%, transparent 0 38px, rgba(255,176,107,.18) 39px 46px, transparent 47px),
+        radial-gradient(circle at 88% 74%, transparent 0 46px, rgba(159,208,255,.18) 47px 54px, transparent 55px);
+    opacity: .72;
+}
+
+#fitness-background .theme-fitness-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(39,49,75,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(39,49,75,.055) 1px, transparent 1px);
+    background-size: 44px 44px;
+    opacity: .28;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,.08), rgba(0,0,0,.6));
+    transform: perspective(900px) rotateX(58deg) translateY(20vh) scale(1.2);
+    transform-origin: top center;
+}
+
+#fitness-background .theme-fitness-track {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 70% 34% at 50% 102%, transparent 0 57%, rgba(255,255,255,.22) 57.2% 58.1%, transparent 58.3% 63.4%, rgba(39,49,75,.08) 63.6% 64.4%, transparent 64.6%),
+        radial-gradient(ellipse 56% 28% at 50% 102%, transparent 0 61%, rgba(255,255,255,.20) 61.2% 62%, transparent 62.2% 67%, rgba(39,49,75,.07) 67.2% 68%, transparent 68.2%);
+    opacity: .72;
+}
+
+#fitness-background .theme-fitness-floor {
+    position: absolute;
+    left: -6vw;
+    right: -6vw;
+    bottom: -8vh;
+    height: 32vh;
+    background:
+        radial-gradient(circle at 12% 52%, rgba(255,255,255,.20) 0 26px, transparent 27px),
+        radial-gradient(circle at 30% 68%, rgba(255,255,255,.16) 0 18px, transparent 19px),
+        radial-gradient(circle at 48% 54%, rgba(255,255,255,.18) 0 24px, transparent 25px),
+        radial-gradient(circle at 64% 70%, rgba(255,255,255,.16) 0 20px, transparent 21px),
+        radial-gradient(circle at 86% 60%, rgba(255,255,255,.18) 0 24px, transparent 25px),
+        linear-gradient(180deg, transparent 0%, rgba(255,176,107,.12) 42%, rgba(255,125,89,.16) 100%);
+    clip-path: ellipse(84% 100% at 50% 100%);
+    opacity: .92;
+}
+
+#fitness-background .theme-fitness-sparkles {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 10% 16%, rgba(255,255,255,.54) 0 2px, transparent 3px),
+        radial-gradient(circle at 24% 10%, rgba(255,255,255,.36) 0 2px, transparent 3px),
+        radial-gradient(circle at 71% 13%, rgba(255,255,255,.46) 0 2px, transparent 3px),
+        radial-gradient(circle at 88% 18%, rgba(255,255,255,.40) 0 2px, transparent 3px),
+        radial-gradient(circle at 18% 65%, rgba(255,255,255,.30) 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 72%, rgba(255,255,255,.32) 0 2px, transparent 3px),
+        radial-gradient(circle at 38% 78%, rgba(255,255,255,.26) 0 2px, transparent 3px),
+        radial-gradient(circle at 58% 26%, rgba(255,255,255,.28) 0 2px, transparent 3px);
+    opacity: .95;
+    animation: themeFitnessSparkleShift 11s ease-in-out infinite alternate;
+}
+
+@keyframes themeFitnessSparkleShift {
+    from { transform: translate3d(0, 0, 0); opacity: .84; }
+    to   { transform: translate3d(0, -8px, 0); opacity: 1; }
+}
+
+#fitness-background .theme-fitness-item {
+    filter:
+        drop-shadow(0 14px 20px rgba(39,49,75,.13))
+        drop-shadow(0 0 12px rgba(255,255,255,.16));
+}
+
+#fitness-background .theme-fitness-react {
+    filter:
+        drop-shadow(0 18px 24px rgba(39,49,75,.17))
+        drop-shadow(0 0 16px rgba(255,255,255,.30))
+        drop-shadow(0 0 14px rgba(255,176,107,.18));
+}
+
+@media (max-width: 700px) {
+    #fitness-background .theme-fitness-grid {
+        opacity: .18;
+        transform: perspective(800px) rotateX(63deg) translateY(24vh) scale(1.2);
+    }
+
+    #fitness-background .theme-fitness-rings {
+        opacity: .56;
+    }
+}
+
+/* ============================================================
+   FINAL MODAL + DAILY UI READABILITY PASS
+   This block intentionally comes LAST.
+   - Search bar background EXACTLY matches numbered day boxes.
+   - Every modal title contrasts with the modal surface.
+   - CTRL / SHIFT / D / M shortcut keys and shortcut text are readable.
+   - Modal close X icons are always visible.
+   - Daily settings gear uses NO fill: accent border + accent icon.
+   - Daily-log back/previous/next arrows use the page accent, never white.
+   ============================================================ */
+
+/* Numbered day boxes are the source surface for the search field. */
+html body.theme-fitness .day-box,
+html body.theme-fitness .day-box.has-data,
+html body.theme-fitness .day-picker-box,
+html body.theme-fitness .mini-day-box {
+    background: #fff8ef !important;
+    background-color: #fff8ef !important;
+    background-image: none !important;
+    color: #27314b !important;
+    border-color: #d59572 !important;
+}
+
+html body.theme-fitness .day-box *,
+html body.theme-fitness .day-picker-box *,
+html body.theme-fitness .mini-day-box * {
+    color: inherit !important;
+}
+
+/* Search bar = the SAME background and text colors as numbered day boxes. */
+html body.theme-fitness input[type="search"],
+html body.theme-fitness input[id*="search"],
+html body.theme-fitness .search-input,
+html body.theme-fitness .search-bar input,
+html body.theme-fitness #phrases-search-bar {
+    background: #fff8ef !important;
+    background-color: #fff8ef !important;
+    background-image: none !important;
+    color: #27314b !important;
+    caret-color: #27314b !important;
+    border: 2px solid #d59572 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-fitness input[type="search"]::placeholder,
+html body.theme-fitness input[id*="search"]::placeholder,
+html body.theme-fitness .search-input::placeholder,
+html body.theme-fitness .search-bar input::placeholder,
+html body.theme-fitness #phrases-search-bar::placeholder {
+    color: #27314b !important;
+    opacity: .62 !important;
+}
+
+/* Daily title is the theme accent. */
+html body.theme-fitness #current-date-title,
+html body.theme-fitness .log-header-container > h1,
+html body.theme-fitness .log-header-container > h2 {
+    color: #a84a2e !important;
+    text-shadow: none !important;
+}
+
+/* Daily-log back / previous / next arrows: transparent, accent colored. */
+html body.theme-fitness #back-btn,
+html body.theme-fitness #prev-day-btn,
+html body.theme-fitness #next-day-btn,
+html body.theme-fitness .log-header-container .header-back-btn,
+html body.theme-fitness .log-header-container .header-back-btn:hover,
+html body.theme-fitness .log-header-container .header-back-btn:focus,
+html body.theme-fitness .log-header-container .header-back-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #a84a2e !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-fitness #back-btn i,
+html body.theme-fitness #prev-day-btn i,
+html body.theme-fitness #next-day-btn i,
+html body.theme-fitness .log-header-container .header-back-btn i,
+html body.theme-fitness .log-header-container .header-back-btn i::before,
+html body.theme-fitness .log-header-container .header-back-btn svg {
+    color: #a84a2e !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Daily View Settings gear:
+   border version = NO background; border/icon match title accent. */
+html body.theme-fitness #open-daily-settings-btn,
+html body.theme-fitness header #open-daily-settings-btn,
+html body.theme-fitness button[title="Daily View Settings"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #a84a2e !important;
+    border: 2px solid #a84a2e !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-fitness #open-daily-settings-btn:hover,
+html body.theme-fitness #open-daily-settings-btn:focus,
+html body.theme-fitness #open-daily-settings-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #a84a2e !important;
+    border-color: #a84a2e !important;
+}
+
+html body.theme-fitness #open-daily-settings-btn i,
+html body.theme-fitness #open-daily-settings-btn i::before,
+html body.theme-fitness #open-daily-settings-btn svg {
+    color: #a84a2e !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Every modal gets one explicit readable surface/text pair. */
+html body.theme-fitness .modal-box,
+html body.theme-fitness .modal-overlay .modal-box,
+html body.theme-fitness .modal .modal-box,
+html body.theme-fitness #settings-modal .modal-box,
+html body.theme-fitness #daily-settings-modal .modal-box {
+    background: #fff8ef !important;
+    background-color: #fff8ef !important;
+    background-image: none !important;
+    color: #27314b !important;
+    border-color: #d59572 !important;
+}
+
+/* Modal headers/titles can NEVER use the modal background color. */
+html body.theme-fitness .modal-box .modal-header,
+html body.theme-fitness .modal-box .modal-header h1,
+html body.theme-fitness .modal-box .modal-header h2,
+html body.theme-fitness .modal-box .modal-header h3,
+html body.theme-fitness .modal-box > h1,
+html body.theme-fitness .modal-box > h2,
+html body.theme-fitness .modal-box > h3,
+html body.theme-fitness .modal-box .modal-title,
+html body.theme-fitness .modal-box [class*="modal-title"],
+html body.theme-fitness .modal-box [id$="-modal-title"],
+html body.theme-fitness .modal-box [role="heading"] {
+    color: #a84a2e !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Modal body text, including keyboard shortcut descriptions. */
+html body.theme-fitness .modal-box .modal-section,
+html body.theme-fitness .modal-box .modal-label,
+html body.theme-fitness .modal-box .field-label,
+html body.theme-fitness .modal-box .progress-hint,
+html body.theme-fitness .modal-box p,
+html body.theme-fitness .modal-box label,
+html body.theme-fitness .modal-box small,
+html body.theme-fitness .modal-box li,
+html body.theme-fitness .modal-box dt,
+html body.theme-fitness .modal-box dd,
+html body.theme-fitness .modal-box strong,
+html body.theme-fitness .modal-box em,
+html body.theme-fitness .modal-box .shortcut-row,
+html body.theme-fitness .modal-box .shortcut-item,
+html body.theme-fitness .modal-box .shortcut-label,
+html body.theme-fitness .modal-box .shortcut-description,
+html body.theme-fitness .modal-box [class*="shortcut"]:not([class*="key"]),
+html body.theme-fitness .modal-box [id*="shortcut"] {
+    color: #27314b !important;
+    opacity: 1 !important;
+}
+
+/* Plain buttons in a modal also remain readable. */
+html body.theme-fitness .modal-box button:not(.small-icon-btn):not(.theme-picker-card):not(.icon-option) {
+    color: #27314b !important;
+    border-color: #d59572 !important;
+}
+
+/* Modal form controls. */
+html body.theme-fitness .modal-box input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-fitness .modal-box textarea,
+html body.theme-fitness .modal-box select {
+    background: #fff8ef !important;
+    background-color: #fff8ef !important;
+    background-image: none !important;
+    color: #27314b !important;
+    caret-color: #27314b !important;
+    border-color: #d59572 !important;
+}
+
+html body.theme-fitness .modal-box select option,
+html body.theme-fitness .modal-box select optgroup {
+    background: #fff8ef !important;
+    color: #27314b !important;
+}
+
+html body.theme-fitness .modal-box input::placeholder,
+html body.theme-fitness .modal-box textarea::placeholder {
+    color: #27314b !important;
+    opacity: .58 !important;
+}
+
+/* General modal button/icon visibility. */
+html body.theme-fitness .modal-box button i,
+html body.theme-fitness .modal-box button i::before,
+html body.theme-fitness .modal-box button .ph {
+    color: #27314b !important;
+    opacity: 1 !important;
+}
+
+/* Close X: transparent with accent border/icon.
+   This specifically fixes invisible X icons on same-color button fills. */
+html body.theme-fitness .modal-box .modal-header .small-icon-btn,
+html body.theme-fitness .modal-box [id$="-close"],
+html body.theme-fitness .modal-box .lightbox-close,
+html body.theme-fitness #daily-settings-close,
+html body.theme-fitness #settings-close {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #a84a2e !important;
+    border: 2px solid #a84a2e !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-fitness .modal-box .modal-header .small-icon-btn i,
+html body.theme-fitness .modal-box .modal-header .small-icon-btn i::before,
+html body.theme-fitness .modal-box [id$="-close"] i,
+html body.theme-fitness .modal-box [id$="-close"] i::before,
+html body.theme-fitness .modal-box .lightbox-close i,
+html body.theme-fitness .modal-box .lightbox-close i::before,
+html body.theme-fitness #daily-settings-close i,
+html body.theme-fitness #daily-settings-close i::before,
+html body.theme-fitness #settings-close i,
+html body.theme-fitness #settings-close i::before {
+    color: #a84a2e !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* CTRL / SHIFT / D / M keycaps and any equivalent keyboard shortcut markup. */
+html body.theme-fitness .modal-box kbd,
+html body.theme-fitness .modal-box .keycap,
+html body.theme-fitness .modal-box .shortcut-key,
+html body.theme-fitness .modal-box .keyboard-key,
+html body.theme-fitness .modal-box .hotkey,
+html body.theme-fitness .modal-box [class*="kbd"],
+html body.theme-fitness .modal-box [class*="keycap"],
+html body.theme-fitness .modal-box [class*="hotkey"],
+html body.theme-fitness .modal-box [class*="shortcut"][class*="key"],
+html body.theme-fitness .modal-box [class*="shortcut"] kbd,
+html body.theme-fitness .modal-box [class*="shortcut"] .key,
+html body.theme-fitness .modal-box [id*="shortcut"] kbd {
+    background: #a84a2e !important;
+    background-color: #a84a2e !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    border: 1px solid #d59572 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* Theme / companion / cursor / shortcut option cards inside settings. */
+html body.theme-fitness .modal-box .filter-tab,
+html body.theme-fitness .modal-box .icon-option,
+html body.theme-fitness .modal-box .kb-view-btn {
+    background: #fff8ef !important;
+    background-color: #fff8ef !important;
+    color: #27314b !important;
+    border-color: #d59572 !important;
+}
+
+html body.theme-fitness .modal-box .filter-tab.active,
+html body.theme-fitness .modal-box .filter-tab[aria-selected="true"],
+html body.theme-fitness .modal-box .icon-option.selected,
+html body.theme-fitness .modal-box .kb-view-btn.active {
+    background: #a84a2e !important;
+    background-color: #a84a2e !important;
+    color: #ffffff !important;
+    border-color: #a84a2e !important;
+}
+
+html body.theme-fitness .modal-box .filter-tab.active *,
+html body.theme-fitness .modal-box .filter-tab[aria-selected="true"] *,
+html body.theme-fitness .modal-box .icon-option.selected *,
+html body.theme-fitness .modal-box .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* Preserve preview-label contrast in the Theme picker. */
+html body.theme-fitness #theme-picker .theme-picker-card.theme-dark .theme-picker-info,
+html body.theme-fitness #theme-picker .theme-picker-card.theme-dark .theme-picker-name,
+html body.theme-fitness #theme-picker .theme-picker-card.theme-dark .theme-picker-hint {
+    color: #ffffff !important;
+}
+html body.theme-fitness #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-info,
+html body.theme-fitness #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-name {
+    color: #222222 !important;
+}
+html body.theme-fitness #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-hint {
+    color: #555555 !important;
+}
+
+/* Parent tab/filter rows remain transparent. */
+html body.theme-fitness .filter-tabs,
+html body.theme-fitness #library-filter-tabs,
+html body.theme-fitness #quiz-type-filters,
+html body.theme-fitness .set-size-picker {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+
+/* ============================================================
+   WINTER-STYLE UNIFIED UI SYSTEM
+   ------------------------------------------------------------
+   The Winter theme is the reference:
+   - one readable surface/text system across every view
+   - the SAME search styling in every tab and modal
+   - the SAME settings/plus/button styling across tabs
+   - visible icon choices before hover
+   - readable icon-search inputs
+   - readable Developer Mode / shortcut modal
+   - no changes to app layout, companion positioning, or theme SVG logic
+   ============================================================ */
+
+html body.theme-fitness {
+    --unified-ui-surface: #fff8ef;
+    --unified-ui-surface-soft: #ffeccf;
+    --unified-ui-text: #27314b;
+    --unified-ui-muted: #687086;
+    --unified-ui-border: #d59572;
+    --unified-ui-accent: #ffad7a;
+    --unified-ui-accent-text: #3e3340;
+
+    --black: var(--unified-ui-text) !important;
+    --white: var(--unified-ui-surface) !important;
+    --muted-text: var(--unified-ui-muted) !important;
+    --track-bg: var(--unified-ui-surface-soft) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE INPUT / SEARCH STYLE EVERYWHERE
+   Includes Knowledge Base, Daily View, theme search, icon search,
+   category inputs, settings inputs, and add-tab/create-tab modals.
+   ------------------------------------------------------------ */
+html body.theme-fitness input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-fitness textarea,
+html body.theme-fitness select,
+html body.theme-fitness .notes-editable {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    caret-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-fitness input:not([type="checkbox"]):not([type="radio"])::placeholder,
+html body.theme-fitness textarea::placeholder,
+html body.theme-fitness .notes-editable:empty::before {
+    color: var(--unified-ui-muted) !important;
+    -webkit-text-fill-color: var(--unified-ui-muted) !important;
+    opacity: .82 !important;
+}
+
+html body.theme-fitness select option,
+html body.theme-fitness select optgroup {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE BUTTON STYLE THROUGHOUT THE APP
+   Settings, plus, save/generate, Start Quiz, modal icon buttons, etc.
+   ------------------------------------------------------------ */
+html body.theme-fitness .view .icon-btn,
+html body.theme-fitness .view .small-icon-btn,
+html body.theme-fitness .modal-box .icon-btn,
+html body.theme-fitness .modal-box .small-icon-btn,
+html body.theme-fitness .modal-box .save-btn,
+html body.theme-fitness #start-quiz-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-fitness .view .icon-btn i,
+html body.theme-fitness .view .small-icon-btn i,
+html body.theme-fitness .modal-box .icon-btn i,
+html body.theme-fitness .modal-box .small-icon-btn i,
+html body.theme-fitness #start-quiz-btn i,
+html body.theme-fitness .view .icon-btn svg,
+html body.theme-fitness .view .small-icon-btn svg,
+html body.theme-fitness #start-quiz-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-fitness .view .icon-btn:hover,
+html body.theme-fitness .view .small-icon-btn:hover,
+html body.theme-fitness .modal-box .icon-btn:hover,
+html body.theme-fitness .modal-box .small-icon-btn:hover,
+html body.theme-fitness .modal-box .save-btn:hover,
+html body.theme-fitness #start-quiz-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+/* Disabled Start Quiz remains readable instead of losing its label/icon. */
+html body.theme-fitness #start-quiz-btn:disabled,
+html body.theme-fitness #start-quiz-btn.disabled-btn {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: .58 !important;
+}
+html body.theme-fitness #start-quiz-btn:disabled i,
+html body.theme-fitness #start-quiz-btn.disabled-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Side navigation remains the template's bare-icon treatment. */
+html body.theme-fitness .side-nav .icon-btn,
+html body.theme-fitness .side-nav .icon-btn:hover,
+html body.theme-fitness .side-nav .icon-btn:focus,
+html body.theme-fitness .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-fitness .side-nav .icon-btn i,
+html body.theme-fitness .side-nav .icon-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Back arrows stay simple and visible, like Winter. */
+html body.theme-fitness .header-back-btn,
+html body.theme-fitness .header-back-btn:hover,
+html body.theme-fitness .header-back-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--unified-ui-text) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+html body.theme-fitness .header-back-btn i,
+html body.theme-fitness .header-back-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   CARDS / DAY BOXES / POLAROIDS
+   ------------------------------------------------------------ */
+html body.theme-fitness .day-box,
+html body.theme-fitness .day-picker-box,
+html body.theme-fitness .mini-day-box,
+html body.theme-fitness .day-badge,
+html body.theme-fitness .day-target-box,
+html body.theme-fitness .phrase-card,
+html body.theme-fitness .chip,
+html body.theme-fitness .toolbox-item,
+html body.theme-fitness .resource-card,
+html body.theme-fitness .polaroid-card,
+html body.theme-fitness .flashcard,
+html body.theme-fitness .flashcard-mode-card,
+html body.theme-fitness .video-placeholder,
+html body.theme-fitness .note-audio-row,
+html body.theme-fitness .set-complete-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-fitness .polaroid-label,
+html body.theme-fitness .polaroid-label *,
+html body.theme-fitness .day-box *,
+html body.theme-fitness .day-picker-box *,
+html body.theme-fitness .day-badge * {
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   FILTER TABS
+   Parent rows are transparent; actual buttons have visible surfaces.
+   ------------------------------------------------------------ */
+html body.theme-fitness .filter-tabs,
+html body.theme-fitness #library-filter-tabs,
+html body.theme-fitness #quiz-type-filters,
+html body.theme-fitness .set-size-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-fitness .filter-tab,
+html body.theme-fitness .kb-view-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-fitness .filter-tab:hover,
+html body.theme-fitness .kb-view-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-fitness .filter-tab.active,
+html body.theme-fitness .filter-tab[aria-selected="true"],
+html body.theme-fitness .kb-view-btn.active {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-fitness .filter-tab.active *,
+html body.theme-fitness .filter-tab[aria-selected="true"] *,
+html body.theme-fitness .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* ------------------------------------------------------------
+   ICON PICKERS / ADD-TAB PICKERS
+   Every icon is visible before hover. The containing grid is also neutral.
+   ------------------------------------------------------------ */
+html body.theme-fitness .icon-grid,
+html body.theme-fitness #icon-picker,
+html body.theme-fitness #companion-picker,
+html body.theme-fitness #cursor-picker,
+html body.theme-fitness [id*="icon"][id*="picker"] {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-fitness .icon-option {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-fitness .icon-option i,
+html body.theme-fitness .icon-option svg,
+html body.theme-fitness .icon-option small,
+html body.theme-fitness .icon-option span {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html body.theme-fitness .icon-option:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-fitness .icon-option.selected {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-fitness .icon-option.selected i,
+html body.theme-fitness .icon-option.selected svg,
+html body.theme-fitness .icon-option.selected small,
+html body.theme-fitness .icon-option.selected span {
+    color: var(--unified-ui-accent-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   ALL MODALS
+   ------------------------------------------------------------ */
+html body.theme-fitness .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-fitness .modal-box .modal-header,
+html body.theme-fitness .modal-box .modal-header h1,
+html body.theme-fitness .modal-box .modal-header h2,
+html body.theme-fitness .modal-box .modal-header h3,
+html body.theme-fitness .modal-box .modal-title,
+html body.theme-fitness .modal-box .field-label,
+html body.theme-fitness .modal-box .modal-label,
+html body.theme-fitness .modal-box .progress-hint,
+html body.theme-fitness .modal-box label,
+html body.theme-fitness .modal-box p {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Close X uses exactly the same small-button treatment as other modal icons. */
+html body.theme-fitness .modal-box [id$="-close"],
+html body.theme-fitness .modal-box .modal-header .small-icon-btn,
+html body.theme-fitness .modal-box .close-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+html body.theme-fitness .modal-box [id$="-close"] i,
+html body.theme-fitness .modal-box .modal-header .small-icon-btn i,
+html body.theme-fitness .modal-box .close-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* ------------------------------------------------------------
+   DEVELOPER MODE / CTRL+SHIFT+D / CTRL+SHIFT+M
+   Covers dynamically-created developer/shortcut modals as well.
+   ------------------------------------------------------------ */
+html body.theme-fitness :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-fitness :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    .shortcut-row,
+    .shortcut-item,
+    .developer-row,
+    .developer-item,
+    .developer-card,
+    .dev-card,
+    [class*="shortcut"][class*="card"],
+    [class*="developer"][class*="card"]
+) {
+    background: var(--unified-ui-surface-soft) !important;
+    background-color: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-fitness :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    p, span, label, small, strong, em,
+    .field-label, .modal-label, .progress-hint,
+    .shortcut-label, .shortcut-description
+) {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-fitness .modal-box kbd,
+html body.theme-fitness .modal-box .keycap,
+html body.theme-fitness .modal-box .shortcut-key,
+html body.theme-fitness .modal-box .keyboard-key,
+html body.theme-fitness .modal-box .hotkey {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------
+   THEME PICKER PREVIEW LABELS
+   Do not wipe out thumbnail artwork; only make the information strip readable.
+   ------------------------------------------------------------ */
+html body.theme-fitness #theme-picker .theme-picker-info {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-fitness #theme-picker .theme-picker-name {
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-fitness #theme-picker .theme-picker-hint {
+    color: var(--unified-ui-muted) !important;
+}
+
+/* ------------------------------------------------------------
+   TITLES stay above decorative art.
+   ------------------------------------------------------------ */
+html body.theme-fitness header,
+html body.theme-fitness .log-header-container {
+    position: relative !important;
+    z-index: 40 !important;
+}
+
+
+/* ============================================================
+   CLEAN ADD-TAB / THEME-SETTINGS PICKER PASS
+   Based on the Winx treatment:
+   - no nested border inside the icon search field
+   - modal titles always readable
+   - no dark tile behind every tab/cursor/companion icon
+   - theme cards use a clean light shell without wiping preview artwork
+   ============================================================ */
+
+html body.theme-fitness {
+    --picker-clean-surface: #fff8ef;
+    --picker-clean-text: #27314b;
+    --picker-clean-soft: #ffedd5;
+    --picker-clean-border: #d8a27e;
+    --picker-clean-accent: #ffbd8e;
+    --picker-clean-accent-text: #3e3340;
+}
+
+/* Target the theme/settings picker and any add-tab modal that contains
+   an icon grid. This does NOT change modal dimensions or positioning. */
+html body.theme-fitness #settings-modal .modal-box,
+html body.theme-fitness #daily-settings-modal .modal-box,
+html body.theme-fitness #add-tab-modal .modal-box,
+html body.theme-fitness [id*="add-tab"] .modal-box,
+html body.theme-fitness [id*="tab"][id*="modal"] .modal-box,
+html body.theme-fitness [class*="add-tab"][class*="modal"] .modal-box,
+html body.theme-fitness [class*="tab"][class*="modal"] .modal-box,
+html body.theme-fitness .modal-box:has(#theme-picker),
+html body.theme-fitness .modal-box:has(#companion-picker),
+html body.theme-fitness .modal-box:has(#cursor-picker),
+html body.theme-fitness .modal-box:has(.icon-grid) {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+}
+
+/* TITLES: force both color and WebKit text fill so old theme rules cannot
+   make them disappear into the modal background. */
+html body.theme-fitness #settings-modal .modal-header h1,
+html body.theme-fitness #settings-modal .modal-header h2,
+html body.theme-fitness #daily-settings-modal .modal-header h1,
+html body.theme-fitness #daily-settings-modal .modal-header h2,
+html body.theme-fitness #add-tab-modal .modal-header h1,
+html body.theme-fitness #add-tab-modal .modal-header h2,
+html body.theme-fitness [id*="tab"][id*="modal"] .modal-header h1,
+html body.theme-fitness [id*="tab"][id*="modal"] .modal-header h2,
+html body.theme-fitness .modal-box:has(.icon-grid) .modal-header h1,
+html body.theme-fitness .modal-box:has(.icon-grid) .modal-header h2,
+html body.theme-fitness .modal-box:has(#theme-picker) .modal-header h1,
+html body.theme-fitness .modal-box:has(#theme-picker) .modal-header h2 {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Normal picker/modal labels stay readable too. */
+html body.theme-fitness #settings-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-fitness #daily-settings-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-fitness #add-tab-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-fitness .modal-box:has(.icon-grid) :is(.field-label,.modal-label,.progress-hint,label,p,small) {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+/* ICON SEARCH FIELD:
+   the OUTER search control can keep its shape; remove the extra INNER border. */
+html body.theme-fitness input[id*="icon"][id*="search"],
+html body.theme-fitness input[class*="icon"][class*="search"],
+html body.theme-fitness input[placeholder*="icon" i],
+html body.theme-fitness #add-tab-modal input[type="search"],
+html body.theme-fitness [id*="tab"][id*="modal"] input[type="search"],
+html body.theme-fitness .modal-box:has(.icon-grid) input[type="search"],
+html body.theme-fitness .modal-box:has(.icon-grid) input[type="text"][placeholder*="Search" i] {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    caret-color: var(--picker-clean-text) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-fitness input[id*="icon"][id*="search"]::placeholder,
+html body.theme-fitness input[class*="icon"][class*="search"]::placeholder,
+html body.theme-fitness input[placeholder*="icon" i]::placeholder,
+html body.theme-fitness .modal-box:has(.icon-grid) input[type="search"]::placeholder,
+html body.theme-fitness .modal-box:has(.icon-grid) input[type="text"][placeholder*="Search" i]::placeholder {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: .62 !important;
+}
+
+/* If the search is wrapped by its own little search shell, the shell gets
+   the single visible border. */
+html body.theme-fitness :is(
+    .icon-search,
+    .icon-search-wrap,
+    .icon-search-wrapper,
+    [class*="icon-search"][class*="wrap"],
+    [class*="icon-search"][class*="box"]
+) {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    border: 1px solid var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+/* The GRID itself should not become one giant dark rectangle. */
+html body.theme-fitness #settings-modal .icon-grid,
+html body.theme-fitness #daily-settings-modal .icon-grid,
+html body.theme-fitness #add-tab-modal .icon-grid,
+html body.theme-fitness [id*="tab"][id*="modal"] .icon-grid,
+html body.theme-fitness .modal-box:has(.icon-grid) .icon-grid,
+html body.theme-fitness #companion-picker,
+html body.theme-fitness #cursor-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+/* Tab icons / cursor icons / companion icons are visible BEFORE hover. */
+html body.theme-fitness #settings-modal .icon-option,
+html body.theme-fitness #daily-settings-modal .icon-option,
+html body.theme-fitness #add-tab-modal .icon-option,
+html body.theme-fitness [id*="tab"][id*="modal"] .icon-option,
+html body.theme-fitness .modal-box:has(.icon-grid) .icon-option,
+html body.theme-fitness #companion-picker .icon-option,
+html body.theme-fitness #cursor-picker .icon-option {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-fitness #settings-modal .icon-option :is(i,span,small),
+html body.theme-fitness #daily-settings-modal .icon-option :is(i,span,small),
+html body.theme-fitness #add-tab-modal .icon-option :is(i,span,small),
+html body.theme-fitness [id*="tab"][id*="modal"] .icon-option :is(i,span,small),
+html body.theme-fitness .modal-box:has(.icon-grid) .icon-option :is(i,span,small),
+html body.theme-fitness #companion-picker .icon-option :is(i,span,small),
+html body.theme-fitness #cursor-picker .icon-option :is(i,span,small) {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-fitness #settings-modal .icon-option:hover,
+html body.theme-fitness #daily-settings-modal .icon-option:hover,
+html body.theme-fitness #add-tab-modal .icon-option:hover,
+html body.theme-fitness [id*="tab"][id*="modal"] .icon-option:hover,
+html body.theme-fitness .modal-box:has(.icon-grid) .icon-option:hover {
+    background: var(--picker-clean-soft) !important;
+    background-color: var(--picker-clean-soft) !important;
+    color: var(--picker-clean-text) !important;
+}
+
+html body.theme-fitness #settings-modal .icon-option.selected,
+html body.theme-fitness #daily-settings-modal .icon-option.selected,
+html body.theme-fitness #add-tab-modal .icon-option.selected,
+html body.theme-fitness [id*="tab"][id*="modal"] .icon-option.selected,
+html body.theme-fitness .modal-box:has(.icon-grid) .icon-option.selected {
+    background: var(--picker-clean-accent) !important;
+    background-color: var(--picker-clean-accent) !important;
+    color: var(--picker-clean-accent-text) !important;
+    border-color: var(--picker-clean-border) !important;
+}
+
+html body.theme-fitness .modal-box:has(.icon-grid) .icon-option.selected :is(i,span,small) {
+    color: var(--picker-clean-accent-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-accent-text) !important;
+}
+
+/* Theme picker: clean shell/card/info backgrounds, but NEVER touch
+   .theme-picker-preview background-image. */
+html body.theme-fitness #theme-picker,
+html body.theme-fitness .theme-picker-grid {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-fitness #theme-picker .theme-picker-card {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-fitness #theme-picker .theme-picker-info {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+}
+
+html body.theme-fitness #theme-picker .theme-picker-name {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+}
+html body.theme-fitness #theme-picker .theme-picker-hint {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: .64 !important;
+}
+
+/* Close X in these modals is clean/light too — no dark square behind it. */
+html body.theme-fitness #settings-modal .modal-header .small-icon-btn,
+html body.theme-fitness #daily-settings-modal .modal-header .small-icon-btn,
+html body.theme-fitness #add-tab-modal .modal-header .small-icon-btn,
+html body.theme-fitness [id*="tab"][id*="modal"] .modal-header .small-icon-btn,
+html body.theme-fitness .modal-box:has(.icon-grid) .modal-header .small-icon-btn {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-fitness .modal-box:has(.icon-grid) .modal-header .small-icon-btn i,
+html body.theme-fitness #settings-modal .modal-header .small-icon-btn i,
+html body.theme-fitness #daily-settings-modal .modal-header .small-icon-btn i {
+    color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+
+

@@ -1,0 +1,433 @@
+
+/* ============================================================
+   CARTOON THEME
+   Big comic-book SVG bursts + hover sound effects.
+
+   Safe theme rules:
+   - does not change app layout, spacing, cursor, companions, or tabs
+   - decorative layer stays behind the app
+   - only the cartoon SVGs opt into pointer events
+   ============================================================ */
+
+body.theme-cartoon {
+    --cartoon-ink: #231f20;
+    --cartoon-paper: #fff8df;
+    --cartoon-red: #ef5350;
+    --cartoon-yellow: #ffd54f;
+    --cartoon-blue: #42a5f5;
+    --cartoon-cyan: #73d9ef;
+
+    --black: var(--cartoon-ink);
+    --white: var(--cartoon-paper);
+    --bg-overlay: transparent;
+    --overlay-scrim: rgba(28, 24, 20, 0.44);
+
+    --thick-border: 3px solid #2b2626;
+    --thin-border: 2px solid rgba(43, 38, 38, 0.56);
+    --dashed-border: 2px dashed rgba(43, 38, 38, 0.44);
+    --dotted-border: 2px dotted rgba(43, 38, 38, 0.42);
+    --muted-text: rgba(35, 31, 32, 0.58);
+    --track-bg: rgba(35, 31, 32, 0.12);
+
+    background:
+        radial-gradient(circle at 10% 12%, rgba(255, 176, 64, .34), transparent 24%),
+        radial-gradient(circle at 88% 18%, rgba(255, 204, 128, .24), transparent 24%),
+        radial-gradient(circle at 15% 84%, rgba(255, 138, 101, .23), transparent 28%),
+        radial-gradient(circle at 84% 80%, rgba(255, 183, 77, .20), transparent 28%),
+        linear-gradient(135deg, #ffe3a3 0%, #fff2d7 44%, #ffd7b5 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--cartoon-ink) !important;
+}
+
+/* Prevent the template from washing out other views/tabs. */
+body.theme-cartoon .view:not(#grid-view)::before {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    opacity: 0 !important;
+}
+
+/* ============================================================
+   BACKGROUND LAYER
+   ============================================================ */
+
+#cartoon-theme-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+    contain: layout paint;
+}
+
+body.theme-cartoon .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-cartoon .side-nav {
+    z-index: 500 !important;
+}
+
+body.theme-cartoon .modal,
+body.theme-cartoon .modal-overlay,
+body.theme-cartoon .overlay {
+    z-index: 1000 !important;
+}
+
+/* ============================================================
+   BIG CARTOON SVG ICONS
+   ============================================================ */
+
+#cartoon-theme-background .cartoon-theme-item {
+    position: absolute;
+    width: var(--cartoon-width);
+    height: auto;
+    max-width: 470px;
+    aspect-ratio: var(--cartoon-ratio, 1.25);
+    transform-origin: center center;
+    pointer-events: auto;
+    user-select: none;
+    cursor: inherit;
+    filter: drop-shadow(0 10px 12px rgba(35, 31, 32, 0.16));
+    animation:
+        cartoonFloat var(--cartoon-float-duration)
+        ease-in-out var(--cartoon-float-delay)
+        infinite alternate;
+    will-change: transform;
+}
+
+#cartoon-theme-background .cartoon-theme-item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: inherit;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    transition:
+        transform .22s cubic-bezier(.22, 1.4, .34, 1),
+        filter .22s ease;
+    transform:
+        rotate(var(--cartoon-rotate))
+        scale(1);
+    will-change: transform;
+}
+
+#cartoon-theme-background .cartoon-theme-item:hover img {
+    transform:
+        rotate(calc(var(--cartoon-rotate) + var(--cartoon-hover-rotate)))
+        scale(1.14);
+    filter:
+        drop-shadow(0 14px 16px rgba(35, 31, 32, 0.22))
+        saturate(1.08);
+}
+
+#cartoon-theme-background .cartoon-theme-item.cartoon-hit img {
+    animation: cartoonHitPop .42s cubic-bezier(.2, 1.55, .35, 1);
+}
+
+@keyframes cartoonFloat {
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            rotate(-1deg);
+    }
+    to {
+        transform:
+            translate3d(var(--cartoon-drift-x), var(--cartoon-drift-y), 0)
+            rotate(1.4deg);
+    }
+}
+
+@keyframes cartoonHitPop {
+    0% {
+        transform:
+            rotate(var(--cartoon-rotate))
+            scale(1);
+    }
+    42% {
+        transform:
+            rotate(calc(var(--cartoon-rotate) + var(--cartoon-hover-rotate)))
+            scale(1.18);
+    }
+    70% {
+        transform:
+            rotate(calc(var(--cartoon-rotate) - 3deg))
+            scale(1.08);
+    }
+    100% {
+        transform:
+            rotate(calc(var(--cartoon-rotate) + var(--cartoon-hover-rotate)))
+            scale(1.14);
+    }
+}
+
+/* ============================================================
+   COMIC BACKGROUND DETAILS
+   ============================================================ */
+
+/* Halftone fields */
+#cartoon-theme-background .cartoon-halftone {
+    position: absolute;
+    width: var(--halftone-size);
+    height: var(--halftone-size);
+    border-radius: 50%;
+    opacity: .13;
+    background:
+        radial-gradient(circle, rgba(35,31,32,.72) 0 1.6px, transparent 1.8px)
+        0 0 / 10px 10px;
+    mask-image: radial-gradient(circle, #000 20%, transparent 72%);
+    -webkit-mask-image: radial-gradient(circle, #000 20%, transparent 72%);
+    animation: cartoonHalftonePulse var(--halftone-duration) ease-in-out var(--halftone-delay) infinite alternate;
+}
+
+@keyframes cartoonHalftonePulse {
+    from { opacity: .07; transform: scale(.94) rotate(-2deg); }
+    to   { opacity: .16; transform: scale(1.04) rotate(2deg); }
+}
+
+/* Comic speed lines */
+#cartoon-theme-background .cartoon-speed-lines {
+    position: absolute;
+    width: var(--line-width);
+    height: 88px;
+    opacity: .10;
+    transform: rotate(var(--line-rotate));
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0 7px,
+            rgba(35,31,32,.62) 7px 9px,
+            transparent 9px 15px
+        );
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    animation: cartoonLinesSlide var(--line-duration) ease-in-out var(--line-delay) infinite alternate;
+}
+
+@keyframes cartoonLinesSlide {
+    from { translate: -10px 0; }
+    to   { translate: 14px 0; }
+}
+
+/* Small starbursts */
+#cartoon-theme-background .cartoon-starburst {
+    position: absolute;
+    width: var(--star-size);
+    height: var(--star-size);
+    opacity: .14;
+    background: var(--star-color);
+    clip-path: polygon(
+        50% 0%, 58% 34%, 78% 10%, 68% 40%,
+        100% 32%, 72% 52%, 96% 68%, 64% 62%,
+        72% 100%, 52% 70%, 34% 96%, 42% 64%,
+        8% 78%, 34% 54%, 0% 44%, 36% 42%
+    );
+    animation: cartoonStarPulse var(--star-duration) ease-in-out var(--star-delay) infinite alternate;
+}
+
+@keyframes cartoonStarPulse {
+    from { opacity: .07; transform: rotate(-6deg) scale(.85); }
+    to   { opacity: .18; transform: rotate(8deg) scale(1.08); }
+}
+
+/* Tiny comic dots */
+#cartoon-theme-background .cartoon-confetti {
+    position: absolute;
+    width: var(--confetti-size);
+    height: var(--confetti-size);
+    border-radius: 2px;
+    background: var(--confetti-color);
+    opacity: .20;
+    transform: rotate(var(--confetti-rotate));
+    animation: cartoonConfettiFloat var(--confetti-duration) ease-in-out var(--confetti-delay) infinite alternate;
+}
+
+@keyframes cartoonConfettiFloat {
+    from { translate: 0 0; }
+    to   { translate: var(--confetti-x) var(--confetti-y); }
+}
+
+/* ============================================================
+   UI SURFACES
+   ============================================================ */
+
+body.theme-cartoon .day-box,
+body.theme-cartoon .day-picker-box,
+body.theme-cartoon .mini-day-box,
+body.theme-cartoon .day-badge,
+body.theme-cartoon .day-target-box,
+body.theme-cartoon .resource-card,
+body.theme-cartoon .toolbox-item,
+body.theme-cartoon .phrase-card,
+body.theme-cartoon .flashcard,
+body.theme-cartoon .flashcard-mode-card,
+body.theme-cartoon .video-placeholder,
+body.theme-cartoon .polaroid-card,
+body.theme-cartoon input[type="text"],
+body.theme-cartoon textarea,
+body.theme-cartoon select,
+body.theme-cartoon .notes-editable,
+body.theme-cartoon .note-audio-row {
+    background: rgba(255, 250, 240, .93) !important;
+    color: var(--cartoon-ink) !important;
+    border-color: rgba(43, 38, 38, .38) !important;
+}
+
+body.theme-cartoon .filter-tab,
+body.theme-cartoon .chip,
+body.theme-cartoon .icon-option,
+body.theme-cartoon .resource-card-btn {
+    background: rgba(255, 248, 223, .96) !important;
+    color: var(--cartoon-ink) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-cartoon .filter-tab:hover,
+body.theme-cartoon .chip:hover,
+body.theme-cartoon .icon-option:hover,
+body.theme-cartoon .resource-card-btn:hover,
+body.theme-cartoon .day-picker-box:hover {
+    background: #ffe69b !important;
+    color: var(--cartoon-ink) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-cartoon .filter-tab.active,
+body.theme-cartoon .day-picker-box.selected,
+body.theme-cartoon .icon-option.selected {
+    background: #ffd45e !important;
+    color: var(--cartoon-ink) !important;
+}
+
+/* Right-side navigation remains transparent/icon-only. */
+body.theme-cartoon .side-nav .icon-btn,
+body.theme-cartoon .side-nav .icon-btn:hover,
+body.theme-cartoon .side-nav .icon-btn:focus,
+body.theme-cartoon .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-cartoon .side-nav .icon-btn::before,
+body.theme-cartoon .side-nav .icon-btn::after {
+    content: none !important;
+}
+
+body.theme-cartoon .progress-bar-track {
+    background: rgba(35,31,32,.12) !important;
+}
+
+body.theme-cartoon .progress-bar-fill {
+    background: #ef5350 !important;
+}
+
+@media (max-width: 700px) {
+    #cartoon-theme-background .cartoon-theme-item {
+        max-width: 290px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #cartoon-theme-background * {
+        animation: none !important;
+    }
+}
+
+
+/* ============================================================
+   LOG TITLE SAFETY
+   ============================================================ */
+
+/* Keep the actual Log header above all decorative SVGs. */
+body.theme-cartoon #log-view > .log-header-container,
+body.theme-cartoon #log-view .log-header-container {
+    position: relative;
+    z-index: 80 !important;
+}
+
+/* Give only the title text a tiny readable backing so even a transient SVG
+   can never visually sit behind the letters during resize/theme mount. */
+body.theme-cartoon #log-view > .log-header-container h1,
+body.theme-cartoon #log-view .log-header-container h1 {
+    position: relative;
+    z-index: 81 !important;
+    display: inline-block;
+    background: rgba(255, 241, 214, 0.96);
+    border-radius: 10px;
+    padding: 3px 10px;
+    box-shadow: 0 0 0 5px rgba(255, 241, 214, 0.82);
+}
+
+
+/* ============================================================
+   CARTOON INTRO DANCE
+   Some cartoon SVGs visibly bop while the intro music is playing.
+   The bobbing runs on its own wrapper, so it cannot be cancelled by
+   the existing hover / rotation animation on the SVG image.
+   ============================================================ */
+
+#cartoon-theme-background .cartoon-dance-wrap {
+    width: 100%;
+    height: 100%;
+    display: block;
+    transform-origin: center bottom;
+}
+
+#cartoon-theme-background.cartoon-intro-playing
+.cartoon-theme-item.cartoon-intro-dancer
+.cartoon-dance-wrap {
+    animation:
+        cartoonIntroDance
+        var(--cartoon-dance-duration, .70s)
+        ease-in-out
+        var(--cartoon-dance-delay, 0s)
+        infinite;
+    will-change: transform;
+}
+
+@keyframes cartoonIntroDance {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    45% {
+        transform:
+            translate3d(
+                0,
+                calc(var(--cartoon-dance-height, 18px) * -1),
+                0
+            )
+            scale(1.025);
+    }
+
+    68% {
+        transform: translate3d(0, -4px, 0) scale(1.01);
+    }
+}
+
+/* Keep the normal hover/impact behavior on the image itself. */
+#cartoon-theme-background.cartoon-intro-playing
+.cartoon-theme-item.cartoon-intro-dancer:hover img {
+    transform:
+        rotate(calc(var(--cartoon-rotate) + var(--cartoon-hover-rotate)))
+        scale(1.14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #cartoon-theme-background.cartoon-intro-playing
+    .cartoon-theme-item.cartoon-intro-dancer
+    .cartoon-dance-wrap {
+        animation: none !important;
+    }
+}

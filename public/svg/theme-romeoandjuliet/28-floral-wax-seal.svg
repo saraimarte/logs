@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" fill="none">
+<defs>
+  <radialGradient id="wax3" cx="38%" cy="35%" r="75%"><stop offset="0" stop-color="#af4b47"/><stop offset="0.55" stop-color="#7c2220"/><stop offset="1" stop-color="#551514"/></radialGradient>
+</defs>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <path d="M160 28 C212 28, 257 57, 280 103 C301 145, 300 195, 275 238 C250 279, 205 301, 155 300 C103 299, 57 270, 35 225 C15 184, 17 134, 41 91 C65 50, 109 28, 160 28 Z" fill="url(#wax3)" stroke="#561614" stroke-width="5"/>
+  <path d="M83 94 C127 70, 190 69, 234 88" stroke="#d37d74" stroke-opacity="0.35" stroke-width="7"/>
+  <path d="M95 229 C132 247, 182 244, 223 224" stroke="#491311" stroke-opacity="0.4" stroke-width="8"/>
+  <g stroke="#b58e74" stroke-width="4" fill="none">
+    <path d="M160 223 C159 197, 170 174, 191 160 C214 145, 228 123, 222 103 C217 85, 196 78, 181 88 C172 95, 167 106, 166 119 C160 102, 149 91, 136 88 C119 84, 103 95, 101 112 C98 132, 113 149, 136 160 C112 177, 99 199, 97 225"/>
+    <path d="M160 119 C170 133, 175 145, 177 159"/>
+    <path d="M160 119 C150 133, 145 145, 143 159"/>
+    <path d="M136 160 C146 159, 154 161, 160 167"/>
+    <path d="M191 160 C181 159, 173 161, 167 167"/>
+    <path d="M160 169 C160 186, 160 205, 160 223"/>
+    <path d="M127 122 C136 118, 144 118, 152 121"/>
+    <path d="M184 122 C176 118, 168 118, 160 121"/>
+    <path d="M134 205 C144 198, 152 195, 160 194"/>
+    <path d="M186 205 C176 198, 168 195, 160 194"/>
+  </g>
+</g>
+</svg>

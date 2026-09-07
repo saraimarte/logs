@@ -1,0 +1,69 @@
+/* picnic theme v4: decorative background + readability-safe UI styling. */
+body.theme-picnic {
+  --theme-text: #23452c;
+  --theme-accent: #e79a7e;
+  --theme-accent-2: #f3c86f;
+  --theme-day: rgba(255,251,236,.94);
+  --theme-day-text: #24432c;
+  --theme-border: rgba(58,94,48,.28);
+  --theme-surface: rgba(255,255,245,.10);
+  --black: var(--theme-text);
+  --white: var(--theme-text);
+  --thick-border: 3px solid var(--theme-border);
+  --thin-border: 2px solid var(--theme-border);
+  --dashed-border: 2px dashed var(--theme-border);
+  --dotted-border: 2px dotted var(--theme-border);
+  --muted-text: color-mix(in srgb, var(--theme-text) 64%, transparent);
+  background: radial-gradient(circle at 80% 8%,rgba(255,255,255,.5),transparent 22%),linear-gradient(180deg,#8fc8a1,#b9d78c 55%,#79a968);
+  background-attachment: fixed;
+  color: var(--theme-text);
+}
+
+/* Containers remain visually open. Individual controls/cards can still have surfaces. */
+body.theme-picnic .filter-tabs, body.theme-picnic .tabs-container, body.theme-picnic .days-container, body.theme-picnic .knowledgebase-container, body.theme-picnic .knowledge-base, body.theme-picnic .view-container {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Day boxes stay solid enough to keep their numbers readable. */
+body.theme-picnic .day-box, body.theme-picnic .day-box.has-data, body.theme-picnic .day-picker-box {
+  background: var(--theme-day) !important;
+  color: var(--theme-day-text) !important;
+  border-color: var(--theme-accent) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.18);
+}
+body.theme-picnic .day-box *, body.theme-picnic .day-picker-box * { color: inherit !important; }
+body.theme-picnic .day-box:hover, body.theme-picnic .day-picker-box:hover { filter: brightness(1.08); }
+body.theme-picnic .day-box.selected, body.theme-picnic .day-picker-box.selected, body.theme-picnic .filter-tab.active {
+  background: var(--theme-accent) !important;
+  color: #211126 !important;
+  text-shadow: none;
+}
+
+/* Tab buttons are readable without creating a giant tab-container panel. */
+body.theme-picnic .filter-tab { color: var(--theme-text); background: transparent; border-color: var(--theme-border); }
+body.theme-picnic .filter-tab:hover { color: var(--theme-accent) !important; background: color-mix(in srgb, var(--theme-accent) 12%, transparent) !important; }
+
+/* Cards/inputs that need a surface get one; the page containers do not. */
+body.theme-picnic .resource-card, body.theme-picnic .toolbox-item, body.theme-picnic .chip, body.theme-picnic .modal-box, body.theme-picnic select, body.theme-picnic input, body.theme-picnic textarea {
+  background: var(--theme-day) !important;
+  color: var(--theme-day-text) !important;
+  border-color: var(--theme-border) !important;
+}
+body.theme-picnic .chip:hover { background: var(--theme-accent) !important; color: #14232b !important; }
+
+/* Settings icon: never inherit a disappearing/background color on hover. */
+
+/* Shared controls: theme colors only; no layout changes. */
+body.theme-picnic .settings-button:hover, body.theme-picnic #settings-button:hover, body.theme-picnic .settings-icon:hover, body.theme-picnic [aria-label*="Settings"]:hover, body.theme-picnic [title*="Settings"]:hover { color: var(--theme-accent) !important; fill: var(--theme-accent) !important; stroke: var(--theme-accent) !important; background-color: transparent !important; opacity: 1 !important; }
+body.theme-picnic .settings-button:hover svg, body.theme-picnic #settings-button:hover svg, body.theme-picnic .settings-icon:hover svg, body.theme-picnic [aria-label*="Settings"]:hover svg, body.theme-picnic [title*="Settings"]:hover svg { color: var(--theme-accent) !important; fill: currentColor !important; stroke: currentColor !important; }
+
+
+#picnic-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: 0; isolation: isolate; }
+#picnic-background .theme-object { position:absolute; pointer-events:none; user-select:none; will-change:transform; transform:translate3d(calc(var(--theme-mx,0px) * var(--px, .04)), calc(var(--theme-my,0px) * var(--py, .04)), 0); filter: drop-shadow(0 14px 22px rgba(0,0,0,.12)); }
+#picnic-background .theme-object svg { display:block; width:100%; height:100%; overflow:visible; }
+#picnic-background .theme-object.back { opacity:.50; }
+#picnic-background .theme-object.mid { opacity:.68; }
+#picnic-background .theme-object.front { opacity:.80; }
+@media (prefers-reduced-motion: reduce) { #picnic-background * { animation:none !important; transition:none !important; } }

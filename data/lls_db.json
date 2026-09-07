@@ -1,0 +1,125 @@
+{
+  "days": {},
+  "tools": [],
+  "phrases": [],
+  "phrase_meta": {},
+  "srs": {},
+  "reading_gallery": [],
+  "startDate": null,
+  "settings": {
+    "categories": [
+      "Category"
+    ],
+    "categorySettings": {
+      "Category": {
+        "fields": []
+      }
+    },
+    "enableParts": true,
+    "ttsLang": "ko",
+    "libraryView": "list",
+    "hideCategoriesInPolaroid": false,
+    "companion": "none",
+    "cursorStyle": "default",
+    "cursorTrails": {
+      "sparkle": true,
+      "hearts": true,
+      "bubbles": true
+    },
+    "virtualKeyboardLanguage": "korean",
+    "hideDailyLogSearch": false,
+    "hideDailyGlobalSearch": false,
+    "customTabs": [],
+    "trash": {
+      "tabs": [],
+      "components": [],
+      "kbItems": [],
+      "resources": [],
+      "themes": []
+    },
+    "weeklyReviewNotes": {},
+    "deletedThemes": [],
+    "customThemeDeleted": false,
+    "customTheme": {
+      "name": "My Custom Theme",
+      "background": "#f4f1ff",
+      "surface": "#ffffff",
+      "text": "#171717",
+      "border": "#171717",
+      "accent": "#7c3aed",
+      "muted": "#6b7280",
+      "radius": 14,
+      "shadow": 4,
+      "font": "hand",
+      "backgroundImage": "",
+      "backgroundImageName": "",
+      "introAudio": "",
+      "introAudioName": "",
+      "audioPlayMode": "full",
+      "audioStart": 0,
+      "audioEnd": 20,
+      "audioFade": true,
+      "backgroundSvgs": [],
+      "tabIconColor": "#171717",
+      "tabTitleColor": "#171717",
+      "dailyLogBackgroundEnabled": false,
+      "dailyLogBackgroundColor": "#ffffff",
+      "dailyLogBackgroundOpacity": 90,
+      "contentBackdropEnabled": false,
+      "contentBackdropColor": "#ffffff",
+      "contentBackdropOpacity": 90
+    },
+    "permanentlyDeletedThemeIdsV31": [],
+    "customThemePermanentlyDeletedV31": false,
+    "themeCopiesV30": [
+      {
+        "id": "theme-custom-builder-shared-1a3qpaum",
+        "name": "My Custom Theme",
+        "sourceThemeId": "",
+        "theme": {
+          "name": "My Custom Theme",
+          "background": "#f4f1ff",
+          "surface": "#ffffff",
+          "text": "#171717",
+          "border": "#171717",
+          "accent": "#7c3aed",
+          "muted": "#6b7280",
+          "radius": 14,
+          "shadow": 4,
+          "font": "hand",
+          "backgroundImage": "",
+          "backgroundImageName": "",
+          "introAudio": "",
+          "introAudioName": "",
+          "audioPlayMode": "full",
+          "audioStart": 0,
+          "audioEnd": 20,
+          "audioFade": true,
+          "backgroundSvgs": [],
+          "tabIconColor": "#171717",
+          "tabTitleColor": "#171717",
+          "dailyLogBackgroundEnabled": false,
+          "dailyLogBackgroundColor": "#ffffff",
+          "dailyLogBackgroundOpacity": 90,
+          "contentBackdropEnabled": false,
+          "contentBackdropColor": "#ffffff",
+          "contentBackdropOpacity": 90
+        },
+        "sharedV40": true,
+        "createdAt": "2026-09-07T05:32:43.465Z"
+      }
+    ],
+    "theme": "default",
+    "themeOverrides": {},
+    "logNavOrderV52": [
+      "daily",
+      "knowledge",
+      "quizzes",
+      "tools"
+    ],
+    "hiddenBuiltInTabsV52": [
+      "weekly-review"
+    ],
+    "logNavDefaultOrderV54Migrated": true
+  }
+}

@@ -1,0 +1,17 @@
+body.theme-notebook {
+--overlay-scrim: rgba(10, 15, 30, 0.6);
+--black: #1d3d6b;
+--white: #ffffff;
+--thick-border: 3px solid #1d3d6b;
+--thin-border: 2px solid #a9c4e6;
+--dashed-border: 2px dashed #a9c4e6;
+--dotted-border: 2px dotted #a9c4e6;
+background-color: #fdfdff;
+background-image:
+linear-gradient(rgba(29,61,107,0.12) 1px, transparent 1px),
+linear-gradient(90deg, rgba(29,61,107,0.12) 1px, transparent 1px);
+background-size: 24px 24px;
+}
+body.theme-notebook .modal-box, body.theme-notebook .day-box, body.theme-notebook .chip,
+body.theme-notebook .toolbox-item, body.theme-notebook .resource-card, body.theme-notebook select,
+body.theme-notebook input, body.theme-notebook textarea { background-color: #ffffff; }

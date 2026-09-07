@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="270" viewBox="0 0 240 270" fill="none">
+<g transform="rotate(1 120 135)">
+  <path d="M72 34 C45 49 34 83 37 127 C40 174 65 214 108 226 C148 237 190 214 201 170 C211 128 204 81 181 51 C159 22 111 15 72 34 Z" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M39 119 C24 119 17 131 20 146 C23 160 35 167 46 158" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M194 118 C209 118 217 130 214 145 C211 160 199 166 188 158" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M103 224 C101 236 103 246 111 250 C119 252 128 245 129 233" fill="#f3ca98" stroke="#202020" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M 164 18 C 166 8 175 4 182 9 C 187 13 185 21 179 25" stroke="#202020" stroke-width="4.6" stroke-linecap="round" fill="none"/>
+<path d="M78 49 C90 39 108 34 127 34 C149 34 168 41 181 54" stroke="#f8ddb8" stroke-width="5" stroke-linecap="round" opacity=".65"/>
+</g><g transform="rotate(1 120 135)"><path d="M64 88 Q 84.5 87.0 105 88" stroke="#202020" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M132 88 Q 150.0 87.0 168 88" stroke="#202020" stroke-width="5" stroke-linecap="round" fill="none"/><ellipse cx="82" cy="116" rx="19" ry="19" fill="#fff" stroke="#202020" stroke-width="4"/>
+<path d="M 65 114 Q 82 121 99 114" stroke="#202020" stroke-width="5" fill="#f3ca98" stroke-linecap="round"/>
+<circle cx="82" cy="123" r="5" fill="#111111"/><ellipse cx="150" cy="116" rx="19" ry="19" fill="#fff" stroke="#202020" stroke-width="4"/>
+<path d="M 133 114 Q 150 121 167 114" stroke="#202020" stroke-width="5" fill="#f3ca98" stroke-linecap="round"/>
+<circle cx="149" cy="123" r="5" fill="#111111"/><g transform="translate(117 153) rotate(0) scale(0.78) translate(-117 -153)">
+<path d="M117 153 C109 143 92 144 81 154 C93 155 107 160 117 156Z" fill="#111111"/>
+<path d="M117 153 C125 143 142 144 153 154 C141 155 127 160 117 156Z" fill="#111111"/>
+</g><path d="M78 176 Q119 177 162 176" stroke="#202020" stroke-width="4" stroke-linecap="round"/></g></svg>

@@ -1,0 +1,571 @@
+/* ============================================================
+   SKATING
+   Real /svg/theme-skating assets with neutral UI state styling.
+   Does not alter app layout, spacing, positioning, cursor,
+   companions, tab structure, or component dimensions.
+   ============================================================ */
+
+body.theme-skating {
+    --theme-ink: #3f4348;
+    --theme-paper: #f8f5ee;
+    --theme-cool: #9aa7b4;
+    --theme-warm: #c6b39b;
+    --theme-soft: #a8b6a6;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+
+    --thick-border: 2px solid rgba(63,67,72,.14);
+    --thin-border: 1px solid rgba(63,67,72,.12);
+    --dashed-border: 1px dashed rgba(63,67,72,.14);
+    --dotted-border: 1px dotted rgba(63,67,72,.14);
+    --track-bg: rgba(63,67,72,.08);
+    --muted-text: rgba(63,67,72,.58);
+
+    background:
+        radial-gradient(circle at 50% 4%, rgba(255,255,255,.50), transparent 31%),
+        radial-gradient(circle at 12% 82%, rgba(154,167,180,.12), transparent 28%),
+        radial-gradient(circle at 88% 22%, rgba(198,179,155,.10), transparent 25%),
+        linear-gradient(145deg, #e5e6e6 0%, #ece7df 48%, #e1e6e4 100%) !important;
+
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#skating-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#skating-background .theme-skating-haze {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 12%, rgba(255,255,255,.43), transparent 34%),
+        radial-gradient(circle at 20% 54%, rgba(154,167,180,.08), transparent 28%),
+        radial-gradient(circle at 82% 56%, rgba(198,179,155,.08), transparent 26%);
+}
+
+#skating-background .theme-skating-grid {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(0deg, transparent 0 50px, rgba(63,67,72,.035) 50px 51px),
+        repeating-linear-gradient(90deg, transparent 0 50px, rgba(63,67,72,.028) 50px 51px);
+    opacity: .56;
+}
+
+#skating-background .theme-skating-ramps {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(18deg, transparent 0 18%, rgba(255,255,255,.16) 18.2% 19%, transparent 19.2% 100%),
+        linear-gradient(-16deg, transparent 0 76%, rgba(63,67,72,.045) 76.2% 77%, transparent 77.2% 100%);
+    opacity: .72;
+}
+
+#skating-background .theme-skating-ground {
+    position: absolute;
+    left: -8vw;
+    right: -8vw;
+    bottom: -10vh;
+    height: 34vh;
+    background:
+        linear-gradient(180deg, transparent 0%, rgba(154,167,180,.06) 30%, rgba(63,67,72,.10) 100%);
+    clip-path: ellipse(78% 62% at 50% 100%);
+    opacity: .78;
+}
+
+#skating-background .theme-skating-item {
+    position: absolute;
+    opacity: var(--item-opacity, .70);
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--item-rotate))
+        scale(var(--item-scale));
+    transform-origin: center;
+    filter: drop-shadow(0 8px 13px rgba(0,0,0,.14));
+    animation: themeSkatingFloat 7.8s ease-in-out var(--item-delay) infinite;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#skating-background .theme-skating-soft {
+    opacity: var(--item-opacity, .22);
+}
+
+#skating-background .theme-skating-emphasis {
+    opacity: var(--item-opacity, .80);
+}
+
+#skating-background .theme-skating-object-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    filter: none;
+}
+
+@keyframes themeSkatingFloat {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0,0,0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--item-x), var(--item-y), 0)
+            rotate(calc(var(--item-rotate) + 2deg))
+            scale(var(--item-scale));
+    }
+}
+
+#skating-background .theme-skating-react {
+    opacity: .92 !important;
+    filter:
+        drop-shadow(0 10px 16px rgba(0,0,0,.16))
+        drop-shadow(0 0 10px rgba(154,167,180,.22));
+    animation: themeSkatingReact .48s ease-out !important;
+}
+
+@keyframes themeSkatingReact {
+    0% {
+        transform: translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+    45% {
+        transform: translate3d(-50%, -50%, 0)
+            translate3d(0,-10px,0)
+            rotate(calc(var(--item-rotate) + 7deg))
+            scale(calc(var(--item-scale) * 1.08));
+    }
+    100% {
+        transform: translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+}
+
+/* Small UI boxes only */
+body.theme-skating .day-box,
+body.theme-skating .day-picker-box,
+body.theme-skating .icon-btn,
+body.theme-skating .small-icon-btn,
+body.theme-skating input,
+body.theme-skating textarea,
+body.theme-skating select,
+body.theme-skating .notes-editable,
+body.theme-skating .phrase-card,
+body.theme-skating .chip,
+body.theme-skating .toolbox-item,
+body.theme-skating .resource-card,
+body.theme-skating .polaroid-card,
+body.theme-skating .filter-tab,
+body.theme-skating .day-target-box,
+body.theme-skating .flashcard,
+body.theme-skating .flashcard-mode-card,
+body.theme-skating .day-badge,
+body.theme-skating .video-placeholder,
+body.theme-skating .theme-picker-card,
+body.theme-skating .note-audio-row,
+body.theme-skating .modal-box,
+body.theme-skating .category-box,
+body.theme-skating .category-card,
+body.theme-skating .category-chip,
+body.theme-skating .knowledge-category,
+body.theme-skating .knowledge-category-box,
+body.theme-skating .knowledge-category-card,
+body.theme-skating .knowledge-tag,
+body.theme-skating .tag,
+body.theme-skating .label-box {
+    background: rgba(248,244,237,.96) !important;
+    background-color: rgba(248,244,237,.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(63,67,72,.16) !important;
+    box-shadow:
+        0 1px 2px rgba(63,67,72,.035),
+        0 4px 12px rgba(63,67,72,.025) !important;
+    filter: none !important;
+}
+
+body.theme-skating input::placeholder,
+body.theme-skating textarea::placeholder,
+body.theme-skating .notes-editable:empty::before {
+    color: rgba(63,67,72,.43);
+}
+
+body.theme-skating .day-box:hover,
+body.theme-skating .day-picker-box:hover,
+body.theme-skating .small-icon-btn:hover,
+body.theme-skating .phrase-card:hover,
+body.theme-skating .chip:hover,
+body.theme-skating .toolbox-item:hover,
+body.theme-skating .resource-card:hover,
+body.theme-skating .polaroid-card:hover,
+body.theme-skating .filter-tab:hover,
+body.theme-skating .day-target-box:hover,
+body.theme-skating .flashcard-mode-card:hover,
+body.theme-skating .theme-picker-card:hover,
+body.theme-skating .category-box:hover,
+body.theme-skating .category-card:hover,
+body.theme-skating .category-chip:hover,
+body.theme-skating .knowledge-category:hover,
+body.theme-skating .knowledge-category-box:hover,
+body.theme-skating .knowledge-category-card:hover,
+body.theme-skating .knowledge-tag:hover,
+body.theme-skating .tag:hover,
+body.theme-skating .label-box:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(63,67,72,.22) !important;
+    box-shadow: 0 2px 7px rgba(63,67,72,.05) !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+body.theme-skating .day-picker-box.selected,
+body.theme-skating .filter-tab.active,
+body.theme-skating .category-box.active,
+body.theme-skating .category-card.active,
+body.theme-skating .category-chip.active,
+body.theme-skating .knowledge-category.active,
+body.theme-skating .knowledge-category-box.active,
+body.theme-skating .knowledge-category-card.active,
+body.theme-skating .knowledge-tag.active,
+body.theme-skating .tag.active,
+body.theme-skating .label-box.active,
+body.theme-skating .category-box.selected,
+body.theme-skating .category-card.selected,
+body.theme-skating .category-chip.selected {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(63,67,72,.25) !important;
+    box-shadow: inset 0 0 0 1px rgba(63,67,72,.035) !important;
+    filter: none !important;
+}
+
+/* Remove pseudo-element gradients/glows from small controls */
+body.theme-skating .category-box::before,
+body.theme-skating .category-box::after,
+body.theme-skating .category-card::before,
+body.theme-skating .category-card::after,
+body.theme-skating .category-chip::before,
+body.theme-skating .category-chip::after,
+body.theme-skating .knowledge-category::before,
+body.theme-skating .knowledge-category::after,
+body.theme-skating .knowledge-category-box::before,
+body.theme-skating .knowledge-category-box::after,
+body.theme-skating .knowledge-category-card::before,
+body.theme-skating .knowledge-category-card::after,
+body.theme-skating .knowledge-tag::before,
+body.theme-skating .knowledge-tag::after,
+body.theme-skating .tag::before,
+body.theme-skating .tag::after,
+body.theme-skating .label-box::before,
+body.theme-skating .label-box::after,
+body.theme-skating .chip::before,
+body.theme-skating .chip::after,
+body.theme-skating .filter-tab::before,
+body.theme-skating .filter-tab::after {
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* Parent category/filter rows stay completely transparent */
+html body.theme-skating .filter-tabs,
+html body.theme-skating .filter-tabs:hover,
+html body.theme-skating .filter-tabs:focus,
+html body.theme-skating .filter-tabs:focus-within,
+html body.theme-skating #library-filter-tabs,
+html body.theme-skating #library-filter-tabs:hover,
+html body.theme-skating #library-filter-tabs:focus-within,
+html body.theme-skating #quiz-type-filters,
+html body.theme-skating #quiz-type-filters:hover,
+html body.theme-skating #quiz-type-filters:focus-within,
+html body.theme-skating .set-size-picker,
+html body.theme-skating .set-size-picker:hover,
+html body.theme-skating .set-size-picker:focus,
+html body.theme-skating .set-size-picker:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+    border-color: transparent !important;
+}
+
+html body.theme-skating .filter-tabs::before,
+html body.theme-skating .filter-tabs::after,
+html body.theme-skating .filter-tabs:hover::before,
+html body.theme-skating .filter-tabs:hover::after,
+html body.theme-skating #library-filter-tabs::before,
+html body.theme-skating #library-filter-tabs::after,
+html body.theme-skating #quiz-type-filters::before,
+html body.theme-skating #quiz-type-filters::after,
+html body.theme-skating .set-size-picker::before,
+html body.theme-skating .set-size-picker::after,
+html body.theme-skating .set-size-picker:hover::before,
+html body.theme-skating .set-size-picker:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+/* Only actual small filter buttons get the neutral background */
+html body.theme-skating .filter-tabs > .filter-tab,
+html body.theme-skating .set-size-picker > .filter-tab {
+    background: rgba(248,244,237,.96) !important;
+    background-color: rgba(248,244,237,.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(63,67,72,.16) !important;
+    box-shadow: 0 1px 2px rgba(63,67,72,.035) !important;
+    filter: none !important;
+}
+
+html body.theme-skating .filter-tabs > .filter-tab:hover,
+html body.theme-skating .set-size-picker > .filter-tab:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(63,67,72,.22) !important;
+    box-shadow: 0 2px 7px rgba(63,67,72,.05) !important;
+    filter: none !important;
+}
+
+html body.theme-skating .filter-tabs > .filter-tab.active,
+html body.theme-skating .set-size-picker > .filter-tab.active {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(63,67,72,.25) !important;
+    box-shadow: inset 0 0 0 1px rgba(63,67,72,.035) !important;
+    filter: none !important;
+}
+
+/* Right-side navigation icons stay bare/backgroundless */
+html body.theme-skating .side-nav .icon-btn,
+html body.theme-skating .side-nav .icon-btn:hover,
+html body.theme-skating .side-nav .icon-btn:focus,
+html body.theme-skating .side-nav .icon-btn:focus-visible,
+html body.theme-skating .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-skating .side-nav .icon-btn::before,
+html body.theme-skating .side-nav .icon-btn::after,
+html body.theme-skating .side-nav .icon-btn:hover::before,
+html body.theme-skating .side-nav .icon-btn:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-skating .side-nav .icon-btn:hover {
+    transform: scale(1.15);
+}
+
+html body.theme-skating .side-nav .icon-btn i {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    color: var(--theme-ink) !important;
+}
+
+html body.theme-skating .side-nav .icon-btn:hover i {
+    opacity: .62;
+}
+
+body.theme-skating .progress-bar-track {
+    background: rgba(63,67,72,.10);
+}
+
+body.theme-skating .progress-bar-fill {
+    background: #98a4aa;
+}
+
+body.theme-skating #skating-background { z-index: 0; }
+body.theme-skating .view { position: relative; z-index: 2; }
+body.theme-skating .side-nav { position: relative; z-index: 3; }
+body.theme-skating header,
+body.theme-skating .log-header-container { position: relative; z-index: 4; }
+body.theme-skating .modal,
+body.theme-skating .modal-overlay,
+body.theme-skating .overlay { z-index: 10; }
+
+@media (max-width: 700px) {
+    #skating-background .theme-skating-item {
+        max-width: 132px;
+        max-height: 110px;
+    }
+
+    #skating-background .theme-skating-soft {
+        opacity: .17;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #skating-background * {
+        animation: none !important;
+    }
+}
+
+
+/* ============================================================
+   SKATING — LARGE BOARDS + SKATEPARK BACKDROP
+   ============================================================ */
+
+body.theme-skating {
+    background:
+        radial-gradient(circle at 12% 12%, rgba(255,183,142,.34), transparent 25%),
+        radial-gradient(circle at 86% 18%, rgba(128,174,210,.30), transparent 28%),
+        radial-gradient(circle at 50% 92%, rgba(126,146,135,.18), transparent 33%),
+        linear-gradient(155deg, #e6ddd4 0%, #dce2e4 46%, #d2d9d7 100%) !important;
+    background-attachment: fixed !important;
+}
+
+body.theme-skating #skating-background::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .42;
+    background:
+        linear-gradient(118deg, transparent 0 10%, rgba(235,122,101,.14) 10.2% 11.2%, transparent 11.4% 100%),
+        linear-gradient(118deg, transparent 0 15%, rgba(95,137,171,.13) 15.2% 16.2%, transparent 16.4% 100%),
+        linear-gradient(-16deg, transparent 0 79%, rgba(242,184,105,.12) 79.2% 80.2%, transparent 80.4% 100%);
+}
+
+body.theme-skating #skating-background::after {
+    content: "";
+    position: absolute;
+    left: -6%;
+    right: -6%;
+    bottom: -8%;
+    height: 38vh;
+    pointer-events: none;
+    opacity: .75;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 70px,
+            rgba(63,67,72,.035) 71px 72px,
+            transparent 73px 142px
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 54px,
+            rgba(63,67,72,.032) 55px 56px,
+            transparent 57px 108px
+        ),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(63,67,72,.10));
+    clip-path: polygon(6% 7%, 94% 0, 100% 100%, 0 100%);
+    transform: perspective(600px) rotateX(5deg);
+    transform-origin: bottom center;
+}
+
+body.theme-skating #skating-background .theme-skating-haze {
+    background:
+        radial-gradient(circle at 17% 17%, rgba(255,196,157,.22), transparent 27%),
+        radial-gradient(circle at 84% 20%, rgba(133,178,213,.20), transparent 28%),
+        radial-gradient(circle at 50% 60%, rgba(255,255,255,.18), transparent 36%);
+}
+
+body.theme-skating #skating-background .theme-skating-grid {
+    opacity: .45;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 72px,
+            rgba(63,67,72,.035) 73px 74px,
+            transparent 75px 146px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 92px,
+            rgba(63,67,72,.028) 93px 94px,
+            transparent 95px 188px
+        );
+    mask-image: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.4) 38%, #000 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.4) 38%, #000 100%);
+}
+
+body.theme-skating #skating-background .theme-skating-ramps {
+    opacity: .90;
+    background:
+        radial-gradient(ellipse at -5% 76%, transparent 0 18%, rgba(63,67,72,.12) 18.5% 19.5%, transparent 20% 100%),
+        radial-gradient(ellipse at 105% 72%, transparent 0 20%, rgba(63,67,72,.11) 20.5% 21.5%, transparent 22% 100%),
+        linear-gradient(16deg, transparent 0 19%, rgba(255,255,255,.22) 19.2% 20%, transparent 20.2% 100%),
+        linear-gradient(-14deg, transparent 0 77%, rgba(86,116,137,.10) 77.2% 78%, transparent 78.2% 100%);
+}
+
+body.theme-skating #skating-background .theme-skating-ground {
+    left: -10vw;
+    right: -10vw;
+    bottom: -12vh;
+    height: 43vh;
+    opacity: .88;
+    background:
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(127,140,144,.07) 25%,
+            rgba(69,77,80,.13) 100%
+        );
+    clip-path: ellipse(79% 64% at 50% 100%);
+}
+
+body.theme-skating #skating-background .theme-skating-item {
+    filter:
+        drop-shadow(0 15px 18px rgba(45,50,55,.17))
+        drop-shadow(0 2px 2px rgba(255,255,255,.30));
+}
+
+body.theme-skating #skating-background .theme-skating-soft {
+    opacity: var(--item-opacity, .72);
+}
+
+@media (max-width: 700px) {
+    body.theme-skating #skating-background .theme-skating-item {
+        max-width: 230px;
+        max-height: 170px;
+    }
+}

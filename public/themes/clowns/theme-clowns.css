@@ -1,0 +1,86 @@
+/* ============================================================
+   CLOWNS THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-clowns {
+    --clowns-ink: #4d1a3e;
+    --clowns-border: #f19cc8;
+    --clowns-surface: #fff8fb;
+    --clowns-surface-soft: #fff0f7;
+    --clowns-accent: #ff71b8;
+    --clowns-second: #ff5f5f;
+    --clowns-third: #ffd95b;
+    --black: var(--clowns-ink);
+    --white: var(--clowns-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--clowns-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--clowns-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--clowns-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--clowns-border) 44%, transparent);
+    --track-bg: #ffe9f3;
+    --muted-text: color-mix(in srgb, var(--clowns-ink) 58%, transparent);
+    background: radial-gradient(circle at 14% 12%, rgba(255,255,255,.80) 0 4%, transparent 22%), radial-gradient(circle at 83% 14%, rgba(255,255,255,.64) 0 5%, transparent 24%), radial-gradient(ellipse at 50% 108%, rgba(255,217,91,.34) 0 28%, transparent 66%), linear-gradient(180deg, #ffe2f3 0%, #fff7d6 42%, #ffd9ea 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--clowns-ink) !important;
+}
+
+#clowns-background { position:fixed; inset:0; width:100vw; height:100vh; overflow:hidden; pointer-events:none; user-select:none; z-index:-1; }
+#clowns-background::before, #clowns-background::after { content:''; position:absolute; inset:-14%; pointer-events:none; }
+#clowns-background::before { background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.22), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%); animation: clownsLightSweep 9s ease-in-out infinite alternate; }
+body.theme-clowns #clowns-background { z-index:-1; }
+body.theme-clowns .view { position:relative; z-index:2; }
+body.theme-clowns .side-nav { position:relative; z-index:3; }
+body.theme-clowns header, body.theme-clowns .log-header-container { position:relative; z-index:4; }
+body.theme-clowns .modal, body.theme-clowns .modal-overlay, body.theme-clowns .overlay { z-index:10; }
+
+body.theme-clowns .day-box,
+body.theme-clowns .day-picker-box,
+body.theme-clowns .icon-btn,
+body.theme-clowns .small-icon-btn,
+body.theme-clowns input,
+body.theme-clowns textarea,
+body.theme-clowns select,
+body.theme-clowns .notes-editable,
+body.theme-clowns .phrase-card,
+body.theme-clowns .chip,
+body.theme-clowns .toolbox-item,
+body.theme-clowns .resource-card,
+body.theme-clowns .polaroid-card,
+body.theme-clowns .filter-tab,
+body.theme-clowns .day-target-box,
+body.theme-clowns .flashcard,
+body.theme-clowns .flashcard-mode-card,
+body.theme-clowns .day-badge,
+body.theme-clowns .video-placeholder,
+body.theme-clowns .theme-picker-card,
+body.theme-clowns .note-audio-row,
+body.theme-clowns .modal-box,
+body.theme-clowns .set-complete-box { background-color: var(--clowns-surface) !important; }
+
+body.theme-clowns input::placeholder,
+body.theme-clowns textarea::placeholder,
+body.theme-clowns .notes-editable:empty::before { color: color-mix(in srgb, var(--clowns-ink) 42%, transparent) !important; }
+body.theme-clowns .icon-btn:hover,
+body.theme-clowns .small-icon-btn:hover,
+body.theme-clowns .filter-tab:hover { background: var(--clowns-surface-soft) !important; color: var(--clowns-ink) !important; }
+body.theme-clowns .chip:hover,
+body.theme-clowns .phrase-card:hover,
+body.theme-clowns .day-picker-box.selected,
+body.theme-clowns .filter-tab.active,
+body.theme-clowns .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--clowns-surface-soft) 72%, var(--clowns-accent) 28%) !important; color: var(--clowns-ink) !important; border-color: var(--clowns-border) !important; }
+body.theme-clowns .progress-bar-fill { background: linear-gradient(90deg, var(--clowns-second), var(--clowns-third), var(--clowns-accent)) !important; }
+
+#clowns-background .clowns-item { position:absolute; display:block; height:auto; object-fit:contain; opacity:.95; transform-origin:center; translate:0 0; rotate:0deg; scale:1; filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--clowns-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30)); animation: clownsFloat var(--clowns-float-duration) ease-in-out var(--clowns-float-delay) infinite alternate; will-change:transform; }
+@keyframes clownsFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--clowns-float-x), var(--clowns-float-y), 0) rotate(var(--clowns-float-r)) scale(1.035)} }
+#clowns-background .clowns-item.clowns-intro-bop { animation:clownsIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--clowns-bop-delay) infinite !important; }
+@keyframes clownsIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+
+#clowns-background .clowns-extra { position:absolute; display:block; border-radius:999px; background:linear-gradient(90deg, hsl(var(--clowns-extra-hue) 92% 72%), hsl(calc(var(--clowns-extra-hue) + 48deg) 96% 65%)); opacity:.72; box-shadow:0 0 6px rgba(255,255,255,.26); animation:clownsConfetti var(--clowns-extra-duration) ease-in-out var(--clowns-extra-delay) infinite alternate; }
+@keyframes clownsConfetti { from{transform:translate3d(0,0,0) rotate(0deg)} to{transform:translate3d(var(--clowns-extra-x), var(--clowns-extra-y),0) rotate(var(--clowns-extra-r))} }
+
+
+@keyframes clownsLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #clowns-background .clowns-item { opacity:.72; } #clowns-background .clowns-extra { opacity:.38; } }
+@media (prefers-reduced-motion: reduce) { #clowns-background::before, #clowns-background .clowns-item, #clowns-background .clowns-extra { animation:none !important; } }

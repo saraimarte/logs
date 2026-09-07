@@ -1,0 +1,293 @@
+
+/* ============================================================
+   SKATERGIRL THEME
+   ============================================================ */
+
+body.theme-skatergirl {
+    --black: #5d3d65;
+    --white: #fff7fb;
+    --muted-text: #8b6b92;
+    --track-bg: #f1d3ec;
+    --bg-overlay: transparent;
+    background:
+        radial-gradient(circle at 50% 5%, rgba(255,255,255,.55), transparent 24%),
+        radial-gradient(circle at 12% 78%, rgba(255, 131, 181, .18), transparent 30%),
+        radial-gradient(circle at 88% 22%, rgba(106, 212, 255, .18), transparent 30%),
+        linear-gradient(180deg, #fff3f9 0%, #ffe2f0 38%, #f7d8f6 68%, #ffd9cc 100%) !important;
+    color: #5d3d65 !important;
+}
+
+body.theme-skatergirl .view:not(#grid-view)::before {
+    background: transparent !important;
+    background-image: none !important;
+    opacity: 0 !important;
+}
+
+#skatergirl-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+    isolation: isolate;
+}
+
+#skatergirl-background > * {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+body.theme-skatergirl .view,
+body.theme-skatergirl #grid-view {
+    position: relative;
+    z-index: 1;
+}
+
+body.theme-skatergirl header,
+body.theme-skatergirl .log-header-container,
+body.theme-skatergirl .side-nav {
+    position: relative;
+    z-index: 2;
+}
+
+#skatergirl-background .theme-skatergirl-glow {
+    background:
+        radial-gradient(circle at 16% 16%, rgba(255,255,255,.50), transparent 20%),
+        radial-gradient(circle at 84% 20%, rgba(134, 227, 255, .24), transparent 23%),
+        radial-gradient(circle at 20% 84%, rgba(255, 158, 196, .22), transparent 26%),
+        radial-gradient(circle at 74% 78%, rgba(255, 214, 112, .22), transparent 24%);
+    filter: blur(10px);
+}
+
+#skatergirl-background .theme-skatergirl-stripes {
+    opacity: .42;
+    background:
+        repeating-linear-gradient(
+            125deg,
+            rgba(255,255,255,.00) 0 36px,
+            rgba(255,255,255,.22) 36px 52px,
+            rgba(255,255,255,.00) 52px 92px
+        );
+    transform: translateX(-2%);
+}
+
+#skatergirl-background .theme-skatergirl-dots {
+    mix-blend-mode: screen;
+}
+
+#skatergirl-background .theme-skatergirl-dot {
+    position: absolute;
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), rgba(255, 153, 199, .48) 44%, transparent 72%);
+    animation: skatergirlDotFloat var(--dot-duration) ease-in-out var(--dot-delay) infinite alternate;
+    opacity: .60;
+}
+
+@keyframes skatergirlDotFloat {
+    from {
+        transform: translate3d(0, 0, 0) scale(.86);
+        opacity: .28;
+    }
+    to {
+        transform: translate3d(var(--dot-dx), var(--dot-dy), 0) scale(1.10);
+        opacity: .82;
+    }
+}
+
+#skatergirl-background .theme-skatergirl-floor {
+    background:
+        linear-gradient(180deg, transparent 0 72%, rgba(255,255,255,.08) 72% 100%),
+        radial-gradient(ellipse 30% 12% at 20% 100%, rgba(255,255,255,.30), transparent 72%),
+        radial-gradient(ellipse 30% 12% at 80% 100%, rgba(255,255,255,.24), transparent 72%),
+        linear-gradient(180deg, transparent 0%, transparent 72%, rgba(255, 185, 209, .25) 100%);
+}
+
+#skatergirl-background .theme-skatergirl-items {
+    inset: 0;
+}
+
+#skatergirl-background .theme-skatergirl-item {
+    position: absolute;
+    width: var(--item-width);
+    max-width: 28vw;
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--item-rotate))
+        scale(var(--item-scale));
+    transform-origin: center;
+    will-change: transform;
+    pointer-events: auto;
+    opacity: .97;
+    filter:
+        drop-shadow(0 18px 24px rgba(0,0,0,.12))
+        drop-shadow(0 0 12px rgba(255,255,255,.24));
+    animation:
+        skatergirlItemFloat var(--item-duration) ease-in-out var(--item-delay) infinite;
+}
+
+#skatergirl-background .theme-skatergirl-item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+@keyframes skatergirlItemFloat {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--item-float-x), var(--item-float-y), 0)
+            rotate(calc(var(--item-rotate) + 2deg))
+            scale(calc(var(--item-scale) * 1.02));
+    }
+}
+
+#skatergirl-background .theme-skatergirl-item.theme-skatergirl-dancing {
+    animation:
+        skatergirlDance .66s ease-in-out var(--dance-delay) infinite alternate,
+        skatergirlGlowPulse 1.25s ease-in-out var(--dance-delay) infinite alternate;
+}
+
+@keyframes skatergirlDance {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, -18px, 0)
+            rotate(calc(var(--item-rotate) + 4deg))
+            scale(calc(var(--item-scale) * 1.05));
+    }
+}
+
+@keyframes skatergirlGlowPulse {
+    from {
+        filter:
+            drop-shadow(0 18px 24px rgba(0,0,0,.12))
+            drop-shadow(0 0 10px rgba(255,255,255,.22));
+    }
+    to {
+        filter:
+            drop-shadow(0 20px 28px rgba(0,0,0,.16))
+            drop-shadow(0 0 18px rgba(255, 167, 206, .34));
+    }
+}
+
+#skatergirl-background .theme-skatergirl-item.theme-skatergirl-pop {
+    animation: skatergirlPop .52s cubic-bezier(.2, .82, .24, 1) both !important;
+}
+
+@keyframes skatergirlPop {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+    45% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translateY(-12px)
+            rotate(calc(var(--item-rotate) - 4deg))
+            scale(calc(var(--item-scale) * 1.12));
+    }
+    75% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translateY(-4px)
+            rotate(calc(var(--item-rotate) + 2deg))
+            scale(calc(var(--item-scale) * 1.06));
+    }
+}
+
+#skatergirl-background .theme-skatergirl-spark-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+#skatergirl-background .theme-skatergirl-spark {
+    position: fixed;
+    width: var(--spark-size);
+    height: var(--spark-size);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #ff8dbe, #7bdfff);
+    box-shadow: 0 0 10px rgba(255, 154, 198, .45);
+    animation: skatergirlSpark .72s ease-out forwards;
+}
+
+@keyframes skatergirlSpark {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.35);
+    }
+    18% {
+        opacity: .95;
+    }
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            translate3d(var(--spark-x), var(--spark-y), 0)
+            scale(1.06);
+    }
+}
+
+/* Keep parent control rows transparent and preserve icon-only tabs. */
+body.theme-skatergirl .filter-tabs,
+body.theme-skatergirl #library-filter-tabs,
+body.theme-skatergirl #quiz-type-filters,
+body.theme-skatergirl .set-size-picker {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-skatergirl .side-nav .icon-btn,
+body.theme-skatergirl .side-nav .icon-btn:hover,
+body.theme-skatergirl .side-nav .icon-btn:focus,
+body.theme-skatergirl .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-skatergirl .side-nav .icon-btn::before,
+body.theme-skatergirl .side-nav .icon-btn::after {
+    content: none !important;
+}
+
+@media (max-width: 850px) {
+    #skatergirl-background .theme-skatergirl-item {
+        width: min(var(--item-width), 34vw);
+        max-width: 240px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #skatergirl-background * {
+        animation: none !important;
+    }
+}

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="420" viewBox="0 0 360 420" fill="none">
+<defs>
+  <radialGradient id="moonGold" cx="38%" cy="28%" r="75%">
+    <stop offset="0" stop-color="#f6e6b6"/>
+    <stop offset="0.55" stop-color="#d3b468"/>
+    <stop offset="1" stop-color="#947130"/>
+  </radialGradient>
+</defs>
+<path d="M279 42 C245 30, 204 36, 170 54 C126 79, 92 122, 81 171 C69 223, 84 279, 124 318 C157 349, 202 369, 245 368 C219 345, 200 323, 184 292 C165 255, 157 217, 164 176 C171 136, 193 101, 222 74 C238 60, 256 49, 279 42 Z" fill="url(#moonGold)" stroke="#7c612c" stroke-width="5"/>
+<path d="M259 64 C225 80, 202 102, 186 133 C167 169, 163 210, 174 251 C187 302, 219 339, 257 359" stroke="#efd99b" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+<path d="M188 192 C179 186, 171 184, 160 186" stroke="#8d6f33" stroke-width="4.5" stroke-linecap="round"/>
+<path d="M202 235 C211 237, 219 242, 223 249" stroke="#8d6f33" stroke-width="4" stroke-linecap="round"/>
+<path d="M187 274 C204 286, 221 287, 239 276" stroke="#7c612c" stroke-width="5" stroke-linecap="round"/>
+<path d="M214 145 C229 129, 252 125, 271 135" stroke="#8d6f33" stroke-width="5" stroke-linecap="round"/>
+<path d="M161 202 C162 179, 174 155, 195 145 C218 134, 247 138, 267 161 C255 164, 244 173, 237 186 C228 203, 226 223, 229 241 C219 235, 206 232, 194 233 C180 234, 169 241, 160 251 C157 236, 159 219, 161 202 Z" fill="#b38b45" fill-opacity="0.22"/>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="280" viewBox="0 0 320 280" fill="none">
+<defs>
+  <linearGradient id="wingBase" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#f8f3df"/>
+    <stop offset="1" stop-color="#d7c89a"/>
+  </linearGradient>
+  <linearGradient id="goldLine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#7e5222"/>
+    <stop offset="0.6" stop-color="#d1a13f"/>
+    <stop offset="1" stop-color="#7b5224"/>
+  </linearGradient>
+</defs>
+<path d="M46 191 C16 130, 30 72, 95 36 C151 4, 213 19, 258 62 C216 90, 190 118, 168 157 C146 197, 129 229, 110 252 C77 244, 59 220, 46 191 Z" fill="url(#wingBase)" stroke="#6d552f" stroke-width="4"/>
+<path d="M54 185 C77 150, 104 119, 145 94" stroke="url(#goldLine)" stroke-width="6" stroke-linecap="round"/>
+<path d="M75 212 C95 183, 114 154, 153 125" stroke="url(#goldLine)" stroke-width="4.5" stroke-linecap="round"/>
+<path d="M97 236 C113 208, 129 183, 160 152" stroke="url(#goldLine)" stroke-width="4" stroke-linecap="round"/>
+<path d="M105 51 C137 68, 162 89, 181 118" stroke="#8d7a4b" stroke-opacity="0.7" stroke-width="4" stroke-linecap="round"/>
+<path d="M146 34 C168 56, 184 74, 199 104" stroke="#8d7a4b" stroke-opacity="0.7" stroke-width="3.8" stroke-linecap="round"/>
+<path d="M192 33 C208 55, 220 72, 232 100" stroke="#8d7a4b" stroke-opacity="0.7" stroke-width="3.8" stroke-linecap="round"/>
+<path d="M41 190 C53 209, 67 220, 87 227" stroke="#755933" stroke-width="4" stroke-linecap="round"/>
+</svg>

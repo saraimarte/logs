@@ -1,0 +1,422 @@
+/* ============================================================
+   HISTORY THEME
+   Parchment / museum / classical architecture aesthetic.
+   ============================================================ */
+
+body.theme-history {
+    --theme-ink: #3f3428;
+    --theme-paper: #f4ecdc;
+    --theme-parchment: #e6d5b7;
+    --theme-bronze: #9b7653;
+    --theme-stone: #b9afa1;
+    --theme-olive: #8b876d;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+    --muted-text: rgba(63,52,40,.58);
+    --track-bg: rgba(63,52,40,.08);
+
+    background:
+        radial-gradient(circle at 50% 5%, rgba(255,255,255,.44), transparent 31%),
+        radial-gradient(circle at 14% 82%, rgba(155,118,83,.10), transparent 30%),
+        radial-gradient(circle at 88% 18%, rgba(185,175,161,.14), transparent 28%),
+        linear-gradient(145deg, #eee3cf 0%, #e8dcc7 46%, #efe7d8 100%) !important;
+
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#history-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#history-background .theme-history-parchment {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(63,52,40,.018) 0 1px,
+            transparent 1px 5px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(63,52,40,.012) 0 1px,
+            transparent 1px 7px
+        );
+    opacity: .75;
+}
+
+#history-background .theme-history-map {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 15% 28%, transparent 0 64px, rgba(155,118,83,.08) 65px 67px, transparent 68px),
+        radial-gradient(ellipse at 84% 62%, transparent 0 88px, rgba(139,135,109,.07) 89px 91px, transparent 92px),
+        linear-gradient(22deg, transparent 0 18%, rgba(155,118,83,.045) 18.3% 18.8%, transparent 19.1% 100%),
+        linear-gradient(-18deg, transparent 0 76%, rgba(155,118,83,.04) 76.2% 76.8%, transparent 77% 100%);
+    opacity: .90;
+}
+
+#history-background .theme-history-timeline {
+    position: absolute;
+    left: 4vw;
+    right: 4vw;
+    bottom: 12vh;
+    height: 2px;
+    background:
+        linear-gradient(90deg,
+            transparent 0%,
+            rgba(63,52,40,.11) 7%,
+            rgba(63,52,40,.11) 93%,
+            transparent 100%);
+}
+
+#history-background .theme-history-timeline::before,
+#history-background .theme-history-timeline::after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(155,118,83,.18);
+    border: 1px solid rgba(63,52,40,.10);
+}
+
+#history-background .theme-history-timeline::before { left: 13%; }
+#history-background .theme-history-timeline::after { right: 13%; }
+
+#history-background .theme-history-vignette {
+    position: absolute;
+    inset: 0;
+    box-shadow:
+        inset 0 0 120px rgba(63,52,40,.08),
+        inset 0 -90px 120px rgba(155,118,83,.06);
+}
+
+#history-background .theme-history-item {
+    position: absolute;
+    opacity: var(--item-opacity, .86);
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--item-rotate))
+        scale(var(--item-scale));
+    transform-origin: center;
+    filter:
+        drop-shadow(0 12px 18px rgba(63,52,40,.13))
+        drop-shadow(0 2px 3px rgba(255,255,255,.14));
+    animation: themeHistoryFloat var(--item-duration, 8.6s) ease-in-out var(--item-delay) infinite;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#history-background .theme-history-soft {
+    opacity: var(--item-opacity, .48);
+}
+
+#history-background .theme-history-object-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    filter: none;
+}
+
+@keyframes themeHistoryFloat {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0,0,0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--item-x), var(--item-y), 0)
+            rotate(calc(var(--item-rotate) + 1.8deg))
+            scale(calc(var(--item-scale) * 1.015));
+    }
+}
+
+#history-background .theme-history-react {
+    opacity: 1 !important;
+    filter:
+        drop-shadow(0 16px 22px rgba(63,52,40,.18))
+        drop-shadow(0 0 11px rgba(155,118,83,.20));
+    animation: themeHistoryReact .56s cubic-bezier(.2,.8,.3,1) !important;
+}
+
+@keyframes themeHistoryReact {
+    0% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+
+    45% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0,-14px,0)
+            rotate(calc(var(--item-rotate) + 7deg))
+            scale(calc(var(--item-scale) * 1.10));
+    }
+
+    100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+}
+
+/* Neutral small controls */
+body.theme-history .filter-tab,
+body.theme-history .chip,
+body.theme-history .phrase-card,
+body.theme-history .day-picker-box,
+body.theme-history .toolbox-item,
+body.theme-history .resource-card,
+body.theme-history .polaroid-card,
+body.theme-history .flashcard,
+body.theme-history .theme-picker-card,
+body.theme-history input,
+body.theme-history textarea,
+body.theme-history select {
+    background: rgba(248,244,237,.96) !important;
+    background-color: rgba(248,244,237,.96) !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    border-color: rgba(63,52,40,.15) !important;
+    box-shadow: 0 1px 2px rgba(63,52,40,.035) !important;
+    filter: none !important;
+}
+
+body.theme-history .filter-tab:hover,
+body.theme-history .chip:hover,
+body.theme-history .phrase-card:hover,
+body.theme-history .day-picker-box:hover,
+body.theme-history .toolbox-item:hover,
+body.theme-history .resource-card:hover,
+body.theme-history .polaroid-card:hover,
+body.theme-history .theme-picker-card:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-history .filter-tab.active,
+body.theme-history .day-picker-box.selected {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+    color: var(--theme-ink) !important;
+}
+
+/* Parent category/filter rows stay transparent */
+html body.theme-history .filter-tabs,
+html body.theme-history .filter-tabs:hover,
+html body.theme-history .filter-tabs:focus,
+html body.theme-history .filter-tabs:focus-within,
+html body.theme-history #library-filter-tabs,
+html body.theme-history #library-filter-tabs:hover,
+html body.theme-history #library-filter-tabs:focus-within,
+html body.theme-history #quiz-type-filters,
+html body.theme-history #quiz-type-filters:hover,
+html body.theme-history #quiz-type-filters:focus-within,
+html body.theme-history .set-size-picker,
+html body.theme-history .set-size-picker:hover,
+html body.theme-history .set-size-picker:focus,
+html body.theme-history .set-size-picker:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+    border-color: transparent !important;
+}
+
+html body.theme-history .filter-tabs::before,
+html body.theme-history .filter-tabs::after,
+html body.theme-history #library-filter-tabs::before,
+html body.theme-history #library-filter-tabs::after,
+html body.theme-history #quiz-type-filters::before,
+html body.theme-history #quiz-type-filters::after,
+html body.theme-history .set-size-picker::before,
+html body.theme-history .set-size-picker::after {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+}
+
+/* Right-side icons stay backgroundless */
+html body.theme-history .side-nav .icon-btn,
+html body.theme-history .side-nav .icon-btn:hover,
+html body.theme-history .side-nav .icon-btn:focus,
+html body.theme-history .side-nav .icon-btn:focus-visible,
+html body.theme-history .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-history .side-nav .icon-btn::before,
+html body.theme-history .side-nav .icon-btn::after {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    opacity: 0 !important;
+}
+
+html body.theme-history .side-nav .icon-btn:hover {
+    transform: scale(1.15);
+}
+
+html body.theme-history .side-nav .icon-btn:hover i {
+    opacity: .62;
+}
+
+body.theme-history .progress-bar-track {
+    background: rgba(63,52,40,.10);
+}
+
+body.theme-history .progress-bar-fill {
+    background: #9b7653;
+}
+
+@media (max-width: 700px) {
+    #history-background .theme-history-item {
+        max-width: 180px;
+        max-height: 180px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #history-background * {
+        animation: none !important;
+    }
+}
+
+
+/* ============================================================
+   STACKING FIX
+   Keep every history SVG/background layer BEHIND the app UI.
+   ============================================================ */
+
+body.theme-history {
+    position: relative;
+    isolation: isolate;
+}
+
+/* Decorative history layer only */
+html body.theme-history #history-background {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Main app/page content above decorative SVGs */
+html body.theme-history .view {
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* Navigation above both */
+html body.theme-history .side-nav {
+    z-index: 3 !important;
+}
+
+/* Header/log header above decorative background */
+html body.theme-history header,
+html body.theme-history .log-header-container {
+    position: relative;
+    z-index: 4 !important;
+}
+
+/* Popups/modals remain highest */
+html body.theme-history .modal,
+html body.theme-history .modal-overlay,
+html body.theme-history .overlay {
+    z-index: 10 !important;
+}
+
+/* Decorative children can never escape above their background layer */
+html body.theme-history #history-background .theme-history-item,
+html body.theme-history #history-background .theme-history-parchment,
+html body.theme-history #history-background .theme-history-map,
+html body.theme-history #history-background .theme-history-timeline,
+html body.theme-history #history-background .theme-history-vignette {
+    z-index: 0 !important;
+    pointer-events: none !important;
+}
+
+
+/* ============================================================
+   HISTORY INTRO DANCE
+   A subset of the historical SVGs gently bobs while the intro
+   music is actually playing.
+   ============================================================ */
+
+#history-background.history-intro-playing
+.theme-history-item.theme-history-intro-dancer
+.theme-history-object-image {
+    animation:
+        themeHistoryIntroDance
+        var(--history-dance-duration, .78s)
+        ease-in-out
+        var(--history-dance-delay, 0s)
+        infinite;
+    will-change: translate;
+}
+
+@keyframes themeHistoryIntroDance {
+    0%, 100% {
+        translate: 0 0;
+    }
+
+    46% {
+        translate:
+            0
+            calc(var(--history-dance-height, 14px) * -1);
+    }
+
+    68% {
+        translate: 0 -3px;
+    }
+}
+
+/*
+ * The existing hover reaction continues on the wrapper, so the hover
+ * animation can still happen while a selected SVG is dancing.
+ */
+@media (prefers-reduced-motion: reduce) {
+    #history-background.history-intro-playing
+    .theme-history-item.theme-history-intro-dancer
+    .theme-history-object-image {
+        animation: none !important;
+    }
+}

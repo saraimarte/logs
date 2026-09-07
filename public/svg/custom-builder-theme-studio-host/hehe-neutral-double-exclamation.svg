@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360">
+<style>
+  .o{fill:none;stroke:#1a1617;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  .thin{fill:none;stroke:#1a1617;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+  .hair{fill:#1d1718;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .skin{fill:#fff7e6;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .skin2{fill:#fff7e6;stroke:#1a1617;stroke-width:4;stroke-linejoin:round}
+  .dress{fill:#f06a45;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .yellow{fill:#f6e84a;stroke:#1a1617;stroke-width:5;stroke-linejoin:round}
+  .shoe{fill:#8b4b2e;stroke:#1a1617;stroke-width:4;stroke-linejoin:round}
+  .pink{fill:#f05093;stroke:#1a1617;stroke-width:3.2;stroke-linejoin:round}
+  .blue{fill:#4aa8e8;stroke:#1a1617;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  .spark{fill:#f7df35;stroke:#c3a916;stroke-width:2}
+</style>
+    <g transform="rotate(0 145 110)">
+      <path class="hair" d="M70,100 C65,38 97,13 147,11 C199,9 227,40 222,102 C218,137 198,159 179,165 L109,165 C89,153 72,134 70,100Z"/>
+      <path class="skin" d="M89,76 C101,49 127,41 155,43 C184,44 206,58 211,85 L208,137 C203,172 177,189 145,192 C112,188 88,169 82,138 C77,114 79,91 89,76Z"/>
+    </g>
+      <path class="thin" d="M110,110 q14,-8 28,0"/><path class="thin" d="M155,110 q14,-8 28,0"/>
+      <path class="thin" d="M116,112 q7,5 14,0"/><path class="thin" d="M161,112 q7,5 14,0"/>
+      <path class="thin" d="M141,127 q6,5 12,0"/>
+      <path class="thin" d="M135,149 q11,5 22,0"/>
+    
+    <path class="yellow" d="M113,200 C102,213 99,237 106,258 L127,252 L127,202Z"/>
+    <path class="yellow" d="M177,200 C189,215 191,237 184,258 L163,252 L163,202Z"/>
+    <path class="dress" d="M126,188 L164,188 L175,283 L115,283Z"/>
+    <path class="skin2" d="M138,185 C138,200 152,200 152,185Z"/>
+    
+    <path class="skin2" d="M124,282 L133,331 L149,331 L147,282Z"/>
+    <path class="skin2" d="M156,282 L160,331 L177,331 L179,282Z"/>
+    <path class="shoe" d="M129,329 C131,340 151,340 153,330Z"/>
+    <path class="shoe" d="M157,330 C160,340 181,340 183,330Z"/>
+    
+<g>
+  <path class="o" d="M229 132 L229 165"/><circle cx="229" cy="178" r="4" fill="#606722"/>
+  <path class="o" d="M247 129 L247 162"/><circle cx="247" cy="176" r="4" fill="#606722"/>
+  <circle cx="211" cy="178" r="3.5" fill="#606722"/><circle cx="218" cy="178" r="3.5" fill="#606722"/>
+</g></svg>

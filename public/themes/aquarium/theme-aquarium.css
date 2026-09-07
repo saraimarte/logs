@@ -1,0 +1,1098 @@
+/* ============================================================
+   AQUARIUM THEME
+   Theme-scoped visual layer only.
+   ============================================================ */
+
+body.theme-aquarium {
+    --black: #f4fbff;
+    --white: #123b57;
+    --border-radius: 12px;
+    --thick-border: 3px solid #5b9db6;
+    --thin-border: 2px solid #477f98;
+    --dashed-border: 2px dashed #477f98;
+    --dotted-border: 2px dotted #477f98;
+    --muted-text: #9ec5d4;
+    --track-bg: #255a72;
+    --overlay-scrim: rgba(10, 43, 64, 0.72);
+    --bg-overlay: transparent;
+    background: #176b91 !important;
+    color: #f4fbff !important;
+}
+
+body.theme-aquarium .view:not(#grid-view)::before {
+    background: transparent !important;
+}
+
+body.theme-aquarium .view,
+body.theme-aquarium #grid-view {
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================================
+   CLEAN WATERCOLOUR OCEAN BACKGROUND
+   No photo texture, purple reef, or dotted seabed.
+   ============================================================ */
+
+body.theme-aquarium #aquarium-background {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    isolation: isolate;
+    background: #8fcbd3 !important;
+}
+
+body.theme-aquarium .aquarium-water-color,
+body.theme-aquarium .aquarium-water-glow,
+body.theme-aquarium .aquarium-water-rays,
+body.theme-aquarium .aquarium-water-caustics,
+body.theme-aquarium .aquarium-bubbles,
+body.theme-aquarium .aquarium-reef {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+body.theme-aquarium .aquarium-water-color {
+    background:
+        radial-gradient(ellipse 85% 42% at 50% -5%, rgba(239, 251, 247, .88) 0%, rgba(190, 229, 226, .48) 38%, transparent 72%),
+        radial-gradient(ellipse 72% 60% at 7% 42%, rgba(100, 181, 193, .42) 0%, transparent 70%),
+        radial-gradient(ellipse 72% 62% at 94% 53%, rgba(73, 143, 169, .30) 0%, transparent 68%),
+        linear-gradient(180deg, #b8e1de 0%, #8bcbd0 32%, #6fb8c5 62%, #5b9eaf 82%, #4c8599 100%);
+}
+
+body.theme-aquarium .aquarium-water-glow {
+    background:
+        radial-gradient(ellipse 42% 30% at 24% 18%, rgba(244, 253, 249, .42), transparent 72%),
+        radial-gradient(ellipse 38% 28% at 76% 24%, rgba(230, 249, 244, .32), transparent 72%),
+        radial-gradient(ellipse 55% 35% at 52% 72%, rgba(66, 151, 173, .16), transparent 74%);
+    animation: aquarium-water-breathe 12s ease-in-out infinite alternate;
+}
+
+@keyframes aquarium-water-breathe {
+    from { transform: scale(1) translate3d(-1%, 0, 0); opacity: .80; }
+    to   { transform: scale(1.05) translate3d(1%, 1%, 0); opacity: 1; }
+}
+
+body.theme-aquarium .aquarium-water-rays {
+    inset: -12% -8%;
+    background:
+        linear-gradient(108deg, transparent 8%, rgba(242, 252, 248, .22) 18%, transparent 31%),
+        linear-gradient(76deg, transparent 29%, rgba(229, 249, 244, .17) 40%, transparent 52%),
+        linear-gradient(110deg, transparent 53%, rgba(239, 251, 247, .16) 64%, transparent 76%),
+        linear-gradient(78deg, transparent 73%, rgba(218, 244, 239, .15) 84%, transparent 94%);
+    filter: blur(8px);
+    opacity: .68;
+    transform-origin: top center;
+    animation: aquarium-rays-sway 18s ease-in-out infinite alternate;
+}
+
+@keyframes aquarium-rays-sway {
+    0%   { transform: translate3d(-2%, -1%, 0) skewX(-1deg); }
+    50%  { transform: translate3d(2%, 1%, 0) skewX(1deg); }
+    100% { transform: translate3d(-1%, 2%, 0) skewX(-1deg); }
+}
+
+body.theme-aquarium .aquarium-water-caustics {
+    inset: -10%;
+    opacity: .22;
+    background:
+        repeating-linear-gradient(101deg, transparent 0 88px, rgba(238, 251, 247, .13) 92px 96px, transparent 100px 180px),
+        repeating-linear-gradient(78deg, transparent 0 120px, rgba(218, 246, 241, .11) 124px 128px, transparent 132px 240px);
+    filter: blur(4px);
+    animation: aquarium-caustics-flow 16s ease-in-out infinite alternate;
+}
+
+@keyframes aquarium-caustics-flow {
+    from { transform: translate3d(-2%, -1%, 0) rotate(-1deg) scale(1.04); }
+    to   { transform: translate3d(2%, 2%, 0) rotate(1deg) scale(1.08); }
+}
+
+body.theme-aquarium .aquarium-reef {
+    top: auto;
+    bottom: 0;
+    height: 18vh;
+    background: linear-gradient(to top, rgba(59, 112, 127, .16), rgba(91, 161, 171, .05) 60%, transparent 100%);
+}
+
+/* Completely remove the old decorative reef and its dot texture. */
+body.theme-aquarium .aquarium-reef-sand,
+body.theme-aquarium .aquarium-reef-coral,
+body.theme-aquarium .aquarium-reef-seagrass {
+    display: none !important;
+}
+
+body.theme-aquarium .aquarium-background-bubble {
+    position: absolute;
+    display: block;
+    border: 1px solid rgba(238, 252, 249, .42);
+    background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.28), rgba(174,226,229,.04) 55%, transparent 74%);
+    border-radius: 50%;
+    box-shadow: inset 1px 1px 2px rgba(255,255,255,.18);
+    animation: aquarium-background-bubble-rise var(--duration) ease-in infinite;
+}
+
+@keyframes aquarium-background-bubble-rise {
+    0%   { transform: translate3d(0, 12vh, 0) scale(.8); opacity: 0; }
+    12%  { opacity: .30; }
+    55%  { transform: translate3d(var(--drift), -42vh, 0) scale(1); opacity: .18; }
+    100% { transform: translate3d(calc(var(--drift) * -.4), -112vh, 0) scale(1.1); opacity: 0; }
+}
+
+body.theme-aquarium .view,
+body.theme-aquarium #grid-view {
+    position: relative;
+    z-index: 1;
+}
+
+body.theme-aquarium .view:not(#grid-view)::before {
+    background: transparent !important;
+}
+
+/* ============================================================
+   CONTINUOUS AQUARIUM TRAVEL
+   ------------------------------------------------------------
+   Every visible animal is assigned its own vertical lane and
+   continuously crosses the viewport. The lane separation keeps
+   animals from overlapping. Depth z-order follows animal size,
+   so a smaller animal is never rendered in front of a larger one.
+   ============================================================ */
+
+body.theme-aquarium .aquarium-animal {
+    position: absolute;
+    transform-origin: center center;
+    filter: drop-shadow(0 5px 7px rgba(19, 45, 66, .22));
+    will-change: transform;
+    pointer-events: none !important;
+    z-index: calc(100 + var(--depth-z, 1));
+}
+
+body.theme-aquarium .aquarium-animal img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* All normal animals use the same full-screen travel path. */
+body.theme-aquarium .aquarium-traveling {
+    left: 0;
+    animation-duration: var(--travel-duration, 28s);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+}
+
+body.theme-aquarium .aquarium-traveling.moves-right {
+    animation-name: aquarium-travel-right;
+}
+
+body.theme-aquarium .aquarium-traveling.moves-left {
+    animation-name: aquarium-travel-left;
+}
+
+@keyframes aquarium-travel-right {
+    0%   { transform: translate3d(-38vw, 0, 0); }
+    100% { transform: translate3d(138vw, 0, 0); }
+}
+
+@keyframes aquarium-travel-left {
+    0%   { transform: translate3d(138vw, 0, 0); }
+    100% { transform: translate3d(-38vw, 0, 0); }
+}
+
+/* The main supplied swimmer artwork faces right. Flip only the image
+   for leftward travel. The wrapper itself is never flipped, preserving
+   the travel path and preventing direction/position conflicts. */
+body.theme-aquarium .aquarium-swimmer.moves-left img,
+body.theme-aquarium .aquarium-floater.moves-left img {
+    transform: scaleX(-1) scale(var(--animal-scale, 1));
+}
+
+body.theme-aquarium .aquarium-swimmer.moves-right img,
+body.theme-aquarium .aquarium-floater.moves-right img {
+    transform: scale(var(--animal-scale, 1));
+}
+
+/* Dedicated lower lanes. Their vertical separation prevents the large
+   illustrations from crossing over each other. */
+body.theme-aquarium .aquarium-swimmer {
+    width: clamp(260px, 27vw, 420px);
+    max-height: 18vh;
+}
+
+body.theme-aquarium .aquarium-swimmer img {
+    max-height: 18vh;
+}
+
+body.theme-aquarium .aquarium-floater {
+    width: clamp(125px, 15vw, 220px);
+    max-height: 11vh;
+}
+
+body.theme-aquarium .aquarium-floater img {
+    max-height: 11vh;
+}
+
+/* The puffer is deliberately smaller than the other animals. Its
+   illustration faces left, so it is only flipped when traveling right. */
+body.theme-aquarium .aquarium-puffer {
+    width: clamp(78px, 7vw, 112px);
+    max-height: 8vh;
+}
+
+body.theme-aquarium .aquarium-puffer img {
+    max-height: 8vh;
+}
+
+body.theme-aquarium .aquarium-puffer img {
+    width: 100%;
+    transform: none;
+}
+
+body.theme-aquarium .aquarium-puffer.flip-for-direction img {
+    transform: scaleX(-1);
+}
+
+/* Puffer bubbles stay attached to the mouth while the whole fish swims. */
+body.theme-aquarium .puffer-bubble-emitter {
+    position: absolute;
+    left: -2%;
+    top: 37%;
+    width: 1px;
+    height: 1px;
+}
+
+body.theme-aquarium .puffer-bubble {
+    position: absolute;
+    left: var(--bubble-side);
+    top: 0;
+    width: var(--bubble-size);
+    height: var(--bubble-size);
+    border: 1px solid rgba(230, 252, 250, .78);
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.55), rgba(132,224,236,.08) 60%, transparent 75%);
+    animation: puffer-bubble-rise 4.8s ease-out var(--bubble-delay) infinite;
+}
+
+@keyframes puffer-bubble-rise {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) scale(.55); }
+    12% { opacity: .85; }
+    100% { opacity: 0; transform: translate3d(-10px, -70px, 0) scale(1.05); }
+}
+
+/* Seahorses have their own continuously moving lane. The whole supplied
+   illustration sways slightly so the tails visibly move with the water. */
+body.theme-aquarium .aquarium-seahorses {
+    width: clamp(125px, 13vw, 205px);
+    max-height: 11vh;
+}
+
+body.theme-aquarium .aquarium-seahorses img {
+    max-height: 11vh;
+}
+
+body.theme-aquarium .aquarium-seahorses img {
+    transform: none;
+}
+
+body.theme-aquarium .aquarium-seahorses.flip-for-direction img {
+    transform: scaleX(-1);
+}
+
+body.theme-aquarium .aquarium-seahorses.seahorse-tail-sway img {
+    transform-origin: center center;
+    animation: aquarium-seahorse-tail-sway 2.8s ease-in-out infinite alternate;
+}
+
+body.theme-aquarium .aquarium-seahorses.flip-for-direction.seahorse-tail-sway img {
+    animation-name: aquarium-seahorse-tail-sway-flipped;
+}
+
+@keyframes aquarium-seahorse-tail-sway {
+    from { transform: rotate(-2deg); }
+    to   { transform: rotate(2deg); }
+}
+
+@keyframes aquarium-seahorse-tail-sway-flipped {
+    from { transform: scaleX(-1) rotate(2deg); }
+    to   { transform: scaleX(-1) rotate(-2deg); }
+}
+
+/* No stationary decorative animal remains in the travel layer. */
+body.theme-aquarium .aquarium-anemones {
+    display: none !important;
+}
+
+/* ============================================================
+   RESPONSIVE TRAVEL LANES
+   ============================================================ */
+@media (max-width: 700px) {
+    body.theme-aquarium .aquarium-swimmer {
+        width: clamp(190px, 42vw, 280px);
+        max-height: 14vh;
+    }
+    body.theme-aquarium .aquarium-swimmer img {
+        max-height: 14vh;
+    }
+    body.theme-aquarium .aquarium-floater {
+        width: clamp(95px, 25vw, 155px);
+        max-height: 9vh;
+    }
+    body.theme-aquarium .aquarium-floater img {
+        max-height: 9vh;
+    }
+    body.theme-aquarium .aquarium-puffer {
+        width: clamp(62px, 12vw, 90px);
+        max-height: 7vh;
+    }
+    body.theme-aquarium .aquarium-puffer img {
+        max-height: 7vh;
+    }
+    body.theme-aquarium .aquarium-seahorses {
+        width: clamp(100px, 25vw, 150px);
+        max-height: 9vh;
+    }
+    body.theme-aquarium .aquarium-seahorses img {
+        max-height: 9vh;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-aquarium .aquarium-traveling,
+    body.theme-aquarium .aquarium-seahorses img,
+    body.theme-aquarium .aquarium-puffer,
+    body.theme-aquarium .aquarium-background-bubble,
+    body.theme-aquarium .puffer-bubble {
+        animation: none !important;
+    }
+}
+
+/* ============================================================
+   APPLICATION SURFACES
+   ============================================================ */
+
+body.theme-aquarium h1,
+body.theme-aquarium h2,
+body.theme-aquarium h3,
+body.theme-aquarium h4,
+body.theme-aquarium h5,
+body.theme-aquarium h6,
+body.theme-aquarium .section-header,
+body.theme-aquarium .tool-row,
+body.theme-aquarium .tool-row-name,
+body.theme-aquarium .part-row,
+body.theme-aquarium .part-row-label,
+body.theme-aquarium .polaroid-label {
+    color: #092d43 !important;
+}
+
+body.theme-aquarium .field-label,
+body.theme-aquarium .progress-hint,
+body.theme-aquarium .flashcard-hint-text,
+body.theme-aquarium .tool-link,
+body.theme-aquarium .save-indicator {
+    color: #9fc7d2 !important;
+}
+
+body.theme-aquarium .day-box,
+body.theme-aquarium .day-picker-box,
+body.theme-aquarium .mini-day-box,
+body.theme-aquarium .day-badge,
+body.theme-aquarium .day-target-box,
+body.theme-aquarium .resource-card,
+body.theme-aquarium .toolbox-item,
+body.theme-aquarium .phrase-card,
+body.theme-aquarium .flashcard,
+body.theme-aquarium .flashcard-mode-card,
+body.theme-aquarium .video-placeholder,
+body.theme-aquarium .polaroid-card,
+body.theme-aquarium input[type="text"],
+body.theme-aquarium textarea,
+body.theme-aquarium select,
+body.theme-aquarium .notes-editable {
+    background: #092d43 !important;
+    color: #e9fbff !important;
+    border-color: #397f98 !important;
+}
+
+body.theme-aquarium .day-box:hover,
+body.theme-aquarium .mini-day-box:hover {
+    filter: brightness(1.18);
+}
+
+body.theme-aquarium .day-picker-box.selected,
+body.theme-aquarium .filter-tab.active {
+    background: #bceff1 !important;
+    color: #063047 !important;
+    border-color: #bceff1 !important;
+}
+
+body.theme-aquarium .day-picker-box.no-data {
+    opacity: 0.45;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+
+body.theme-aquarium .filter-tab {
+    background: #092d43 !important;
+    color: #e9fbff !important;
+    border-color: #397f98 !important;
+}
+
+body.theme-aquarium .filter-tab:hover {
+    background: #12506a !important;
+    color: #e9fbff !important;
+}
+
+/* ============================================================
+   ICON BUTTONS / NAV
+   ============================================================ */
+
+body.theme-aquarium .side-nav .icon-btn {
+    background: transparent !important;
+    color: #092d43 !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-aquarium .side-nav .icon-btn:hover {
+    background: transparent !important;
+}
+
+body.theme-aquarium .side-nav .icon-btn:hover i {
+    color: #8de6e7 !important;
+    opacity: 1 !important;
+}
+
+body.theme-aquarium .icon-btn,
+body.theme-aquarium .small-icon-btn {
+    background: transparent !important;
+    color: #092d43 !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+body.theme-aquarium .icon-btn:hover,
+body.theme-aquarium .small-icon-btn:hover {
+    background: #12506a !important;
+    color: #bceff1 !important;
+    border-color: #397f98 !important;
+}
+
+body.theme-aquarium .header-back-btn {
+    background: none !important;
+    color: #092d43 !important;
+    border: none !important;
+}
+
+body.theme-aquarium .header-back-btn:hover {
+    color: #8de6e7 !important;
+    opacity: 1 !important;
+}
+
+/* ============================================================
+   AQUARIUM ACCENT: TITLES + ICONS
+   ============================================================ */
+body.theme-aquarium #app-title,
+body.theme-aquarium #current-date-title,
+body.theme-aquarium .log-header-container > h1,
+body.theme-aquarium .modal-header h2 {
+    color: #092d43 !important;
+}
+body.theme-aquarium .side-nav .icon-btn i,
+body.theme-aquarium .icon-btn i,
+body.theme-aquarium .small-icon-btn i,
+body.theme-aquarium .header-back-btn i {
+    color: #092d43 !important;
+}
+body.theme-aquarium #settings-close,
+body.theme-aquarium #daily-settings-close,
+body.theme-aquarium #phrase-modal-close,
+body.theme-aquarium #add-item-close,
+body.theme-aquarium .lightbox-close {
+    background: transparent !important;
+    color: #092d43 !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+body.theme-aquarium #settings-close i,
+body.theme-aquarium #daily-settings-close i,
+body.theme-aquarium #phrase-modal-close i,
+body.theme-aquarium #add-item-close i,
+body.theme-aquarium .lightbox-close i {
+    color: #092d43 !important;
+}
+body.theme-aquarium #settings-close:hover,
+body.theme-aquarium #daily-settings-close:hover,
+body.theme-aquarium #phrase-modal-close:hover,
+body.theme-aquarium #add-item-close:hover,
+body.theme-aquarium .lightbox-close:hover {
+    background: rgba(9, 45, 67, 0.12) !important;
+}
+
+/* ============================================================
+   CHIPS / PROGRESS / AUDIO
+   ============================================================ */
+
+body.theme-aquarium .chip {
+    background: #092d43 !important;
+    color: #e9fbff !important;
+    border-color: #397f98 !important;
+}
+
+body.theme-aquarium .chip:hover,
+body.theme-aquarium .phrase-card:hover {
+    background: #bceff1 !important;
+    color: #063047 !important;
+}
+
+body.theme-aquarium .progress-bar-track,
+body.theme-aquarium .chip-progress-track {
+    background: #16465d !important;
+}
+
+body.theme-aquarium .progress-bar-fill,
+body.theme-aquarium .chip-progress-fill {
+    background: #72d9dc !important;
+}
+
+body.theme-aquarium .audio-play-btn {
+    background: #bceff1 !important;
+    color: #063047 !important;
+    border-color: #bceff1 !important;
+}
+
+body.theme-aquarium .audio-preview-btn,
+body.theme-aquarium .audio-preview-btn:hover {
+    background: transparent !important;
+    color: #e9fbff !important;
+    border-color: transparent !important;
+}
+
+body.theme-aquarium .chip-audio-btn {
+    color: #8de6e7 !important;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+
+body.theme-aquarium .modal-overlay {
+    z-index: 1000 !important;
+    background: rgba(2, 19, 31, 0.72) !important;
+}
+
+body.theme-aquarium .modal-box {
+    position: relative;
+    z-index: 1001 !important;
+    background: #08283d !important;
+    color: #e9fbff !important;
+    border-color: #397f98 !important;
+}
+
+body.theme-aquarium .modal-header,
+body.theme-aquarium .modal-section,
+body.theme-aquarium .modal-header h2 {
+    color: #e9fbff !important;
+}
+
+body.theme-aquarium .delete-btn {
+    background: transparent !important;
+    color: #ff9d9d !important;
+    border-color: #397f98 !important;
+}
+
+body.theme-aquarium .delete-btn:hover {
+    background: #b83d4a !important;
+    color: #fff !important;
+}
+
+/* ============================================================
+   CURSOR PICKER
+   ------------------------------------------------------------
+   Only surface colors are themed. Cursor geometry/position is
+   deliberately untouched.
+   ============================================================ */
+
+body.theme-aquarium .icon-grid {
+    background: #08283d !important;
+    border-color: #397f98 !important;
+}
+
+body.theme-aquarium .icon-option {
+    background: #092d43 !important;
+    color: #e9fbff !important;
+    border-color: #397f98 !important;
+}
+
+body.theme-aquarium .icon-option small {
+    color: #9fc7d2 !important;
+}
+
+body.theme-aquarium .icon-option:hover {
+    background: #12506a !important;
+    color: #bceff1 !important;
+}
+
+body.theme-aquarium .icon-option.selected {
+    background: #bceff1 !important;
+    color: #063047 !important;
+    border-color: #bceff1 !important;
+}
+
+body.theme-aquarium .icon-option.selected small {
+    color: #063047 !important;
+}
+
+/* ============================================================
+   COMPANIONS
+   ------------------------------------------------------------
+   IMPORTANT: do not touch their position, transform, animation,
+   bottom offsets, or containing elements.
+   ============================================================ */
+
+body.theme-aquarium .companion-stage,
+body.theme-aquarium #companion-air-stage {
+    z-index: 500 !important;
+}
+
+/* No body > * wildcard, no positioning changes to companions. */
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+    body.theme-aquarium .aquarium-animal {
+        width: min(260px, 45vw);
+    }
+
+    body.theme-aquarium .aquarium-floor {
+        height: 16vh;
+        min-height: 82px;
+    }
+
+    body.theme-aquarium .aquarium-anemones {
+        width: min(210px, 42vw);
+        right: -3%;
+        bottom: -16%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-aquarium .aquarium-light-shafts,
+    body.theme-aquarium .aquarium-caustics,
+    body.theme-aquarium .aquarium-particle,
+    body.theme-aquarium .aquarium-bubble,
+    body.theme-aquarium .aquarium-animal,
+    body.theme-aquarium .aquarium-anemones,
+    body.theme-aquarium .aquarium-floor-glow {
+        animation: none !important;
+    }
+}
+
+/* The grid view is not covered by the template's ::before layer, so give it the same stacking level. */
+body.theme-aquarium #grid-view {
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================================
+   AQUARIUM ACCENT TEXT
+   ------------------------------------------------------------
+   The deep blue used by the day-number boxes is the theme accent.
+   Apply it to page-level headings and navigation icons where it
+   remains readable. Settings surfaces are intentionally excluded.
+   ============================================================ */
+body.theme-aquarium {
+    --aquarium-accent: #092d43;
+}
+
+/* Page titles / view headers */
+body.theme-aquarium #log-view > .log-header-container h1,
+body.theme-aquarium #grid-view > .log-header-container h1,
+body.theme-aquarium #toolbox-view > .log-header-container h1,
+body.theme-aquarium #phrases-library-view > .log-header-container h1,
+body.theme-aquarium #quizzes-view > .log-header-container h1,
+body.theme-aquarium #quiz-learn-view > .log-header-container h1,
+body.theme-aquarium .log-header-container > h1,
+body.theme-aquarium .log-header-container > h2 {
+    color: var(--aquarium-accent) !important;
+}
+
+/* Section headings that sit directly on the themed page surface.
+   Do not recolor headings inside dark cards/surfaces. */
+body.theme-aquarium #log-view > .log-content .section-header,
+body.theme-aquarium #toolbox-view .section-header,
+body.theme-aquarium #phrases-library-view .section-header,
+body.theme-aquarium #quizzes-view .section-header,
+body.theme-aquarium #quiz-learn-view .section-header {
+    color: var(--aquarium-accent) !important;
+}
+
+/* Right-side navigation icons, including Knowledge Base, Quizzes,
+   and Toolbox. These are transparent, so the accent remains legible. */
+body.theme-aquarium .side-nav .icon-btn i {
+    color: var(--aquarium-accent) !important;
+}
+
+body.theme-aquarium .side-nav .icon-btn:hover i {
+    color: var(--aquarium-accent) !important;
+    opacity: 0.72 !important;
+}
+
+/* Other page-level icon controls, but NOT settings controls. */
+body.theme-aquarium .log-header-container > .icon-btn:not(#open-settings-btn):not(#open-daily-settings-btn),
+body.theme-aquarium .log-header-container > .icon-btn:not(#open-settings-btn):not(#open-daily-settings-btn) i {
+    color: var(--aquarium-accent) !important;
+}
+
+/* Back/forward navigation on the page surface. */
+body.theme-aquarium .day-nav-group .header-back-btn,
+body.theme-aquarium .day-nav-group .header-back-btn i {
+    color: var(--aquarium-accent) !important;
+}
+
+/* Do not alter Knowledge Base Settings or Daily View Settings. */
+body.theme-aquarium #settings-modal,
+body.theme-aquarium #settings-modal *,
+body.theme-aquarium #daily-settings-modal,
+body.theme-aquarium #daily-settings-modal * {
+    /* intentionally left to the existing theme/template rules */
+}
+
+/* Aquarium accent: the day-number box color is the page accent.
+   Settings surfaces are intentionally not included. */
+body.theme-aquarium {
+    --aquarium-accent: #092d43;
+}
+
+body.theme-aquarium .day-box,
+body.theme-aquarium .day-picker-box,
+body.theme-aquarium .mini-day-box,
+body.theme-aquarium .day-badge,
+body.theme-aquarium .day-target-box {
+    background: var(--aquarium-accent) !important;
+}
+
+/* ============================================================
+   AQUARIUM ACCENT: ALL APPLICATION ICONS
+   The same deep blue used by the day-number boxes is used for
+   icons, including Settings, Plus, and Back. Settings layout,
+   text, controls, and surfaces are otherwise untouched.
+   ============================================================ */
+body.theme-aquarium .icon-btn i,
+body.theme-aquarium .small-icon-btn i,
+body.theme-aquarium .header-back-btn i,
+body.theme-aquarium .side-nav .icon-btn i,
+body.theme-aquarium button > i,
+body.theme-aquarium a > i {
+    color: var(--aquarium-accent) !important;
+}
+
+/* Settings and Daily View Settings icons only: recolor the icons,
+   without changing any other setting styles. */
+body.theme-aquarium #open-settings-btn i,
+body.theme-aquarium #open-daily-settings-btn i,
+body.theme-aquarium #settings-modal .icon-btn i,
+body.theme-aquarium #settings-modal .small-icon-btn i,
+body.theme-aquarium #daily-settings-modal .icon-btn i,
+body.theme-aquarium #daily-settings-modal .small-icon-btn i {
+    color: var(--aquarium-accent) !important;
+}
+
+/* Plus/add controls. */
+body.theme-aquarium .add-btn i,
+body.theme-aquarium .plus-btn i,
+body.theme-aquarium [aria-label*="Add"] i,
+body.theme-aquarium [title*="Add"] i {
+    color: var(--aquarium-accent) !important;
+}
+
+/* Page title and all view-header titles use the same accent. */
+body.theme-aquarium .log-header-container h1,
+body.theme-aquarium .log-header-container h2,
+body.theme-aquarium .view-header h1,
+body.theme-aquarium .view-header h2 {
+    color: var(--aquarium-accent) !important;
+}
+
+/* Preserve white icon/text treatment on destructive controls where
+   changing it to the accent would reduce the intended contrast. */
+body.theme-aquarium .delete-btn i {
+    color: inherit !important;
+}
+
+
+/* ============================================================
+   FINAL UI CONTRAST FIXES
+   ============================================================ */
+body.theme-aquarium #settings-modal .modal-header h2,
+body.theme-aquarium #daily-settings-modal .modal-header h2 {
+    color: var(--aquarium-accent) !important;
+}
+
+/* The modal close buttons sit on a dark modal surface. Keep the X itself
+   in the aquarium accent, but give its existing button a light surface so
+   the icon cannot disappear into the container. No layout is changed. */
+body.theme-aquarium #settings-close,
+body.theme-aquarium #daily-settings-close {
+    background: #e9fbff !important;
+    color: var(--aquarium-accent) !important;
+    border-color: #397f98 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+body.theme-aquarium #settings-close i,
+body.theme-aquarium #daily-settings-close i {
+    color: var(--aquarium-accent) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+body.theme-aquarium #settings-close:hover,
+body.theme-aquarium #daily-settings-close:hover {
+    background: #bceff1 !important;
+    color: var(--aquarium-accent) !important;
+}
+
+
+/* Final settings close-button visibility fix. The light button surface is
+   intentionally different from the dark modal so the accent X cannot blend in. */
+body.theme-aquarium #settings-modal #settings-close,
+body.theme-aquarium #daily-settings-modal #daily-settings-close {
+    background-color: #e9fbff !important;
+    color: #092d43 !important;
+    border: 2px solid #397f98 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+body.theme-aquarium #settings-modal #settings-close i,
+body.theme-aquarium #daily-settings-modal #daily-settings-close i {
+    color: #092d43 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* ============================================================
+   FINAL DAILY SETTINGS / ADD-DAY CONTRAST FIX
+   Daily View Settings intentionally keeps the template's white
+   text treatment for readability on its dark surface.
+   ============================================================ */
+body.theme-aquarium #daily-settings-modal,
+body.theme-aquarium #daily-settings-modal .modal-header,
+body.theme-aquarium #daily-settings-modal .modal-header h2,
+body.theme-aquarium #daily-settings-modal .modal-section,
+body.theme-aquarium #daily-settings-modal .field-label,
+body.theme-aquarium #daily-settings-modal .progress-hint,
+body.theme-aquarium #daily-settings-modal label,
+body.theme-aquarium #daily-settings-modal p,
+body.theme-aquarium #daily-settings-modal span {
+    color: #ffffff !important;
+}
+
+body.theme-aquarium #daily-settings-modal input,
+body.theme-aquarium #daily-settings-modal textarea,
+body.theme-aquarium #daily-settings-modal select,
+body.theme-aquarium #daily-settings-modal option {
+    color: #ffffff !important;
+}
+
+body.theme-aquarium #daily-settings-modal input::placeholder,
+body.theme-aquarium #daily-settings-modal textarea::placeholder {
+    color: rgba(255,255,255,0.72) !important;
+}
+
+/* The plus used to add a day stays white, rather than inheriting
+   the aquarium accent used by ordinary page-level icons. */
+body.theme-aquarium #grid-view .ph-plus,
+body.theme-aquarium #days-grid .ph-plus,
+body.theme-aquarium [id*="add-day"] .ph-plus,
+body.theme-aquarium [id*="day-add"] .ph-plus {
+    color: #ffffff !important;
+}
+
+
+/* ============================================================
+   THEME PICKER CONTRAST
+   Light-theme preview cards must keep dark readable labels even
+   while Aquarium is active. This only affects the picker cards.
+   ============================================================ */
+body.theme-aquarium #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-info,
+body.theme-aquarium #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-name,
+body.theme-aquarium #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-hint {
+    color: #222222 !important;
+}
+
+body.theme-aquarium #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-info {
+    background: rgba(255, 255, 255, 0.94) !important;
+}
+
+body.theme-aquarium #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-hint {
+    color: #555555 !important;
+}
+
+
+/* ============================================================
+   ENHANCED AQUARIUM — INTERACTIVE + LIGHTWEIGHT
+   - JS controls horizontal animal travel so direction can reverse in place.
+   - Decorative additions remain pointer-events:none and behind the app.
+   ============================================================ */
+
+/* Disable the old keyframe-driven horizontal crossing. The JS module now
+   creates Web Animations so an animal can reverse exactly where it is. */
+body.theme-aquarium .aquarium-traveling {
+    animation: none !important;
+    left: 0 !important;
+}
+
+/* Direction still controls only the artwork's facing direction. */
+body.theme-aquarium .aquarium-swimmer.moves-left img,
+body.theme-aquarium .aquarium-floater.moves-left img {
+    transform: scaleX(-1) scale(var(--animal-scale, 1));
+}
+
+body.theme-aquarium .aquarium-swimmer.moves-right img,
+body.theme-aquarium .aquarium-floater.moves-right img {
+    transform: scaleX(1) scale(var(--animal-scale, 1));
+}
+
+/* Tiny "turn" reaction when the cursor touches an animal. */
+body.theme-aquarium .aquarium-animal.aquarium-turning img {
+    animation: aquarium-contact-wiggle .34s ease-out !important;
+}
+
+@keyframes aquarium-contact-wiggle {
+    0%   { translate: 0 0; }
+    35%  { translate: 0 -5px; }
+    68%  { translate: 0 3px; }
+    100% { translate: 0 0; }
+}
+
+/* ============================================================
+   EXTRA WATER DEPTH
+   ============================================================ */
+
+body.theme-aquarium .aquarium-depth-haze,
+body.theme-aquarium .aquarium-plankton,
+body.theme-aquarium .aquarium-distant-school,
+body.theme-aquarium .aquarium-edge-kelp,
+body.theme-aquarium .aquarium-surface-sparkles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+body.theme-aquarium .aquarium-depth-haze {
+    background:
+        radial-gradient(ellipse 65% 36% at 50% 92%, rgba(26, 91, 112, .18), transparent 72%),
+        radial-gradient(ellipse 38% 24% at 20% 72%, rgba(35, 108, 129, .12), transparent 72%),
+        radial-gradient(ellipse 38% 24% at 80% 68%, rgba(31, 97, 119, .10), transparent 72%);
+    animation: aquarium-depth-breathe 14s ease-in-out infinite alternate;
+}
+
+@keyframes aquarium-depth-breathe {
+    from { opacity: .56; transform: scale(1); }
+    to   { opacity: .84; transform: scale(1.025); }
+}
+
+/* Small fixed-count plankton particles. */
+body.theme-aquarium .aquarium-plankton-dot {
+    position: absolute;
+    width: var(--plankton-size);
+    height: var(--plankton-size);
+    border-radius: 50%;
+    background: rgba(239, 252, 247, .38);
+    box-shadow: 0 0 5px rgba(239, 252, 247, .12);
+    animation: aquarium-plankton-float var(--plankton-duration) ease-in-out var(--plankton-delay) infinite alternate;
+}
+
+@keyframes aquarium-plankton-float {
+    from { opacity: .08; transform: translate3d(0, 0, 0); }
+    to   { opacity: .38; transform: translate3d(var(--plankton-x), var(--plankton-y), 0); }
+}
+
+/* Tiny distant fish schools. */
+body.theme-aquarium .aquarium-school-fish {
+    position: absolute;
+    width: 13px;
+    height: 7px;
+    opacity: .16;
+    border-radius: 60% 45% 45% 60%;
+    background: rgba(20, 77, 101, .70);
+    animation: aquarium-school-drift var(--school-duration) linear var(--school-delay) infinite;
+}
+
+body.theme-aquarium .aquarium-school-fish::after {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: 1px;
+    width: 0;
+    height: 0;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-right: 6px solid rgba(20, 77, 101, .62);
+}
+
+@keyframes aquarium-school-drift {
+    from { transform: translate3d(-18vw, 0, 0); }
+    to   { transform: translate3d(118vw, var(--school-y), 0); }
+}
+
+/* Small kelp silhouettes only at the far bottom edges. */
+body.theme-aquarium .aquarium-kelp-blade {
+    position: absolute;
+    bottom: -8px;
+    width: 9px;
+    height: var(--kelp-height);
+    border-radius: 80% 20% 70% 30% / 100% 100% 0 0;
+    background: linear-gradient(to top, rgba(38, 104, 96, .46), rgba(72, 144, 128, .18));
+    transform-origin: bottom center;
+    animation: aquarium-kelp-sway var(--kelp-duration) ease-in-out var(--kelp-delay) infinite alternate;
+}
+
+@keyframes aquarium-kelp-sway {
+    from { transform: rotate(-4deg); }
+    to   { transform: rotate(5deg); }
+}
+
+/* Surface glints add motion without extra images. */
+body.theme-aquarium .aquarium-surface-glint {
+    position: absolute;
+    top: var(--glint-top);
+    left: var(--glint-left);
+    width: var(--glint-width);
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(248,255,252,.40), transparent);
+    filter: blur(.4px);
+    animation: aquarium-surface-glint var(--glint-duration) ease-in-out var(--glint-delay) infinite alternate;
+}
+
+@keyframes aquarium-surface-glint {
+    from { opacity: .10; transform: translateX(-10px) scaleX(.82); }
+    to   { opacity: .48; transform: translateX(12px) scaleX(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-aquarium .aquarium-depth-haze,
+    body.theme-aquarium .aquarium-plankton-dot,
+    body.theme-aquarium .aquarium-school-fish,
+    body.theme-aquarium .aquarium-kelp-blade,
+    body.theme-aquarium .aquarium-surface-glint,
+    body.theme-aquarium .aquarium-animal.aquarium-turning img {
+        animation: none !important;
+    }
+}

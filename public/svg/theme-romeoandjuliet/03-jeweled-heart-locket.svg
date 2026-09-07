@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360" fill="none">
+<defs>
+  <linearGradient id="goldB" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#f1e0a5"/>
+    <stop offset="0.5" stop-color="#c7ae63"/>
+    <stop offset="1" stop-color="#8b6a31"/>
+  </linearGradient>
+  <radialGradient id="ruby" cx="35%" cy="35%" r="70%">
+    <stop offset="0" stop-color="#d04a58"/>
+    <stop offset="1" stop-color="#6b1120"/>
+  </radialGradient>
+  <radialGradient id="pearl" cx="35%" cy="35%" r="70%">
+    <stop offset="0" stop-color="#f8f4ea"/>
+    <stop offset="1" stop-color="#b9ad9f"/>
+  </radialGradient>
+</defs>
+<path d="M180 25 C178 9, 191 0, 204 7 C212 12, 214 25, 209 39 C221 40, 230 48, 230 60 C230 71, 220 80, 207 80 C193 80, 178 69, 180 25 Z" fill="url(#goldB)" stroke="#7c5c28" stroke-width="4"/>
+<path d="M180 77 C220 35, 301 54, 315 117 C325 165, 300 214, 267 246 C240 272, 208 298, 180 326 C152 298, 120 272, 93 246 C60 214, 35 165, 45 117 C59 54, 140 35, 180 77 Z" fill="url(#goldB)" stroke="#7c5c28" stroke-width="5"/>
+<path d="M180 97 C211 64, 274 75, 288 124 C302 173, 253 225, 180 286 C107 225, 58 173, 72 124 C86 75, 149 64, 180 97 Z" fill="#b69b58" fill-opacity="0.35" stroke="#decb98" stroke-width="4"/>
+<path d="M92 78 L108 92" stroke="#87652d" stroke-width="4" stroke-linecap="round"/>
+<path d="M268 78 L252 92" stroke="#87652d" stroke-width="4" stroke-linecap="round"/>
+<g stroke="#9f8147" stroke-width="3.5" fill="none" stroke-linecap="round">
+  <path d="M108 107 C118 97, 132 95, 144 101"/>
+  <path d="M217 101 C229 95, 243 97, 253 107"/>
+  <path d="M112 241 C120 250, 130 256, 142 258"/>
+  <path d="M218 258 C230 256, 240 250, 248 241"/>
+  <path d="M84 170 C97 164, 106 154, 110 142"/>
+  <path d="M250 142 C254 154, 263 164, 276 170"/>
+</g>
+<g>
+  <circle cx="146" cy="134" r="13" fill="url(#ruby)" stroke="#7b2230" stroke-width="4"/>
+  <circle cx="201" cy="149" r="15" fill="url(#ruby)" stroke="#7b2230" stroke-width="4"/>
+  <circle cx="233" cy="193" r="12" fill="url(#ruby)" stroke="#7b2230" stroke-width="4"/>
+  <circle cx="126" cy="196" r="12" fill="url(#ruby)" stroke="#7b2230" stroke-width="4"/>
+  <circle cx="167" cy="220" r="13" fill="url(#ruby)" stroke="#7b2230" stroke-width="4"/>
+  <circle cx="215" cy="113" r="10" fill="url(#pearl)" stroke="#aea08f" stroke-width="3"/>
+  <circle cx="108" cy="160" r="10" fill="url(#pearl)" stroke="#aea08f" stroke-width="3"/>
+  <circle cx="247" cy="150" r="10" fill="url(#pearl)" stroke="#aea08f" stroke-width="3"/>
+</g>
+<g stroke="#8a6a32" stroke-width="3.5" stroke-linecap="round">
+  <path d="M140 134 C161 144, 177 163, 181 189"/>
+  <path d="M201 149 C191 169, 182 186, 167 220"/>
+  <path d="M201 149 C214 162, 225 175, 233 193"/>
+  <path d="M126 196 C141 198, 154 204, 167 220"/>
+</g>
+</svg>

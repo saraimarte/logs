@@ -1,0 +1,219 @@
+/* ============================================================
+   FLOWERHIP THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-flowerhip {
+    --flowerhip-ink: #4c3f63;
+    --flowerhip-border: #d7a6db;
+    --flowerhip-surface: #fffdfd;
+    --flowerhip-surface-soft: #fff5fb;
+    --flowerhip-pink: #f59ac7;
+    --flowerhip-lilac: #c9a4ff;
+    --flowerhip-green: #9fd486;
+    --flowerhip-gold: #ffd77a;
+
+    --black: var(--flowerhip-ink);
+    --white: var(--flowerhip-surface);
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid rgba(201,164,255,.46);
+    --thin-border: 2px solid rgba(201,164,255,.34);
+    --dashed-border: 2px dashed rgba(201,164,255,.34);
+    --dotted-border: 2px dotted rgba(201,164,255,.34);
+    --track-bg: #f7eaff;
+    --muted-text: rgba(76,63,99,.58);
+
+    background:
+        radial-gradient(circle at 16% 13%, rgba(255,255,255,.88) 0 4%, transparent 24%),
+        radial-gradient(circle at 82% 16%, rgba(255,255,255,.72) 0 5%, transparent 25%),
+        radial-gradient(ellipse at 50% 112%, rgba(159,212,134,.30) 0 30%, transparent 67%),
+        linear-gradient(180deg, #ffe4f4 0%, #fff8d7 33%, #f0e8ff 67%, #e2f6d6 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--flowerhip-ink) !important;
+}
+
+#flowerhip-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#flowerhip-background::before,
+#flowerhip-background::after {
+    content: "";
+    position: absolute;
+    inset: -15%;
+    pointer-events: none;
+}
+
+#flowerhip-background::before {
+    background:
+        radial-gradient(circle at 25% 20%, rgba(255,255,255,.25), transparent 22%),
+        radial-gradient(circle at 75% 40%, rgba(255,255,255,.20), transparent 24%),
+        linear-gradient(120deg, transparent 40%, rgba(255,255,255,.15) 49%, transparent 58%);
+    animation: flowerhipLightSweep 9s ease-in-out infinite alternate;
+}
+
+#flowerhip-background::after {
+    background:
+        radial-gradient(circle at 18% 70%, rgba(245,154,199,.14), transparent 20%),
+        radial-gradient(circle at 82% 70%, rgba(201,164,255,.16), transparent 22%),
+        radial-gradient(circle at 50% 35%, rgba(255,215,122,.12), transparent 24%);
+}
+
+body.theme-flowerhip #flowerhip-background { z-index: 0; }
+body.theme-flowerhip .view { position: relative; z-index: 2; }
+body.theme-flowerhip .side-nav { position: relative; z-index: 3; }
+body.theme-flowerhip header,
+body.theme-flowerhip .log-header-container { position: relative; z-index: 4; }
+body.theme-flowerhip .modal,
+body.theme-flowerhip .modal-overlay,
+body.theme-flowerhip .overlay { z-index: 10; }
+
+body.theme-flowerhip .day-box,
+body.theme-flowerhip .day-picker-box,
+body.theme-flowerhip .icon-btn,
+body.theme-flowerhip .small-icon-btn,
+body.theme-flowerhip input,
+body.theme-flowerhip textarea,
+body.theme-flowerhip select,
+body.theme-flowerhip .notes-editable,
+body.theme-flowerhip .phrase-card,
+body.theme-flowerhip .chip,
+body.theme-flowerhip .toolbox-item,
+body.theme-flowerhip .resource-card,
+body.theme-flowerhip .polaroid-card,
+body.theme-flowerhip .filter-tab,
+body.theme-flowerhip .day-target-box,
+body.theme-flowerhip .flashcard,
+body.theme-flowerhip .flashcard-mode-card,
+body.theme-flowerhip .day-badge,
+body.theme-flowerhip .video-placeholder,
+body.theme-flowerhip .theme-picker-card,
+body.theme-flowerhip .note-audio-row,
+body.theme-flowerhip .modal-box,
+body.theme-flowerhip .set-complete-box {
+    background-color: var(--flowerhip-surface) !important;
+}
+
+body.theme-flowerhip input::placeholder,
+body.theme-flowerhip textarea::placeholder,
+body.theme-flowerhip .notes-editable:empty::before {
+    color: rgba(76,63,99,.42) !important;
+}
+
+body.theme-flowerhip .icon-btn:hover,
+body.theme-flowerhip .small-icon-btn:hover,
+body.theme-flowerhip .filter-tab:hover {
+    background: var(--flowerhip-surface-soft) !important;
+    color: var(--flowerhip-ink) !important;
+}
+
+body.theme-flowerhip .chip:hover,
+body.theme-flowerhip .phrase-card:hover,
+body.theme-flowerhip .day-picker-box.selected,
+body.theme-flowerhip .filter-tab.active,
+body.theme-flowerhip .filter-tab[aria-selected="true"] {
+    background: #fce7f5 !important;
+    color: var(--flowerhip-ink) !important;
+    border-color: var(--flowerhip-lilac) !important;
+}
+
+body.theme-flowerhip .progress-bar-fill {
+    background: linear-gradient(90deg, var(--flowerhip-pink), var(--flowerhip-gold), var(--flowerhip-green)) !important;
+}
+
+#flowerhip-background .flowerhip-item {
+    position: absolute;
+    display: block;
+    height: auto;
+    object-fit: contain;
+    opacity: .95;
+    transform-origin: center;
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    filter:
+        drop-shadow(0 9px 13px rgba(96,70,119,.14))
+        drop-shadow(0 0 10px rgba(255,255,255,.34));
+    animation: flowerhipFloat var(--flowerhip-float-duration) ease-in-out var(--flowerhip-float-delay) infinite alternate;
+    will-change: transform;
+}
+
+@keyframes flowerhipFloat {
+    from {
+        transform: translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-4deg) scale(.97);
+    }
+    to {
+        transform: translate3d(-50%,-50%,0) translate3d(var(--flowerhip-float-x), var(--flowerhip-float-y), 0) rotate(var(--flowerhip-float-r)) scale(1.035);
+    }
+}
+
+#flowerhip-background .flowerhip-item.flowerhip-intro-bop {
+    animation: flowerhipIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--flowerhip-bop-delay) infinite !important;
+}
+
+@keyframes flowerhipIntroBop {
+    0%,100% { transform: translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1); }
+    40% { transform: translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.045); }
+    68% { transform: translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02); }
+}
+
+#flowerhip-background .flowerhip-petal {
+    position: absolute;
+    border-radius: 60% 40% 60% 40%;
+    background: linear-gradient(180deg,
+        hsla(var(--flowerhip-petal-hue), 88%, 86%, .95),
+        hsla(calc(var(--flowerhip-petal-hue) + 32deg), 78%, 68%, .86)
+    );
+    opacity: .58;
+    box-shadow: inset 0 0 6px rgba(255,255,255,.25), 0 0 6px rgba(255,255,255,.14);
+    animation: flowerhipPetalFloat var(--flowerhip-petal-duration) ease-in-out var(--flowerhip-petal-delay) infinite alternate;
+}
+
+@keyframes flowerhipPetalFloat {
+    from { transform: translate3d(0,0,0) rotate(0deg); }
+    to { transform: translate3d(var(--flowerhip-petal-x), var(--flowerhip-petal-y), 0) rotate(var(--flowerhip-petal-r)); }
+}
+
+#flowerhip-background .flowerhip-glow {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255,255,255,.9), 0 0 14px rgba(245,154,199,.4);
+    opacity: 0;
+    animation: flowerhipGlow var(--flowerhip-glow-duration) ease-in-out var(--flowerhip-glow-delay) infinite;
+}
+
+@keyframes flowerhipGlow {
+    0%,100% { opacity: 0; transform: scale(.35); }
+    52% { opacity: .84; transform: scale(1.34); }
+    76% { opacity: .18; transform: scale(.62); }
+}
+
+@keyframes flowerhipLightSweep {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); opacity: .75; }
+    to { transform: translate3d(2%, 1%, 0) scale(1.05); opacity: 1; }
+}
+
+@media (max-width: 700px) {
+    #flowerhip-background .flowerhip-item { opacity: .72; }
+    #flowerhip-background .flowerhip-petal { opacity: .42; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #flowerhip-background::before,
+    #flowerhip-background .flowerhip-item,
+    #flowerhip-background .flowerhip-petal,
+    #flowerhip-background .flowerhip-glow {
+        animation: none !important;
+    }
+}

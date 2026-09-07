@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="330" height="330" viewBox="0 0 330 330" fill="none">
+<defs>
+  <radialGradient id="clock1" cx="50%" cy="50%" r="70%"><stop offset="0" stop-color="#7f2030"/><stop offset="1" stop-color="#45111a"/></radialGradient>
+</defs>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="165" cy="165" r="149" fill="url(#clock1)" stroke="#d9c8a0" stroke-width="5"/>
+  <circle cx="165" cy="165" r="133" fill="none" stroke="#d9c8a0" stroke-width="3"/>
+  <circle cx="165" cy="165" r="18" fill="none" stroke="#d9c8a0" stroke-width="3"/>
+  <g stroke="#d9c8a0" stroke-width="4">
+    <path d="M165 35 L165 56"/><path d="M165 274 L165 295"/><path d="M35 165 L56 165"/><path d="M274 165 L295 165"/>
+    <path d="M73 73 L86 86"/><path d="M244 244 L257 257"/><path d="M73 257 L86 244"/><path d="M244 86 L257 73"/>
+  </g>
+  <g fill="#f5edd5" font-family="Georgia, serif" font-size="26" text-anchor="middle">
+    <text x="165" y="58">XII</text><text x="266" y="173">III</text><text x="165" y="284">VI</text><text x="62" y="173">IX</text>
+    <text x="217" y="78">I</text><text x="253" y="114">II</text><text x="251" y="228">IV</text><text x="217" y="262">V</text>
+    <text x="114" y="263">VII</text><text x="79" y="228">VIII</text><text x="81" y="114">X</text><text x="116" y="79">XI</text>
+  </g>
+  <path d="M165 165 L110 133" stroke="#d9c8a0" stroke-width="5"/>
+  <path d="M165 165 L214 112" stroke="#d9c8a0" stroke-width="4"/>
+  <path d="M165 165 L105 193" stroke="#d9c8a0" stroke-width="3" opacity="0.7"/>
+  <circle cx="165" cy="165" r="6" fill="#d9c8a0"/>
+  <path d="M137 141 C149 133, 162 129, 176 130" stroke="#d9c8a0" stroke-width="2.5"/>
+</g>
+</svg>

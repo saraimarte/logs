@@ -1,0 +1,116 @@
+/* ============================================================
+   SHORTCAKE THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-shortcake {
+    --shortcake-ink: #7a4761;
+    --shortcake-border: #f49ab7;
+    --shortcake-surface: #fffdfd;
+    --shortcake-surface-soft: #fff3f7;
+    --shortcake-accent: #ff78a6;
+    --shortcake-second: #ffd26e;
+    --shortcake-third: #9ad97e;
+    --black: var(--shortcake-ink);
+    --white: var(--shortcake-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--shortcake-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--shortcake-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--shortcake-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--shortcake-border) 44%, transparent);
+    --track-bg: #ffe8f0;
+    --muted-text: rgba(122,71,97,.58);
+    background: radial-gradient(circle at 14% 15%, rgba(255,255,255,.86), transparent 22%), radial-gradient(circle at 84% 14%, rgba(255,255,255,.56), transparent 22%), radial-gradient(circle at 18% 85%, rgba(255,120,166,.13), transparent 21%), radial-gradient(circle at 81% 82%, rgba(255,210,110,.14), transparent 22%), linear-gradient(160deg, #ffd8e8 0%, #ffe8b8 48%, #f4ffe3 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--shortcake-ink) !important;
+}
+
+#shortcake-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: -1; }
+#shortcake-background::before, #shortcake-background::after { content:''; position:absolute; pointer-events:none; }
+#shortcake-background::before { inset:-12%; background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.24), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%); animation:shortcakeLightSweep 9s ease-in-out infinite alternate; }
+body.theme-shortcake #shortcake-background { z-index: -1; }
+body.theme-shortcake .view { position: relative; z-index: 2; }
+body.theme-shortcake .side-nav { position: relative; z-index: 3; }
+body.theme-shortcake header, body.theme-shortcake .log-header-container { position: relative; z-index: 4; }
+body.theme-shortcake .modal, body.theme-shortcake .modal-overlay, body.theme-shortcake .overlay { z-index: 10; }
+
+body.theme-shortcake .day-box,
+body.theme-shortcake .day-picker-box,
+body.theme-shortcake .icon-btn,
+body.theme-shortcake .small-icon-btn,
+body.theme-shortcake input,
+body.theme-shortcake textarea,
+body.theme-shortcake select,
+body.theme-shortcake .notes-editable,
+body.theme-shortcake .phrase-card,
+body.theme-shortcake .chip,
+body.theme-shortcake .toolbox-item,
+body.theme-shortcake .resource-card,
+body.theme-shortcake .polaroid-card,
+body.theme-shortcake .filter-tab,
+body.theme-shortcake .day-target-box,
+body.theme-shortcake .flashcard,
+body.theme-shortcake .flashcard-mode-card,
+body.theme-shortcake .day-badge,
+body.theme-shortcake .video-placeholder,
+body.theme-shortcake .theme-picker-card,
+body.theme-shortcake .note-audio-row,
+body.theme-shortcake .modal-box,
+body.theme-shortcake .set-complete-box { background-color: var(--shortcake-surface) !important; }
+
+body.theme-shortcake input::placeholder,
+body.theme-shortcake textarea::placeholder,
+body.theme-shortcake .notes-editable:empty::before { color: color-mix(in srgb, var(--shortcake-ink) 42%, transparent) !important; }
+body.theme-shortcake .icon-btn:hover,
+body.theme-shortcake .small-icon-btn:hover,
+body.theme-shortcake .filter-tab:hover { background: var(--shortcake-surface-soft) !important; color: var(--shortcake-ink) !important; }
+body.theme-shortcake .chip:hover,
+body.theme-shortcake .phrase-card:hover,
+body.theme-shortcake .day-picker-box.selected,
+body.theme-shortcake .filter-tab.active,
+body.theme-shortcake .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--shortcake-surface-soft) 72%, var(--shortcake-accent) 28%) !important; color: var(--shortcake-ink) !important; border-color: var(--shortcake-border) !important; }
+body.theme-shortcake .progress-bar-fill { background: linear-gradient(90deg, var(--shortcake-accent), var(--shortcake-second), var(--shortcake-third)) !important; }
+
+#shortcake-background .shortcake-item {
+    position:absolute; display:block; height:auto; object-fit:contain; opacity:.95;
+    transform-origin:center; translate:0 0; rotate:0deg; scale:1;
+    filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--shortcake-ink) 15%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30));
+    animation: shortcakeFloat var(--shortcake-float-duration) ease-in-out var(--shortcake-float-delay) infinite alternate; will-change:transform;
+}
+@keyframes shortcakeFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--shortcake-float-x), var(--shortcake-float-y), 0) rotate(var(--shortcake-float-r)) scale(1.035)} }
+#shortcake-background .shortcake-item.shortcake-intro-bop { animation:shortcakeIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--shortcake-bop-delay) infinite !important; }
+@keyframes shortcakeIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+#shortcake-background .shortcake-extra { position:absolute; }
+
+#shortcake-background .shortcake-extra-a {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff8fb 0 20%, var(--shortcake-accent) 55%, #f04f85 100%);
+    border: 1px solid rgba(255,255,255,.55);
+    box-shadow: 0 0 10px rgba(255,255,255,.36);
+    opacity: .18;
+    animation: shortcakeBerryFloat var(--shortcake-extra-duration) ease-in-out var(--shortcake-extra-delay) infinite alternate;
+}
+#shortcake-background .shortcake-extra-a::before, #shortcake-background .shortcake-extra-a::after {
+    content:''; position:absolute; top:-4px; width:6px; height:4px; border-radius:8px 8px 0 0;
+    background: color-mix(in srgb, var(--shortcake-third) 82%, white 18%);
+}
+#shortcake-background .shortcake-extra-a::before { left:2px; transform:rotate(-18deg); }
+#shortcake-background .shortcake-extra-a::after { right:2px; transform:rotate(18deg); }
+#shortcake-background .shortcake-extra-b {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(255,255,255,.95) 0 14%, transparent 16%), linear-gradient(180deg, rgba(255,255,255,.0), rgba(255,255,255,.0));
+    box-shadow: 0 0 8px rgba(255,255,255,.75);
+    opacity: 0;
+    animation: shortcakeSparkle var(--shortcake-extra-duration) ease-in-out var(--shortcake-extra-delay) infinite;
+}
+#shortcake-background .shortcake-extra-b::before, #shortcake-background .shortcake-extra-b::after { content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(255,255,255,.88); }
+#shortcake-background .shortcake-extra-b::before { width:16px; height:1px; }
+#shortcake-background .shortcake-extra-b::after { width:1px; height:16px; }
+@keyframes shortcakeBerryFloat { from{transform:translate3d(0,0,0) scale(var(--shortcake-extra-scale)); opacity:.12} to{transform:translate3d(0,-10px,0) scale(calc(var(--shortcake-extra-scale) * 1.05)); opacity:.34} }
+@keyframes shortcakeSparkle { 0%,100%{opacity:0; transform:scale(.35)} 56%{opacity:.84; transform:scale(calc(var(--shortcake-extra-scale) * 1.1))} 76%{opacity:.18; transform:scale(.62)} }
+
+
+@keyframes shortcakeLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #shortcake-background .shortcake-item { opacity:.72; } #shortcake-background .shortcake-extra { opacity:.38; } }
+@media (prefers-reduced-motion: reduce) { #shortcake-background::before, #shortcake-background .shortcake-item, #shortcake-background .shortcake-extra { animation:none !important; } }

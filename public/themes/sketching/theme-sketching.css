@@ -1,0 +1,476 @@
+/* ============================================================
+   SKETCHING THEME
+   Neutral fashion-sketch / studio-paper theme.
+
+   Decorative only:
+   - preserves layout, cursor system, companions, and app structure
+   - keeps parent filter/button rows transparent
+   - keeps side-nav icon buttons transparent
+   ============================================================ */
+
+body.theme-sketching {
+    --sketch-ink: #362e29;
+    --sketch-paper: #fffaf2;
+    --sketch-paper-soft: #f8f4ed;
+    --sketch-card: rgba(255, 250, 242, 0.92);
+    --sketch-card-2: rgba(248, 244, 237, 0.96);
+    --sketch-card-hover: #e9e5de;
+    --sketch-card-active: #dfdbd3;
+    --sketch-line: rgba(75, 65, 57, 0.22);
+    --sketch-muted: rgba(54, 46, 41, 0.56);
+    --sketch-accent: #8f7a65;
+
+    --black: var(--sketch-ink);
+    --white: var(--sketch-paper);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid rgba(83, 70, 60, 0.48);
+    --thin-border: 2px solid rgba(83, 70, 60, 0.28);
+    --dashed-border: 2px dashed rgba(83, 70, 60, 0.24);
+    --dotted-border: 2px dotted rgba(83, 70, 60, 0.24);
+    --track-bg: rgba(91, 80, 72, 0.10);
+    --muted-text: var(--sketch-muted);
+
+    background:
+        radial-gradient(circle at 12% 14%, rgba(233, 223, 209, 0.80), transparent 27%),
+        radial-gradient(circle at 86% 18%, rgba(222, 214, 203, 0.70), transparent 26%),
+        radial-gradient(circle at 80% 76%, rgba(230, 225, 214, 0.64), transparent 28%),
+        radial-gradient(circle at 18% 84%, rgba(238, 230, 219, 0.62), transparent 24%),
+        repeating-linear-gradient(
+            0deg,
+            rgba(80, 69, 61, 0.018) 0px,
+            rgba(80, 69, 61, 0.018) 1px,
+            transparent 1px,
+            transparent 26px
+        ),
+        linear-gradient(135deg, #f1ece3 0%, #fbf8f1 45%, #ebe4d8 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--sketch-ink) !important;
+}
+
+#sketching-theme-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+body.theme-sketching #sketching-theme-background { z-index: 0; }
+body.theme-sketching .view { position: relative; z-index: 2; }
+body.theme-sketching .side-nav { position: relative; z-index: 3; }
+body.theme-sketching header,
+body.theme-sketching .log-header-container { position: relative; z-index: 4; }
+body.theme-sketching .modal,
+body.theme-sketching .modal-overlay,
+body.theme-sketching .overlay { z-index: 10; }
+
+/* ============================================================
+   DECORATIVE FIGURES
+   ============================================================ */
+
+#sketching-theme-background .sketching-theme-item {
+    position: absolute;
+    transform-origin: center center;
+    pointer-events: auto;
+    user-select: none;
+    opacity: 1;
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--sketch-rotate))
+        scale(var(--sketch-scale));
+    filter: drop-shadow(0 10px 18px rgba(46, 42, 38, 0.14));
+    animation: sketchingThemeFloat var(--sketch-duration) ease-in-out var(--sketch-delay) infinite;
+    will-change: transform;
+}
+
+#sketching-theme-background .sketching-theme-svg {
+    display: block;
+    width: 220px;
+    height: auto;
+    max-width: 220px;
+    max-height: 340px;
+    overflow: visible;
+    pointer-events: none;
+    user-select: none;
+}
+
+#sketching-theme-background .sketching-theme-depth-1 { z-index: 1; }
+#sketching-theme-background .sketching-theme-depth-2 { z-index: 2; }
+
+@keyframes sketchingThemeFloat {
+    0%, 100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--sketch-rotate))
+            scale(var(--sketch-scale));
+    }
+    35% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(calc(var(--sketch-drift-x) * .58), calc(var(--sketch-drift-y) * .58), 0)
+            rotate(calc(var(--sketch-rotate) + 1.2deg))
+            scale(var(--sketch-scale));
+    }
+    70% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--sketch-drift-x), var(--sketch-drift-y), 0)
+            rotate(calc(var(--sketch-rotate) - 1.3deg))
+            scale(var(--sketch-scale));
+    }
+}
+
+/* ============================================================
+   STUDIO DECORATIONS
+   ============================================================ */
+
+#sketching-theme-background .sketching-theme-swatch {
+    position: absolute;
+    width: var(--swatch-width);
+    height: var(--swatch-height);
+    border-radius: 50% 42% 48% 44% / 44% 50% 42% 56%;
+    opacity: .34;
+    background: var(--swatch-bg);
+    transform: rotate(var(--swatch-rotate));
+    pointer-events: none;
+    filter: blur(0.4px);
+}
+
+#sketching-theme-background .sketching-theme-stroke {
+    position: absolute;
+    width: var(--stroke-width);
+    height: var(--stroke-height);
+    border-radius: 999px;
+    border: 1.5px solid rgba(90, 79, 69, 0.16);
+    border-top-color: transparent;
+    border-left-color: transparent;
+    opacity: .62;
+    transform: rotate(var(--stroke-rotate));
+    pointer-events: none;
+    animation: sketchingStrokeMove var(--stroke-duration) ease-in-out var(--stroke-delay) infinite alternate;
+}
+
+@keyframes sketchingStrokeMove {
+    from { transform: translate3d(0, 0, 0) rotate(var(--stroke-rotate)); opacity: .28; }
+    to   { transform: translate3d(var(--stroke-drift-x), var(--stroke-drift-y), 0) rotate(calc(var(--stroke-rotate) + 4deg)); opacity: .56; }
+}
+
+#sketching-theme-background .sketching-theme-speck {
+    position: absolute;
+    width: var(--speck-size);
+    height: var(--speck-size);
+    border-radius: 50%;
+    background: rgba(87, 76, 66, 0.20);
+    box-shadow: 0 0 5px rgba(87, 76, 66, 0.10);
+    pointer-events: none;
+    animation: sketchingSpeckPulse var(--speck-duration) ease-in-out var(--speck-delay) infinite;
+}
+
+@keyframes sketchingSpeckPulse {
+    0%, 100% { opacity: .05; transform: scale(.65); }
+    50% { opacity: .35; transform: scale(1.15); }
+}
+
+#sketching-theme-background .sketching-theme-ruler {
+    position: absolute;
+    width: 18px;
+    height: 100%;
+    top: 0;
+    opacity: .20;
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgba(97, 84, 73, 0.56) 0 1px,
+            transparent 1px 14px,
+            rgba(97, 84, 73, 0.28) 14px 15px,
+            transparent 15px 28px
+        );
+}
+
+#sketching-theme-background .sketching-theme-ruler.left { left: 10px; }
+#sketching-theme-background .sketching-theme-ruler.right { right: 10px; }
+
+#sketching-theme-background .sketching-theme-tape {
+    position: absolute;
+    width: var(--tape-width);
+    height: var(--tape-height);
+    border-radius: 3px;
+    background: rgba(255, 247, 223, 0.48);
+    border: 1px solid rgba(158, 147, 124, 0.12);
+    box-shadow: 0 1px 4px rgba(95, 81, 63, 0.06);
+    transform: rotate(var(--tape-rotate));
+    pointer-events: none;
+}
+
+/* ============================================================
+   UI SURFACES
+   ============================================================ */
+
+body.theme-sketching .day-box,
+body.theme-sketching .day-picker-box,
+body.theme-sketching .icon-btn,
+body.theme-sketching .small-icon-btn,
+body.theme-sketching input,
+body.theme-sketching textarea,
+body.theme-sketching select,
+body.theme-sketching .notes-editable,
+body.theme-sketching .phrase-card,
+body.theme-sketching .chip,
+body.theme-sketching .toolbox-item,
+body.theme-sketching .resource-card,
+body.theme-sketching .polaroid-card,
+body.theme-sketching .day-target-box,
+body.theme-sketching .flashcard,
+body.theme-sketching .flashcard-mode-card,
+body.theme-sketching .day-badge,
+body.theme-sketching .video-placeholder,
+body.theme-sketching .theme-picker-card,
+body.theme-sketching .note-audio-row,
+body.theme-sketching .icon-option,
+body.theme-sketching .resource-card-btn,
+body.theme-sketching .modal-box,
+body.theme-sketching .set-complete-box,
+body.theme-sketching .anki-card,
+body.theme-sketching .flashcard-face,
+body.theme-sketching .lightbox-close {
+    background: var(--sketch-card) !important;
+    background-color: var(--sketch-card) !important;
+    background-image: none !important;
+    color: var(--sketch-ink) !important;
+    box-shadow: none !important;
+}
+
+body.theme-sketching #theme-picker.theme-picker-grid,
+body.theme-sketching .theme-picker-grid,
+body.theme-sketching .icon-grid {
+    background: rgba(255, 250, 242, 0.88) !important;
+    color: var(--sketch-ink) !important;
+}
+
+body.theme-sketching input::placeholder,
+body.theme-sketching textarea::placeholder,
+body.theme-sketching .notes-editable:empty::before {
+    color: rgba(54, 46, 41, 0.44) !important;
+}
+
+body.theme-sketching h1,
+body.theme-sketching h2,
+body.theme-sketching h3,
+body.theme-sketching .section-header,
+body.theme-sketching .tool-row,
+body.theme-sketching .tool-row-name,
+body.theme-sketching #current-date-title,
+body.theme-sketching .modal-label,
+body.theme-sketching .field-label,
+body.theme-sketching .progress-hint,
+body.theme-sketching .save-indicator,
+body.theme-sketching .tool-link {
+    color: var(--sketch-ink) !important;
+}
+
+body.theme-sketching .progress-bar-track {
+    background: rgba(89, 78, 68, 0.14) !important;
+}
+
+body.theme-sketching .progress-bar-fill {
+    background: #8a7662 !important;
+}
+
+/* ============================================================
+   PARENT FILTER / BUTTON ROWS MUST STAY TRANSPARENT
+   ============================================================ */
+
+body.theme-sketching .filter-tabs,
+body.theme-sketching #library-filter-tabs.filter-tabs,
+body.theme-sketching #quiz-type-filters.filter-tabs,
+body.theme-sketching .set-size-picker,
+body.theme-sketching .set-size-picker:hover,
+body.theme-sketching .set-size-picker:focus,
+body.theme-sketching .set-size-picker:focus-within,
+body.theme-sketching .set-size-picker:active,
+body.theme-sketching .filter-tabs:hover,
+body.theme-sketching .filter-tabs:focus,
+body.theme-sketching .filter-tabs:focus-within,
+body.theme-sketching .filter-tabs:active,
+body.theme-sketching #library-filter-tabs.filter-tabs:hover,
+body.theme-sketching #library-filter-tabs.filter-tabs:focus,
+body.theme-sketching #library-filter-tabs.filter-tabs:focus-within,
+body.theme-sketching #quiz-type-filters.filter-tabs:hover,
+body.theme-sketching #quiz-type-filters.filter-tabs:focus,
+body.theme-sketching #quiz-type-filters.filter-tabs:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-sketching .filter-tabs::before,
+body.theme-sketching .filter-tabs::after,
+body.theme-sketching #library-filter-tabs.filter-tabs::before,
+body.theme-sketching #library-filter-tabs.filter-tabs::after,
+body.theme-sketching #quiz-type-filters.filter-tabs::before,
+body.theme-sketching #quiz-type-filters.filter-tabs::after,
+body.theme-sketching .set-size-picker::before,
+body.theme-sketching .set-size-picker::after {
+    content: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+/* ============================================================
+   INDIVIDUAL SMALL CONTROLS — NEUTRAL PAPER STYLING ONLY
+   ============================================================ */
+
+body.theme-sketching .filter-tab,
+body.theme-sketching .quiz-mode-btn,
+body.theme-sketching .kb-view-btn,
+body.theme-sketching .chip,
+body.theme-sketching .phrase-card,
+body.theme-sketching .day-picker-box,
+body.theme-sketching .small-icon-btn,
+body.theme-sketching .icon-option,
+body.theme-sketching .theme-picker-card,
+body.theme-sketching .resource-card-btn {
+    background: rgba(248, 244, 237, 0.96) !important;
+    background-color: rgba(248, 244, 237, 0.96) !important;
+    background-image: none !important;
+    color: var(--sketch-ink) !important;
+    border-color: rgba(96, 83, 72, 0.22) !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-sketching .filter-tab::before,
+body.theme-sketching .filter-tab::after,
+body.theme-sketching .quiz-mode-btn::before,
+body.theme-sketching .quiz-mode-btn::after,
+body.theme-sketching .kb-view-btn::before,
+body.theme-sketching .kb-view-btn::after,
+body.theme-sketching .chip::before,
+body.theme-sketching .chip::after,
+body.theme-sketching .phrase-card::before,
+body.theme-sketching .phrase-card::after,
+body.theme-sketching .day-picker-box::before,
+body.theme-sketching .day-picker-box::after,
+body.theme-sketching .small-icon-btn::before,
+body.theme-sketching .small-icon-btn::after,
+body.theme-sketching .resource-card-btn::before,
+body.theme-sketching .resource-card-btn::after {
+    content: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-sketching .filter-tab:hover,
+body.theme-sketching .quiz-mode-btn:hover,
+body.theme-sketching .kb-view-btn:hover,
+body.theme-sketching .chip:hover,
+body.theme-sketching .phrase-card:hover,
+body.theme-sketching .day-picker-box:hover,
+body.theme-sketching .small-icon-btn:hover,
+body.theme-sketching .icon-option:hover,
+body.theme-sketching .theme-picker-card:hover,
+body.theme-sketching .resource-card-btn:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+    color: var(--sketch-ink) !important;
+    border-color: rgba(96, 83, 72, 0.28) !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-sketching .filter-tab.active,
+body.theme-sketching .filter-tab[aria-selected="true"],
+body.theme-sketching .quiz-mode-btn.active,
+body.theme-sketching .kb-view-btn.active,
+body.theme-sketching .chip.active,
+body.theme-sketching .phrase-card.active,
+body.theme-sketching .day-picker-box.selected,
+body.theme-sketching .icon-option.selected,
+body.theme-sketching .theme-picker-card.selected {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+    color: var(--sketch-ink) !important;
+    border-color: rgba(96, 83, 72, 0.38) !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* Neutralize general-purpose regular buttons too, but keep structure the same. */
+body.theme-sketching .icon-btn,
+body.theme-sketching .small-icon-btn,
+body.theme-sketching .delete-btn,
+body.theme-sketching .header-back-btn,
+body.theme-sketching .day-box:hover,
+body.theme-sketching .day-box.has-data,
+body.theme-sketching .tool-row-name:hover {
+    color: var(--sketch-ink) !important;
+}
+
+body.theme-sketching .icon-btn,
+body.theme-sketching .delete-btn {
+    background: rgba(248, 244, 237, 0.96) !important;
+    background-color: rgba(248, 244, 237, 0.96) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+/* ============================================================
+   SIDE NAV ICONS MUST STAY COMPLETELY TRANSPARENT
+   ============================================================ */
+
+body.theme-sketching .side-nav .icon-btn,
+body.theme-sketching .side-nav .icon-btn:hover,
+body.theme-sketching .side-nav .icon-btn:focus,
+body.theme-sketching .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+body.theme-sketching .side-nav .icon-btn::before,
+body.theme-sketching .side-nav .icon-btn::after {
+    content: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-sketching .side-nav .icon-btn i {
+    color: #ffffff !important;
+    transition: transform .15s ease, opacity .15s ease !important;
+}
+
+body.theme-sketching .side-nav .icon-btn:hover {
+    transform: scale(1.08) !important;
+}
+
+body.theme-sketching .side-nav .icon-btn:hover i,
+body.theme-sketching .side-nav .icon-btn:focus i {
+    opacity: .70 !important;
+}
+
+@media (max-width: 700px) {
+    #sketching-theme-background .sketching-theme-svg {
+        width: 168px;
+        max-width: 168px;
+        max-height: 258px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #sketching-theme-background * {
+        animation: none !important;
+    }
+}

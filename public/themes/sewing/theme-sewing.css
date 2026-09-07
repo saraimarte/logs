@@ -1,0 +1,18 @@
+
+body.theme-sewing{
+    --black:#563d55;--white:#fff9fb;--muted-text:#806d7e;--track-bg:#ead7e6;--bg-overlay:transparent;
+    background:radial-gradient(circle at 12% 18%,rgba(255,255,255,.55),transparent 24%),
+               radial-gradient(circle at 88% 20%,rgba(184,161,216,.22),transparent 25%),
+               linear-gradient(145deg,#fff5f8,#f4e9f5 52%,#f9eee7)!important;
+    color:#563d55!important
+}
+body.theme-sewing .view:not(#grid-view)::before{background:transparent!important;opacity:0!important}
+#sewing-background{position:fixed;inset:0;width:100vw;height:100vh;overflow:hidden;pointer-events:none;z-index:0}
+body.theme-sewing .view{position:relative;z-index:2}
+body.theme-sewing .side-nav{position:relative;z-index:3}
+body.theme-sewing header,body.theme-sewing .log-header-container{position:relative;z-index:4}
+#sewing-background .theme-sewing-item{position:absolute;width:var(--sw);max-width:25vw;transform:translate(-50%,-50%) rotate(var(--rot));filter:drop-shadow(0 12px 17px rgba(72,45,69,.14));animation:sewingFloat var(--dur) ease-in-out var(--delay) infinite}
+#sewing-background .theme-sewing-item img{display:block;width:100%;height:auto;pointer-events:none}
+@keyframes sewingFloat{0%,100%{transform:translate(-50%,-50%) translate(0,0) rotate(var(--rot))}50%{transform:translate(-50%,-50%) translate(var(--dx),var(--dy)) rotate(calc(var(--rot) + 2deg))}}
+body.theme-sewing .filter-tabs,body.theme-sewing #library-filter-tabs,body.theme-sewing #quiz-type-filters,body.theme-sewing .set-size-picker{background:transparent!important}
+body.theme-sewing .side-nav .icon-btn,body.theme-sewing .side-nav .icon-btn:hover{background:transparent!important;box-shadow:none!important}

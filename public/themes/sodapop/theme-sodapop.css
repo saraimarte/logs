@@ -1,0 +1,86 @@
+/* ============================================================
+   SODAPOP THEME
+   Decorative-only styling.
+   ============================================================ */
+
+body.theme-sodapop {
+    --sodapop-ink: #7c3651;
+    --sodapop-border: #ff91b4;
+    --sodapop-surface: #fffdfd;
+    --sodapop-surface-soft: #fff4fa;
+    --sodapop-accent: #ff6aa1;
+    --sodapop-second: #6ed9f4;
+    --sodapop-third: #ffd76a;
+    --black: var(--sodapop-ink);
+    --white: var(--sodapop-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--sodapop-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--sodapop-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--sodapop-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--sodapop-border) 44%, transparent);
+    --track-bg: #ffe9f3;
+    --muted-text: rgba(124,54,81,.56);
+    background: radial-gradient(circle at 14% 18%, rgba(255,255,255,.9), transparent 20%), radial-gradient(circle at 82% 16%, rgba(255,255,255,.7), transparent 22%), linear-gradient(160deg, #ffd9ec 0%, #ffe2b2 52%, #d8f8ff 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--sodapop-ink) !important;
+}
+
+#sodapop-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: 0; }
+#sodapop-background::before { content:''; position:absolute; inset:-12%; pointer-events:none; background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.18), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.14), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.08) 50%, transparent 58%); animation:sodapopLightSweep 9s ease-in-out infinite alternate; }
+body.theme-sodapop .view { position: relative; z-index: 2; }
+body.theme-sodapop .side-nav { position: relative; z-index: 3; }
+body.theme-sodapop header, body.theme-sodapop .log-header-container { position: relative; z-index: 4; }
+body.theme-sodapop .modal, body.theme-sodapop .modal-overlay, body.theme-sodapop .overlay { z-index: 10; }
+
+body.theme-sodapop .day-box,
+body.theme-sodapop .day-picker-box,
+body.theme-sodapop .icon-btn,
+body.theme-sodapop .small-icon-btn,
+body.theme-sodapop input,
+body.theme-sodapop textarea,
+body.theme-sodapop select,
+body.theme-sodapop .notes-editable,
+body.theme-sodapop .phrase-card,
+body.theme-sodapop .chip,
+body.theme-sodapop .toolbox-item,
+body.theme-sodapop .resource-card,
+body.theme-sodapop .polaroid-card,
+body.theme-sodapop .filter-tab,
+body.theme-sodapop .day-target-box,
+body.theme-sodapop .flashcard,
+body.theme-sodapop .flashcard-mode-card,
+body.theme-sodapop .day-badge,
+body.theme-sodapop .video-placeholder,
+body.theme-sodapop .theme-picker-card,
+body.theme-sodapop .note-audio-row,
+body.theme-sodapop .modal-box,
+body.theme-sodapop .set-complete-box { background-color: var(--sodapop-surface) !important; }
+
+body.theme-sodapop input::placeholder,
+body.theme-sodapop textarea::placeholder,
+body.theme-sodapop .notes-editable:empty::before { color: color-mix(in srgb, var(--sodapop-ink) 42%, transparent) !important; }
+body.theme-sodapop .icon-btn:hover, body.theme-sodapop .small-icon-btn:hover, body.theme-sodapop .filter-tab:hover { background: var(--sodapop-surface-soft) !important; color: var(--sodapop-ink) !important; }
+body.theme-sodapop .chip:hover, body.theme-sodapop .phrase-card:hover, body.theme-sodapop .day-picker-box.selected, body.theme-sodapop .filter-tab.active, body.theme-sodapop .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--sodapop-surface-soft) 72%, var(--sodapop-accent) 28%) !important; color: var(--sodapop-ink) !important; border-color: var(--sodapop-border) !important; }
+body.theme-sodapop .progress-bar-fill { background: linear-gradient(90deg, var(--sodapop-accent), var(--sodapop-second), var(--sodapop-third)) !important; }
+
+#sodapop-background .sodapop-item { position:absolute; display:block; height:auto; object-fit:contain; opacity:.96; filter: drop-shadow(0 9px 13px rgba(124,54,81,.16)) drop-shadow(0 0 8px rgba(255,255,255,.18)); animation:sodapopFloat var(--sodapop-float-duration) ease-in-out var(--sodapop-float-delay) infinite alternate; will-change:transform; }
+@keyframes sodapopFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.98)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--sodapop-float-x), var(--sodapop-float-y), 0) rotate(var(--sodapop-float-r)) scale(1.03)} }
+#sodapop-background .sodapop-item.sodapop-intro-bop { animation:sodapopIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--sodapop-bop-delay) infinite !important; }
+@keyframes sodapopIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-15px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+#sodapop-background .sodapop-extra { position:absolute; }
+
+#sodapop-background .sodapop-extra-a {
+    width: 12px; height: 12px; border-radius:50%; background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.85), rgba(255,255,255,.1) 70%); border:1px solid rgba(255,255,255,.45); opacity:.22;
+    animation:sodapopBubbleLift var(--sodapop-extra-duration) ease-in-out var(--sodapop-extra-delay) infinite alternate;
+}
+#sodapop-background .sodapop-extra-b {
+    width: 18px; height: 18px; border-radius:50%; background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.52), rgba(110,217,244,.18) 60%, transparent 70%); opacity:.18;
+    animation:sodapopBubbleLift var(--sodapop-extra-duration) ease-in-out var(--sodapop-extra-delay) infinite alternate-reverse;
+}
+@keyframes sodapopBubbleLift { from{transform:translate3d(0,0,0) scale(var(--sodapop-extra-scale));} to{transform:translate3d(0,-14px,0) scale(calc(var(--sodapop-extra-scale)*1.07));} }
+
+
+@keyframes sodapopLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #sodapop-background .sodapop-item { opacity:.74; } }
+@media (prefers-reduced-motion: reduce) { #sodapop-background::before, #sodapop-background .sodapop-item, #sodapop-background .sodapop-extra { animation:none !important; } }

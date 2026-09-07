@@ -1,0 +1,369 @@
+/* ============================================================
+   MATRIX THEME — ENHANCED
+   Keeps the original green-on-black palette, but adds a true
+   animated background layer, cursor-reactive glow, scan lines,
+   moving code columns, data pulses, and click bursts.
+
+   Decorative only:
+   - no layout changes
+   - no cursor changes
+   - no companion changes
+   - no broad body > * selectors
+   ============================================================ */
+
+body.theme-matrix {
+    --bg-overlay: rgba(0, 0, 0, 0.78);
+    --overlay-scrim: rgba(0, 5, 0, 0.86);
+    --black: #00ff6a;
+    --white: #050705;
+    --thick-border: 3px solid #00ff6a;
+    --thin-border: 2px solid #0f8f42;
+    --dashed-border: 2px dashed #0f8f42;
+    --dotted-border: 2px dotted #0f8f42;
+    --muted-text: rgba(0, 255, 106, 0.65);
+    --track-bg: rgba(0, 255, 106, 0.15);
+
+    --matrix-mouse-x: 50vw;
+    --matrix-mouse-y: 50vh;
+
+    background:
+        radial-gradient(circle at 50% 0%, rgba(0, 255, 106, 0.055), transparent 34%),
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 255, 106, 0.045) 0px,
+            rgba(0, 255, 106, 0.045) 1px,
+            transparent 1px,
+            transparent 3px
+        ),
+        #030603 !important;
+    background-attachment: fixed !important;
+    color: var(--black) !important;
+    font-family: 'Courier New', monospace;
+}
+
+/* ============================================================
+   BACKGROUND LAYER
+   ============================================================ */
+
+#matrix-theme-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+    background:
+        radial-gradient(
+            circle 240px at var(--matrix-mouse-x) var(--matrix-mouse-y),
+            rgba(0, 255, 106, 0.10),
+            rgba(0, 255, 106, 0.035) 42%,
+            transparent 72%
+        );
+}
+
+body.theme-matrix #matrix-theme-background { z-index: 0; }
+body.theme-matrix .view { position: relative; z-index: 2; }
+body.theme-matrix .side-nav { position: relative; z-index: 3; }
+body.theme-matrix header,
+body.theme-matrix .log-header-container { position: relative; z-index: 4; }
+body.theme-matrix .modal,
+body.theme-matrix .modal-overlay,
+body.theme-matrix .overlay { z-index: 10; }
+
+/* ============================================================
+   FALLING CODE RAIN
+   ============================================================ */
+
+#matrix-theme-background .matrix-code-column {
+    position: absolute;
+    top: -130vh;
+    left: var(--matrix-left);
+    width: var(--matrix-width);
+    color: rgba(0, 255, 106, var(--matrix-opacity));
+    font-size: var(--matrix-font-size);
+    line-height: 1.12;
+    letter-spacing: 1px;
+    white-space: pre-line;
+    text-align: center;
+    text-shadow:
+        0 0 5px rgba(0, 255, 106, 0.54),
+        0 0 12px rgba(0, 255, 106, 0.16);
+    opacity: .86;
+    filter: blur(var(--matrix-blur));
+    animation:
+        matrixCodeFall var(--matrix-duration) linear var(--matrix-delay) infinite,
+        matrixColumnFlicker var(--matrix-flicker) steps(2, end) var(--matrix-flicker-delay) infinite;
+    will-change: transform, opacity;
+}
+
+#matrix-theme-background .matrix-code-column::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -12px;
+    width: 2px;
+    height: 20px;
+    transform: translateX(-50%);
+    background: linear-gradient(to bottom, rgba(180,255,205,.9), transparent);
+    box-shadow: 0 0 9px rgba(0,255,106,.85);
+    opacity: .75;
+}
+
+@keyframes matrixCodeFall {
+    from { transform: translate3d(0, -18vh, 0); }
+    to   { transform: translate3d(var(--matrix-drift), 245vh, 0); }
+}
+
+@keyframes matrixColumnFlicker {
+    0%, 100% { opacity: .70; }
+    45% { opacity: .96; }
+    48% { opacity: .38; }
+    52% { opacity: .92; }
+}
+
+/* ============================================================
+   SCAN LINES + GLITCH BANDS
+   ============================================================ */
+
+#matrix-theme-background .matrix-scanline {
+    position: absolute;
+    left: 0;
+    top: -8vh;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0,255,106,.14) 18%,
+        rgba(118,255,166,.58) 50%,
+        rgba(0,255,106,.14) 82%,
+        transparent
+    );
+    box-shadow:
+        0 0 12px rgba(0,255,106,.22),
+        0 10px 28px rgba(0,255,106,.07);
+    opacity: .58;
+    animation: matrixScanSweep var(--scan-duration) linear var(--scan-delay) infinite;
+    will-change: transform;
+}
+
+@keyframes matrixScanSweep {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(0, 116vh, 0); }
+}
+
+#matrix-theme-background .matrix-glitch-band {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: var(--band-height);
+    top: var(--band-top);
+    opacity: 0;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 18px,
+            rgba(0,255,106,.10) 18px 22px,
+            transparent 22px 34px
+        );
+    animation: matrixBandGlitch var(--band-duration) steps(2, end) var(--band-delay) infinite;
+}
+
+@keyframes matrixBandGlitch {
+    0%, 84%, 100% { opacity: 0; transform: translateX(0); }
+    86% { opacity: .20; transform: translateX(-12px); }
+    88% { opacity: .32; transform: translateX(18px); }
+    90% { opacity: .12; transform: translateX(-5px); }
+}
+
+/* ============================================================
+   MOVING DATA PACKETS
+   ============================================================ */
+
+#matrix-theme-background .matrix-data-packet {
+    position: absolute;
+    left: -22vw;
+    top: var(--packet-top);
+    width: var(--packet-width);
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0,255,106,.08),
+        rgba(92,255,146,.58),
+        rgba(0,255,106,.08),
+        transparent
+    );
+    opacity: .5;
+    animation: matrixPacketMove var(--packet-duration) linear var(--packet-delay) infinite;
+    will-change: transform;
+}
+
+#matrix-theme-background .matrix-data-packet::before,
+#matrix-theme-background .matrix-data-packet::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(190,255,211,.92);
+    box-shadow: 0 0 9px rgba(0,255,106,.9);
+    transform: translateY(-50%);
+}
+
+#matrix-theme-background .matrix-data-packet::before { left: 18%; }
+#matrix-theme-background .matrix-data-packet::after  { right: 14%; }
+
+@keyframes matrixPacketMove {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(144vw, 0, 0); }
+}
+
+/* ============================================================
+   CURSOR-REACTIVE SOFT GLOW
+   ============================================================ */
+
+#matrix-theme-background .matrix-mouse-glow {
+    position: absolute;
+    left: var(--matrix-mouse-x);
+    top: var(--matrix-mouse-y);
+    width: 190px;
+    height: 190px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(0,255,106,.11), rgba(0,255,106,.035) 42%, transparent 72%);
+    filter: blur(4px);
+    opacity: .82;
+    transition: left .08s linear, top .08s linear;
+}
+
+/* ============================================================
+   CLICK BURSTS
+   ============================================================ */
+
+#matrix-theme-background .matrix-click-burst {
+    position: absolute;
+    left: var(--burst-x);
+    top: var(--burst-y);
+    width: 12px;
+    height: 12px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+#matrix-theme-background .matrix-click-burst::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(120,255,166,.88);
+    box-shadow: 0 0 12px rgba(0,255,106,.48);
+    animation: matrixBurstRing .62s ease-out forwards;
+}
+
+#matrix-theme-background .matrix-click-char {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: rgba(111,255,159,.94);
+    font-size: 14px;
+    text-shadow: 0 0 7px rgba(0,255,106,.8);
+    animation: matrixBurstChar .78s ease-out forwards;
+}
+
+@keyframes matrixBurstRing {
+    from { opacity: .95; transform: scale(.25); }
+    to   { opacity: 0; transform: scale(8.5); }
+}
+
+@keyframes matrixBurstChar {
+    from {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate3d(var(--burst-dx), var(--burst-dy), 0) scale(.6);
+    }
+}
+
+/* ============================================================
+   ORIGINAL MATRIX UI COLORS, RETAINED + POLISHED
+   ============================================================ */
+
+body.theme-matrix .modal-box,
+body.theme-matrix .day-box,
+body.theme-matrix .chip,
+body.theme-matrix .toolbox-item,
+body.theme-matrix .resource-card,
+body.theme-matrix select,
+body.theme-matrix input,
+body.theme-matrix textarea,
+body.theme-matrix .notes-editable,
+body.theme-matrix .phrase-card,
+body.theme-matrix .day-target-box,
+body.theme-matrix .day-badge,
+body.theme-matrix .video-placeholder,
+body.theme-matrix .filter-tab,
+body.theme-matrix .small-icon-btn,
+body.theme-matrix .icon-btn,
+body.theme-matrix .note-audio-row {
+    background-color: rgba(6,16,6,.92) !important;
+    color: var(--black) !important;
+}
+
+body.theme-matrix .day-box.has-data {
+    background: #0c1f0c !important;
+    color: var(--black) !important;
+}
+
+body.theme-matrix h1,
+body.theme-matrix h2 {
+    text-shadow:
+        0 0 8px rgba(0,255,106,.95),
+        0 0 20px rgba(0,255,106,.16);
+}
+
+body.theme-matrix ::placeholder {
+    color: #2e8f52 !important;
+}
+
+body.theme-matrix .filter-tab:hover,
+body.theme-matrix .small-icon-btn:hover,
+body.theme-matrix .icon-btn:hover:not(.side-nav .icon-btn),
+body.theme-matrix .chip:hover,
+body.theme-matrix .phrase-card:hover,
+body.theme-matrix .day-picker-box:hover,
+body.theme-matrix .filter-tab.active,
+body.theme-matrix .day-picker-box.selected {
+    background: rgba(0,255,106,.12) !important;
+    color: #7dffac !important;
+    border-color: rgba(0,255,106,.66) !important;
+    box-shadow: 0 0 14px rgba(0,255,106,.08) !important;
+}
+
+/* Keep the icon-only side nav behavior intact and background-free. */
+body.theme-matrix .side-nav .icon-btn,
+body.theme-matrix .side-nav .icon-btn:hover,
+body.theme-matrix .side-nav .icon-btn:focus,
+body.theme-matrix .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-matrix .side-nav .icon-btn::before,
+body.theme-matrix .side-nav .icon-btn::after {
+    content: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #matrix-theme-background * {
+        animation: none !important;
+    }
+}

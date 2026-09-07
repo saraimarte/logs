@@ -1,0 +1,2043 @@
+
+body.theme-clocks {
+    --black: #584737;
+    --white: #584737;
+    --muted-text: #584737;
+    --track-bg: rgba(255,255,255,.26);
+    --bg-overlay: transparent;
+    background:
+        radial-gradient(circle at 50% 5%, rgba(255,255,255,.52), transparent 24%),
+        radial-gradient(circle at 14% 78%, rgba(255,255,255,.28), transparent 28%),
+        radial-gradient(circle at 86% 22%, rgba(147,126,97,.16), transparent 28%),
+        radial-gradient(circle at 70% 70%, rgba(112,138,161,.14), transparent 30%),
+        linear-gradient(180deg,#f4f1e9 0%,#e8e1d3 44%,#d8cbb3 100%) !important;
+    color: #584737 !important;
+}
+body.theme-clocks .view:not(#grid-view)::before {
+    background: transparent !important;
+    background-image: none !important;
+    opacity: 0 !important;
+}
+#clocks-background {
+    position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; z-index: 0; isolation: isolate;
+}
+#clocks-background > * { position: absolute; inset: 0; pointer-events: none; }
+body.theme-clocks .view, body.theme-clocks #grid-view { position: relative; z-index: 1; }
+body.theme-clocks header, body.theme-clocks .log-header-container, body.theme-clocks .side-nav { position: relative; z-index: 2; }
+#clocks-background .theme-clocks-glow {
+    background:
+        radial-gradient(circle at 16% 16%, rgba(255,255,255,.48), transparent 20%),
+        radial-gradient(circle at 84% 20%, rgba(147,126,97,.16), transparent 23%),
+        radial-gradient(circle at 20% 84%, rgba(255,255,255,.28), transparent 26%),
+        radial-gradient(circle at 74% 78%, rgba(112,138,161,.14), transparent 24%);
+    filter: blur(10px);
+}
+#clocks-background .theme-clocks-pattern { opacity: .45; background: repeating-linear-gradient(90deg, rgba(125,101,70,.06) 0 1px, transparent 1px 56px); background-size: 76px 76px; }
+#clocks-background .theme-clocks-dot {
+    position: absolute; width: var(--dot-size); height: var(--dot-size); border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), #8b6d4a 44%, transparent 72%);
+    animation: clocksDotFloat var(--dot-duration) ease-in-out var(--dot-delay) infinite alternate; opacity: .60;
+}
+@keyframes clocksDotFloat {
+    from { transform: translate3d(0, 0, 0) scale(.86); opacity: .28; }
+    to { transform: translate3d(var(--dot-dx), var(--dot-dy), 0) scale(1.10); opacity: .82; }
+}
+#clocks-background .theme-clocks-floor {
+    background:
+        linear-gradient(180deg, transparent 0 72%, rgba(255,255,255,.06) 72% 100%),
+        radial-gradient(ellipse 32% 12% at 18% 100%, rgba(255,255,255,.16), transparent 72%),
+        radial-gradient(ellipse 32% 12% at 82% 100%, rgba(255,255,255,.12), transparent 72%);
+}
+#clocks-background .theme-clocks-item {
+    position: absolute; width: var(--item-width); max-width: 29vw;
+    transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    transform-origin: center; will-change: transform; pointer-events: auto; opacity: .97;
+    filter: drop-shadow(0 16px 22px rgba(0,0,0,.12)) drop-shadow(0 0 12px rgba(255,255,255,.22));
+    animation: clocksItemFloat var(--item-duration) ease-in-out var(--item-delay) infinite;
+}
+#clocks-background .theme-clocks-item img {
+    display: block; width: 100%; height: auto; pointer-events: none; user-select: none; -webkit-user-drag: none;
+}
+@keyframes clocksItemFloat {
+    0%,100% { transform: translate3d(-50%, -50%, 0) translate3d(0,0,0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    50% { transform: translate3d(-50%, -50%, 0) translate3d(var(--item-float-x), var(--item-float-y), 0) rotate(calc(var(--item-rotate) + 2deg)) scale(calc(var(--item-scale) * 1.02)); }
+}
+#clocks-background .theme-clocks-item.theme-clocks-dancing {
+    animation: clocksDance .66s ease-in-out var(--dance-delay) infinite alternate, clocksGlowPulse 1.18s ease-in-out var(--dance-delay) infinite alternate;
+}
+@keyframes clocksDance {
+    0%,100% { transform: translate3d(-50%, -50%, 0) translate3d(0,0,0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    50% { transform: translate3d(-50%, -50%, 0) translate3d(0,-18px,0) rotate(calc(var(--item-rotate) + 4deg)) scale(calc(var(--item-scale) * 1.05)); }
+}
+@keyframes clocksGlowPulse {
+    from { filter: drop-shadow(0 16px 22px rgba(0,0,0,.12)) drop-shadow(0 0 10px rgba(255,255,255,.22)); }
+    to { filter: drop-shadow(0 18px 24px rgba(0,0,0,.16)) drop-shadow(0 0 16px rgba(255,255,255,.30)); }
+}
+#clocks-background .theme-clocks-item.theme-clocks-pop { animation: clocksPop .54s cubic-bezier(.2,.82,.24,1) both !important; }
+@keyframes clocksPop {
+    0%,100% { transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    45% { transform: translate3d(-50%, -50%, 0) translateY(-12px) rotate(calc(var(--item-rotate) - 4deg)) scale(calc(var(--item-scale) * 1.12)); }
+    75% { transform: translate3d(-50%, -50%, 0) translateY(-4px) rotate(calc(var(--item-rotate) + 2deg)) scale(calc(var(--item-scale) * 1.06)); }
+}
+#clocks-background .theme-clocks-burst-layer { position: fixed; inset: 0; pointer-events: none; }
+#clocks-background .theme-clocks-burst {
+    position: fixed; width: var(--burst-size); height: var(--burst-size); border-radius: 50%; transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #8b6d4a, #9bb3c8); box-shadow: 0 0 10px rgba(255,255,255,.26); animation: clocksSpark .72s ease-out forwards;
+}
+@keyframes clocksSpark {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.35); }
+    18% { opacity: .95; }
+    100% { opacity: 0; transform: translate(-50%, -50%) translate3d(var(--burst-x), var(--burst-y), 0) scale(1.06); }
+}
+body.theme-clocks .day-box,
+body.theme-clocks .day-picker-box,
+body.theme-clocks .filter-tab,
+body.theme-clocks .chip,
+body.theme-clocks .phrase-card,
+body.theme-clocks .toolbox-item,
+body.theme-clocks .resource-card,
+body.theme-clocks .flashcard,
+body.theme-clocks input,
+body.theme-clocks textarea,
+body.theme-clocks select {
+    background: rgba(255,250,244,.82) !important; color: #584737 !important; border-color: rgba(255,255,255,.24) !important; background-image: none !important;
+}
+body.theme-clocks h1,
+body.theme-clocks h2,
+body.theme-clocks h3,
+body.theme-clocks .page-title,
+body.theme-clocks .view-title,
+body.theme-clocks .section-title,
+body.theme-clocks #current-date-title { color: #584737 !important; }
+body.theme-clocks .filter-tabs,
+body.theme-clocks #library-filter-tabs,
+body.theme-clocks #quiz-type-filters,
+body.theme-clocks .set-size-picker { background: transparent !important; background-image: none !important; box-shadow: none !important; }
+body.theme-clocks .side-nav .icon-btn,
+body.theme-clocks .side-nav .icon-btn:hover,
+body.theme-clocks .side-nav .icon-btn:focus,
+body.theme-clocks .side-nav .icon-btn:active {
+    background: transparent !important; background-image: none !important; border: none !important; box-shadow: none !important; color: #584737 !important;
+}
+body.theme-clocks .side-nav .icon-btn::before,
+body.theme-clocks .side-nav .icon-btn::after { content: none !important; }
+@media (max-width: 900px) {
+    #clocks-background .theme-clocks-item { width: min(var(--item-width), 34vw); max-width: 240px; }
+}
+@media (prefers-reduced-motion: reduce) { #clocks-background * { animation: none !important; } }
+
+
+/* ============================================================
+   FINAL CONTRAST / READABILITY FIX
+   Explicit UI colors so template defaults cannot produce
+   dark-on-dark or light-on-light text.
+   ============================================================ */
+
+body.theme-clocks {
+    --theme-safe-surface: #fffaf2;
+    --theme-safe-surface-2: #eee5d7;
+    --theme-safe-text: #4d3e31;
+    --theme-safe-muted: #75695e;
+    --theme-safe-border: #b9a68c;
+    --theme-safe-search-bg: #fffaf2;
+    --theme-safe-search-text: #4d3e31;
+    --theme-safe-search-placeholder: #75695e;
+}
+
+/* PAGE TITLES / SECTION TITLES */
+body.theme-clocks h1,
+body.theme-clocks h2,
+body.theme-clocks h3,
+body.theme-clocks h4,
+body.theme-clocks h5,
+body.theme-clocks h6,
+body.theme-clocks .page-title,
+body.theme-clocks .view-title,
+body.theme-clocks .section-title,
+body.theme-clocks .section-header,
+body.theme-clocks .tool-row-name,
+body.theme-clocks .part-row-label,
+body.theme-clocks #current-date-title {
+    color: var(--theme-safe-text) !important;
+    text-shadow: none !important;
+}
+
+/* SEARCH BARS — always force a clearly contrasting field + text pair. */
+body.theme-clocks input[type="search"],
+body.theme-clocks input[id*="search"],
+body.theme-clocks #phrases-search-bar {
+    background: var(--theme-safe-search-bg) !important;
+    background-color: var(--theme-safe-search-bg) !important;
+    background-image: none !important;
+    color: var(--theme-safe-search-text) !important;
+    caret-color: var(--theme-safe-search-text) !important;
+    border-color: var(--theme-safe-border) !important;
+    box-shadow: none !important;
+}
+
+body.theme-clocks input[type="search"]::placeholder,
+body.theme-clocks input[id*="search"]::placeholder,
+body.theme-clocks #phrases-search-bar::placeholder {
+    color: var(--theme-safe-search-placeholder) !important;
+    opacity: 1 !important;
+}
+
+/* General editable controls. */
+body.theme-clocks input:not([type="checkbox"]):not([type="radio"]),
+body.theme-clocks textarea,
+body.theme-clocks select {
+    background-color: var(--theme-safe-surface) !important;
+    background-image: none !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-clocks select option,
+body.theme-clocks select optgroup {
+    background: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-clocks input:not([type="checkbox"]):not([type="radio"])::placeholder,
+body.theme-clocks textarea::placeholder,
+body.theme-clocks .notes-editable:empty::before {
+    color: var(--theme-safe-muted) !important;
+    opacity: 1 !important;
+}
+
+/* SETTINGS MODALS — solid surface + guaranteed readable text. */
+body.theme-clocks #settings-modal,
+body.theme-clocks #daily-settings-modal {
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-clocks #settings-modal .modal-box,
+body.theme-clocks #daily-settings-modal .modal-box {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+    background-image: none !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+    box-shadow: 0 18px 48px rgba(0,0,0,.18) !important;
+}
+
+body.theme-clocks #settings-modal .modal-header,
+body.theme-clocks #settings-modal .modal-header h2,
+body.theme-clocks #settings-modal .modal-section,
+body.theme-clocks #settings-modal .field-label,
+body.theme-clocks #settings-modal .progress-hint,
+body.theme-clocks #settings-modal label,
+body.theme-clocks #settings-modal p,
+body.theme-clocks #daily-settings-modal .modal-header,
+body.theme-clocks #daily-settings-modal .modal-header h2,
+body.theme-clocks #daily-settings-modal .modal-section,
+body.theme-clocks #daily-settings-modal .field-label,
+body.theme-clocks #daily-settings-modal .progress-hint,
+body.theme-clocks #daily-settings-modal label,
+body.theme-clocks #daily-settings-modal p {
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-clocks #settings-modal .progress-hint,
+body.theme-clocks #daily-settings-modal .progress-hint {
+    color: var(--theme-safe-muted) !important;
+}
+
+body.theme-clocks #settings-modal input:not([type="checkbox"]):not([type="radio"]),
+body.theme-clocks #settings-modal textarea,
+body.theme-clocks #settings-modal select,
+body.theme-clocks #daily-settings-modal input:not([type="checkbox"]):not([type="radio"]),
+body.theme-clocks #daily-settings-modal textarea,
+body.theme-clocks #daily-settings-modal select {
+    background: var(--theme-safe-surface-2) !important;
+    background-color: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-clocks #settings-modal select option,
+body.theme-clocks #settings-modal select optgroup,
+body.theme-clocks #daily-settings-modal select option,
+body.theme-clocks #daily-settings-modal select optgroup {
+    background: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-clocks #settings-modal .small-icon-btn,
+body.theme-clocks #daily-settings-modal .small-icon-btn {
+    background: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-clocks #settings-modal .small-icon-btn i,
+body.theme-clocks #daily-settings-modal .small-icon-btn i {
+    color: var(--theme-safe-text) !important;
+}
+
+/* Theme/companion/cursor option cards inside settings. */
+body.theme-clocks #settings-modal .icon-option,
+body.theme-clocks #daily-settings-modal .icon-option,
+body.theme-clocks #settings-modal .kb-view-btn,
+body.theme-clocks #daily-settings-modal .kb-view-btn {
+    background: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-clocks #settings-modal .icon-option small,
+body.theme-clocks #daily-settings-modal .icon-option small {
+    color: var(--theme-safe-text) !important;
+}
+
+/* Theme preview cards keep their artwork, but their text footer is readable. */
+body.theme-clocks #theme-picker .theme-picker-info {
+    background: rgba(255,255,255,.95) !important;
+    color: #242424 !important;
+}
+
+body.theme-clocks #theme-picker .theme-picker-name {
+    color: #242424 !important;
+}
+
+body.theme-clocks #theme-picker .theme-picker-hint {
+    color: #5c5c5c !important;
+}
+
+/* POLAROIDS */
+body.theme-clocks .polaroid-card {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-clocks .polaroid-label,
+body.theme-clocks .polaroid-label .chip-text,
+body.theme-clocks .polaroid-card .chip-text {
+    color: var(--theme-safe-text) !important;
+    text-shadow: none !important;
+}
+
+body.theme-clocks .polaroid-label {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+}
+
+/* CARDS / TABS */
+body.theme-clocks .phrase-card,
+body.theme-clocks .chip,
+body.theme-clocks .toolbox-item,
+body.theme-clocks .resource-card,
+body.theme-clocks .flashcard,
+body.theme-clocks .day-box,
+body.theme-clocks .day-picker-box,
+body.theme-clocks .day-target-box,
+body.theme-clocks .category-box,
+body.theme-clocks .category-card,
+body.theme-clocks .category-chip {
+    background: var(--theme-safe-surface) !important;
+    background-color: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-clocks .filter-tab {
+    background: var(--theme-safe-surface) !important;
+    color: var(--theme-safe-text) !important;
+    border-color: var(--theme-safe-border) !important;
+}
+
+body.theme-clocks .filter-tab:hover {
+    background: var(--theme-safe-surface-2) !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-clocks .filter-tab.active,
+body.theme-clocks .filter-tab[aria-selected="true"],
+body.theme-clocks .day-picker-box.selected {
+    background: var(--theme-safe-text) !important;
+    color: var(--theme-safe-surface) !important;
+    border-color: var(--theme-safe-text) !important;
+}
+
+/* Preserve transparent parent tab rows and side-nav button backgrounds. */
+body.theme-clocks .filter-tabs,
+body.theme-clocks #library-filter-tabs,
+body.theme-clocks #quiz-type-filters,
+body.theme-clocks .set-size-picker {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-clocks .side-nav .icon-btn,
+body.theme-clocks .side-nav .icon-btn:hover,
+body.theme-clocks .side-nav .icon-btn:focus,
+body.theme-clocks .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    color: var(--theme-safe-text) !important;
+}
+
+body.theme-clocks .side-nav .icon-btn i,
+body.theme-clocks .side-nav .icon-btn svg {
+    color: var(--theme-safe-text) !important;
+}
+
+/* ============================================================
+   FINAL MODAL + DAILY UI READABILITY PASS
+   This block intentionally comes LAST.
+   - Search bar background EXACTLY matches numbered day boxes.
+   - Every modal title contrasts with the modal surface.
+   - CTRL / SHIFT / D / M shortcut keys and shortcut text are readable.
+   - Modal close X icons are always visible.
+   - Daily settings gear uses NO fill: accent border + accent icon.
+   - Daily-log back/previous/next arrows use the page accent, never white.
+   ============================================================ */
+
+/* Numbered day boxes are the source surface for the search field. */
+html body.theme-clocks .day-box,
+html body.theme-clocks .day-box.has-data,
+html body.theme-clocks .day-picker-box,
+html body.theme-clocks .mini-day-box {
+    background: #fffaf2 !important;
+    background-color: #fffaf2 !important;
+    background-image: none !important;
+    color: #4d3e31 !important;
+    border-color: #a99479 !important;
+}
+
+html body.theme-clocks .day-box *,
+html body.theme-clocks .day-picker-box *,
+html body.theme-clocks .mini-day-box * {
+    color: inherit !important;
+}
+
+/* Search bar = the SAME background and text colors as numbered day boxes. */
+html body.theme-clocks input[type="search"],
+html body.theme-clocks input[id*="search"],
+html body.theme-clocks .search-input,
+html body.theme-clocks .search-bar input,
+html body.theme-clocks #phrases-search-bar {
+    background: #fffaf2 !important;
+    background-color: #fffaf2 !important;
+    background-image: none !important;
+    color: #4d3e31 !important;
+    caret-color: #4d3e31 !important;
+    border: 2px solid #a99479 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks input[type="search"]::placeholder,
+html body.theme-clocks input[id*="search"]::placeholder,
+html body.theme-clocks .search-input::placeholder,
+html body.theme-clocks .search-bar input::placeholder,
+html body.theme-clocks #phrases-search-bar::placeholder {
+    color: #4d3e31 !important;
+    opacity: .62 !important;
+}
+
+/* Daily title is the theme accent. */
+html body.theme-clocks #current-date-title,
+html body.theme-clocks .log-header-container > h1,
+html body.theme-clocks .log-header-container > h2 {
+    color: #6e573e !important;
+    text-shadow: none !important;
+}
+
+/* Daily-log back / previous / next arrows: transparent, accent colored. */
+html body.theme-clocks #back-btn,
+html body.theme-clocks #prev-day-btn,
+html body.theme-clocks #next-day-btn,
+html body.theme-clocks .log-header-container .header-back-btn,
+html body.theme-clocks .log-header-container .header-back-btn:hover,
+html body.theme-clocks .log-header-container .header-back-btn:focus,
+html body.theme-clocks .log-header-container .header-back-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #6e573e !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks #back-btn i,
+html body.theme-clocks #prev-day-btn i,
+html body.theme-clocks #next-day-btn i,
+html body.theme-clocks .log-header-container .header-back-btn i,
+html body.theme-clocks .log-header-container .header-back-btn i::before,
+html body.theme-clocks .log-header-container .header-back-btn svg {
+    color: #6e573e !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Daily View Settings gear:
+   border version = NO background; border/icon match title accent. */
+html body.theme-clocks #open-daily-settings-btn,
+html body.theme-clocks header #open-daily-settings-btn,
+html body.theme-clocks button[title="Daily View Settings"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #6e573e !important;
+    border: 2px solid #6e573e !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks #open-daily-settings-btn:hover,
+html body.theme-clocks #open-daily-settings-btn:focus,
+html body.theme-clocks #open-daily-settings-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #6e573e !important;
+    border-color: #6e573e !important;
+}
+
+html body.theme-clocks #open-daily-settings-btn i,
+html body.theme-clocks #open-daily-settings-btn i::before,
+html body.theme-clocks #open-daily-settings-btn svg {
+    color: #6e573e !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Every modal gets one explicit readable surface/text pair. */
+html body.theme-clocks .modal-box,
+html body.theme-clocks .modal-overlay .modal-box,
+html body.theme-clocks .modal .modal-box,
+html body.theme-clocks #settings-modal .modal-box,
+html body.theme-clocks #daily-settings-modal .modal-box {
+    background: #fffaf2 !important;
+    background-color: #fffaf2 !important;
+    background-image: none !important;
+    color: #4d3e31 !important;
+    border-color: #a99479 !important;
+}
+
+/* Modal headers/titles can NEVER use the modal background color. */
+html body.theme-clocks .modal-box .modal-header,
+html body.theme-clocks .modal-box .modal-header h1,
+html body.theme-clocks .modal-box .modal-header h2,
+html body.theme-clocks .modal-box .modal-header h3,
+html body.theme-clocks .modal-box > h1,
+html body.theme-clocks .modal-box > h2,
+html body.theme-clocks .modal-box > h3,
+html body.theme-clocks .modal-box .modal-title,
+html body.theme-clocks .modal-box [class*="modal-title"],
+html body.theme-clocks .modal-box [id$="-modal-title"],
+html body.theme-clocks .modal-box [role="heading"] {
+    color: #6e573e !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Modal body text, including keyboard shortcut descriptions. */
+html body.theme-clocks .modal-box .modal-section,
+html body.theme-clocks .modal-box .modal-label,
+html body.theme-clocks .modal-box .field-label,
+html body.theme-clocks .modal-box .progress-hint,
+html body.theme-clocks .modal-box p,
+html body.theme-clocks .modal-box label,
+html body.theme-clocks .modal-box small,
+html body.theme-clocks .modal-box li,
+html body.theme-clocks .modal-box dt,
+html body.theme-clocks .modal-box dd,
+html body.theme-clocks .modal-box strong,
+html body.theme-clocks .modal-box em,
+html body.theme-clocks .modal-box .shortcut-row,
+html body.theme-clocks .modal-box .shortcut-item,
+html body.theme-clocks .modal-box .shortcut-label,
+html body.theme-clocks .modal-box .shortcut-description,
+html body.theme-clocks .modal-box [class*="shortcut"]:not([class*="key"]),
+html body.theme-clocks .modal-box [id*="shortcut"] {
+    color: #4d3e31 !important;
+    opacity: 1 !important;
+}
+
+/* Plain buttons in a modal also remain readable. */
+html body.theme-clocks .modal-box button:not(.small-icon-btn):not(.theme-picker-card):not(.icon-option) {
+    color: #4d3e31 !important;
+    border-color: #a99479 !important;
+}
+
+/* Modal form controls. */
+html body.theme-clocks .modal-box input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-clocks .modal-box textarea,
+html body.theme-clocks .modal-box select {
+    background: #fffaf2 !important;
+    background-color: #fffaf2 !important;
+    background-image: none !important;
+    color: #4d3e31 !important;
+    caret-color: #4d3e31 !important;
+    border-color: #a99479 !important;
+}
+
+html body.theme-clocks .modal-box select option,
+html body.theme-clocks .modal-box select optgroup {
+    background: #fffaf2 !important;
+    color: #4d3e31 !important;
+}
+
+html body.theme-clocks .modal-box input::placeholder,
+html body.theme-clocks .modal-box textarea::placeholder {
+    color: #4d3e31 !important;
+    opacity: .58 !important;
+}
+
+/* General modal button/icon visibility. */
+html body.theme-clocks .modal-box button i,
+html body.theme-clocks .modal-box button i::before,
+html body.theme-clocks .modal-box button .ph {
+    color: #4d3e31 !important;
+    opacity: 1 !important;
+}
+
+/* Close X: transparent with accent border/icon.
+   This specifically fixes invisible X icons on same-color button fills. */
+html body.theme-clocks .modal-box .modal-header .small-icon-btn,
+html body.theme-clocks .modal-box [id$="-close"],
+html body.theme-clocks .modal-box .lightbox-close,
+html body.theme-clocks #daily-settings-close,
+html body.theme-clocks #settings-close {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #6e573e !important;
+    border: 2px solid #6e573e !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-clocks .modal-box .modal-header .small-icon-btn i,
+html body.theme-clocks .modal-box .modal-header .small-icon-btn i::before,
+html body.theme-clocks .modal-box [id$="-close"] i,
+html body.theme-clocks .modal-box [id$="-close"] i::before,
+html body.theme-clocks .modal-box .lightbox-close i,
+html body.theme-clocks .modal-box .lightbox-close i::before,
+html body.theme-clocks #daily-settings-close i,
+html body.theme-clocks #daily-settings-close i::before,
+html body.theme-clocks #settings-close i,
+html body.theme-clocks #settings-close i::before {
+    color: #6e573e !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* CTRL / SHIFT / D / M keycaps and any equivalent keyboard shortcut markup. */
+html body.theme-clocks .modal-box kbd,
+html body.theme-clocks .modal-box .keycap,
+html body.theme-clocks .modal-box .shortcut-key,
+html body.theme-clocks .modal-box .keyboard-key,
+html body.theme-clocks .modal-box .hotkey,
+html body.theme-clocks .modal-box [class*="kbd"],
+html body.theme-clocks .modal-box [class*="keycap"],
+html body.theme-clocks .modal-box [class*="hotkey"],
+html body.theme-clocks .modal-box [class*="shortcut"][class*="key"],
+html body.theme-clocks .modal-box [class*="shortcut"] kbd,
+html body.theme-clocks .modal-box [class*="shortcut"] .key,
+html body.theme-clocks .modal-box [id*="shortcut"] kbd {
+    background: #6e573e !important;
+    background-color: #6e573e !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    border: 1px solid #a99479 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* Theme / companion / cursor / shortcut option cards inside settings. */
+html body.theme-clocks .modal-box .filter-tab,
+html body.theme-clocks .modal-box .icon-option,
+html body.theme-clocks .modal-box .kb-view-btn {
+    background: #fffaf2 !important;
+    background-color: #fffaf2 !important;
+    color: #4d3e31 !important;
+    border-color: #a99479 !important;
+}
+
+html body.theme-clocks .modal-box .filter-tab.active,
+html body.theme-clocks .modal-box .filter-tab[aria-selected="true"],
+html body.theme-clocks .modal-box .icon-option.selected,
+html body.theme-clocks .modal-box .kb-view-btn.active {
+    background: #6e573e !important;
+    background-color: #6e573e !important;
+    color: #ffffff !important;
+    border-color: #6e573e !important;
+}
+
+html body.theme-clocks .modal-box .filter-tab.active *,
+html body.theme-clocks .modal-box .filter-tab[aria-selected="true"] *,
+html body.theme-clocks .modal-box .icon-option.selected *,
+html body.theme-clocks .modal-box .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* Preserve preview-label contrast in the Theme picker. */
+html body.theme-clocks #theme-picker .theme-picker-card.theme-dark .theme-picker-info,
+html body.theme-clocks #theme-picker .theme-picker-card.theme-dark .theme-picker-name,
+html body.theme-clocks #theme-picker .theme-picker-card.theme-dark .theme-picker-hint {
+    color: #ffffff !important;
+}
+html body.theme-clocks #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-info,
+html body.theme-clocks #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-name {
+    color: #222222 !important;
+}
+html body.theme-clocks #theme-picker .theme-picker-card:not(.theme-dark) .theme-picker-hint {
+    color: #555555 !important;
+}
+
+/* Parent tab/filter rows remain transparent. */
+html body.theme-clocks .filter-tabs,
+html body.theme-clocks #library-filter-tabs,
+html body.theme-clocks #quiz-type-filters,
+html body.theme-clocks .set-size-picker {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+
+/* ============================================================
+   USER-SPECIFIC UI FIX PASS — FINAL OVERRIDE
+   ============================================================ */
+
+/* Numbered day boxes */
+html body.theme-clocks .day-box,
+html body.theme-clocks .day-box.has-data,
+html body.theme-clocks .day-picker-box,
+html body.theme-clocks .mini-day-box {
+    background: rgba(255,250,244,.82) !important;
+    background-color: rgba(255,250,244,.82) !important;
+    background-image: none !important;
+    color: #584737 !important;
+    border-color: #a99479 !important;
+}
+
+html body.theme-clocks .day-box *,
+html body.theme-clocks .day-picker-box *,
+html body.theme-clocks .mini-day-box * {
+    color: #584737 !important;
+}
+
+/* Search bar */
+html body.theme-clocks #phrases-search-bar,
+html body.theme-clocks input[type="search"],
+html body.theme-clocks input[id*="search"] {
+    background: rgba(255,250,244,.82) !important;
+    background-color: rgba(255,250,244,.82) !important;
+    background-image: none !important;
+    color: #584737 !important;
+    caret-color: #584737 !important;
+    border: 2px solid #a99479 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks #phrases-search-bar::placeholder,
+html body.theme-clocks input[type="search"]::placeholder,
+html body.theme-clocks input[id*="search"]::placeholder {
+    color: #584737 !important;
+    opacity: .60 !important;
+}
+
+/* Knowledge Base Settings + Plus buttons:
+   same visual family as the numbered day boxes. */
+html body.theme-clocks #phrases-library-view #open-settings-btn,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn {
+    background: rgba(255,250,244,.82) !important;
+    background-color: rgba(255,250,244,.82) !important;
+    background-image: none !important;
+    color: #584737 !important;
+    border: 2px solid #a99479 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks #phrases-library-view #open-settings-btn:hover,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn:hover,
+html body.theme-clocks #phrases-library-view #open-settings-btn:focus,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn:focus {
+    background: rgba(255,250,244,.82) !important;
+    color: #6e573e !important;
+    border-color: #6e573e !important;
+}
+
+html body.theme-clocks #phrases-library-view #open-settings-btn i,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn i,
+html body.theme-clocks #phrases-library-view #open-settings-btn svg,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn svg {
+    color: #584737 !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Developer-mode controls — no invisible same-color text/icons. */
+html body.theme-clocks [id*="developer"],
+html body.theme-clocks [class*="developer"],
+html body.theme-clocks [id*="dev-mode"],
+html body.theme-clocks [class*="dev-mode"] {
+    color: #584737 !important;
+}
+
+html body.theme-clocks button[id*="developer"],
+html body.theme-clocks button[class*="developer"],
+html body.theme-clocks button[id*="dev-mode"],
+html body.theme-clocks button[class*="dev-mode"] {
+    background: rgba(255,250,244,.82) !important;
+    background-color: rgba(255,250,244,.82) !important;
+    color: #584737 !important;
+    border: 2px solid #a99479 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks button[id*="developer"] i,
+html body.theme-clocks button[class*="developer"] i,
+html body.theme-clocks button[id*="dev-mode"] i,
+html body.theme-clocks button[class*="dev-mode"] i {
+    color: #584737 !important;
+    opacity: 1 !important;
+}
+
+/* Strong modal text pass.
+   Apply text color to ALL descendants first, then intentionally recolor
+   titles / X / keycaps below. This fixes CTRL SHIFT D M descriptions. */
+html body.theme-clocks .modal-box,
+html body.theme-clocks [class*="shortcut"][class*="modal"],
+html body.theme-clocks [id*="shortcut"][id*="modal"],
+html body.theme-clocks [class*="developer"][class*="modal"],
+html body.theme-clocks [id*="developer"][id*="modal"] {
+    color: #584737 !important;
+}
+
+html body.theme-clocks .modal-box *,
+html body.theme-clocks [class*="shortcut"][class*="modal"] *,
+html body.theme-clocks [id*="shortcut"][id*="modal"] *,
+html body.theme-clocks [class*="developer"][class*="modal"] *,
+html body.theme-clocks [id*="developer"][id*="modal"] * {
+    color: #584737 !important;
+}
+
+/* Keep modal titles clearly distinct. */
+html body.theme-clocks .modal-box .modal-header h1,
+html body.theme-clocks .modal-box .modal-header h2,
+html body.theme-clocks .modal-box .modal-header h3,
+html body.theme-clocks .modal-box .modal-title,
+html body.theme-clocks .modal-box [class*="modal-title"],
+html body.theme-clocks [class*="shortcut"][class*="modal"] h1,
+html body.theme-clocks [class*="shortcut"][class*="modal"] h2,
+html body.theme-clocks [class*="shortcut"][class*="modal"] h3,
+html body.theme-clocks [id*="shortcut"][id*="modal"] h1,
+html body.theme-clocks [id*="shortcut"][id*="modal"] h2,
+html body.theme-clocks [id*="shortcut"][id*="modal"] h3 {
+    color: #6e573e !important;
+    opacity: 1 !important;
+}
+
+/* X / close button stays visible. */
+html body.theme-clocks .modal-box [id$="-close"],
+html body.theme-clocks .modal-box .modal-header .small-icon-btn,
+html body.theme-clocks [class*="shortcut"][class*="modal"] [class*="close"],
+html body.theme-clocks [id*="shortcut"][id*="modal"] [class*="close"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #6e573e !important;
+    border-color: #6e573e !important;
+}
+
+html body.theme-clocks .modal-box [id$="-close"] i,
+html body.theme-clocks .modal-box .modal-header .small-icon-btn i,
+html body.theme-clocks [class*="shortcut"][class*="modal"] [class*="close"] i,
+html body.theme-clocks [id*="shortcut"][id*="modal"] [class*="close"] i {
+    color: #6e573e !important;
+    opacity: 1 !important;
+}
+
+/* CTRL / SHIFT / D / M keycaps */
+html body.theme-clocks .modal-box kbd,
+html body.theme-clocks .modal-box .keycap,
+html body.theme-clocks .modal-box .shortcut-key,
+html body.theme-clocks .modal-box .keyboard-key,
+html body.theme-clocks .modal-box .hotkey,
+html body.theme-clocks [class*="shortcut"] kbd,
+html body.theme-clocks [id*="shortcut"] kbd,
+html body.theme-clocks [class*="shortcut"] .key,
+html body.theme-clocks [id*="shortcut"] .key {
+    background: #6e573e !important;
+    background-color: #6e573e !important;
+    color: #ffffff !important;
+    border: 1px solid #a99479 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* Daily settings button stays readable too. */
+html body.theme-clocks #open-daily-settings-btn {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #6e573e !important;
+    border: 2px solid #6e573e !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks #open-daily-settings-btn i,
+html body.theme-clocks #open-daily-settings-btn svg {
+    color: #6e573e !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+
+/* ============================================================
+   FINAL VISIBILITY FIX V3
+   ============================================================ */
+
+/* SEARCH BAR: explicit typed text + caret + placeholder contrast */
+html body.theme-clocks #phrases-search-bar,
+html body.theme-clocks input[type="search"],
+html body.theme-clocks input[id*="search"] {
+    background: #65513f !important;
+    background-color: #65513f !important;
+    background-image: none !important;
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+    caret-color: #fff8ef !important;
+    border: 2px solid #9d8468 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks #phrases-search-bar::placeholder,
+html body.theme-clocks input[type="search"]::placeholder,
+html body.theme-clocks input[id*="search"]::placeholder {
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+    opacity: .62 !important;
+}
+
+/* Keep the numbered day boxes in the same family as the search bar
+   except Walking Dead, which intentionally keeps its own dark day boxes. */
+html body.theme-clocks .day-box,
+html body.theme-clocks .day-box.has-data,
+html body.theme-clocks .day-picker-box,
+html body.theme-clocks .mini-day-box {
+    background: #65513f !important;
+    background-color: #65513f !important;
+    background-image: none !important;
+    color: #fff8ef !important;
+    border-color: #9d8468 !important;
+}
+
+html body.theme-clocks .day-box *,
+html body.theme-clocks .day-picker-box *,
+html body.theme-clocks .mini-day-box * {
+    color: #fff8ef !important;
+}
+
+/* KNOWLEDGE BASE SETTINGS + PLUS BUTTONS */
+html body.theme-clocks #phrases-library-view #open-settings-btn,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn {
+    background: #65513f !important;
+    background-color: #65513f !important;
+    background-image: none !important;
+    color: #fff8ef !important;
+    border: 2px solid #9d8468 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-clocks #phrases-library-view #open-settings-btn i,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn i,
+html body.theme-clocks #phrases-library-view #open-settings-btn i::before,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn i::before,
+html body.theme-clocks #phrases-library-view #open-settings-btn svg,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn svg {
+    display: inline-block !important;
+    color: #fff8ef !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* START QUIZ: force both label and play icon to a visible contrast pair */
+html body.theme-clocks #start-quiz-btn {
+    background: #65513f !important;
+    background-color: #65513f !important;
+    background-image: none !important;
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+    border: 2px solid #9d8468 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-clocks #start-quiz-btn i,
+html body.theme-clocks #start-quiz-btn i::before,
+html body.theme-clocks #start-quiz-btn svg,
+html body.theme-clocks #start-quiz-btn span {
+    display: inline-block !important;
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-clocks #start-quiz-btn.disabled-btn,
+html body.theme-clocks #start-quiz-btn:disabled {
+    opacity: .62 !important;
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+}
+
+html body.theme-clocks #start-quiz-btn.disabled-btn i,
+html body.theme-clocks #start-quiz-btn:disabled i {
+    color: #fff8ef !important;
+    opacity: 1 !important;
+}
+
+/* ============================================================
+   DEVELOPER MODE / CTRL SHIFT D M MODAL
+   Catch common developer modal ids/classes and also a generic modal
+   containing developer-mode controls via :has().
+   ============================================================ */
+html body.theme-clocks :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-box {
+    background: #38342f !important;
+    background-color: #38342f !important;
+    color: #fff8ef !important;
+    border-color: #9d8468 !important;
+}
+
+/* The two large content boxes in Developer Mode get a darker panel
+   so LIGHT text cannot disappear against the box surface. */
+html body.theme-clocks :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-box > :is(div, section):not(.modal-header) {
+    background: #4b4640 !important;
+    background-color: #4b4640 !important;
+    color: #fff8ef !important;
+    border-color: #9d8468 !important;
+}
+
+/* Force all normal developer-modal text/icons to light/readable. */
+html body.theme-clocks :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-box :is(
+    p, span, label, small, strong, em, li,
+    .field-label, .modal-label, .shortcut-row, .shortcut-item,
+    [class*="shortcut"], [class*="description"], [class*="text"]
+) {
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+    opacity: 1 !important;
+}
+
+/* Developer modal inputs/selects/buttons inside the two boxes */
+html body.theme-clocks :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-box :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select, button) {
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+    border-color: #9d8468 !important;
+}
+
+html body.theme-clocks :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-box :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+    background: #4b4640 !important;
+    background-color: #4b4640 !important;
+}
+
+/* Developer modal title + close X remain visible and separate from body text */
+html body.theme-clocks :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-header :is(h1,h2,h3) {
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+}
+
+html body.theme-clocks :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="dev"][id*="modal"],
+    [class*="dev"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="dev-mode"]),
+    .modal-overlay:has([class*="dev-mode"])
+) .modal-header :is(button,button i,button i::before) {
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+    opacity: 1 !important;
+}
+
+/* ============================================================
+   TITLE SAFE ZONE
+   Keep decorative SVG centers lower so none sit behind the top
+   tab headings such as QUIZZES / KNOWLEDGE BASE / TOOL BOX.
+   Header itself also stays above decorations.
+   ============================================================ */
+html body.theme-clocks .log-header-container {
+    position: relative !important;
+    z-index: 40 !important;
+}
+
+html body.theme-clocks .log-header-container h1,
+html body.theme-clocks .log-header-container h2 {
+    position: relative !important;
+    z-index: 41 !important;
+}
+
+
+/* ============================================================
+   LATEST SEARCH / KNOWLEDGE-BASE VISIBILITY CORRECTION
+   ============================================================ */
+
+/* Search field typed text */
+html body.theme-clocks #phrases-search-bar,
+html body.theme-clocks input[type="search"],
+html body.theme-clocks input[id*="search"] {
+    background: #fffaf2 !important;
+    background-color: #fffaf2 !important;
+    background-image: none !important;
+    color: #45382e !important;
+    -webkit-text-fill-color: #45382e !important;
+    caret-color: #45382e !important;
+    border: 2px solid #a99479 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks #phrases-search-bar::placeholder,
+html body.theme-clocks input[type="search"]::placeholder,
+html body.theme-clocks input[id*="search"]::placeholder {
+    color: #45382e !important;
+    -webkit-text-fill-color: #45382e !important;
+    opacity: .58 !important;
+}
+
+/* Knowledge Base gear + plus */
+html body.theme-clocks #phrases-library-view #open-settings-btn,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn {
+    background: #fffaf2 !important;
+    background-color: #fffaf2 !important;
+    background-image: none !important;
+    color: #45382e !important;
+    border: 2px solid #a99479 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-clocks #phrases-library-view #open-settings-btn i,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn i,
+html body.theme-clocks #phrases-library-view #open-settings-btn i::before,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn i::before,
+html body.theme-clocks #phrases-library-view #open-settings-btn svg,
+html body.theme-clocks #phrases-library-view #add-phrase-library-btn svg {
+    display: inline-block !important;
+    color: #45382e !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    -webkit-text-fill-color: #45382e !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Start Quiz button remains readable even when disabled. */
+html body.theme-clocks #start-quiz-btn {
+    background: #fffaf2 !important;
+    background-color: #fffaf2 !important;
+    background-image: none !important;
+    color: #45382e !important;
+    -webkit-text-fill-color: #45382e !important;
+    border: 2px solid #a99479 !important;
+    box-shadow: none !important;
+    visibility: visible !important;
+}
+
+html body.theme-clocks #start-quiz-btn i,
+html body.theme-clocks #start-quiz-btn i::before,
+html body.theme-clocks #start-quiz-btn svg,
+html body.theme-clocks #start-quiz-btn span {
+    color: #45382e !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    -webkit-text-fill-color: #45382e !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-clocks #start-quiz-btn.disabled-btn,
+html body.theme-clocks #start-quiz-btn:disabled {
+    opacity: .62 !important;
+    color: #45382e !important;
+    -webkit-text-fill-color: #45382e !important;
+}
+
+/* Keep modal text usable if older theme rules try to recolor it. */
+html body.theme-clocks .modal-box p,
+html body.theme-clocks .modal-box label,
+html body.theme-clocks .modal-box span,
+html body.theme-clocks .modal-box small,
+html body.theme-clocks .modal-box .field-label,
+html body.theme-clocks .modal-box .modal-label {
+    opacity: 1 !important;
+}
+
+/* Header/title always above decorative SVGs. */
+html body.theme-clocks .log-header-container {
+    position: relative !important;
+    z-index: 50 !important;
+}
+html body.theme-clocks .log-header-container h1,
+html body.theme-clocks .log-header-container h2 {
+    position: relative !important;
+    z-index: 51 !important;
+}
+
+
+/* ============================================================
+   CLOCKS — NON-OVERLAPPING SVG LAYOUT
+   ============================================================ */
+#clocks-background .theme-clocks-item {
+    max-width: 13vw !important;
+    max-height: 14vh !important;
+}
+
+#clocks-background .theme-clocks-item img {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 14vh !important;
+    object-fit: contain !important;
+}
+
+/* Keep animation movement subtle enough that neighboring cells
+   still do not collide while floating/dancing. */
+#clocks-background .theme-clocks-item {
+    transform-origin: center !important;
+}
+
+@media (max-width: 900px) {
+    #clocks-background .theme-clocks-item {
+        width: min(var(--item-width), 12vw) !important;
+        max-width: 112px !important;
+        max-height: 12vh !important;
+    }
+
+    #clocks-background .theme-clocks-item img {
+        max-height: 12vh !important;
+    }
+}
+
+
+/* CLOCKS — SIDE/BOTTOM EMPHASIS + SLIGHTLY BIGGER ART */
+#clocks-background .theme-clocks-item {
+    max-width: 15vw !important;
+    max-height: 15vh !important;
+}
+#clocks-background .theme-clocks-item img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 15vh !important;
+    object-fit: contain !important;
+}
+
+
+/* ============================================================
+   FINAL APP-VIEW SEARCH COLOR FIX
+   Theme picker/search modal is NOT touched by this block.
+   ============================================================ */
+html body.theme-clocks .view input[type="search"],
+html body.theme-clocks .view input[type="text"][id*="search"],
+html body.theme-clocks .view input[type="text"][class*="search"],
+html body.theme-clocks .view input[type="text"][placeholder*="Search"],
+html body.theme-clocks .view input[type="text"][placeholder*="search"],
+html body.theme-clocks #phrases-search-bar,
+html body.theme-clocks #log-view input[id*="search"],
+html body.theme-clocks #daily-view input[id*="search"],
+html body.theme-clocks input#daily-search-bar,
+html body.theme-clocks input#log-search-bar {
+    background: #65513f !important;
+    background-color: #65513f !important;
+    background-image: none !important;
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+    caret-color: #fff8ef !important;
+    border-color: #9d8468 !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks .view input[type="search"]::placeholder,
+html body.theme-clocks .view input[type="text"][id*="search"]::placeholder,
+html body.theme-clocks .view input[type="text"][class*="search"]::placeholder,
+html body.theme-clocks .view input[type="text"][placeholder*="Search"]::placeholder,
+html body.theme-clocks .view input[type="text"][placeholder*="search"]::placeholder,
+html body.theme-clocks #phrases-search-bar::placeholder,
+html body.theme-clocks #log-view input[id*="search"]::placeholder,
+html body.theme-clocks #daily-view input[id*="search"]::placeholder,
+html body.theme-clocks input#daily-search-bar::placeholder,
+html body.theme-clocks input#log-search-bar::placeholder {
+    color: #fff8ef !important;
+    -webkit-text-fill-color: #fff8ef !important;
+    opacity: .62 !important;
+}
+
+
+/* ============================================================
+   WINTER-STYLE UNIFIED UI SYSTEM
+   ------------------------------------------------------------
+   The Winter theme is the reference:
+   - one readable surface/text system across every view
+   - the SAME search styling in every tab and modal
+   - the SAME settings/plus/button styling across tabs
+   - visible icon choices before hover
+   - readable icon-search inputs
+   - readable Developer Mode / shortcut modal
+   - no changes to app layout, companion positioning, or theme SVG logic
+   ============================================================ */
+
+html body.theme-clocks {
+    --unified-ui-surface: #65513f;
+    --unified-ui-surface-soft: #75604d;
+    --unified-ui-text: #fff8ef;
+    --unified-ui-muted: #eadccc;
+    --unified-ui-border: #9d8468;
+    --unified-ui-accent: #d7bb91;
+    --unified-ui-accent-text: #493b2f;
+
+    --black: var(--unified-ui-text) !important;
+    --white: var(--unified-ui-surface) !important;
+    --muted-text: var(--unified-ui-muted) !important;
+    --track-bg: var(--unified-ui-surface-soft) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE INPUT / SEARCH STYLE EVERYWHERE
+   Includes Knowledge Base, Daily View, theme search, icon search,
+   category inputs, settings inputs, and add-tab/create-tab modals.
+   ------------------------------------------------------------ */
+html body.theme-clocks input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-clocks textarea,
+html body.theme-clocks select,
+html body.theme-clocks .notes-editable {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    caret-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks input:not([type="checkbox"]):not([type="radio"])::placeholder,
+html body.theme-clocks textarea::placeholder,
+html body.theme-clocks .notes-editable:empty::before {
+    color: var(--unified-ui-muted) !important;
+    -webkit-text-fill-color: var(--unified-ui-muted) !important;
+    opacity: .82 !important;
+}
+
+html body.theme-clocks select option,
+html body.theme-clocks select optgroup {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE BUTTON STYLE THROUGHOUT THE APP
+   Settings, plus, save/generate, Start Quiz, modal icon buttons, etc.
+   ------------------------------------------------------------ */
+html body.theme-clocks .view .icon-btn,
+html body.theme-clocks .view .small-icon-btn,
+html body.theme-clocks .modal-box .icon-btn,
+html body.theme-clocks .modal-box .small-icon-btn,
+html body.theme-clocks .modal-box .save-btn,
+html body.theme-clocks #start-quiz-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-clocks .view .icon-btn i,
+html body.theme-clocks .view .small-icon-btn i,
+html body.theme-clocks .modal-box .icon-btn i,
+html body.theme-clocks .modal-box .small-icon-btn i,
+html body.theme-clocks #start-quiz-btn i,
+html body.theme-clocks .view .icon-btn svg,
+html body.theme-clocks .view .small-icon-btn svg,
+html body.theme-clocks #start-quiz-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-clocks .view .icon-btn:hover,
+html body.theme-clocks .view .small-icon-btn:hover,
+html body.theme-clocks .modal-box .icon-btn:hover,
+html body.theme-clocks .modal-box .small-icon-btn:hover,
+html body.theme-clocks .modal-box .save-btn:hover,
+html body.theme-clocks #start-quiz-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+/* Disabled Start Quiz remains readable instead of losing its label/icon. */
+html body.theme-clocks #start-quiz-btn:disabled,
+html body.theme-clocks #start-quiz-btn.disabled-btn {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: .58 !important;
+}
+html body.theme-clocks #start-quiz-btn:disabled i,
+html body.theme-clocks #start-quiz-btn.disabled-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Side navigation remains the template's bare-icon treatment. */
+html body.theme-clocks .side-nav .icon-btn,
+html body.theme-clocks .side-nav .icon-btn:hover,
+html body.theme-clocks .side-nav .icon-btn:focus,
+html body.theme-clocks .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-clocks .side-nav .icon-btn i,
+html body.theme-clocks .side-nav .icon-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Back arrows stay simple and visible, like Winter. */
+html body.theme-clocks .header-back-btn,
+html body.theme-clocks .header-back-btn:hover,
+html body.theme-clocks .header-back-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--unified-ui-text) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+html body.theme-clocks .header-back-btn i,
+html body.theme-clocks .header-back-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   CARDS / DAY BOXES / POLAROIDS
+   ------------------------------------------------------------ */
+html body.theme-clocks .day-box,
+html body.theme-clocks .day-picker-box,
+html body.theme-clocks .mini-day-box,
+html body.theme-clocks .day-badge,
+html body.theme-clocks .day-target-box,
+html body.theme-clocks .phrase-card,
+html body.theme-clocks .chip,
+html body.theme-clocks .toolbox-item,
+html body.theme-clocks .resource-card,
+html body.theme-clocks .polaroid-card,
+html body.theme-clocks .flashcard,
+html body.theme-clocks .flashcard-mode-card,
+html body.theme-clocks .video-placeholder,
+html body.theme-clocks .note-audio-row,
+html body.theme-clocks .set-complete-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-clocks .polaroid-label,
+html body.theme-clocks .polaroid-label *,
+html body.theme-clocks .day-box *,
+html body.theme-clocks .day-picker-box *,
+html body.theme-clocks .day-badge * {
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   FILTER TABS
+   Parent rows are transparent; actual buttons have visible surfaces.
+   ------------------------------------------------------------ */
+html body.theme-clocks .filter-tabs,
+html body.theme-clocks #library-filter-tabs,
+html body.theme-clocks #quiz-type-filters,
+html body.theme-clocks .set-size-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks .filter-tab,
+html body.theme-clocks .kb-view-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks .filter-tab:hover,
+html body.theme-clocks .kb-view-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-clocks .filter-tab.active,
+html body.theme-clocks .filter-tab[aria-selected="true"],
+html body.theme-clocks .kb-view-btn.active {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-clocks .filter-tab.active *,
+html body.theme-clocks .filter-tab[aria-selected="true"] *,
+html body.theme-clocks .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* ------------------------------------------------------------
+   ICON PICKERS / ADD-TAB PICKERS
+   Every icon is visible before hover. The containing grid is also neutral.
+   ------------------------------------------------------------ */
+html body.theme-clocks .icon-grid,
+html body.theme-clocks #icon-picker,
+html body.theme-clocks #companion-picker,
+html body.theme-clocks #cursor-picker,
+html body.theme-clocks [id*="icon"][id*="picker"] {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks .icon-option {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks .icon-option i,
+html body.theme-clocks .icon-option svg,
+html body.theme-clocks .icon-option small,
+html body.theme-clocks .icon-option span {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks .icon-option:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-clocks .icon-option.selected {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-clocks .icon-option.selected i,
+html body.theme-clocks .icon-option.selected svg,
+html body.theme-clocks .icon-option.selected small,
+html body.theme-clocks .icon-option.selected span {
+    color: var(--unified-ui-accent-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   ALL MODALS
+   ------------------------------------------------------------ */
+html body.theme-clocks .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-clocks .modal-box .modal-header,
+html body.theme-clocks .modal-box .modal-header h1,
+html body.theme-clocks .modal-box .modal-header h2,
+html body.theme-clocks .modal-box .modal-header h3,
+html body.theme-clocks .modal-box .modal-title,
+html body.theme-clocks .modal-box .field-label,
+html body.theme-clocks .modal-box .modal-label,
+html body.theme-clocks .modal-box .progress-hint,
+html body.theme-clocks .modal-box label,
+html body.theme-clocks .modal-box p {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Close X uses exactly the same small-button treatment as other modal icons. */
+html body.theme-clocks .modal-box [id$="-close"],
+html body.theme-clocks .modal-box .modal-header .small-icon-btn,
+html body.theme-clocks .modal-box .close-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+html body.theme-clocks .modal-box [id$="-close"] i,
+html body.theme-clocks .modal-box .modal-header .small-icon-btn i,
+html body.theme-clocks .modal-box .close-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* ------------------------------------------------------------
+   DEVELOPER MODE / CTRL+SHIFT+D / CTRL+SHIFT+M
+   Covers dynamically-created developer/shortcut modals as well.
+   ------------------------------------------------------------ */
+html body.theme-clocks :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-clocks :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    .shortcut-row,
+    .shortcut-item,
+    .developer-row,
+    .developer-item,
+    .developer-card,
+    .dev-card,
+    [class*="shortcut"][class*="card"],
+    [class*="developer"][class*="card"]
+) {
+    background: var(--unified-ui-surface-soft) !important;
+    background-color: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-clocks :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    p, span, label, small, strong, em,
+    .field-label, .modal-label, .progress-hint,
+    .shortcut-label, .shortcut-description
+) {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks .modal-box kbd,
+html body.theme-clocks .modal-box .keycap,
+html body.theme-clocks .modal-box .shortcut-key,
+html body.theme-clocks .modal-box .keyboard-key,
+html body.theme-clocks .modal-box .hotkey {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------
+   THEME PICKER PREVIEW LABELS
+   Do not wipe out thumbnail artwork; only make the information strip readable.
+   ------------------------------------------------------------ */
+html body.theme-clocks #theme-picker .theme-picker-info {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-clocks #theme-picker .theme-picker-name {
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-clocks #theme-picker .theme-picker-hint {
+    color: var(--unified-ui-muted) !important;
+}
+
+/* ------------------------------------------------------------
+   TITLES stay above decorative art.
+   ------------------------------------------------------------ */
+html body.theme-clocks header,
+html body.theme-clocks .log-header-container {
+    position: relative !important;
+    z-index: 40 !important;
+}
+
+
+/* ============================================================
+   CLEAN ADD-TAB / THEME-SETTINGS PICKER PASS
+   Based on the Winx treatment:
+   - no nested border inside the icon search field
+   - modal titles always readable
+   - no dark tile behind every tab/cursor/companion icon
+   - theme cards use a clean light shell without wiping preview artwork
+   ============================================================ */
+
+html body.theme-clocks {
+    --picker-clean-surface: #fffaf2;
+    --picker-clean-text: #4c3d30;
+    --picker-clean-soft: #f2e9de;
+    --picker-clean-border: #b39b7d;
+    --picker-clean-accent: #d7bb91;
+    --picker-clean-accent-text: #493b2f;
+}
+
+/* Target the theme/settings picker and any add-tab modal that contains
+   an icon grid. This does NOT change modal dimensions or positioning. */
+html body.theme-clocks #settings-modal .modal-box,
+html body.theme-clocks #daily-settings-modal .modal-box,
+html body.theme-clocks #add-tab-modal .modal-box,
+html body.theme-clocks [id*="add-tab"] .modal-box,
+html body.theme-clocks [id*="tab"][id*="modal"] .modal-box,
+html body.theme-clocks [class*="add-tab"][class*="modal"] .modal-box,
+html body.theme-clocks [class*="tab"][class*="modal"] .modal-box,
+html body.theme-clocks .modal-box:has(#theme-picker),
+html body.theme-clocks .modal-box:has(#companion-picker),
+html body.theme-clocks .modal-box:has(#cursor-picker),
+html body.theme-clocks .modal-box:has(.icon-grid) {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+}
+
+/* TITLES: force both color and WebKit text fill so old theme rules cannot
+   make them disappear into the modal background. */
+html body.theme-clocks #settings-modal .modal-header h1,
+html body.theme-clocks #settings-modal .modal-header h2,
+html body.theme-clocks #daily-settings-modal .modal-header h1,
+html body.theme-clocks #daily-settings-modal .modal-header h2,
+html body.theme-clocks #add-tab-modal .modal-header h1,
+html body.theme-clocks #add-tab-modal .modal-header h2,
+html body.theme-clocks [id*="tab"][id*="modal"] .modal-header h1,
+html body.theme-clocks [id*="tab"][id*="modal"] .modal-header h2,
+html body.theme-clocks .modal-box:has(.icon-grid) .modal-header h1,
+html body.theme-clocks .modal-box:has(.icon-grid) .modal-header h2,
+html body.theme-clocks .modal-box:has(#theme-picker) .modal-header h1,
+html body.theme-clocks .modal-box:has(#theme-picker) .modal-header h2 {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Normal picker/modal labels stay readable too. */
+html body.theme-clocks #settings-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-clocks #daily-settings-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-clocks #add-tab-modal :is(.field-label,.modal-label,.progress-hint,label,p,small),
+html body.theme-clocks .modal-box:has(.icon-grid) :is(.field-label,.modal-label,.progress-hint,label,p,small) {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+/* ICON SEARCH FIELD:
+   the OUTER search control can keep its shape; remove the extra INNER border. */
+html body.theme-clocks input[id*="icon"][id*="search"],
+html body.theme-clocks input[class*="icon"][class*="search"],
+html body.theme-clocks input[placeholder*="icon" i],
+html body.theme-clocks #add-tab-modal input[type="search"],
+html body.theme-clocks [id*="tab"][id*="modal"] input[type="search"],
+html body.theme-clocks .modal-box:has(.icon-grid) input[type="search"],
+html body.theme-clocks .modal-box:has(.icon-grid) input[type="text"][placeholder*="Search" i] {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    caret-color: var(--picker-clean-text) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks input[id*="icon"][id*="search"]::placeholder,
+html body.theme-clocks input[class*="icon"][class*="search"]::placeholder,
+html body.theme-clocks input[placeholder*="icon" i]::placeholder,
+html body.theme-clocks .modal-box:has(.icon-grid) input[type="search"]::placeholder,
+html body.theme-clocks .modal-box:has(.icon-grid) input[type="text"][placeholder*="Search" i]::placeholder {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: .62 !important;
+}
+
+/* If the search is wrapped by its own little search shell, the shell gets
+   the single visible border. */
+html body.theme-clocks :is(
+    .icon-search,
+    .icon-search-wrap,
+    .icon-search-wrapper,
+    [class*="icon-search"][class*="wrap"],
+    [class*="icon-search"][class*="box"]
+) {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    border: 1px solid var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+/* The GRID itself should not become one giant dark rectangle. */
+html body.theme-clocks #settings-modal .icon-grid,
+html body.theme-clocks #daily-settings-modal .icon-grid,
+html body.theme-clocks #add-tab-modal .icon-grid,
+html body.theme-clocks [id*="tab"][id*="modal"] .icon-grid,
+html body.theme-clocks .modal-box:has(.icon-grid) .icon-grid,
+html body.theme-clocks #companion-picker,
+html body.theme-clocks #cursor-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+/* Tab icons / cursor icons / companion icons are visible BEFORE hover. */
+html body.theme-clocks #settings-modal .icon-option,
+html body.theme-clocks #daily-settings-modal .icon-option,
+html body.theme-clocks #add-tab-modal .icon-option,
+html body.theme-clocks [id*="tab"][id*="modal"] .icon-option,
+html body.theme-clocks .modal-box:has(.icon-grid) .icon-option,
+html body.theme-clocks #companion-picker .icon-option,
+html body.theme-clocks #cursor-picker .icon-option {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    background-image: none !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks #settings-modal .icon-option :is(i,span,small),
+html body.theme-clocks #daily-settings-modal .icon-option :is(i,span,small),
+html body.theme-clocks #add-tab-modal .icon-option :is(i,span,small),
+html body.theme-clocks [id*="tab"][id*="modal"] .icon-option :is(i,span,small),
+html body.theme-clocks .modal-box:has(.icon-grid) .icon-option :is(i,span,small),
+html body.theme-clocks #companion-picker .icon-option :is(i,span,small),
+html body.theme-clocks #cursor-picker .icon-option :is(i,span,small) {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-clocks #settings-modal .icon-option:hover,
+html body.theme-clocks #daily-settings-modal .icon-option:hover,
+html body.theme-clocks #add-tab-modal .icon-option:hover,
+html body.theme-clocks [id*="tab"][id*="modal"] .icon-option:hover,
+html body.theme-clocks .modal-box:has(.icon-grid) .icon-option:hover {
+    background: var(--picker-clean-soft) !important;
+    background-color: var(--picker-clean-soft) !important;
+    color: var(--picker-clean-text) !important;
+}
+
+html body.theme-clocks #settings-modal .icon-option.selected,
+html body.theme-clocks #daily-settings-modal .icon-option.selected,
+html body.theme-clocks #add-tab-modal .icon-option.selected,
+html body.theme-clocks [id*="tab"][id*="modal"] .icon-option.selected,
+html body.theme-clocks .modal-box:has(.icon-grid) .icon-option.selected {
+    background: var(--picker-clean-accent) !important;
+    background-color: var(--picker-clean-accent) !important;
+    color: var(--picker-clean-accent-text) !important;
+    border-color: var(--picker-clean-border) !important;
+}
+
+html body.theme-clocks .modal-box:has(.icon-grid) .icon-option.selected :is(i,span,small) {
+    color: var(--picker-clean-accent-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-accent-text) !important;
+}
+
+/* Theme picker: clean shell/card/info backgrounds, but NEVER touch
+   .theme-picker-preview background-image. */
+html body.theme-clocks #theme-picker,
+html body.theme-clocks .theme-picker-grid {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks #theme-picker .theme-picker-card {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks #theme-picker .theme-picker-info {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+}
+
+html body.theme-clocks #theme-picker .theme-picker-name {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+}
+html body.theme-clocks #theme-picker .theme-picker-hint {
+    color: var(--picker-clean-text) !important;
+    -webkit-text-fill-color: var(--picker-clean-text) !important;
+    opacity: .64 !important;
+}
+
+/* Close X in these modals is clean/light too — no dark square behind it. */
+html body.theme-clocks #settings-modal .modal-header .small-icon-btn,
+html body.theme-clocks #daily-settings-modal .modal-header .small-icon-btn,
+html body.theme-clocks #add-tab-modal .modal-header .small-icon-btn,
+html body.theme-clocks [id*="tab"][id*="modal"] .modal-header .small-icon-btn,
+html body.theme-clocks .modal-box:has(.icon-grid) .modal-header .small-icon-btn {
+    background: var(--picker-clean-surface) !important;
+    background-color: var(--picker-clean-surface) !important;
+    color: var(--picker-clean-text) !important;
+    border-color: var(--picker-clean-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-clocks .modal-box:has(.icon-grid) .modal-header .small-icon-btn i,
+html body.theme-clocks #settings-modal .modal-header .small-icon-btn i,
+html body.theme-clocks #daily-settings-modal .modal-header .small-icon-btn i {
+    color: var(--picker-clean-text) !important;
+    opacity: 1 !important;
+}
+
+
+

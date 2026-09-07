@@ -1,0 +1,333 @@
+/* ============================================================
+   WINTER THEME
+   Decorative-only theme styling.
+
+   The template remains the source of truth for layout, cursor behavior,
+   companion positioning, tabs, selectors, buttons, cards, views, and modals.
+   ============================================================ */
+
+body.theme-winter {
+    --winter-ink: #163f5d;
+    --winter-border: #7fb6d8;
+    --winter-surface: #f8fcff;
+    --winter-surface-soft: #eef8ff;
+    --winter-blue: #88c7ec;
+    --winter-blue-deep: #4f93bf;
+
+    --black: var(--winter-ink);
+    --white: var(--winter-surface);
+    --bg-overlay: transparent;
+
+    --thick-border: 3px solid rgba(79, 147, 191, 0.52);
+    --thin-border: 2px solid rgba(79, 147, 191, 0.38);
+    --dashed-border: 2px dashed rgba(79, 147, 191, 0.36);
+    --dotted-border: 2px dotted rgba(79, 147, 191, 0.36);
+    --track-bg: #dceffa;
+    --muted-text: rgba(22, 63, 93, 0.58);
+
+    background:
+        radial-gradient(circle at 16% 15%, rgba(255, 255, 255, 0.92) 0 3%, transparent 23%),
+        radial-gradient(circle at 82% 12%, rgba(255, 255, 255, 0.72) 0 4%, transparent 26%),
+        radial-gradient(ellipse at 50% 110%, rgba(174, 217, 244, 0.72) 0 28%, transparent 65%),
+        linear-gradient(180deg, #d8efff 0%, #edf8ff 47%, #cce8f8 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--winter-ink) !important;
+}
+
+/* ============================================================
+   WINTER BACKGROUND LAYER
+   ============================================================ */
+
+#winter-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+/* Raise only known application layers above the decorative background.
+   Do NOT use body > * or any direct-child wildcard selector here. */
+body.theme-winter #winter-background { z-index: 0; }
+body.theme-winter .view { position: relative; z-index: 2; }
+body.theme-winter .side-nav { position: relative; z-index: 3; }
+body.theme-winter header,
+body.theme-winter .log-header-container { position: relative; z-index: 4; }
+body.theme-winter .modal,
+body.theme-winter .modal-overlay,
+body.theme-winter .overlay { z-index: 10; }
+
+/* ============================================================
+   EXISTING UI: COLOR ADAPTATION ONLY
+   No dimensions, positioning, transforms, or typography are changed.
+   ============================================================ */
+
+body.theme-winter .day-box,
+body.theme-winter .day-picker-box,
+body.theme-winter .icon-btn,
+body.theme-winter .small-icon-btn,
+body.theme-winter input,
+body.theme-winter textarea,
+body.theme-winter select,
+body.theme-winter .notes-editable,
+body.theme-winter .phrase-card,
+body.theme-winter .chip,
+body.theme-winter .toolbox-item,
+body.theme-winter .resource-card,
+body.theme-winter .polaroid-card,
+body.theme-winter .filter-tab,
+body.theme-winter .day-target-box,
+body.theme-winter .flashcard,
+body.theme-winter .flashcard-mode-card,
+body.theme-winter .day-badge,
+body.theme-winter .video-placeholder,
+body.theme-winter .theme-picker-card,
+body.theme-winter .note-audio-row,
+body.theme-winter .modal-box,
+body.theme-winter .set-complete-box {
+    background-color: var(--winter-surface) !important;
+}
+
+body.theme-winter input::placeholder,
+body.theme-winter textarea::placeholder,
+body.theme-winter .notes-editable:empty::before {
+    color: rgba(22, 63, 93, 0.42) !important;
+}
+
+body.theme-winter .icon-btn:hover,
+body.theme-winter .small-icon-btn:hover,
+body.theme-winter .filter-tab:hover {
+    background: var(--winter-surface-soft) !important;
+    color: var(--winter-ink) !important;
+}
+
+body.theme-winter .chip:hover,
+body.theme-winter .phrase-card:hover,
+body.theme-winter .day-picker-box.selected,
+body.theme-winter .filter-tab.active,
+body.theme-winter .filter-tab[aria-selected="true"] {
+    background: #d5edfb !important;
+    color: var(--winter-ink) !important;
+    border-color: var(--winter-blue-deep) !important;
+}
+
+body.theme-winter .progress-bar-fill {
+    background: var(--winter-blue-deep) !important;
+}
+
+/* ============================================================
+   FALLING SNOWFLAKES
+   ============================================================ */
+
+#winter-background .winter-snowflake {
+    position: absolute;
+    top: -15vh;
+    display: block;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    opacity: var(--winter-flake-opacity);
+    filter:
+        drop-shadow(0 1px 0 rgba(255, 255, 255, 0.72))
+        drop-shadow(0 3px 5px rgba(62, 131, 176, 0.20));
+    animation:
+        winterSnowFall
+        var(--winter-fall-duration)
+        linear
+        var(--winter-fall-delay)
+        infinite;
+    will-change: transform;
+}
+
+@keyframes winterSnowFall {
+    0% {
+        transform: translate3d(0, -18vh, 0) rotate(0deg);
+    }
+    25% {
+        transform: translate3d(var(--winter-sway-a), 18vh, 0) rotate(calc(var(--winter-spin) * 0.24));
+    }
+    50% {
+        transform: translate3d(var(--winter-sway-b), 52vh, 0) rotate(calc(var(--winter-spin) * 0.52));
+    }
+    75% {
+        transform: translate3d(var(--winter-sway-c), 86vh, 0) rotate(calc(var(--winter-spin) * 0.78));
+    }
+    100% {
+        transform: translate3d(0, 122vh, 0) rotate(var(--winter-spin));
+    }
+}
+
+/* ============================================================
+   ICICLES
+   Corner placement intentionally avoids the central title/control regions.
+   ============================================================ */
+
+#winter-background .winter-icicle-cluster {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.92;
+    filter: drop-shadow(0 4px 7px rgba(61, 125, 166, 0.18));
+}
+
+#winter-background .winter-icicle-top { top: -2px; }
+#winter-background .winter-icicle-bottom { bottom: -2px; transform: rotate(180deg); opacity: 0.58; }
+#winter-background .winter-icicle-left { left: -8px; }
+#winter-background .winter-icicle-right { right: -8px; }
+
+#winter-background .winter-icicle-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+/* ============================================================
+   WATER DROPS
+   ============================================================ */
+
+#winter-background .winter-water-drop {
+    position: absolute;
+    top: 48%;
+    width: 8px;
+    height: 8px;
+    border-radius: 70% 30% 65% 35%;
+    background: linear-gradient(135deg, #f8fdff 0%, #9fd3f1 68%, #63a9d2 100%);
+    border: 1px solid rgba(73, 148, 194, 0.66);
+    box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.90), 0 2px 4px rgba(54, 120, 161, 0.16);
+    transform: rotate(45deg) scale(0.55);
+    opacity: 0;
+    animation:
+        winterDrip
+        var(--winter-drip-duration)
+        ease-in
+        var(--winter-drip-delay)
+        infinite;
+    will-change: transform, opacity;
+}
+
+@keyframes winterDrip {
+    0%, 28% {
+        opacity: 0;
+        transform: translate3d(0, -1px, 0) rotate(45deg) scale(0.48);
+    }
+    38% {
+        opacity: 0.88;
+        transform: translate3d(0, 1px, 0) rotate(45deg) scale(0.72);
+    }
+    52% {
+        opacity: 0.92;
+        transform: translate3d(0, 8px, 0) rotate(45deg) scale(0.82);
+    }
+    100% {
+        opacity: 0;
+        transform: translate3d(0, 62px, 0) rotate(45deg) scale(0.68);
+    }
+}
+
+/* ============================================================
+   ICE SPARKLES
+   ============================================================ */
+
+#winter-background .winter-sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow:
+        0 0 8px rgba(255, 255, 255, 0.90),
+        0 0 12px rgba(115, 185, 226, 0.46);
+    pointer-events: none;
+    opacity: 0;
+    animation:
+        winterSparkle
+        var(--winter-sparkle-duration)
+        ease-in-out
+        var(--winter-sparkle-delay)
+        infinite;
+}
+
+#winter-background .winter-sparkle::before,
+#winter-background .winter-sparkle::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background: rgba(255, 255, 255, 0.82);
+    transform: translate(-50%, -50%);
+}
+
+#winter-background .winter-sparkle::before { width: 13px; height: 1px; }
+#winter-background .winter-sparkle::after { width: 1px; height: 13px; }
+
+@keyframes winterSparkle {
+    0%, 100% { opacity: 0; transform: scale(0.35); }
+    42% { opacity: 0.26; transform: scale(calc(var(--winter-sparkle-scale) * 0.8)); }
+    56% { opacity: 0.72; transform: scale(var(--winter-sparkle-scale)); }
+    72% { opacity: 0.18; transform: scale(0.56); }
+}
+
+/* ============================================================
+   RESPONSIVE / REDUCED MOTION
+   ============================================================ */
+
+@media (max-width: 700px) {
+    #winter-background .winter-snowflake {
+        opacity: calc(var(--winter-flake-opacity) * 0.72);
+    }
+
+    #winter-background .winter-icicle-cluster {
+        opacity: 0.70;
+    }
+
+    #winter-background .winter-icicle-bottom {
+        opacity: 0.36;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #winter-background .winter-snowflake,
+    #winter-background .winter-water-drop,
+    #winter-background .winter-sparkle {
+        animation: none !important;
+    }
+
+    #winter-background .winter-snowflake {
+        top: var(--winter-static-top, 35%);
+        opacity: 0.25;
+    }
+}
+
+/* Big illustrated snowflakes instead of tiny falling flakes. */
+#winter-background .winter-big-snowflake {
+    position: absolute !important;
+    top: auto;
+    opacity: .82;
+    pointer-events: none !important;
+    transform: translate3d(-50%,-50%,0);
+    transform-origin: center;
+    filter:
+        drop-shadow(0 10px 16px rgba(62,131,176,.18))
+        drop-shadow(0 0 12px rgba(255,255,255,.42));
+    animation: winterBigSnowflakeFloat var(--winter-float-duration) ease-in-out var(--winter-float-delay) infinite alternate !important;
+}
+@keyframes winterBigSnowflakeFloat {
+    from {
+        transform: translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.96);
+    }
+    to {
+        transform: translate3d(-50%,-50%,0) translate3d(var(--winter-float-x),var(--winter-float-y),0) rotate(var(--winter-float-r)) scale(1.04);
+    }
+}
+#winter-background .winter-big-snowflake.winter-snowflake-hover {
+    animation: winterSnowflakeHover .50s ease-out !important;
+}
+@keyframes winterSnowflakeHover {
+    0%,100% { transform: translate3d(-50%,-50%,0) rotate(0deg) scale(1); }
+    35% { transform: translate3d(-50%,-50%,0) rotate(-8deg) scale(1.12); }
+    68% { transform: translate3d(-50%,-50%,0) rotate(8deg) scale(1.08); }
+}

@@ -1,0 +1,89 @@
+/* ============================================================
+   SNOOPY THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-snoopy {
+    --snoopy-ink: #6a4e62;
+    --snoopy-border: #efb4c9;
+    --snoopy-surface: #fffdfd;
+    --snoopy-surface-soft: #fff5f9;
+    --snoopy-accent: #ff9fc8;
+    --snoopy-second: #f5c766;
+    --snoopy-third: #b8dc86;
+    --black: var(--snoopy-ink);
+    --white: var(--snoopy-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--snoopy-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--snoopy-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--snoopy-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--snoopy-border) 44%, transparent);
+    --track-bg: #fff0f5;
+    --muted-text: color-mix(in srgb, var(--snoopy-ink) 58%, transparent);
+    background: radial-gradient(circle at 15% 14%, rgba(255,255,255,.90), transparent 24%), radial-gradient(circle at 84% 16%, rgba(255,255,255,.56), transparent 24%), radial-gradient(circle at 22% 84%, rgba(255,159,200,.12), transparent 24%), linear-gradient(160deg, #ffeaf4 0%, #fff7df 46%, #f5ffe6 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--snoopy-ink) !important;
+}
+
+#snoopy-background { position:fixed; inset:0; width:100vw; height:100vh; overflow:hidden; pointer-events:none; user-select:none; z-index:-1; }
+#snoopy-background::before, #snoopy-background::after { content:''; position:absolute; inset:-14%; pointer-events:none; }
+#snoopy-background::before { background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.22), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%); animation: snoopyLightSweep 9s ease-in-out infinite alternate; }
+body.theme-snoopy #snoopy-background { z-index:-1; }
+body.theme-snoopy .view { position:relative; z-index:2; }
+body.theme-snoopy .side-nav { position:relative; z-index:3; }
+body.theme-snoopy header, body.theme-snoopy .log-header-container { position:relative; z-index:4; }
+body.theme-snoopy .modal, body.theme-snoopy .modal-overlay, body.theme-snoopy .overlay { z-index:10; }
+
+body.theme-snoopy .day-box,
+body.theme-snoopy .day-picker-box,
+body.theme-snoopy .icon-btn,
+body.theme-snoopy .small-icon-btn,
+body.theme-snoopy input,
+body.theme-snoopy textarea,
+body.theme-snoopy select,
+body.theme-snoopy .notes-editable,
+body.theme-snoopy .phrase-card,
+body.theme-snoopy .chip,
+body.theme-snoopy .toolbox-item,
+body.theme-snoopy .resource-card,
+body.theme-snoopy .polaroid-card,
+body.theme-snoopy .filter-tab,
+body.theme-snoopy .day-target-box,
+body.theme-snoopy .flashcard,
+body.theme-snoopy .flashcard-mode-card,
+body.theme-snoopy .day-badge,
+body.theme-snoopy .video-placeholder,
+body.theme-snoopy .theme-picker-card,
+body.theme-snoopy .note-audio-row,
+body.theme-snoopy .modal-box,
+body.theme-snoopy .set-complete-box { background-color: var(--snoopy-surface) !important; }
+
+body.theme-snoopy input::placeholder,
+body.theme-snoopy textarea::placeholder,
+body.theme-snoopy .notes-editable:empty::before { color: color-mix(in srgb, var(--snoopy-ink) 42%, transparent) !important; }
+body.theme-snoopy .icon-btn:hover,
+body.theme-snoopy .small-icon-btn:hover,
+body.theme-snoopy .filter-tab:hover { background: var(--snoopy-surface-soft) !important; color: var(--snoopy-ink) !important; }
+body.theme-snoopy .chip:hover,
+body.theme-snoopy .phrase-card:hover,
+body.theme-snoopy .day-picker-box.selected,
+body.theme-snoopy .filter-tab.active,
+body.theme-snoopy .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--snoopy-surface-soft) 72%, var(--snoopy-accent) 28%) !important; color: var(--snoopy-ink) !important; border-color: var(--snoopy-border) !important; }
+body.theme-snoopy .progress-bar-fill { background: linear-gradient(90deg, var(--snoopy-accent), var(--snoopy-second), var(--snoopy-third)) !important; }
+
+#snoopy-background .snoopy-item { position:absolute; display:block; height:auto; object-fit:contain; opacity:.95; transform-origin:center; translate:0 0; rotate:0deg; scale:1; filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--snoopy-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30)); animation: snoopyFloat var(--snoopy-float-duration) ease-in-out var(--snoopy-float-delay) infinite alternate; will-change:transform; }
+@keyframes snoopyFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--snoopy-float-x), var(--snoopy-float-y), 0) rotate(var(--snoopy-float-r)) scale(1.035)} }
+#snoopy-background .snoopy-item.snoopy-intro-bop { animation:snoopyIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--snoopy-bop-delay) infinite !important; }
+@keyframes snoopyIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+
+#snoopy-background .snoopy-extra { position:absolute; width:14px; height:14px; transform:rotate(-45deg); background:rgba(255,159,200,.42); border-radius:3px 3px 0 0; opacity:.46; animation:snoopyHeartFloat var(--snoopy-extra-duration) ease-in-out var(--snoopy-extra-delay) infinite alternate; }
+#snoopy-background .snoopy-extra::before, #snoopy-background .snoopy-extra::after { content:''; position:absolute; width:14px; height:14px; background:inherit; border-radius:50%; }
+#snoopy-background .snoopy-extra::before { left:0; top:-7px; }
+#snoopy-background .snoopy-extra::after { left:7px; top:0; }
+@keyframes snoopyHeartFloat { from{transform:rotate(-45deg) translate3d(0,0,0) scale(.82)} to{transform:rotate(-45deg) translate3d(0,-12px,0) scale(1.04)} }
+
+
+@keyframes snoopyLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #snoopy-background .snoopy-item { opacity:.72; } #snoopy-background .snoopy-extra { opacity:.38; } }
+@media (prefers-reduced-motion: reduce) { #snoopy-background::before, #snoopy-background .snoopy-item, #snoopy-background .snoopy-extra { animation:none !important; } }

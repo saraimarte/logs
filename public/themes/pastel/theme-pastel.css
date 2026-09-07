@@ -1,0 +1,9 @@
+body.theme-pastel {
+--overlay-scrim: rgba(10, 25, 35, 0.6);
+--black: #5b8291;
+--white: #f0f8ff;
+--thick-border: 3px solid #5b8291;
+--thin-border: 2px solid #5b8291;
+--dashed-border: 2px dashed #5b8291;
+--dotted-border: 2px dotted #5b8291;
+}

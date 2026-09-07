@@ -1,0 +1,69 @@
+/* arcade theme v4: decorative background + readability-safe UI styling. */
+body.theme-arcade {
+  --theme-text: #fff5ff;
+  --theme-accent: #63f5ff;
+  --theme-accent-2: #ff62ce;
+  --theme-day: rgba(12,7,37,.92);
+  --theme-day-text: #fff8ff;
+  --theme-border: rgba(99,245,255,.46);
+  --theme-surface: rgba(9,5,28,.20);
+  --black: var(--theme-text);
+  --white: var(--theme-text);
+  --thick-border: 3px solid var(--theme-border);
+  --thin-border: 2px solid var(--theme-border);
+  --dashed-border: 2px dashed var(--theme-border);
+  --dotted-border: 2px dotted var(--theme-border);
+  --muted-text: color-mix(in srgb, var(--theme-text) 64%, transparent);
+  background: radial-gradient(circle at 50% 20%,rgba(255,82,204,.18),transparent 30%),linear-gradient(145deg,#0b0622,#25105a 55%,#09051b);
+  background-attachment: fixed;
+  color: var(--theme-text);
+}
+
+/* Containers remain visually open. Individual controls/cards can still have surfaces. */
+body.theme-arcade .filter-tabs, body.theme-arcade .tabs-container, body.theme-arcade .days-container, body.theme-arcade .knowledgebase-container, body.theme-arcade .knowledge-base, body.theme-arcade .view-container {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Day boxes stay solid enough to keep their numbers readable. */
+body.theme-arcade .day-box, body.theme-arcade .day-box.has-data, body.theme-arcade .day-picker-box {
+  background: var(--theme-day) !important;
+  color: var(--theme-day-text) !important;
+  border-color: var(--theme-accent) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.18);
+}
+body.theme-arcade .day-box *, body.theme-arcade .day-picker-box * { color: inherit !important; }
+body.theme-arcade .day-box:hover, body.theme-arcade .day-picker-box:hover { filter: brightness(1.08); }
+body.theme-arcade .day-box.selected, body.theme-arcade .day-picker-box.selected, body.theme-arcade .filter-tab.active {
+  background: var(--theme-accent) !important;
+  color: #211126 !important;
+  text-shadow: none;
+}
+
+/* Tab buttons are readable without creating a giant tab-container panel. */
+body.theme-arcade .filter-tab { color: var(--theme-text); background: transparent; border-color: var(--theme-border); }
+body.theme-arcade .filter-tab:hover { color: var(--theme-accent) !important; background: color-mix(in srgb, var(--theme-accent) 12%, transparent) !important; }
+
+/* Cards/inputs that need a surface get one; the page containers do not. */
+body.theme-arcade .resource-card, body.theme-arcade .toolbox-item, body.theme-arcade .chip, body.theme-arcade .modal-box, body.theme-arcade select, body.theme-arcade input, body.theme-arcade textarea {
+  background: var(--theme-day) !important;
+  color: var(--theme-day-text) !important;
+  border-color: var(--theme-border) !important;
+}
+body.theme-arcade .chip:hover { background: var(--theme-accent) !important; color: #14232b !important; }
+
+/* Settings icon: never inherit a disappearing/background color on hover. */
+
+/* Shared controls: theme colors only; no layout changes. */
+body.theme-arcade .settings-button:hover, body.theme-arcade #settings-button:hover, body.theme-arcade .settings-icon:hover, body.theme-arcade [aria-label*="Settings"]:hover, body.theme-arcade [title*="Settings"]:hover { color: var(--theme-accent) !important; fill: var(--theme-accent) !important; stroke: var(--theme-accent) !important; background-color: transparent !important; opacity: 1 !important; }
+body.theme-arcade .settings-button:hover svg, body.theme-arcade #settings-button:hover svg, body.theme-arcade .settings-icon:hover svg, body.theme-arcade [aria-label*="Settings"]:hover svg, body.theme-arcade [title*="Settings"]:hover svg { color: var(--theme-accent) !important; fill: currentColor !important; stroke: currentColor !important; }
+
+
+#arcade-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: 0; isolation: isolate; }
+#arcade-background .theme-object { position:absolute; pointer-events:none; user-select:none; will-change:transform; transform:translate3d(calc(var(--theme-mx,0px) * var(--px, .04)), calc(var(--theme-my,0px) * var(--py, .04)), 0); filter: drop-shadow(0 14px 22px rgba(0,0,0,.12)); }
+#arcade-background .theme-object svg { display:block; width:100%; height:100%; overflow:visible; }
+#arcade-background .theme-object.back { opacity:.50; }
+#arcade-background .theme-object.mid { opacity:.68; }
+#arcade-background .theme-object.front { opacity:.80; }
+@media (prefers-reduced-motion: reduce) { #arcade-background * { animation:none !important; transition:none !important; } }

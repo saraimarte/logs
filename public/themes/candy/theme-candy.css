@@ -1,0 +1,95 @@
+    /* ============================================================
+       CANDY THEME
+       Decorative-only styling built from the winter theme structure.
+       ============================================================ */
+
+    body.theme-candy {
+        --candy-ink: #6b345a;
+        --candy-border: #f5b0cf;
+        --candy-surface: #fffafd;
+        --candy-surface-soft: #fff2f8;
+        --candy-accent: #ff8ac2;
+        --candy-second: #7ad8ff;
+        --candy-third: #ffe27a;
+        --black: var(--candy-ink);
+        --white: var(--candy-surface);
+        --bg-overlay: transparent;
+        --thick-border: 3px solid color-mix(in srgb, var(--candy-border) 60%, transparent);
+        --thin-border: 2px solid color-mix(in srgb, var(--candy-border) 48%, transparent);
+        --dashed-border: 2px dashed color-mix(in srgb, var(--candy-border) 44%, transparent);
+        --dotted-border: 2px dotted color-mix(in srgb, var(--candy-border) 44%, transparent);
+        --track-bg: #ffeaf6;
+        --muted-text: color-mix(in srgb, var(--candy-ink) 58%, transparent);
+        background: radial-gradient(circle at 15% 14%, rgba(255,255,255,.86), transparent 24%), radial-gradient(circle at 84% 16%, rgba(255,255,255,.50), transparent 24%), radial-gradient(circle at 20% 82%, rgba(255,138,194,.12), transparent 24%), linear-gradient(160deg, #ffe8f6 0%, #fff8e1 46%, #e9f8ff 100%) !important;
+        background-attachment: fixed !important;
+        color: var(--candy-ink) !important;
+    }
+
+    #candy-background { position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden; pointer-events: none; user-select: none; z-index: -1; }
+    #candy-background::before, #candy-background::after { content:''; position:absolute; pointer-events:none; }
+    #candy-background::before { inset:-12%; background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.24), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%); animation:candyLightSweep 9s ease-in-out infinite alternate; }
+    body.theme-candy #candy-background { z-index: -1; }
+    body.theme-candy .view { position: relative; z-index: 2; }
+    body.theme-candy .side-nav { position: relative; z-index: 3; }
+    body.theme-candy header, body.theme-candy .log-header-container { position: relative; z-index: 4; }
+    body.theme-candy .modal, body.theme-candy .modal-overlay, body.theme-candy .overlay { z-index: 10; }
+
+    body.theme-candy .day-box,
+    body.theme-candy .day-picker-box,
+    body.theme-candy .icon-btn,
+    body.theme-candy .small-icon-btn,
+    body.theme-candy input,
+    body.theme-candy textarea,
+    body.theme-candy select,
+    body.theme-candy .notes-editable,
+    body.theme-candy .phrase-card,
+    body.theme-candy .chip,
+    body.theme-candy .toolbox-item,
+    body.theme-candy .resource-card,
+    body.theme-candy .polaroid-card,
+    body.theme-candy .filter-tab,
+    body.theme-candy .day-target-box,
+    body.theme-candy .flashcard,
+    body.theme-candy .flashcard-mode-card,
+    body.theme-candy .day-badge,
+    body.theme-candy .video-placeholder,
+    body.theme-candy .theme-picker-card,
+    body.theme-candy .note-audio-row,
+    body.theme-candy .modal-box,
+    body.theme-candy .set-complete-box { background-color: var(--candy-surface) !important; }
+
+    body.theme-candy input::placeholder,
+    body.theme-candy textarea::placeholder,
+    body.theme-candy .notes-editable:empty::before { color: color-mix(in srgb, var(--candy-ink) 42%, transparent) !important; }
+    body.theme-candy .icon-btn:hover,
+    body.theme-candy .small-icon-btn:hover,
+    body.theme-candy .filter-tab:hover { background: var(--candy-surface-soft) !important; color: var(--candy-ink) !important; }
+    body.theme-candy .chip:hover,
+    body.theme-candy .phrase-card:hover,
+    body.theme-candy .day-picker-box.selected,
+    body.theme-candy .filter-tab.active,
+    body.theme-candy .filter-tab[aria-selected="true"] { background: color-mix(in srgb, var(--candy-surface-soft) 72%, var(--candy-accent) 28%) !important; color: var(--candy-ink) !important; border-color: var(--candy-border) !important; }
+    body.theme-candy .progress-bar-fill { background: linear-gradient(90deg, var(--candy-accent), var(--candy-second), var(--candy-third)) !important; }
+
+    #candy-background .candy-item {
+        position:absolute; display:block; height:auto; object-fit:contain; opacity:.95;
+        transform-origin:center; translate:0 0; rotate:0deg; scale:1;
+        filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--candy-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30));
+        animation: candyFloat var(--candy-float-duration) ease-in-out var(--candy-float-delay) infinite alternate; will-change:transform;
+    }
+    @keyframes candyFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--candy-float-x), var(--candy-float-y), 0) rotate(var(--candy-float-r)) scale(1.035)} }
+    #candy-background .candy-item.candy-intro-bop { animation:candyIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--candy-bop-delay) infinite !important; }
+    @keyframes candyIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+    #candy-background .candy-extra { position:absolute; }
+
+#candy-background .candy-sprinkle {
+    width: 14px; height: 4px; border-radius: 999px; background: linear-gradient(90deg, var(--candy-accent), var(--candy-second));
+    opacity: .64; animation: candySprinkleFloat var(--candy-extra-duration) ease-in-out var(--candy-extra-delay) infinite alternate;
+}
+@keyframes candySprinkleFloat { from{transform:translate3d(0,0,0) rotate(0deg)} to{transform:translate3d(var(--candy-extra-x), var(--candy-extra-y),0) rotate(var(--candy-extra-r))} }
+
+
+    @keyframes candyLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+    @media (max-width:700px) { #candy-background .candy-item { opacity:.72; } #candy-background .candy-extra { opacity:.38; } }
+    @media (prefers-reduced-motion: reduce) { #candy-background::before, #candy-background .candy-item, #candy-background .candy-extra { animation:none !important; } }

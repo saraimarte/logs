@@ -1,0 +1,639 @@
+/* ============================================================
+   FRENCH
+   Revised to use real /svg/theme-french assets.
+   - Bigger objects
+   - Repeated objects
+   - More center placement
+   - Preserves original asset color visibility
+   - Background updated to a more elegant French palette
+   ============================================================ */
+
+body.theme-french {
+    --theme-ink: #27344b;
+    --theme-paper: #fbf6ee;
+    --theme-accent: #b54851;
+    --theme-accent-2: #416291;
+    --theme-gold: #c8a363;
+    --theme-soft-line: rgba(39, 52, 75, 0.08);
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+
+    --thick-border: 2px solid color-mix(in srgb, var(--theme-accent) 42%, transparent);
+    --thin-border: 1px solid color-mix(in srgb, var(--theme-accent) 28%, transparent);
+    --dashed-border: 1px dashed color-mix(in srgb, var(--theme-accent) 28%, transparent);
+    --dotted-border: 1px dotted color-mix(in srgb, var(--theme-accent) 28%, transparent);
+
+    --track-bg: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+    --muted-text: color-mix(in srgb, var(--theme-ink) 58%, transparent);
+
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.55), transparent 34%),
+        radial-gradient(circle at 14% 82%, rgba(65, 98, 145, 0.08), transparent 26%),
+        radial-gradient(circle at 88% 24%, rgba(181, 72, 81, 0.08), transparent 24%),
+        linear-gradient(145deg, #faf4ea 0%, #f2eadc 48%, #ece3d5 100%) !important;
+
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#french-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#french-background .theme-french-haze {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 14%, rgba(255, 255, 255, 0.55), transparent 34%),
+        radial-gradient(circle at 20% 56%, rgba(200, 163, 99, 0.08), transparent 24%),
+        radial-gradient(circle at 82% 54%, rgba(65, 98, 145, 0.06), transparent 28%);
+}
+
+#french-background .theme-french-ribbon {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(65, 98, 145, 0.10) 0%,
+            rgba(65, 98, 145, 0.10) 9%,
+            transparent 9%,
+            transparent 91%,
+            rgba(181, 72, 81, 0.10) 91%,
+            rgba(181, 72, 81, 0.10) 100%
+        ),
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            transparent 16%,
+            rgba(255,255,255,0.18) 16%,
+            rgba(255,255,255,0.18) 18%,
+            transparent 18%,
+            transparent 82%,
+            rgba(255,255,255,0.18) 82%,
+            rgba(255,255,255,0.18) 84%,
+            transparent 84%,
+            transparent 100%
+        );
+    opacity: 0.9;
+}
+
+#french-background .theme-french-pattern {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(0deg, transparent 0 52px, rgba(39, 52, 75, 0.04) 52px 53px),
+        repeating-linear-gradient(90deg, transparent 0 52px, rgba(39, 52, 75, 0.03) 52px 53px),
+        radial-gradient(circle at 26px 26px, rgba(200, 163, 99, 0.10) 0 2px, transparent 3px);
+    background-size: 100% 100%, 100% 100%, 78px 78px;
+    opacity: 0.55;
+}
+
+#french-background .theme-french-horizon {
+    position: absolute;
+    left: -8vw;
+    right: -8vw;
+    bottom: -10vh;
+    height: 34vh;
+    background:
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(39, 52, 75, 0.03) 26%,
+            rgba(39, 52, 75, 0.08) 100%
+        );
+    clip-path: ellipse(78% 62% at 50% 100%);
+    opacity: 0.85;
+}
+
+/* Objects */
+#french-background .theme-french-item {
+    position: absolute;
+    width: 188px;
+    height: 188px;
+    opacity: var(--item-opacity, 0.76);
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--item-rotate))
+        scale(var(--item-scale));
+    filter:
+        drop-shadow(0 8px 14px rgba(24, 24, 24, 0.12));
+    animation:
+        themeFrenchFloat 8.2s ease-in-out var(--item-delay) infinite;
+    transform-origin: center center;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#french-background .theme-french-item.theme-french-soft {
+    opacity: var(--item-opacity, 0.30);
+}
+
+#french-background .theme-french-item.theme-french-emphasis {
+    opacity: var(--item-opacity, 0.80);
+}
+
+#french-background .theme-french-object-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    filter: none;
+}
+
+/* Asset-specific proportions */
+#french-background .theme-french-arc {
+    width: 218px;
+    height: 175px;
+}
+
+#french-background .theme-french-baguette {
+    width: 224px;
+    height: 117px;
+}
+
+#french-background .theme-french-pastry {
+    width: 165px;
+    height: 165px;
+}
+
+#french-background .theme-french-tower {
+    width: 185px;
+    height: 251px;
+}
+
+#french-background .theme-french-coat {
+    width: 196px;
+    height: 196px;
+}
+
+#french-background .theme-french-rings {
+    width: 150px;
+    height: 150px;
+}
+
+#french-background .theme-french-ticket {
+    width: 206px;
+    height: 132px;
+}
+
+#french-background .theme-french-postcard {
+    width: 196px;
+    height: 120px;
+}
+
+@keyframes themeFrenchFloat {
+    0%,
+    100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, 0, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--item-x), var(--item-y), 0)
+            rotate(calc(var(--item-rotate) + 2deg))
+            scale(var(--item-scale));
+    }
+}
+
+#french-background .theme-french-react {
+    opacity: 0.92 !important;
+    filter:
+        drop-shadow(0 11px 17px rgba(24, 24, 24, 0.16))
+        drop-shadow(0 0 13px rgba(200, 163, 99, 0.32));
+    animation: themeFrenchReact 0.48s ease-out !important;
+}
+
+@keyframes themeFrenchReact {
+    0% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+
+    45% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0, -11px, 0)
+            rotate(calc(var(--item-rotate) + 7deg))
+            scale(calc(var(--item-scale) * 1.08));
+    }
+
+    100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+}
+
+
+/* ============================================================
+   SMALL UI BOXES / CARDS
+   Neutral paper styling across tabs. This targets the actual
+   little boxes/cards, NOT the full category bar/container.
+   ============================================================ */
+
+body.theme-french .day-box,
+body.theme-french .day-picker-box,
+body.theme-french .icon-btn,
+body.theme-french .small-icon-btn,
+body.theme-french input,
+body.theme-french textarea,
+body.theme-french select,
+body.theme-french .notes-editable,
+body.theme-french .phrase-card,
+body.theme-french .chip,
+body.theme-french .toolbox-item,
+body.theme-french .resource-card,
+body.theme-french .polaroid-card,
+body.theme-french .filter-tab,
+body.theme-french .day-target-box,
+body.theme-french .flashcard,
+body.theme-french .flashcard-mode-card,
+body.theme-french .day-badge,
+body.theme-french .video-placeholder,
+body.theme-french .theme-picker-card,
+body.theme-french .note-audio-row,
+body.theme-french .modal-box,
+body.theme-french .category-box,
+body.theme-french .category-card,
+body.theme-french .category-chip,
+body.theme-french .knowledge-category,
+body.theme-french .knowledge-category-box,
+body.theme-french .knowledge-category-card,
+body.theme-french .knowledge-tag,
+body.theme-french .tag,
+body.theme-french .label-box {
+    background: rgba(248, 244, 237, 0.96) !important;
+    background-color: rgba(248, 244, 237, 0.96) !important;
+    background-image: none !important;
+
+    color: var(--theme-ink) !important;
+
+    border-color: rgba(39, 52, 75, 0.17) !important;
+
+    box-shadow:
+        0 1px 2px rgba(39, 52, 75, 0.035),
+        0 4px 12px rgba(39, 52, 75, 0.025) !important;
+
+    filter: none !important;
+}
+
+/* Neutral hover for the actual little boxes only. */
+body.theme-french .day-box:hover,
+body.theme-french .day-picker-box:hover,
+body.theme-french .icon-btn:hover,
+body.theme-french .small-icon-btn:hover,
+body.theme-french .phrase-card:hover,
+body.theme-french .chip:hover,
+body.theme-french .toolbox-item:hover,
+body.theme-french .resource-card:hover,
+body.theme-french .polaroid-card:hover,
+body.theme-french .filter-tab:hover,
+body.theme-french .day-target-box:hover,
+body.theme-french .flashcard-mode-card:hover,
+body.theme-french .theme-picker-card:hover,
+body.theme-french .category-box:hover,
+body.theme-french .category-card:hover,
+body.theme-french .category-chip:hover,
+body.theme-french .knowledge-category:hover,
+body.theme-french .knowledge-category-box:hover,
+body.theme-french .knowledge-category-card:hover,
+body.theme-french .knowledge-tag:hover,
+body.theme-french .tag:hover,
+body.theme-french .label-box:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+
+    color: var(--theme-ink) !important;
+
+    border-color: rgba(39, 52, 75, 0.22) !important;
+
+    box-shadow:
+        0 1px 2px rgba(39, 52, 75, 0.045),
+        0 5px 14px rgba(39, 52, 75, 0.035) !important;
+
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+/* Selected/active little boxes stay neutral too. */
+body.theme-french .day-picker-box.selected,
+body.theme-french .filter-tab.active,
+body.theme-french .category-box.active,
+body.theme-french .category-card.active,
+body.theme-french .category-chip.active,
+body.theme-french .knowledge-category.active,
+body.theme-french .knowledge-category-box.active,
+body.theme-french .knowledge-category-card.active,
+body.theme-french .knowledge-tag.active,
+body.theme-french .tag.active,
+body.theme-french .label-box.active,
+body.theme-french .category-box.selected,
+body.theme-french .category-card.selected,
+body.theme-french .category-chip.selected {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+
+    color: var(--theme-ink) !important;
+
+    border-color: rgba(39, 52, 75, 0.26) !important;
+
+    box-shadow: inset 0 0 0 1px rgba(39, 52, 75, 0.035) !important;
+    filter: none !important;
+}
+
+/* Remove gradient pseudo-overlays only from these small boxes. */
+body.theme-french .category-box::before,
+body.theme-french .category-box::after,
+body.theme-french .category-card::before,
+body.theme-french .category-card::after,
+body.theme-french .category-chip::before,
+body.theme-french .category-chip::after,
+body.theme-french .knowledge-category::before,
+body.theme-french .knowledge-category::after,
+body.theme-french .knowledge-category-box::before,
+body.theme-french .knowledge-category-box::after,
+body.theme-french .knowledge-category-card::before,
+body.theme-french .knowledge-category-card::after,
+body.theme-french .knowledge-tag::before,
+body.theme-french .knowledge-tag::after,
+body.theme-french .tag::before,
+body.theme-french .tag::after,
+body.theme-french .label-box::before,
+body.theme-french .label-box::after,
+body.theme-french .chip::before,
+body.theme-french .chip::after,
+body.theme-french .filter-tab::before,
+body.theme-french .filter-tab::after {
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+
+body.theme-french input::placeholder,
+body.theme-french textarea::placeholder,
+body.theme-french .notes-editable:empty::before {
+    color: color-mix(in srgb, var(--theme-ink) 43%, transparent);
+}
+
+
+
+body.theme-french .progress-bar-track {
+    background: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+}
+
+body.theme-french .progress-bar-fill {
+    background:
+        linear-gradient(
+            90deg,
+            var(--theme-accent),
+            var(--theme-gold),
+            var(--theme-accent-2)
+        );
+}
+
+/* Safe stacking */
+body.theme-french #french-background {
+    z-index: 0;
+}
+
+body.theme-french .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-french .side-nav {
+    position: relative;
+    z-index: 3;
+}
+
+body.theme-french header,
+body.theme-french .log-header-container {
+    position: relative;
+    z-index: 4;
+}
+
+body.theme-french .modal,
+body.theme-french .modal-overlay,
+body.theme-french .overlay {
+    z-index: 10;
+}
+
+@media (max-width: 700px) {
+    #french-background .theme-french-item {
+        width: 142px;
+        height: 142px;
+    }
+
+    #french-background .theme-french-arc {
+        width: 168px;
+        height: 135px;
+    }
+
+    #french-background .theme-french-baguette {
+        width: 173px;
+        height: 89px;
+    }
+
+    #french-background .theme-french-tower {
+        width: 142px;
+        height: 196px;
+    }
+
+    #french-background .theme-french-ticket,
+    #french-background .theme-french-postcard {
+        width: 155px;
+        height: 107px;
+    }
+
+    #french-background .theme-french-item.theme-french-soft {
+        opacity: 0.22;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #french-background * {
+        animation: none !important;
+    }
+}
+
+
+
+
+
+
+/* ============================================================
+   IMPORTANT: KEEP BUTTON CONTAINERS COMPLETELY OPEN
+   Knowledge Base: #library-filter-tabs.filter-tabs
+   Quizzes: .set-size-picker + #quiz-type-filters.filter-tabs
+
+   These are ROW/CONTAINER elements, not the little buttons.
+   They must NEVER receive the themed box hover/background.
+   ============================================================ */
+
+html body.theme-french .filter-tabs,
+html body.theme-french .filter-tabs:hover,
+html body.theme-french .filter-tabs:focus,
+html body.theme-french .filter-tabs:focus-within,
+html body.theme-french #library-filter-tabs,
+html body.theme-french #library-filter-tabs:hover,
+html body.theme-french #library-filter-tabs:focus-within,
+html body.theme-french #quiz-type-filters,
+html body.theme-french #quiz-type-filters:hover,
+html body.theme-french #quiz-type-filters:focus-within,
+html body.theme-french .set-size-picker,
+html body.theme-french .set-size-picker:hover,
+html body.theme-french .set-size-picker:focus,
+html body.theme-french .set-size-picker:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+
+    border-color: transparent !important;
+}
+
+/* Kill any template/theme gradient overlay attached to the CONTAINER itself. */
+html body.theme-french .filter-tabs::before,
+html body.theme-french .filter-tabs::after,
+html body.theme-french .filter-tabs:hover::before,
+html body.theme-french .filter-tabs:hover::after,
+html body.theme-french #library-filter-tabs::before,
+html body.theme-french #library-filter-tabs::after,
+html body.theme-french #quiz-type-filters::before,
+html body.theme-french #quiz-type-filters::after,
+html body.theme-french .set-size-picker::before,
+html body.theme-french .set-size-picker::after,
+html body.theme-french .set-size-picker:hover::before,
+html body.theme-french .set-size-picker:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    box-shadow: none !important;
+    filter: none !important;
+
+    opacity: 0 !important;
+}
+
+/* The actual little category/quiz buttons still get the neutral paper hover. */
+html body.theme-french .filter-tabs > .filter-tab,
+html body.theme-french .set-size-picker > .filter-tab {
+    background: rgba(248, 244, 237, 0.96) !important;
+    background-color: rgba(248, 244, 237, 0.96) !important;
+    background-image: none !important;
+
+    color: var(--theme-ink) !important;
+    border-color: rgba(39, 52, 75, 0.17) !important;
+    box-shadow: 0 1px 2px rgba(39, 52, 75, 0.035) !important;
+    filter: none !important;
+}
+
+html body.theme-french .filter-tabs > .filter-tab:hover,
+html body.theme-french .set-size-picker > .filter-tab:hover {
+    background: #e9e5de !important;
+    background-color: #e9e5de !important;
+    background-image: none !important;
+
+    color: var(--theme-ink) !important;
+    border-color: rgba(39, 52, 75, 0.22) !important;
+
+    box-shadow: 0 2px 7px rgba(39, 52, 75, 0.05) !important;
+    filter: none !important;
+}
+
+html body.theme-french .filter-tabs > .filter-tab.active,
+html body.theme-french .set-size-picker > .filter-tab.active {
+    background: #dfdbd3 !important;
+    background-color: #dfdbd3 !important;
+    background-image: none !important;
+
+    color: var(--theme-ink) !important;
+    border-color: rgba(39, 52, 75, 0.26) !important;
+
+    box-shadow: inset 0 0 0 1px rgba(39, 52, 75, 0.035) !important;
+    filter: none !important;
+}
+
+
+/* ============================================================
+   SIDE TAB ICONS
+   Keep the right-side navigation icons completely backgroundless.
+   The base template expects these to be bare icons.
+   ============================================================ */
+
+html body.theme-french .side-nav .icon-btn,
+html body.theme-french .side-nav .icon-btn:hover,
+html body.theme-french .side-nav .icon-btn:focus,
+html body.theme-french .side-nav .icon-btn:focus-visible,
+html body.theme-french .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    border: none !important;
+    border-color: transparent !important;
+
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html body.theme-french .side-nav .icon-btn::before,
+html body.theme-french .side-nav .icon-btn::after,
+html body.theme-french .side-nav .icon-btn:hover::before,
+html body.theme-french .side-nav .icon-btn:hover::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    box-shadow: none !important;
+    filter: none !important;
+
+    opacity: 0 !important;
+}
+
+/* Preserve the template's icon-only hover behavior. */
+html body.theme-french .side-nav .icon-btn:hover {
+    transform: scale(1.15);
+}
+
+html body.theme-french .side-nav .icon-btn i {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    box-shadow: none !important;
+    filter: none !important;
+
+    color: var(--theme-ink) !important;
+}
+
+html body.theme-french .side-nav .icon-btn:hover i {
+    opacity: 0.62;
+}

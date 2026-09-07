@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="360" viewBox="0 0 320 360" fill="none">
+<defs>
+  <linearGradient id="waxC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2cf"/><stop offset="1" stop-color="#d8a95f"/></linearGradient>
+  <radialGradient id="flameC" cx="45%" cy="45%" r="70%"><stop offset="0" stop-color="#fff1a6"/><stop offset="0.5" stop-color="#ffb53f"/><stop offset="1" stop-color="#d1670a"/></radialGradient>
+</defs>
+<g stroke="#8b6a42" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M70 85 C70 50,86 31,115 31 C147 31,162 51,162 87 L162 276 C162 304,143 327,116 329 C90 331,70 313,70 287 Z" fill="url(#waxC)"/>
+  <path d="M69 128 C88 122,104 132,109 149 C114 166,108 182,92 191 C109 193,121 208,120 225 C119 245,102 258,80 258" fill="#eed2a3" stroke="#b68e56" stroke-width="3.2"/>
+  <path d="M90 31 L90 8"/>
+  <path d="M90 12 C82 28,84 43,91 53 C98 44,102 29,95 13 C93 8,92 7,90 12 Z" fill="url(#flameC)" stroke="#be7e21" stroke-width="3"/>
+
+  <path d="M176 118 C176 88,190 71,215 71 C243 71,256 89,256 119 L256 285 C256 309,239 328,216 329 C193 330,176 312,176 289 Z" fill="url(#waxC)"/>
+  <path d="M177 154 C190 149,202 156,206 170 C210 183,206 195,196 202 C209 205,218 216,218 230 C218 246,206 257,190 259" fill="#eed2a3" stroke="#b68e56" stroke-width="3.2"/>
+  <path d="M196 71 L196 47"/>
+  <path d="M196 51 C188 67,190 82,197 92 C204 83,208 68,201 52 C199 47,198 46,196 51 Z" fill="url(#flameC)" stroke="#be7e21" stroke-width="3"/>
+</g>
+</svg>

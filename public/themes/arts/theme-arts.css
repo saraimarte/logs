@@ -1,0 +1,380 @@
+/* ============================================================
+   ARTS
+   Decorative-only theme styling.
+
+   The application template remains the source of truth for:
+   - cursor system
+   - companion stages and positioning
+   - tabs/selectors
+   - views and layout
+   - cards/modals/buttons
+
+   Theme-specific styling is scoped to body.theme-arts.
+   ============================================================ */
+
+body.theme-arts {
+    --arts-ink: #28231f;
+    --arts-paper: #f7f0e3;
+    --arts-paper-deep: #eee3d0;
+    --arts-line: rgba(40, 35, 31, .18);
+    --arts-line-strong: rgba(40, 35, 31, .28);
+    --arts-muted: rgba(40, 35, 31, .56);
+
+    --black: var(--arts-ink);
+    --white: var(--arts-paper);
+    --muted-text: var(--arts-muted);
+    --track-bg: rgba(40, 35, 31, .10);
+    --bg-overlay: transparent;
+
+    --thick-border: 2px solid var(--arts-line-strong);
+    --thin-border: 1.5px solid var(--arts-line);
+    --dashed-border: 1.5px dashed var(--arts-line);
+    --dotted-border: 1.5px dotted var(--arts-line);
+
+    background: var(--arts-paper);
+    color: var(--arts-ink);
+}
+
+/* ============================================================
+   FIXED ART-CANVAS BACKGROUND
+   ============================================================ */
+
+body.theme-arts #arts-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse at 10% 18%, rgba(255, 84, 119, .16), transparent 23%),
+        radial-gradient(ellipse at 91% 23%, rgba(67, 116, 255, .15), transparent 25%),
+        radial-gradient(ellipse at 14% 83%, rgba(20, 177, 130, .13), transparent 24%),
+        radial-gradient(ellipse at 88% 82%, rgba(244, 184, 56, .15), transparent 25%),
+        linear-gradient(135deg, #f8f1e5 0%, #f2e7d4 48%, #f8f0e2 100%);
+}
+
+/* Paper fibers/grid. This stays inside the decorative layer and never
+   touches application containers. */
+body.theme-arts #arts-background::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: .42;
+    background:
+        repeating-linear-gradient(0deg, rgba(90, 68, 45, .028) 0 1px, transparent 1px 5px),
+        repeating-linear-gradient(90deg, rgba(90, 68, 45, .018) 0 1px, transparent 1px 7px);
+}
+
+body.theme-arts #arts-background::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(1120px, 86vw);
+    height: min(760px, 78vh);
+    transform: translate(-50%, -50%) rotate(-1.1deg);
+    border: 1px solid rgba(70, 55, 40, .075);
+    box-shadow:
+        0 0 0 12px rgba(255, 255, 255, .12),
+        0 18px 60px rgba(75, 53, 31, .045);
+    border-radius: 4px;
+}
+
+/* ============================================================
+   BACKGROUND DECORATION LAYERS
+   ============================================================ */
+
+body.theme-arts .arts-stroke,
+body.theme-arts .arts-dab,
+body.theme-arts .arts-tape,
+body.theme-arts .arts-speck {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Broad hand-painted strokes */
+body.theme-arts .arts-stroke {
+    height: var(--stroke-height, 10px);
+    width: var(--stroke-width, 170px);
+    border-radius: 999px;
+    opacity: var(--stroke-opacity, .18);
+    background: var(--stroke-color, #e94b62);
+    transform: translate(-50%, -50%) rotate(var(--stroke-rotation, -8deg));
+    filter: blur(.15px);
+    animation: artsStrokeBreath var(--stroke-duration, 9s) ease-in-out infinite alternate;
+}
+
+@keyframes artsStrokeBreath {
+    from { transform: translate(-50%, -50%) rotate(var(--stroke-rotation)) scaleX(.94); }
+    to   { transform: translate(-50%, -50%) rotate(calc(var(--stroke-rotation) + 2deg)) scaleX(1.04); }
+}
+
+/* Small paint daubs */
+body.theme-arts .arts-dab {
+    width: var(--dab-size, 18px);
+    height: var(--dab-size, 18px);
+    border-radius: 57% 43% 48% 52% / 46% 54% 42% 58%;
+    background: var(--dab-color, #2f69e8);
+    opacity: var(--dab-opacity, .24);
+    transform: translate(-50%, -50%) rotate(var(--dab-rotation, 0deg));
+    box-shadow: 0 2px 4px rgba(70, 48, 30, .07);
+    animation: artsDabFloat var(--dab-duration, 7s) ease-in-out infinite alternate;
+}
+
+@keyframes artsDabFloat {
+    from { transform: translate(-50%, -50%) rotate(var(--dab-rotation)) translateY(0); }
+    to   { transform: translate(-50%, -50%) rotate(calc(var(--dab-rotation) + 5deg)) translateY(-5px); }
+}
+
+/* Tiny specks create the feeling of a real studio canvas without becoming
+   a noisy particle field. */
+body.theme-arts .arts-speck {
+    width: var(--speck-size, 3px);
+    height: var(--speck-size, 3px);
+    border-radius: 50%;
+    background: var(--speck-color, #28231f);
+    opacity: var(--speck-opacity, .16);
+    animation: artsSpeckPulse var(--speck-duration, 5s) ease-in-out infinite alternate;
+}
+
+@keyframes artsSpeckPulse {
+    from { opacity: .04; transform: scale(.75); }
+    to   { opacity: var(--speck-opacity, .16); transform: scale(1.15); }
+}
+
+/* Little pieces of masking tape make the canvas feel like a studio wall. */
+body.theme-arts .arts-tape {
+    width: var(--tape-width, 88px);
+    height: var(--tape-height, 25px);
+    background: rgba(239, 218, 169, .62);
+    border: 1px solid rgba(125, 101, 57, .10);
+    box-shadow: 0 2px 4px rgba(66, 48, 29, .04);
+    transform: translate(-50%, -50%) rotate(var(--tape-rotation, 3deg));
+}
+
+/* ============================================================
+   PAINT SVG OBJECTS
+   ============================================================ */
+
+body.theme-arts #arts-background .arts-paint-item {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    transform-origin: center center;
+    transform: translate3d(-50%, -50%, 0) rotate(var(--arts-rotate, 0deg)) scale(var(--arts-scale, 1));
+    opacity: var(--arts-opacity, .86);
+    animation:
+        artsPaintFloat
+        var(--arts-duration, 9s)
+        ease-in-out
+        var(--arts-delay, 0s)
+        infinite;
+    will-change: transform;
+}
+
+body.theme-arts #arts-background .arts-paint-svg {
+    display: block;
+    width: var(--arts-size, 116px);
+    height: auto;
+    max-width: var(--arts-size, 116px);
+    max-height: 150px;
+    overflow: visible;
+    pointer-events: none;
+    user-select: none;
+    filter: drop-shadow(0 7px 8px rgba(57, 43, 31, .10));
+}
+
+@keyframes artsPaintFloat {
+    0%, 100% {
+        transform: translate3d(-50%, -50%, 0) rotate(var(--arts-rotate, 0deg)) scale(var(--arts-scale, 1));
+    }
+    30% {
+        transform: translate3d(-50%, calc(-50% - 6px), 0) rotate(calc(var(--arts-rotate, 0deg) - 1.5deg)) scale(var(--arts-scale, 1));
+    }
+    65% {
+        transform: translate3d(-50%, calc(-50% + 5px), 0) rotate(calc(var(--arts-rotate, 0deg) + 1.8deg)) scale(var(--arts-scale, 1));
+    }
+}
+
+body.theme-arts #arts-background .arts-depth-1 { z-index: 1; }
+body.theme-arts #arts-background .arts-depth-2 { z-index: 2; }
+
+/* ============================================================
+   UI COLOR ADAPTATION
+   Structural dimensions remain inherited from template.css.
+   ============================================================ */
+
+body.theme-arts .day-box,
+body.theme-arts .day-picker-box,
+body.theme-arts .icon-btn,
+body.theme-arts .small-icon-btn,
+body.theme-arts input[type="text"],
+body.theme-arts textarea,
+body.theme-arts select,
+body.theme-arts .notes-editable,
+body.theme-arts .phrase-card,
+body.theme-arts .chip,
+body.theme-arts .toolbox-item,
+body.theme-arts .resource-card,
+body.theme-arts .polaroid-card,
+body.theme-arts .filter-tab,
+body.theme-arts .day-target-box,
+body.theme-arts .flashcard,
+body.theme-arts .flashcard-mode-card,
+body.theme-arts .day-badge,
+body.theme-arts .video-placeholder,
+body.theme-arts .theme-picker-card,
+body.theme-arts .note-audio-row {
+    background-color: var(--arts-paper);
+    color: var(--arts-ink);
+}
+
+body.theme-arts .day-box,
+body.theme-arts .day-picker-box,
+body.theme-arts .icon-btn,
+body.theme-arts .small-icon-btn,
+body.theme-arts input[type="text"],
+body.theme-arts textarea,
+body.theme-arts select,
+body.theme-arts .notes-editable,
+body.theme-arts .phrase-card,
+body.theme-arts .chip,
+body.theme-arts .toolbox-item,
+body.theme-arts .resource-card,
+body.theme-arts .polaroid-card,
+body.theme-arts .filter-tab,
+body.theme-arts .day-target-box,
+body.theme-arts .flashcard,
+body.theme-arts .flashcard-mode-card,
+body.theme-arts .day-badge,
+body.theme-arts .video-placeholder,
+body.theme-arts .theme-picker-card,
+body.theme-arts .note-audio-row {
+    border-color: var(--arts-line-strong);
+}
+
+body.theme-arts h1,
+body.theme-arts h2,
+body.theme-arts .section-header,
+body.theme-arts .header-back-btn,
+body.theme-arts .tool-row,
+body.theme-arts .tool-row-name,
+body.theme-arts .tool-name,
+body.theme-arts .modal-label,
+body.theme-arts .field-label {
+    color: var(--arts-ink);
+}
+
+body.theme-arts input::placeholder,
+body.theme-arts textarea::placeholder,
+body.theme-arts .notes-editable:empty::before {
+    color: rgba(40, 35, 31, .43);
+}
+
+body.theme-arts .icon-btn:hover,
+body.theme-arts .small-icon-btn:hover,
+body.theme-arts .filter-tab:hover {
+    background: var(--arts-paper-deep);
+    color: var(--arts-ink);
+}
+
+body.theme-arts .chip:hover,
+body.theme-arts .phrase-card:hover,
+body.theme-arts .day-picker-box.selected,
+body.theme-arts .filter-tab.active {
+    background: var(--arts-ink);
+    color: var(--arts-paper);
+    border-color: var(--arts-ink);
+}
+
+body.theme-arts .progress-bar-track {
+    background: rgba(40, 35, 31, .10);
+}
+
+body.theme-arts .progress-bar-fill {
+    background: #e04d61;
+}
+
+body.theme-arts .save-indicator,
+body.theme-arts .progress-hint,
+body.theme-arts .tool-link {
+    color: var(--arts-muted);
+}
+
+/* ============================================================
+   DEPTH / LAYERING SAFETY
+   ============================================================
+
+   Never use body > *, *[class*=...], or catch-all selectors here.
+   The companion stages and cursor are deliberately left untouched.
+ */
+
+body.theme-arts #arts-background { z-index: 0; }
+
+body.theme-arts .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-arts .side-nav {
+    position: relative;
+    z-index: 3;
+}
+
+body.theme-arts header,
+body.theme-arts .log-header-container {
+    position: relative;
+    z-index: 4;
+}
+
+body.theme-arts .modal,
+body.theme-arts .modal-overlay,
+body.theme-arts .overlay {
+    z-index: 10;
+}
+
+/* Keep the cursor system completely owned by template.css/template.js. */
+body.theme-arts #cursor-fx-layer,
+body.theme-arts #custom-cursor-visual,
+body.theme-arts .cursor-particle {
+    /* No position, transform, pointer, or visibility changes. */
+}
+
+/* ============================================================
+   RESPONSIVE COMPOSITION
+   ============================================================ */
+
+@media (max-width: 1100px) {
+    body.theme-arts #arts-background .arts-paint-svg {
+        width: 94px;
+        max-width: 94px;
+        max-height: 125px;
+    }
+}
+
+@media (max-width: 700px) {
+    body.theme-arts #arts-background .arts-paint-item {
+        opacity: .58;
+    }
+
+    body.theme-arts #arts-background .arts-paint-svg {
+        width: 72px;
+        max-width: 72px;
+        max-height: 100px;
+    }
+
+    body.theme-arts .arts-stroke {
+        opacity: .11;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-arts #arts-background *,
+    body.theme-arts #arts-background {
+        animation: none !important;
+    }
+}

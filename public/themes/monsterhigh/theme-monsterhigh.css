@@ -1,0 +1,43 @@
+body.theme-monsterhigh{--black:#f7f4ff;--white:#1e1630;--bg-overlay:transparent;--muted-text:color-mix(in srgb,#f7f4ff 58%,transparent);--track-bg:color-mix(in srgb,#d94f9d 14%,transparent);background:radial-gradient(circle at 50% 4%,rgba(255,255,255,.45),transparent 26%),radial-gradient(circle at 12% 80%,color-mix(in srgb,#d94f9d 14%,transparent),transparent 28%),radial-gradient(circle at 88% 18%,color-mix(in srgb,#6bd7d2 16%,transparent),transparent 26%),linear-gradient(145deg,#1f1731 0%,#332246 46%,#17343a 100%) !important;background-attachment:fixed !important;color:#f7f4ff !important}
+body.theme-monsterhigh .view:not(#grid-view)::before{background:transparent !important;background-image:none !important;opacity:0 !important}
+#monsterhigh-background{--px:50vw;--py:50vh;--parx:0px;--pary:0px;position:fixed;inset:0;width:100vw;height:100vh;overflow:hidden;pointer-events:none;user-select:none;z-index:0;isolation:isolate}
+body.theme-monsterhigh .view{position:relative !important;z-index:2 !important}body.theme-monsterhigh .side-nav{z-index:3 !important}body.theme-monsterhigh header,body.theme-monsterhigh .log-header-container{position:relative;z-index:4 !important}
+#monsterhigh-background .theme-monsterhigh-glow,#monsterhigh-background .theme-monsterhigh-pattern,#monsterhigh-background .theme-monsterhigh-accents,#monsterhigh-background .theme-monsterhigh-floor{position:absolute;inset:0;pointer-events:none}
+#monsterhigh-background .theme-monsterhigh-glow{background:radial-gradient(circle 180px at var(--px) var(--py),color-mix(in srgb,#6bd7d2 23%,transparent),transparent 72%),radial-gradient(circle at 50% 10%,rgba(255,255,255,.38),transparent 32%);mix-blend-mode:screen;opacity:.8}
+#monsterhigh-background .theme-monsterhigh-pattern{background:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 2px,transparent 2px 22px);background-size:72px 72px;opacity:.5;transform:translate3d(calc(var(--parx)*-.12),calc(var(--pary)*-.12),0);transition:transform .2s ease-out}
+#monsterhigh-background .theme-monsterhigh-accents{transform:translate3d(calc(var(--parx)*.18),calc(var(--pary)*.14),0);transition:transform .2s ease-out}
+#monsterhigh-background .theme-monsterhigh-accent-dot{position:absolute;width:var(--z);height:var(--z);border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.82),color-mix(in srgb,#6bd7d2 55%,transparent) 45%,transparent 74%);opacity:.45;animation:monsterhighAccent var(--dur) ease-in-out var(--delay) infinite alternate}
+@keyframes monsterhighAccent{from{transform:translate3d(0,0,0) scale(.82);opacity:.22}to{transform:translate3d(var(--dx),var(--dy),0) scale(1.15);opacity:.68}}
+#monsterhigh-background .theme-monsterhigh-item{position:absolute;width:var(--w);max-width:30vw;transform:translate3d(-50%,-50%,0) rotate(var(--r)) scale(var(--s));transform-origin:center;opacity:.9;filter:drop-shadow(0 14px 18px rgba(0,0,0,.13)) drop-shadow(0 0 10px color-mix(in srgb,#d94f9d 15%,transparent));animation:monsterhighFloat var(--dur) ease-in-out var(--delay) infinite;will-change:transform}
+#monsterhigh-background .theme-monsterhigh-item img{display:block;width:100%;height:auto;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
+@keyframes monsterhighFloat{0%,100%{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(var(--r)) scale(var(--s))}50%{transform:translate3d(-50%,-50%,0) translate3d(var(--dx),var(--dy),0) rotate(calc(var(--r)+2deg)) scale(calc(var(--s)*1.02))}}
+#monsterhigh-background .theme-monsterhigh-item.theme-monsterhigh-react{opacity:1;filter:drop-shadow(0 18px 24px rgba(0,0,0,.18)) drop-shadow(0 0 20px color-mix(in srgb,#d94f9d 34%,transparent));animation:monsterhighReact .62s cubic-bezier(.18,.84,.26,1) both !important}
+@keyframes monsterhighReact{0%,100%{transform:translate3d(-50%,-50%,0) rotate(var(--r)) scale(var(--s))}35%{transform:translate3d(-50%,-50%,0) translateY(-10px) rotate(calc(var(--r) - 5deg)) scale(calc(var(--s)*1.10))}65%{transform:translate3d(-50%,-50%,0) translateY(-14px) rotate(calc(var(--r) + 5deg)) scale(calc(var(--s)*1.14))}}
+#monsterhigh-background .theme-monsterhigh-burst{position:fixed;width:var(--bs);height:var(--bs);border-radius:50%;pointer-events:none;z-index:3;background:linear-gradient(135deg,#d94f9d,#6bd7d2);box-shadow:0 0 10px color-mix(in srgb,#6bd7d2 46%,transparent);transform:translate(-50%,-50%);animation:monsterhighBurst .7s ease-out forwards}
+@keyframes monsterhighBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.35)}18%{opacity:.95}100%{opacity:0;transform:translate(-50%,-50%) translate3d(var(--bx),var(--by),0) scale(1.1)}}
+#monsterhigh-background .theme-monsterhigh-floor{background:linear-gradient(120deg,transparent 0 46%,rgba(217,79,157,.10) 47% 49%,transparent 50%),linear-gradient(-120deg,transparent 0 46%,rgba(107,215,210,.08) 47% 49%,transparent 50%)}
+body.theme-monsterhigh .day-box,body.theme-monsterhigh .day-picker-box,body.theme-monsterhigh .filter-tab,body.theme-monsterhigh .chip,body.theme-monsterhigh .phrase-card,body.theme-monsterhigh .toolbox-item,body.theme-monsterhigh .resource-card,body.theme-monsterhigh .flashcard,body.theme-monsterhigh .theme-picker-card,body.theme-monsterhigh input,body.theme-monsterhigh textarea,body.theme-monsterhigh select{background:rgba(38,29,53,.82) !important;color:#f7f4ff !important;border-color:rgba(255,255,255,.14) !important;background-image:none !important}
+body.theme-monsterhigh .filter-tabs,body.theme-monsterhigh #library-filter-tabs,body.theme-monsterhigh #quiz-type-filters,body.theme-monsterhigh .set-size-picker{background:transparent !important;background-image:none !important;box-shadow:none !important}
+body.theme-monsterhigh .side-nav .icon-btn,body.theme-monsterhigh .side-nav .icon-btn:hover,body.theme-monsterhigh .side-nav .icon-btn:focus,body.theme-monsterhigh .side-nav .icon-btn:active{background:transparent !important;background-color:transparent !important;background-image:none !important;border:none !important;box-shadow:none !important}body.theme-monsterhigh .side-nav .icon-btn::before,body.theme-monsterhigh .side-nav .icon-btn::after{content:none !important}
+@media(max-width:700px){#monsterhigh-background .theme-monsterhigh-item{max-width:220px;width:min(var(--w),42vw)}}
+@media(prefers-reduced-motion:reduce){#monsterhigh-background *{animation:none !important}}
+
+
+/* Intro-dance: a subset of SVGs bop only while the intro is actually playing. */
+#monsterhigh-background.monsterhigh-intro-playing .theme-monsterhigh-item.theme-monsterhigh-intro-dancer img {
+    animation: themeMonsterhighIntroDance var(--dance-duration,.74s) ease-in-out var(--dance-delay,0s) infinite;
+    transform-origin:center bottom;
+    will-change:transform;
+}
+
+@keyframes themeMonsterhighIntroDance {
+    0%,100% { transform:translateY(0) scale(1); }
+    44% { transform:translateY(calc(var(--dance-height,16px) * -1)) scale(1.03); }
+    68% { transform:translateY(-3px) scale(1.01); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #monsterhigh-background.monsterhigh-intro-playing .theme-monsterhigh-item.theme-monsterhigh-intro-dancer img {
+        animation:none !important;
+    }
+}

@@ -1,0 +1,452 @@
+body.theme-calc1 {
+    --theme-ink: #263851;
+    --theme-paper: #f9fcff;
+    --theme-accent: #6596d2;
+    --theme-accent-2: #7fc4a2;
+    --theme-gold: #d6b16a;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+    --thick-border: 2px solid color-mix(in srgb, var(--theme-accent) 44%, transparent);
+    --thin-border: 1px solid color-mix(in srgb, var(--theme-accent) 30%, transparent);
+    --dashed-border: 1px dashed color-mix(in srgb, var(--theme-accent) 30%, transparent);
+    --dotted-border: 1px dotted color-mix(in srgb, var(--theme-accent) 30%, transparent);
+    --track-bg: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+    --muted-text: color-mix(in srgb, var(--theme-ink) 58%, transparent);
+
+    background:
+        radial-gradient(circle at 50% 4%, color-mix(in srgb, var(--theme-accent-2) 16%, transparent), transparent 34%),
+        radial-gradient(circle at 12% 80%, color-mix(in srgb, var(--theme-accent) 12%, transparent), transparent 30%),
+        linear-gradient(145deg, #e5eefb, #e9f6f0) !important;
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#calc1-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#calc1-background .theme-calc1-haze {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 14%, color-mix(in srgb, var(--theme-paper) 42%, transparent), transparent 34%),
+        radial-gradient(circle at 15% 55%, color-mix(in srgb, var(--theme-accent) 10%, transparent), transparent 30%),
+        radial-gradient(circle at 85% 58%, color-mix(in srgb, var(--theme-accent-2) 10%, transparent), transparent 30%);
+}
+
+#calc1-background .theme-calc1-pattern {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(101,150,210,.09) 0 1px, transparent 1px 28px), repeating-linear-gradient(90deg, rgba(101,150,210,.09) 0 1px, transparent 1px 28px);
+    background-size: 80px 80px;
+    opacity: .68;
+}
+
+#calc1-background .theme-calc1-horizon {
+    position: absolute;
+    left: -7vw;
+    right: -7vw;
+    bottom: -8vh;
+    height: 29vh;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--theme-accent) 8%, transparent) 35%, color-mix(in srgb, var(--theme-ink) 12%, transparent));
+    clip-path: polygon(0 35%, 100% 12%, 100% 100%, 0 100%);
+    opacity: .65;
+}
+
+#calc1-background .theme-calc1-item {
+    position: absolute;
+    width: 125px;
+    height: 125px;
+    color: color-mix(in srgb, var(--theme-ink) 82%, var(--theme-accent));
+    opacity: .30;
+    transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    filter: drop-shadow(0 8px 13px rgba(0,0,0,.16)) drop-shadow(0 0 9px color-mix(in srgb, var(--theme-accent) 16%, transparent));
+    animation: themeCalc1Float 7.8s ease-in-out var(--item-delay) infinite;
+    transform-origin: center center;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#calc1-background .theme-calc1-item svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+    pointer-events: none;
+}
+
+#calc1-background .theme-calc1-item:nth-of-type(3n) {
+    width: 105px;
+    height: 105px;
+    opacity: .24;
+}
+
+#calc1-background .theme-calc1-item:nth-of-type(4n) {
+    animation-duration: 9.4s;
+}
+
+@keyframes themeCalc1Float {
+    0%,100% {
+        transform: translate3d(-50%, -50%, 0) translate3d(0,0,0) rotate(var(--item-rotate)) scale(var(--item-scale));
+    }
+    50% {
+        transform: translate3d(-50%, -50%, 0) translate3d(var(--item-x), var(--item-y), 0) rotate(calc(var(--item-rotate) + 2deg)) scale(var(--item-scale));
+    }
+}
+
+#calc1-background .theme-calc1-react {
+    opacity: .56;
+    filter: drop-shadow(0 10px 16px rgba(0,0,0,.20)) drop-shadow(0 0 14px color-mix(in srgb, var(--theme-accent) 34%, transparent));
+    animation: themeCalc1React .5s ease-out !important;
+}
+
+@keyframes themeCalc1React {
+    0% { transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+    45% { transform: translate3d(-50%, -50%, 0) translate3d(0,-10px,0) rotate(calc(var(--item-rotate) + 7deg)) scale(calc(var(--item-scale) * 1.09)); }
+    100% { transform: translate3d(-50%, -50%, 0) rotate(var(--item-rotate)) scale(var(--item-scale)); }
+}
+
+body.theme-calc1 .day-box,
+body.theme-calc1 .day-picker-box,
+body.theme-calc1 .icon-btn,
+body.theme-calc1 .small-icon-btn,
+body.theme-calc1 input,
+body.theme-calc1 textarea,
+body.theme-calc1 select,
+body.theme-calc1 .notes-editable,
+body.theme-calc1 .phrase-card,
+body.theme-calc1 .chip,
+body.theme-calc1 .toolbox-item,
+body.theme-calc1 .resource-card,
+body.theme-calc1 .polaroid-card,
+body.theme-calc1 .filter-tab,
+body.theme-calc1 .day-target-box,
+body.theme-calc1 .flashcard,
+body.theme-calc1 .flashcard-mode-card,
+body.theme-calc1 .day-badge,
+body.theme-calc1 .video-placeholder,
+body.theme-calc1 .theme-picker-card,
+body.theme-calc1 .note-audio-row,
+body.theme-calc1 .modal-box {
+    background-color: color-mix(in srgb, var(--theme-paper) 91%, transparent);
+    color: var(--theme-ink);
+    border-color: color-mix(in srgb, var(--theme-accent) 28%, transparent);
+}
+
+body.theme-calc1 input::placeholder,
+body.theme-calc1 textarea::placeholder,
+body.theme-calc1 .notes-editable:empty::before {
+    color: color-mix(in srgb, var(--theme-ink) 43%, transparent);
+}
+
+body.theme-calc1 .icon-btn:hover,
+body.theme-calc1 .small-icon-btn:hover,
+body.theme-calc1 .filter-tab:hover {
+    background: color-mix(in srgb, var(--theme-accent) 14%, var(--theme-paper));
+    color: var(--theme-ink);
+}
+
+body.theme-calc1 .chip:hover,
+body.theme-calc1 .phrase-card:hover,
+body.theme-calc1 .filter-tab.active,
+body.theme-calc1 .day-picker-box.selected {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--theme-accent) 90%, var(--theme-paper)), color-mix(in srgb, var(--theme-accent-2) 76%, var(--theme-paper)));
+    color: var(--theme-paper);
+    border-color: color-mix(in srgb, var(--theme-accent) 58%, transparent);
+}
+
+body.theme-calc1 .progress-bar-track {
+    background: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+}
+
+body.theme-calc1 .progress-bar-fill {
+    background: linear-gradient(90deg, var(--theme-accent), var(--theme-gold), var(--theme-accent-2));
+}
+
+body.theme-calc1 #calc1-background { z-index: 0; }
+body.theme-calc1 .view { position: relative; z-index: 2; }
+body.theme-calc1 .side-nav { position: relative; z-index: 3; }
+body.theme-calc1 header,
+body.theme-calc1 .log-header-container { position: relative; z-index: 4; }
+body.theme-calc1 .modal,
+body.theme-calc1 .modal-overlay,
+body.theme-calc1 .overlay { z-index: 10; }
+
+@media (max-width: 700px) {
+    #calc1-background .theme-calc1-item {
+        width: 94px;
+        height: 94px;
+        opacity: .21;
+    }
+    #calc1-background .theme-calc1-item:nth-of-type(2n) {
+        opacity: .14;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #calc1-background * {
+        animation: none !important;
+    }
+}
+
+
+/* More formula-heavy decorative objects, including the difference quotient.
+   This affects only theme background art, not application components. */
+#calc1-background .theme-calc1-item {
+    width: 155px;
+    height: 120px;
+}
+#calc1-background .theme-calc1-item svg {
+    overflow: visible;
+}
+
+
+/* ============================================================
+   CALC 1 — MORE FUN / MORE INTERACTIVE
+   ============================================================ */
+
+body.theme-calc1 {
+    background:
+        radial-gradient(circle at 50% 5%, rgba(255,255,255,.74), transparent 25%),
+        radial-gradient(circle at 10% 82%, rgba(101,150,210,.22), transparent 28%),
+        radial-gradient(circle at 88% 22%, rgba(127,196,162,.24), transparent 26%),
+        linear-gradient(145deg, #dceafb 0%, #eef9f4 52%, #e7f2ff 100%) !important;
+}
+
+body.theme-calc1 .view:not(#grid-view)::before {
+    background: transparent !important;
+    background-image: none !important;
+    opacity: 0 !important;
+}
+
+#calc1-background {
+    --calc-pointer-x: 50vw;
+    --calc-pointer-y: 50vh;
+    --calc-parallax-x: 0px;
+    --calc-parallax-y: 0px;
+}
+
+#calc1-background .theme-calc1-spotlight {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            circle 180px at var(--calc-pointer-x) var(--calc-pointer-y),
+            rgba(255,255,255,.42),
+            rgba(101,150,210,.14) 36%,
+            transparent 72%
+        );
+    opacity: .9;
+    mix-blend-mode: screen;
+}
+
+#calc1-background .theme-calc1-pattern {
+    transform:
+        translate3d(
+            calc(var(--calc-parallax-x) * -.12),
+            calc(var(--calc-parallax-y) * -.12),
+            0
+        );
+    transition: transform .18s ease-out;
+    opacity: .78;
+}
+
+#calc1-background .theme-calc1-curve-scene {
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    bottom: 10%;
+    height: 32vh;
+    min-height: 190px;
+    opacity: .34;
+    transform:
+        translate3d(
+            calc(var(--calc-parallax-x) * .22),
+            calc(var(--calc-parallax-y) * .16),
+            0
+        );
+    transition: transform .2s ease-out;
+    pointer-events: none;
+}
+
+#calc1-background .theme-calc1-curve-scene svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+#calc1-background .calc-curve {
+    fill: none;
+    stroke: rgba(101,150,210,.64);
+    stroke-width: 5;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 8px rgba(101,150,210,.18));
+    stroke-dasharray: 15 9;
+    animation: calcCurveDash 8s linear infinite;
+}
+
+#calc1-background .calc-tangent {
+    fill: none;
+    stroke: rgba(214,177,106,.72);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 11 8;
+    animation: calcTangentSlide 3.6s ease-in-out infinite alternate;
+}
+
+#calc1-background .calc-point {
+    fill: #7fc4a2;
+    stroke: rgba(38,56,81,.72);
+    stroke-width: 2;
+    transform-origin: center;
+    animation: calcPointPulse 2.2s ease-in-out infinite;
+}
+
+#calc1-background .calc-point-b {
+    animation-delay: -1.1s;
+}
+
+@keyframes calcCurveDash {
+    to { stroke-dashoffset: -96; }
+}
+
+@keyframes calcTangentSlide {
+    from { transform: translate3d(-14px, 6px, 0); opacity: .42; }
+    to { transform: translate3d(18px, -8px, 0); opacity: .90; }
+}
+
+@keyframes calcPointPulse {
+    0%, 100% { transform: scale(.82); opacity: .55; }
+    50% { transform: scale(1.28); opacity: 1; }
+}
+
+#calc1-background .theme-calc1-floating-labels {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+#calc1-background .theme-calc1-floating-labels span {
+    position: absolute;
+    font: 700 clamp(16px, 2vw, 28px)/1 Georgia, serif;
+    font-style: italic;
+    color: rgba(38,56,81,.16);
+    text-shadow: 0 1px rgba(255,255,255,.6);
+    animation: calcLabelFloat 7s ease-in-out infinite alternate;
+}
+
+#calc1-background .theme-calc1-floating-labels span:nth-child(1) { left: 7%; top: 12%; animation-delay: -1s; }
+#calc1-background .theme-calc1-floating-labels span:nth-child(2) { right: 8%; top: 12%; animation-delay: -2.5s; }
+#calc1-background .theme-calc1-floating-labels span:nth-child(3) { left: 20%; bottom: 14%; animation-delay: -4s; }
+#calc1-background .theme-calc1-floating-labels span:nth-child(4) { right: 22%; bottom: 16%; animation-delay: -5.5s; }
+#calc1-background .theme-calc1-floating-labels span:nth-child(5) { left: 48%; top: 30%; animation-delay: -3.4s; }
+
+@keyframes calcLabelFloat {
+    from { transform: translateY(0) rotate(-2deg); opacity: .10; }
+    to { transform: translateY(-10px) rotate(2deg); opacity: .24; }
+}
+
+#calc1-background .theme-calc1-item {
+    opacity: .38;
+    transition: filter .2s ease, opacity .2s ease;
+}
+
+#calc1-background .theme-calc1-item svg {
+    transition: transform .22s cubic-bezier(.2,.9,.25,1);
+}
+
+#calc1-background .theme-calc1-item:hover svg,
+#calc1-background .theme-calc1-item.theme-calc1-react svg {
+    transform: scale(1.10);
+}
+
+#calc1-background .theme-calc1-react {
+    opacity: .78;
+    filter:
+        drop-shadow(0 14px 19px rgba(0,0,0,.18))
+        drop-shadow(0 0 20px rgba(101,150,210,.28));
+}
+
+#calc1-background .theme-calc1-burst-symbol {
+    position: fixed;
+    z-index: 4;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    font: 700 15px/1 Georgia, serif;
+    color: rgba(38,56,81,.72);
+    text-shadow: 0 1px 0 rgba(255,255,255,.8);
+    animation: calcBurst .74s cubic-bezier(.18,.8,.25,1) forwards;
+}
+
+@keyframes calcBurst {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.55);
+    }
+    18% { opacity: .95; }
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            translate3d(var(--burst-x), var(--burst-y), 0)
+            rotate(var(--burst-rotate))
+            scale(1.06);
+    }
+}
+
+#calc1-background .theme-calc1-click-ripple {
+    position: fixed;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(101,150,210,.48);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: calcRipple .8s ease-out forwards;
+}
+
+#calc1-background .theme-calc1-click-ripple::after {
+    content: "Δ";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    color: rgba(38,56,81,.54);
+    font: 700 13px/1 Georgia, serif;
+}
+
+@keyframes calcRipple {
+    from { opacity: .8; scale: .55; }
+    to { opacity: 0; scale: 3.6; }
+}
+
+@media (max-width: 700px) {
+    #calc1-background .theme-calc1-curve-scene {
+        left: 2%;
+        right: 2%;
+        opacity: .22;
+    }
+
+    #calc1-background .theme-calc1-floating-labels span {
+        opacity: .12;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #calc1-background .theme-calc1-curve-scene *,
+    #calc1-background .theme-calc1-floating-labels span,
+    #calc1-background .theme-calc1-burst-symbol,
+    #calc1-background .theme-calc1-click-ripple {
+        animation: none !important;
+    }
+}

@@ -1,0 +1,110 @@
+/* ============================================================
+   SUMMERGLAM THEME
+   Decorative-only styling built from the winter theme structure.
+   ============================================================ */
+
+body.theme-summerglam {
+    --summerglam-ink: #6d435e;
+    --summerglam-border: #efb0c9;
+    --summerglam-surface: #fffdfd;
+    --summerglam-surface-soft: #fff4f8;
+    --summerglam-accent: #ff8eb5;
+    --summerglam-second: #ffb463;
+    --summerglam-third: #ffe39f;
+    --black: var(--summerglam-ink);
+    --white: var(--summerglam-surface);
+    --bg-overlay: transparent;
+    --thick-border: 3px solid color-mix(in srgb, var(--summerglam-border) 60%, transparent);
+    --thin-border: 2px solid color-mix(in srgb, var(--summerglam-border) 48%, transparent);
+    --dashed-border: 2px dashed color-mix(in srgb, var(--summerglam-border) 44%, transparent);
+    --dotted-border: 2px dotted color-mix(in srgb, var(--summerglam-border) 44%, transparent);
+    --track-bg: #fff0f5;
+    --muted-text: color-mix(in srgb, var(--summerglam-ink) 58%, transparent);
+    background: radial-gradient(circle at 14% 14%, rgba(255,255,255,.86), transparent 24%), radial-gradient(circle at 84% 16%, rgba(255,255,255,.50), transparent 24%), radial-gradient(circle at 24% 82%, rgba(255,180,99,.12), transparent 24%), linear-gradient(160deg, #ffe7f1 0%, #fff1d8 46%, #ffe0ef 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--summerglam-ink) !important;
+}
+
+#summerglam-background { position:fixed; inset:0; width:100vw; height:100vh; overflow:hidden; pointer-events:none; user-select:none; z-index:-1; }
+#summerglam-background::before, #summerglam-background::after { content:''; position:absolute; inset:-14%; pointer-events:none; }
+#summerglam-background::before {
+    background: radial-gradient(circle at 24% 22%, rgba(255,255,255,.22), transparent 20%), radial-gradient(circle at 76% 36%, rgba(255,255,255,.18), transparent 22%), linear-gradient(115deg, transparent 42%, rgba(255,255,255,.12) 50%, transparent 58%);
+    animation: summerglamLightSweep 9s ease-in-out infinite alternate;
+}
+body.theme-summerglam #summerglam-background { z-index:-1; }
+body.theme-summerglam .view { position:relative; z-index:2; }
+body.theme-summerglam .side-nav { position:relative; z-index:3; }
+body.theme-summerglam header,
+body.theme-summerglam .log-header-container { position:relative; z-index:4; }
+body.theme-summerglam .modal,
+body.theme-summerglam .modal-overlay,
+body.theme-summerglam .overlay { z-index:10; }
+
+body.theme-summerglam .day-box,
+body.theme-summerglam .day-picker-box,
+body.theme-summerglam .icon-btn,
+body.theme-summerglam .small-icon-btn,
+body.theme-summerglam input,
+body.theme-summerglam textarea,
+body.theme-summerglam select,
+body.theme-summerglam .notes-editable,
+body.theme-summerglam .phrase-card,
+body.theme-summerglam .chip,
+body.theme-summerglam .toolbox-item,
+body.theme-summerglam .resource-card,
+body.theme-summerglam .polaroid-card,
+body.theme-summerglam .filter-tab,
+body.theme-summerglam .day-target-box,
+body.theme-summerglam .flashcard,
+body.theme-summerglam .flashcard-mode-card,
+body.theme-summerglam .day-badge,
+body.theme-summerglam .video-placeholder,
+body.theme-summerglam .theme-picker-card,
+body.theme-summerglam .note-audio-row,
+body.theme-summerglam .modal-box,
+body.theme-summerglam .set-complete-box { background-color: var(--summerglam-surface) !important; }
+
+body.theme-summerglam input::placeholder,
+body.theme-summerglam textarea::placeholder,
+body.theme-summerglam .notes-editable:empty::before { color: color-mix(in srgb, var(--summerglam-ink) 42%, transparent) !important; }
+body.theme-summerglam .icon-btn:hover,
+body.theme-summerglam .small-icon-btn:hover,
+body.theme-summerglam .filter-tab:hover { background: var(--summerglam-surface-soft) !important; color: var(--summerglam-ink) !important; }
+body.theme-summerglam .chip:hover,
+body.theme-summerglam .phrase-card:hover,
+body.theme-summerglam .day-picker-box.selected,
+body.theme-summerglam .filter-tab.active,
+body.theme-summerglam .filter-tab[aria-selected="true"] {
+    background: color-mix(in srgb, var(--summerglam-surface-soft) 72%, var(--summerglam-accent) 28%) !important;
+    color: var(--summerglam-ink) !important;
+    border-color: var(--summerglam-border) !important;
+}
+body.theme-summerglam .progress-bar-fill { background: linear-gradient(90deg, var(--summerglam-accent), var(--summerglam-second), var(--summerglam-third)) !important; }
+
+#summerglam-background .summerglam-item {
+    position:absolute; display:block; height:auto; object-fit:contain; opacity:.95;
+    transform-origin:center; translate:0 0; rotate:0deg; scale:1;
+    filter: drop-shadow(0 9px 13px color-mix(in srgb, var(--summerglam-ink) 14%, transparent)) drop-shadow(0 0 9px rgba(255,255,255,.30));
+    animation: summerglamFloat var(--summerglam-float-duration) ease-in-out var(--summerglam-float-delay) infinite alternate;
+    will-change:transform;
+}
+@keyframes summerglamFloat { from{transform:translate3d(-50%,-50%,0) translate3d(0,0,0) rotate(-3deg) scale(.97)} to{transform:translate3d(-50%,-50%,0) translate3d(var(--summerglam-float-x), var(--summerglam-float-y), 0) rotate(var(--summerglam-float-r)) scale(1.035)} }
+#summerglam-background .summerglam-item.summerglam-intro-bop { animation:summerglamIntroBop .68s cubic-bezier(.34,.06,.18,1) var(--summerglam-bop-delay) infinite !important; }
+@keyframes summerglamIntroBop { 0%,100%{transform:translate3d(-50%,-50%,0) translateY(0) rotate(-2deg) scale(1)} 40%{transform:translate3d(-50%,-50%,0) translateY(-16px) rotate(5deg) scale(1.05)} 68%{transform:translate3d(-50%,-50%,0) translateY(-6px) rotate(-3deg) scale(1.02)} }
+
+
+#summerglam-background .summerglam-extra {
+    position: absolute; width: 5px; height: 5px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 8px rgba(255,255,255,.92), 0 0 14px color-mix(in srgb, #ff8eb5 35%, transparent);
+    opacity: 0; animation: summerglamSparkle var(--summerglam-extra-duration) ease-in-out var(--summerglam-extra-delay) infinite;
+}
+#summerglam-background .summerglam-extra::before,
+#summerglam-background .summerglam-extra::after { content:''; position:absolute; left:50%; top:50%; background:rgba(255,255,255,.84); transform:translate(-50%,-50%); }
+#summerglam-background .summerglam-extra::before { width:14px; height:1px; }
+#summerglam-background .summerglam-extra::after { width:1px; height:14px; }
+@keyframes summerglamSparkle { 0%,100%{opacity:0; transform:scale(.35)} 54%{opacity:.84; transform:scale(1.28)} 76%{opacity:.18; transform:scale(.62)} }
+
+
+@keyframes summerglamLightSweep { from{transform:translate3d(-2%, -1%, 0) scale(1); opacity:.7} to{transform:translate3d(2%, 1%, 0) scale(1.05); opacity:1} }
+@media (max-width:700px) { #summerglam-background .summerglam-item { opacity:.72; } #summerglam-background .summerglam-extra { opacity:.38; } }
+@media (prefers-reduced-motion: reduce) { #summerglam-background::before, #summerglam-background .summerglam-item, #summerglam-background .summerglam-extra { animation:none !important; } }

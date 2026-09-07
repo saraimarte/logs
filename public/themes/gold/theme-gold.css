@@ -1,0 +1,537 @@
+
+body.theme-gold{--bg-overlay:transparent;--black:#5d4720;--white:#fffbf1;--muted-text:#8b7750;
+background:radial-gradient(circle at 12% 15%,rgba(255,255,255,.52),transparent 22%),
+radial-gradient(circle at 84% 18%,rgba(255,230,154,.26),transparent 24%),
+radial-gradient(circle at 20% 82%,rgba(255,245,214,.34),transparent 22%),
+linear-gradient(145deg,#fffdf6,#fff1c9 48%,#f7e3a2)!important;color:#5d4720!important}
+body.theme-gold .view:not(#grid-view)::before{background:transparent!important;opacity:0!important}
+#gold-background{position:fixed;inset:0;width:100vw;height:100vh;overflow:hidden;pointer-events:none;z-index:0}
+body.theme-gold .view{position:relative;z-index:2}body.theme-gold .side-nav{z-index:3}body.theme-gold header,body.theme-gold .log-header-container{position:relative;z-index:4}
+#gold-background .theme-gold-item{position:absolute;width:var(--w);max-width:18vw;transform:translate(-50%,-50%) rotate(var(--r));filter:drop-shadow(0 13px 18px rgba(112,87,32,.17));animation:goldFloat var(--dur) ease-in-out var(--delay) infinite}
+#gold-background .theme-gold-item img{display:block;width:100%;height:auto;pointer-events:none}
+@keyframes goldFloat{0%,100%{transform:translate(-50%,-50%) translate(0,0) rotate(var(--r))}50%{transform:translate(-50%,-50%) translate(var(--dx),var(--dy)) rotate(calc(var(--r) + 2deg))}}
+body.theme-gold .filter-tabs,body.theme-gold #library-filter-tabs,body.theme-gold #quiz-type-filters,body.theme-gold .set-size-picker{background:transparent!important}
+body.theme-gold .side-nav .icon-btn,body.theme-gold .side-nav .icon-btn:hover{background:transparent!important;box-shadow:none!important}
+
+/* Gold title-safe / spacing pass */
+body.theme-gold .log-header-container {
+    position: relative !important;
+    z-index: 50 !important;
+}
+body.theme-gold .log-header-container h1,
+body.theme-gold .log-header-container h2 {
+    position: relative !important;
+    z-index: 51 !important;
+}
+#gold-background .theme-gold-item {
+    max-width: 18vw !important;
+}
+
+
+/* ============================================================
+   GOLD HOVER REACTION
+   Normal floating animation resumes automatically after the short reaction.
+   ============================================================ */
+#gold-background .theme-gold-item.gold-hover-react {
+    animation: goldHoverReact .54s cubic-bezier(.2,.82,.24,1) both !important;
+    filter:
+        drop-shadow(0 16px 22px rgba(112,87,32,.20))
+        drop-shadow(0 0 15px rgba(239,206,103,.34)) !important;
+}
+
+@keyframes goldHoverReact {
+    0%,100% {
+        transform:
+            translate(-50%,-50%)
+            rotate(var(--r))
+            scale(1);
+    }
+    28% {
+        transform:
+            translate(-50%,-50%)
+            translateY(-12px)
+            rotate(calc(var(--r) - 4deg))
+            scale(1.08);
+    }
+    58% {
+        transform:
+            translate(-50%,-50%)
+            translateY(-5px)
+            rotate(calc(var(--r) + 4deg))
+            scale(1.05);
+    }
+    82% {
+        transform:
+            translate(-50%,-50%)
+            translateY(-2px)
+            rotate(calc(var(--r) - 2deg))
+            scale(1.02);
+    }
+}
+
+
+/* ============================================================
+   WINTER-STYLE UNIFIED UI SYSTEM
+   ------------------------------------------------------------
+   The Winter theme is the reference:
+   - one readable surface/text system across every view
+   - the SAME search styling in every tab and modal
+   - the SAME settings/plus/button styling across tabs
+   - visible icon choices before hover
+   - readable icon-search inputs
+   - readable Developer Mode / shortcut modal
+   - no changes to app layout, companion positioning, or theme SVG logic
+   ============================================================ */
+
+html body.theme-gold {
+    --unified-ui-surface: #fffbf1;
+    --unified-ui-surface-soft: #f7ecd0;
+    --unified-ui-text: #5d4720;
+    --unified-ui-muted: #8b7750;
+    --unified-ui-border: #d7c182;
+    --unified-ui-accent: #ebcf76;
+    --unified-ui-accent-text: #5d4720;
+
+    --black: var(--unified-ui-text) !important;
+    --white: var(--unified-ui-surface) !important;
+    --muted-text: var(--unified-ui-muted) !important;
+    --track-bg: var(--unified-ui-surface-soft) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE INPUT / SEARCH STYLE EVERYWHERE
+   Includes Knowledge Base, Daily View, theme search, icon search,
+   category inputs, settings inputs, and add-tab/create-tab modals.
+   ------------------------------------------------------------ */
+html body.theme-gold input:not([type="checkbox"]):not([type="radio"]),
+html body.theme-gold textarea,
+html body.theme-gold select,
+html body.theme-gold .notes-editable {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    caret-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-gold input:not([type="checkbox"]):not([type="radio"])::placeholder,
+html body.theme-gold textarea::placeholder,
+html body.theme-gold .notes-editable:empty::before {
+    color: var(--unified-ui-muted) !important;
+    -webkit-text-fill-color: var(--unified-ui-muted) !important;
+    opacity: .82 !important;
+}
+
+html body.theme-gold select option,
+html body.theme-gold select optgroup {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   ONE BUTTON STYLE THROUGHOUT THE APP
+   Settings, plus, save/generate, Start Quiz, modal icon buttons, etc.
+   ------------------------------------------------------------ */
+html body.theme-gold .view .icon-btn,
+html body.theme-gold .view .small-icon-btn,
+html body.theme-gold .modal-box .icon-btn,
+html body.theme-gold .modal-box .small-icon-btn,
+html body.theme-gold .modal-box .save-btn,
+html body.theme-gold #start-quiz-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-gold .view .icon-btn i,
+html body.theme-gold .view .small-icon-btn i,
+html body.theme-gold .modal-box .icon-btn i,
+html body.theme-gold .modal-box .small-icon-btn i,
+html body.theme-gold #start-quiz-btn i,
+html body.theme-gold .view .icon-btn svg,
+html body.theme-gold .view .small-icon-btn svg,
+html body.theme-gold #start-quiz-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+html body.theme-gold .view .icon-btn:hover,
+html body.theme-gold .view .small-icon-btn:hover,
+html body.theme-gold .modal-box .icon-btn:hover,
+html body.theme-gold .modal-box .small-icon-btn:hover,
+html body.theme-gold .modal-box .save-btn:hover,
+html body.theme-gold #start-quiz-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+/* Disabled Start Quiz remains readable instead of losing its label/icon. */
+html body.theme-gold #start-quiz-btn:disabled,
+html body.theme-gold #start-quiz-btn.disabled-btn {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: .58 !important;
+}
+html body.theme-gold #start-quiz-btn:disabled i,
+html body.theme-gold #start-quiz-btn.disabled-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Side navigation remains the template's bare-icon treatment. */
+html body.theme-gold .side-nav .icon-btn,
+html body.theme-gold .side-nav .icon-btn:hover,
+html body.theme-gold .side-nav .icon-btn:focus,
+html body.theme-gold .side-nav .icon-btn:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-gold .side-nav .icon-btn i,
+html body.theme-gold .side-nav .icon-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* Back arrows stay simple and visible, like Winter. */
+html body.theme-gold .header-back-btn,
+html body.theme-gold .header-back-btn:hover,
+html body.theme-gold .header-back-btn:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--unified-ui-text) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+html body.theme-gold .header-back-btn i,
+html body.theme-gold .header-back-btn svg {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   CARDS / DAY BOXES / POLAROIDS
+   ------------------------------------------------------------ */
+html body.theme-gold .day-box,
+html body.theme-gold .day-picker-box,
+html body.theme-gold .mini-day-box,
+html body.theme-gold .day-badge,
+html body.theme-gold .day-target-box,
+html body.theme-gold .phrase-card,
+html body.theme-gold .chip,
+html body.theme-gold .toolbox-item,
+html body.theme-gold .resource-card,
+html body.theme-gold .polaroid-card,
+html body.theme-gold .flashcard,
+html body.theme-gold .flashcard-mode-card,
+html body.theme-gold .video-placeholder,
+html body.theme-gold .note-audio-row,
+html body.theme-gold .set-complete-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-gold .polaroid-label,
+html body.theme-gold .polaroid-label *,
+html body.theme-gold .day-box *,
+html body.theme-gold .day-picker-box *,
+html body.theme-gold .day-badge * {
+    color: var(--unified-ui-text) !important;
+}
+
+/* ------------------------------------------------------------
+   FILTER TABS
+   Parent rows are transparent; actual buttons have visible surfaces.
+   ------------------------------------------------------------ */
+html body.theme-gold .filter-tabs,
+html body.theme-gold #library-filter-tabs,
+html body.theme-gold #quiz-type-filters,
+html body.theme-gold .set-size-picker {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body.theme-gold .filter-tab,
+html body.theme-gold .kb-view-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-gold .filter-tab:hover,
+html body.theme-gold .kb-view-btn:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-gold .filter-tab.active,
+html body.theme-gold .filter-tab[aria-selected="true"],
+html body.theme-gold .kb-view-btn.active {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-gold .filter-tab.active *,
+html body.theme-gold .filter-tab[aria-selected="true"] *,
+html body.theme-gold .kb-view-btn.active * {
+    color: inherit !important;
+}
+
+/* ------------------------------------------------------------
+   ICON PICKERS / ADD-TAB PICKERS
+   Every icon is visible before hover. The containing grid is also neutral.
+   ------------------------------------------------------------ */
+html body.theme-gold .icon-grid,
+html body.theme-gold #icon-picker,
+html body.theme-gold #companion-picker,
+html body.theme-gold #cursor-picker,
+html body.theme-gold [id*="icon"][id*="picker"] {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+html body.theme-gold .icon-option {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+html body.theme-gold .icon-option i,
+html body.theme-gold .icon-option svg,
+html body.theme-gold .icon-option small,
+html body.theme-gold .icon-option span {
+    color: var(--unified-ui-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html body.theme-gold .icon-option:hover {
+    background: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-gold .icon-option.selected {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-gold .icon-option.selected i,
+html body.theme-gold .icon-option.selected svg,
+html body.theme-gold .icon-option.selected small,
+html body.theme-gold .icon-option.selected span {
+    color: var(--unified-ui-accent-text) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ------------------------------------------------------------
+   ALL MODALS
+   ------------------------------------------------------------ */
+html body.theme-gold .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    background-image: none !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-gold .modal-box .modal-header,
+html body.theme-gold .modal-box .modal-header h1,
+html body.theme-gold .modal-box .modal-header h2,
+html body.theme-gold .modal-box .modal-header h3,
+html body.theme-gold .modal-box .modal-title,
+html body.theme-gold .modal-box .field-label,
+html body.theme-gold .modal-box .modal-label,
+html body.theme-gold .modal-box .progress-hint,
+html body.theme-gold .modal-box label,
+html body.theme-gold .modal-box p {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* Close X uses exactly the same small-button treatment as other modal icons. */
+html body.theme-gold .modal-box [id$="-close"],
+html body.theme-gold .modal-box .modal-header .small-icon-btn,
+html body.theme-gold .modal-box .close-btn {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+html body.theme-gold .modal-box [id$="-close"] i,
+html body.theme-gold .modal-box .modal-header .small-icon-btn i,
+html body.theme-gold .modal-box .close-btn i {
+    color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+/* ------------------------------------------------------------
+   DEVELOPER MODE / CTRL+SHIFT+D / CTRL+SHIFT+M
+   Covers dynamically-created developer/shortcut modals as well.
+   ------------------------------------------------------------ */
+html body.theme-gold :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) .modal-box {
+    background: var(--unified-ui-surface) !important;
+    background-color: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+
+html body.theme-gold :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    .shortcut-row,
+    .shortcut-item,
+    .developer-row,
+    .developer-item,
+    .developer-card,
+    .dev-card,
+    [class*="shortcut"][class*="card"],
+    [class*="developer"][class*="card"]
+) {
+    background: var(--unified-ui-surface-soft) !important;
+    background-color: var(--unified-ui-surface-soft) !important;
+    color: var(--unified-ui-text) !important;
+    border-color: var(--unified-ui-border) !important;
+}
+
+html body.theme-gold :is(
+    [id*="developer"][id*="modal"],
+    [class*="developer"][class*="modal"],
+    [id*="dev-mode"][id*="modal"],
+    [class*="dev-mode"][class*="modal"],
+    [id*="shortcut"][id*="modal"],
+    [class*="shortcut"][class*="modal"],
+    .modal-overlay:has([id*="developer"]),
+    .modal-overlay:has([class*="developer"]),
+    .modal-overlay:has([id*="shortcut"]),
+    .modal-overlay:has([class*="shortcut"])
+) :is(
+    p, span, label, small, strong, em,
+    .field-label, .modal-label, .progress-hint,
+    .shortcut-label, .shortcut-description
+) {
+    color: var(--unified-ui-text) !important;
+    -webkit-text-fill-color: var(--unified-ui-text) !important;
+    opacity: 1 !important;
+}
+
+html body.theme-gold .modal-box kbd,
+html body.theme-gold .modal-box .keycap,
+html body.theme-gold .modal-box .shortcut-key,
+html body.theme-gold .modal-box .keyboard-key,
+html body.theme-gold .modal-box .hotkey {
+    background: var(--unified-ui-accent) !important;
+    background-color: var(--unified-ui-accent) !important;
+    color: var(--unified-ui-accent-text) !important;
+    border-color: var(--unified-ui-border) !important;
+    box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------
+   THEME PICKER PREVIEW LABELS
+   Do not wipe out thumbnail artwork; only make the information strip readable.
+   ------------------------------------------------------------ */
+html body.theme-gold #theme-picker .theme-picker-info {
+    background: var(--unified-ui-surface) !important;
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-gold #theme-picker .theme-picker-name {
+    color: var(--unified-ui-text) !important;
+}
+html body.theme-gold #theme-picker .theme-picker-hint {
+    color: var(--unified-ui-muted) !important;
+}
+
+/* ------------------------------------------------------------
+   TITLES stay above decorative art.
+   ------------------------------------------------------------ */
+html body.theme-gold header,
+html body.theme-gold .log-header-container {
+    position: relative !important;
+    z-index: 40 !important;
+}
+
+
+/* Intro bop while the song plays */
+#gold-background .theme-gold-item.gold-intro-bop img {
+    animation: goldIntroBop var(--gold-bop-duration, .80s) ease-in-out var(--gold-bop-delay, 0s) infinite;
+    transform-origin: center bottom;
+    will-change: transform;
+}
+
+@keyframes goldIntroBop {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    30% {
+        transform: translateY(calc(var(--gold-bop-lift, 14px) * -1)) scale(var(--gold-bop-scale, 1.05));
+    }
+    56% {
+        transform: translateY(2px) scale(.987);
+    }
+    78% {
+        transform: translateY(calc(var(--gold-bop-lift, 14px) * -0.26)) scale(1.01);
+    }
+}

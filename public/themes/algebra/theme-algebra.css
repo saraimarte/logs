@@ -1,0 +1,586 @@
+/* ============================================================
+   ALGEBRA
+   Scoped visual theme. No global layout/cursor/companion overrides.
+   ============================================================ */
+
+body.theme-algebra {
+    --theme-ink: #293856;
+    --theme-paper: #f7fbff;
+    --theme-accent: #6688c8;
+    --theme-accent-2: #bd6e9c;
+    --theme-gold: #d5aa5e;
+
+    --black: var(--theme-ink);
+    --white: var(--theme-paper);
+    --bg-overlay: transparent;
+
+    --thick-border: 2px solid color-mix(in srgb, var(--theme-accent) 44%, transparent);
+    --thin-border: 1px solid color-mix(in srgb, var(--theme-accent) 30%, transparent);
+    --dashed-border: 1px dashed color-mix(in srgb, var(--theme-accent) 30%, transparent);
+    --dotted-border: 1px dotted color-mix(in srgb, var(--theme-accent) 30%, transparent);
+
+    --track-bg: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+    --muted-text: color-mix(in srgb, var(--theme-ink) 58%, transparent);
+
+    background:
+        radial-gradient(circle at 50% 4%, color-mix(in srgb, var(--theme-accent-2) 16%, transparent), transparent 34%),
+        radial-gradient(circle at 12% 80%, color-mix(in srgb, var(--theme-accent) 12%, transparent), transparent 30%),
+        linear-gradient(145deg, #e2ecfb, #f5eaf2) !important;
+
+    background-attachment: fixed !important;
+    color: var(--theme-ink);
+}
+
+#algebra-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
+
+#algebra-background .theme-algebra-haze {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 14%, color-mix(in srgb, var(--theme-paper) 42%, transparent), transparent 34%),
+        radial-gradient(circle at 15% 55%, color-mix(in srgb, var(--theme-accent) 10%, transparent), transparent 30%),
+        radial-gradient(circle at 85% 58%, color-mix(in srgb, var(--theme-accent-2) 10%, transparent), transparent 30%);
+}
+
+#algebra-background .theme-algebra-pattern {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(102,136,200,.09) 0 1px, transparent 1px 28px),repeating-linear-gradient(90deg, rgba(102,136,200,.09) 0 1px, transparent 1px 28px);
+    background-size: 80px 80px;
+    opacity: .65;
+}
+
+#algebra-background .theme-algebra-horizon {
+    position: absolute;
+    left: -7vw;
+    right: -7vw;
+    bottom: -8vh;
+    height: 29vh;
+    background:
+        linear-gradient(180deg, transparent, color-mix(in srgb, var(--theme-accent) 8%, transparent) 35%, color-mix(in srgb, var(--theme-ink) 12%, transparent));
+    clip-path: polygon(0 35%, 100% 12%, 100% 100%, 0 100%);
+    opacity: .65;
+}
+
+#algebra-background .theme-algebra-item {
+    position: absolute;
+    width: 125px;
+    height: 125px;
+    color: color-mix(in srgb, var(--theme-ink) 82%, var(--theme-accent));
+    opacity: .30;
+    transform:
+        translate3d(-50%, -50%, 0)
+        rotate(var(--item-rotate))
+        scale(var(--item-scale));
+    filter:
+        drop-shadow(0 8px 13px rgba(0,0,0,.16))
+        drop-shadow(0 0 9px color-mix(in srgb, var(--theme-accent) 16%, transparent));
+    animation:
+        themeAlgebraFloat
+        7.8s
+        ease-in-out
+        var(--item-delay)
+        infinite;
+    transform-origin: center center;
+    will-change: transform;
+    pointer-events: none;
+}
+
+#algebra-background .theme-algebra-item svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+    pointer-events: none;
+}
+
+#algebra-background .theme-algebra-item:nth-of-type(3n) {
+    width: 105px;
+    height: 105px;
+    opacity: .24;
+}
+
+#algebra-background .theme-algebra-item:nth-of-type(4n) {
+    animation-duration: 9.4s;
+}
+
+@keyframes themeAlgebraFloat {
+    0%,100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0,0,0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+    50% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(var(--item-x), var(--item-y), 0)
+            rotate(calc(var(--item-rotate) + 2deg))
+            scale(var(--item-scale));
+    }
+}
+
+#algebra-background .theme-algebra-react {
+    opacity: .56;
+    filter:
+        drop-shadow(0 10px 16px rgba(0,0,0,.20))
+        drop-shadow(0 0 14px color-mix(in srgb, var(--theme-accent) 34%, transparent));
+    animation:
+        themeAlgebraReact
+        .5s
+        ease-out !important;
+}
+
+@keyframes themeAlgebraReact {
+    0% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+    45% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            translate3d(0,-10px,0)
+            rotate(calc(var(--item-rotate) + 7deg))
+            scale(calc(var(--item-scale) * 1.09));
+    }
+    100% {
+        transform:
+            translate3d(-50%, -50%, 0)
+            rotate(var(--item-rotate))
+            scale(var(--item-scale));
+    }
+}
+
+/* UI adaptation only. Sizes and positions remain template-owned. */
+body.theme-algebra .day-box,
+body.theme-algebra .day-picker-box,
+body.theme-algebra .icon-btn,
+body.theme-algebra .small-icon-btn,
+body.theme-algebra input,
+body.theme-algebra textarea,
+body.theme-algebra select,
+body.theme-algebra .notes-editable,
+body.theme-algebra .phrase-card,
+body.theme-algebra .chip,
+body.theme-algebra .toolbox-item,
+body.theme-algebra .resource-card,
+body.theme-algebra .polaroid-card,
+body.theme-algebra .filter-tab,
+body.theme-algebra .day-target-box,
+body.theme-algebra .flashcard,
+body.theme-algebra .flashcard-mode-card,
+body.theme-algebra .day-badge,
+body.theme-algebra .video-placeholder,
+body.theme-algebra .theme-picker-card,
+body.theme-algebra .note-audio-row,
+body.theme-algebra .modal-box {
+    background-color: color-mix(in srgb, var(--theme-paper) 91%, transparent);
+    color: var(--theme-ink);
+    border-color: color-mix(in srgb, var(--theme-accent) 28%, transparent);
+}
+
+body.theme-algebra input::placeholder,
+body.theme-algebra textarea::placeholder,
+body.theme-algebra .notes-editable:empty::before {
+    color: color-mix(in srgb, var(--theme-ink) 43%, transparent);
+}
+
+body.theme-algebra .icon-btn:hover,
+body.theme-algebra .small-icon-btn:hover,
+body.theme-algebra .filter-tab:hover {
+    background: color-mix(in srgb, var(--theme-accent) 14%, var(--theme-paper));
+    color: var(--theme-ink);
+}
+
+body.theme-algebra .chip:hover,
+body.theme-algebra .phrase-card:hover,
+body.theme-algebra .filter-tab.active,
+body.theme-algebra .day-picker-box.selected {
+    background:
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--theme-accent) 90%, var(--theme-paper)),
+            color-mix(in srgb, var(--theme-accent-2) 76%, var(--theme-paper))
+        );
+    color: var(--theme-paper);
+    border-color: color-mix(in srgb, var(--theme-accent) 58%, transparent);
+}
+
+body.theme-algebra .progress-bar-track {
+    background: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+}
+
+body.theme-algebra .progress-bar-fill {
+    background:
+        linear-gradient(
+            90deg,
+            var(--theme-accent),
+            var(--theme-gold),
+            var(--theme-accent-2)
+        );
+}
+
+/* Safe stacking: no broad direct-child wildcard selectors. */
+body.theme-algebra #algebra-background {
+    z-index: 0;
+}
+
+body.theme-algebra .view {
+    position: relative;
+    z-index: 2;
+}
+
+body.theme-algebra .side-nav {
+    position: relative;
+    z-index: 3;
+}
+
+body.theme-algebra header,
+body.theme-algebra .log-header-container {
+    position: relative;
+    z-index: 4;
+}
+
+body.theme-algebra .modal,
+body.theme-algebra .modal-overlay,
+body.theme-algebra .overlay {
+    z-index: 10;
+}
+
+@media (max-width: 700px) {
+    #algebra-background .theme-algebra-item {
+        width: 94px;
+        height: 94px;
+        opacity: .21;
+    }
+
+    #algebra-background .theme-algebra-item:nth-of-type(2n) {
+        opacity: .14;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #algebra-background * {
+        animation: none !important;
+    }
+}
+
+
+/* More equation-heavy decorative objects. This affects only theme background art. */
+#algebra-background .theme-algebra-item {
+    width: 150px;
+    height: 118px;
+}
+#algebra-background .theme-algebra-item svg {
+    overflow: visible;
+}
+
+
+/* ============================================================
+   ALGEBRA — MORE FUN / MORE INTERACTIVE
+   ============================================================ */
+
+body.theme-algebra {
+    background:
+        radial-gradient(circle at 50% 6%, rgba(255,255,255,.74), transparent 25%),
+        radial-gradient(circle at 10% 82%, rgba(102,136,200,.22), transparent 27%),
+        radial-gradient(circle at 88% 20%, rgba(189,110,156,.22), transparent 25%),
+        linear-gradient(145deg, #dfeafb 0%, #f8edf5 54%, #eee6fb 100%) !important;
+}
+
+body.theme-algebra .view:not(#grid-view)::before {
+    background: transparent !important;
+    background-image: none !important;
+    opacity: 0 !important;
+}
+
+#algebra-background {
+    --alg-pointer-x: 50vw;
+    --alg-pointer-y: 50vh;
+    --alg-parallax-x: 0px;
+    --alg-parallax-y: 0px;
+}
+
+#algebra-background .theme-algebra-spotlight {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            circle 185px at var(--alg-pointer-x) var(--alg-pointer-y),
+            rgba(255,255,255,.44),
+            rgba(189,110,156,.13) 35%,
+            transparent 72%
+        );
+    mix-blend-mode: screen;
+    opacity: .9;
+}
+
+#algebra-background .theme-algebra-pattern {
+    transform:
+        translate3d(
+            calc(var(--alg-parallax-x) * -.12),
+            calc(var(--alg-parallax-y) * -.12),
+            0
+        );
+    transition: transform .18s ease-out;
+    opacity: .72;
+}
+
+#algebra-background .theme-algebra-axes {
+    position: absolute;
+    left: 22%;
+    right: 18%;
+    top: 24%;
+    bottom: 14%;
+    pointer-events: none;
+    opacity: .34;
+    transform:
+        translate3d(
+            calc(var(--alg-parallax-x) * .20),
+            calc(var(--alg-parallax-y) * .16),
+            0
+        );
+    transition: transform .2s ease-out;
+}
+
+#algebra-background .alg-axis,
+#algebra-background .alg-line {
+    position: absolute;
+    display: block;
+    transform-origin: left center;
+}
+
+#algebra-background .alg-axis-x {
+    left: 0;
+    right: 0;
+    top: 58%;
+    height: 2px;
+    background: rgba(41,56,86,.17);
+}
+
+#algebra-background .alg-axis-y {
+    top: 0;
+    bottom: 0;
+    left: 43%;
+    width: 2px;
+    background: rgba(41,56,86,.17);
+}
+
+#algebra-background .alg-line-a,
+#algebra-background .alg-line-b {
+    left: 8%;
+    width: 82%;
+    height: 4px;
+    border-radius: 999px;
+    filter: drop-shadow(0 0 5px rgba(102,136,200,.13));
+}
+
+#algebra-background .alg-line-a {
+    top: 58%;
+    background: linear-gradient(90deg, transparent, rgba(102,136,200,.72), transparent);
+    transform: rotate(-19deg);
+    animation: algebraLineA 5s ease-in-out infinite alternate;
+}
+
+#algebra-background .alg-line-b {
+    top: 34%;
+    background: linear-gradient(90deg, transparent, rgba(189,110,156,.65), transparent);
+    transform: rotate(16deg);
+    animation: algebraLineB 5.4s ease-in-out infinite alternate;
+}
+
+#algebra-background .alg-intersection {
+    position: absolute;
+    left: 49%;
+    top: 46%;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    translate: -50% -50%;
+    background: #d5aa5e;
+    box-shadow:
+        0 0 0 7px rgba(213,170,94,.12),
+        0 0 18px rgba(213,170,94,.22);
+    animation: algebraIntersectionPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes algebraLineA {
+    from { rotate: -2deg; translate: -8px 4px; opacity: .45; }
+    to { rotate: 2deg; translate: 9px -5px; opacity: .90; }
+}
+
+@keyframes algebraLineB {
+    from { rotate: 2deg; translate: 6px -3px; opacity: .42; }
+    to { rotate: -2deg; translate: -8px 5px; opacity: .88; }
+}
+
+@keyframes algebraIntersectionPulse {
+    0%, 100% { scale: .82; opacity: .60; }
+    50% { scale: 1.25; opacity: 1; }
+}
+
+#algebra-background .theme-algebra-operators {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+#algebra-background .theme-algebra-operators span {
+    position: absolute;
+    font: 700 clamp(18px, 2.2vw, 34px)/1 Georgia, serif;
+    color: rgba(41,56,86,.14);
+    text-shadow: 0 1px rgba(255,255,255,.8);
+    animation: algebraOperatorFloat 7s ease-in-out infinite alternate;
+}
+
+#algebra-background .theme-algebra-operators span:nth-child(1) { left: 8%; top: 13%; animation-delay: -1s; }
+#algebra-background .theme-algebra-operators span:nth-child(2) { right: 9%; top: 16%; animation-delay: -2s; }
+#algebra-background .theme-algebra-operators span:nth-child(3) { left: 16%; bottom: 15%; animation-delay: -3s; }
+#algebra-background .theme-algebra-operators span:nth-child(4) { right: 16%; bottom: 18%; animation-delay: -4s; }
+#algebra-background .theme-algebra-operators span:nth-child(5) { left: 48%; top: 16%; animation-delay: -5s; }
+#algebra-background .theme-algebra-operators span:nth-child(6) { right: 34%; bottom: 12%; animation-delay: -6s; }
+#algebra-background .theme-algebra-operators span:nth-child(7) { left: 29%; top: 40%; animation-delay: -2.8s; }
+#algebra-background .theme-algebra-operators span:nth-child(8) { right: 25%; top: 45%; animation-delay: -4.7s; }
+
+@keyframes algebraOperatorFloat {
+    from { transform: translateY(0) rotate(-5deg) scale(.92); opacity: .08; }
+    to { transform: translateY(-12px) rotate(6deg) scale(1.08); opacity: .22; }
+}
+
+#algebra-background .theme-algebra-mini-cards {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+#algebra-background .theme-algebra-mini-cards span {
+    position: absolute;
+    padding: 7px 11px;
+    border-radius: 10px;
+    background: rgba(247,251,255,.34);
+    border: 1px solid rgba(102,136,200,.13);
+    color: rgba(41,56,86,.26);
+    font: 700 14px/1 Georgia, serif;
+    box-shadow: 0 8px 18px rgba(41,56,86,.04);
+    animation: algebraCardFloat 8s ease-in-out infinite;
+}
+
+#algebra-background .theme-algebra-mini-cards span:nth-child(1) { left: 8%; top: 38%; animation-delay: -1.1s; }
+#algebra-background .theme-algebra-mini-cards span:nth-child(2) { right: 7%; top: 39%; animation-delay: -3s; }
+#algebra-background .theme-algebra-mini-cards span:nth-child(3) { left: 33%; bottom: 9%; animation-delay: -4.5s; }
+#algebra-background .theme-algebra-mini-cards span:nth-child(4) { right: 33%; top: 9%; animation-delay: -6s; }
+
+@keyframes algebraCardFloat {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-9px) rotate(3deg); }
+}
+
+#algebra-background .theme-algebra-item {
+    opacity: .38;
+    transition: filter .2s ease, opacity .2s ease;
+}
+
+#algebra-background .theme-algebra-item svg {
+    transition: transform .22s cubic-bezier(.2,.9,.25,1);
+}
+
+#algebra-background .theme-algebra-item:hover svg,
+#algebra-background .theme-algebra-item.theme-algebra-react svg {
+    transform: scale(1.10);
+}
+
+#algebra-background .theme-algebra-react {
+    opacity: .80;
+    filter:
+        drop-shadow(0 14px 19px rgba(0,0,0,.18))
+        drop-shadow(0 0 20px rgba(189,110,156,.24));
+}
+
+#algebra-background .theme-algebra-burst-symbol {
+    position: fixed;
+    z-index: 4;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    font: 700 16px/1 Georgia, serif;
+    color: rgba(41,56,86,.72);
+    text-shadow: 0 1px 0 rgba(255,255,255,.85);
+    animation: algebraBurst .74s cubic-bezier(.18,.8,.25,1) forwards;
+}
+
+@keyframes algebraBurst {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.55);
+    }
+    18% { opacity: .95; }
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            translate3d(var(--burst-x), var(--burst-y), 0)
+            rotate(var(--burst-rotate))
+            scale(1.08);
+    }
+}
+
+#algebra-background .theme-algebra-click-ripple {
+    position: fixed;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(189,110,156,.44);
+    border-radius: 8px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    pointer-events: none;
+    animation: algebraRipple .8s ease-out forwards;
+}
+
+#algebra-background .theme-algebra-click-ripple::after {
+    content: "x";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    rotate: -45deg;
+    color: rgba(41,56,86,.54);
+    font: 700 13px/1 Georgia, serif;
+}
+
+@keyframes algebraRipple {
+    from { opacity: .82; scale: .58; }
+    to { opacity: 0; scale: 3.8; }
+}
+
+@media (max-width: 700px) {
+    #algebra-background .theme-algebra-axes {
+        left: 3%;
+        right: 3%;
+        opacity: .22;
+    }
+
+    #algebra-background .theme-algebra-mini-cards span {
+        opacity: .55;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #algebra-background .theme-algebra-axes *,
+    #algebra-background .theme-algebra-operators span,
+    #algebra-background .theme-algebra-mini-cards span,
+    #algebra-background .theme-algebra-burst-symbol,
+    #algebra-background .theme-algebra-click-ripple {
+        animation: none !important;
+    }
+}
