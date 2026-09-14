@@ -1,0 +1,17 @@
+{
+  "trashId": "1789383508889-asl",
+  "deletedAt": "2026-09-14T10:58:28.898Z",
+  "app": {
+    "id": "asl",
+    "name": "ASL",
+    "icon": "ph-books",
+    "category": "Non-School"
+  },
+  "moved": [
+    "html",
+    "css",
+    "js",
+    "db",
+    "dailyMediaAssets"
+  ]
+}
