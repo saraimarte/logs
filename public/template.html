@@ -1,12 +1,318 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="loading-log-page">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logs</title>
-    <link rel="stylesheet" href="/template.css">
+    <!-- V366: decoration changes are painted atomically. The stage stays hidden only
+         while the selected theme is being mounted/positioned, then appears once. -->
+    <style id="loggy-decoration-settle-style-v366">
+        html.loggy-decoration-settling-v366 #custom-theme-background-stage {
+            visibility:hidden !important;
+        }
+    </style>
+    <script id="loggy-decoration-settle-gate-v366">
+    (() => {
+        let timer = 0, revealRaf = 0, generation = 0;
+        const forceEnd = token => {
+            if (token !== generation) return;
+            cancelAnimationFrame(revealRaf); revealRaf = 0;
+            clearTimeout(timer); timer = 0;
+            document.documentElement.classList.remove('loggy-decoration-settling-v366');
+        };
+        const end = () => {
+            const token = generation;
+            clearTimeout(timer); timer = 0;
+            cancelAnimationFrame(revealRaf);
+            revealRaf = requestAnimationFrame(() => forceEnd(token));
+        };
+        const begin = () => {
+            generation += 1;
+            cancelAnimationFrame(revealRaf); revealRaf = 0;
+            clearTimeout(timer);
+            document.documentElement.classList.add('loggy-decoration-settling-v366');
+            // Failure safety only. Normal theme application releases this in 1-2 frames.
+            const token = generation;
+            timer = setTimeout(() => forceEnd(token), 1400);
+            return token;
+        };
+        window.__loggyDecorationGateV366 = { begin, end };
+        begin();
+    })();
+    </script>
+    <script id="theme-builder-preview-bootstrap-v307">
+    (() => {
+        const params = new URLSearchParams(location.search);
+        if (params.get('theme-builder-preview-v307') !== '1') return;
+        document.documentElement.dataset.themeBuilderPreviewV307 = 'true';
+        try {
+            const proto = Object.getPrototypeOf(localStorage);
+            const nativeSet = proto.setItem, nativeRemove = proto.removeItem, nativeClear = proto.clear;
+            proto.setItem = function(key, value) { if (this === localStorage || this === sessionStorage) return; return nativeSet.call(this, key, value); };
+            proto.removeItem = function(key) { if (this === localStorage || this === sessionStorage) return; return nativeRemove.call(this, key); };
+            proto.clear = function() { if (this === localStorage || this === sessionStorage) return; return nativeClear.call(this); };
+        } catch (_) {}
+        try {
+            const nativeFetch = window.fetch.bind(window);
+            window.fetch = async (...args) => {
+                const input = args[0], init = args[1] || {};
+                const url = typeof input === 'string' ? input : String(input?.url || '');
+                const method = String(init.method || input?.method || 'GET').toUpperCase();
+                if (!['GET','HEAD','OPTIONS'].includes(method) && /\/api\//.test(url)) {
+                    return new Response(JSON.stringify({ ok:true, preview:true }), { status:200, headers:{ 'content-type':'application/json; charset=utf-8' } });
+                }
+                return nativeFetch(...args);
+            };
+        } catch (_) {}
+        try {
+            HTMLMediaElement.prototype.play = function() {
+                try { this.pause(); } catch (_) {}
+                try { this.currentTime = 0; } catch (_) {}
+                try { this.muted = true; } catch (_) {}
+                return Promise.resolve();
+            };
+        } catch (_) {}
+        document.addEventListener('submit', event => { event.preventDefault(); event.stopImmediatePropagation(); }, true);
+
+        // V310: Daily View Settings inside a Theme Builder preview is visual-only.
+        // The modal may be opened/closed and its theme search may be used to browse,
+        // but no setting inside it is allowed to mutate the preview. This guard is
+        // installed in <head> before template.js/extras bind their handlers, so it
+        // wins capture order instead of trying to undo a theme/cursor change later.
+        const previewDailySettingsControlV310 = target => {
+            const modal = target?.closest?.('#daily-settings-modal');
+            if (!modal) return null;
+
+            // Keep the modal itself usable for inspection: close it normally and
+            // allow the theme-search box/clear button to filter the visible cards.
+            if (target.closest?.('#daily-settings-close, #theme-search-input, #theme-search-clear')) {
+                return null;
+            }
+
+            return target.closest?.(
+                'button, select, input, textarea, [contenteditable="true"], [role="button"], label, ' +
+                '#theme-picker .theme-picker-card, #companion-picker .icon-option, #cursor-picker .icon-option'
+            );
+        };
+
+        const stopPreviewDailySettingsMutationV310 = event => {
+            if (!previewDailySettingsControlV310(event.target)) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        };
+
+        // V317: the preview's own navigation is authoritative. The parent Theme
+        // Builder no longer injects duplicate page buttons or blocks the real nav.
+        // Daily Log media remains visual-only: recording/playback and image upload
+        // are disabled so preview inspection cannot start media or open file pickers.
+        const previewDisabledDailyMediaV317 = target => target?.closest?.(
+            '#add-note-audio-btn, #add-note-image-btn, #note-image-input, #log-view audio, #log-view video'
+        );
+
+        const stopPreviewDailyMediaV317 = event => {
+            if (!previewDisabledDailyMediaV317(event.target)) return false;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+            return true;
+        };
+
+        document.addEventListener('pointerdown', event => {
+            stopPreviewDailySettingsMutationV310(event);
+            stopPreviewDailyMediaV317(event);
+        }, true);
+        document.addEventListener('click', event => {
+            if (stopPreviewDailyMediaV317(event)) return;
+            if (previewDailySettingsControlV310(event.target)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return;
+            }
+
+            const link = event.target?.closest?.('a[href]');
+            if (link) {
+                let pathname = '';
+                try { pathname = new URL(link.getAttribute('href') || '', location.href).pathname; } catch (_) {}
+                if (pathname === '/') {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    location.assign('/?theme-builder-preview-v307=1');
+                    return;
+                }
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return;
+            }
+
+            const button = event.target?.closest?.('button,input[type="submit"]');
+            const text = String(button?.textContent || '').trim().toLowerCase();
+            const id = String(button?.id || '');
+            const mutating = button && (/save|delete|create|restore|import|apply/.test(id) || /^(save|delete|create|restore|import|apply)(\s|$)/.test(text));
+            if (mutating) { event.preventDefault(); event.stopImmediatePropagation(); }
+        }, true);
+        document.addEventListener('change', event => {
+            if (previewDisabledDailyMediaV317(event.target)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                try { event.target.value = ''; } catch (_) {}
+            }
+        }, true);
+        document.addEventListener('contextmenu', stopPreviewDailySettingsMutationV310, true);
+        document.addEventListener('keydown', event => {
+            if ((event.key === 'Enter' || event.key === ' ') && stopPreviewDailyMediaV317(event)) return;
+            const modal = event.target?.closest?.('#daily-settings-modal');
+            if (!modal) return;
+
+            // Typing/filtering stays available, but Enter previously applied the
+            // highlighted/first theme through template.js. In preview it is inert.
+            if (event.target?.matches?.('#theme-search-input')) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }
+                return;
+            }
+
+            if (!previewDailySettingsControlV310(event.target)) return;
+            if (event.key === 'Tab' || event.key === 'Escape') return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }, true);
+    })();
+    </script>
+    <style id="theme-builder-preview-style-v307">
+        html[data-theme-builder-preview-v307="true"] #theme-builder-v307-modal { display:none!important; }
+        html[data-theme-builder-preview-v307="true"] #log-view audio,
+        html[data-theme-builder-preview-v307="true"] #log-view video { pointer-events:none!important; }
+        html[data-theme-builder-preview-v307="true"] #add-note-audio-btn,
+        html[data-theme-builder-preview-v307="true"] #add-note-image-btn { opacity:.45!important; pointer-events:none!important; cursor:default!important; }
+    </style>
+    <script id="dashboard-theme-studio-host-bootstrap-v284">
+    (() => {
+        const params = new URLSearchParams(location.search);
+        if (params.get('dashboardThemeStudio') !== '1') return;
+        document.documentElement.dataset.dashboardThemeStudioHostV284 = 'true';
+    })();
+    </script>
+    <style id="dashboard-theme-studio-host-bootstrap-style-v284">
+        /* The internal /theme-studio-host is never user-facing. Keep its log shell
+           and any stale theme art hidden even if a late Theme Builder wrapper
+           temporarily closes/rebuilds the modal. This prevents the host log (and
+           a previously saved Bee/other theme) from flashing through the Studio. */
+        html[data-dashboard-theme-studio-host-v284="true"] body {
+            background: transparent !important;
+        }
+        html[data-dashboard-theme-studio-host-v284="true"] body > .side-nav,
+        html[data-dashboard-theme-studio-host-v284="true"] body > .view,
+        html[data-dashboard-theme-studio-host-v284="true"] body > #companion-stage,
+        html[data-dashboard-theme-studio-host-v284="true"] body > #companion-air-stage,
+        html[data-dashboard-theme-studio-host-v284="true"] body > #cursor-fx-layer,
+        html[data-dashboard-theme-studio-host-v284="true"] body > [data-theme-background],
+        html[data-dashboard-theme-studio-host-v284="true"] body > [data-theme-decoration],
+        html[data-dashboard-theme-studio-host-v284="true"] body > [data-theme-art],
+        html[data-dashboard-theme-studio-host-v284="true"] body > [id*="theme-background"],
+        html[data-dashboard-theme-studio-host-v284="true"] body > [class*="theme-background"] {
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+        html[data-dashboard-theme-studio-host-v284="true"] #theme-builder-v307-modal,
+        html[data-dashboard-theme-studio-host-v284="true"] #theme-edit-loader-v103 {
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+    </style>
+<link rel="stylesheet" href="/template.css?v=390">
+    <link rel="preload" href="/template.js?v=300" as="script">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+    /* V266 startup guard: preserve the exact page/tab that was open on reload.
+       We still prefetch saved log data before the main bundle parses, but startup
+       must never overwrite last-app-tab, notebook/whiteboard routes, or #day/N. */
+    (() => {
+        try {
+            const parts = location.pathname.split('/').filter(Boolean);
+            const hobby = parts.pop() || 'log';
+            // Start the server request early so loadData() can reuse it.
+            if (!window.__loggyInitialDataPromiseV187) {
+                window.__loggyInitialDataPromiseV187 = fetch(`/api/data/${encodeURIComponent(hobby)}`)
+                    .then(response => response.ok ? response : null)
+                    .catch(() => null);
+            }
+
+            // If a full-screen special tab was active, keep its restore mask in
+            // place until that exact runtime mounts. Do not delete its route.
+            try {
+                const whiteboard = JSON.parse(sessionStorage.getItem('loggy-whiteboard-route-v207') || 'null');
+                if (whiteboard?.path === location.pathname) {
+                    document.documentElement.classList.add('whiteboard-restore-pending-v207');
+                    document.documentElement.dataset.whiteboardRestoreThemeV207 = whiteboard.theme === 'dark' ? 'dark' : 'light';
+                }
+            } catch (_) {}
+            try {
+                const notebook = JSON.parse(sessionStorage.getItem('loggy-notepad-route-v249') || 'null');
+                if (notebook?.path === location.pathname) {
+                    document.documentElement.classList.add('notepad-restore-pending-v249');
+                }
+            } catch (_) {}
+        } catch (_) {}
+    })();
+
+    // V194 safety watchdog: a slow local data request must never leave the whole
+    // app permanently invisible or pointer-locked. Core startup normally clears
+    // these classes much earlier; this is only a fallback.
+    setTimeout(() => {
+        document.documentElement.classList.remove('loading-log-page');
+        document.documentElement.classList.remove('restoring-log-view');
+    }, 1200);
+    </script>
+    <style>
+        /* Keep the entire page in one compositor layer until the real log title,
+           selected view, and day grid are ready. Opacity on the ancestor cannot be
+           overridden by child/theme visibility rules, which prevents partial UI
+           (search/settings first, title/grid later) from leaking through. */
+        html.loading-log-page body,
+        html.restoring-log-view body {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        /* V207: on a whiteboard reload, cover the hidden log shell with the
+           whiteboard canvas itself until the lazy board runtime mounts. */
+        html.whiteboard-restore-pending-v207::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 2147483645;
+            pointer-events: none;
+            background-color: #F9F9F9;
+            background-image: linear-gradient(#E0E0E0 1px, transparent 1px), linear-gradient(90deg,#E0E0E0 1px,transparent 1px);
+            background-size: 50px 50px;
+        }
+        html.whiteboard-restore-pending-v207[data-whiteboard-restore-theme-v207="dark"]::before {
+            background-color: #121212;
+            background-image: linear-gradient(#262626 1px, transparent 1px), linear-gradient(90deg,#262626 1px,transparent 1px);
+        }
+        /* V249: minimal paper placeholder while a full-screen Notepad page restores. */
+        html.notepad-restore-pending-v249::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 2147483645;
+            pointer-events: none;
+            background-color: #f2f0ea;
+            background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(160,174,192,.20) 32px);
+        }
+        html.loading-log-page body *,
+        html.restoring-log-view body * {
+            transition: none !important;
+            animation-play-state: paused !important;
+        }
+        /* Daily page settings intentionally uses the same .icon-btn sizing and
+           sliders-horizontal settings glyph as Knowledge Base Settings. The
+           only gear icon is the global Settings button in the side navbar. */
+    </style>
 </head>
 <body>
     <!-- New Vertical Side Navigation -->
@@ -18,8 +324,8 @@
     </nav>
 <div id="grid-view" class="view active">
         <header>
-            <h1 id="app-title">LOGS</h1>
-            <button id="open-daily-settings-btn" class="icon-btn" title="Daily View Settings"><i class="ph ph-gear"></i></button>
+            <h1 id="app-title" style="visibility:hidden">LOGS</h1>
+            <button id="open-daily-settings-btn" class="icon-btn" title="Daily View Settings" aria-label="Daily View Settings"><i class="ph ph-sliders-horizontal" aria-hidden="true"></i></button>
         </header>
         <div id="days-grid" class="grid-container"></div>
     </div>
@@ -47,7 +353,7 @@
                         </div>
                     </div>
                     <div class="input-group hidden" id="phrase-input-group">
-                        <input type="text" id="new-phrase-input" list="global-phrases-list" placeholder="Search or type new item...">
+                        <input type="text" id="new-phrase-input" autocomplete="off" placeholder="Search or type new item...">
                         <datalist id="global-phrases-list"></datalist>
                     </div>
                     <div id="phrases-container" class="chips-container"></div>
@@ -131,7 +437,7 @@
             <button id="close-phrases-btn" class="header-back-btn"><i class="ph ph-arrow-left"></i></button>
             <h1>KNOWLEDGE BASE</h1>
             <div style="margin-left: auto; display: flex; gap: 10px;">
-                <button id="open-settings-btn" class="icon-btn" title="Settings"><i class="ph ph-gear"></i></button>
+                <button id="open-settings-btn" class="icon-btn" title="Knowledge Base Settings"><i class="ph ph-sliders-horizontal"></i></button>
                 <button id="add-phrase-library-btn" class="icon-btn" title="Add New Item"><i class="ph ph-plus"></i></button>
             </div>
         </div>
@@ -326,13 +632,13 @@
     <div id="daily-settings-modal" class="modal-overlay hidden">
         <div class="modal-box" style="max-width: 360px;">
             <div class="modal-header">
-                <h2>Daily View Settings</h2>
+                <h2>Settings</h2>
                 <button class="small-icon-btn" id="daily-settings-close"><i class="ph ph-x"></i></button>
             </div>
             <div class="modal-section">
                 <span class="field-label">View Type</span>
                 <select id="daily-view-type-select">
-                    <option value="default">Default Grid View</option>
+                    <option value="default">Default View</option>
                     <option value="polaroid">Polaroid Card View</option>
                 </select>
                 <div class="modal-section">
@@ -431,270 +737,277 @@
     <!-- Cursor fx particles (sparkles, hearts, etc.) render here -->
     <div id="cursor-fx-layer"></div>
 
-    <script src="/template.js"></script>
-
     <script>
-    /* V71 — Theme Builder runtime repair.
-       This is deliberately outside template.js so existing projects can fix
-       the current Theme Builder without replacing the large application script. */
+    /* V252 — log-page Theme Search Enter must work before lazy enhancements load.
+       When search leaves exactly one real theme card visible, Enter closes the
+       log Settings modal immediately and invokes the same card click path as a
+       mouse click, so every normal theme side effect still runs. */
     (() => {
-        const ACCORDION_SELECTOR =
-            '.theme-builder-color-accordion-v70, .theme-builder-color-accordion-v69';
-        const TOGGLE_SELECTOR =
-            '.theme-builder-accordion-toggle-v70, .theme-builder-accordion-toggle-v69';
-        const BODY_SELECTOR =
-            '.theme-builder-accordion-body-v70, .theme-builder-accordion-body-v69';
+        if (window.__loggyThemeSearchEnterV252) return;
+        window.__loggyThemeSearchEnterV252 = true;
 
-        const cleanLabel = value =>
-            String(value || '')
-                .replace(/\s+/g, ' ')
-                .trim();
+        window.addEventListener('keydown', event => {
+            if (event.key !== 'Enter' || event.isComposing) return;
 
-        function directMatches(section, selector) {
-            return Array.from(section.children || [])
-                .filter(child => child.matches?.(selector));
-        }
+            const input = document.getElementById('theme-search-input');
+            if (!input || document.activeElement !== input) return;
 
-        function inferAccordionLabel(section, toggle, index) {
-            const explicit = [
-                section.dataset?.accordionTitle,
-                section.dataset?.title,
-                section.dataset?.sectionTitle,
-                section.getAttribute?.('aria-label'),
-                toggle?.getAttribute?.('aria-label'),
-                toggle?.dataset?.label
-            ]
-                .map(cleanLabel)
-                .find(Boolean);
+            const modal = document.getElementById('daily-settings-modal');
+            if (!modal || modal.classList.contains('hidden')) return;
 
-            if (explicit) return explicit;
+            const picker = document.getElementById('theme-picker');
+            if (!picker) return;
 
-            const fromToggle = cleanLabel(
-                toggle?.querySelector?.(
-                    '.theme-builder-accordion-name-v70, .theme-builder-accordion-name-v71'
-                )?.textContent ||
-                toggle?.textContent
-            );
-
-            if (fromToggle) return fromToggle;
-
-            const body = directMatches(section, BODY_SELECTOR)[0];
-            const bodyHeading = body?.querySelector?.(
-                ':scope > .theme-builder-control-heading, :scope > h2, :scope > h3, :scope > h4'
-            );
-
-            const fromBody = cleanLabel(bodyHeading?.textContent);
-            if (fromBody) return fromBody;
-
-            return `Theme Section ${index + 1}`;
-        }
-
-        function isTopLevelAccordion(section) {
-            const parentAccordion =
-                section.parentElement?.closest?.(ACCORDION_SELECTOR);
-
-            return !parentAccordion;
-        }
-
-        function repairThemeBuilderAccordions() {
-            const modal =
-                document.getElementById('theme-builder-modal');
-
-            if (!modal) return;
-
-            const sections =
-                Array.from(modal.querySelectorAll(ACCORDION_SELECTOR))
-                    .filter(isTopLevelAccordion);
-
-            if (!sections.length) return;
-
-            sections.forEach((section, index) => {
-                section.classList.add(
-                    'theme-builder-color-accordion-v69',
-                    'theme-builder-color-accordion-v70'
+            const visibleCards = Array.from(
+                picker.querySelectorAll('.theme-picker-card[data-theme]')
+            ).filter(card => {
+                if (card.classList.contains('theme-search-hidden')) return false;
+                const style = getComputedStyle(card);
+                return (
+                    style.display !== 'none' &&
+                    style.visibility !== 'hidden' &&
+                    card.getClientRects().length > 0
                 );
-
-                let toggles = directMatches(section, TOGGLE_SELECTOR);
-
-                if (!toggles.length) {
-                    const descendantToggle =
-                        section.querySelector(TOGGLE_SELECTOR);
-
-                    if (descendantToggle) {
-                        section.insertBefore(
-                            descendantToggle,
-                            section.firstChild
-                        );
-                        toggles = [descendantToggle];
-                    }
-                }
-
-                let toggle = toggles[0];
-
-                if (!toggle) {
-                    toggle = document.createElement('button');
-                    toggle.type = 'button';
-                    section.insertBefore(toggle, section.firstChild);
-                }
-
-                toggle.classList.add(
-                    'theme-builder-accordion-toggle-v69',
-                    'theme-builder-accordion-toggle-v70'
-                );
-
-                const label =
-                    inferAccordionLabel(section, toggle, index);
-
-                let name =
-                    toggle.querySelector(
-                        '.theme-builder-accordion-name-v70, .theme-builder-accordion-name-v71'
-                    );
-
-                if (!name) {
-                    name = document.createElement('span');
-                    name.className =
-                        'theme-builder-accordion-name-v70 theme-builder-accordion-name-v71';
-
-                    // Replace only the title-row contents, never the settings body.
-                    toggle.replaceChildren(name);
-                }
-
-                name.textContent = label;
-
-                if (!toggle.querySelector(':scope > i')) {
-                    const icon = document.createElement('i');
-                    icon.className = 'ph ph-caret-down';
-                    icon.setAttribute('aria-hidden', 'true');
-                    toggle.appendChild(icon);
-                }
-
-                directMatches(section, TOGGLE_SELECTOR)
-                    .slice(1)
-                    .forEach(extra =>
-                        extra.classList.add(
-                            'theme-builder-accordion-duplicate-v71'
-                        )
-                    );
-
-                let bodies = directMatches(section, BODY_SELECTOR);
-
-                if (!bodies.length) {
-                    const descendantBody =
-                        section.querySelector(BODY_SELECTOR);
-
-                    if (descendantBody) {
-                        section.appendChild(descendantBody);
-                        bodies = [descendantBody];
-                    }
-                }
-
-                const body = bodies[0];
-
-                if (body) {
-                    body.classList.add(
-                        'theme-builder-accordion-body-v69',
-                        'theme-builder-accordion-body-v70'
-                    );
-                }
-
-                const open =
-                    section.classList.contains('open') ||
-                    section.classList.contains('open-v70');
-
-                section.classList.toggle('open', open);
-                section.classList.toggle('open-v70', open);
-
-                toggle.setAttribute(
-                    'aria-expanded',
-                    String(open)
-                );
-
-                toggle.dataset.themeBuilderAccordionV71 = '1';
             });
 
-        }
+            const keyboardSelected = visibleCards.find(card =>
+                card.classList.contains('theme-key-selected-v245') ||
+                card.getAttribute('aria-current') === 'true'
+            );
 
-        document.addEventListener(
-            'click',
-            event => {
-                const toggle =
-                    event.target.closest?.(
-                        '#theme-builder-modal .theme-builder-accordion-toggle-v70, ' +
-                        '#theme-builder-modal .theme-builder-accordion-toggle-v69'
-                    );
+            // V258: Enter applies the keyboard-highlighted result when several
+            // results remain, and still applies the sole result without requiring
+            // an Arrow key first. If there are multiple results and none is
+            // highlighted yet, leave Enter alone until the user chooses one.
+            const card = keyboardSelected || (visibleCards.length === 1 ? visibleCards[0] : null);
+            if (!card) return;
 
-                if (!toggle) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
 
-                const section =
-                    toggle.closest(ACCORDION_SELECTOR);
+            // Close first so Settings responds instantly even when the selected
+            // theme has async persistence, CSS loading, audio, or artwork setup.
+            modal.classList.add('hidden');
+            input.blur();
 
-                if (!section) return;
-
-                event.preventDefault();
-                event.stopImmediatePropagation();
-
-                const willOpen =
-                    !(
-                        section.classList.contains('open') ||
-                        section.classList.contains('open-v70')
-                    );
-
-                section.classList.toggle('open', willOpen);
-                section.classList.toggle('open-v70', willOpen);
-
-                toggle.setAttribute(
-                    'aria-expanded',
-                    String(willOpen)
-                );
-            },
-            true
-        );
-
-        function syncThemeBuilderBodyState() {
-            const modal =
-                document.getElementById('theme-builder-modal');
-
-            if (!modal) return;
-
-            const hidden =
-                modal.classList.contains('hidden') ||
-                getComputedStyle(modal).display === 'none';
-
-            if (hidden) {
-                document.body.classList.remove('theme-builder-open');
-            }
-        }
-
-        let scheduled = false;
-
-        function scheduleRepair() {
-            if (scheduled) return;
-            scheduled = true;
-
-            requestAnimationFrame(() => {
-                scheduled = false;
-                repairThemeBuilderAccordions();
-                syncThemeBuilderBodyState();
-            });
-        }
-
-        const observer =
-            new MutationObserver(scheduleRepair);
-
-        observer.observe(
-            document.documentElement,
-            {
-                childList: true,
-                subtree: true,
-                attributes: true,
-                attributeFilter: ['class']
-            }
-        );
-
-        window.addEventListener('load', scheduleRepair);
-        document.addEventListener('DOMContentLoaded', scheduleRepair);
-        scheduleRepair();
+            // Reuse the exact working mouse-click code path.
+            card.click();
+        }, true);
     })();
     </script>
+    <script src="/template.js?v=300"></script>
+    <script>
+/* V389 - left-facing directional cursor parity for Log Settings + live cursor. */
+(()=>{
+  const LEFT_IDS_V389=new Set(['wand','mushroom','mushroom2','paintbrush','paintbrush2']);
+  function flipSvgV389(raw){
+    const svg=String(raw||'');
+    if(!svg||/data-loggy-left-facing-v389=["']1["']/i.test(svg))return svg;
+    const vm=svg.match(/viewBox\s*=\s*["']\s*([-+]?\d*\.?\d+)\s+([-+]?\d*\.?\d+)\s+([-+]?\d*\.?\d+)\s+([-+]?\d*\.?\d+)\s*["']/i);
+    const x=vm?Number(vm[1]):0,w=vm?Number(vm[3]):100;
+    const tx=(Number.isFinite(x)?2*x:0)+(Number.isFinite(w)?w:100);
+    return svg
+      .replace(/<svg\b([^>]*)>/i,`<svg$1 data-loggy-left-facing-v389="1"><g transform="translate(${tx} 0) scale(-1 1)">`)
+      .replace(/<\/svg>\s*$/i,'</g></svg>');
+  }
+  function patchV389(){
+    let list=null;
+    try{if(typeof CURSOR_OPTIONS!=='undefined'&&Array.isArray(CURSOR_OPTIONS))list=CURSOR_OPTIONS}catch{}
+    if(!list)return false;
+    const done=new Set();
+    for(const opt of list){
+      const id=String(opt?.id||'');
+      if(!LEFT_IDS_V389.has(id)||done.has(id)||opt?.kind!=='image'||!opt?.svg)continue;
+      opt.svg=flipSvgV389(opt.svg);
+      done.add(id);
+    }
+    try{if(typeof renderCursorPicker==='function')renderCursorPicker()}catch{}
+    try{if(typeof applyCursorChoice==='function')applyCursorChoice()}catch{}
+    return true;
+  }
+  if(!patchV389())setTimeout(patchV389,0);
+  window.addEventListener('loggy-extras-ready',patchV389,{once:true});
+})();
+</script>
+    <script src="/template-hotfix-v221.js?v=362"></script>
+    <script>
+    /* V194 — full feature pack, split into small ordered chunks.
+       The Daily Logs shell becomes clickable first. The old 2.9 MB enhancement
+       bundle is then executed in five smaller tasks, yielding between them so
+       clicks/hover/scroll are never held hostage by one giant JS task. */
+    (() => {
+        const EXTRA_PARTS_V194 = [
+            '/template-extras-1.js?v=372',
+            '/template-extras-2.js?v=382',
+            '/template-extras-3.js?v=304',
+            '/template-extras-4.js?v=382',
+            '/template-extras-5.js?v=302',
+            '/template-extras-6.js?v=382'
+        ];
+
+        let extrasPromise = null;
+        let extrasUrgent = false;
+
+        const yieldForUi = () => new Promise(resolve => {
+            // Even in urgent mode, yield one task so an already queued click or
+            // paint can finish before the next feature chunk executes.
+            if (extrasUrgent) {
+                setTimeout(resolve, 0);
+                return;
+            }
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => resolve(), { timeout: 180 });
+            } else {
+                setTimeout(resolve, 16);
+            }
+        });
+
+        const loadPart = (src, index) => new Promise((resolve, reject) => {
+            const selector = `script[data-loggy-extra-part-v194="${index + 1}"]`;
+            const existing = document.querySelector(selector);
+            if (existing?.dataset.loadedV194 === '1') {
+                resolve();
+                return;
+            }
+            if (existing) {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = false;
+            script.dataset.loggyExtraPartV194 = String(index + 1);
+            script.addEventListener('load', () => {
+                script.dataset.loadedV194 = '1';
+                resolve();
+            }, { once: true });
+            script.addEventListener('error', reject, { once: true });
+            document.head.appendChild(script);
+        });
+
+        window.ensureLoggyExtras = ({ urgent = false } = {}) => {
+            if (urgent) extrasUrgent = true;
+            if (extrasPromise) return extrasPromise;
+
+            extrasPromise = (async () => {
+                for (let index = 0; index < EXTRA_PARTS_V194.length; index += 1) {
+                    await loadPart(EXTRA_PARTS_V194[index], index);
+                    if (index < EXTRA_PARTS_V194.length - 1) await yieldForUi();
+                }
+                document.documentElement.dataset.loggyFeaturesReady = '1';
+                window.dispatchEvent(new Event('loggy-features-ready'));
+            })();
+
+            window.__loggyExtrasReadyV194 = extrasPromise;
+            return extrasPromise;
+        };
+
+        // Advanced interactions can accelerate the remaining chunks, but normal
+        // Daily Log opening never waits for them.
+        const requestUrgentFeatures = event => {
+            // V290: a Theme Builder live preview is a sandbox, not a second full
+            // Loggy app. Loading all six enhancement bundles inside every edit
+            // preview duplicates observers/builders/theme runtimes and was the
+            // main reason Edit Theme became unclickable. Core template.js owns
+            // the normal tab/view shell; preview-only modals are bridged by the
+            // parent Theme Builder instead.
+            if (document.documentElement.dataset.themeBuilderPreviewV300 === 'true' || document.documentElement.dataset.themeBuilderLogPreviewV268 === 'true') return;
+            if (event.type === 'keydown') {
+                if (!(event.shiftKey && String(event.key || '').toLowerCase() === 'w')) return;
+            } else {
+                const target = event.target;
+                if (!target?.closest?.(
+                    '#open-daily-settings-btn, #open-global-daily-settings-nav-btn, #open-phrases-btn, #open-tools-btn, #open-quizzes-btn, #add-custom-tab-btn, ' +
+                    '.custom-tab-nav-btn, .theme-search-create-v161, .theme-picker-create-card, ' +
+                    '[data-open-theme-builder], #open-theme-builder-btn, #theme-builder-v307-modal'
+                ) && event.type !== 'contextmenu') return;
+            }
+            window.ensureLoggyExtras({ urgent: true }).catch(() => {});
+        };
+
+        // V300 FIX (bug 5): when this document is the Dashboard Theme Studio
+        // host (opened via openDashboardThemeStudioV43 in dashboard.html), no
+        // user gesture will ever fire inside this iframe to trigger
+        // requestUrgentFeatures above -- boot() in template-extras-6.js needs to
+        // run as soon as possible on its own. dashboardThemeStudio.html marks
+        // this navigation with studioUrgentV300=1 for exactly this case; honor
+        // it immediately rather than waiting on the normal idle-callback load.
+        try {
+            if (new URLSearchParams(location.search).get('studioUrgentV300') === '1') {
+                window.ensureLoggyExtras({ urgent: true }).catch(() => {});
+            }
+        } catch (_) {}
+
+        document.addEventListener('pointerdown', requestUrgentFeatures, true);
+        document.addEventListener('contextmenu', requestUrgentFeatures, true);
+        document.addEventListener('keydown', requestUrgentFeatures, true);
+
+        /* V257: the very first right-click on a theme card must not race the
+           late Theme Builder coordinator. If advanced features are still loading,
+           consume that one contextmenu event, finish the urgent bundle, then replay
+           the same right-click against the exact theme card. */
+        document.addEventListener('contextmenu', event => {
+            const card = event.target?.closest?.('#theme-picker .theme-picker-card[data-theme]');
+            if (!card || event.__loggyThemeReplayV257 || document.documentElement.dataset.loggyFeaturesReady === '1') return;
+            const themeId = String(card.dataset.theme || 'default');
+            const x = event.clientX;
+            const y = event.clientY;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            window.ensureLoggyExtras({ urgent: true }).then(() => {
+                const selector = `#theme-picker .theme-picker-card[data-theme="${CSS.escape(themeId)}"]`;
+                const target = document.querySelector(selector) || card;
+                const replay = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: x, clientY: y, view: window });
+                try { Object.defineProperty(replay, '__loggyThemeReplayV257', { value: true }); } catch {}
+                target.dispatchEvent(replay);
+            }).catch(() => {});
+        }, true);
+
+        /* V307: the first Create Theme click belongs to the clean builder owner.
+           If the final bundle is not ready yet, consume the click, finish loading
+           it, and call the V307 entry point directly. No historical opener runs. */
+        document.addEventListener('click', event => {
+            const create = event.target?.closest?.(
+                '.theme-search-create-v161, .theme-picker-create-card, [data-create-theme-v171]'
+            );
+            if (!create || event.__loggyCreateReplayV290 || document.documentElement.dataset.loggyFeaturesReady === '1') return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            window.ensureLoggyExtras({ urgent: true }).then(() => {
+                try { window.__loggyThemeBuilderV307OpenCreate?.(); } catch {}
+            }).catch(() => {});
+        }, true);
+
+        // Start automatically only after the critical shell has painted. This
+        // restores every feature without making the Daily Logs page wait for it.
+        const scheduleAllFeatures = () => {
+            // V290: never auto-boot the heavyweight extras inside a Theme Builder
+            // preview iframe. The parent already has them; running them twice
+            // causes duplicate MutationObservers, preview fitters, and theme JS.
+            if (document.documentElement.dataset.themeBuilderPreviewV300 === 'true' || document.documentElement.dataset.themeBuilderLogPreviewV268 === 'true') return;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                setTimeout(() => {
+                    if ('requestIdleCallback' in window) {
+                        requestIdleCallback(
+                            () => window.ensureLoggyExtras().catch(() => {}),
+                            { timeout: 900 }
+                        );
+                    } else {
+                        window.ensureLoggyExtras().catch(() => {});
+                    }
+                }, 120);
+            }));
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', scheduleAllFeatures, { once: true });
+        } else {
+            scheduleAllFeatures();
+        }
+    })();
+    </script>
+    <script defer src="/widgets-loader-v241.js?v=246"></script>
 </body>
 </html>

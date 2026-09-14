@@ -1332,3 +1332,22 @@ html body.theme-bees #daily-settings-modal .modal-header .small-icon-btn i {
 
 
 
+
+/* ============================================================
+   V290 — FIRST-PAINT FLOWERS
+   JS now mounts actual inline flower SVGs so a cold load cannot wait on this
+   stylesheet before the flowers exist. Disable the legacy pseudo flower only
+   for those V290 nodes; the sway animation on .bee-theme-flower still applies.
+   ============================================================ */
+#bee-theme-background .bee-theme-flower[data-bee-flower-v290="1"]::before,
+#bee-theme-background .bee-theme-flower[data-bee-flower-v290="1"]::after {
+    content: none !important;
+    display: none !important;
+}
+#bee-theme-background .bee-theme-flower[data-bee-flower-v290="1"] > svg {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: visible !important;
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,.12));
+}

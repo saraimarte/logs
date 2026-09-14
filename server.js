@@ -10,8 +10,16 @@ app.use(express.static(path.join(__dirname, 'public'), {
         const normalized = String(filePath || '').replace(/\\/g, '/');
         // Theme Builder asset filenames are unique/timestamped. Cache them so
         // custom backgrounds/decorations are memory/disk hits on later mounts.
-        if (/\/(?:themes|svg|sounds)\/custom-builder-/i.test(normalized)) {
+        if (/\/(?:themes|svg|sounds)\/custom-builder-/i.test(normalized) || /\/media\/[^/]+\/(?:daily-logs|notepad|whiteboard|kb)\//i.test(normalized)) {
             res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
+            return;
+        }
+        // V222: existing log HTML keeps the enhancement bundle query string it
+        // had when the log was created. Always revalidate shared enhancement
+        // bundles so an old cached template-extras-5.js cannot keep a fixed log
+        // on the legacy Add Field code path.
+        if (/\/(?:template-extras-(?:[1-6])|template-hotfix-v221|template-notepad(?:-v250)?|widgets-v239|widgets-loader-v241)\.js$/i.test(normalized)) {
+            res.setHeader('Cache-Control', 'no-cache, must-revalidate');
         }
     }
 }));
@@ -44,24 +52,90 @@ const RESERVED_IDS = ['template', 'dashboard', 'theme-studio-host'];
 // Also backfills a category on any older entries that don't have one yet,
 // so nothing silently disappears from a category filter.
 function getCleanAppsList() {
-    let apps = JSON.parse(fs.readFileSync(APPS_DB_PATH, 'utf8'));
+    const original = JSON.parse(fs.readFileSync(APPS_DB_PATH, 'utf8'));
+    let changed = false;
 
-    apps = apps.filter(app => {
+    const apps = original.filter(app => {
         const htmlFile = path.join(publicDir, `${app.id}.html`);
-        return fs.existsSync(htmlFile);
+        const keep = fs.existsSync(htmlFile);
+        if (!keep) changed = true;
+        return keep;
     });
 
     apps.forEach(app => {
-        if (app.category !== 'School' && app.category !== 'Non-School') {
-            app.category = 'Non-School';
-        }
+        // Custom dashboard categories are valid too. Older builds only allowed
+        // School / Non-School here, which silently moved logs out of user-made
+        // or renamed categories every time /api/apps was read.
+        const category = String(app.category || '').trim();
+        const normalized = category || 'Non-School';
+        if (app.category !== normalized) changed = true;
+        app.category = normalized;
     });
 
-    fs.writeFileSync(APPS_DB_PATH, JSON.stringify(apps, null, 2));
+    // V188: GET /api/apps is read-mostly. Do not synchronously rewrite apps.json
+    // on every dashboard refresh when nothing changed.
+    if (changed) {
+        fs.writeFileSync(APPS_DB_PATH, JSON.stringify(apps, null, 2));
+    }
     return apps;
 }
 
 app.get('/api/apps', (req, res) => res.json(getCleanAppsList()));
+
+
+// V188 — lightweight Dashboard completion status. This avoids sending every
+// full log database to the browser merely to underline today's completed logs.
+function dashboardTodayDateKeyV188() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+function dashboardDayNumberV188(startDate, todayKey) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(startDate || ''))) return null;
+    const [sy, sm, sd] = String(startDate).split('-').map(Number);
+    const [ty, tm, td] = String(todayKey).split('-').map(Number);
+    return Math.round((Date.UTC(ty, tm - 1, td) - Date.UTC(sy, sm - 1, sd)) / 86400000) + 1;
+}
+
+function dashboardDayHasContentV188(day) {
+    if (!day || typeof day !== 'object') return false;
+    return Object.values(day).some(value =>
+        (typeof value === 'string' && value.trim().length > 0) ||
+        (Array.isArray(value) && value.length > 0)
+    );
+}
+
+app.get('/api/apps/today-status', async (req, res) => {
+    const apps = getCleanAppsList();
+    const todayKey = dashboardTodayDateKeyV188();
+    const result = Object.create(null);
+    let cursor = 0;
+
+    // Limit async disk concurrency so Node stays responsive with many/large logs.
+    const worker = async () => {
+        while (cursor < apps.length) {
+            const appInfo = apps[cursor++];
+            result[appInfo.id] = false;
+            try {
+                const raw = await fs.promises.readFile(path.join(DATA_DIR, `${appInfo.id}_db.json`), 'utf8');
+                const data = JSON.parse(raw);
+                const dayNumber = dashboardDayNumberV188(data.startDate, todayKey);
+                result[appInfo.id] = dayNumber
+                    ? dashboardDayHasContentV188(data.days && data.days[dayNumber])
+                    : false;
+            } catch (_) {
+                result[appInfo.id] = false;
+            }
+        }
+    };
+
+    await Promise.all(Array.from({ length: Math.min(4, Math.max(1, apps.length)) }, worker));
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(result);
+});
 
 // --- Create New Log Page: Scaffolds physical HTML, CSS, JS files from Template ---
 app.post('/api/apps', (req, res) => {
@@ -73,7 +147,7 @@ app.post('/api/apps', (req, res) => {
     if (RESERVED_IDS.includes(id)) {
         return res.status(400).json({ status: 'error', message: `"${id}" is a reserved name. Please choose a different name.` });
     }
-    if (category !== 'School' && category !== 'Non-School') category = 'Non-School';
+    category = String(category || '').trim() || 'Non-School';
 
     const htmlPath = path.join(publicDir, `${id}.html`);
     const cssPath = path.join(publicDir, `${id}.css`);
@@ -116,15 +190,25 @@ app.post('/api/apps', (req, res) => {
     res.json({ status: 'success' });
 });
 
-// --- Rename a Log Page: updates its display name only (id/files stay the same) ---
+// --- Update Log Page metadata (id/files stay the same) ---
 app.patch('/api/apps/:id', (req, res) => {
     const { id } = req.params;
-    const { name } = req.body;
-    if (!name || !name.trim()) {
+    const hasName = Object.prototype.hasOwnProperty.call(req.body || {}, 'name');
+    const hasCategory = Object.prototype.hasOwnProperty.call(req.body || {}, 'category');
+    const name = hasName ? String(req.body.name || '').trim() : '';
+    const category = hasCategory ? String(req.body.category || '').trim() : '';
+
+    if (!hasName && !hasCategory) {
+        return res.status(400).json({ status: 'error', message: 'No log metadata was supplied.' });
+    }
+    if (hasName && !name) {
         return res.status(400).json({ status: 'error', message: 'A new name is required.' });
     }
+    if (hasCategory && !category) {
+        return res.status(400).json({ status: 'error', message: 'A category name is required.' });
+    }
     if (RESERVED_IDS.includes(id)) {
-        return res.status(400).json({ status: 'error', message: 'This log cannot be renamed.' });
+        return res.status(400).json({ status: 'error', message: 'This log cannot be changed.' });
     }
 
     const apps = getCleanAppsList();
@@ -133,10 +217,11 @@ app.patch('/api/apps/:id', (req, res) => {
         return res.status(404).json({ status: 'error', message: 'Log not found.' });
     }
 
-    app_.name = name.trim();
+    if (hasName) app_.name = name;
+    if (hasCategory) app_.category = category;
     fs.writeFileSync(APPS_DB_PATH, JSON.stringify(apps, null, 2));
 
-    res.json({ status: 'success' });
+    res.json({ status: 'success', app: app_ });
 });
 
 
@@ -236,7 +321,8 @@ function getActiveLogPaths(id) {
 
         themeAssets: path.join(publicDir, 'themes', `custom-builder-${safeId}`),
         soundAssets: path.join(publicDir, 'sounds', `custom-builder-${safeId}`),
-        svgAssets: path.join(publicDir, 'svg', `custom-builder-${safeId}`)
+        svgAssets: path.join(publicDir, 'svg', `custom-builder-${safeId}`),
+        dailyMediaAssets: path.join(publicDir, 'media', safeId)
     };
 }
 
@@ -251,7 +337,8 @@ function getTrashBundlePaths(bundleDir, id) {
 
         themeAssets: path.join(bundleDir, 'assets', 'themes', `custom-builder-${safeId}`),
         soundAssets: path.join(bundleDir, 'assets', 'sounds', `custom-builder-${safeId}`),
-        svgAssets: path.join(bundleDir, 'assets', 'svg', `custom-builder-${safeId}`)
+        svgAssets: path.join(bundleDir, 'assets', 'svg', `custom-builder-${safeId}`),
+        dailyMediaAssets: path.join(bundleDir, 'assets', 'media', safeId)
     };
 }
 
@@ -378,10 +465,8 @@ app.post('/api/apps/:id/trash', (req, res) => {
                     appEntry.icon ||
                     'ph-books',
                 category:
-                    appEntry.category ===
-                        'School'
-                        ? 'School'
-                        : 'Non-School'
+                    String(appEntry.category || '').trim() ||
+                    'Non-School'
             },
             moved:
                 movedKeys
@@ -583,7 +668,8 @@ app.delete('/api/apps/:id', (req, res) => {
     const directoryTargets = [
         path.join(publicDir, 'themes', `custom-builder-${safeId}`),
         path.join(publicDir, 'sounds', `custom-builder-${safeId}`),
-        path.join(publicDir, 'svg', `custom-builder-${safeId}`)
+        path.join(publicDir, 'svg', `custom-builder-${safeId}`),
+        path.join(publicDir, 'media', safeId)
     ];
 
     directoryTargets.forEach(target => {
@@ -600,14 +686,450 @@ app.delete('/api/apps/:id', (req, res) => {
     res.json({ status: 'success' });
 });
 
+// --- V246: Daily Log media file storage ------------------------------------
+// Daily Log note images are stored as real files instead of base64 strings in
+// the database.  Old databases remain compatible: any data:image/... entry is
+// migrated to public/media/<log>/daily-logs/day-<n>/ on the next load/save.
+function safeDailyMediaSegmentV246(value, fallback = 'log') {
+    const cleaned = String(value || '').trim().toLowerCase()
+        .replace(/[^a-z0-9_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    return cleaned || fallback;
+}
+
+function dailyMediaRootV246(hobby) {
+    return path.join(publicDir, 'media', safeDailyMediaSegmentV246(hobby));
+}
+
+function dailyImageExtV246(mime, originalName = '') {
+    const map = {
+        'image/png': '.png',
+        'image/jpeg': '.jpg',
+        'image/jpg': '.jpg',
+        'image/webp': '.webp',
+        'image/gif': '.gif',
+        'image/avif': '.avif',
+        'image/svg+xml': '.svg'
+    };
+    const normalized = String(mime || '').toLowerCase();
+    if (map[normalized]) return map[normalized];
+    const ext = path.extname(String(originalName || '')).toLowerCase();
+    if (['.png','.jpg','.jpeg','.webp','.gif','.avif','.svg'].includes(ext)) {
+        return ext === '.jpeg' ? '.jpg' : ext;
+    }
+    return '';
+}
+
+function decodeDailyImageDataUrlV246(value) {
+    const match = String(value || '').match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/is);
+    if (!match) return null;
+    try {
+        return { mime: match[1].toLowerCase(), buffer: Buffer.from(match[2], 'base64') };
+    } catch (_) {
+        return null;
+    }
+}
+
+function uniqueDailyMediaFileV246(dir, base, ext) {
+    fs.mkdirSync(dir, { recursive: true });
+    const clean = String(base || 'image').replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70) || 'image';
+    let name = `${clean}${ext}`;
+    let n = 2;
+    while (fs.existsSync(path.join(dir, name))) name = `${clean}-${n++}${ext}`;
+    return name;
+}
+
+function writeDailyImageV246(hobby, day, buffer, mime, originalName = 'image') {
+    if (!Buffer.isBuffer(buffer) || !buffer.length) return null;
+    const ext = dailyImageExtV246(mime, originalName);
+    if (!ext) return null;
+    const dayNumber = Math.max(1, Number.parseInt(day, 10) || 1);
+    const dir = path.join(dailyMediaRootV246(hobby), 'daily-logs', `day-${dayNumber}`);
+    const baseRaw = path.basename(String(originalName || 'image'), path.extname(String(originalName || 'image')));
+    const base = `${baseRaw || 'image'}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+    const filename = uniqueDailyMediaFileV246(dir, base, ext);
+    const absolute = path.join(dir, filename);
+    fs.writeFileSync(absolute, buffer);
+    const projectPath = path.relative(__dirname, absolute).replace(/\\/g, '/');
+    const url = '/' + path.relative(publicDir, absolute).split(path.sep).map(encodeURIComponent).join('/');
+    return { src: url, projectPath, name: filename, mime: String(mime || '') };
+}
+
+function resolveDailyMediaProjectPathV246(hobby, image) {
+    if (!image || typeof image !== 'object') return null;
+    const projectPath = String(image.projectPath || image.path || '').trim();
+    if (projectPath) {
+        const abs = path.resolve(__dirname, projectPath);
+        const root = path.resolve(dailyMediaRootV246(hobby)) + path.sep;
+        if (abs.startsWith(root)) return abs;
+    }
+    const src = String(image.src || '').trim();
+    if (src.startsWith('/media/')) {
+        const abs = path.resolve(publicDir, '.' + decodeURIComponent(src));
+        const root = path.resolve(dailyMediaRootV246(hobby)) + path.sep;
+        if (abs.startsWith(root)) return abs;
+    }
+    return null;
+}
+
+function migrateDailyNoteImagesV246(hobby, data) {
+    let changed = false;
+    const days = data && typeof data === 'object' ? data.days : null;
+    if (!days || typeof days !== 'object') return { data, changed };
+    Object.entries(days).forEach(([dayKey, dayData]) => {
+        if (!dayData || !Array.isArray(dayData.noteImages)) return;
+        dayData.noteImages = dayData.noteImages.map((entry, index) => {
+            const src = typeof entry === 'string' ? entry : String(entry?.src || entry?.data || '');
+            const decoded = decodeDailyImageDataUrlV246(src);
+            if (!decoded) {
+                // Repair an existing project-backed image URL from projectPath.
+                if (entry && typeof entry === 'object' && entry.projectPath) {
+                    const abs = resolveDailyMediaProjectPathV246(hobby, entry);
+                    if (abs && fs.existsSync(abs)) {
+                        const repaired = '/' + path.relative(publicDir, abs).split(path.sep).map(encodeURIComponent).join('/');
+                        if (entry.src !== repaired) { entry.src = repaired; changed = true; }
+                    }
+                }
+                return entry;
+            }
+            const saved = writeDailyImageV246(hobby, dayKey, decoded.buffer, decoded.mime, `image-${index + 1}`);
+            if (!saved) return entry;
+            changed = true;
+            return {
+                ...saved,
+                starred: !!(entry && typeof entry === 'object' && entry.starred)
+            };
+        });
+    });
+    return { data, changed };
+}
+
+
+// --- V249: Notepad project-backed image storage ---------------------------
+// Full-screen Notepad pages keep images as files under
+// public/media/<log>/notepad/<tab>/<page>/ and store only path metadata in JSON.
+function notepadMediaRootV249(hobby) {
+    return path.join(dailyMediaRootV246(hobby), 'notepad');
+}
+
+function writeNotepadImageV249(hobby, tabId, pageId, buffer, mime, originalName = 'image') {
+    if (!Buffer.isBuffer(buffer) || !buffer.length) return null;
+    const ext = dailyImageExtV246(mime, originalName);
+    if (!ext) return null;
+    const safeTab = safeDailyMediaSegmentV246(tabId, 'notepad');
+    const safePage = safeDailyMediaSegmentV246(pageId, 'page');
+    const dir = path.join(notepadMediaRootV249(hobby), safeTab, safePage);
+    const baseRaw = path.basename(String(originalName || 'image'), path.extname(String(originalName || 'image')));
+    const base = `${baseRaw || 'image'}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+    const filename = uniqueDailyMediaFileV246(dir, base, ext);
+    const absolute = path.join(dir, filename);
+    fs.writeFileSync(absolute, buffer);
+    const projectPath = path.relative(__dirname, absolute).replace(/\\/g, '/');
+    const url = '/' + path.relative(publicDir, absolute).split(path.sep).map(encodeURIComponent).join('/');
+    return { src:url, projectPath, name:filename, mime:String(mime || '') };
+}
+
+function resolveNotepadMediaProjectPathV249(hobby, image) {
+    if (!image || typeof image !== 'object') return null;
+    const root = path.resolve(notepadMediaRootV249(hobby)) + path.sep;
+    const projectPath = String(image.projectPath || image.path || '').trim();
+    if (projectPath) {
+        const absolute = path.resolve(__dirname, projectPath);
+        if (absolute.startsWith(root)) return absolute;
+    }
+    const src = String(image.src || '').trim();
+    if (src.startsWith('/media/')) {
+        const absolute = path.resolve(publicDir, '.' + decodeURIComponent(src));
+        if (absolute.startsWith(root)) return absolute;
+    }
+    return null;
+}
+
+function forEachNotepadPageV249(data, callback) {
+    const tabs = data?.settings?.customTabs;
+    if (!Array.isArray(tabs)) return;
+    tabs.forEach(tab => {
+        const state = tab?.notepadV249;
+        if (!state || !Array.isArray(state.pages)) return;
+        state.pages.forEach(page => callback(tab, page));
+    });
+}
+
+function migrateNotepadImagesV249(hobby, data) {
+    let changed = false;
+    forEachNotepadPageV249(data, (tab, page) => {
+        if (!Array.isArray(page.images)) return;
+        page.images = page.images.map((entry, index) => {
+            const src = typeof entry === 'string' ? entry : String(entry?.src || entry?.data || '');
+            const decoded = decodeDailyImageDataUrlV246(src);
+            if (!decoded) {
+                if (entry && typeof entry === 'object' && entry.projectPath) {
+                    const absolute = resolveNotepadMediaProjectPathV249(hobby, entry);
+                    if (absolute && fs.existsSync(absolute)) {
+                        const repaired = '/' + path.relative(publicDir, absolute).split(path.sep).map(encodeURIComponent).join('/');
+                        if (entry.src !== repaired) { entry.src = repaired; changed = true; }
+                    }
+                }
+                return entry;
+            }
+            const saved = writeNotepadImageV249(hobby, tab?.id || 'notepad', page?.id || 'page', decoded.buffer, decoded.mime, entry?.name || `image-${index + 1}`);
+            if (!saved) return entry;
+            changed = true;
+            return {
+                ...(entry && typeof entry === 'object' ? entry : {}),
+                ...saved,
+                id: String(entry?.id || `notepad-image-${Date.now()}-${index}`),
+                caption: String(entry?.caption || '')
+            };
+        });
+    });
+    return { data, changed };
+}
+
+function embedNotepadMediaForBackupV249(hobby, clone) {
+    forEachNotepadPageV249(clone, (_tab, page) => {
+        if (!Array.isArray(page.images)) return;
+        page.images = page.images.map(entry => {
+            if (!entry || typeof entry !== 'object') return entry;
+            const absolute = resolveNotepadMediaProjectPathV249(hobby, entry);
+            if (!absolute || !fs.existsSync(absolute)) return entry;
+            try {
+                const ext = path.extname(absolute).toLowerCase();
+                const mimeMap = { '.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.gif':'image/gif','.avif':'image/avif','.svg':'image/svg+xml' };
+                const mime = entry.mime || mimeMap[ext] || 'application/octet-stream';
+                return { ...entry, src:`data:${mime};base64,${fs.readFileSync(absolute).toString('base64')}`, projectPath:'', mime, name:entry.name || path.basename(absolute) };
+            } catch (_) { return entry; }
+        });
+    });
+    return clone;
+}
+
+
+// --- V251: Whiteboard project-backed image storage ------------------------
+// Whiteboard images live under public/media/<log>/whiteboard/<tab>/<board>/.
+// Board JSON stores only URL/projectPath metadata so large images do not bloat
+// the main log database or slow every save.
+function whiteboardMediaRootV251(hobby) {
+    return path.join(dailyMediaRootV246(hobby), 'whiteboard');
+}
+
+function writeWhiteboardImageV251(hobby, tabId, boardId, buffer, mime, originalName = 'image') {
+    if (!Buffer.isBuffer(buffer) || !buffer.length) return null;
+    const ext = dailyImageExtV246(mime, originalName);
+    if (!ext) return null;
+    const safeTab = safeDailyMediaSegmentV246(tabId, 'whiteboard');
+    const safeBoard = safeDailyMediaSegmentV246(boardId, 'board');
+    const dir = path.join(whiteboardMediaRootV251(hobby), safeTab, safeBoard);
+    const baseRaw = path.basename(String(originalName || 'image'), path.extname(String(originalName || 'image')));
+    const base = `${baseRaw || 'image'}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+    const filename = uniqueDailyMediaFileV246(dir, base, ext);
+    const absolute = path.join(dir, filename);
+    fs.writeFileSync(absolute, buffer);
+    return {
+        src:'/' + path.relative(publicDir, absolute).split(path.sep).map(encodeURIComponent).join('/'),
+        projectPath:path.relative(__dirname, absolute).replace(/\\/g, '/'),
+        name:filename,
+        mime:String(mime || '')
+    };
+}
+
+function resolveWhiteboardMediaProjectPathV251(hobby, image) {
+    if (!image || typeof image !== 'object') return null;
+    const root = path.resolve(whiteboardMediaRootV251(hobby)) + path.sep;
+    const projectPath = String(image.projectPath || image.path || '').trim();
+    if (projectPath) {
+        const absolute = path.resolve(__dirname, projectPath);
+        if (absolute.startsWith(root)) return absolute;
+    }
+    const src = String(image.src || '').trim();
+    if (src.startsWith('/media/')) {
+        const absolute = path.resolve(publicDir, '.' + decodeURIComponent(src));
+        if (absolute.startsWith(root)) return absolute;
+    }
+    return null;
+}
+
+function forEachWhiteboardBoardV251(data, callback) {
+    const tabs = data?.settings?.customTabs;
+    if (!Array.isArray(tabs)) return;
+    tabs.forEach(tab => {
+        const state = tab?.whiteboardV198;
+        if (!state || !Array.isArray(state.boards)) return;
+        state.boards.forEach(board => callback(tab, board));
+    });
+}
+
+function migrateWhiteboardImagesV251(hobby, data) {
+    let changed = false;
+    forEachWhiteboardBoardV251(data, (tab, board) => {
+        if (!Array.isArray(board.images)) {
+            board.images = [];
+            changed = true;
+            return;
+        }
+        board.images = board.images.map((entry, index) => {
+            if (!entry || typeof entry !== 'object') return entry;
+            const decoded = decodeDailyImageDataUrlV246(entry.src || entry.data || '');
+            if (decoded) {
+                const saved = writeWhiteboardImageV251(
+                    hobby,
+                    tab?.id || 'whiteboard',
+                    board?.id || 'board',
+                    decoded.buffer,
+                    decoded.mime,
+                    entry.name || `image-${index + 1}`
+                );
+                if (saved) {
+                    changed = true;
+                    return { ...entry, ...saved };
+                }
+                return entry;
+            }
+            if (entry.projectPath) {
+                const absolute = resolveWhiteboardMediaProjectPathV251(hobby, entry);
+                if (absolute && fs.existsSync(absolute)) {
+                    const repaired = '/' + path.relative(publicDir, absolute).split(path.sep).map(encodeURIComponent).join('/');
+                    if (entry.src !== repaired) {
+                        entry.src = repaired;
+                        changed = true;
+                    }
+                }
+            }
+            return entry;
+        });
+        if (!Array.isArray(board.texts)) {
+            board.texts = [];
+            changed = true;
+        }
+    });
+    return { data, changed };
+}
+
+function embedWhiteboardMediaForBackupV251(hobby, clone) {
+    forEachWhiteboardBoardV251(clone, (_tab, board) => {
+        if (!Array.isArray(board.images)) return;
+        board.images = board.images.map(entry => {
+            if (!entry || typeof entry !== 'object') return entry;
+            const absolute = resolveWhiteboardMediaProjectPathV251(hobby, entry);
+            if (!absolute || !fs.existsSync(absolute)) return entry;
+            try {
+                const ext = path.extname(absolute).toLowerCase();
+                const mimeMap = { '.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.gif':'image/gif','.avif':'image/avif','.svg':'image/svg+xml' };
+                const mime = entry.mime || mimeMap[ext] || 'application/octet-stream';
+                return {
+                    ...entry,
+                    src:`data:${mime};base64,${fs.readFileSync(absolute).toString('base64')}`,
+                    projectPath:'',
+                    mime,
+                    name:entry.name || path.basename(absolute)
+                };
+            } catch (_) {
+                return entry;
+            }
+        });
+    });
+    return clone;
+}
+
+function exportDbWithEmbeddedDailyMediaV246(hobby, sourceDb) {
+    const clone = JSON.parse(JSON.stringify(sourceDb || {}));
+    Object.entries(clone.days || {}).forEach(([dayKey, dayData]) => {
+        if (!Array.isArray(dayData?.noteImages)) return;
+        dayData.noteImages = dayData.noteImages.map(entry => {
+            if (!entry || typeof entry !== 'object') return entry;
+            const abs = resolveDailyMediaProjectPathV246(hobby, entry);
+            if (!abs || !fs.existsSync(abs)) return entry;
+            try {
+                const ext = path.extname(abs).toLowerCase();
+                const mimeMap = { '.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.gif':'image/gif','.avif':'image/avif','.svg':'image/svg+xml' };
+                const mime = entry.mime || mimeMap[ext] || 'application/octet-stream';
+                const dataUrl = `data:${mime};base64,${fs.readFileSync(abs).toString('base64')}`;
+                return { src: dataUrl, starred: !!entry.starred, name: entry.name || path.basename(abs), mime };
+            } catch (_) {
+                return entry;
+            }
+        });
+    });
+    embedNotepadMediaForBackupV249(hobby, clone);
+    embedWhiteboardMediaForBackupV251(hobby, clone);
+    embedKbAttachmentsForBackupV250(hobby, clone);
+    return clone;
+}
+
+
+// --- V250: Knowledge Base file attachments -------------------------------
+function kbAttachmentRootV250(hobby) {
+    return path.join(dailyMediaRootV246(hobby), 'kb', 'attachments');
+}
+function writeKbAttachmentV250(hobby, buffer, mime, originalName='attachment') {
+    if (!Buffer.isBuffer(buffer) || !buffer.length) return null;
+    const dir = kbAttachmentRootV250(hobby); fs.mkdirSync(dir,{recursive:true});
+    const extRaw = path.extname(String(originalName||''));
+    const ext = extRaw && /^\.[a-z0-9]{1,10}$/i.test(extRaw) ? extRaw.toLowerCase() : '';
+    const baseRaw = path.basename(String(originalName||'attachment'), extRaw).replace(/[^a-z0-9._-]+/gi,'-').replace(/^-+|-+$/g,'') || 'attachment';
+    const filename = uniqueDailyMediaFileV246(dir, `${baseRaw}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, ext || '.bin');
+    const absolute = path.join(dir,filename); fs.writeFileSync(absolute,buffer);
+    return {__loggyKbAttachmentV250:true,name:path.basename(String(originalName||filename)),mime:String(mime||'application/octet-stream'),size:buffer.length,projectPath:path.relative(__dirname,absolute).replace(/\\/g,'/'),url:'/'+path.relative(publicDir,absolute).split(path.sep).map(encodeURIComponent).join('/')};
+}
+function resolveKbAttachmentV250(hobby, entry) {
+    if(!entry||typeof entry!=='object') return null; const root=path.resolve(kbAttachmentRootV250(hobby))+path.sep;
+    const pp=String(entry.projectPath||'').trim(); if(pp){const a=path.resolve(__dirname,pp);if(a.startsWith(root))return a}
+    const u=String(entry.url||entry.src||''); if(u.startsWith('/media/')){const a=path.resolve(publicDir,'.'+decodeURIComponent(u));if(a.startsWith(root))return a} return null;
+}
+function walkKbAttachmentsV250(data, callback) {
+    Object.values(data?.phrase_meta||{}).forEach(meta=>{const cf=meta?.custom_fields;if(!cf||typeof cf!=='object')return;Object.entries(cf).forEach(([key,value])=>{let entry=null;try{entry=typeof value==='string'?JSON.parse(value):value}catch{}if(entry?.__loggyKbAttachmentV250)callback(cf,key,entry)})});
+}
+function migrateKbAttachmentsV250(hobby,data){let changed=false;walkKbAttachmentsV250(data,(cf,key,entry)=>{if(entry.dataUrl){const decoded=decodeThemeAssetDataUrl(entry.dataUrl);if(decoded){const saved=writeKbAttachmentV250(hobby,decoded.buffer,decoded.mime,entry.name||'attachment');if(saved){cf[key]=JSON.stringify(saved);changed=true}}return}const abs=resolveKbAttachmentV250(hobby,entry);if(abs&&fs.existsSync(abs)){const url='/'+path.relative(publicDir,abs).split(path.sep).map(encodeURIComponent).join('/');if(entry.url!==url){entry.url=url;cf[key]=JSON.stringify(entry);changed=true}}});return{data,changed}}
+function embedKbAttachmentsForBackupV250(hobby,clone){walkKbAttachmentsV250(clone,(cf,key,entry)=>{const abs=resolveKbAttachmentV250(hobby,entry);if(!abs||!fs.existsSync(abs))return;try{cf[key]=JSON.stringify({...entry,projectPath:'',url:'',dataUrl:`data:${entry.mime||'application/octet-stream'};base64,${fs.readFileSync(abs).toString('base64')}`})}catch{}});return clone}
+
 // --- Database Helpers ---
 const getDb = (hobby) => {
+    // V284: /theme-studio-host is an internal, disposable Theme Builder shell.
+    // It must never inherit or retain a user's log theme. In particular, an old
+    // accidental theme-studio-host_db.json must not make Create Theme boot into
+    // that saved theme (the Bee-theme flash/host-page leak reported from Dashboard).
+    if (String(hobby || '') === 'theme-studio-host') {
+        return {
+            days: {}, tools: [], phrases: [], phrase_meta: {}, srs: {}, reading_gallery: [], startDate: null,
+            settings: {
+                theme: 'default',
+                categories: ['Category'],
+                categorySettings: { Category: { fields: [] } },
+                libraryView: 'list',
+                hideCategoriesInPolaroid: false,
+                dailyViewType: 'default',
+                dailyPolaroidSource: 'starred',
+                companion: 'none',
+                cursorStyle: 'default',
+                customTabs: []
+            }
+        };
+    }
+
     const dbPath = path.join(DATA_DIR, `${hobby}_db.json`);
-    if (fs.existsSync(dbPath)) return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-    return { days: {}, tools: [], phrases: [], phrase_meta: {}, srs: {}, reading_gallery: [], startDate: null };
+    if (!fs.existsSync(dbPath)) return { days: {}, tools: [], phrases: [], phrase_meta: {}, srs: {}, reading_gallery: [], startDate: null };
+    const parsed = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+    const dailyMigrated = migrateDailyNoteImagesV246(hobby, parsed);
+    const notepadMigrated = migrateNotepadImagesV249(hobby, dailyMigrated.data);
+    const whiteboardMigrated = migrateWhiteboardImagesV251(hobby, notepadMigrated.data);
+    const kbMigrated = migrateKbAttachmentsV250(hobby, whiteboardMigrated.data);
+    if (dailyMigrated.changed || notepadMigrated.changed || whiteboardMigrated.changed || kbMigrated.changed) fs.writeFileSync(dbPath, JSON.stringify(kbMigrated.data, null, 2));
+    return kbMigrated.data;
 };
 
-const saveDb = (hobby, data) => fs.writeFileSync(path.join(DATA_DIR, `${hobby}_db.json`), JSON.stringify(data, null, 2));
+const saveDb = (hobby, data) => {
+    // V284: never persist application state for the internal Theme Studio host.
+    // Theme assets/library entries use their own Theme Builder persistence paths;
+    // the host's ordinary log database is intentionally read-only and disposable.
+    if (String(hobby || '') === 'theme-studio-host') return getDb('theme-studio-host');
+
+    const dailyMigrated = migrateDailyNoteImagesV246(hobby, data || {});
+    const notepadMigrated = migrateNotepadImagesV249(hobby, dailyMigrated.data);
+    const whiteboardMigrated = migrateWhiteboardImagesV251(hobby, notepadMigrated.data);
+    const kbMigrated = migrateKbAttachmentsV250(hobby, whiteboardMigrated.data);
+    fs.writeFileSync(path.join(DATA_DIR, `${hobby}_db.json`), JSON.stringify(kbMigrated.data, null, 2));
+    return kbMigrated.data;
+};
 
 // --- TTS Audio Proxy Endpoint for Korean Pronunciation ---
 app.get('/api/tts', async (req, res) => {
@@ -1524,12 +2046,19 @@ app.put('/api/built-in-theme-overrides', (req, res) => {
 });
 
 // --- Routing ---
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
+app.get('/', (req, res) => {
+    // V240: revalidate the Dashboard shell so removed log-only widget code cannot linger.
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
 
 // Internal Theme Builder runtime host.
 // This is not an app/log, is never listed in apps.json, and does not require
 // any user-created log to exist.
 app.get('/theme-studio-host', (req, res) => {
+    // V310: Theme Builder previews use the live template bootstrap. Never let a
+    // cached preview shell retain older interactive Daily View Settings guards.
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     const templatePath = path.join(__dirname, 'public', 'template.html');
 
     if (!fs.existsSync(templatePath)) {
@@ -1549,7 +2078,135 @@ app.get('/theme-studio-host', (req, res) => {
 app.get('/app/:hobby', (req, res) => {
     const filePath = path.join(__dirname, 'public', `${req.params.hobby}.html`);
     if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
+        // V227: log shells are copied at creation time. Serve the saved shell,
+        // but inject the small shared hotfix so even very old logs get the
+        // current Add/Edit Field implementation without replacing their own JS/CSS.
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+        let html = fs.readFileSync(filePath, 'utf8');
+        // V245: preserve the actual tab/day BEFORE an older copied core can run its
+        // historical "always Daily Logs" startup code. The shared hotfix restores
+        // these values after the copied app has initialized.
+        const restoreStateV245 = `<script>(function(){try{var p=location.pathname.split('/').filter(Boolean),h=p[0]==='app'?(p[1]||'log'):(p[p.length-1]||'log'),k='last-app-tab:'+h;sessionStorage.setItem(k,'daily');sessionStorage.removeItem('loggy-notepad-route-v249');sessionStorage.removeItem('loggy-whiteboard-route-v207');window.__loggyRestoreStateV245={key:k,tab:'daily',hash:''};if(location.hash)history.replaceState(null,'',location.pathname+location.search);}catch(e){}})();<\/script>`;
+        html = /<head[^>]*>/i.test(html)
+            ? html.replace(/<head([^>]*)>/i, `<head$1>\n${restoreStateV245}`)
+            : `${restoreStateV245}\n${html}`;
+        // V242: page/tab settings use the sliders icon; only the global Settings button is a gear.
+        // Rewrite old copied log shells so the correct icon is present before any JS paints.
+        html = html
+            .replace(/(<button\b[^>]*id=["']open-daily-settings-btn["'][^>]*>\s*<i\b[^>]*class=["'][^"']*ph-)gear(?:-six)?([^"']*["'][^>]*><\/i>\s*<\/button>)/i, '$1sliders-horizontal$2')
+            .replace(/(<button\b[^>]*id=["']open-settings-btn["'][^>]*>\s*<i\b[^>]*class=["'][^"']*ph-)gear(?:-six)?([^"']*["'][^>]*><\/i>\s*<\/button>)/i, '$1sliders-horizontal$2');
+        // V300 FIX (bug 3): these cache-bust query strings must always match the
+        // versions template.html itself references. They had drifted (?v=250 here
+        // vs ?v=258/?v=300 in template.html), so a saved log page could keep a
+        // browser-cached older copy of template-extras-6.js indefinitely even
+        // after the shared source file was rewritten -- letting the old,
+        // un-isolated Theme Builder create/edit code run only on saved log pages
+        // (never on /theme-studio-host, which always references template.html's
+        // own tag directly). Keep these three literals in lock-step with the
+        // matching <script> tags in template.html.
+        const hotfixTag = '<script src="/template-hotfix-v221.js?v=303"></script>';
+        const extrasV250Tag = '<script defer src="/template-extras-6.js?v=328"></script>';
+        const widgetsTag = '<script defer src="/widgets-loader-v241.js?v=246"></script>';
+        if (html.includes('/template-hotfix-v221.js')) {
+            html = html.replace(
+                /<script\b[^>]*src=["'][^"']*\/template-hotfix-v221\.js(?:\?[^"']*)?["'][^>]*><\/script>/i,
+                hotfixTag
+            );
+        } else {
+            html = /<\/body>/i.test(html)
+                ? html.replace(/<\/body>/i, `${hotfixTag}\n</body>`)
+                : `${html}\n${hotfixTag}`;
+        }
+        if (html.includes('/template-extras-6.js')) {
+            html = html.replace(/<script\b[^>]*src=["'][^"']*\/template-extras-6\.js(?:\?[^"']*)?["'][^>]*><\/script>/i, extrasV250Tag);
+        } else {
+            html = /<\/body>/i.test(html) ? html.replace(/<\/body>/i, `${extrasV250Tag}\n</body>`) : `${html}\n${extrasV250Tag}`;
+        }
+        // V307: saved log pages are point-in-time copies of template.html, so
+        // keep their feature-loader block synchronized with the live template on
+        // every request. Older saved pages may also contain the retired V71 Theme
+        // Builder repair script; remove that legacy block while replacing the
+        // loader so V307 remains the only Theme Builder runtime.
+        try {
+            const templatePath = path.join(__dirname, 'public', 'template.html');
+            const templateHtml = fs.readFileSync(templatePath, 'utf8');
+
+            // V308: template.css no longer paints a translucent white pseudo-layer
+            // over non-Daily-Logs views. Saved log shells are historical copies, so
+            // synchronize the stylesheet URL with the live template as well. This
+            // also cache-busts the removed overlay for existing logs and previews.
+            const liveCssHref = templateHtml.match(/<link\b[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']*\/template\.css(?:\?[^"']*)?)["'][^>]*>/i)?.[1]
+                || templateHtml.match(/<link\b[^>]*href=["']([^"']*\/template\.css(?:\?[^"']*)?)["'][^>]*rel=["']stylesheet["'][^>]*>/i)?.[1];
+            if (liveCssHref) {
+                html = html.replace(
+                    /(<link\b[^>]*href=["'])[^"']*\/template\.css(?:\?[^"']*)?(["'][^>]*>)/i,
+                    `$1${liveCssHref}$2`
+                );
+            }
+
+            const extractScriptBlock = (source, openComment) => {
+                const openIdx = source.indexOf(openComment);
+                if (openIdx === -1) return null;
+                const tagStart = source.lastIndexOf('<script', openIdx);
+                if (tagStart === -1) return null;
+                const closeIdx = source.indexOf('</script>', openIdx);
+                if (closeIdx === -1) return null;
+                return source.slice(tagStart, closeIdx + '</script>'.length);
+            };
+            const currentLoaderBlock = extractScriptBlock(templateHtml, '/* V194 — full feature pack');
+            if (currentLoaderBlock) {
+                const savedLoaderStart = html.indexOf('/* V194 — full feature pack');
+                const legacyRepairStart = html.indexOf('/* V71 — Theme Builder runtime repair.');
+                if (savedLoaderStart !== -1) {
+                    const loaderTagStart = html.lastIndexOf('<script', savedLoaderStart);
+                    const loaderClose = html.indexOf('</script>', savedLoaderStart);
+                    let replaceEnd = loaderClose !== -1
+                        ? loaderClose + '</script>'.length
+                        : -1;
+
+                    // The retired repair block historically followed the loader.
+                    // Delete it as part of the same replacement when present so a
+                    // saved log cannot resurrect an old accordion/tab controller.
+                    if (legacyRepairStart !== -1 && legacyRepairStart > savedLoaderStart) {
+                        const repairClose = html.indexOf('</script>', legacyRepairStart);
+                        if (repairClose !== -1) replaceEnd = repairClose + '</script>'.length;
+                    }
+
+                    if (loaderTagStart !== -1 && replaceEnd > loaderTagStart) {
+                        html = html.slice(0, loaderTagStart) + currentLoaderBlock + html.slice(replaceEnd);
+                    }
+                } else {
+                    // Very old logs may predate the feature loader completely.
+                    // Insert the current loader only; there is no repair layer in
+                    // the V307 architecture.
+                    html = /<\/body>/i.test(html)
+                        ? html.replace(/<\/body>/i, `${currentLoaderBlock}\n</body>`)
+                        : `${html}\n${currentLoaderBlock}`;
+                }
+            }
+        } catch (_) {
+            // Best-effort sync: serving the log is more important than failing a
+            // request because the template could not be read or normalized.
+        }
+        // V241: never put the full widget runtime on the critical log boot path.
+        // Replace old direct runtime tags (including ones baked into existing log
+        // shells) with a tiny loader that waits until DOMContentLoaded.
+        if (html.includes('/widgets-v239.js')) {
+            html = html.replace(
+                /<script\b[^>]*src=["'][^"']*\/widgets-v239\.js(?:\?[^"']*)?["'][^>]*><\/script>/i,
+                widgetsTag
+            );
+        } else if (html.includes('/widgets-loader-v241.js')) {
+            html = html.replace(
+                /<script\b[^>]*src=["'][^"']*\/widgets-loader-v241\.js(?:\?[^"']*)?["'][^>]*><\/script>/i,
+                widgetsTag
+            );
+        } else {
+            html = /<\/body>/i.test(html)
+                ? html.replace(/<\/body>/i, `${widgetsTag}\n</body>`)
+                : `${html}\n${widgetsTag}`;
+        }
+        res.type('html').send(html);
     } else {
         res.status(404).send('Log page not found.');
     }
@@ -2345,6 +3002,172 @@ app.post(
         }
     }
 );
+
+// Resolve an existing Theme Builder asset back to a stable public URL.
+// This endpoint is only used after a decoration fails to load in the editor.
+app.post('/api/theme-asset-resolve/:hobby', (req, res) => {
+    try {
+        const raw = String(req.body?.projectPath || '').trim();
+        if (!raw) {
+            return res.status(400).json({ status: 'error', message: 'projectPath is required.' });
+        }
+
+        const normalized = raw.replace(/\\/g, '/').replace(/^\.?\//, '');
+        const relative = normalized.toLowerCase().startsWith('public/')
+            ? normalized.slice(7)
+            : normalized;
+
+        const absolute = path.resolve(publicDir, relative);
+        const publicRoot = path.resolve(publicDir) + path.sep;
+
+        if (absolute !== path.resolve(publicDir) && !absolute.startsWith(publicRoot)) {
+            return res.status(400).json({ status: 'error', message: 'Invalid asset path.' });
+        }
+
+        if (!fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) {
+            return res.status(404).json({ status: 'error', message: 'Theme asset file was not found.' });
+        }
+
+        const urlPath = '/' + path.relative(publicDir, absolute)
+            .split(path.sep)
+            .map(part => encodeURIComponent(part))
+            .join('/');
+
+        return res.json({ status: 'success', url: urlPath });
+    } catch (error) {
+        console.error('Theme asset resolve error:', error);
+        return res.status(500).json({ status: 'error', message: 'Could not resolve theme asset.' });
+    }
+});
+
+// V246: stream Daily Log images directly to project-managed files.
+app.post(
+    '/api/daily-media-raw/:hobby',
+    express.raw({ type: 'application/octet-stream', limit: '40mb' }),
+    (req, res) => {
+        try {
+            const mime = String(req.query?.mime || 'application/octet-stream').toLowerCase();
+            const fileName = String(req.query?.fileName || 'image');
+            const day = Number.parseInt(req.query?.day, 10) || 1;
+            const body = Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0);
+            if (!body.length) return res.status(400).json({ status:'error', message:'The image upload was empty.' });
+            if (body.length > 40 * 1024 * 1024) return res.status(413).json({ status:'error', message:'Daily Log images must be 40 MB or smaller.' });
+            if (!String(mime).startsWith('image/')) return res.status(400).json({ status:'error', message:'Only image files can be added to Daily Logs.' });
+            const saved = writeDailyImageV246(req.params.hobby, day, body, mime, fileName);
+            if (!saved) return res.status(400).json({ status:'error', message:'That image format is not supported.' });
+            return res.json({ status:'success', image:saved });
+        } catch (error) {
+            console.error('Daily media upload failed:', error);
+            return res.status(500).json({ status:'error', message:'Could not save that Daily Log image.' });
+        }
+    }
+);
+
+app.delete('/api/daily-media/:hobby', (req, res) => {
+    try {
+        const entry = { projectPath:req.body?.projectPath, src:req.body?.src };
+        const absolute = resolveDailyMediaProjectPathV246(req.params.hobby, entry);
+        if (absolute && fs.existsSync(absolute)) fs.unlinkSync(absolute);
+        return res.json({ status:'success' });
+    } catch (error) {
+        console.error('Daily media delete failed:', error);
+        return res.status(500).json({ status:'error', message:'Could not remove that Daily Log image file.' });
+    }
+});
+
+
+
+// V250: raw KB attachments are copied into the project; original computer files are not required afterward.
+app.post('/api/kb-attachment-raw/:hobby', express.raw({type:'application/octet-stream',limit:'60mb'}), (req,res)=>{
+    try { const body=Buffer.isBuffer(req.body)?req.body:Buffer.alloc(0); if(!body.length)return res.status(400).json({status:'error',message:'The attachment was empty.'}); const saved=writeKbAttachmentV250(req.params.hobby,body,String(req.query?.mime||'application/octet-stream'),String(req.query?.fileName||'attachment')); if(!saved)return res.status(400).json({status:'error',message:'Could not save that attachment.'}); return res.json({status:'success',attachment:saved}); }
+    catch(error){console.error('KB attachment upload failed:',error);return res.status(500).json({status:'error',message:'Could not save that Knowledge Base attachment.'})}
+});
+app.delete('/api/kb-attachment/:hobby',(req,res)=>{try{const abs=resolveKbAttachmentV250(req.params.hobby,req.body||{});if(abs&&fs.existsSync(abs))fs.unlinkSync(abs);res.json({status:'success'})}catch(error){res.status(500).json({status:'error',message:'Could not remove that attachment.'})}});
+
+// V251: stream Whiteboard images directly into the project's media folder.
+app.post(
+    '/api/whiteboard-media-raw/:hobby',
+    express.raw({ type:'application/octet-stream', limit:'40mb' }),
+    (req, res) => {
+        try {
+            const mime = String(req.query?.mime || 'application/octet-stream').toLowerCase();
+            const fileName = String(req.query?.fileName || 'image');
+            const tabId = String(req.query?.tabId || 'whiteboard');
+            const boardId = String(req.query?.boardId || 'board');
+            const body = Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0);
+            if (!body.length) return res.status(400).json({status:'error',message:'The image upload was empty.'});
+            if (body.length > 40 * 1024 * 1024) return res.status(413).json({status:'error',message:'Whiteboard images must be 40 MB or smaller.'});
+            if (!mime.startsWith('image/')) return res.status(400).json({status:'error',message:'Only image files can be added to whiteboards.'});
+            const saved = writeWhiteboardImageV251(req.params.hobby, tabId, boardId, body, mime, fileName);
+            if (!saved) return res.status(400).json({status:'error',message:'That image format is not supported.'});
+            return res.json({status:'success',image:saved});
+        } catch (error) {
+            console.error('Whiteboard media upload failed:', error);
+            return res.status(500).json({status:'error',message:'Could not save that Whiteboard image.'});
+        }
+    }
+);
+
+app.delete('/api/whiteboard-media/:hobby', (req, res) => {
+    try {
+        const absolute = resolveWhiteboardMediaProjectPathV251(req.params.hobby, {
+            projectPath:req.body?.projectPath,
+            src:req.body?.src
+        });
+        if (absolute && fs.existsSync(absolute)) fs.unlinkSync(absolute);
+        return res.json({status:'success'});
+    } catch (error) {
+        console.error('Whiteboard media delete failed:', error);
+        return res.status(500).json({status:'error',message:'Could not remove that Whiteboard image file.'});
+    }
+});
+
+// V249: stream Notepad images directly into the project's media folder.
+app.post(
+    '/api/notepad-media-raw/:hobby',
+    express.raw({ type:'application/octet-stream', limit:'40mb' }),
+    (req, res) => {
+        try {
+            const mime = String(req.query?.mime || 'application/octet-stream').toLowerCase();
+            const fileName = String(req.query?.fileName || 'image');
+            const tabId = String(req.query?.tabId || 'notepad');
+            const pageId = String(req.query?.pageId || 'page');
+            const body = Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0);
+            if (!body.length) return res.status(400).json({status:'error',message:'The image upload was empty.'});
+            if (body.length > 40 * 1024 * 1024) return res.status(413).json({status:'error',message:'Notepad images must be 40 MB or smaller.'});
+            if (!mime.startsWith('image/')) return res.status(400).json({status:'error',message:'Only image files can be added to Notepad pages.'});
+            const saved = writeNotepadImageV249(req.params.hobby, tabId, pageId, body, mime, fileName);
+            if (!saved) return res.status(400).json({status:'error',message:'That image format is not supported.'});
+            return res.json({status:'success',image:saved});
+        } catch (error) {
+            console.error('Notepad media upload failed:', error);
+            return res.status(500).json({status:'error',message:'Could not save that Notepad image.'});
+        }
+    }
+);
+
+app.delete('/api/notepad-media/:hobby', (req, res) => {
+    try {
+        const absolute = resolveNotepadMediaProjectPathV249(req.params.hobby, {projectPath:req.body?.projectPath,src:req.body?.src});
+        if (absolute && fs.existsSync(absolute)) fs.unlinkSync(absolute);
+        return res.json({status:'success'});
+    } catch (error) {
+        console.error('Notepad media delete failed:', error);
+        return res.status(500).json({status:'error',message:'Could not remove that Notepad image file.'});
+    }
+});
+
+// Portable backup data: file-backed Daily Log + Notepad images are temporarily
+// embedded only in the downloaded backup. Restoring writes them back to files.
+app.get('/api/export-data/:hobby', (req, res) => {
+    try {
+        const db = getDb(req.params.hobby);
+        res.json(exportDbWithEmbeddedDailyMediaV246(req.params.hobby, db));
+    } catch (error) {
+        console.error('Portable log export failed:', error);
+        res.status(500).json({ status:'error', message:'Could not prepare this log backup.' });
+    }
+});
 
 // Dynamic Data Endpoints
 app.get('/api/data/:hobby', (req, res) => res.json(getDb(req.params.hobby)));

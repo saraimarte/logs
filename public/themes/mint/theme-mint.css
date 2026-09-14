@@ -1,7 +1,7 @@
 body.theme-mint {
 --overlay-scrim: rgba(10, 30, 25, 0.6);
 --black: #2f6b57;
---white: #f1fbf6;
+--white: #e1efe9;
 --thick-border: 3px solid #2f6b57;
 --thin-border: 2px solid #2f6b57;
 --dashed-border: 2px dashed #2f6b57;

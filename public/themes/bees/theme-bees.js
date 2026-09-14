@@ -97,10 +97,33 @@ function createRoot() {
 
     const flowers = document.createElement("div");
     flowers.className = "bee-theme-flowers";
+    // V290: the old flower layer depended entirely on theme-bees.css for its
+    // size/position. On a cold load the JS can mount before that stylesheet is
+    // parsed, so the bees (which have inline dimensions) appeared immediately
+    // while every flower lived in a zero-sized/unpositioned layer until reload.
+    // Give the layer a complete inline fallback so decorations are correct on
+    // the very first paint too.
+    Object.assign(flowers.style, {
+        position: "absolute",
+        left: "0",
+        right: "0",
+        bottom: "0",
+        height: "23vh",
+        pointerEvents: "none",
+        overflow: "visible",
+        zIndex: "2"
+    });
     root.appendChild(flowers);
 
     const flight = document.createElement("div");
     flight.className = "bee-theme-flight-layer";
+    Object.assign(flight.style, {
+        position: "absolute",
+        inset: "0",
+        overflow: "visible",
+        pointerEvents: "none",
+        zIndex: "3"
+    });
     root.appendChild(flight);
 
     return root;
@@ -125,15 +148,52 @@ function addPollen() {
 
 function addFlowers() {
     const layer = beeRoot.querySelector(".bee-theme-flowers");
+    if (!layer) return;
     const xs = [4, 13, 24, 36, 50, 64, 76, 88, 97];
 
     xs.forEach((x, i) => {
         const flower = document.createElement("span");
         flower.className = "bee-theme-flower";
+        flower.dataset.beeFlowerV290 = "1";
+        const scale = rand(.76, 1.2).toFixed(2);
         flower.style.left = `${x}%`;
-        flower.style.setProperty("--scale", rand(.76, 1.2).toFixed(2));
+        flower.style.setProperty("--scale", scale);
         flower.style.setProperty("--delay", `${-rand(0, 4)}s`);
+        Object.assign(flower.style, {
+            position: "absolute",
+            bottom: "-8px",
+            width: "64px",
+            height: "116px",
+            transform: `translateX(-50%) scale(${scale})`,
+            transformOrigin: "50% 100%",
+            pointerEvents: "none"
+        });
         if (i % 2) flower.classList.add("is-pink");
+
+        // V290: render a real SVG flower instead of relying on ::before/::after.
+        // Pseudo-elements do not exist until the CSS arrives, which was the
+        // reason flowers were missing on a cold load while the inline bee SVGs
+        // were already visible. This SVG is the first-paint fallback and the CSS
+        // continues to own the sway animation once it is available.
+        const petal = i % 2 ? "#f6a8bd" : "#fffdf4";
+        flower.innerHTML = `
+          <svg viewBox="0 0 64 116" aria-hidden="true" focusable="false">
+            <path d="M32 112 C31 88 33 63 32 38" fill="none" stroke="#5b9b31" stroke-width="5" stroke-linecap="round"/>
+            <path d="M31 78 C22 71 17 72 13 79 C22 82 27 83 32 86" fill="#76b43f" opacity=".92"/>
+            <path d="M33 67 C41 59 48 60 52 67 C45 71 39 73 33 75" fill="#76b43f" opacity=".92"/>
+            <g transform="translate(32 27)">
+              <ellipse cx="0" cy="-18" rx="8" ry="15" fill="${petal}"/>
+              <ellipse cx="13" cy="-13" rx="8" ry="15" transform="rotate(45 13 -13)" fill="${petal}"/>
+              <ellipse cx="18" cy="0" rx="8" ry="15" transform="rotate(90 18 0)" fill="${petal}"/>
+              <ellipse cx="13" cy="13" rx="8" ry="15" transform="rotate(135 13 13)" fill="${petal}"/>
+              <ellipse cx="0" cy="18" rx="8" ry="15" fill="${petal}"/>
+              <ellipse cx="-13" cy="13" rx="8" ry="15" transform="rotate(45 -13 13)" fill="${petal}"/>
+              <ellipse cx="-18" cy="0" rx="8" ry="15" transform="rotate(90 -18 0)" fill="${petal}"/>
+              <ellipse cx="-13" cy="-13" rx="8" ry="15" transform="rotate(135 -13 -13)" fill="${petal}"/>
+              <circle cx="0" cy="0" r="10" fill="#d69118"/>
+              <circle cx="0" cy="0" r="5" fill="#70440d"/>
+            </g>
+          </svg>`;
         layer.appendChild(flower);
     });
 }

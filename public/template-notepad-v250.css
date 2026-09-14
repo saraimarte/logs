@@ -1,0 +1,893 @@
+/* Loggy Notepad V250 */
+.loggy-notepad-v249 [data-upload]{display:none!important}.np-v250-tools{display:flex;align-items:center;gap:6px;margin-left:6px}.np-v250-swatches{display:flex;align-items:center;gap:4px;padding:3px 5px;border:1px solid rgba(32,33,36,.12);border-radius:10px;background:#fff}.np-v250-swatches button{width:20px;height:20px;border-radius:50%;border:1px solid rgba(0,0,0,.18);background:var(--c);padding:0;cursor:pointer}.np-v250-swatches input{width:25px;height:25px;padding:0;border:0;background:transparent}.np-v250-color-text{width:25px;height:25px;min-width:25px;padding:0!important;border:1px solid rgba(0,0,0,.18);border-radius:7px;background:#fff;color:#333;font:700 11px/1 system-ui;cursor:pointer}.np-paper-v249{background-color:var(--np-paper-custom,var(--np-paper,#fff))}.np-dark-v250{--np-paper:#18191b;--np-ink:#f0f0ef;--np-muted:#aaa}.np-dark-v250 .np-top-v249,.np-dark-v250 .np-sidebar-v249{background:#151618;color:#f1f1ef;border-color:#333}.np-dark-v250 .np-workspace-v249{background:color-mix(in srgb,var(--np-bg,#efede8) 22%,#08090a)}.np-dark-v250 .np-page-title-v249,.np-dark-v250 .np-editor-v249{color:#f0f0ef}.np-dark-v250 .np-paper-v249{border-color:#393b3e;box-shadow:0 18px 50px rgba(0,0,0,.45);filter:none}.np-dark-v250 .np-category-v249:hover,.np-dark-v250 .np-page-row-v249:hover,.np-dark-v250 .np-category-v249.active,.np-dark-v250 .np-page-row-v249.active{background:#292b2f}.np-dark-v250 .np-search-v249 input,.np-dark-v250 .np-paper-select-v249,.np-dark-v250 .np-v250-swatches{background:#222428;color:#eee;border-color:#3b3d42}.np-zen-v250{grid-template-columns:1fr!important;grid-template-rows:1fr!important;background:transparent!important}.np-zen-v250 .np-workspace-v249{background:transparent!important}.np-zen-v250 .np-top-v249,.np-zen-v250 .np-sidebar-v249{display:none!important}.np-zen-v250 .np-workspace-v249{grid-column:1!important;grid-row:1!important;padding-top:32px}.np-v250-zen-exit{display:none;position:absolute;right:18px;top:18px;z-index:90}.np-zen-v250 .np-v250-zen-exit{display:inline-grid}.np-draw-v250{position:absolute;inset:0;z-index:7;pointer-events:none}.np-drawing-v250 .np-draw-v250{pointer-events:auto;cursor:crosshair}.np-drawing-v250 .np-editor-v249,.np-drawing-v250 .np-images-v249{pointer-events:none}.np-slash-v250{position:fixed;z-index:2147483647;width:min(330px,calc(100vw - 20px));max-height:390px;background:#fff;border:1px solid rgba(0,0,0,.14);border-radius:14px;box-shadow:0 18px 54px rgba(0,0,0,.22);padding:7px;color:#202124}.np-slash-v250[hidden]{display:none}.np-slash-search-v250{position:sticky;top:0;display:flex;align-items:center;gap:7px;background:#fff;padding:4px 5px 8px}.np-slash-search-v250 input{width:100%;height:36px;border:1px solid #ddd;border-radius:9px;padding:0 10px;outline:none}.np-slash-list-v250{overflow:auto;max-height:320px}.np-slash-list-v250 button{width:100%;display:grid;grid-template-columns:34px 1fr;align-items:center;gap:8px;border:0;background:transparent;border-radius:9px;padding:8px;text-align:left;cursor:pointer}.np-slash-list-v250 button:hover,.np-slash-list-v250 button.active{background:#efeee9}.np-slash-list-v250 button>i{width:31px;height:31px;border-radius:8px;background:#e7e5df;display:grid;place-items:center}.np-slash-list-v250 strong,.np-slash-list-v250 small{display:block}.np-slash-list-v250 strong{font-size:12px}.np-slash-list-v250 small{font-size:10px;color:#777;margin-top:2px}.np-v250-modal{position:absolute;inset:0;z-index:2147483646;background:rgba(20,20,20,.36);display:grid;place-items:center;padding:20px}.np-v250-modal[hidden]{display:none}.np-v250-modal-box{width:min(520px,100%);max-height:calc(100dvh - 40px);overflow:auto;background:#fff;border-radius:16px;border:1px solid #ddd;box-shadow:0 24px 70px rgba(0,0,0,.25);padding:18px}.np-v250-modal textarea{width:100%;border:1px solid #d3d3d3;border-radius:10px;padding:10px;resize:vertical}.np-code-v250{white-space:pre-wrap;background:#17191d;color:#f5f5f5;border-radius:10px;padding:14px 16px;line-height:1.5;font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;margin:10px 0}.np-editor-v249 h1{font:750 30px/1.2 Inter,ui-sans-serif,system-ui,sans-serif;margin:20px 0 12px}.np-editor-v249 ol.np-roman-v250{list-style-type:upper-roman}.np-sticky-v250{display:block;width:min(330px,90%);min-height:90px;background:#fff1a8;padding:16px 18px;margin:16px 0;box-shadow:0 6px 16px rgba(0,0,0,.10);font-family:Inter,system-ui,sans-serif;line-height:1.45;outline:none}.np-audio-v250{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,0,0,.15);border-radius:999px;padding:5px 10px;background:#fff;font:12px Inter,system-ui,sans-serif}.np-audio-v250 audio{height:28px;width:190px}.np-video-v250{display:block;margin:16px 0;max-width:720px}.np-video-v250 iframe,.np-video-v250 video{width:100%;aspect-ratio:16/9;border:0;border-radius:12px;background:#111}.np-latex-v250{display:inline-block;padding:3px 6px;border-radius:7px;background:rgba(80,90,120,.08);margin:0 2px}.np-masked-link-v250{color:#315f9c;text-decoration:underline}.np-highlight-v250{position:fixed;z-index:2147483647;display:flex;gap:7px;background:#fff;border:1px solid #ddd;border-radius:999px;padding:7px;box-shadow:0 12px 35px rgba(0,0,0,.18)}.np-highlight-v250[hidden]{display:none}.np-highlight-v250 button{width:24px;height:24px;border-radius:50%;border:1px solid rgba(0,0,0,.18);background:var(--c);padding:0;cursor:pointer}.np-highlight-v250 button:last-child:after{content:'×';font-weight:700;color:#777}.np-icon-v249.active{outline:2px solid currentColor;outline-offset:1px}.np-modal-actions-v249{gap:10px!important}.np-modal-actions-v249 button,.np-v250-modal button{padding:9px 15px;min-height:38px}
+/* V256: draggable inline components, selection state, compact audio, latex cheat-sheet */
+.np-draggable-v256{position:relative}
+.np-block-floating-v256{position:absolute!important;z-index:6;margin:0!important}
+.np-drag-handle-v256{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:4px;border-radius:5px;cursor:grab;color:#8a8d93;vertical-align:middle;touch-action:none;user-select:none}
+.np-drag-handle-v256:hover{background:rgba(0,0,0,.08);color:#333}
+.np-drag-handle-v256:active{cursor:grabbing}
+.np-video-v250 .np-drag-handle-v256{position:absolute;top:-6px;left:-6px;z-index:2;background:#fff;border:1px solid rgba(0,0,0,.15);box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.np-block-selected-v256{outline:2px solid #5b8def;outline-offset:2px;border-radius:8px}
+.np-audio-compact-v256{padding:4px!important;border-radius:50%!important;width:34px;height:34px;justify-content:center}
+.np-audio-compact-v256 audio{display:none}
+.np-audio-compact-btn-v256{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:0;background:#202124;color:#fff;cursor:pointer;padding:0}
+.np-audio-compact-btn-v256 i{font-size:12px}
+.np-audio-compact-btn-v256.playing i:before{content:"\\f5cb"}
+.np-latex-modal-box-v256{width:min(560px,100%)}
+.np-latex-preview-v256{min-height:52px;margin:10px 0 4px;padding:12px 14px;border:1px dashed rgba(0,0,0,.18);border-radius:10px;background:#faf9f6;overflow-x:auto}
+.np-latex-preview-empty-v256{color:#999;font-size:13px}
+.np-latex-cheatsheet-toggle-v256{display:flex;align-items:center;gap:7px;border:0;background:transparent;color:#4863c9;font:600 12.5px Inter,system-ui,sans-serif;padding:6px 2px;cursor:pointer;margin-bottom:4px}
+.np-latex-cheatsheet-toggle-v256:hover{text-decoration:underline}
+.np-latex-cheatsheet-v256{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;max-height:220px;overflow:auto;padding:4px 2px 10px;margin-bottom:6px}
+.np-latex-cheatsheet-v256[hidden]{display:none}
+.np-latex-cheat-item-v256{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:8px 10px;border:1px solid rgba(0,0,0,.12);border-radius:9px;background:#fff;cursor:pointer;text-align:left}
+.np-latex-cheat-item-v256:hover{background:#f1f0ec;border-color:rgba(0,0,0,.2)}
+.np-latex-cheat-item-v256 strong{font:600 11.5px Inter,system-ui,sans-serif;color:#333}
+.np-latex-cheat-item-v256 code{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.np-dark-v250 .np-latex-preview-v256{background:#1d1e21;border-color:#3c3e44}
+.np-dark-v250 .np-latex-cheat-item-v256{background:#222428;border-color:#3c3e44}
+.np-dark-v250 .np-latex-cheat-item-v256 strong{color:#eee}
+.np-dark-v250 .np-latex-cheat-item-v256 code{color:#aaa}
+@media(max-width:950px){.np-v250-swatches{display:none}.np-v250-tools{gap:3px}.np-top-v249{padding-inline:7px}}
+/* Zen mode remains Notebook-owned. The V278/V279 notebook-active rules below
+   already suppress theme artwork for every Notebook mode, so no body :has()
+   relationship is needed while the editor is mutating. */
+
+/* V250 final integration hardening */
+.notepad-tab-view-v249.notepad-zen-host-v250,
+.notepad-tab-view-v249.notepad-zen-host-v250 .notepad-runtime-host-v249{background:transparent!important}
+body.notepad-zen-body-v250{background-color:#f2f0ea!important}
+.np-v250-pick-search{display:flex;align-items:center;gap:8px;margin:10px 0 8px}.np-v250-pick-search input{width:100%;height:38px;padding:0 11px;border:1px solid #d5d5d5;border-radius:9px;outline:none}.np-v250-pick-list{display:grid;gap:4px;max-height:min(56vh,430px);overflow:auto;padding:2px}.np-v250-pick-list button{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:9px;width:100%;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:inherit;text-align:left;cursor:pointer}.np-v250-pick-list button:hover,.np-v250-pick-list button.active{background:#efeee9}.np-v250-pick-list button>i{display:grid;place-items:center;width:31px;height:31px;border-radius:8px;background:#e7e5df}.np-v250-pick-list strong,.np-v250-pick-list small{display:block}.np-v250-pick-list small{margin-top:2px;font-size:10px;opacity:.62}.np-v250-pick-empty{padding:18px;text-align:center;opacity:.6;font-size:12px}.np-dark-v250 .np-v250-modal-box,.np-dark-v250 .np-slash-v250,.np-dark-v250 .np-highlight-v250{background:#202226;color:#f0f0ef;border-color:#3c3e44}.np-dark-v250 .np-slash-search-v250,.np-dark-v250 .np-slash-search-v250 input,.np-dark-v250 .np-v250-pick-search input{background:#292b30;color:#f0f0ef;border-color:#42454c}.np-dark-v250 .np-slash-list-v250 button:hover,.np-dark-v250 .np-slash-list-v250 button.active,.np-dark-v250 .np-v250-pick-list button:hover,.np-dark-v250 .np-v250-pick-list button.active{background:#303238}.np-dark-v250 .np-slash-list-v250 button>i,.np-dark-v250 .np-v250-pick-list button>i{background:#383b42}.np-v250-tools button{padding:7px!important}.np-v250-modal-box .np-modal-actions-v249{display:flex!important;justify-content:flex-end!important;gap:10px!important;flex-wrap:wrap!important;margin-top:16px!important}.np-v250-modal-box .np-modal-actions-v249 button{padding:9px 16px!important;min-width:84px!important}
+
+/* V251 — Notebook pages, paper modal, complete headings, dark controls, eraser */
+.np-paper-select-hidden-v251{display:none!important}
+.np-dark-v250 .np-icon-v249,.np-dark-v250 .np-top-v249 button,.np-dark-v250 .np-sidebar-v249 button{background:#222428!important;color:#f2f2f0!important;border-color:#3b3d42!important}
+.np-dark-v250 .np-icon-v249:hover,.np-dark-v250 .np-top-v249 button:hover,.np-dark-v250 .np-sidebar-v249 button:hover{background:#303238!important;color:#fff!important}
+.np-dark-v250 .np-icon-v249 i,.np-dark-v250 .np-top-v249 button i,.np-dark-v250 .np-sidebar-v249 button i{color:inherit!important;stroke:currentColor!important}
+.np-dark-v250 .np-v250-tools .np-icon-v249.active{background:#3a4450!important;color:#bfe3ff!important;outline-color:#8ecfff!important}
+.np-draw-v250[data-mode="eraser"]{cursor:cell!important}
+.np-editor-v249 h2{font:750 26px/1.25 Inter,ui-sans-serif,system-ui,sans-serif;margin:18px 0 10px}
+.np-editor-v249 h3{font:750 23px/1.28 Inter,ui-sans-serif,system-ui,sans-serif;margin:16px 0 9px}
+.np-editor-v249 h4{font:750 20px/1.3 Inter,ui-sans-serif,system-ui,sans-serif;margin:15px 0 8px}
+.np-editor-v249 h5{font:750 17px/1.35 Inter,ui-sans-serif,system-ui,sans-serif;margin:14px 0 7px}
+.np-editor-v249 h6{font:750 15px/1.4 Inter,ui-sans-serif,system-ui,sans-serif;margin:13px 0 6px;text-transform:uppercase;letter-spacing:.03em}
+.np-paper-modal-v251{position:absolute;inset:0;z-index:2147483646;background:rgba(20,20,20,.36);display:grid;place-items:center;padding:20px}
+.np-paper-modal-v251[hidden]{display:none!important}
+.np-paper-modal-box-v251{width:min(620px,100%);max-height:calc(100dvh - 40px);overflow:auto;background:#fff;color:#202124;border:1px solid #ddd;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.25);padding:18px}
+.np-paper-preview-grid-v251{display:grid;grid-template-columns:repeat(auto-fit,minmax(98px,1fr));gap:10px;margin-top:14px}
+.np-paper-preview-grid-v251>button{display:grid;gap:7px;padding:8px;border:1px solid #d8d8d8;border-radius:11px;background:#fafafa;color:inherit;text-align:left;cursor:pointer}
+.np-paper-preview-grid-v251>button.active{outline:2px solid #79bff0;outline-offset:1px;border-color:#79bff0}
+.np-paper-preview-v251{display:block;width:100%;aspect-ratio:4/5;border:1px solid rgba(0,0,0,.12);border-radius:7px;background-color:#fffdf8;overflow:hidden}
+.np-paper-preview-v251[data-preview-paper="lined"]{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 12px,#dce4ef 13px)}
+.np-paper-preview-v251[data-preview-paper="graph"]{background-image:linear-gradient(#e0e5ec 1px,transparent 1px),linear-gradient(90deg,#e0e5ec 1px,transparent 1px);background-size:13px 13px}
+.np-paper-preview-v251[data-preview-paper="dot"]{background-image:radial-gradient(circle,#bfc6cf .8px,transparent .9px);background-size:12px 12px}
+.np-paper-preview-v251[data-preview-paper="cornell"]{background-image:linear-gradient(90deg,transparent 0,transparent 29%,#e7b8b2 29%,#e7b8b2 calc(29% + 1px),transparent calc(29% + 1px)),repeating-linear-gradient(to bottom,transparent 0,transparent 12px,#dce4ef 13px)}
+.np-paper-color-section-v251{display:grid;gap:9px;margin-top:18px;padding-top:15px;border-top:1px solid #e2e2e2}
+.np-paper-color-grid-v251{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.np-paper-color-grid-v251>button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(0,0,0,.2);background:var(--c);cursor:pointer;padding:0}
+.np-paper-color-grid-v251>button.active{outline:2px solid #79bff0;outline-offset:2px}
+.np-paper-custom-color-v251{position:relative;width:36px;height:36px;border:1px solid #d0d0d0;border-radius:9px;display:grid;place-items:center;overflow:hidden;cursor:pointer;background:#fff}
+.np-paper-custom-color-v251 input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.np-dark-v250 .np-paper-modal-box-v251{background:#202226;color:#f0f0ef;border-color:#3c3e44}
+.np-dark-v250 .np-paper-preview-grid-v251>button{background:#292b30;border-color:#42454c;color:#f0f0ef}
+.np-dark-v250 .np-paper-color-section-v251{border-color:#3c3e44}
+.np-dark-v250 .np-paper-custom-color-v251{background:#292b30;border-color:#42454c;color:#f0f0ef}
+.np-block-context-v251{position:fixed;z-index:2147483647;min-width:126px;padding:5px;border:1px solid #d7d7d7;border-radius:10px;background:#fff;color:#202124;box-shadow:0 12px 32px rgba(0,0,0,.18)}
+.np-block-context-v251[hidden]{display:none!important}.np-block-context-v251 button{width:100%;display:flex;align-items:center;gap:8px;padding:9px 10px;border:0;border-radius:7px;background:transparent;color:inherit;font:inherit;cursor:pointer;text-align:left}.np-block-context-v251 button:hover{background:#f2f2f2}.np-block-context-v251 button i{color:#c33}
+.np-dark-v250 .np-block-context-v251{background:#202226;color:#f0f0ef;border-color:#3c3e44}.np-dark-v250 .np-block-context-v251 button:hover{background:#303238}
+@media(max-width:700px){.np-paper-preview-grid-v251{grid-template-columns:repeat(2,minmax(0,1fr))}.np-new-page-top-v251{display:grid!important}}
+
+/* V254 — true notebook grouping, stacked pages, contained toolbar, dark context */
+.loggy-notepad-v249 .np-top-v249{
+  width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;
+  display:flex!important;align-items:center!important;gap:6px!important;overflow:hidden!important;flex-wrap:nowrap!important;
+}
+.loggy-notepad-v249 .np-top-spacer-v249{display:none!important}
+.loggy-notepad-v249 .np-notebook-name-v249{min-width:0!important;max-width:min(280px,24vw)!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;flex:0 1 auto!important}
+.np-toolbar-cluster-v254{margin-left:auto!important;min-width:0!important;max-width:calc(100% - 190px)!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:6px!important;overflow-x:auto!important;overflow-y:hidden!important;flex:0 1 auto!important;padding:2px 1px!important;scrollbar-width:none}
+.np-toolbar-cluster-v254::-webkit-scrollbar{display:none}
+.np-toolbar-cluster-v254>.np-icon-v249,.np-toolbar-cluster-v254 .np-v250-tools>.np-icon-v249{flex:0 0 auto!important}
+.np-toolbar-cluster-v254 .np-v250-tools{margin-left:0!important;display:flex!important;align-items:center!important;gap:6px!important;flex:0 0 auto!important;flex-wrap:nowrap!important}
+.np-toolbar-cluster-v254 .np-save-state-v249{flex:0 0 auto!important;white-space:nowrap!important;margin-left:2px!important}
+
+/* Existing sidebar button now truly hides/shows the sidebar. */
+.loggy-notepad-v249.np-sidebar-hidden-v254{grid-template-columns:1fr!important}
+.loggy-notepad-v249.np-sidebar-hidden-v254 .np-sidebar-v249{display:none!important}
+.loggy-notepad-v249.np-sidebar-hidden-v254 .np-workspace-v249{grid-column:1/-1!important}
+.loggy-notepad-v249.np-sidebar-hidden-v254 .np-top-v249{grid-column:1/-1!important}
+
+/* A selected Notebook contains a vertical stack of pages. Only the active page is
+   editable; the other full-paper previews are one click away and stay in scroll order. */
+.np-notebook-stack-v254{width:100%!important;max-width:1000px!important;margin:0 auto!important;display:flex!important;flex-direction:column!important;gap:34px!important;padding:0 18px 52px!important;box-sizing:border-box!important}
+.np-notebook-page-v254{width:100%!important;position:relative!important;scroll-margin-top:78px!important}
+.np-notebook-page-v254>.np-page-shell-v249{width:100%!important;max-width:none!important;margin:0!important}
+.np-page-preview-shell-v254{cursor:pointer!important;position:relative!important}
+.np-page-preview-title-v254{display:block!important;width:100%!important;box-sizing:border-box!important;cursor:pointer!important;user-select:none!important;font-family:inherit!important;font-size:1.2rem!important;font-weight:400!important;line-height:normal!important;padding:10px!important;border:2px solid #000!important;border-radius:12px!important;color:#000!important;background-color:#fff!important;margin:0 0 12px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.np-page-preview-paper-v254{position:relative!important;min-height:860px!important;max-height:1120px!important;overflow:hidden!important;pointer-events:none!important;background-color:var(--np-paper-custom,var(--np-paper,#fff))!important}
+.np-page-preview-editor-v254{min-height:760px!important;max-height:1030px!important;overflow:hidden!important;pointer-events:none!important}
+.np-page-preview-image-v254{display:inline-block!important;max-width:180px!important;max-height:140px!important;object-fit:contain!important;margin:10px!important;border-radius:8px!important;vertical-align:top!important}
+.np-page-preview-hint-v254{position:absolute!important;right:18px!important;bottom:18px!important;display:inline-flex!important;align-items:center!important;gap:6px!important;padding:8px 12px!important;border-radius:999px!important;background:#000!important;color:#fff!important;border:2px solid #000!important;font:700 13px/1 'Patrick Hand',cursive,sans-serif!important;box-shadow:3px 3px 0 rgba(0,0,0,.3)!important;pointer-events:none!important}
+.np-page-preview-paper-v254[data-paper="lined"]{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,rgba(160,174,192,.20) 32px)!important}
+.np-page-preview-paper-v254[data-paper="graph"]{background-image:linear-gradient(rgba(160,174,192,.20) 1px,transparent 1px),linear-gradient(90deg,rgba(160,174,192,.20) 1px,transparent 1px)!important;background-size:32px 32px!important}
+.np-page-preview-paper-v254[data-paper="dot"]{background-image:radial-gradient(circle,rgba(130,140,155,.36) 1px,transparent 1.1px)!important;background-size:24px 24px!important}
+.np-page-preview-paper-v254[data-paper="cornell"]{background-image:linear-gradient(90deg,transparent 0,transparent 29%,rgba(205,135,135,.28) 29%,rgba(205,135,135,.28) calc(29% + 1px),transparent calc(29% + 1px)),repeating-linear-gradient(to bottom,transparent 0,transparent 31px,rgba(160,174,192,.20) 32px)!important}
+
+/* Dark mode: no pale strip under the nav, and notebook/sidebar context menus are dark too. */
+.np-dark-v250{background:#101113!important}
+.np-dark-v250 .np-workspace-v249{background:#101113!important;border-top-color:#2f3136!important;box-shadow:none!important}
+.np-dark-v250 .np-notebook-stack-v254,.np-dark-v250 .np-page-shell-v249{background:transparent!important}
+.np-dark-v250 .np-context-v249{background:#202226!important;color:#f2f2f0!important;border-color:#3c3e44!important;box-shadow:0 16px 42px rgba(0,0,0,.46)!important}
+.np-dark-v250 .np-context-v249 button{background:transparent!important;color:#f2f2f0!important;border-color:transparent!important}
+.np-dark-v250 .np-context-v249 button i,.np-dark-v250 .np-context-v249 button span{color:inherit!important;stroke:currentColor!important}
+.np-dark-v250 .np-context-v249 button:hover{background:#303238!important;color:#fff!important}
+.np-dark-v250 .np-context-v249 button.danger{color:#ff9c9c!important}
+.np-dark-v250 .np-page-preview-paper-v254{background-color:var(--np-paper-custom,#0c0c0c)!important;border-color:#fff!important;box-shadow:5px 5px 0 rgba(255,255,255,.15)!important}
+.np-dark-v250 .np-page-preview-title-v254,.np-dark-v250 .np-page-preview-editor-v254{color:#f5f5f5!important;background-color:#0c0c0c!important;border-color:#fff!important}
+.np-dark-v250 .np-page-preview-hint-v254{background:#fff!important;color:#000!important;border-color:#fff!important}
+
+@media(max-width:760px){
+  .np-toolbar-cluster-v254{max-width:calc(100% - 118px)!important}
+  .loggy-notepad-v249 .np-notebook-name-v249{max-width:110px!important}
+  .np-notebook-stack-v254{padding-inline:8px!important;gap:22px!important}
+  .np-page-preview-paper-v254{min-height:720px!important}
+}
+.np-notebook-page-preview-v254{cursor:pointer!important;transition:transform .12s ease,opacity .12s ease!important}
+.np-notebook-page-preview-v254:hover{transform:translateY(-2px)!important}
+
+
+/* V255 — dark notebook dialogs + right-side full-screen tool rail */
+.np-dark-v250 .np-modal-v249 .np-modal-box-v249{background:#202226!important;color:#f2f2f0!important;border-color:#3c3e44!important;box-shadow:0 24px 70px rgba(0,0,0,.48)!important}
+.np-dark-v250 .np-modal-v249 .np-modal-head-v249 h2,.np-dark-v250 .np-modal-v249 .np-field-v249 label{color:#f2f2f0!important}
+.np-dark-v250 .np-modal-v249 input,.np-dark-v250 .np-modal-v249 select{background:#292b30!important;color:#f2f2f0!important;border-color:#454850!important;caret-color:#fff!important}
+.np-dark-v250 .np-modal-v249 .np-modal-actions-v249 button{background:#292b30!important;color:#f2f2f0!important;border-color:#454850!important}
+.np-dark-v250 .np-modal-v249 .np-modal-actions-v249 button:hover{background:#34373d!important;color:#fff!important}
+.np-dark-v250 .np-modal-v249 .np-modal-actions-v249 button.primary{background:#f2f2f0!important;color:#17181b!important;border-color:#f2f2f0!important}
+.np-dark-v250 .np-modal-v249 .np-modal-actions-v249 button.primary:hover{background:#fff!important;color:#111!important}
+
+.loggy-notepad-v249.np-zen-v250{grid-template-columns:1fr!important;grid-template-rows:1fr!important}
+.loggy-notepad-v249.np-zen-v250 .np-sidebar-v249{display:none!important}
+.loggy-notepad-v249.np-zen-v250 .np-top-v249{
+  display:flex!important;position:fixed!important;z-index:2147483600!important;right:16px!important;left:auto!important;top:50%!important;bottom:auto!important;
+  transform:translateY(-50%)!important;width:56px!important;min-width:56px!important;max-width:56px!important;height:auto!important;max-height:calc(100dvh - 32px)!important;
+  padding:7px!important;margin:0!important;overflow-y:auto!important;overflow-x:hidden!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;gap:4px!important;
+  border:1px solid rgba(80,80,80,.22)!important;border-radius:14px!important;box-shadow:0 10px 30px rgba(0,0,0,.16)!important;background:var(--np-top-bg,#fff)!important;
+}
+.np-dark-v250.np-zen-v250 .np-top-v249{--np-top-bg:#151618!important;background:#151618!important;border-color:#333!important;box-shadow:0 10px 30px rgba(0,0,0,.48)!important}
+.loggy-notepad-v249.np-zen-v250 .np-top-v249>[data-exit],
+.loggy-notepad-v249.np-zen-v250 .np-top-v249>[data-sidebar],
+.loggy-notepad-v249.np-zen-v250 .np-top-v249>.np-notebook-name-v249,
+.loggy-notepad-v249.np-zen-v250 .np-top-v249>.np-top-spacer-v249,
+.loggy-notepad-v249.np-zen-v250 .np-top-v249>.np-paper-label-v249,
+.loggy-notepad-v249.np-zen-v250 .np-top-v249>.np-paper-select-v249,
+.loggy-notepad-v249.np-zen-v250 .np-top-v249>[data-file],
+.loggy-notepad-v249.np-zen-v250 .np-toolbar-cluster-v254>.np-save-state-v249{display:none!important}
+.loggy-notepad-v249.np-zen-v250 .np-toolbar-cluster-v254{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;gap:4px!important;width:42px!important;max-width:42px!important;overflow:visible!important;margin:0!important;padding:0!important}
+.loggy-notepad-v249.np-zen-v250 .np-toolbar-cluster-v254 .np-v250-tools{display:flex!important;flex-direction:column!important;align-items:center!important;gap:4px!important;margin:0!important;width:42px!important}
+.loggy-notepad-v249.np-zen-v250 .np-toolbar-cluster-v254 .np-v250-swatches{display:none!important}
+.loggy-notepad-v249.np-zen-v250 .np-workspace-v249{grid-column:1!important;grid-row:1!important;padding:32px 84px 32px 22px!important;background:transparent!important}
+.loggy-notepad-v249.np-zen-v250 .np-v250-zen-exit{display:none!important}
+@media(max-width:700px){.loggy-notepad-v249.np-zen-v250 .np-top-v249{right:8px!important}.loggy-notepad-v249.np-zen-v250 .np-workspace-v249{padding-right:70px!important;padding-left:8px!important}}
+
+
+/* V256 — lined-paper baseline alignment, distinct paper colors, dark PDF modal contrast */
+/* The ruled-paper rhythm is 32px. Body text uses that exact rhythm so each line of
+   typing sits inside one ruled row instead of drifting across the paper lines. */
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]{
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,rgba(139,157,181,.30) 31px,rgba(139,157,181,.30) 32px)!important;
+  background-size:100% 32px!important;
+  background-position:0 0!important;
+}
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249{
+  line-height:32px!important;
+  background:transparent!important;
+}
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249>p,
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249>div:not(.np-sticky-v250):not(.np-code-v250):not(.np-video-v250),
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249>ul,
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249>ol{
+  line-height:32px!important;
+  margin-top:0!important;
+  margin-bottom:0!important;
+}
+/* Keep structural blocks legible; only ordinary writing is locked to the rule grid. */
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249 h1,
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249 h2,
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249 h3,
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249 h4,
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249 h5,
+.loggy-notepad-v249 .np-paper-v249[data-paper="lined"]>.np-editor-v249 h6{
+  margin-top:16px!important;
+  margin-bottom:8px!important;
+}
+.np-dark-v250 .np-paper-v249[data-paper="lined"]{
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,rgba(210,220,235,.16) 31px,rgba(210,220,235,.16) 32px)!important;
+}
+
+/* PDF export / page-range dialogs must stay readable in notebook dark mode. */
+.np-dark-v250 .np-v250-modal{background:rgba(0,0,0,.58)!important}
+.np-dark-v250 .np-v250-modal-box{background:#202226!important;color:#f4f4f2!important;border-color:#3c3e44!important;box-shadow:0 24px 70px rgba(0,0,0,.52)!important}
+.np-dark-v250 .np-v250-modal-box .np-modal-head-v249 h2,
+.np-dark-v250 .np-v250-modal-box .np-field-v249 label{color:#f4f4f2!important;-webkit-text-fill-color:#f4f4f2!important}
+.np-dark-v250 .np-v250-modal-box input,
+.np-dark-v250 .np-v250-modal-box textarea,
+.np-dark-v250 .np-v250-modal-box select{
+  background:#2a2c31!important;color:#f4f4f2!important;-webkit-text-fill-color:#f4f4f2!important;
+  border-color:#4a4d55!important;caret-color:#fff!important;
+}
+.np-dark-v250 .np-v250-modal-box input::placeholder,
+.np-dark-v250 .np-v250-modal-box textarea::placeholder{color:#aeb1b8!important;-webkit-text-fill-color:#aeb1b8!important;opacity:1!important}
+.np-dark-v250 .np-v250-modal-box .np-modal-actions-v249 button,
+.np-dark-v250 .np-v250-modal-box .np-icon-v249{
+  background:#2a2c31!important;color:#f4f4f2!important;-webkit-text-fill-color:#f4f4f2!important;border-color:#4a4d55!important;
+}
+.np-dark-v250 .np-v250-modal-box .np-modal-actions-v249 button:hover,
+.np-dark-v250 .np-v250-modal-box .np-icon-v249:hover{background:#383b42!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+.np-dark-v250 .np-v250-modal-box .np-modal-actions-v249 button.primary{
+  background:#f4f4f2!important;color:#17181b!important;-webkit-text-fill-color:#17181b!important;border-color:#f4f4f2!important;
+}
+.np-dark-v250 .np-v250-modal-box .np-modal-actions-v249 button.primary:hover{background:#fff!important;color:#111!important;-webkit-text-fill-color:#111!important}
+
+/* V258 — Notebook always keeps a visible native pointer even when the active
+   Loggy theme uses a custom cursor that hides the browser cursor. The notebook
+   is full-screen and hides the theme cursor visual layer, so inheriting
+   cursor:none made the mouse appear to vanish. */
+html.notepad-tab-active-v249.cursor-hide-native body .loggy-notepad-v249,
+html.notepad-tab-active-v249.cursor-hide-native body .loggy-notepad-v249 *,
+body.notepad-tab-active-v249.cursor-none .loggy-notepad-v249,
+body.notepad-tab-active-v249.cursor-none .loggy-notepad-v249 *{cursor:auto!important}
+html.notepad-tab-active-v249.cursor-hide-native body .loggy-notepad-v249 button,
+html.notepad-tab-active-v249.cursor-hide-native body .loggy-notepad-v249 [role="button"],
+body.notepad-tab-active-v249.cursor-none .loggy-notepad-v249 button,
+body.notepad-tab-active-v249.cursor-none .loggy-notepad-v249 [role="button"]{cursor:pointer!important}
+html.notepad-tab-active-v249.cursor-hide-native body .loggy-notepad-v249 .np-editor-v249,
+html.notepad-tab-active-v249.cursor-hide-native body .loggy-notepad-v249 input,
+html.notepad-tab-active-v249.cursor-hide-native body .loggy-notepad-v249 textarea,
+body.notepad-tab-active-v249.cursor-none .loggy-notepad-v249 .np-editor-v249,
+body.notepad-tab-active-v249.cursor-none .loggy-notepad-v249 input,
+body.notepad-tab-active-v249.cursor-none .loggy-notepad-v249 textarea{cursor:text!important}
+html.notepad-tab-active-v249.cursor-hide-native body .loggy-notepad-v249.np-drawing-v250 .np-draw-v250,
+body.notepad-tab-active-v249.cursor-none .loggy-notepad-v249.np-drawing-v250 .np-draw-v250{cursor:crosshair!important}
+html.notepad-tab-active-v249.cursor-hide-native body .loggy-notepad-v249 .np-draw-v250[data-mode="eraser"],
+body.notepad-tab-active-v249.cursor-none .loggy-notepad-v249 .np-draw-v250[data-mode="eraser"]{cursor:cell!important}
+
+/* ================= V257: bold sketchbook visual pass ================= */
+/* Overrides the soft/gray "generic SaaS" look from V250/V251/V256 to match
+   the site's stark black/white, thick-border, Patrick Hand handwriting look. */
+.np-v250-tools{gap:8px}
+.np-v250-swatches{border:2px solid #000;border-radius:9px;background:#fff;padding:4px 6px}
+.np-v250-swatches button{border:2px solid #000}
+.np-v250-color-text{border:2px solid #000;border-radius:7px;font-weight:800}
+.np-slash-v250{border:3px solid #000;border-radius:14px;box-shadow:6px 6px 0 rgba(0,0,0,.85);font-family:'Patrick Hand',cursive,sans-serif}
+.np-slash-search-v250 input{border:2px solid #000;border-radius:9px;font-family:'Patrick Hand',cursive,sans-serif;font-size:16px}
+.np-slash-list-v250 button:hover,.np-slash-list-v250 button.active{background:#000;color:#fff}
+.np-slash-list-v250 button:hover>i,.np-slash-list-v250 button.active>i{background:#333;color:#fff}
+.np-slash-list-v250 button>i{border:2px solid #000;background:#fff}
+.np-slash-list-v250 strong{font-size:15px;font-weight:700}
+.np-slash-list-v250 small{font-size:11px}
+.np-v250-modal-box,.np-latex-modal-box-v256{border:3px solid #000;border-radius:16px;box-shadow:7px 7px 0 rgba(0,0,0,.85)}
+.np-v250-modal textarea{border:2px solid #000;border-radius:10px;font-family:'Patrick Hand',cursive,sans-serif;font-size:16px}
+.np-code-v250{border:2px solid #000}
+.np-editor-v249 h1{font-family:'Patrick Hand',cursive,sans-serif;font-weight:400;font-size:34px}
+.np-sticky-v250{background:#fff1a8;border:2px solid #000;box-shadow:4px 4px 0 rgba(0,0,0,.5);font-family:'Patrick Hand',cursive,sans-serif;font-size:17px}
+.np-audio-v250{border:2px solid #000;border-radius:999px;background:#fff;font-family:'Patrick Hand',cursive,sans-serif;font-size:15px;font-weight:700}
+.np-video-v250 iframe,.np-video-v250 video{border-radius:10px;border:2px solid #000}
+.np-latex-v250{background:#fff;border:2px solid #000;border-radius:8px;padding:4px 8px}
+.np-masked-link-v250{color:#000;text-decoration:underline;text-decoration-thickness:2px;font-weight:700}
+.np-highlight-v250{border:2px solid #000;border-radius:999px;box-shadow:5px 5px 0 rgba(0,0,0,.6)}
+.np-highlight-v250 button{border:2px solid #000}
+.np-icon-v249.active{outline:2px solid #000;outline-offset:2px;background:#000;color:#fff}
+
+/* Paper picker modal */
+.np-paper-modal-box-v251{border:3px solid #000!important;border-radius:16px!important;box-shadow:7px 7px 0 rgba(0,0,0,.85)!important}
+.np-paper-preview-grid-v251>button{border:2px solid #000!important;border-radius:10px}
+.np-paper-preview-grid-v251>button.active{background:#000!important;color:#fff!important}
+.np-paper-preview-v251{border:2px solid #000!important;border-radius:6px!important}
+.np-paper-color-grid-v251 button{border:2px solid #000!important}
+.np-paper-color-grid-v251 button.active{outline:2px solid #000;outline-offset:2px}
+.np-paper-custom-color-v251{border:2px solid #000!important}
+
+/* Pick/search modal list */
+.np-v250-pick-search input{border:2px solid #000;border-radius:9px;font-family:'Patrick Hand',cursive,sans-serif;font-size:16px}
+.np-v250-pick-list button:hover,.np-v250-pick-list button.active{background:#000;color:#fff}
+.np-v250-pick-list button:hover>i,.np-v250-pick-list button.active>i{background:#333}
+.np-v250-pick-list button>i{border:2px solid #000;background:#fff}
+
+/* Draggable component chrome — match bold aesthetic */
+.np-drag-handle-v256{border:2px solid #000;background:#fff;border-radius:6px}
+.np-drag-handle-v256:hover{background:#000;color:#fff}
+.np-block-selected-v256{outline:2px dashed #000;outline-offset:3px;border-radius:6px}
+.np-audio-compact-btn-v256{background:#000;border:2px solid #000}
+.np-latex-preview-v256{border:2px solid #000;border-radius:10px;background:#fffefb;font-family:Georgia,serif}
+.np-latex-cheatsheet-toggle-v256{color:#000;text-decoration:underline;text-decoration-thickness:2px;font-family:'Patrick Hand',cursive,sans-serif;font-size:15px}
+.np-latex-cheat-item-v256{border:2px solid #000;border-radius:9px}
+.np-latex-cheat-item-v256:hover{background:#000}
+.np-latex-cheat-item-v256:hover strong,.np-latex-cheat-item-v256:hover code{color:#fff}
+
+/* Dark mode: keep true black/white contrast rather than soft grays */
+.np-dark-v250{background:#0c0c0c!important}
+.np-dark-v250 .np-top-v249,.np-dark-v250 .np-sidebar-v249{background:#000!important;color:#fff!important;border-color:#fff!important}
+.np-dark-v250 .np-workspace-v249{background:#0c0c0c!important}
+.np-dark-v250 .np-page-title-v249,.np-dark-v250 .np-editor-v249{color:#f5f5f5!important}
+.np-dark-v250 .np-paper-v249{border-color:#fff!important;box-shadow:5px 5px 0 rgba(255,255,255,.15)!important}
+.np-dark-v250 .np-category-v249:hover,.np-dark-v250 .np-page-row-v249:hover{background:#1a1a1a!important}
+.np-dark-v250 .np-category-v249.active,.np-dark-v250 .np-page-row-v249.active{background:#fff!important;color:#000!important}
+.np-dark-v250 .np-page-row-v249.active i{color:#000!important}
+.np-dark-v250 .np-search-v249 input,.np-dark-v250 .np-paper-select-v249,.np-dark-v250 .np-v250-swatches{background:#000!important;color:#fff!important;border-color:#fff!important}
+.np-dark-v250 .np-icon-v249,.np-dark-v250 .np-top-v249 button,.np-dark-v250 .np-sidebar-v249 button{background:#000!important;color:#fff!important;border-color:#fff!important}
+.np-dark-v250 .np-icon-v249:hover,.np-dark-v250 .np-top-v249 button:hover,.np-dark-v250 .np-sidebar-v249 button:hover{background:#fff!important;color:#000!important}
+.np-dark-v250 .np-v250-modal-box,.np-dark-v250 .np-slash-v250,.np-dark-v250 .np-highlight-v250,.np-dark-v250 .np-latex-modal-box-v256{background:#0c0c0c!important;color:#f5f5f5!important;border-color:#fff!important}
+.np-dark-v250 .np-slash-search-v250,.np-dark-v250 .np-slash-search-v250 input,.np-dark-v250 .np-v250-pick-search input,.np-dark-v250 .np-v250-modal textarea{background:#000!important;color:#f5f5f5!important;border-color:#fff!important}
+.np-dark-v250 .np-slash-list-v250 button:hover,.np-dark-v250 .np-slash-list-v250 button.active,.np-dark-v250 .np-v250-pick-list button:hover,.np-dark-v250 .np-v250-pick-list button.active{background:#fff!important;color:#000!important}
+.np-dark-v250 .np-slash-list-v250 button>i,.np-dark-v250 .np-v250-pick-list button>i{background:#000!important;border-color:#fff!important}
+.np-dark-v250 .np-paper-modal-box-v251{background:#0c0c0c!important;color:#f5f5f5!important;border-color:#fff!important}
+.np-dark-v250 .np-paper-preview-grid-v251>button{background:#000!important;border-color:#fff!important;color:#f5f5f5!important}
+.np-dark-v250 .np-context-v249{background:#0c0c0c!important;color:#f5f5f5!important;border-color:#fff!important}
+.np-dark-v250 .np-context-v249 button:hover{background:#fff!important;color:#000!important}
+.np-dark-v250 .np-sticky-v250{background:#4a4110;color:#f5f5f5;border-color:#fff}
+.np-dark-v250 .np-audio-v250,.np-dark-v250 .np-latex-v250,.np-dark-v250 .np-masked-link-v250{border-color:#fff;color:#f5f5f5}
+.np-dark-v250 .np-masked-link-v250{color:#8ecfff}
+.np-dark-v250 .np-latex-preview-v256{background:#000;color:#f5f5f5;border-color:#fff}
+.np-dark-v250 .np-latex-cheat-item-v256{background:#000;border-color:#fff}
+.np-dark-v250 .np-latex-cheat-item-v256 strong{color:#f5f5f5}
+.np-dark-v250 .np-latex-cheat-item-v256 code{color:#bbb}
+.np-dark-v250 .np-drag-handle-v256{background:#000;border-color:#fff;color:#f5f5f5}
+
+
+/* V276 — borderless Notebook top toolbar buttons.
+   This final override intentionally includes Back, Sidebar, and every other
+   button nested in the top navbar so older dark/active rules cannot restore
+   visible button chrome. */
+.loggy-notepad-v249 .np-top-v249 button,
+.loggy-notepad-v249 .np-top-v249 .np-icon-v249,
+.loggy-notepad-v249 .np-top-v249 .np-button-v249{
+  border:0!important;
+  border-width:0!important;
+  box-shadow:none!important;
+  outline:none!important;
+}
+.loggy-notepad-v249 .np-top-v249 button:hover,
+.loggy-notepad-v249 .np-top-v249 button:focus,
+.loggy-notepad-v249 .np-top-v249 button:focus-visible,
+.loggy-notepad-v249 .np-top-v249 button:active,
+.loggy-notepad-v249 .np-top-v249 .np-icon-v249.active{
+  border:0!important;
+  border-width:0!important;
+  box-shadow:none!important;
+  outline:none!important;
+}
+
+
+/* V277 — sticky-note objects + definitive frameless placed LaTeX.
+   This is intentionally the final notebook component override. */
+.loggy-notepad-v249 .np-latex-v250,
+.loggy-notepad-v249 .np-latex-v250.np-draggable-v256,
+.loggy-notepad-v249 .np-latex-v250.np-block-floating-v256,
+.loggy-notepad-v249 .np-latex-v250.np-block-selected-v256,
+.loggy-notepad-v249 .np-latex-v250:focus,
+.loggy-notepad-v249 .np-latex-v250:focus-visible,
+.loggy-notepad-v249.np-dark-v250 .np-latex-v250,
+.loggy-notepad-v249.np-dark-v250 .np-latex-v250.np-block-selected-v256{
+  border:none!important;
+  border-width:0!important;
+  border-style:none!important;
+  outline:none!important;
+  outline-width:0!important;
+  outline-offset:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  padding:0!important;
+  border-radius:0!important;
+  cursor:grab!important;
+  touch-action:none!important;
+}
+.loggy-notepad-v249 .np-latex-v250:active{cursor:grabbing!important}
+.loggy-notepad-v249 .np-latex-v250 .np-drag-handle-v256{display:none!important}
+.loggy-notepad-v249 .np-latex-v250>.np-latex-render-v256{
+  border:none!important;outline:none!important;box-shadow:none!important;
+  background:transparent!important;padding:0!important;border-radius:0!important;
+}
+
+/* Sticky notes are persistent free-positioned/resizable page objects. */
+.loggy-notepad-v249 .np-sticky-v250.np-sticky-object-v277{
+  position:relative;
+  display:block;
+  width:260px;
+  min-width:140px;
+  min-height:100px;
+  max-width:none;
+  margin:16px 0;
+  padding:18px 18px 16px;
+  overflow:visible;
+  background:var(--np-sticky-color,#fff1a8)!important;
+  color:#171717!important;
+  border:2px solid #000!important;
+  box-shadow:4px 4px 0 rgba(0,0,0,.5)!important;
+  border-radius:2px!important;
+  font-family:'Patrick Hand',cursive,sans-serif!important;
+  font-size:17px!important;
+  line-height:1.4!important;
+  touch-action:none;
+}
+.loggy-notepad-v249 .np-sticky-v250.np-sticky-object-v277.np-block-floating-v256{margin:0!important}
+.loggy-notepad-v249 .np-sticky-text-v277{
+  min-height:64px;
+  width:100%;
+  height:100%;
+  outline:none!important;
+  border:0!important;
+  background:transparent!important;
+  color:inherit!important;
+  cursor:text!important;
+  touch-action:auto;
+  overflow-wrap:anywhere;
+}
+.loggy-notepad-v249 .np-sticky-move-v277{
+  position:absolute!important;
+  top:5px!important;
+  right:25px!important;
+  width:20px!important;
+  height:20px!important;
+  margin:0!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:5px!important;
+  background:rgba(255,255,255,.66)!important;
+  color:#111!important;
+  box-shadow:none!important;
+  cursor:grab!important;
+  opacity:0;
+  transition:opacity .12s ease;
+  z-index:3;
+}
+.loggy-notepad-v249 .np-sticky-move-v277:active{cursor:grabbing!important}
+.loggy-notepad-v249 .np-sticky-resize-v277{
+  position:absolute;
+  right:4px;
+  bottom:4px;
+  width:16px;
+  height:16px;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  cursor:nwse-resize!important;
+  opacity:0;
+  z-index:4;
+  touch-action:none;
+}
+.loggy-notepad-v249 .np-sticky-resize-v277::before{
+  content:'';
+  position:absolute;
+  inset:3px;
+  border-right:2px solid rgba(0,0,0,.7);
+  border-bottom:2px solid rgba(0,0,0,.7);
+}
+.loggy-notepad-v249 .np-sticky-v250:hover>.np-sticky-move-v277,
+.loggy-notepad-v249 .np-sticky-v250:hover>.np-sticky-resize-v277,
+.loggy-notepad-v249 .np-sticky-v250.np-block-selected-v256>.np-sticky-move-v277,
+.loggy-notepad-v249 .np-sticky-v250.np-block-selected-v256>.np-sticky-resize-v277{opacity:1}
+
+.np-sticky-colors-v277{display:flex;align-items:center;gap:6px;padding:5px 6px 7px;border-bottom:1px solid rgba(0,0,0,.12);margin-bottom:4px}
+.np-sticky-colors-v277[hidden]{display:none!important}
+.np-sticky-colors-v277 button{width:25px!important;height:25px!important;min-width:25px!important;padding:0!important;border:2px solid rgba(0,0,0,.78)!important;border-radius:50%!important;background:var(--c)!important}
+.np-sticky-colors-v277 button:hover,.np-sticky-colors-v277 button.active{outline:2px solid currentColor!important;outline-offset:1px!important}
+.np-dark-v250 .np-sticky-colors-v277{border-bottom-color:rgba(255,255,255,.22)}
+
+
+/* V278 — Notebook theme quarantine.
+   Notebook chrome and components are intentionally self-themed. Active Loggy
+   themes must not recolor its search field, selected page rows, dialogs, LaTeX
+   editor, controls, or Zen/full-screen background. */
+body.notepad-tab-active-v249 > #custom-theme-background-stage,
+body.notepad-tab-active-v249 > #custom-theme-code-background-v56,
+body.notepad-tab-active-v249 > [id$="-theme-background"],
+body.notepad-tab-active-v249 > [class*="theme-background"]{
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+body.notepad-tab-active-v249 .loggy-notepad-v249{
+  contain:layout paint!important;
+  --black:#000!important;
+  --white:#fff!important;
+  --muted-text:#666!important;
+  --track-bg:#f2f0ea!important;
+  --thin-border:2px solid #000!important;
+  --thick-border:3px solid #000!important;
+  --border-radius:12px!important;
+  --accent:#000!important;
+  --np-ink:#000!important;
+  --np-muted:rgba(0,0,0,.55)!important;
+  --np-line:#000!important;
+  --np-panel:#fff!important;
+  --np-shadow:5px 5px 0 rgba(0,0,0,.9)!important;
+  --np-border:2px solid #000!important;
+  --np-border-thick:3px solid #000!important;
+  --np-radius:12px!important;
+  background:#f2f0ea!important;
+  color:#000!important;
+  font-family:'Patrick Hand',cursive,sans-serif!important;
+  filter:none!important;
+  text-shadow:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250{
+  --np-ink:#f5f5f5!important;
+  --np-muted:#aaa!important;
+  --np-line:#fff!important;
+  --np-panel:#000!important;
+  --np-shadow:5px 5px 0 rgba(255,255,255,.15)!important;
+  --np-border:2px solid #fff!important;
+  --np-border-thick:3px solid #fff!important;
+  background:#0c0c0c!important;
+  color:#f5f5f5!important;
+}
+
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-top-v249,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-sidebar-v249{
+  background:#fff!important;
+  color:#000!important;
+  border-color:#000!important;
+  box-shadow:none!important;
+  filter:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-workspace-v249{
+  background:#f2f0ea!important;
+  color:#000!important;
+  filter:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-top-v249,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-sidebar-v249{
+  background:#000!important;
+  color:#fff!important;
+  border-color:#fff!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-workspace-v249{
+  background:#0c0c0c!important;
+  color:#f5f5f5!important;
+}
+
+/* Search / form controls: never inherit theme button/input palettes. */
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-search-v249 input,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-field-v249 input,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-field-v249 select,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-v250-modal textarea,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-v250-pick-search input,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-slash-search-v250 input{
+  background:#fff!important;
+  background-image:none!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  border:2px solid #000!important;
+  border-radius:9px!important;
+  box-shadow:none!important;
+  filter:none!important;
+  text-shadow:none!important;
+  caret-color:#000!important;
+  font-family:'Patrick Hand',cursive,sans-serif!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-search-v249 input::placeholder,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-v250-modal textarea::placeholder,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-v250-pick-search input::placeholder,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-slash-search-v250 input::placeholder{
+  color:#777!important;
+  -webkit-text-fill-color:#777!important;
+  opacity:1!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-search-v249 input,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-field-v249 input,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-field-v249 select,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-v250-modal textarea,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-v250-pick-search input,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-slash-search-v250 input{
+  background:#000!important;
+  color:#f5f5f5!important;
+  -webkit-text-fill-color:#f5f5f5!important;
+  border-color:#fff!important;
+  caret-color:#fff!important;
+}
+
+/* Sidebar page/notebook rows keep Notebook's own selected state. */
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-category-v249,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-page-row-v249{
+  background:transparent!important;
+  background-image:none!important;
+  color:#000!important;
+  border:0!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  filter:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-category-v249:hover,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-page-row-v249:hover{
+  background:#f0efe9!important;
+  color:#000!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-category-v249.active,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-page-row-v249.active{
+  background:#000!important;
+  color:#fff!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-category-v249.active i,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-page-row-v249.active i{
+  color:#fff!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-category-v249,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-page-row-v249{
+  color:#f5f5f5!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-category-v249:hover,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-page-row-v249:hover{
+  background:#1a1a1a!important;
+  color:#fff!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-category-v249.active,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-page-row-v249.active{
+  background:#fff!important;
+  color:#000!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-category-v249.active i,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-page-row-v249.active i{
+  color:#000!important;
+}
+
+/* Notebook page previews are not allowed to consume active-theme variables. */
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-page-preview-title-v254{
+  color:#000!important;
+  background:#fff!important;
+  border:2px solid #000!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-page-preview-title-v254{
+  color:#f5f5f5!important;
+  background:#0c0c0c!important;
+  border-color:#fff!important;
+}
+
+/* Notebook-owned dialogs/menus. */
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-v250-modal-box,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-modal-box-v249,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-paper-modal-box-v251,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-slash-v250,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-context-v249,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-block-context-v251{
+  background:#fff!important;
+  color:#000!important;
+  border-color:#000!important;
+  filter:none!important;
+  text-shadow:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-v250-modal-box,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-modal-box-v249,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-paper-modal-box-v251,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-slash-v250,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-context-v249,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-block-context-v251{
+  background:#0c0c0c!important;
+  color:#f5f5f5!important;
+  border-color:#fff!important;
+}
+
+/* Top navbar remains intentionally borderless, regardless of theme. */
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-top-v249 button,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-top-v249 .np-icon-v249,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-toolbar-cluster-v254 button{
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  text-shadow:none!important;
+}
+
+/* LaTeX editor and placed equations are fully Notebook-owned.
+   Placed equations are ALWAYS frameless, including selected/floating/dark states. */
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-modal-v256 textarea[data-latex-input]{
+  background:#fff!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  border:2px solid #000!important;
+  box-shadow:none!important;
+  filter:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-latex-modal-v256 textarea[data-latex-input]{
+  background:#000!important;
+  color:#f5f5f5!important;
+  -webkit-text-fill-color:#f5f5f5!important;
+  border-color:#fff!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-preview-v256{
+  background:#fffefb!important;
+  color:#000!important;
+  border:2px solid #000!important;
+  box-shadow:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-latex-preview-v256{
+  background:#000!important;
+  color:#f5f5f5!important;
+  border-color:#fff!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-v250,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-v250.np-draggable-v256,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-v250.np-block-floating-v256,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-v250.np-block-selected-v256,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-v250:focus,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-v250:focus-visible,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-latex-v250,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-latex-v250.np-block-selected-v256,
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-v250 > .np-latex-render-v256{
+  border:0!important;
+  border-width:0!important;
+  border-style:none!important;
+  outline:0!important;
+  outline-width:0!important;
+  outline-offset:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  padding:0!important;
+  border-radius:0!important;
+  filter:none!important;
+  text-shadow:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-v250 .np-drag-handle-v256{
+  display:none!important;
+}
+
+/* Show the actual symbol/expression in the inline-math guide. */
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-latex-cheat-symbol-v275{
+  display:block!important;
+  color:inherit!important;
+  font-family:Georgia,'Times New Roman',serif!important;
+  font-size:22px!important;
+  line-height:1.35!important;
+  font-weight:600!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  white-space:normal!important;
+}
+
+/* Zen/full-screen uses Notebook's own background, never the active Loggy theme. */
+body.notepad-zen-body-v250{background:#f2f0ea!important}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-zen-v250{background:#f2f0ea!important}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-zen-v250 .np-workspace-v249{background:#f2f0ea!important}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250.np-zen-v250{background:#0c0c0c!important}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250.np-zen-v250 .np-workspace-v249{background:#0c0c0c!important}
+
+/* V278b — final Notebook theme firewall.
+   This block intentionally comes last. Loggy themes may style generic inputs,
+   buttons, cards and selected states globally; none of those rules are allowed
+   to recolor Notebook chrome or Notebook components. */
+body.notepad-tab-active-v249 .loggy-notepad-v249{
+  color-scheme:light!important;
+  accent-color:#000!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250{
+  color-scheme:dark!important;
+  accent-color:#fff!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 :where(button,input,select,textarea){
+  text-shadow:none!important;
+  filter:none!important;
+  background-image:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-page-title-v249{
+  background:transparent!important;
+  background-image:none!important;
+  color:#000!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-page-title-v249{color:#f5f5f5!important}
+
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-page-preview-title-v254{
+  background:#fff!important;
+  background-image:none!important;
+  color:#000!important;
+  border:2px solid #000!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-page-preview-title-v254{
+  background:#0c0c0c!important;
+  color:#f5f5f5!important;
+  border-color:#fff!important;
+}
+
+/* Notebook-owned menus, slash picker, mentions and modal surfaces. */
+body.notepad-tab-active-v249 .loggy-notepad-v249 :is(.np-modal-box-v249,.np-v250-modal-box,.np-paper-modal-box-v251,.np-mention-v249,.np-slash-v250,.np-highlight-v250,.np-context-v249,.np-block-context-v251){
+  background:#fff!important;
+  background-image:none!important;
+  color:#000!important;
+  border-color:#000!important;
+  text-shadow:none!important;
+  filter:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 :is(.np-modal-box-v249,.np-v250-modal-box,.np-paper-modal-box-v251,.np-mention-v249,.np-slash-v250,.np-highlight-v250,.np-context-v249,.np-block-context-v251){
+  background:#0c0c0c!important;
+  color:#f5f5f5!important;
+  border-color:#fff!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 :is(.np-mention-item-v249,.np-slash-list-v250 button,.np-v250-pick-list button,.np-latex-cheat-item-v256){
+  background:transparent!important;
+  background-image:none!important;
+  color:#000!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  filter:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 :is(.np-mention-item-v249,.np-slash-list-v250 button,.np-v250-pick-list button,.np-latex-cheat-item-v256):hover,
+body.notepad-tab-active-v249 .loggy-notepad-v249 :is(.np-mention-item-v249,.np-slash-list-v250 button,.np-v250-pick-list button).active{
+  background:#000!important;
+  color:#fff!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 :is(.np-mention-item-v249,.np-slash-list-v250 button,.np-v250-pick-list button,.np-latex-cheat-item-v256){color:#f5f5f5!important}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 :is(.np-mention-item-v249,.np-slash-list-v250 button,.np-v250-pick-list button,.np-latex-cheat-item-v256):hover,
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 :is(.np-mention-item-v249,.np-slash-list-v250 button,.np-v250-pick-list button).active{
+  background:#fff!important;
+  color:#000!important;
+}
+
+/* Notebook buttons/forms are locally colored. Top-nav buttons remain borderless. */
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-top-v249 button{
+  background:#fff!important;
+  color:#000!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249 .np-top-v249 button:hover{background:#eee!important;color:#000!important}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-top-v249 button{background:#000!important;color:#fff!important}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 .np-top-v249 button:hover{background:#fff!important;color:#000!important}
+body.notepad-tab-active-v249 .loggy-notepad-v249 :is(.np-search-v249 input,.np-field-v249 input,.np-field-v249 select,.np-v250-pick-search input,.np-slash-search-v250 input,.np-v250-modal textarea){
+  appearance:none!important;
+  background:#fff!important;
+  background-image:none!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  border:2px solid #000!important;
+  border-radius:9px!important;
+  outline:0!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+}
+body.notepad-tab-active-v249 .loggy-notepad-v249.np-dark-v250 :is(.np-search-v249 input,.np-field-v249 input,.np-field-v249 select,.np-v250-pick-search input,.np-slash-search-v250 input,.np-v250-modal textarea){
+  background:#000!important;
+  color:#f5f5f5!important;
+  -webkit-text-fill-color:#f5f5f5!important;
+  border-color:#fff!important;
+}
+
+/* Placed LaTeX is content only. No theme, focus, selection or drag state may
+   create a solid OR dashed box around the equation. */
+html body.notepad-tab-active-v249 .loggy-notepad-v249 .np-editor-v249 .np-latex-v250,
+html body.notepad-tab-active-v249 .loggy-notepad-v249 .np-editor-v249 .np-latex-v250:hover,
+html body.notepad-tab-active-v249 .loggy-notepad-v249 .np-editor-v249 .np-latex-v250:active,
+html body.notepad-tab-active-v249 .loggy-notepad-v249 .np-editor-v249 .np-latex-v250:focus,
+html body.notepad-tab-active-v249 .loggy-notepad-v249 .np-editor-v249 .np-latex-v250:focus-visible,
+html body.notepad-tab-active-v249 .loggy-notepad-v249 .np-editor-v249 .np-latex-v250.np-block-selected-v256,
+html body.notepad-tab-active-v249 .loggy-notepad-v249 .np-editor-v249 .np-latex-v250.np-draggable-v256,
+html body.notepad-tab-active-v249 .loggy-notepad-v249 .np-editor-v249 .np-latex-v250.np-block-floating-v256,
+html body.notepad-tab-active-v249 .loggy-notepad-v249 .np-editor-v249 .np-latex-v250 > .np-latex-render-v256{
+  border:0!important;
+  border-width:0!important;
+  border-style:none!important;
+  outline:0!important;
+  outline-width:0!important;
+  outline-offset:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  padding:0!important;
+  border-radius:0!important;
+  filter:none!important;
+}
