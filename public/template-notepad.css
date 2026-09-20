@@ -29,3 +29,36 @@
 .np-link-flash-v249{animation:npLinkFlashV249 1.4s ease}@keyframes npLinkFlashV249{0%,100%{outline:0 solid rgba(0,0,0,0)}35%{outline:4px solid rgba(0,0,0,.55);outline-offset:5px}}
 @media(max-width:820px){.loggy-notepad-v249{grid-template-columns:1fr}.np-sidebar-v249{position:absolute;left:0;top:60px;bottom:0;width:min(82vw,290px);transform:translateX(-105%);transition:transform .18s ease;box-shadow:6px 0 0 rgba(0,0,0,.85)}.loggy-notepad-v249.sidebar-open .np-sidebar-v249{transform:none}.np-workspace-v249{grid-column:1;padding:20px 12px 60px}.np-page-title-v249{font-size:26px}.np-editor-v249{padding:44px 30px 80px}.np-notebook-name-v249{max-width:130px}.np-top-v249 .np-paper-label-v249{display:none}}
 @media(prefers-reduced-motion:reduce){.loggy-notepad-v249 *{scroll-behavior:auto!important;transition:none!important;animation-duration:.01ms!important}}
+
+
+/* V502 — notebook toolbar/sidebar seam. Keep the first grid row exactly the
+   visible toolbar height so hidden/overflow toolbar content cannot create a gap. */
+@media (min-width:821px){
+  .loggy-notepad-v249{grid-template-rows:60px minmax(0,1fr)!important;}
+  .loggy-notepad-v249>.np-top-v249{grid-row:1!important;height:60px!important;min-height:60px!important;max-height:60px!important;align-self:stretch!important;}
+  .loggy-notepad-v249>.np-sidebar-v249,
+  .loggy-notepad-v249>.np-workspace-v249{grid-row:2!important;align-self:stretch!important;margin-top:0!important;top:auto!important;}
+}
+
+/* V502 — the active page must always accept text unless drawing mode is explicitly on. */
+.loggy-notepad-v249:not(.np-drawing-v250) .np-paper-v249:not(.np-page-preview-paper-v254)>.np-editor-v249{
+  pointer-events:auto!important;
+  user-select:text!important;
+  -webkit-user-select:text!important;
+  cursor:text!important;
+}
+.loggy-notepad-v249:not(.np-drawing-v250) .np-paper-v249:not(.np-page-preview-paper-v254){cursor:text!important;}
+
+
+/* V503 — active notebook text surface authority. */
+.loggy-notepad-v249:not(.np-drawing-v250) .np-paper-v249:not(.np-page-preview-paper-v254)>.np-editor-v249{
+  position:relative!important;
+  z-index:8!important;
+  pointer-events:auto!important;
+  user-select:text!important;
+  -webkit-user-select:text!important;
+  cursor:text!important;
+  touch-action:manipulation!important;
+}
+.loggy-notepad-v249:not(.np-drawing-v250) .np-paper-v249:not(.np-page-preview-paper-v254)>.np-images-v249{z-index:9!important;pointer-events:none!important;}
+.loggy-notepad-v249:not(.np-drawing-v250) .np-paper-v249:not(.np-page-preview-paper-v254)>.np-images-v249>.np-image-card-v249{pointer-events:auto!important;}

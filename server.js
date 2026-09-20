@@ -34,7 +34,32 @@ const LOG_TRASH_DIR = path.join(__dirname, '.loggy-trash');
 if (!fs.existsSync(LOG_TRASH_DIR)) fs.mkdirSync(LOG_TRASH_DIR, { recursive: true });
 
 const APPS_DB_PATH = path.join(DATA_DIR, 'apps.json');
+
 const publicDir = path.join(__dirname, 'public');
+const DASHBOARD_CUSTOM_ICONS_PATH = path.join(DATA_DIR, 'dashboard-custom-icons.json');
+
+function readDashboardCustomIconsV428() {
+    try {
+        const value = JSON.parse(fs.readFileSync(DASHBOARD_CUSTOM_ICONS_PATH, 'utf8'));
+        return Array.isArray(value) ? value.filter(item => item && typeof item === 'object') : [];
+    } catch (_) {
+        return [];
+    }
+}
+
+function validateDashboardSvgV428(svg) {
+    const raw = String(svg || '').trim();
+    if (!raw || raw.length > 60000) return { ok:false, message:'SVG code must be between 1 and 60,000 characters.' };
+    if (!/^<svg\b/i.test(raw) || !/<\/svg>\s*$/i.test(raw)) return { ok:false, message:'Paste one complete <svg>…</svg> icon.' };
+    const forbidden = /<(?:script|foreignObject|iframe|object|embed|audio|video|canvas|style|link|meta)\b|(?:\son[a-z0-9_-]+\s*=)|javascript\s*:|(?:href|xlink:href)\s*=\s*["']\s*(?:https?:|data:|\/\/)/i;
+    if (forbidden.test(raw)) return { ok:false, message:'That SVG contains scripts, embedded content, event handlers, or external references.' };
+    return { ok:true, svg:raw };
+}
+
+function writeDashboardCustomIconsV428(items) {
+    fs.writeFileSync(DASHBOARD_CUSTOM_ICONS_PATH, JSON.stringify(items, null, 2));
+}
+
 
 // Initialize apps.json if missing
 if (!fs.existsSync(APPS_DB_PATH)) {
@@ -81,6 +106,31 @@ function getCleanAppsList() {
 }
 
 app.get('/api/apps', (req, res) => res.json(getCleanAppsList()));
+
+
+// V428 — user-created Dashboard SVG icon library.
+app.get('/api/dashboard-custom-icons', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(readDashboardCustomIconsV428());
+});
+
+app.post('/api/dashboard-custom-icons', (req, res) => {
+    const name = String(req.body?.name || 'Custom Icon').trim().slice(0, 80) || 'Custom Icon';
+    const checked = validateDashboardSvgV428(req.body?.svg);
+    if (!checked.ok) return res.status(400).json({ status:'error', message:checked.message });
+
+    const icons = readDashboardCustomIconsV428();
+    const id = `custom-svg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+    const entry = {
+        id,
+        name,
+        svg: checked.svg,
+        createdAt: new Date().toISOString()
+    };
+    icons.push(entry);
+    writeDashboardCustomIconsV428(icons);
+    res.json({ status:'success', icon:entry });
+});
 
 
 // V188 — lightweight Dashboard completion status. This avoids sending every
@@ -195,10 +245,12 @@ app.patch('/api/apps/:id', (req, res) => {
     const { id } = req.params;
     const hasName = Object.prototype.hasOwnProperty.call(req.body || {}, 'name');
     const hasCategory = Object.prototype.hasOwnProperty.call(req.body || {}, 'category');
+    const hasIcon = Object.prototype.hasOwnProperty.call(req.body || {}, 'icon');
     const name = hasName ? String(req.body.name || '').trim() : '';
     const category = hasCategory ? String(req.body.category || '').trim() : '';
+    const icon = hasIcon ? String(req.body.icon || '').trim() : '';
 
-    if (!hasName && !hasCategory) {
+    if (!hasName && !hasCategory && !hasIcon) {
         return res.status(400).json({ status: 'error', message: 'No log metadata was supplied.' });
     }
     if (hasName && !name) {
@@ -206,6 +258,9 @@ app.patch('/api/apps/:id', (req, res) => {
     }
     if (hasCategory && !category) {
         return res.status(400).json({ status: 'error', message: 'A category name is required.' });
+    }
+    if (hasIcon && !icon) {
+        return res.status(400).json({ status: 'error', message: 'An icon is required.' });
     }
     if (RESERVED_IDS.includes(id)) {
         return res.status(400).json({ status: 'error', message: 'This log cannot be changed.' });
@@ -219,6 +274,7 @@ app.patch('/api/apps/:id', (req, res) => {
 
     if (hasName) app_.name = name;
     if (hasCategory) app_.category = category;
+    if (hasIcon) app_.icon = icon;
     fs.writeFileSync(APPS_DB_PATH, JSON.stringify(apps, null, 2));
 
     res.json({ status: 'success', app: app_ });
@@ -2095,17 +2151,12 @@ app.get('/app/:hobby', (req, res) => {
         html = html
             .replace(/(<button\b[^>]*id=["']open-daily-settings-btn["'][^>]*>\s*<i\b[^>]*class=["'][^"']*ph-)gear(?:-six)?([^"']*["'][^>]*><\/i>\s*<\/button>)/i, '$1sliders-horizontal$2')
             .replace(/(<button\b[^>]*id=["']open-settings-btn["'][^>]*>\s*<i\b[^>]*class=["'][^"']*ph-)gear(?:-six)?([^"']*["'][^>]*><\/i>\s*<\/button>)/i, '$1sliders-horizontal$2');
-        // V300 FIX (bug 3): these cache-bust query strings must always match the
-        // versions template.html itself references. They had drifted (?v=250 here
-        // vs ?v=258/?v=300 in template.html), so a saved log page could keep a
-        // browser-cached older copy of template-extras-6.js indefinitely even
-        // after the shared source file was rewritten -- letting the old,
-        // un-isolated Theme Builder create/edit code run only on saved log pages
-        // (never on /theme-studio-host, which always references template.html's
-        // own tag directly). Keep these three literals in lock-step with the
-        // matching <script> tags in template.html.
-        const hotfixTag = '<script src="/template-hotfix-v221.js?v=303"></script>';
-        const extrasV250Tag = '<script defer src="/template-extras-6.js?v=328"></script>';
+        // Saved log shells are historical copies. Keep the direct hotfix tag in
+        // sync with template.html, but do NOT inject a second direct extras-6 tag.
+        // The synchronized V194 loader below is the sole extras-1..6 owner. A stale
+        // direct extras-6 can run first, set version guards, and permanently block
+        // the current bundle from installing its Theme Builder/audio fixes.
+        const hotfixTag = '<script src="/template-hotfix-v221.js?v=362"></script>';
         const widgetsTag = '<script defer src="/widgets-loader-v241.js?v=246"></script>';
         if (html.includes('/template-hotfix-v221.js')) {
             html = html.replace(
@@ -2117,11 +2168,12 @@ app.get('/app/:hobby', (req, res) => {
                 ? html.replace(/<\/body>/i, `${hotfixTag}\n</body>`)
                 : `${html}\n${hotfixTag}`;
         }
-        if (html.includes('/template-extras-6.js')) {
-            html = html.replace(/<script\b[^>]*src=["'][^"']*\/template-extras-6\.js(?:\?[^"']*)?["'][^>]*><\/script>/i, extrasV250Tag);
-        } else {
-            html = /<\/body>/i.test(html) ? html.replace(/<\/body>/i, `${extrasV250Tag}\n</body>`) : `${html}\n${extrasV250Tag}`;
-        }
+        // Remove any retired direct extras-6 include from old saved pages. The
+        // live V194 loader copied below will load extras-6 once, in numeric order.
+        html = html.replace(
+            /<script\b[^>]*src=["'][^"']*\/template-extras-6\.js(?:\?[^"']*)?["'][^>]*><\/script>\s*/gi,
+            ''
+        );
         // V307: saved log pages are point-in-time copies of template.html, so
         // keep their feature-loader block synchronized with the live template on
         // every request. Older saved pages may also contain the retired V71 Theme
@@ -2141,6 +2193,27 @@ app.get('/app/:hobby', (req, res) => {
                 html = html.replace(
                     /(<link\b[^>]*href=["'])[^"']*\/template\.css(?:\?[^"']*)?(["'][^>]*>)/i,
                     `$1${liveCssHref}$2`
+                );
+            }
+
+            // V422: template.js now owns the built-in source-module startup-audio
+            // guard. Existing log shells are copied HTML, so synchronize both the
+            // executable script URL and its preload URL with live template.html.
+            // Without this, an old saved shell can keep requesting ?v=415 and
+            // never receive the current audio-ownership fix.
+            const liveTemplateJsSrc = templateHtml.match(
+                /<script\b[^>]*src=["']([^"']*\/template\.js(?:\?[^"']*)?)["'][^>]*><\/script>/i
+            )?.[1];
+
+            if (liveTemplateJsSrc) {
+                html = html.replace(
+                    /(<script\b[^>]*src=["'])[^"']*\/template\.js(?:\?[^"']*)?(["'][^>]*><\/script>)/i,
+                    `$1${liveTemplateJsSrc}$2`
+                );
+
+                html = html.replace(
+                    /(<link\b[^>]*href=["'])[^"']*\/template\.js(?:\?[^"']*)?(["'][^>]*>)/i,
+                    `$1${liveTemplateJsSrc}$2`
                 );
             }
 

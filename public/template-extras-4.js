@@ -1712,7 +1712,10 @@
                 if (!Number.isFinite(index) || !assets[index]) index = displayIndex % Math.max(1, assets.length);
                 const asset = assets[index];
                 if (!asset) return;
-                item.style.setProperty('opacity', String(opacityValueV109(asset) / 100), 'important');
+                const lock = window.__loggyDecorationOpacityLockV493;
+                const locked = lock?.modal === modal ? Number(lock?.values?.[index]) : NaN;
+                const opacity = Number.isFinite(locked) ? locked : (opacityValueV109(asset) / 100);
+                item.style.setProperty('opacity', String(opacity), 'important');
             });
         });
     }
@@ -2520,7 +2523,8 @@
         };
     } catch {}
 
-    // Own Preview Intro at the final layer so the checked fade option is not
+    // Legacy intro-audio audition helper: keep fade handling stable for any internal callers; the Theme Builder no longer exposes an intro-audition control.
+    // The checked fade option is not
     // lost through older preview wrappers. The fade follows actual playback
     // time, so seeking/metadata timing cannot make it miss the end of a segment.
     previewThemeBuilderIntroV10 = function (modal) {
@@ -2625,7 +2629,23 @@
 (function(){
   const clamp=n=>Math.max(0,Math.min(100,Number.isFinite(Number(n))?Number(n):100));
   function globalOpacity(modal){ return clamp(modal?._themeDecorationsOpacityV117 ?? 100); }
-  function effectiveOpacity(modal,a){ return (globalOpacity(modal)/100)*(clamp(a?.opacityV109 ?? a?.opacity ?? 100)/100); }
+  // V490: opacity must not change when decoration placement/overlap mode changes.
+  // Keep preview semantics identical to the saved/runtime theme semantics:
+  // a per-decoration override replaces the global opacity; otherwise the
+  // decoration uses the global opacity.  The old preview multiplied the two,
+  // which made decorations visibly jump more opaque when Prevent Overlap
+  // triggered the newer parity renderer.
+  function effectiveOpacity(modal,a){
+    const lock=window.__loggyDecorationOpacityLockV493;
+    if(lock?.modal===modal){
+      const assets=Array.isArray(modal?._themeBackgroundSvgs)?modal._themeBackgroundSvgs:[];
+      const index=assets.indexOf(a);
+      const locked=Number(lock?.values?.[index]);
+      if(index>=0&&Number.isFinite(locked)) return locked;
+    }
+    const own=clamp(a?.opacityV109 ?? a?.opacity ?? 100);
+    return ((a?.opacityOverrideV326===true ? own : globalOpacity(modal))/100);
+  }
 
   try {
     const before=getThemeBuilderDraft;
@@ -8896,19 +8916,18 @@ window.__themeCrossNaturalFacingV147 = true;
         const choice=CURSOR_OPTIONS.find(c=>String(c.id)===String(id))||CURSOR_OPTIONS[0];
         const root=document.documentElement;
         try{stopCursorFx()}catch{};try{stopTrackingCustomCursor()}catch{};
-        document.body.classList.remove('cursor-none');root.classList.remove('cursor-hide-native');
-        let visual=document.getElementById('custom-cursor-visual');
+        document.body.classList.remove('cursor-none');
+        root.classList.remove('cursor-hide-native','cursor-native-theme-v449');
+        root.style.removeProperty('--loggy-native-theme-cursor-v449');
+        const visual=document.getElementById('custom-cursor-visual');
+        if(visual){visual.style.display='none';visual.className='';visual.innerHTML='';delete visual.dataset.cursorId;}
         if(choice.kind==='fx'||choice.kind==='image'){
-            if(!visual){visual=document.createElement('div');visual.id='custom-cursor-visual';document.body.appendChild(visual);}
-            visual.innerHTML=choice.kind==='fx'?CURSOR_FX_GLYPH_SVG:choice.svg;
-            visual.className=`cursor-custom cursor-kind-${choice.kind} cursor-style-${choice.id}`;
-            visual.dataset.cursorId=choice.id;visual.style.display='flex';visual.style.setProperty('z-index','2147483647','important');visual.style.setProperty('pointer-events','none','important');
-            root.classList.add('cursor-hide-native');try{trackCustomCursor(visual)}catch{}
+            const glyph=choice.kind==='fx'?CURSOR_FX_GLYPH_SVG:choice.svg;
+            const value=typeof nativeCursorValueV449==='function'?nativeCursorValueV449(glyph,choice.kind):'auto';
+            root.style.setProperty('--loggy-native-theme-cursor-v449',value);
+            root.classList.add('cursor-native-theme-v449');
             if(choice.customCursorSpecV161 || isCursorTrailEnabled(choice.id)) try{startCursorFx(choice)}catch{}
-        } else {
-            if(visual){visual.style.display='none';visual.className='';delete visual.dataset.cursorId;}
-            if(choice.kind==='none')document.body.classList.add('cursor-none');
-        }
+        } else if(choice.kind==='none') document.body.classList.add('cursor-none');
     }
     document.addEventListener('change',event=>{
         const select=event.target.closest?.('#theme-builder-modal .theme-builder-cursor-choice-v32 select'); if(!select)return;
@@ -9123,6 +9142,8 @@ window.__themeCrossNaturalFacingV147 = true;
     function alwaysShowV370(a){return a?.alwaysShowOnScreenV370===true}
     function assets(theme){return (Array.isArray(theme?.backgroundSvgs)?theme.backgroundSvgs:[]).filter(Boolean)}
     function points(theme,count){
+        const saved=Array.isArray(theme?.resolvedDecorationPlacementsV405)?theme.resolvedDecorationPlacementsV405:[];
+        if(saved.length>=count&&saved.slice(0,count).every(p=>p&&Number.isFinite(Number(p.x))&&Number.isFinite(Number(p.y))))return saved.slice(0,count).map(p=>({x:Number(p.x),y:Number(p.y)}));
         const mode=String(theme?.svgDistribution||'random');
         const slots=Array.isArray(theme?.manualPlacementSlotsV40)?theme.manualPlacementSlotsV40:[];
         const out=[];
@@ -9158,6 +9179,14 @@ window.__themeCrossNaturalFacingV147 = true;
         return out;
     }
     function effectiveOpacity(theme,a){
+        const lock=window.__loggyDecorationOpacityLockV493;
+        const modal=document.getElementById('theme-builder-modal');
+        if(lock?.modal===modal&&modal){
+            const assets=Array.isArray(modal._themeBackgroundSvgs)?modal._themeBackgroundSvgs:(Array.isArray(theme?.backgroundSvgs)?theme.backgroundSvgs:[]);
+            const index=assets.indexOf(a);
+            const locked=Number(lock?.values?.[index]);
+            if(index>=0&&Number.isFinite(locked)) return locked;
+        }
         const global=Math.max(0,Math.min(100,Number(theme?.decorationsOpacityV117??100)));
         const own=Math.max(0,Math.min(100,Number(a?.opacityV109??a?.opacity??100)));
         return (a?.opacityOverrideV326===true?own:global)/100;
@@ -9166,8 +9195,8 @@ window.__themeCrossNaturalFacingV147 = true;
         if(theme?.preventDecorationOverlapV367!==true)return null;
         const candidates=list.map((a,index)=>({a,index,p:pts[index]||{x:50,y:50}})).filter(r=>!hidden(r.a));
         if(!candidates.length)return{selected:new Set(),positions:new Map()};
-        const rect=stage?.getBoundingClientRect?.()||{};
-        const width=Math.max(520,stage?.clientWidth||rect.width||1280),height=Math.max(320,stage?.clientHeight||rect.height||760);
+        // V404: use the same virtual viewport everywhere so strict-overlap selection cannot differ by preview/page geometry.
+        const width=1280,height=760;
         const scale=Math.max(.5,Math.min(2.2,(Number(theme?.svgGlobalScale)||100)/100));
         // Preserve the selected distribution exactly. Strict mode solves
         // collisions by hiding optional decorations, never by shrinking them or
@@ -9204,7 +9233,7 @@ window.__themeCrossNaturalFacingV147 = true;
         const stage=document.getElementById('custom-theme-background-stage');if(!stage)return;
         const list=assets(theme),items=Array.from(stage.querySelectorAll(':scope > .custom-theme-background-svg')).filter(x=>!x.dataset.themeCrossCloneV149&&!x.dataset.themeCrossCloneV94&&!x.dataset.themeCrossCloneV350);
         const count=Math.max(list.length,items.length),pts=points(theme,count),plan=strictPlanV371(stage,list,theme,pts);
-        items.forEach((item,i)=>{const raw=Number(item.dataset.svgIndex),idx=Number.isFinite(raw)&&raw>=0&&raw<pts.length?raw:i,p=pts[idx]||{x:50,y:50},a=list[idx]||list[i]||{};const suppressed=!!(plan&&!plan.selected.has(idx));setSuppressedV370(item,suppressed);if(suppressed)return;const anim=String(a?.animationOverride||theme?.svgDefaultAnimation||a?.animation||'float').trim()||'float';const y=p.y;if(anim==='cross-screen'||item.classList.contains('theme-cross-screen-v94')){
+        items.forEach((item,i)=>{const raw=Number(item.dataset.svgIndex),idx=Number.isFinite(raw)&&raw>=0&&raw<pts.length?raw:i,p=pts[idx]||{x:50,y:50},a=list[idx]||list[i]||{};const suppressed=!!(plan&&!plan.selected.has(idx));setSuppressedV370(item,suppressed);if(suppressed)return;const ai=theme?.themeBuilderAiUsedV364===true||String(theme?.themeBuilderAutoToolV364||'')==='ai'||!!theme?.themeBuilderAiVariantsV376,rawOverride=String(a?.animationOverride||'').trim(),override=ai&&a?.animationOverrideUserSetV404!==true?'':rawOverride,anim=String(override||theme?.svgDefaultAnimation||a?.animation||'float').trim()||'float';const y=p.y;if(anim==='cross-screen'||item.classList.contains('theme-cross-screen-v94')){
             // V374: Across Screen must inherit the chosen distribution before its
             // horizontal travel runtime takes ownership. Previously Y was only
             // written in strict no-overlap mode, so Organic Scatter was ignored.
@@ -9217,6 +9246,9 @@ window.__themeCrossNaturalFacingV147 = true;
         }item.style.setProperty('left',`${Math.max(2,Math.min(98,p.x))}%`,'important');item.style.setProperty('top',`${Math.max(2,Math.min(98,y))}%`,'important');item.style.removeProperty('right');item.style.removeProperty('bottom');item.style.setProperty('opacity',String(effectiveOpacity(theme,a)),'important')});
     }
     function schedule(theme){applyParity(theme||{});requestAnimationFrame(()=>applyParity(theme||{}))}
+    // V513: Theme Builder iframe uses the exact same parity implementation as
+    // applied themes instead of trying to approximate Prevent/Reduce Overlap.
+    window.__loggyApplyDecorationParityV513 = function(theme={}){ applyParity(theme||{}); };
     try{
         const before=mountCustomThemeBackgroundSvgsV2;
         mountCustomThemeBackgroundSvgsV2=function(theme={}){
@@ -9248,6 +9280,11 @@ window.__themeCrossNaturalFacingV147 = true;
                 root.style.setProperty('--custom-theme-daily-bg-opacity',theme?.dailyLogBackgroundEnabled?`${Math.max(0,Math.min(100,Number(theme?.dailyLogBackgroundOpacity??92)))}%`:'0%');
                 root.style.setProperty('--custom-theme-content-backdrop-color',theme?.contentBackdropColor||theme?.surface||'#fff');
                 root.style.setProperty('--custom-theme-content-backdrop-opacity',theme?.contentBackdropEnabled?`${Math.max(0,Math.min(100,Number(theme?.contentBackdropOpacity??92)))}%`:'0%');
+                const quizOnV456=theme?.quizBackdropEnabledV456===true;
+                document.documentElement.dataset.loggyQuizBoxBackdropV458=quizOnV456?'1':'0';
+                root.style.setProperty('--custom-theme-quiz-backdrop-color-v456',quizOnV456?(theme?.quizBackdropColorV456||theme?.contentBackdropColor||theme?.surface||'#fff'):(theme?.contentBackdropColor||theme?.surface||'#fff'));
+                root.style.setProperty('--custom-theme-quiz-backdrop-opacity-v456',quizOnV456?`${Math.max(0,Math.min(100,Number(theme?.quizBackdropOpacityV456??92)))}%`:(theme?.contentBackdropEnabled?`${Math.max(0,Math.min(100,Number(theme?.contentBackdropOpacity??92)))}%`:'0%'));
+                root.style.setProperty('--custom-theme-quiz-backdrop-radius-v456',`${Math.max(0,Math.min(40,Number(quizOnV456?theme?.quizBackdropRadiusV456:theme?.radius)||0))}px`);
                 if(theme?.font&&CUSTOM_THEME_FONT_STACKS[theme.font])root.style.setProperty('--custom-theme-font',CUSTOM_THEME_FONT_STACKS[theme.font]);
             }catch{}
             schedule(theme);return result;

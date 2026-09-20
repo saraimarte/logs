@@ -116,6 +116,55 @@
       <div class="np-mention-v249" data-mention hidden></div><div class="np-context-v249" data-context hidden></div><div class="np-toast-v249" data-toast></div>
     </div>`;
     const root=host.firstElementChild, modal=createModal(root), editor=$('[data-editor]',root), stage=$('[data-paper-stage]',root), imagesHost=$('[data-images]',root), workspace=$('[data-workspace]',root), stackHost=$('[data-notebook-stack]',root), pageShell=$('.np-page-shell-v249',root), mention=$('[data-mention]',root), context=$('[data-context]',root);
+
+    // V503: make the real active notebook page a guaranteed text surface.
+    // This owns focus/caret placement locally and does not change tab creation or mounting.
+    const ensureEditorInteractiveV503=()=>{
+      if(!editor||!stage)return;
+      editor.contentEditable='true';
+      editor.setAttribute('contenteditable','true');
+      editor.setAttribute('spellcheck','true');
+      editor.setAttribute('tabindex','0');
+      try{editor.inert=false;editor.removeAttribute('inert');editor.removeAttribute('aria-hidden')}catch{}
+      stage.style.pointerEvents='auto';
+      if(!root.classList.contains('np-drawing-v250')){
+        editor.style.setProperty('pointer-events','auto','important');
+        editor.style.setProperty('user-select','text','important');
+        editor.style.setProperty('-webkit-user-select','text','important');
+      }
+    };
+    const focusEditorV503=(event)=>{
+      if(root.classList.contains('np-drawing-v250'))return;
+      if(event?.target?.closest?.('button,input,textarea,select,audio,video,iframe,a,.np-image-card-v249,.np-drag-handle-v256,.np-sticky-v250'))return;
+      ensureEditorInteractiveV503();
+      try{editor.focus({preventScroll:true})}catch(_){try{editor.focus()}catch(__){}}
+      try{
+        const sel=window.getSelection();
+        if(!sel)return;
+        let range=null;
+        if(event && document.caretPositionFromPoint){
+          const pos=document.caretPositionFromPoint(event.clientX,event.clientY);
+          if(pos&&editor.contains(pos.offsetNode)){range=document.createRange();range.setStart(pos.offsetNode,pos.offset);range.collapse(true)}
+        }else if(event && document.caretRangeFromPoint){
+          const r=document.caretRangeFromPoint(event.clientX,event.clientY);
+          if(r&&editor.contains(r.startContainer))range=r;
+        }
+        if(!range){range=document.createRange();range.selectNodeContents(editor);range.collapse(false)}
+        sel.removeAllRanges();sel.addRange(range);
+      }catch{}
+    };
+    ensureEditorInteractiveV503();
+    stage.addEventListener('pointerdown',event=>{
+      if(root.classList.contains('np-drawing-v250'))return;
+      if(event.target===stage||event.target===editor||event.target.closest?.('.np-editor-v249'))ensureEditorInteractiveV503();
+    },true);
+    stage.addEventListener('click',event=>{
+      if(event.target===stage||event.target===editor||event.target.closest?.('.np-editor-v249'))focusEditorV503(event);
+    });
+    editor.addEventListener('beforeinput',ensureEditorInteractiveV503,true);
+    editor.addEventListener('focus',ensureEditorInteractiveV503,true);
+
+
     $('.np-notebook-name-v249',root).textContent=(['Notepad','Untitled Note',''].includes(String(config.name||''))?'Untitled Notebook':String(config.name));
     const saveState=$('[data-save-state]',root);
 

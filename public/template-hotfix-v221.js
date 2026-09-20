@@ -246,6 +246,7 @@
                         <button type="button" class="kb-clean-icon-option kb-field-pronunciation-v221" data-tip="Enable pronunciation" aria-label="Enable pronunciation"><i class="ph ph-speaker-high"></i></button>
                         <button type="button" class="kb-clean-icon-option selected kb-field-quiz-v221" data-tip="Show on quiz card back" aria-label="Show on quiz card back"><i class="ph ph-cards"></i></button>
                         <button type="button" class="kb-clean-icon-option kb-field-editable-v221" data-tip="Allow editing from Daily Logs" aria-label="Allow editing from Daily Logs"><i class="ph ph-cursor-text"></i></button>
+                        <button type="button" class="kb-clean-icon-option kb-field-primary-quiz-v476" data-tip="On Quizlet Learn Written mode, this field is what you have to write in order to learn the card" aria-label="On Quizlet Learn Written mode, this field is what you have to write in order to learn the card"><i class="ph ph-star"></i></button>
                     </div>
                 </div>
 
@@ -291,6 +292,7 @@
             kind: 'text',
             pronunciation: false,
             quiz: true,
+            quizPrimary: false,
             editable: false,
             category: '',
             editingId: ''
@@ -303,6 +305,7 @@
             });
             modal.querySelector('.kb-field-pronunciation-v221')?.classList.toggle('selected', state.pronunciation);
             modal.querySelector('.kb-field-quiz-v221')?.classList.toggle('selected', state.quiz);
+            modal.querySelector('.kb-field-primary-quiz-v476')?.classList.toggle('selected', state.quizPrimary);
             modal.querySelector('.kb-field-editable-v221')?.classList.toggle('selected', state.editable);
             modal.querySelector('.kb-field-language-section-v221')?.classList.toggle('hidden', !state.pronunciation);
             modal.querySelector('.kb-field-select-section-v221')?.classList.toggle('hidden', state.kind !== 'select');
@@ -328,6 +331,12 @@
         });
         modal.querySelector('.kb-field-quiz-v221')?.addEventListener('click', () => {
             state.quiz = !state.quiz;
+            if (!state.quiz) state.quizPrimary = false;
+            sync();
+        });
+        modal.querySelector('.kb-field-primary-quiz-v476')?.addEventListener('click', () => {
+            state.quizPrimary = !state.quizPrimary;
+            if (state.quizPrimary) state.quiz = true;
             sync();
         });
         modal.querySelector('.kb-field-editable-v221')?.addEventListener('click', () => {
@@ -393,6 +402,7 @@
                 pronunciation: !!state.pronunciation,
                 ttsLang: language,
                 quiz: !!state.quiz,
+                quizPrimary: !!state.quizPrimary,
                 editable: !!state.editable,
                 options: []
             };
@@ -420,6 +430,12 @@
 
             if (editingIndex >= 0) config.fields[editingIndex] = field;
             else config.fields.push(field);
+            if (field.quizPrimary) {
+                config.fields.forEach(entry => {
+                    if (entry !== field && entry && typeof entry === 'object') entry.quizPrimary = false;
+                });
+                field.quiz = true;
+            }
 
             try {
                 if (typeof activeCategorySettingTab !== 'undefined') activeCategorySettingTab = category;
@@ -472,6 +488,7 @@
         state.kind = field?.kind || 'text';
         state.pronunciation = !!field?.pronunciation;
         state.quiz = field ? field.quiz !== false : true;
+        state.quizPrimary = field ? !!field.quizPrimary : false;
         state.editable = field ? !!field.editable : false;
         state.category = category;
         state.editingId = field?.id || '';
@@ -503,6 +520,7 @@
         });
         modal.querySelector('.kb-field-pronunciation-v221')?.classList.toggle('selected', state.pronunciation);
         modal.querySelector('.kb-field-quiz-v221')?.classList.toggle('selected', state.quiz);
+        modal.querySelector('.kb-field-primary-quiz-v476')?.classList.toggle('selected', state.quizPrimary);
         modal.querySelector('.kb-field-editable-v221')?.classList.toggle('selected', state.editable);
         modal.querySelector('.kb-field-language-section-v221')?.classList.toggle('hidden', !state.pronunciation);
         modal.querySelector('.kb-field-select-section-v221')?.classList.toggle('hidden', state.kind !== 'select');
@@ -1023,6 +1041,7 @@
     // Replace the old single-day-only picker for existing logs too.
     try {
         let anchor = null;
+        let activeShortcutV474 = null;
         const selectable = maxDay => {
             const out=[]; for(let day=1;day<=maxDay;day++) if(dayHasQuizItems(day)) out.push(day); return out;
         };
@@ -1046,8 +1065,9 @@
                 box.classList.toggle('selected',on); box.setAttribute('aria-pressed',on?'true':'false');
             });
             document.querySelectorAll('#quiz-day-quick-selectors-v227 input[data-quiz-shortcut-v227]').forEach(input=>{
-                const days=shortcut(input.dataset.quizShortcutV227,maxDay);
-                input.checked=days.length>0 && sameSet(days);
+                const on = input.dataset.quizShortcutV227 === activeShortcutV474;
+                input.checked = on;
+                input.closest('label')?.classList.toggle('selected', on);
             });
             updateAvailableQuizTypes();
         };
@@ -1061,14 +1081,20 @@
             host.addEventListener('change',event=>{
                 const input=event.target.closest?.('input[data-quiz-shortcut-v227]'); if(!input)return;
                 try{playClickSound()}catch{}
-                const target=shortcut(input.dataset.quizShortcutV227,maxDay);
-                if(input.checked){selectedQuizDays.clear();target.forEach(day=>selectedQuizDays.add(day));}
-                else if(sameSet(target)) selectedQuizDays.clear();
+                const kind=input.dataset.quizShortcutV227;
+                const target=shortcut(kind,maxDay);
+                selectedQuizDays.clear();
+                if(input.checked){
+                    activeShortcutV474=kind;
+                    target.forEach(day=>selectedQuizDays.add(day));
+                }else{
+                    activeShortcutV474=null;
+                }
                 anchor=null; sync(maxDay);
             });
         };
         renderQuizDayPicker = function(){
-            selectedQuizDays.clear(); anchor=null;
+            selectedQuizDays.clear(); anchor=null; activeShortcutV474=null;
             const grid=document.getElementById('quiz-day-grid'); if(!grid)return;
             grid.innerHTML='';
             const maxDay=Math.max(typeof TOTAL_CURRICULUM_DAYS==='number'?TOTAL_CURRICULUM_DAYS:0,...Object.keys(db.days||{}).map(Number).filter(Number.isFinite),0);
@@ -1085,6 +1111,7 @@
                     }else{
                         selectedQuizDays.has(i)?selectedQuizDays.delete(i):selectedQuizDays.add(i); anchor=i;
                     }
+                    activeShortcutV474=null;
                     sync(maxDay);
                 });
                 grid.appendChild(box);
@@ -4156,4 +4183,376 @@
     };
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind,{once:true}); else bind();
     window.addEventListener('resize',()=>schedule(),{passive:true});
+})();
+
+
+/* ============================================================
+   V487 — AUTHORITATIVE SMART PLACEHOLDER PRACTICE
+   Rewritten to support every placeholder in a pattern in both modes.
+   ============================================================ */
+(() => {
+  'use strict';
+  if (window.__loggySmartPlaceholderAuthorityV487) return;
+  window.__loggySmartPlaceholderAuthorityV487 = true;
+
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const attr = esc;
+  const shuffle = list => {
+    const out=[...list];
+    for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]];}
+    return out;
+  };
+  const pick = list => list?.length ? list[Math.floor(Math.random()*list.length)] : null;
+
+  function helpersReady(){
+    return typeof db==='object' &&
+      typeof window.getAllLoggedItemIdsV58==='function' &&
+      typeof window.knowledgePatternItemsV56==='function' &&
+      typeof window.learnedPlaceholderPatternsV59==='function' &&
+      typeof window.placeholderSegmentsV56==='function' &&
+      typeof window.placeholderRequirementMatchesItemV58==='function';
+  }
+  function learnedItems(){
+    const patternSet=new Set(window.knowledgePatternItemsV56());
+    return Array.from(new Set(window.getAllLoggedItemIdsV58()))
+      .filter(id=>!patternSet.has(id))
+      .filter(id=>db?.phrase_meta?.[id])
+      .sort((a,b)=>String(a).localeCompare(String(b)));
+  }
+  function learnedPatterns(){
+    return window.learnedPlaceholderPatternsV59()
+      .filter(id=>window.placeholderSegmentsV56(id).some(seg=>seg.type==='slot'));
+  }
+  function formattedPattern(patternId){
+    return window.placeholderSegmentsV56(patternId).map(seg=>
+      seg.type==='slot' ? String(seg.name||'').toUpperCase() : String(seg.text||'')
+    ).join('');
+  }
+  function makeModal(){
+    document.getElementById('smart-placeholder-practice-modal-v59')?.remove();
+    document.getElementById('smart-placeholder-practice-modal-v468')?.remove();
+    document.getElementById('smart-placeholder-practice-modal-v474')?.remove();
+    document.getElementById('smart-placeholder-practice-modal-v487')?.remove();
+    const modal=document.createElement('div');
+    modal.id='smart-placeholder-practice-modal-v487';
+    modal.className='modal-overlay quiz-practice-modal-v59 smart-practice-modal-v474 smart-practice-modal-v487';
+    modal.innerHTML=`<div class="modal-box quiz-practice-box-v59 smart-practice-box-v474 smart-practice-box-v487">
+      <div class="modal-header"><h2>Smart Placeholder Practice</h2><button type="button" class="small-icon-btn smart-practice-close-v487" aria-label="Close"><i class="ph ph-x"></i></button></div>
+      <div class="quiz-practice-body-v59 smart-practice-body-v474 smart-practice-body-v487"></div>
+    </div>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.smart-practice-close-v487').onclick=()=>modal.remove();
+    return modal;
+  }
+  function answerButton(id, dataName){
+    return `<button type="button" class="sentence-builder-kb-result-v56 smart-practice-answer-v474" draggable="true" ${dataName}="${attr(id)}"><span>${esc(id)}</span><i class="ph ph-dots-six-vertical"></i></button>`;
+  }
+  function slotHtml(seg, value, dataAttr, active=false){
+    return `<div class="sentence-builder-slot-v56 smart-practice-slot-v487${value?' filled':''}${active?' active':''}" ${dataAttr}="${seg.slotIndex}" data-smart-slot-name-v487="${attr(seg.name)}"${value?' draggable="true"':''}>
+      <span class="sentence-builder-slot-label-v56">${esc(String(seg.name).toUpperCase())}</span>
+      <div class="sentence-builder-slot-value-v56">${value?`<strong>${esc(value)}</strong><span class="smart-practice-remove-hint-v489">drag back to choices to remove</span>`:'<span>Drop an item here</span>'}</div>
+    </div>`;
+  }
+  function feedback(body,text,state='neutral'){
+    const el=body.querySelector('.smart-practice-feedback-v474');
+    if(!el)return;
+    el.className=`smart-practice-feedback-v474 ${state}`;
+    el.textContent=text||'';
+  }
+  function nextEmptySlot(slots, values, fromIndex=-1){
+    if(!slots.length) return null;
+    for(let step=1; step<=slots.length; step++){
+      const slot=slots[(fromIndex+step+slots.length)%slots.length];
+      if(!values[slot.slotIndex]) return slot.slotIndex;
+    }
+    return slots[0].slotIndex;
+  }
+
+  function openPractice(){
+    if(!helpersReady()){
+      let tries=0;
+      const wait=setInterval(()=>{
+        tries++;
+        if(helpersReady()){clearInterval(wait);openPractice();}
+        else if(tries>30){clearInterval(wait);}
+      },50);
+      return;
+    }
+
+    const modal=makeModal();
+    const body=modal.querySelector('.smart-practice-body-v487');
+    let renderQueued=false;
+    const queueRender=(fn)=>{
+      if(renderQueued) return;
+      renderQueued=true;
+      requestAnimationFrame(()=>{
+        renderQueued=false;
+        if(document.body.contains(modal)) fn();
+      });
+    };
+    const items=learnedItems();
+    const patterns=learnedPatterns();
+
+    let allPattern=null;
+    let allValues={};
+    let allActiveSlot=null;
+
+    let choicePattern=null;
+    let choiceValues={};
+    let choiceActiveSlot=null;
+    let choiceBanks={};
+
+    const modeHeader=(title,help)=>`<div class="smart-practice-mode-top-v474"><button type="button" class="icon-btn smart-practice-back-v487"><i class="ph ph-arrow-left"></i> Modes</button><div><strong>${esc(title)}</strong><small>${esc(help)}</small></div></div>`;
+    const bindBack=()=>body.querySelector('.smart-practice-back-v487')?.addEventListener('click',showChooser);
+
+    function showChooser(){
+      body.innerHTML=`
+        <div class="smart-practice-mode-chooser-v474">
+          <p class="smart-practice-chooser-copy-v474">Choose how you want to practice this time.</p>
+          <button type="button" class="smart-practice-mode-card-v474" data-mode-v487="all"><strong>All Learned Items</strong><span>Search every learned non-pattern item by name, fill every placeholder in the pattern, then Check Answer.</span></button>
+          <button type="button" class="smart-practice-mode-card-v474" data-mode-v487="choices"><strong>4 Choices</strong><span>Fill every placeholder using a four-choice bank tailored to whichever placeholder is active.</span></button>
+        </div>`;
+      body.querySelector('[data-mode-v487="all"]').onclick=startAll;
+      body.querySelector('[data-mode-v487="choices"]').onclick=startChoices;
+    }
+
+    /* ---------------- ALL LEARNED ITEMS ---------------- */
+    function chooseAllPattern(){
+      allPattern=pick(patterns);
+      allValues={};
+      const slots=allPattern ? window.placeholderSegmentsV56(allPattern).filter(seg=>seg.type==='slot') : [];
+      allActiveSlot=slots[0]?.slotIndex ?? null;
+    }
+    function startAll(){
+      if(!patterns.length){body.innerHTML=`${modeHeader('All Learned Items','Search learned item names only.')}<div class="quiz-settings-empty-v58">No learned placeholder patterns are available yet.</div>`;bindBack();return;}
+      chooseAllPattern();
+      renderAll();
+    }
+    function renderAll(){
+      const segments=window.placeholderSegmentsV56(allPattern);
+      const slots=segments.filter(seg=>seg.type==='slot');
+      if(allActiveSlot==null && slots.length) allActiveSlot=slots[0].slotIndex;
+      body.innerHTML=`${modeHeader('All Learned Items','All learned non-pattern KB items. Search checks item names only.')}
+        <div class="quiz-practice-toolbar-v59"><strong>${esc(formattedPattern(allPattern))}</strong><button type="button" class="small-icon-btn smart-practice-shuffle-v487" title="New pattern"><i class="ph ph-shuffle"></i></button></div>
+        <div class="sentence-builder-canvas-v56 smart-practice-canvas-v474">${segments.map(seg=>seg.type==='text'?`<span class="sentence-builder-literal-v56">${esc(seg.text)}</span>`:slotHtml(seg,allValues[seg.slotIndex],'data-all-slot-v487',seg.slotIndex===allActiveSlot)).join('')}</div>
+        <div class="sentence-builder-search-v56"><i class="ph ph-magnifying-glass"></i><input class="smart-practice-search-v487" placeholder="Search learned item names…" autocomplete="off"></div>
+        <div class="sentence-builder-kb-results-v56 smart-practice-bank-v487" data-smart-remove-zone-v489="all"></div>
+        <div class="smart-practice-feedback-v474 neutral" aria-live="polite"></div>
+        <div class="quiz-generated-actions-v58"><button type="button" class="icon-btn smart-practice-check-v487">Check Answer</button></div>`;
+      bindBack();
+      const search=body.querySelector('.smart-practice-search-v487');
+      const bank=body.querySelector('.smart-practice-bank-v487');
+      const draw=()=>{
+        const q=String(search.value||'').trim().toLowerCase();
+        const shown=items.filter(id=>!q||String(id).toLowerCase().includes(q));
+        bank.innerHTML=shown.length?shown.map(id=>answerButton(id,'data-all-item-v487')).join(''):'<div class="sentence-pattern-no-results-v55">No learned item names match that search.</div>';
+        bank.querySelectorAll('[data-all-item-v487]').forEach(btn=>{
+          btn.addEventListener('dragstart',e=>{e.dataTransfer.effectAllowed='copy';e.dataTransfer.setData('text/loggy-smart-v487',btn.dataset.allItemV487);});
+          btn.addEventListener('click',()=>{
+            if(allActiveSlot==null) return;
+            allValues[allActiveSlot]=btn.dataset.allItemV487;
+            const currentIndex=slots.findIndex(s=>s.slotIndex===allActiveSlot);
+            allActiveSlot=nextEmptySlot(slots,allValues,currentIndex);
+            queueRender(renderAll);
+          });
+        });
+      };
+      search.addEventListener('input',draw); draw();
+
+      body.querySelectorAll('[data-all-slot-v487]').forEach(slot=>{
+        slot.addEventListener('click',()=>{
+          const next=Number(slot.dataset.allSlotV487);
+          if(next===allActiveSlot) return;
+          allActiveSlot=next;
+          queueRender(renderAll);
+        });
+        if(allValues[Number(slot.dataset.allSlotV487)]){
+          slot.addEventListener('dragstart',e=>{
+            e.dataTransfer.effectAllowed='move';
+            e.dataTransfer.setData('text/loggy-smart-filled-v489', String(slot.dataset.allSlotV487));
+            e.dataTransfer.setData('text/loggy-smart-v487', allValues[Number(slot.dataset.allSlotV487)]||'');
+          });
+        }
+        slot.addEventListener('dragover',e=>{if(!Array.from(e.dataTransfer.types||[]).includes('text/loggy-smart-v487'))return;e.preventDefault();slot.classList.add('drop-ready');});
+        slot.addEventListener('dragleave',()=>slot.classList.remove('drop-ready'));
+        slot.addEventListener('drop',e=>{
+          const id=e.dataTransfer.getData('text/loggy-smart-v487');
+          if(!id)return;
+          e.preventDefault();
+          const targetIndex=Number(slot.dataset.allSlotV487);
+          allValues[targetIndex]=id;
+          const currentIndex=slots.findIndex(s=>s.slotIndex===targetIndex);
+          allActiveSlot=nextEmptySlot(slots,allValues,currentIndex);
+          queueRender(renderAll);
+        });
+      });
+      bank.addEventListener('dragover',e=>{
+        if(!Array.from(e.dataTransfer.types||[]).includes('text/loggy-smart-filled-v489')) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect='move';
+        bank.classList.add('remove-drop-ready-v489');
+      });
+      bank.addEventListener('dragleave',()=>bank.classList.remove('remove-drop-ready-v489'));
+      bank.addEventListener('drop',e=>{
+        const raw=e.dataTransfer.getData('text/loggy-smart-filled-v489');
+        if(raw==='') return;
+        e.preventDefault();
+        bank.classList.remove('remove-drop-ready-v489');
+        const idx=Number(raw);
+        delete allValues[idx];
+        allActiveSlot=idx;
+        queueRender(renderAll);
+      });
+      body.querySelector('.smart-practice-shuffle-v487').onclick=()=>{chooseAllPattern();queueRender(renderAll);};
+      body.querySelector('.smart-practice-check-v487').onclick=()=>{
+        if(slots.some(seg=>!allValues[seg.slotIndex])){feedback(body,'Fill every placeholder first.','neutral');return;}
+        let wrong=0;
+        slots.forEach(seg=>{
+          const ok=window.placeholderRequirementMatchesItemV58(seg.name,allValues[seg.slotIndex]);
+          const el=body.querySelector(`[data-all-slot-v487="${seg.slotIndex}"]`);
+          el?.classList.toggle('answer-correct-v457',ok);
+          el?.classList.toggle('answer-wrong-v457',!ok);
+          if(!ok)wrong++;
+        });
+        feedback(body,wrong?`Incorrect. ${wrong===1?'One item does':`${wrong} items do`} not fit the required placeholder type${wrong===1?'':'s'}.`:'Correct. Every item fits its placeholder.',wrong?'wrong':'correct');
+      };
+    }
+
+    /* ---------------- FOUR CHOICES ---------------- */
+    function validChoicePatterns(){
+      return patterns.filter(patternId=>{
+        const slots=window.placeholderSegmentsV56(patternId).filter(seg=>seg.type==='slot');
+        return slots.length && slots.every(slot=>{
+          const good=items.filter(id=>window.placeholderRequirementMatchesItemV58(slot.name,id));
+          const bad=items.filter(id=>!window.placeholderRequirementMatchesItemV58(slot.name,id));
+          return good.length>=1 && bad.length>=3;
+        });
+      });
+    }
+    function bankForSlot(slot){
+      if(choiceBanks[slot.slotIndex]) return choiceBanks[slot.slotIndex];
+      const good=items.filter(id=>window.placeholderRequirementMatchesItemV58(slot.name,id));
+      const bad=items.filter(id=>!window.placeholderRequirementMatchesItemV58(slot.name,id));
+      if(!good.length || bad.length<3) return [];
+      const correct=pick(good);
+      const choices=shuffle([correct,...shuffle(bad).slice(0,3)]);
+      choiceBanks[slot.slotIndex]={correct,choices};
+      return choiceBanks[slot.slotIndex];
+    }
+    function chooseChoicePattern(){
+      choicePattern=pick(validChoicePatterns());
+      choiceValues={};
+      choiceBanks={};
+      const slots=choicePattern ? window.placeholderSegmentsV56(choicePattern).filter(seg=>seg.type==='slot') : [];
+      choiceActiveSlot=slots[0]?.slotIndex ?? null;
+      slots.forEach(bankForSlot);
+    }
+    function startChoices(){
+      chooseChoicePattern();
+      renderChoices();
+    }
+    function renderChoices(){
+      if(!choicePattern){body.innerHTML=`${modeHeader('4 Choices','Four choices are generated for each placeholder.')}<div class="quiz-settings-empty-v58">There are not enough varied learned items yet to give every placeholder one correct answer and three incorrect choices.</div>`;bindBack();return;}
+      const segments=window.placeholderSegmentsV56(choicePattern);
+      const slots=segments.filter(seg=>seg.type==='slot');
+      const active=slots.find(s=>s.slotIndex===choiceActiveSlot) || slots[0];
+      choiceActiveSlot=active?.slotIndex ?? null;
+      const bankData=active ? bankForSlot(active) : null;
+      body.innerHTML=`${modeHeader('4 Choices','Fill every placeholder. Click a placeholder to switch which four choices are shown.')}
+        <div class="quiz-practice-toolbar-v59"><strong>${esc(formattedPattern(choicePattern))}</strong><button type="button" class="small-icon-btn smart-choice-new-v487" title="New question"><i class="ph ph-shuffle"></i></button></div>
+        <div class="sentence-builder-canvas-v56 smart-practice-canvas-v474 smart-choice-pattern-v487">${segments.map(seg=>seg.type==='text'?`<span class="sentence-builder-literal-v56">${esc(seg.text)}</span>`:slotHtml(seg,choiceValues[seg.slotIndex],'data-choice-slot-v487',seg.slotIndex===choiceActiveSlot)).join('')}</div>
+        <div class="smart-choice-bank-v474 smart-choice-bank-v487" data-smart-remove-zone-v489="choices">${(bankData?.choices||[]).map(id=>answerButton(id,'data-choice-item-v487')).join('')}</div>
+        <div class="smart-practice-feedback-v474 neutral" aria-live="polite"></div>
+        <div class="quiz-generated-actions-v58"><button type="button" class="icon-btn smart-choice-check-v487">Check Answer</button></div>`;
+      bindBack();
+
+      body.querySelectorAll('[data-choice-slot-v487]').forEach(slot=>{
+        slot.addEventListener('click',()=>{
+          const next=Number(slot.dataset.choiceSlotV487);
+          if(next===choiceActiveSlot) return;
+          choiceActiveSlot=next;
+          queueRender(renderChoices);
+        });
+        if(choiceValues[Number(slot.dataset.choiceSlotV487)]){
+          slot.addEventListener('dragstart',e=>{
+            e.dataTransfer.effectAllowed='move';
+            e.dataTransfer.setData('text/loggy-smart-choice-filled-v489', String(slot.dataset.choiceSlotV487));
+            e.dataTransfer.setData('text/loggy-smart-choice-v487', choiceValues[Number(slot.dataset.choiceSlotV487)]||'');
+          });
+        }
+        slot.addEventListener('dragover',e=>{if(Number(slot.dataset.choiceSlotV487)!==choiceActiveSlot)return;if(!Array.from(e.dataTransfer.types||[]).includes('text/loggy-smart-choice-v487'))return;e.preventDefault();slot.classList.add('drop-ready');});
+        slot.addEventListener('dragleave',()=>slot.classList.remove('drop-ready'));
+        slot.addEventListener('drop',e=>{
+          const slotIndex=Number(slot.dataset.choiceSlotV487);
+          if(slotIndex!==choiceActiveSlot)return;
+          const id=e.dataTransfer.getData('text/loggy-smart-choice-v487');
+          if(!id)return;
+          e.preventDefault();
+          choiceValues[slotIndex]=id;
+          const currentIndex=slots.findIndex(s=>s.slotIndex===slotIndex);
+          choiceActiveSlot=nextEmptySlot(slots,choiceValues,currentIndex);
+          queueRender(renderChoices);
+        });
+      });
+
+      body.querySelectorAll('[data-choice-item-v487]').forEach(btn=>{
+        btn.addEventListener('dragstart',e=>{e.dataTransfer.effectAllowed='copy';e.dataTransfer.setData('text/loggy-smart-choice-v487',btn.dataset.choiceItemV487);});
+        btn.addEventListener('click',()=>{
+          if(choiceActiveSlot==null)return;
+          choiceValues[choiceActiveSlot]=btn.dataset.choiceItemV487;
+          const currentIndex=slots.findIndex(s=>s.slotIndex===choiceActiveSlot);
+          choiceActiveSlot=nextEmptySlot(slots,choiceValues,currentIndex);
+          queueRender(renderChoices);
+        });
+      });
+      const choiceBank=body.querySelector('.smart-choice-bank-v487');
+      choiceBank?.addEventListener('dragover',e=>{
+        if(!Array.from(e.dataTransfer.types||[]).includes('text/loggy-smart-choice-filled-v489')) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect='move';
+        choiceBank.classList.add('remove-drop-ready-v489');
+      });
+      choiceBank?.addEventListener('dragleave',()=>choiceBank.classList.remove('remove-drop-ready-v489'));
+      choiceBank?.addEventListener('drop',e=>{
+        const raw=e.dataTransfer.getData('text/loggy-smart-choice-filled-v489');
+        if(raw==='') return;
+        e.preventDefault();
+        choiceBank.classList.remove('remove-drop-ready-v489');
+        const idx=Number(raw);
+        delete choiceValues[idx];
+        choiceActiveSlot=idx;
+        queueRender(renderChoices);
+      });
+
+      body.querySelector('.smart-choice-new-v487').onclick=()=>{chooseChoicePattern();queueRender(renderChoices);};
+      body.querySelector('.smart-choice-check-v487').onclick=()=>{
+        if(slots.some(seg=>!choiceValues[seg.slotIndex])){feedback(body,'Fill every placeholder first.','neutral');return;}
+        let wrong=0;
+        slots.forEach(seg=>{
+          const ok=window.placeholderRequirementMatchesItemV58(seg.name,choiceValues[seg.slotIndex]);
+          const el=body.querySelector(`[data-choice-slot-v487="${seg.slotIndex}"]`);
+          el?.classList.toggle('answer-correct-v457',ok);
+          el?.classList.toggle('answer-wrong-v457',!ok);
+          if(!ok)wrong++;
+        });
+        feedback(body,wrong?`Incorrect. ${wrong===1?'One answer does':`${wrong} answers do`} not fit the required placeholder type${wrong===1?'':'s'}.`:'Correct. Every answer fits its placeholder.',wrong?'wrong':'correct');
+      };
+    }
+
+    showChooser();
+  }
+
+  window.openSmartPlaceholderPracticeV474=openPractice;
+  window.openSmartPlaceholderPracticeV487=openPractice;
+  document.addEventListener('click',event=>{
+    const button=event.target?.closest?.('.open-smart-practice-v59');
+    if(!button)return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    if(button.closest?.('.wb-quiz-window-v507') && typeof window.__loggyWhiteboardQuizPracticeRouterV518==='function'){
+      if(window.__loggyWhiteboardQuizPracticeRouterV518('smart')) return;
+    }
+    openPractice();
+  },true);
 })();

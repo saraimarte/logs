@@ -3,20 +3,96 @@ const pathParts = window.location.pathname.split('/').filter(Boolean);
 const HOBBY = pathParts.pop() || 'log';
 
 let currentDay = null;
-const DEFAULT_DB = {
-    days: {}, tools: [], phrases: [], phrase_meta: {}, srs: {}, startDate: null,
-    settings: {
-        categories: ['Category 1', 'Category 2'],
-        categorySettings: {
-            'Category 1': { fields: [] },
-            'Category 2': { fields: [] }
-        },
-        libraryView: 'list',
-        hideCategoriesInPolaroid: false,
-        dailyViewType: 'default',
-        dailyPolaroidSource: 'starred'
-    }
+const ENGLISH_STARTER_FIELDS_V451 = {
+    Words: [
+        { id: 'starter-word-meaning-v451', name: 'Meaning', kind: 'text', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: [] },
+        { id: 'starter-word-pronunciation-v451', name: 'Pronunciation', kind: 'text', pronunciation: true, ttsLang: 'en', quiz: true, editable: false, options: [] },
+        { id: 'starter-word-phonetic-v451', name: 'Phonetic Spelling', kind: 'text', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: [] },
+        { id: 'starter-word-pos-v451', name: 'Part of Speech', kind: 'select', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: ['Noun', 'Verb', 'Adjective', 'Adverb'] },
+        { id: 'starter-word-example-v451', name: 'Example Sentence', kind: 'text', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: [] }
+    ],
+    Patterns: [
+        { id: 'starter-pattern-meaning-v451', name: 'Meaning', kind: 'text', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: [] },
+        { id: 'starter-pattern-pronunciation-v451', name: 'Pronunciation', kind: 'text', pronunciation: true, ttsLang: 'en', quiz: true, editable: false, options: [] },
+        { id: 'starter-pattern-phonetic-v451', name: 'Phonetic Spelling', kind: 'text', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: [] },
+        { id: 'starter-pattern-example-v451', name: 'Example', kind: 'text', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: [] }
+    ],
+    Maps: [
+        { id: 'starter-map-v485', name: 'Map', kind: 'pinnedImage', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: [], defaultPinColor: '#e53935' }
+    ]
 };
+
+const ENGLISH_STARTER_ITEMS_V451 = [
+    { id: 'apple', type: 'Words', tags: ['noun'], custom_fields: { 'Meaning': 'a round fruit', 'Pronunciation': 'apple', 'Phonetic Spelling': 'AP-uhl', 'Part of Speech': 'Noun', 'Example Sentence': 'I ate an apple.' } },
+    { id: 'teacher', type: 'Words', tags: ['noun'], custom_fields: { 'Meaning': 'a person who teaches', 'Pronunciation': 'teacher', 'Phonetic Spelling': 'TEE-cher', 'Part of Speech': 'Noun', 'Example Sentence': 'I am a teacher.' } },
+    { id: 'student', type: 'Words', tags: ['noun'], custom_fields: { 'Meaning': 'a person who studies or learns', 'Pronunciation': 'student', 'Phonetic Spelling': 'STOO-dent', 'Part of Speech': 'Noun', 'Example Sentence': 'I am a student.' } },
+    { id: 'friend', type: 'Words', tags: ['noun'], custom_fields: { 'Meaning': 'a person you know and like', 'Pronunciation': 'friend', 'Phonetic Spelling': 'frend', 'Part of Speech': 'Noun', 'Example Sentence': 'She is my friend.' } },
+    { id: 'doctor', type: 'Words', tags: ['noun'], custom_fields: { 'Meaning': 'a person trained to treat sick or injured people', 'Pronunciation': 'doctor', 'Phonetic Spelling': 'DOK-ter', 'Part of Speech': 'Noun', 'Example Sentence': 'He is a doctor.' } },
+    { id: 'study', type: 'Words', tags: ['verb'], custom_fields: { 'Meaning': 'to spend time learning', 'Pronunciation': 'study', 'Phonetic Spelling': 'STUH-dee', 'Part of Speech': 'Verb', 'Example Sentence': 'I study English every day.' } },
+    { id: 'read', type: 'Words', tags: ['verb'], custom_fields: { 'Meaning': 'to understand written words', 'Pronunciation': 'read', 'Phonetic Spelling': 'reed', 'Part of Speech': 'Verb', 'Example Sentence': 'I like to read.' } },
+    { id: 'write', type: 'Words', tags: ['verb'], custom_fields: { 'Meaning': 'to make words with letters', 'Pronunciation': 'write', 'Phonetic Spelling': 'rite', 'Part of Speech': 'Verb', 'Example Sentence': 'I like to write.' } },
+    { id: 'speak', type: 'Words', tags: ['verb'], custom_fields: { 'Meaning': 'to say words aloud', 'Pronunciation': 'speak', 'Phonetic Spelling': 'speek', 'Part of Speech': 'Verb', 'Example Sentence': 'I can speak English.' } },
+    { id: 'learn', type: 'Words', tags: ['verb'], custom_fields: { 'Meaning': 'to gain knowledge or a skill', 'Pronunciation': 'learn', 'Phonetic Spelling': 'lern', 'Part of Speech': 'Verb', 'Example Sentence': 'I want to learn.' } },
+    { id: 'happy', type: 'Words', tags: ['adjective'], custom_fields: { 'Meaning': 'feeling pleased or glad', 'Pronunciation': 'happy', 'Phonetic Spelling': 'HAP-ee', 'Part of Speech': 'Adjective', 'Example Sentence': 'She feels happy today.' } },
+    { id: 'kind', type: 'Words', tags: ['adjective'], custom_fields: { 'Meaning': 'friendly and caring', 'Pronunciation': 'kind', 'Phonetic Spelling': 'kynd', 'Part of Speech': 'Adjective', 'Example Sentence': 'The teacher is kind.' } },
+    { id: 'busy', type: 'Words', tags: ['adjective'], custom_fields: { 'Meaning': 'having a lot to do', 'Pronunciation': 'busy', 'Phonetic Spelling': 'BIZ-ee', 'Part of Speech': 'Adjective', 'Example Sentence': 'The doctor is busy.' } },
+    { id: 'tired', type: 'Words', tags: ['adjective'], custom_fields: { 'Meaning': 'needing rest', 'Pronunciation': 'tired', 'Phonetic Spelling': 'tyrd', 'Part of Speech': 'Adjective', 'Example Sentence': 'The student is tired.' } },
+    { id: 'ready', type: 'Words', tags: ['adjective'], custom_fields: { 'Meaning': 'prepared to do something', 'Pronunciation': 'ready', 'Phonetic Spelling': 'RED-ee', 'Part of Speech': 'Adjective', 'Example Sentence': 'I am ready.' } },
+    { id: 'I am a \\noun', type: 'Patterns', tags: ['noun'], custom_fields: { 'Meaning': 'Use this pattern to say what you are.', 'Pronunciation': 'I am a noun', 'Phonetic Spelling': 'eye am uh NOUN', 'Example': 'I am a student.' } },
+    { id: 'I like to \\verb', type: 'Patterns', tags: ['verb'], custom_fields: { 'Meaning': 'Use this pattern to talk about an activity you enjoy.', 'Pronunciation': 'I like to verb', 'Phonetic Spelling': 'eye like tuh VERB', 'Example': 'I like to read.' } },
+    { id: 'I want to \\verb', type: 'Patterns', tags: ['verb'], custom_fields: { 'Meaning': 'Use this pattern to say what you want to do.', 'Pronunciation': 'I want to verb', 'Phonetic Spelling': 'eye want tuh VERB', 'Example': 'I want to learn.' } },
+    { id: 'I can \\verb', type: 'Patterns', tags: ['verb'], custom_fields: { 'Meaning': 'Use this pattern to say what you are able to do.', 'Pronunciation': 'I can verb', 'Phonetic Spelling': 'eye can VERB', 'Example': 'I can speak.' } },
+    { id: 'The \\noun is \\adjective', type: 'Patterns', tags: ['noun', 'adjective'], custom_fields: { 'Meaning': 'Use this pattern to describe a person or thing.', 'Pronunciation': 'The noun is adjective', 'Phonetic Spelling': 'thuh NOUN iz AD-jek-tiv', 'Example': 'The teacher is kind.' } },
+    { id: 'My \\noun is \\adjective', type: 'Patterns', tags: ['noun', 'adjective'], custom_fields: { 'Meaning': 'Use this pattern to describe something connected to you.', 'Pronunciation': 'My noun is adjective', 'Phonetic Spelling': 'my NOUN iz AD-jek-tiv', 'Example': 'My friend is kind.' } }
+];
+
+function buildEnglishStarterDbV451() {
+    const phraseMeta = {};
+    ENGLISH_STARTER_ITEMS_V451.forEach(item => {
+        phraseMeta[item.id] = {
+            type: item.type,
+            tags: [...item.tags],
+            custom_fields: { ...item.custom_fields },
+            enableParts: false,
+            parts: []
+        };
+    });
+    return {
+        days: {
+            1: {
+                notes: '',
+                phrases: ENGLISH_STARTER_ITEMS_V451.map(item => item.id),
+                tools: [],
+                video: '',
+                checkedParts: {},
+                customTabLinks: []
+            }
+        },
+        tools: [],
+        phrases: ENGLISH_STARTER_ITEMS_V451.map(item => item.id),
+        phrase_meta: phraseMeta,
+        srs: {},
+        startDate: null,
+        settings: {
+            categories: ['Words', 'Patterns', 'Maps'],
+            categorySettings: {
+                Words: { fields: ENGLISH_STARTER_FIELDS_V451.Words.map(field => ({ ...field, options: [...field.options] })) },
+                Patterns: { fields: ENGLISH_STARTER_FIELDS_V451.Patterns.map(field => ({ ...field, options: [...field.options] })) },
+                Maps: { fields: ENGLISH_STARTER_FIELDS_V451.Maps.map(field => ({ ...field, options: [...field.options] })) }
+            },
+            knowledgePlaceholdersEnabledV56: true,
+            knowledgePlaceholdersV56: ['noun', 'verb', 'adjective'],
+            englishStarterTemplateV451: true,
+            ttsLang: 'en',
+            libraryView: 'list',
+            hideCategoriesInPolaroid: false,
+            dailyViewType: 'default',
+            dailyPolaroidSource: 'starred'
+        }
+    };
+}
+
+const DEFAULT_DB = buildEnglishStarterDbV451();
 
 let db = DEFAULT_DB;
 
@@ -3861,16 +3937,18 @@ function stopCursorFx() {
 // The default pointy glyph used for fx (sparkle/hearts/bubbles) cursors.
 const CURSOR_FX_GLYPH_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 2l6 19 3-7 7-3z" fill="black" stroke="white" stroke-width="2"/></svg>';
 
-let customCursorMoveHandler = null;
-
-// Moves the JS-drawn cursor element to follow the mouse in real time.
-function trackCustomCursor(el) {
-    customCursorMoveHandler = (e) => {
-        el.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-    };
-    document.addEventListener('mousemove', customCursorMoveHandler);
+// V449: custom/theme pointers use the browser's native CSS cursor path.
+// This keeps pointer motion on the same fast renderer as the default cursor.
+// Optional trail particles still render separately behind the pointer.
+function nativeCursorValueV449(svg, kind='image') {
+    const source = String(svg || '').trim();
+    if (!source.startsWith('<svg')) return 'auto';
+    const hotspot = kind === 'fx' ? '4 2' : '3 3';
+    return `url("data:image/svg+xml,${encodeURIComponent(source)}") ${hotspot}, auto`;
 }
 
+let customCursorMoveHandler = null;
+function trackCustomCursor() { /* V449 legacy no-op: native cursor follows immediately. */ }
 function stopTrackingCustomCursor() {
     if (customCursorMoveHandler) {
         document.removeEventListener('mousemove', customCursorMoveHandler);
@@ -3878,62 +3956,30 @@ function stopTrackingCustomCursor() {
     }
 }
 
-// Applies the chosen cursor (hides/shows the native cursor, starts/stops fx particles,
-// or swaps in a custom image cursor).
-//
-// Rather than trying to reassign the CSS `cursor` value on every element (which loses
-// to any element's own explicit `cursor` rule — buttons, chips, dropdowns, checkboxes,
-// scrollbars, etc. — no matter how the override selector is written), this hides the
-// native cursor everywhere via `cursor: none !important` and draws the chosen cursor
-// as a real DOM element (#custom-cursor-visual) that is repositioned on every
-// mousemove. Because it's just following raw mouse coordinates, it can't be "reset"
-// by hovering any particular component the way a CSS cursor override could.
-//
-// The one thing this genuinely cannot reach is OS-native chrome that isn't part of the
-// page's DOM at all — the scrollbar track/thumb itself, and the open popup list of a
-// native <select>. Browsers own the rendering of those and don't let any page (CSS or
-// JS) draw over them; that part of the earlier "goes back to default" report is a
-// platform limitation, not a bug in this code.
 function applyCursorChoice() {
     const choice = CURSOR_OPTIONS.find(c => c.id === (db.settings.cursorStyle || 'default')) || CURSOR_OPTIONS[0];
     const root = document.documentElement;
     document.body.classList.remove('cursor-none');
-    root.classList.remove('cursor-hide-native');
+    root.classList.remove('cursor-hide-native', 'cursor-native-theme-v449');
+    root.style.removeProperty('--loggy-native-theme-cursor-v449');
     stopCursorFx();
     stopTrackingCustomCursor();
 
-    let visual = document.getElementById('custom-cursor-visual');
+    const visual = document.getElementById('custom-cursor-visual');
+    if (visual) {
+        visual.style.display = 'none';
+        visual.className = '';
+        visual.innerHTML = '';
+        delete visual.dataset.cursorId;
+    }
 
     if (choice.kind === 'fx' || choice.kind === 'image') {
         const glyphSvg = choice.kind === 'fx' ? CURSOR_FX_GLYPH_SVG : choice.svg;
-        if (!visual) {
-            visual = document.createElement('div');
-            visual.id = 'custom-cursor-visual';
-            document.body.appendChild(visual);
-        }
-        visual.innerHTML = glyphSvg;
-
-        // Give CSS the selected cursor id so each cursor can have its own
-        // animation without changing the cursor's pointed silhouette.
-        visual.className = `cursor-custom cursor-kind-${choice.kind} cursor-style-${choice.id}`;
-        visual.dataset.cursorId = choice.id;
-
-        visual.style.display = 'flex';
-        root.classList.add('cursor-hide-native');
-        trackCustomCursor(visual);
-
-        if (isCursorTrailEnabled(choice.id)) {
-            startCursorFx(choice);
-        }
-    } else {
-        if (visual) {
-            visual.style.display = 'none';
-            visual.className = '';
-            delete visual.dataset.cursorId;
-        }
-        if (choice.kind === 'none') {
-            document.body.classList.add('cursor-none');
-        }
+        root.style.setProperty('--loggy-native-theme-cursor-v449', nativeCursorValueV449(glyphSvg, choice.kind));
+        root.classList.add('cursor-native-theme-v449');
+        if (isCursorTrailEnabled(choice.id)) startCursorFx(choice);
+    } else if (choice.kind === 'none') {
+        document.body.classList.add('cursor-none');
     }
 }
 
@@ -4448,6 +4494,112 @@ async function saveDb() {
     }
 }
 
+function seedEnglishStarterTemplateV451() {
+    if (!db || typeof db !== 'object') return false;
+    db.settings ||= {};
+    db.phrases ||= [];
+    db.phrase_meta ||= {};
+
+    if (db.settings.englishStarterTemplateV451) return false;
+    if (db.phrases.length || Object.keys(db.phrase_meta).length) return false;
+
+    const categories = Array.isArray(db.settings.categories)
+        ? db.settings.categories.map(String)
+        : [];
+    const untouchedLegacyCategories =
+        categories.length === 0 ||
+        (categories.length === 1 && categories[0] === 'Category') ||
+        (categories.length === 2 && categories[0] === 'Category 1' && categories[1] === 'Category 2');
+    if (!untouchedLegacyCategories) return false;
+
+    const configs = db.settings.categorySettings && typeof db.settings.categorySettings === 'object'
+        ? Object.values(db.settings.categorySettings)
+        : [];
+    const hasConfiguredFields = configs.some(config => Array.isArray(config?.fields) && config.fields.length);
+    if (hasConfiguredFields) return false;
+
+    const starter = buildEnglishStarterDbV451();
+    db.phrases = starter.phrases;
+    db.phrase_meta = starter.phrase_meta;
+    db.days ||= {};
+    db.days[1] = {
+        notes: '',
+        phrases: [...starter.days[1].phrases],
+        tools: [],
+        video: '',
+        checkedParts: {},
+        customTabLinks: []
+    };
+    db.settings.categories = starter.settings.categories;
+    db.settings.categorySettings = starter.settings.categorySettings;
+    db.settings.knowledgePlaceholdersEnabledV56 = true;
+    db.settings.knowledgePlaceholdersV56 = ['noun', 'verb', 'adjective'];
+    db.settings.englishStarterTemplateV451 = true;
+    if (!db.settings.ttsLang || db.settings.ttsLang === 'ko') db.settings.ttsLang = 'en';
+    return true;
+}
+
+function ensureEnglishStarterDay1ItemsV462() {
+    if (!db?.settings?.englishStarterTemplateV451) return false;
+    db.settings ||= {};
+    if (db.settings.englishStarterDay1V462) return false;
+
+    db.days ||= {};
+    const existing = db.days[1];
+    const dayIsUntouched = !existing || (
+        (!Array.isArray(existing.phrases) || existing.phrases.length === 0) &&
+        !String(existing.notes || '').trim() &&
+        !String(existing.video || '').trim() &&
+        !String(existing.video2 || '').trim() &&
+        (!Array.isArray(existing.tools) || existing.tools.length === 0) &&
+        (!Array.isArray(existing.customTabLinks) || existing.customTabLinks.length === 0) &&
+        (!Array.isArray(existing.noteImages) || existing.noteImages.length === 0) &&
+        (!Array.isArray(existing.noteAudios) || existing.noteAudios.length === 0)
+    );
+
+    if (dayIsUntouched) {
+        db.days[1] = {
+            ...(existing || {}),
+            notes: existing?.notes || '',
+            phrases: ENGLISH_STARTER_ITEMS_V451.map(item => item.id),
+            tools: Array.isArray(existing?.tools) ? existing.tools : [],
+            video: existing?.video || '',
+            checkedParts: existing?.checkedParts && typeof existing.checkedParts === 'object' ? existing.checkedParts : {},
+            customTabLinks: Array.isArray(existing?.customTabLinks) ? existing.customTabLinks : []
+        };
+    }
+
+    db.settings.englishStarterDay1V462 = true;
+    return dayIsUntouched;
+}
+
+function extendEnglishStarterExamplesV453() {
+    if (!db?.settings?.englishStarterTemplateV451) return false;
+    db.phrases ||= [];
+    db.phrase_meta ||= {};
+    if (db.settings.englishStarterExamplesV453) return false;
+
+    let changed = false;
+    ENGLISH_STARTER_ITEMS_V451.forEach(item => {
+        if (!db.phrases.includes(item.id)) {
+            db.phrases.push(item.id);
+            changed = true;
+        }
+        if (!db.phrase_meta[item.id]) {
+            db.phrase_meta[item.id] = {
+                type: item.type,
+                tags: [...item.tags],
+                custom_fields: { ...item.custom_fields },
+                enableParts: false,
+                parts: []
+            };
+            changed = true;
+        }
+    });
+    db.settings.englishStarterExamplesV453 = true;
+    return true;
+}
+
 // Load data on start
 async function loadData() {
     try {
@@ -4495,10 +4647,18 @@ async function loadData() {
             bubbles: true
         };
     }
-    if (!db.settings.virtualKeyboardLanguage) db.settings.virtualKeyboardLanguage = 'korean';
     if (db.settings.hideDailyLogSearch === undefined) db.settings.hideDailyLogSearch = false;
     if (db.settings.hideDailyGlobalSearch === undefined) db.settings.hideDailyGlobalSearch = false;
     if (!Array.isArray(db.settings.customTabs)) db.settings.customTabs = [];
+    const seededEnglishStarterV451 = seedEnglishStarterTemplateV451();
+    const extendedEnglishStarterV453 = extendEnglishStarterExamplesV453();
+    const seededEnglishStarterDay1V462 = ensureEnglishStarterDay1ItemsV462();
+    if (seededEnglishStarterV451 || extendedEnglishStarterV453 || seededEnglishStarterDay1V462) {
+        try { saveDb(); } catch (_) {}
+    }
+    if (!db.settings.sectionTitleOverridesV429 || typeof db.settings.sectionTitleOverridesV429 !== 'object' || Array.isArray(db.settings.sectionTitleOverridesV429)) {
+        db.settings.sectionTitleOverridesV429 = {};
+    }
 
     normalizeFeatureSuiteSettings();
     ensureCustomThemePickerOption();
@@ -4521,36 +4681,28 @@ async function loadData() {
     // Apply the saved theme as soon as server settings are available, before the
     // first visible paint. Theme JS continues asynchronously and never blocks the
     // core Daily Logs shell.
-    if (typeof applyTheme === 'function') await applyTheme(db.settings.theme || 'default', { persist: false, startup: true });
+    if (typeof applyTheme === 'function') await applyTheme(db.settings.theme || 'default', {
+        persist: false,
+        startup: true,
+        __loggySkipIntroV446: true,
+        __loggySkipIntroV445: true,
+        __loggySkipIntroV444: true,
+        __loggySkipIntroV443: true
+    });
     if (dailyThemeSelect) {
         dailyThemeSelect.value = db.settings.theme || 'default';
         themePickerSelected = dailyThemeSelect.value;
         updateThemePickerSelection();
     }
 
-    // V401: custom/shared log themes (ids like "theme-custom-builder-...")
-    // are only understood once template-extras-2.js has loaded and patched
-    // applyTheme to look them up via getThemeCopyV30. Those extras load
-    // lazily/on idle to keep normal log opening fast, so the applyTheme call
-    // just above -- running against the base, un-patched function -- silently
-    // fails to render a custom/shared theme (it tries to fetch a stylesheet
-    // that doesn't exist for that theme) and the theme appears to vanish on
-    // reload. Once the extras finish loading, re-apply the saved theme, but
-    // only when it's actually a custom/shared copy the base function can't
-    // handle -- ordinary built-in themes already rendered correctly above,
-    // so this adds no work (and no delay) for the common case.
-    if (!window.__loggyThemeReapplyV401) {
-        window.__loggyThemeReapplyV401 = true;
-        window.addEventListener('loggy-features-ready', async () => {
-            try {
-                const savedTheme = db?.settings?.theme;
-                if (!savedTheme || savedTheme === 'default') return;
-                if (typeof getThemeCopyV30 === 'function' && getThemeCopyV30(savedTheme)) {
-                    await applyTheme(savedTheme, { persist: false });
-                }
-            } catch (_) {}
-        }, { once: true });
-    }
+    // V446: startup audio waits for BOTH the real server DB and the late feature
+    // bundle. Either side may finish first, so signal the coordinator here.
+    window.__loggyStartupDataReadyV446 = true;
+    try { window.__loggyMaybeFinalizeStartupV446?.(); } catch (_) {}
+
+    // V446: startup applyTheme restores visuals only. Intro audio is committed once
+    // both server data and the late feature bundle are ready, preventing a later
+    // feature initialization pass from clipping the song.
 
     // Dynamic Header Title — this is part of the critical shell and must be set
     // before the loading guard is removed.
@@ -4582,6 +4734,7 @@ async function loadData() {
         // delaying the title/day boxes the user is waiting for.
         initCustomTabs();
         initializeFeatureSuiteAfterLoad();
+        applySectionTitleOverridesV429();
     }
 
     if (fastDailyStartup) {
@@ -4595,6 +4748,7 @@ async function loadData() {
             switchView(gridView);
         }
 
+        applySectionTitleOverridesV429();
         requestAnimationFrame(() => setTimeout(finishHiddenStartupV187, 0));
         return;
     }
@@ -4611,6 +4765,7 @@ async function loadData() {
         }
         restoreLastTopLevelView();
     }
+    applySectionTitleOverridesV429();
 }
 
 let audioCtx = null;
@@ -4664,11 +4819,38 @@ function syncNotesHeight() {
     const notes = document.getElementById('log-notes');
     const leftColumn = document.querySelector('.left-column');
     const rightColumn = document.querySelector('.right-column');
-    if (!notes || !leftColumn || !rightColumn) return;
+    const logContent = document.querySelector('#log-view .log-content');
+    if (!notes || !leftColumn || !rightColumn || !logContent) return;
     if (!logView.classList.contains('active')) return;
 
-    // Reset so we can measure natural heights.
+    // Reset so we can measure the page without a stale forced note height.
     notes.style.height = 'auto';
+
+    // V435: when Tools + Video Logs are both gone, the Day Log is already in
+    // its full-width mode. Use some of the otherwise-empty viewport height for
+    // Log Notes, but never grow it far enough to introduce page scrolling.
+    if (logContent.classList.contains('loggy-day-main-wide-v433')) {
+        const minHeight = 150;
+        const naturalHeight = Math.max(
+            minHeight,
+            notes.scrollHeight || 0,
+            notes.getBoundingClientRect().height || 0
+        );
+        const doc = document.documentElement;
+        const body = document.body;
+        const viewportHeight = window.innerHeight || doc.clientHeight || 0;
+        const pageHeight = Math.max(
+            doc.scrollHeight || 0,
+            body?.scrollHeight || 0
+        );
+        // Leave a little breathing room at the bottom and cap the extra height
+        // so the box feels noticeably taller without turning into a giant panel.
+        const safeSpare = Math.max(0, viewportHeight - pageHeight - 28);
+        const extra = Math.min(240, safeSpare);
+        const targetHeight = Math.min(430, naturalHeight + extra);
+        notes.style.height = `${Math.max(minHeight, targetHeight)}px`;
+        return;
+    }
 
     const rightHeight = rightColumn.getBoundingClientRect().height;
     const notesHeight = notes.getBoundingClientRect().height;
@@ -4811,6 +4993,10 @@ function switchView(viewToShow) {
     // Includes built-in views AND user-created custom tab views.
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     if (viewToShow) viewToShow.classList.add('active');
+    try { syncCoreHeadingBackdropV504(); } catch {}
+    try { window.__loggySyncHeadingBackdropV501?.(); } catch {}
+    // Run once more after late tab renderers finish their synchronous DOM work.
+    requestAnimationFrame(() => { try { syncCoreHeadingBackdropV504(); } catch {} });
 
     // V206: apply the final page-width classes synchronously BEFORE the view is
     // revealed. These used to arrive later from template-extras-3.js, which made
@@ -4913,8 +5099,17 @@ function stripHtmlForDailySearch(html) {
 function getDailyLogSearchText(dayData) {
     if (!dayData) return '';
 
+    // V447: Daily Log search also treats the items learned on that day as
+    // searchable day content. If a user searches a vocabulary/KB item such as
+    // "안녕하세요", every day whose Items Learned list contains that item
+    // should appear even when the word is not repeated in Log Notes.
+    const learnedItems = Array.isArray(dayData.phrases)
+        ? dayData.phrases.map(item => String(item || ''))
+        : [];
+
     const chunks = [
         stripHtmlForDailySearch(dayData.notes || ''),
+        ...learnedItems,
         String(dayData.video || ''),
         String(dayData.video2 || '')
     ];
@@ -5065,6 +5260,40 @@ function focusDailySearchMatch(query) {
 
         setTimeout(() => {
             notes.classList.remove(
+                'daily-search-hit-target'
+            );
+        }, 2200);
+
+        return;
+    }
+
+    // V447: if the Daily Logs search matched an item learned on this day,
+    // scroll directly to that Items Learned chip after opening the day.
+    const learnedChip =
+        Array.from(
+            document.querySelectorAll(
+                '#phrases-container .chip[data-kb-item-id-v162]'
+            )
+        ).find(chip =>
+            String(
+                chip.dataset.kbItemIdV162 || ''
+            )
+                .toLocaleLowerCase()
+                .includes(normalized)
+        );
+
+    if (learnedChip) {
+        learnedChip.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+
+        learnedChip.classList.add(
+            'daily-search-hit-target'
+        );
+
+        setTimeout(() => {
+            learnedChip.classList.remove(
                 'daily-search-hit-target'
             );
         }, 2200);
@@ -5568,6 +5797,7 @@ function openDayLog(dayNumber) {
 
     ensureDailyCustomTabLinksUI();
     renderDailyCustomTabLinks();
+    applyHiddenLoggySectionsV432();
 
     switchView(logView);
     requestAnimationFrame(syncNotesHeight);
@@ -5932,6 +6162,7 @@ function playTTSAudio(text, lang) {
     if (ttsAudioEl) { ttsAudioEl.pause(); ttsAudioEl = null; }
     const url = `/api/tts?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(lang || db.settings.ttsLang || 'ko')}`;
     ttsAudioEl = new Audio(url);
+    try { window.__loggyIntroAudioGateV443?.allow?.(ttsAudioEl); } catch (_) {}
     ttsAudioEl.play().catch(err => console.error('TTS playback failed:', err));
 }
 window.playTTSAudio = playTTSAudio;
@@ -6212,31 +6443,139 @@ function populatePhrasesDatalist() {
 document.getElementById('add-phrase-btn').addEventListener('click', () => {
     const group = document.getElementById('phrase-input-group');
     group.classList.toggle('hidden');
-    if (!group.classList.contains('hidden')) document.getElementById('new-phrase-input').focus();
+    if (!group.classList.contains('hidden')) { document.getElementById('new-phrase-input').focus(); try { renderPhraseSuggestionsV450(); } catch {} }
 });
 
-document.getElementById('new-phrase-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.target.value.trim() !== '') {
-        e.preventDefault();
-        const newPhrase = e.target.value.trim();
+const phraseInputV450 = document.getElementById('new-phrase-input');
+const phraseInputGroupV450 = document.getElementById('phrase-input-group');
+let phraseSuggestionIndexV450 = -1;
 
-        if (!db.phrases.includes(newPhrase)) {
-            db.phrases.push(newPhrase);
-            db.phrase_meta[newPhrase] = { type: db.settings.categories[0], custom_fields: {}, parts: [] };
-            populatePhrasesDatalist();
-            saveDb();
-        }
-
-        if (!db.days[currentDay].phrases.includes(newPhrase)) {
-            db.days[currentDay].phrases.push(newPhrase);
-            renderPhrases(db.days[currentDay].phrases);
-        }
-
-        scheduleSaveDay();
-        e.target.value = '';
-        document.getElementById('phrase-input-group').classList.add('hidden');
+function ensurePhraseSuggestionsV450() {
+    let box = document.getElementById('phrase-suggestions-v450');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'phrase-suggestions-v450';
+        box.className = 'phrase-suggestions-v450 hidden';
+        box.setAttribute('role', 'listbox');
+        phraseInputGroupV450.appendChild(box);
     }
+    return box;
+}
+function phraseMatchesV450(value) {
+    const q = String(value || '').trim().toLowerCase();
+    return db.phrases
+        .filter(name => !q || String(name).toLowerCase().includes(q))
+        .sort((a,b) => {
+            const al=String(a).toLowerCase(), bl=String(b).toLowerCase();
+            const as=al.startsWith(q)?0:1, bs=bl.startsWith(q)?0:1;
+            return as-bs || al.localeCompare(bl);
+        })
+        .slice(0, 12);
+}
+function renderPhraseSuggestionsV450() {
+    const box = ensurePhraseSuggestionsV450();
+    const matches = phraseMatchesV450(phraseInputV450.value);
+    if (!matches.length || phraseInputGroupV450.classList.contains('hidden')) {
+        phraseSuggestionIndexV450 = -1;
+        box.classList.add('hidden');
+        box.innerHTML = '';
+        phraseInputV450.setAttribute('aria-expanded', 'false');
+        phraseInputV450.removeAttribute('aria-activedescendant');
+        return matches;
+    }
+    if (phraseSuggestionIndexV450 >= matches.length) phraseSuggestionIndexV450 = matches.length - 1;
+    box.innerHTML = matches.map((name,index) => `
+        <button type="button" id="phrase-suggestion-v450-${index}" role="option" aria-selected="${index===phraseSuggestionIndexV450?'true':'false'}" class="phrase-suggestion-v450${index===phraseSuggestionIndexV450?' is-active':''}" data-value="${escapeKnowledgeAttr(name)}">
+            ${escapeKnowledgeHtml(name)}
+        </button>`).join('');
+    box.classList.remove('hidden');
+    phraseInputV450.setAttribute('aria-expanded', 'true');
+    if (phraseSuggestionIndexV450 >= 0) phraseInputV450.setAttribute('aria-activedescendant', `phrase-suggestion-v450-${phraseSuggestionIndexV450}`);
+    else phraseInputV450.removeAttribute('aria-activedescendant');
+    box.querySelectorAll('.phrase-suggestion-v450').forEach(button => {
+        button.addEventListener('pointerdown', event => event.preventDefault());
+        button.addEventListener('click', () => commitPhraseFromInputV450(button.dataset.value || ''));
+    });
+    box.querySelector('.is-active')?.scrollIntoView({block:'nearest'});
+    return matches;
+}
+function commitPhraseFromInputV450(rawValue) {
+    const newPhrase = String(rawValue || '').trim();
+    if (!newPhrase || !currentDay) return false;
+    if (!db.phrases.includes(newPhrase)) {
+        db.phrases.push(newPhrase);
+        db.phrase_meta[newPhrase] = { type: db.settings.categories[0], custom_fields: {}, parts: [] };
+        populatePhrasesDatalist();
+        saveDb();
+    }
+    if (!db.days[currentDay].phrases.includes(newPhrase)) {
+        db.days[currentDay].phrases.push(newPhrase);
+        renderPhrases(db.days[currentDay].phrases);
+    }
+    scheduleSaveDay();
+    phraseInputV450.value = '';
+    phraseSuggestionIndexV450 = -1;
+    ensurePhraseSuggestionsV450().classList.add('hidden');
+    phraseInputGroupV450.classList.add('hidden');
+    return true;
+}
+phraseInputV450.addEventListener('input', () => {
+    phraseSuggestionIndexV450 = -1;
+    renderPhraseSuggestionsV450();
 });
+phraseInputV450.addEventListener('focus', () => renderPhraseSuggestionsV450());
+phraseInputV450.addEventListener('click', () => renderPhraseSuggestionsV450());
+phraseInputV450.setAttribute('role', 'combobox');
+phraseInputV450.setAttribute('aria-autocomplete', 'list');
+phraseInputV450.setAttribute('aria-controls', 'phrase-suggestions-v450');
+
+phraseInputV450.addEventListener('keydown', (e) => {
+    const matches = phraseMatchesV450(e.target.value);
+    const navigationKey = e.key === 'ArrowDown' || e.key === 'ArrowUp';
+
+    if (navigationKey && matches.length) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        if (e.key === 'ArrowDown') {
+            phraseSuggestionIndexV450 = phraseSuggestionIndexV450 < 0
+                ? 0
+                : (phraseSuggestionIndexV450 + 1) % matches.length;
+        } else {
+            phraseSuggestionIndexV450 = phraseSuggestionIndexV450 < 0
+                ? matches.length - 1
+                : (phraseSuggestionIndexV450 - 1 + matches.length) % matches.length;
+        }
+        renderPhraseSuggestionsV450();
+        return;
+    }
+
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        ensurePhraseSuggestionsV450().classList.add('hidden');
+        phraseInputV450.setAttribute('aria-expanded', 'false');
+        phraseSuggestionIndexV450 = -1;
+        return;
+    }
+
+    if (e.key === 'Enter') {
+        const typed = e.target.value.trim();
+        const exact = typed
+            ? db.phrases.find(name => String(name).toLowerCase() === typed.toLowerCase())
+            : null;
+        const chosen = phraseSuggestionIndexV450 >= 0 && matches[phraseSuggestionIndexV450]
+            ? matches[phraseSuggestionIndexV450]
+            : matches.length === 1
+                ? matches[0]
+                : exact || typed;
+        if (!chosen) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        commitPhraseFromInputV450(chosen);
+    }
+}, true);
 
 function computeProgress(itemId, isCumulativeView) {
     const meta = db.phrase_meta[itemId] || {};
@@ -7334,15 +7673,35 @@ let activeQuizDeck = [];
 let activeQuizIndex = 0;
 let quizCardFlipped = false;
 let learnQueue = []; // Queue for Quizlet Learn mode
+let quizletLearnModesV476 = new Set(['mc']);
+let quizletLearnQuestionCounterV476 = 0;
+
+function syncQuizletLearnModesV476(changed = null) {
+    const mc = document.getElementById('quizlet-mode-mc-v476');
+    const written = document.getElementById('quizlet-mode-written-v476');
+    if (!mc || !written) return;
+    if (!mc.checked && !written.checked) {
+        (changed === mc ? written : mc).checked = true;
+    }
+    quizletLearnModesV476 = new Set();
+    if (mc.checked) quizletLearnModesV476.add('mc');
+    if (written.checked) quizletLearnModesV476.add('written');
+}
+
+document.getElementById('quizlet-mode-mc-v476')?.addEventListener('change', event => syncQuizletLearnModesV476(event.currentTarget));
+document.getElementById('quizlet-mode-written-v476')?.addEventListener('change', event => syncQuizletLearnModesV476(event.currentTarget));
+syncQuizletLearnModesV476();
 
 document.querySelectorAll('.quiz-mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.quiz-mode-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         quizMode = btn.dataset.mode;
+        document.getElementById('quizzes-view')?.setAttribute('data-quiz-mode', quizMode);
         
         document.getElementById('quiz-day-picker-section').classList.toggle('hidden', quizMode === 'anki');
         document.getElementById('anki-summary-box').classList.toggle('hidden', quizMode !== 'anki');
+        document.getElementById('quizlet-learning-mode-section-v476')?.classList.toggle('hidden', quizMode !== 'learn');
         
         if (quizMode !== 'anki' && selectedQuizDays.size === 0) renderQuizDayPicker();
         updateAvailableQuizTypes();
@@ -7355,6 +7714,7 @@ function dayHasQuizItems(dayNumber) {
 }
 
 let quizDayRangeAnchorV227 = null;
+let activeQuizDayShortcutV473 = null;
 
 function quizSelectableDaysV227(maxDay) {
     const out = [];
@@ -7386,8 +7746,9 @@ function syncQuizDayPickerV227(maxDay) {
         box.setAttribute('aria-pressed', selectedQuizDays.has(day) ? 'true' : 'false');
     });
     document.querySelectorAll('#quiz-day-quick-selectors-v227 input[data-quiz-shortcut-v227]').forEach(input => {
-        const days = quizShortcutDaysV227(input.dataset.quizShortcutV227, maxDay);
-        input.checked = days.length > 0 && sameQuizDaySetV227(days);
+        const on = input.dataset.quizShortcutV227 === activeQuizDayShortcutV473;
+        input.checked = on;
+        input.closest('label')?.classList.toggle('selected', on);
     });
     updateAvailableQuizTypes();
 }
@@ -7410,11 +7771,12 @@ function ensureQuizDayQuickSelectorsV227(maxDay) {
             const input = event.target.closest?.('input[data-quiz-shortcut-v227]');
             if (!input) return;
             playClickSound();
-            if (!input.checked && sameQuizDaySetV227(quizShortcutDaysV227(input.dataset.quizShortcutV227, maxDay))) {
-                selectedQuizDays.clear();
-            } else if (input.checked) {
-                selectedQuizDays.clear();
-                quizShortcutDaysV227(input.dataset.quizShortcutV227, maxDay).forEach(day => selectedQuizDays.add(day));
+            selectedQuizDays.clear();
+            if (input.checked) {
+                activeQuizDayShortcutV473 = input.dataset.quizShortcutV227;
+                quizShortcutDaysV227(activeQuizDayShortcutV473, maxDay).forEach(day => selectedQuizDays.add(day));
+            } else {
+                activeQuizDayShortcutV473 = null;
             }
             quizDayRangeAnchorV227 = null;
             syncQuizDayPickerV227(maxDay);
@@ -7424,6 +7786,7 @@ function ensureQuizDayQuickSelectorsV227(maxDay) {
 
 function renderQuizDayPicker() {
     selectedQuizDays.clear();
+    activeQuizDayShortcutV473 = null;
     quizDayRangeAnchorV227 = null;
     const grid = document.getElementById('quiz-day-grid');
     grid.innerHTML = '';
@@ -7459,6 +7822,7 @@ function renderQuizDayPicker() {
                 else selectedQuizDays.add(i);
                 quizDayRangeAnchorV227 = i;
             }
+            activeQuizDayShortcutV473 = null;
             syncQuizDayPickerV227(maxDay);
         });
 
@@ -7620,13 +7984,22 @@ document.getElementById('start-quiz-btn').addEventListener('click', () => {
         rawItems = [...ids];
     }
 
-    const filtered = rawItems.filter(id => {
+    let filtered = rawItems.filter(id => {
         if (db.phrase_meta?.[id]?.hideFromQuizzesV59) return false;
         if (selectedQuizTypes.has('all')) return true;
         return selectedQuizTypes.has(db.phrase_meta[id]?.type);
     });
 
-    if (filtered.length === 0) return alert("No items match filters.");
+    if (quizMode === 'learn') {
+        syncQuizletLearnModesV476();
+        if (quizletLearnModesV476.has('written') && !quizletLearnModesV476.has('mc')) {
+            filtered = filtered.filter(id => getQuizPrimaryFieldV476(db.phrase_meta?.[id] || { custom_fields: {} }) || hasPinnedQuizMapV483(db.phrase_meta?.[id] || {}, id));
+        }
+    }
+
+    if (filtered.length === 0) return alert(quizMode === 'learn' && quizletLearnModesV476.has('written') && !quizletLearnModesV476.has('mc')
+        ? "No selected items have a quiz-back text field or labeled pinned map available for Written mode."
+        : "No items match filters.");
 
     activeQuizDeck = filtered.sort(() => Math.random() - 0.5);
     activeQuizIndex = 0;
@@ -7634,6 +8007,8 @@ document.getElementById('start-quiz-btn').addEventListener('click', () => {
     
     // Initialize Learn Mode Queue
     if (quizMode === 'learn') {
+        syncQuizletLearnModesV476();
+        quizletLearnQuestionCounterV476 = 0;
         learnQueue = activeQuizDeck.map(id => ({ id, streak: 0 }));
     }
 
@@ -7768,6 +8143,161 @@ function buildDynamicFieldsHtmlForCategory(catName, currentValues = {}) {
     return html;
 }
 
+function getQuizBackFieldsV476(meta) {
+    const categoryName = meta?.type || db.settings.categories[0];
+    const values = meta?.custom_fields || {};
+    return getKnowledgeFieldDefs(categoryName)
+        .filter(field => field?.quiz !== false)
+        .filter(field => {
+            const value = values[field.name];
+            return value !== undefined && value !== null && String(value).trim() !== '';
+        })
+        .sort((a, b) => Number(!!b.quizPrimary) - Number(!!a.quizPrimary));
+}
+
+function getQuizPrimaryFieldV476(meta) {
+    const fields = getQuizBackFieldsV476(meta);
+    const values = meta?.custom_fields || {};
+    const isMapPayloadV496 = field => {
+        if (field?.kind === 'pinnedImage') return true;
+        const raw = values[field?.name];
+        try { return window.__loggyPinnedImageV169?.isPinnedValue?.(raw) === true; } catch { return false; }
+    };
+    // Never choose serialized pinned-map JSON as a written/text answer merely
+    // because an old field definition still says "text".
+    return fields.find(field => field.quizPrimary && !isMapPayloadV496(field)) ||
+        fields.find(field => !isMapPayloadV496(field) && !['video','image','svg','attachment'].includes(field.kind)) || null;
+}
+
+function hasPinnedQuizMapV483(meta, itemId = '') {
+    try {
+        if (itemId && window.__loggyPinnedImageV169?.fieldForItem?.(itemId)?.data?.pins?.some(pin => String(pin?.label || '').trim())) return true;
+        const categoryName = meta?.type || db.settings.categories[0];
+        const values = meta?.custom_fields || {};
+        for (const field of getKnowledgeFieldDefs(categoryName)) {
+            const raw = values[field.name];
+            let legacyPinnedV496 = false;
+            try { legacyPinnedV496 = window.__loggyPinnedImageV169?.isPinnedValue?.(raw) === true; } catch {}
+            if (field?.kind !== 'pinnedImage' && !legacyPinnedV496) continue;
+            const effectiveFieldV496 = field?.kind === 'pinnedImage' ? field : { ...field, kind:'pinnedImage' };
+            let data = null;
+            if (window.__loggyPinnedImageV169?.parse) data = window.__loggyPinnedImageV169.parse(raw, effectiveFieldV496);
+            else if (raw && typeof raw === 'object') data = raw;
+            else { try { data = JSON.parse(String(raw || '')); } catch {} }
+            if (data?.image && Array.isArray(data?.pins) && data.pins.some(pin => String(pin?.label || '').trim())) return true;
+        }
+    } catch {}
+    return false;
+}
+
+function normalizeWrittenQuizAnswerV476(value) {
+    return String(value ?? '')
+        .normalize('NFKC')
+        .trim()
+        .toLocaleLowerCase()
+        .replace(/\s+/g, ' ');
+}
+
+function chooseQuizletLearnQuestionTypeV476(meta) {
+    syncQuizletLearnModesV476();
+    const hasWritten = !!getQuizPrimaryFieldV476(meta) || hasPinnedQuizMapV483(meta);
+    const wantsMc = quizletLearnModesV476.has('mc');
+    const wantsWritten = quizletLearnModesV476.has('written') && hasWritten;
+    if (wantsMc && wantsWritten) {
+        const type = quizletLearnQuestionCounterV476 % 2 === 0 ? 'mc' : 'written';
+        quizletLearnQuestionCounterV476 += 1;
+        return type;
+    }
+    if (wantsWritten) return 'written';
+    return 'mc';
+}
+
+function submitWrittenLearnAnswerV478(expected, fieldName = 'Answer') {
+    const input = document.getElementById('quizlet-written-answer-v476');
+    const form = document.getElementById('quizlet-written-form-v476');
+    if (!input || !form) return;
+
+    // Continue is unlocked only after the learner has entered the correct text.
+    // If the first attempt was wrong, the Learn queue still records the card as wrong
+    // even after the required correction is typed successfully.
+    if (form.dataset.readyToContinueV478 === 'true') {
+        processLearnAnswer(form.dataset.firstAttemptCorrectV478 === 'true');
+        return;
+    }
+
+    const correct = normalizeWrittenQuizAnswerV476(input.value) === normalizeWrittenQuizAnswerV476(expected);
+    const hadWrongAttempt = form.dataset.hadWrongAttemptV478 === 'true';
+    if (!('firstAttemptCorrectV478' in form.dataset)) {
+        form.dataset.firstAttemptCorrectV478 = correct ? 'true' : 'false';
+    }
+
+    const card = document.querySelector('.quizlet-written-wrap-v476 .quiz-learn-prompt-card-v38');
+    if (card) {
+        card.classList.add('quizlet-written-reveal-v477');
+        card.innerHTML = `<div class="quizlet-written-answer-value-v477">${escapeKnowledgeHtml(expected)}</div>`;
+    }
+
+    let feedback = document.getElementById('quizlet-written-feedback-v477');
+    if (!feedback) {
+        feedback = document.createElement('div');
+        feedback.id = 'quizlet-written-feedback-v477';
+        feedback.className = 'quizlet-written-feedback-v477';
+        form.insertAdjacentElement('beforebegin', feedback);
+    }
+
+    const button = form.querySelector('button[type="submit"]');
+    if (correct) {
+        form.dataset.readyToContinueV478 = 'true';
+        input.disabled = true;
+        feedback.classList.add('is-correct-v477');
+        feedback.classList.remove('is-incorrect-v477');
+        feedback.innerHTML = hadWrongAttempt
+            ? '<strong>Correct</strong><span>You typed the correct answer. You can continue now.</span>'
+            : '<strong>Correct</strong>';
+        if (button) button.textContent = 'Continue';
+        return;
+    }
+
+    // Wrong answers never unlock Continue. Reveal the answer, then require the learner
+    // to type that answer correctly (case-insensitive) before moving on.
+    form.dataset.hadWrongAttemptV478 = 'true';
+    form.dataset.firstAttemptCorrectV478 = 'false';
+    feedback.classList.remove('is-correct-v477');
+    feedback.classList.add('is-incorrect-v477');
+    feedback.innerHTML = `<strong>Incorrect</strong><span>Type the correct answer to continue.</span>`;
+    input.disabled = false;
+    input.value = '';
+    if (button) button.textContent = 'Check Again';
+    requestAnimationFrame(() => input.focus({ preventScroll: true }));
+}
+window.submitWrittenLearnAnswerV476 = submitWrittenLearnAnswerV478;
+window.submitWrittenLearnAnswerV477 = submitWrittenLearnAnswerV478;
+window.submitWrittenLearnAnswerV478 = submitWrittenLearnAnswerV478;
+
+
+// V482 — keyboard-first Quizlet Learn Written flow.
+// Enter checks/rechecks while the input is active. Once a correct answer has
+// unlocked Continue, the next Enter advances without requiring a mouse click.
+if (!window.__loggyWrittenEnterV482) {
+    window.__loggyWrittenEnterV482 = true;
+    document.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' || event.shiftKey || event.ctrlKey || event.metaKey || event.altKey) return;
+        if (typeof quizMode !== 'undefined' && quizMode !== 'learn') return;
+        const form = document.getElementById('quizlet-written-form-v476');
+        if (!form || !document.getElementById('quiz-flashcard-area')?.contains(form)) return;
+        if (form.dataset.readyToContinueV478 !== 'true') return; // normal form submit handles Check Answer / Check Again
+        if (form.dataset.continuingV482 === 'true') return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        form.dataset.continuingV482 = 'true';
+        const firstCorrect = form.dataset.firstAttemptCorrectV478 === 'true';
+        requestAnimationFrame(() => {
+            try { processLearnAnswer(firstCorrect); }
+            finally { delete form.dataset.continuingV482; }
+        });
+    }, true);
+}
+
 function showQuizCard() {
     const area = document.getElementById('quiz-flashcard-area');
     
@@ -7786,23 +8316,66 @@ function showQuizCard() {
         document.getElementById('quiz-set-label').innerText = `${activeQuizIndex + 1} / ${activeQuizDeck.length}`;
         
         if (quizMode === 'learn') {
-            const backVals = Object.values(meta.custom_fields).filter(v => v && !v.includes('youtu') && !v.endsWith('.mp4'));
-            const promptText = backVals.length > 0 ? backVals[0] : id;
-            
+            const questionType = chooseQuizletLearnQuestionTypeV476(meta);
+            const primaryField = getQuizPrimaryFieldV476(meta);
+
+            if (questionType === 'written' && primaryField) {
+                const expected = String(meta.custom_fields?.[primaryField.name] || '').trim();
+                area.innerHTML = `
+                    <div class="flashcard-wrap quiz-learn-compact-v38 quizlet-written-wrap-v476">
+                        <div class="flashcard-mode-card quiz-learn-prompt-card-v38">${escapeKnowledgeHtml(id)}</div>
+                        <form class="quizlet-written-form-v476" id="quizlet-written-form-v476">
+                            <input id="quizlet-written-answer-v476" type="text" autocomplete="off" placeholder="Type your answer…" aria-label="Written answer">
+                            <button type="submit" class="icon-btn">Check Answer</button>
+                        </form>
+                    </div>`;
+                const form = document.getElementById('quizlet-written-form-v476');
+                form?.addEventListener('submit', event => {
+                    event.preventDefault();
+                    submitWrittenLearnAnswerV478(expected, primaryField.name);
+                });
+                requestAnimationFrame(() => document.getElementById('quizlet-written-answer-v476')?.focus());
+                return;
+            }
+
+            const backFields = getQuizBackFieldsV476(meta);
+            const firstBack = backFields[0];
+            // Pinned-image values are serialized JSON. If the dedicated map quiz
+            // renderer has not mounted yet, never print that JSON into the card.
+            const promptText = firstBack && firstBack.kind !== 'pinnedImage'
+                ? String(meta.custom_fields?.[firstBack.name] || '').trim()
+                : id;
             const options = [id];
-            while (options.length < 4 && options.length < db.phrases.length) {
-                const r = db.phrases[Math.floor(Math.random() * db.phrases.length)];
-                if (!options.includes(r)) options.push(r);
+            const currentCategory = String(meta?.type || '');
+            const sameCategoryPool = [];
+            const seenCandidates = new Set([id]);
+            const addSameCategoryCandidate = candidate => {
+                const name = String(candidate || '');
+                if (!name || seenCandidates.has(name)) return;
+                if (String(db.phrase_meta?.[name]?.type || '') !== currentCategory) return;
+                seenCandidates.add(name);
+                sameCategoryPool.push(name);
+            };
+            (activeQuizDeck || []).forEach(addSameCategoryCandidate);
+            (learnQueue || []).forEach(entry => addSameCategoryCandidate(entry?.id));
+            Object.keys(db.phrase_meta || {}).forEach(addSameCategoryCandidate);
+            while (options.length < 4 && sameCategoryPool.length) {
+                const index = Math.floor(Math.random() * sameCategoryPool.length);
+                options.push(sameCategoryPool.splice(index, 1)[0]);
             }
             options.sort(() => Math.random() - 0.5);
 
             area.innerHTML = `
                 <div class="flashcard-wrap quiz-learn-compact-v38">
-                    <div class="flashcard-mode-card quiz-learn-prompt-card-v38">${promptText}</div>
+                    <div class="quizlet-question-kind-v476">Multiple Choice</div>
+                    <div class="flashcard-mode-card quiz-learn-prompt-card-v38">${escapeKnowledgeHtml(promptText)}</div>
                     <div class="quiz-learn-options-v38">
-                        ${options.map(opt => `<button class="icon-btn" onclick="processLearnAnswer('${opt}' === '${id}')">${opt}</button>`).join('')}
+                        ${options.map(opt => `<button class="icon-btn" data-learn-option-v476="${escapeKnowledgeAttr(opt)}">${escapeKnowledgeHtml(opt)}</button>`).join('')}
                     </div>
                 </div>`;
+            area.querySelectorAll('[data-learn-option-v476]').forEach(button => {
+                button.addEventListener('click', () => processLearnAnswer(button.dataset.learnOptionV476 === id));
+            });
             return;
         }
 
@@ -7811,7 +8384,7 @@ function showQuizCard() {
         
         area.innerHTML = `
             <div class="flashcard-mode-wrap">
-                <div class="flashcard-mode-card" id="quiz-flip-front" style="padding:${quizCardFlipped ? '0' : '20px'};">
+                <div class="flashcard-mode-card" id="quiz-flip-front" data-flippable-card-v473="true" style="padding:${quizCardFlipped ? '0' : '20px'};">
                     ${cardContent}
                 </div>
                 <div class="flashcard-hint-text">Tap the card to flip it</div>
@@ -7897,9 +8470,9 @@ function processAnkiAnswer(rating) {
 
 function showFinishScreen(area) {
     area.innerHTML = `
-        <div class="set-complete-box">
+        <div class="set-complete-box quiz-finish-box-v476">
             <h2><i class="ph ph-confetti"></i> Finished!</h2>
-            <button class="icon-btn mt-10" onclick="updateQuizUI(); switchView(quizzesView);">Back to Quizzes</button>
+            <button class="icon-btn quiz-finish-back-v476" onclick="updateQuizUI(); switchView(quizzesView);">Back to Quizzes</button>
         </div>`;
 }
 if (!db.settings.dailyViewType) db.settings.dailyViewType = 'default';
@@ -8095,7 +8668,20 @@ if (themeSearchInput && !themeSearchInput.dataset.themeSearchBound) {
 
         themePickerSelected = themeValue;
         updateThemePickerSelection();
+        try {
+            window.__loggyLogIntroAudioV444?.primeTheme?.(
+                themeValue,
+                resolveAppliedCustomThemeV445(themeValue)
+            );
+        } catch (_) {}
         await applyTheme(themeValue);
+        try {
+            window.__loggyLogIntroAudioV444?.ensureThemeAudio?.(
+                themeValue,
+                resolveAppliedCustomThemeV445(themeValue),
+                'theme-search-enter-v446'
+            );
+        } catch (_) {}
 
         // If the search has narrowed the gallery to exactly one theme,
         // Enter applies it and immediately exits Daily View Settings.
@@ -8167,6 +8753,13 @@ function createThemePickerCard(option) {
         themePickerSelected = option.value;
         updateThemePickerSelection();
         await applyTheme(option.value);
+        try {
+            window.__loggyLogIntroAudioV444?.ensureThemeAudio?.(
+                option.value,
+                resolveAppliedCustomThemeV445(option.value),
+                'theme-card-click-v446'
+            );
+        } catch (_) {}
     });
 
     return card;
@@ -8287,98 +8880,945 @@ async function discoverThemesForPicker() {
 renderThemePicker();
 }
 
+
+// ============================================================================
+// V444 — CORE LOG INTRO AUDIO OWNER
+//
+// Audio switching now lives beside the core applyTheme() path instead of in a
+// late-loaded extras wrapper. This mirrors the Dashboard lifecycle:
+//   pointerdown prime -> stop outgoing -> apply visuals -> adopt prime -> play.
+// One owner controls source, volume, segment boundaries, retry, and teardown.
+// ============================================================================
+(() => {
+    'use strict';
+    if (window.__loggyLogIntroAudioV444) return;
+
+    const AUTH_KEY = 'loggy-theme-intro-audio-v420';
+    const SHARED_KEY = 'loggy-shared-themes-v40';
+    const OVERRIDE_KEY = 'loggy-built-in-theme-overrides-v102';
+
+    const state = {
+        audio: null,
+        prime: null,
+        primeSrc: '',
+        primeThemeId: '',
+        boundaryCleanup: null,
+        retryCleanup: null,
+        themeId: '',
+        config: null,
+        startCount: 0,
+        lastStartAt: 0,
+        reason: '',
+        completed: false,
+        switchSerial: 0,
+        latestRequestedThemeId: ''
+    };
+
+    const readJson = (key, fallback) => {
+        try {
+            const value = JSON.parse(localStorage.getItem(key) || 'null');
+            return value ?? fallback;
+        } catch (_) {
+            return fallback;
+        }
+    };
+
+    const parseTime = (value, fallback = NaN) => {
+        if (typeof value === 'number' && Number.isFinite(value)) return Math.max(0, value);
+        const raw = String(value ?? '').trim();
+        if (!raw) return fallback;
+        if (/^\d+(?:\.\d+)?$/.test(raw)) return Math.max(0, Number(raw));
+        const parts = raw.split(':').map(part => part.trim());
+        if (parts.length < 2 || parts.length > 3 || parts.some(part => !/^\d+(?:\.\d+)?$/.test(part))) return fallback;
+        const nums = parts.map(Number);
+        const seconds = parts.length === 3
+            ? nums[0] * 3600 + nums[1] * 60 + nums[2]
+            : nums[0] * 60 + nums[1];
+        return Number.isFinite(seconds) ? Math.max(0, seconds) : fallback;
+    };
+
+    const comparableSrc = value => {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        try { return new URL(raw, location.href).href; } catch (_) { return raw; }
+    };
+
+    const flattenVariant = (theme, outer = {}) => {
+        if (!theme || typeof theme !== 'object') return {};
+        const variants = theme.themeBuilderAiVariantsV376;
+        const selected = String(
+            theme.themeBuilderAiSelectedVariantV376 ||
+            theme.themeBuilderAiModeV364 ||
+            outer.selectedVariant ||
+            outer.activeVariant ||
+            ''
+        ).toLowerCase();
+        if (variants && typeof variants === 'object' && !Array.isArray(variants) && variants[selected]) {
+            return { ...theme, ...variants[selected] };
+        }
+        return { ...theme };
+    };
+
+    const rawThemeForId = themeId => {
+        const id = String(themeId || '');
+        if (!id) return {};
+        try {
+            if (id === 'theme-custom-builder' && db?.settings?.customTheme) {
+                return flattenVariant(db.settings.customTheme);
+            }
+            const copies = db?.settings?.themeCopiesV30;
+            const copy = Array.isArray(copies)
+                ? copies.find(item => String(item?.id || '') === id)
+                : null;
+            if (copy?.theme) return flattenVariant(copy.theme, copy);
+            const legacyOverride = db?.settings?.themeOverrides?.[id];
+            if (legacyOverride && typeof legacyOverride === 'object') return flattenVariant(legacyOverride);
+        } catch (_) {}
+
+        const shared = readJson(SHARED_KEY, []);
+        if (Array.isArray(shared)) {
+            const row = shared.find(item => String(item?.id || '') === id);
+            if (row?.theme) return flattenVariant(row.theme, row);
+        }
+
+        const overrides = readJson(OVERRIDE_KEY, {});
+        const entry = overrides?.[id];
+        if (entry) return flattenVariant(entry?.theme || entry, entry);
+        return {};
+    };
+
+    // Exact Dashboard V420 authority precedence.
+    const applyAuthority = (themeId, theme = {}) => {
+        const id = String(themeId || '');
+        const map = readJson(AUTH_KEY, {});
+        const authority = map?.[id];
+        if (!authority || typeof authority !== 'object') return { ...(theme || {}) };
+
+        const authorityStamp = Date.parse(String(authority.updatedAt || '')) || 0;
+        const themeStamp = Date.parse(String(theme?.introAudioUpdatedAtV420 || '')) || 0;
+        if (themeStamp > authorityStamp) return { ...(theme || {}) };
+
+        return {
+            ...(theme || {}),
+            introAudio: String(authority.introAudio || ''),
+            introAudioName: String(authority.introAudioName || ''),
+            introAudioProjectPath: String(authority.introAudioProjectPath || ''),
+            introAudioSourceThemeIdV364: String(authority.introAudioSourceThemeIdV364 || ''),
+            audioPlayMode: String(authority.audioPlayMode || 'full') === 'segment' ? 'segment' : 'full',
+            audioStart: String(authority.audioStart ?? '00:00'),
+            audioEnd: String(authority.audioEnd ?? '00:20'),
+            audioFade: authority.audioFade !== false,
+            audioVolume: Number.isFinite(Number(authority.audioVolume)) ? Number(authority.audioVolume) : 35,
+            introAudioRemovedV423:
+                authority.introAudioRemovedV423 === true ||
+                (!String(authority.introAudio || '').trim() && !!String(authority.updatedAt || '').trim()),
+            introAudioUpdatedAtV420: String(authority.updatedAt || '')
+        };
+    };
+
+    const hasAuthority = themeId => {
+        const map = readJson(AUTH_KEY, {});
+        return !!(map?.[String(themeId || '')] && typeof map[String(themeId || '')] === 'object');
+    };
+
+    const looksBuilderOwned = theme => !!(
+        theme && typeof theme === 'object' && (
+            Object.prototype.hasOwnProperty.call(theme, 'introAudio') ||
+            Object.prototype.hasOwnProperty.call(theme, 'audioPlayMode') ||
+            Object.prototype.hasOwnProperty.call(theme, 'audioVolume') ||
+            theme.introAudioRemovedV423 === true ||
+            !!String(theme.introAudioUpdatedAtV420 || theme.introAudioAuthorityV418 || '').trim()
+        )
+    );
+
+    const normalize = theme => {
+        const volumeRaw = Number(theme?.audioVolume);
+        return {
+            introAudio: String(theme?.introAudio || ''),
+            introAudioName: String(theme?.introAudioName || ''),
+            audioPlayMode: String(theme?.audioPlayMode || 'full') === 'segment' ? 'segment' : 'full',
+            audioStart: String(theme?.audioStart ?? '00:00'),
+            audioEnd: String(theme?.audioEnd ?? '00:20'),
+            audioFade: theme?.audioFade !== false,
+            audioVolume: Number.isFinite(volumeRaw) ? Math.max(0, Math.min(100, volumeRaw)) : 35,
+            introAudioRemovedV423: theme?.introAudioRemovedV423 === true,
+            introAudioUpdatedAtV420: String(theme?.introAudioUpdatedAtV420 || '')
+        };
+    };
+
+    const resolveTheme = (themeId, suppliedTheme = null) => {
+        const id = String(themeId || '');
+        if (!id || id === 'default') return null;
+        const base = suppliedTheme && typeof suppliedTheme === 'object'
+            ? flattenVariant(suppliedTheme)
+            : rawThemeForId(id);
+        if (!hasAuthority(id) && !looksBuilderOwned(base)) return null;
+        return normalize(applyAuthority(id, base));
+    };
+
+    const gate = () => window.__loggyIntroAudioGateV443 || null;
+
+    const dispose = audio => {
+        if (!audio) return;
+        try { audio.pause(); } catch (_) {}
+        try { audio.currentTime = 0; } catch (_) {}
+        try { audio.removeAttribute?.('src'); } catch (_) {}
+        try { audio.src = ''; } catch (_) {}
+        try { audio.load?.(); } catch (_) {}
+    };
+
+    const clearRetry = () => {
+        try { state.retryCleanup?.(); } catch (_) {}
+        state.retryCleanup = null;
+    };
+
+    const clearBoundary = () => {
+        try { state.boundaryCleanup?.(); } catch (_) {}
+        state.boundaryCleanup = null;
+        clearRetry();
+    };
+
+    const stopCurrent = ({ disposeSource = true } = {}) => {
+        clearBoundary();
+        const audio = state.audio;
+        state.audio = null;
+        state.themeId = '';
+        state.config = null;
+        state.completed = false;
+        try { gate()?.setIntroActive?.(false); } catch (_) {}
+        if (!audio) return;
+        try { gate()?.block?.(audio); } catch (_) {}
+        try { audio.pause(); } catch (_) {}
+        if (disposeSource) dispose(audio);
+    };
+
+    const stopPrime = () => {
+        const audio = state.prime;
+        state.prime = null;
+        state.primeSrc = '';
+        state.primeThemeId = '';
+        try { gate()?.block?.(audio); } catch (_) {}
+        dispose(audio);
+    };
+
+    const stopAll = () => {
+        stopCurrent();
+        stopPrime();
+    };
+
+    const queueGestureRetry = audio => {
+        clearRetry();
+        const retry = () => {
+            if (state.audio !== audio) {
+                clearRetry();
+                return;
+            }
+            try {
+                const result = audio.play();
+                if (result?.then) result.then(clearRetry).catch(() => {});
+                else clearRetry();
+            } catch (_) {}
+        };
+        const cleanup = () => {
+            document.removeEventListener('pointerdown', retry, true);
+            document.removeEventListener('keydown', retry, true);
+            state.retryCleanup = null;
+        };
+        state.retryCleanup = cleanup;
+        document.addEventListener('pointerdown', retry, true);
+        document.addEventListener('keydown', retry, true);
+    };
+
+    // This is intentionally called on pointerdown, before any async save/apply.
+    // It also stops the outgoing song immediately, so a theme switch can never
+    // leave the previous intro running while the new theme is loading.
+    const primeTheme = (themeId, suppliedTheme = null) => {
+        const id = String(themeId || '');
+
+        // Pointerdown is the earliest reliable signal that the user selected a
+        // different theme. Invalidate any older async apply immediately so it
+        // cannot finish a moment later and resurrect its outgoing song.
+        state.latestRequestedThemeId = id;
+        state.switchSerial += 1;
+        stopCurrent();
+
+        const config = resolveTheme(id, suppliedTheme);
+        const src = String(config?.introAudio || '').trim();
+        if (!config || config.introAudioRemovedV423 === true || !src) {
+            stopPrime();
+            state.reason = 'prime-no-intro-v444';
+            return null;
+        }
+
+        const wanted = comparableSrc(src);
+        if (
+            state.prime &&
+            comparableSrc(state.primeSrc) === wanted &&
+            (!state.primeThemeId || state.primeThemeId === id)
+        ) {
+            state.primeThemeId = id;
+            return state.prime;
+        }
+
+        stopPrime();
+        let audio = null;
+        try { audio = new Audio(src); } catch (_) { return null; }
+        state.prime = audio;
+        state.primeSrc = src;
+        state.primeThemeId = id;
+        try { gate()?.allow?.(audio); } catch (_) {}
+        try { audio.__loggyCanonicalIntroV444 = true; } catch (_) {}
+        try { audio.preload = 'auto'; } catch (_) {}
+        try { audio.volume = 0.001; } catch (_) {}
+        try {
+            const result = audio.play();
+            if (result?.catch) result.catch(() => {});
+        } catch (_) {}
+        state.reason = 'gesture-prime-v444';
+        return audio;
+    };
+
+    const takePrime = (themeId, src) => {
+        if (!state.prime) return null;
+        const id = String(themeId || '');
+        if (
+            comparableSrc(state.primeSrc) !== comparableSrc(src) ||
+            (state.primeThemeId && state.primeThemeId !== id)
+        ) {
+            stopPrime();
+            return null;
+        }
+        const audio = state.prime;
+        state.prime = null;
+        state.primeSrc = '';
+        state.primeThemeId = '';
+        return audio;
+    };
+
+    // Same currentTime-driven segment enforcement that made V443's volume/end
+    // behavior reliable. It stays as the single boundary authority in V444.
+    const enforceBoundary = (audio, config) => {
+        clearBoundary();
+        if (!audio) return;
+
+        const segment = String(config?.audioPlayMode || 'full') === 'segment';
+        const start = segment ? parseTime(config?.audioStart, 0) : 0;
+        const requestedEnd = segment ? parseTime(config?.audioEnd, NaN) : NaN;
+        const fade = config?.audioFade !== false;
+        const base = Math.max(0, Math.min(1, (Number.isFinite(Number(config?.audioVolume)) ? Number(config.audioVolume) : 35) / 100));
+        let end = segment && Number.isFinite(requestedEnd) && requestedEnd > start ? requestedEnd : NaN;
+        let stopped = false;
+        let interval = 0;
+        let hardStop = 0;
+
+        const active = () => state.audio === audio;
+        const setVolume = value => {
+            try { audio.volume = Math.max(0, Math.min(1, value)); } catch (_) {}
+        };
+        const ready = () => {
+            if (!active()) return;
+            if (segment) {
+                try {
+                    audio.currentTime = Math.min(
+                        start,
+                        Number.isFinite(audio.duration) ? Math.max(0, audio.duration - 0.02) : start
+                    );
+                } catch (_) {}
+            }
+            if (!segment && Number.isFinite(audio.duration) && audio.duration > 0) end = audio.duration;
+            setVolume(base);
+        };
+        const finish = () => {
+            if (stopped || !active()) return;
+            stopped = true;
+            clearInterval(interval);
+            clearTimeout(hardStop);
+            clearRetry();
+            if (fade) setVolume(0);
+            state.completed = true;
+            try { audio.pause(); } catch (_) {}
+            try { gate()?.block?.(audio); } catch (_) {}
+            try { gate()?.setIntroActive?.(false); } catch (_) {}
+        };
+        const tick = () => {
+            if (stopped || !active()) return;
+            if (!Number.isFinite(end)) {
+                if (!segment && Number.isFinite(audio.duration) && audio.duration > 0) end = audio.duration;
+                else { setVolume(base); return; }
+            }
+            const total = Math.max(0.1, end - start);
+            const fadeDuration = fade ? Math.min(total, 1.4, Math.max(0.25, total * 0.35)) : 0;
+            const now = Number(audio.currentTime) || 0;
+            if (fadeDuration > 0 && now >= end - fadeDuration) {
+                setVolume(base * Math.max(0, Math.min(1, (end - now) / fadeDuration)));
+            } else {
+                setVolume(base);
+            }
+            if (now >= end - 0.025) finish();
+        };
+        const scheduleHardStop = () => {
+            if (!segment || !Number.isFinite(end) || stopped || !active()) return;
+            clearTimeout(hardStop);
+            const now = Number(audio.currentTime) || 0;
+            hardStop = window.setTimeout(finish, Math.max(0, (end - now) * 1000) + 90);
+        };
+        const onPlaying = () => { tick(); scheduleHardStop(); };
+        const onTimeUpdate = () => tick();
+        const onEnded = () => {
+            if (!active()) return;
+            state.completed = true;
+            try { gate()?.setIntroActive?.(false); } catch (_) {}
+        };
+
+        if (audio.readyState >= 1) ready();
+        else audio.addEventListener('loadedmetadata', ready, { once:true });
+        audio.addEventListener('timeupdate', onTimeUpdate);
+        audio.addEventListener('playing', onPlaying);
+        audio.addEventListener('ended', onEnded, { once:true });
+        interval = window.setInterval(tick, 40);
+
+        state.boundaryCleanup = () => {
+            stopped = true;
+            clearInterval(interval);
+            clearTimeout(hardStop);
+            audio.removeEventListener('timeupdate', onTimeUpdate);
+            audio.removeEventListener('playing', onPlaying);
+            audio.removeEventListener('ended', onEnded);
+            state.boundaryCleanup = null;
+        };
+    };
+
+    const playTheme = (themeId, options = {}) => {
+        const id = String(themeId || '');
+        const config = resolveTheme(id, options.theme || null);
+
+        stopCurrent();
+
+        if (!config || config.introAudioRemovedV423 === true || !String(config.introAudio || '').trim()) {
+            stopPrime();
+            state.reason = String(options.reason || 'no-intro-v444');
+            try { gate()?.setIntroActive?.(false); } catch (_) {}
+            return null;
+        }
+
+        const src = String(config.introAudio || '').trim();
+        let audio = takePrime(id, src);
+        if (!audio) {
+            stopPrime();
+            try { audio = new Audio(src); } catch (_) { return null; }
+        }
+
+        try { gate()?.allow?.(audio); } catch (_) {}
+        try { audio.__loggyCanonicalIntroV444 = true; } catch (_) {}
+        try { audio.preload = 'auto'; } catch (_) {}
+        try { audio.muted = false; } catch (_) {}
+
+        state.audio = audio;
+        state.themeId = id;
+        state.config = config;
+        state.completed = false;
+        state.startCount += 1;
+        state.lastStartAt = Date.now();
+        state.reason = String(options.reason || 'play-theme-v444');
+
+        try { gate()?.setIntroActive?.(true); } catch (_) {}
+        enforceBoundary(audio, config);
+
+        const begin = () => {
+            if (state.audio !== audio) return;
+            try {
+                const result = audio.play();
+                if (result?.catch) result.catch(() => queueGestureRetry(audio));
+            } catch (_) {
+                queueGestureRetry(audio);
+            }
+        };
+
+        if (audio.readyState >= 1) begin();
+        else {
+            audio.addEventListener('loadedmetadata', begin, { once:true });
+            try { audio.load?.(); } catch (_) {}
+        }
+        return audio;
+    };
+
+    const beginThemeSwitch = (themeId) => {
+        const id = String(themeId || 'default');
+        const token = ++state.switchSerial;
+        state.latestRequestedThemeId = id;
+
+        // The outgoing intro MUST die before any async CSS/module work starts.
+        stopCurrent();
+        if (state.prime && state.primeThemeId && state.primeThemeId !== id) stopPrime();
+        try { gate()?.beginApply?.(); } catch (_) {}
+        return token;
+    };
+
+    const endThemeSwitch = (themeId, options = {}) => {
+        const id = String(themeId || 'default');
+        const token = Number(options.token || 0);
+        const completed = options.completed !== false;
+        try { gate()?.endApply?.(1200); } catch (_) {}
+        return !!(
+            completed &&
+            token === state.switchSerial &&
+            id === state.latestRequestedThemeId
+        );
+    };
+
+    const finishThemeSwitch = (themeId, options = {}) => {
+        const id = String(themeId || 'default');
+        if (!endThemeSwitch(id, options)) return null;
+        return ensureThemeAudio(
+            id,
+            options.theme || null,
+            options.reason || 'theme-switch-final-v446'
+        );
+    };
+
+    // V445: post-apply safety for user-selected themes. If an older path
+    // completed visuals without handing audio to the owner, adopt the already
+    // primed element now. This is idempotent and never restarts an active intro.
+    const ensureThemeAudio = (themeId, suppliedTheme = null, reason = 'ensure-theme-v445') => {
+        const id = String(themeId || 'default');
+        const config = resolveTheme(id, suppliedTheme);
+        const src = String(config?.introAudio || '').trim();
+        if (!config || config.introAudioRemovedV423 === true || !src) {
+            stopAll();
+            return null;
+        }
+        if (
+            state.audio &&
+            state.themeId === id &&
+            comparableSrc(state.audio.currentSrc || state.audio.src || '') === comparableSrc(src)
+        ) {
+            // V446: an earlier autoplay attempt may have produced the correct
+            // canonical element but left it paused. Do not mistake that for a
+            // successful intro. A completed segment stays completed; otherwise
+            // retry the SAME element instead of creating a second song.
+            if (!state.completed && state.audio.paused && !state.audio.ended) {
+                try { gate()?.allow?.(state.audio); } catch (_) {}
+                try { state.audio.volume = Math.max(0, Math.min(1, Number(config.audioVolume || 35) / 100)); } catch (_) {}
+                try {
+                    const result = state.audio.play();
+                    if (result?.catch) result.catch(() => queueGestureRetry(state.audio));
+                } catch (_) {
+                    queueGestureRetry(state.audio);
+                }
+                state.reason = String(reason || 'ensure-resume-v446');
+            }
+            return state.audio;
+        }
+        return playTheme(id, { theme: suppliedTheme, reason });
+    };
+
+    const currentThemeId = () => {
+        try {
+            const id = String(db?.settings?.theme || '');
+            if (id) return id;
+        } catch (_) {}
+        try {
+            if (typeof HOBBY !== 'undefined' && HOBBY) {
+                const id = String(localStorage.getItem(`loggy-log-theme:${HOBBY}`) || '');
+                if (id) return id;
+            }
+        } catch (_) {}
+        return 'default';
+    };
+
+    const debug = () => {
+        const id = currentThemeId();
+        const config = resolveTheme(id);
+        return {
+            themeId: id,
+            source: String(config?.introAudio || ''),
+            audioPlayMode: config?.audioPlayMode || null,
+            audioStart: config?.audioStart ?? null,
+            audioEnd: config?.audioEnd ?? null,
+            savedAudioVolume: config ? Number(config.audioVolume) : null,
+            expectedElementVolume: config ? Math.max(0, Math.min(100, Number(config.audioVolume))) / 100 : null,
+            actualElementVolume: state.audio ? Number(state.audio.volume) : null,
+            playing: !!state.audio && !state.audio.paused && !state.audio.ended,
+            currentTime: state.audio ? Number(state.audio.currentTime || 0) : null,
+            primed: !!state.prime,
+            primeSource: String(state.primeSrc || ''),
+            primeThemeId: String(state.primeThemeId || ''),
+            startCount: state.startCount,
+            lastStartAt: state.lastStartAt,
+            reason: state.reason,
+            completed: state.completed,
+            switchSerial: state.switchSerial,
+            latestRequestedThemeId: state.latestRequestedThemeId,
+            gate: gate()?.debug?.() || null
+        };
+    };
+
+    const api = {
+        playTheme,
+        primeTheme,
+        // Compatibility with V443 callers that passed (themeObject, themeId).
+        prime(theme = {}, themeId = '') {
+            const id = String(themeId || '');
+            if (id) return primeTheme(id, theme);
+
+            // Theme Builder Save can prime before the final saved theme ID exists.
+            // Treat that prime as a wildcard rather than incorrectly binding it
+            // to the outgoing/current theme ID.
+            state.switchSerial += 1;
+            state.latestRequestedThemeId = '';
+            stopCurrent();
+            const config = normalize(theme || {});
+            const src = String(config?.introAudio || '').trim();
+            if (!src || config.introAudioRemovedV423 === true) {
+                stopPrime();
+                return null;
+            }
+            if (state.prime && comparableSrc(state.primeSrc) === comparableSrc(src)) {
+                state.primeThemeId = '';
+                return state.prime;
+            }
+            stopPrime();
+            let audio = null;
+            try { audio = new Audio(src); } catch (_) { return null; }
+            state.prime = audio;
+            state.primeSrc = src;
+            state.primeThemeId = '';
+            try { gate()?.allow?.(audio); } catch (_) {}
+            try { audio.__loggyCanonicalIntroV444 = true; } catch (_) {}
+            try { audio.preload = 'auto'; audio.volume = 0.001; } catch (_) {}
+            try {
+                const result = audio.play();
+                if (result?.catch) result.catch(() => {});
+            } catch (_) {}
+            state.reason = 'gesture-prime-wildcard-v446';
+            return audio;
+        },
+        beginThemeSwitch,
+        endThemeSwitch,
+        finishThemeSwitch,
+        ensureThemeAudio,
+        stopCurrent,
+        stopPrime,
+        stopAll,
+        resolveTheme,
+        applyAuthority,
+        parseTime,
+        debug,
+        currentThemeId,
+        get audio() { return state.audio; },
+        get primedAudio() { return state.prime; },
+        get state() { return { ...state }; }
+    };
+
+    window.__loggyLogIntroAudioV444 = api;
+    // Historical adapters all resolve this name; alias it to the new core owner.
+    window.__loggyLogIntroAudioV443 = api;
+    window.__loggyIntroAudioDebugV446 = debug;
+    window.__loggyIntroAudioDebugV445 = debug;
+    window.__loggyIntroAudioDebugV444 = debug;
+    window.__loggyIntroAudioDebugV443 = debug;
+    window.__loggyStopAllIntroAudioV420 = stopAll;
+    window.__loggyRestartCurrentIntroV425 = options =>
+        playTheme(currentThemeId(), { ...(options || {}), reason:'compat-restart-v444' });
+    window.__loggyReplaySavedIntroV423 = () =>
+        playTheme(currentThemeId(), { reason:'compat-replay-v444' });
+
+    window.__loggyCoreIntroV428 = {
+        restart: (themeId, options = {}) =>
+            playTheme(themeId || currentThemeId(), { ...options, reason: options.reason || 'compat-core-restart-v444' }),
+        stop: stopAll,
+        resolve: resolveTheme,
+        parseTime,
+        debug,
+        get audio() { return state.audio; },
+        get state() { return { ...state }; }
+    };
+
+    // Prime before the card's async click handler runs. This is deliberately in
+    // core template.js so first-apply audio does not depend on lazy extras timing.
+    document.addEventListener('pointerdown', event => {
+        const card = event.target?.closest?.('#theme-picker .theme-picker-card[data-theme]');
+        if (!card) return;
+        primeTheme(card.dataset.theme || 'default');
+    }, true);
+
+    window.addEventListener('pagehide', stopAll);
+    window.addEventListener('pageshow', event => {
+        if (!event?.persisted) return;
+        const id = currentThemeId();
+        const token = beginThemeSwitch(id);
+        finishThemeSwitch(id, { token, reason:'pageshow-bfcache-v444', completed:true });
+    });
+})();
+
+// V445 — shared/custom Log theme resolver.
+// The Dashboard already applies shared Theme Builder rows as theme objects. Log
+// reloads must do the same instead of treating IDs like
+// `theme-custom-builder-abc123` as physical /themes/... folders.
+function resolveAppliedCustomThemeV445(themeValue) {
+    const id = String(themeValue || '');
+    if (!id || id === 'default') return null;
+
+    if (id === 'theme-custom-builder') {
+        try {
+            const own = getCustomThemeSettings?.();
+            if (own && typeof own === 'object') return own;
+        } catch (_) {}
+    }
+
+    try {
+        const copies = db?.settings?.themeCopiesV30;
+        const copy = Array.isArray(copies)
+            ? copies.find(item => String(item?.id || '') === id)
+            : null;
+        if (copy?.theme && typeof copy.theme === 'object') return copy.theme;
+    } catch (_) {}
+
+    try {
+        const override = db?.settings?.themeOverrides?.[id];
+        if (override && typeof override === 'object') return override?.theme || override;
+    } catch (_) {}
+
+    try {
+        const shared = JSON.parse(localStorage.getItem('loggy-shared-themes-v40') || '[]');
+        const row = Array.isArray(shared)
+            ? shared.find(item => String(item?.id || '') === id)
+            : null;
+        if (row?.theme && typeof row.theme === 'object') return row.theme;
+    } catch (_) {}
+
+    try {
+        const overrides = JSON.parse(localStorage.getItem('loggy-built-in-theme-overrides-v102') || '{}');
+        const row = overrides?.[id];
+        if (row && typeof row === 'object') return row?.theme || row;
+    } catch (_) {}
+
+    return null;
+}
+
+// V443 — SOURCE-THEME AUDIO QUARANTINE.
+// The Log page now has one intro-audio owner. Source-theme modules are still
+// mounted for visuals/interactions, but when Theme Builder owns the intro we
+// quarantine any legacy Audio.play() attempts during mount (and briefly after)
+// through the early gate installed in template.html.
+function shouldQuarantineSourceThemeAudioV443(themeValue) {
+    try {
+        if (window.__loggySuppressLegacyThemeStartupAudioV422 === true) return true;
+    } catch (_) {}
+
+    try {
+        const map = JSON.parse(localStorage.getItem('loggy-theme-intro-audio-v420') || '{}');
+        if (map?.[String(themeValue || '')] && typeof map[String(themeValue || '')] === 'object') return true;
+    } catch (_) {}
+
+    return false;
+}
+
+async function mountThemeModuleV443(module, quarantineAudio) {
+    if (!module?.mount) return;
+
+    const gate = window.__loggyIntroAudioGateV443;
+    if (quarantineAudio) {
+        try { gate?.beginApply?.(); } catch (_) {}
+    }
+
+    try {
+        const mounted = module.mount();
+        if (mounted && typeof mounted.then === 'function') await mounted;
+    } finally {
+        if (quarantineAudio) {
+            try { gate?.endApply?.(2600); } catch (_) {}
+        }
+    }
+}
+
 async function applyTheme(themeValue, opts = {}) {
     const { persist = true } = opts;
 
-    if (themeValue === 'theme-rainforest') {
-        themeValue = 'default';
-    }
-    db.settings.theme = themeValue;
+    if (themeValue === 'theme-rainforest') themeValue = 'default';
 
-    // V266: keep a tiny per-log mirror of the selected theme for reload
-    // continuity. The server DB remains authoritative; this is only a startup
-    // continuity hint and is refreshed whenever the real saved theme is applied.
+    // Resolve shared / duplicated Theme Builder themes as actual theme objects.
+    // This mirrors the Dashboard path and prevents reload from clearing the
+    // visual theme while its intro audio still resolves from shared storage.
+    const appliedCustomThemeV445 = resolveAppliedCustomThemeV445(themeValue);
+
+    const isPreviewHostV444 = (() => {
+        try {
+            const params = new URLSearchParams(location.search || '');
+            return document.documentElement?.dataset?.themeBuilderPreviewV307 === 'true' ||
+                location.pathname === '/theme-studio-host' ||
+                params.has('theme-builder-preview-v307') ||
+                params.has('theme-builder-preview-v306') ||
+                params.has('theme-builder-preview-v300');
+        } catch (_) {
+            return false;
+        }
+    })();
+
+    const skipIntroV444 =
+        isPreviewHostV444 ||
+        opts?.__loggySkipIntroV446 === true ||
+        opts?.__loggySkipIntroV445 === true ||
+        opts?.__loggySkipIntroV444 === true ||
+        opts?.__loggySkipIntroV443 === true ||
+        opts?.__loggyStartupVisualRepairV443 === true;
+
+    const introOwnerV444 = window.__loggyLogIntroAudioV444 || null;
+    const introSwitchTokenV444 = !skipIntroV444
+        ? introOwnerV444?.beginThemeSwitch?.(themeValue)
+        : null;
+    let introApplyCompletedV444 = false;
+
     try {
-        localStorage.setItem(`loggy-log-theme:${HOBBY}`, String(themeValue || 'default'));
-    } catch (_) {}
+        db.settings.theme = themeValue;
 
-    if (persist) await saveDb();
-    if (dailyThemeSelect) dailyThemeSelect.value = themeValue || 'default';
+        // V266: tiny per-log continuity mirror. The server DB is still authoritative.
+        try {
+            localStorage.setItem(`loggy-log-theme:${HOBBY}`, String(themeValue || 'default'));
+        } catch (_) {}
 
-    // Unmount whatever theme's JS module (falling leaves, particles, etc.) is currently active
-    if (activeThemeModule && activeThemeModule.unmount) {
-        activeThemeModule.unmount();
-        activeThemeModule = null;
-    }
+        if (persist) await saveDb();
+        if (dailyThemeSelect) dailyThemeSelect.value = themeValue || 'default';
 
-    // Only ever touch theme-* classes on <body>
-    Array.from(document.body.classList)
-        .filter(c => c.startsWith('theme-'))
-        .forEach(c => document.body.classList.remove(c));
+        if (activeThemeModule && activeThemeModule.unmount) {
+            try { activeThemeModule.unmount(); } catch (_) {}
+            activeThemeModule = null;
+        }
 
-    const existingLink = document.getElementById('dynamic-theme-css');
+        Array.from(document.body.classList)
+            .filter(c => c.startsWith('theme-'))
+            .forEach(c => document.body.classList.remove(c));
 
-    if (!themeValue || themeValue === 'default') {
-        if (existingLink) existingLink.remove();
-        clearCustomBuiltTheme();
-        return;
-    }
+        const existingLink = document.getElementById('dynamic-theme-css');
 
-    if (themeValue === 'theme-custom-builder') {
-        if (existingLink) existingLink.remove();
-        document.body.classList.add('theme-custom-builder');
-        applyCustomBuiltTheme();
-        if (typeof applyCursorChoice === 'function') applyCursorChoice();
-        return;
-    }
-
-    clearCustomBuiltTheme();
-    document.body.classList.add(themeValue);
-    const themeName = themeValue.replace('theme-', '');
-
-    let link = existingLink;
-    if (!link) {
-        link = document.createElement('link');
-        link.id = 'dynamic-theme-css';
-        link.rel = 'stylesheet';
-        document.head.appendChild(link);
-    }
-    const cssHref = `/themes/${themeName}/theme-${themeName}.css`;
-
-    // V266: do not reveal a reloaded log between selecting its saved theme and
-    // the theme stylesheet actually becoming active. This prevents the page from
-    // briefly appearing as Default (or looking like the theme disappeared) on F5.
-    await new Promise(resolve => {
-        let settled = false;
-        const done = () => {
-            if (settled) return;
-            settled = true;
+        if (!themeValue || themeValue === 'default') {
+            if (existingLink) existingLink.remove();
+            clearCustomBuiltTheme();
+        } else if (themeValue === 'theme-custom-builder' || appliedCustomThemeV445) {
+            if (existingLink) existingLink.remove();
+            // Shared/copy themes are Theme Builder themes too; their unique ID is
+            // state, not a filesystem folder. Keep the generic runtime class and
+            // remember the real ID separately.
+            document.body.classList.add('theme-custom-builder');
+            document.body.dataset.loggyAppliedThemeIdV445 = String(themeValue || 'theme-custom-builder');
+            applyCustomBuiltTheme(appliedCustomThemeV445 || getCustomThemeSettings());
             if (typeof applyCursorChoice === 'function') applyCursorChoice();
-            resolve();
-        };
-        const absolute = new URL(cssHref, location.href).href;
-        if (link.href === absolute && link.sheet) {
-            done();
-            return;
-        }
-        link.addEventListener('load', done, { once: true });
-        link.addEventListener('error', done, { once: true });
-        link.href = cssHref;
-        // Local themes should load almost immediately, but never let one missing
-        // stylesheet permanently block the app startup guard.
-        setTimeout(done, 1200);
-    });
+        } else {
+            clearCustomBuiltTheme();
+            document.body.classList.add(themeValue);
+            const themeName = themeValue.replace('theme-', '');
 
-    try {
-        const module = await import(`/themes/${themeName}/theme-${themeName}.js`);
-        if (module && module.mount) {
-            activeThemeModule = module;
-            activeThemeModule.mount();
+            let link = existingLink;
+            if (!link) {
+                link = document.createElement('link');
+                link.id = 'dynamic-theme-css';
+                link.rel = 'stylesheet';
+                document.head.appendChild(link);
+            }
+            const cssHref = `/themes/${themeName}/theme-${themeName}.css`;
+
+            await new Promise(resolve => {
+                let settled = false;
+                const done = () => {
+                    if (settled) return;
+                    settled = true;
+                    if (typeof applyCursorChoice === 'function') applyCursorChoice();
+                    resolve();
+                };
+                const absolute = new URL(cssHref, location.href).href;
+                if (link.href === absolute && link.sheet) {
+                    done();
+                    return;
+                }
+                link.addEventListener('load', done, { once: true });
+                link.addEventListener('error', done, { once: true });
+                link.href = cssHref;
+                setTimeout(done, 1200);
+            });
+
+            try {
+                const module = await import(`/themes/${themeName}/theme-${themeName}.js`);
+                if (module && module.mount) {
+                    activeThemeModule = module;
+                    await mountThemeModuleV443(
+                        activeThemeModule,
+                        shouldQuarantineSourceThemeAudioV443(themeValue)
+                    );
+                }
+            } catch (e) {
+                console.log(`No JS module needed for ${themeName}, applying CSS only.`);
+            }
         }
-    } catch (e) {
-        console.log(`No JS module needed for ${themeName}, applying CSS only.`);
+
+        introApplyCompletedV444 = true;
+    } finally {
+        if (!skipIntroV444 && introSwitchTokenV444 != null) {
+            // V446: core applyTheme owns VISUAL switching only. It closes the
+            // quarantine/gate here but deliberately does not consume the primed
+            // Audio. The outermost user action (theme-card click, Enter, select,
+            // or Theme Builder Save) commits audio only after every apply wrapper
+            // has completely finished. This is the Dashboard-style split that
+            // prevents a late visual wrapper from killing the newly started song.
+            introOwnerV444?.endThemeSwitch?.(themeValue, {
+                token: introSwitchTokenV444,
+                completed: introApplyCompletedV444
+            });
+        }
     }
 }
+
+
+// V446 — FINAL STARTUP HANDOFF.
+// Startup restores VISUALS first with intro ownership disabled. Once all extras
+// are loaded, re-apply only the enhanced custom-theme visual function (never the
+// whole applyTheme chain), then start/ensure the current intro exactly once.
+// This removes the ~0.2s reload cut-off caused by the old features-ready
+// applyTheme replay while preserving every late visual enhancement.
+let startupFinalizedV446 = false;
+window.__loggyStartupFeaturesReadyV446 =
+    document.documentElement.dataset.loggyFeaturesReady === '1';
+
+function finalizeStartupThemeV446() {
+    if (startupFinalizedV446) return;
+    if (window.__loggyStartupDataReadyV446 !== true) return;
+    if (window.__loggyStartupFeaturesReadyV446 !== true) return;
+    startupFinalizedV446 = true;
+
+    const id = String(db?.settings?.theme || 'default');
+    const theme = resolveAppliedCustomThemeV445(id);
+
+    if (theme || id === 'theme-custom-builder') {
+        try {
+            applyCustomBuiltTheme(theme || getCustomThemeSettings());
+            document.body.classList.add('theme-custom-builder');
+            document.body.dataset.loggyAppliedThemeIdV445 = id;
+            if (typeof applyCursorChoice === 'function') applyCursorChoice();
+        } catch (_) {}
+    }
+
+    // Do this after the enhanced visual function returns. No applyTheme replay is
+    // involved, so nothing late in the wrapper chain can immediately kill it.
+    setTimeout(() => {
+        try {
+            window.__loggyLogIntroAudioV444?.ensureThemeAudio?.(
+                id,
+                theme,
+                'startup-after-data-and-features-v446'
+            );
+        } catch (_) {}
+    }, 0);
+}
+
+window.__loggyMaybeFinalizeStartupV446 = finalizeStartupThemeV446;
+window.addEventListener('loggy-features-ready', () => {
+    window.__loggyStartupFeaturesReadyV446 = true;
+    finalizeStartupThemeV446();
+}, { once: true });
+
+if (window.__loggyStartupFeaturesReadyV446 === true) {
+    setTimeout(finalizeStartupThemeV446, 0);
+}
+
 
 // NOTE: Theme is applied once real data has loaded from the server (see loadData()),
 // not here at top-level — calling applyTheme() before loadData() resolves would run
@@ -8386,7 +9826,23 @@ async function applyTheme(themeValue, opts = {}) {
 // whatever theme the user actually had saved, wiping it on every page load/refresh.
 
 if (dailyThemeSelect) {
-    dailyThemeSelect.addEventListener('change', (e) => applyTheme(e.target.value));
+    dailyThemeSelect.addEventListener('change', async e => {
+        const id = e.target.value;
+        try {
+            window.__loggyLogIntroAudioV444?.primeTheme?.(
+                id,
+                resolveAppliedCustomThemeV445(id)
+            );
+        } catch (_) {}
+        await applyTheme(id);
+        try {
+            window.__loggyLogIntroAudioV444?.ensureThemeAudio?.(
+                id,
+                resolveAppliedCustomThemeV445(id),
+                'theme-select-change-v446'
+            );
+        } catch (_) {}
+    });
 }
 const dailyPolaroidSourceSelect = document.getElementById('daily-polaroid-source-select');
 const dailyPolaroidSourceGroup = document.getElementById('daily-polaroid-source-group');
@@ -8416,1782 +9872,8 @@ if (
 
 
 
-// ============================================================
-// MOVABLE MULTILINGUAL VIRTUAL KEYBOARD
-// Ctrl + K toggles it from any text input / textarea / contenteditable.
-// ============================================================
-
-const VIRTUAL_KEYBOARD_LANGUAGES = {
-    korean: 'Korean',
-    japanese: 'Japanese',
-    spanish: 'Spanish',
-    french: 'French',
-    german: 'German',
-    portuguese: 'Portuguese',
-    english: 'English'
-};
-
-let virtualKeyboardTarget = null;
-let virtualKeyboardSavedRange = null;
-let virtualKeyboardShift = false;
-let virtualKeyboardJapaneseKatakana = false;
-
-const hangulInitials = [
-    'ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ',
-    'ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'
-];
-
-const hangulVowels = [
-    'ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ',
-    'ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ',
-    'ㅡ','ㅢ','ㅣ'
-];
-
-const hangulFinals = [
-    '',
-    'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ',
-    'ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ',
-    'ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'
-];
-
-const hangulCompoundVowels = {
-    'ㅗㅏ': 'ㅘ',
-    'ㅗㅐ': 'ㅙ',
-    'ㅗㅣ': 'ㅚ',
-    'ㅜㅓ': 'ㅝ',
-    'ㅜㅔ': 'ㅞ',
-    'ㅜㅣ': 'ㅟ',
-    'ㅡㅣ': 'ㅢ'
-};
-
-const hangulSplitVowels =
-    Object.fromEntries(
-        Object.entries(
-            hangulCompoundVowels
-        ).map(([pair, value]) => [
-            value,
-            [pair[0], pair[1]]
-        ])
-    );
-
-const hangulCompoundFinals = {
-    'ㄱㅅ': 'ㄳ',
-    'ㄴㅈ': 'ㄵ',
-    'ㄴㅎ': 'ㄶ',
-    'ㄹㄱ': 'ㄺ',
-    'ㄹㅁ': 'ㄻ',
-    'ㄹㅂ': 'ㄼ',
-    'ㄹㅅ': 'ㄽ',
-    'ㄹㅌ': 'ㄾ',
-    'ㄹㅍ': 'ㄿ',
-    'ㄹㅎ': 'ㅀ',
-    'ㅂㅅ': 'ㅄ'
-};
-
-const hangulSplitFinals =
-    Object.fromEntries(
-        Object.entries(
-            hangulCompoundFinals
-        ).map(([pair, value]) => [
-            value,
-            [pair[0], pair[1]]
-        ])
-    );
-
-const hangulDoubleInitials = {
-    'ㄱㄱ': 'ㄲ',
-    'ㄷㄷ': 'ㄸ',
-    'ㅂㅂ': 'ㅃ',
-    'ㅅㅅ': 'ㅆ',
-    'ㅈㅈ': 'ㅉ'
-};
-
-const hangulSplitInitials =
-    Object.fromEntries(
-        Object.entries(
-            hangulDoubleInitials
-        ).map(([pair, value]) => [
-            value,
-            pair[0]
-        ])
-    );
-
-let hangulComposition = {
-    target: null,
-    L: '',
-    V: '',
-    T: '',
-    handle: null
-};
-
-function isVirtualKeyboardTextTarget(element) {
-    if (!element) return false;
-
-    if (element.isContentEditable) {
-        return true;
-    }
-
-    if (element.tagName === 'TEXTAREA') {
-        return true;
-    }
-
-    if (element.tagName !== 'INPUT') {
-        return false;
-    }
-
-    return [
-        'text',
-        'search',
-        'url',
-        'email',
-        'tel',
-        'password'
-    ].includes(
-        String(element.type || 'text')
-            .toLowerCase()
-    );
-}
-
-function targetContainsRange(target, range) {
-    if (!target || !range) return false;
-
-    const container =
-        range.commonAncestorContainer;
-
-    return (
-        container === target ||
-        target.contains(container)
-    );
-}
-
-document.addEventListener(
-    'focusin',
-    event => {
-        if (
-            isVirtualKeyboardTextTarget(
-                event.target
-            )
-        ) {
-            virtualKeyboardTarget =
-                event.target;
-        }
-    }
-);
-
-document.addEventListener(
-    'selectionchange',
-    () => {
-        const target =
-            virtualKeyboardTarget;
-
-        if (
-            !target ||
-            !target.isContentEditable
-        ) {
-            return;
-        }
-
-        const selection =
-            window.getSelection();
-
-        if (!selection.rangeCount) return;
-
-        const range =
-            selection.getRangeAt(0);
-
-        if (
-            targetContainsRange(
-                target,
-                range
-            )
-        ) {
-            virtualKeyboardSavedRange =
-                range.cloneRange();
-        }
-    }
-);
-
-function dispatchVirtualKeyboardInput(
-    target,
-    data = ''
-) {
-    target?.dispatchEvent(
-        new InputEvent(
-            'input',
-            {
-                bubbles: true,
-                inputType: 'insertText',
-                data
-            }
-        )
-    );
-}
-
-function getContentEditableInsertRange(
-    target
-) {
-    const selection =
-        window.getSelection();
-
-    if (
-        selection.rangeCount &&
-        targetContainsRange(
-            target,
-            selection.getRangeAt(0)
-        )
-    ) {
-        return selection
-            .getRangeAt(0)
-            .cloneRange();
-    }
-
-    if (
-        virtualKeyboardSavedRange &&
-        targetContainsRange(
-            target,
-            virtualKeyboardSavedRange
-        )
-    ) {
-        return virtualKeyboardSavedRange
-            .cloneRange();
-    }
-
-    const range =
-        document.createRange();
-
-    range.selectNodeContents(target);
-    range.collapse(false);
-
-    return range;
-}
-
-function placeCaretAfterNode(node) {
-    if (!node?.parentNode) return;
-
-    const range =
-        document.createRange();
-
-    range.setStartAfter(node);
-    range.collapse(true);
-
-    const selection =
-        window.getSelection();
-
-    selection.removeAllRanges();
-    selection.addRange(range);
-
-    virtualKeyboardSavedRange =
-        range.cloneRange();
-}
-
-function insertVirtualKeyboardText(
-    text
-) {
-    const target =
-        virtualKeyboardTarget;
-
-    if (!isVirtualKeyboardTextTarget(target)) {
-        return null;
-    }
-
-    target.focus({
-        preventScroll: true
-    });
-
-    if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA'
-    ) {
-        const start =
-            target.selectionStart ??
-            target.value.length;
-
-        const end =
-            target.selectionEnd ??
-            start;
-
-        target.setRangeText(
-            text,
-            start,
-            end,
-            'end'
-        );
-
-        dispatchVirtualKeyboardInput(
-            target,
-            text
-        );
-
-        return {
-            kind: 'input',
-            target,
-            start,
-            length: text.length
-        };
-    }
-
-    const range =
-        getContentEditableInsertRange(
-            target
-        );
-
-    range.deleteContents();
-
-    const node =
-        document.createTextNode(text);
-
-    range.insertNode(node);
-    placeCaretAfterNode(node);
-
-    dispatchVirtualKeyboardInput(
-        target,
-        text
-    );
-
-    return {
-        kind: 'contenteditable',
-        target,
-        node
-    };
-}
-
-function updateVirtualKeyboardHandle(
-    handle,
-    text
-) {
-    if (!handle) {
-        return insertVirtualKeyboardText(
-            text
-        );
-    }
-
-    const target =
-        handle.target;
-
-    if (
-        handle.kind === 'input'
-    ) {
-        target.setRangeText(
-            text,
-            handle.start,
-            handle.start +
-                handle.length,
-            'end'
-        );
-
-        handle.length =
-            text.length;
-
-        dispatchVirtualKeyboardInput(
-            target,
-            text
-        );
-
-        return handle;
-    }
-
-    if (
-        handle.kind ===
-            'contenteditable' &&
-        handle.node?.parentNode
-    ) {
-        handle.node.nodeValue =
-            text;
-
-        placeCaretAfterNode(
-            handle.node
-        );
-
-        dispatchVirtualKeyboardInput(
-            target,
-            text
-        );
-
-        return handle;
-    }
-
-    return insertVirtualKeyboardText(
-        text
-    );
-}
-
-function removeVirtualKeyboardHandle(
-    handle
-) {
-    if (!handle) return;
-
-    const target =
-        handle.target;
-
-    if (handle.kind === 'input') {
-        target.setRangeText(
-            '',
-            handle.start,
-            handle.start +
-                handle.length,
-            'end'
-        );
-
-        dispatchVirtualKeyboardInput(
-            target,
-            ''
-        );
-
-        return;
-    }
-
-    if (
-        handle.kind ===
-            'contenteditable' &&
-        handle.node?.parentNode
-    ) {
-        const parent =
-            handle.node.parentNode;
-
-        const previous =
-            handle.node.previousSibling;
-
-        handle.node.remove();
-
-        const range =
-            document.createRange();
-
-        if (
-            previous &&
-            previous.nodeType ===
-                Node.TEXT_NODE
-        ) {
-            range.setStart(
-                previous,
-                previous.nodeValue
-                    ?.length || 0
-            );
-        } else {
-            range.selectNodeContents(
-                parent
-            );
-            range.collapse(false);
-        }
-
-        const selection =
-            window.getSelection();
-
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        virtualKeyboardSavedRange =
-            range.cloneRange();
-
-        dispatchVirtualKeyboardInput(
-            target,
-            ''
-        );
-    }
-}
-
-function resetHangulComposition() {
-    hangulComposition = {
-        target: virtualKeyboardTarget,
-        L: '',
-        V: '',
-        T: '',
-        handle: null
-    };
-}
-
-function commitHangulComposition() {
-    hangulComposition = {
-        target: virtualKeyboardTarget,
-        L: '',
-        V: '',
-        T: '',
-        handle: null
-    };
-}
-
-function composeHangulSyllable(
-    L,
-    V,
-    T = ''
-) {
-    const li =
-        hangulInitials.indexOf(L);
-
-    const vi =
-        hangulVowels.indexOf(V);
-
-    const ti =
-        hangulFinals.indexOf(T);
-
-    if (
-        li < 0 ||
-        vi < 0 ||
-        ti < 0
-    ) {
-        return `${L || ''}${V || ''}${T || ''}`;
-    }
-
-    return String.fromCharCode(
-        0xAC00 +
-        (
-            (
-                li * 21
-            ) +
-            vi
-        ) * 28 +
-        ti
-    );
-}
-
-function getHangulCompositionText() {
-    const {
-        L,
-        V,
-        T
-    } = hangulComposition;
-
-    if (L && V) {
-        return composeHangulSyllable(
-            L,
-            V,
-            T
-        );
-    }
-
-    return L || V || T || '';
-}
-
-function renderHangulComposition() {
-    const text =
-        getHangulCompositionText();
-
-    if (!text) {
-        if (
-            hangulComposition.handle
-        ) {
-            removeVirtualKeyboardHandle(
-                hangulComposition.handle
-            );
-        }
-
-        hangulComposition.handle =
-            null;
-
-        return;
-    }
-
-    hangulComposition.handle =
-        updateVirtualKeyboardHandle(
-            hangulComposition.handle,
-            text
-        );
-}
-
-function ensureHangulTarget() {
-    if (
-        hangulComposition.target !==
-        virtualKeyboardTarget
-    ) {
-        resetHangulComposition();
-    }
-}
-
-function inputHangulJamo(jamo) {
-    ensureHangulTarget();
-
-    const isVowel =
-        hangulVowels.includes(jamo);
-
-    if (isVowel) {
-        const {
-            L,
-            V,
-            T
-        } = hangulComposition;
-
-        if (!L && !V) {
-            hangulComposition.V =
-                jamo;
-
-            renderHangulComposition();
-            return;
-        }
-
-        if (!L && V) {
-            const combined =
-                hangulCompoundVowels[
-                    `${V}${jamo}`
-                ];
-
-            if (combined) {
-                hangulComposition.V =
-                    combined;
-
-                renderHangulComposition();
-                return;
-            }
-
-            commitHangulComposition();
-
-            hangulComposition.V =
-                jamo;
-
-            renderHangulComposition();
-            return;
-        }
-
-        if (L && !V) {
-            hangulComposition.V =
-                jamo;
-
-            renderHangulComposition();
-            return;
-        }
-
-        if (L && V && !T) {
-            const combined =
-                hangulCompoundVowels[
-                    `${V}${jamo}`
-                ];
-
-            if (combined) {
-                hangulComposition.V =
-                    combined;
-
-                renderHangulComposition();
-                return;
-            }
-
-            commitHangulComposition();
-
-            hangulComposition.V =
-                jamo;
-
-            renderHangulComposition();
-            return;
-        }
-
-        if (L && V && T) {
-            const oldFinal =
-                T;
-
-            const split =
-                hangulSplitFinals[
-                    oldFinal
-                ];
-
-            if (split) {
-                hangulComposition.T =
-                    split[0];
-
-                renderHangulComposition();
-                commitHangulComposition();
-
-                hangulComposition.L =
-                    split[1];
-
-                hangulComposition.V =
-                    jamo;
-
-                renderHangulComposition();
-                return;
-            }
-
-            hangulComposition.T = '';
-            renderHangulComposition();
-            commitHangulComposition();
-
-            hangulComposition.L =
-                oldFinal;
-
-            hangulComposition.V =
-                jamo;
-
-            renderHangulComposition();
-            return;
-        }
-
-        return;
-    }
-
-    const {
-        L,
-        V,
-        T
-    } = hangulComposition;
-
-    if (!L && !V) {
-        if (
-            hangulInitials.includes(
-                jamo
-            )
-        ) {
-            hangulComposition.L =
-                jamo;
-
-            renderHangulComposition();
-        } else {
-            insertVirtualKeyboardText(
-                jamo
-            );
-        }
-
-        return;
-    }
-
-    if (!L && V) {
-        commitHangulComposition();
-
-        hangulComposition.L =
-            jamo;
-
-        renderHangulComposition();
-        return;
-    }
-
-    if (L && !V) {
-        const doubled =
-            hangulDoubleInitials[
-                `${L}${jamo}`
-            ];
-
-        if (doubled) {
-            hangulComposition.L =
-                doubled;
-
-            renderHangulComposition();
-            return;
-        }
-
-        commitHangulComposition();
-
-        hangulComposition.L =
-            jamo;
-
-        renderHangulComposition();
-        return;
-    }
-
-    if (L && V && !T) {
-        if (
-            hangulFinals.includes(
-                jamo
-            )
-        ) {
-            hangulComposition.T =
-                jamo;
-
-            renderHangulComposition();
-            return;
-        }
-
-        commitHangulComposition();
-
-        hangulComposition.L =
-            jamo;
-
-        renderHangulComposition();
-        return;
-    }
-
-    if (L && V && T) {
-        const combined =
-            hangulCompoundFinals[
-                `${T}${jamo}`
-            ];
-
-        if (combined) {
-            hangulComposition.T =
-                combined;
-
-            renderHangulComposition();
-            return;
-        }
-
-        commitHangulComposition();
-
-        hangulComposition.L =
-            jamo;
-
-        renderHangulComposition();
-    }
-}
-
-function backspaceHangulComposition() {
-    ensureHangulTarget();
-
-    const {
-        L,
-        V,
-        T
-    } = hangulComposition;
-
-    if (T) {
-        const split =
-            hangulSplitFinals[T];
-
-        hangulComposition.T =
-            split
-                ? split[0]
-                : '';
-
-        renderHangulComposition();
-        return true;
-    }
-
-    if (V) {
-        const split =
-            hangulSplitVowels[V];
-
-        hangulComposition.V =
-            split
-                ? split[0]
-                : '';
-
-        renderHangulComposition();
-        return true;
-    }
-
-    if (L) {
-        hangulComposition.L =
-            hangulSplitInitials[L] ||
-            '';
-
-        renderHangulComposition();
-        return true;
-    }
-
-    return false;
-}
-
-function backspaceVirtualKeyboardTarget() {
-    const target =
-        virtualKeyboardTarget;
-
-    if (!isVirtualKeyboardTextTarget(target)) {
-        return;
-    }
-
-    if (
-        db.settings
-            .virtualKeyboardLanguage ===
-            'korean' &&
-        backspaceHangulComposition()
-    ) {
-        return;
-    }
-
-    commitHangulComposition();
-
-    if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA'
-    ) {
-        const start =
-            target.selectionStart ??
-            target.value.length;
-
-        const end =
-            target.selectionEnd ??
-            start;
-
-        if (start !== end) {
-            target.setRangeText(
-                '',
-                start,
-                end,
-                'end'
-            );
-        } else if (start > 0) {
-            target.setRangeText(
-                '',
-                start - 1,
-                start,
-                'end'
-            );
-        }
-
-        dispatchVirtualKeyboardInput(
-            target,
-            ''
-        );
-
-        return;
-    }
-
-    const range =
-        getContentEditableInsertRange(
-            target
-        );
-
-    if (!range.collapsed) {
-        range.deleteContents();
-    } else {
-        const selection =
-            window.getSelection();
-
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        document.execCommand(
-            'delete',
-            false
-        );
-    }
-
-    dispatchVirtualKeyboardInput(
-        target,
-        ''
-    );
-}
-
-function insertVirtualKeyboardControl(
-    value
-) {
-    commitHangulComposition();
-
-    if (value === 'backspace') {
-        backspaceVirtualKeyboardTarget();
-        return;
-    }
-
-    if (value === 'space') {
-        insertVirtualKeyboardText(' ');
-        return;
-    }
-
-    if (value === 'enter') {
-        const target =
-            virtualKeyboardTarget;
-
-        if (
-            target?.tagName === 'TEXTAREA' ||
-            target?.isContentEditable
-        ) {
-            insertVirtualKeyboardText('\n');
-        }
-
-        return;
-    }
-
-    insertVirtualKeyboardText(value);
-}
-
-function getVirtualKeyboardRows(language) {
-    if (language === 'korean') {
-        return [
-            ['ㅂ','ㅈ','ㄷ','ㄱ','ㅅ','ㅛ','ㅕ','ㅑ','ㅐ','ㅔ'],
-            ['ㅁ','ㄴ','ㅇ','ㄹ','ㅎ','ㅗ','ㅓ','ㅏ','ㅣ','ㅋ'],
-            ['ㅌ','ㅊ','ㅍ','ㅠ','ㅜ','ㅡ','ㅃ','ㅉ','ㄸ','ㄲ'],
-            ['ㅆ','ㅒ','ㅖ']
-        ];
-    }
-
-    if (language === 'japanese') {
-        const hira = [
-            ['あ','い','う','え','お','か','き','く','け','こ'],
-            ['さ','し','す','せ','そ','た','ち','つ','て','と'],
-            ['な','に','ぬ','ね','の','は','ひ','ふ','へ','ほ'],
-            ['ま','み','む','め','も','や','ゆ','よ','ら','り'],
-            ['る','れ','ろ','わ','を','ん','ゃ','ゅ','ょ','っ'],
-            ['ー','が','ぎ','ぐ','げ','ご','ざ','じ','ず','ぜ'],
-            ['ぞ','だ','ぢ','づ','で','ど','ば','び','ぶ','べ'],
-            ['ぼ','ぱ','ぴ','ぷ','ぺ','ぽ']
-        ];
-
-        if (!virtualKeyboardJapaneseKatakana) {
-            return hira;
-        }
-
-        return hira.map(row =>
-            row.map(char => {
-                const code = char.charCodeAt(0);
-
-                if (
-                    code >= 0x3041 &&
-                    code <= 0x3096
-                ) {
-                    return String.fromCharCode(
-                        code + 0x60
-                    );
-                }
-
-                return char;
-            })
-        );
-    }
-
-    const latinLayouts = {
-        english: [
-            ['q','w','e','r','t','y','u','i','o','p'],
-            ['a','s','d','f','g','h','j','k','l'],
-            ['z','x','c','v','b','n','m']
-        ],
-        spanish: [
-            ['q','w','e','r','t','y','u','i','o','p'],
-            ['a','s','d','f','g','h','j','k','l','ñ'],
-            ['z','x','c','v','b','n','m'],
-            ['á','é','í','ó','ú','ü','¿','¡']
-        ],
-        french: [
-            ['a','z','e','r','t','y','u','i','o','p'],
-            ['q','s','d','f','g','h','j','k','l','m'],
-            ['w','x','c','v','b','n'],
-            ['à','â','ç','é','è','ê','ë','î','ï','ô','ù','û','ü','ÿ','œ']
-        ],
-        german: [
-            ['q','w','e','r','t','z','u','i','o','p'],
-            ['a','s','d','f','g','h','j','k','l','ö'],
-            ['y','x','c','v','b','n','m','ä','ü','ß']
-        ],
-        portuguese: [
-            ['q','w','e','r','t','y','u','i','o','p'],
-            ['a','s','d','f','g','h','j','k','l','ç'],
-            ['z','x','c','v','b','n','m'],
-            ['á','à','â','ã','é','ê','í','ó','ô','õ','ú']
-        ]
-    };
-
-    const rows =
-        latinLayouts[language] ||
-        latinLayouts.english;
-
-    if (!virtualKeyboardShift) {
-        return rows;
-    }
-
-    return rows.map(row =>
-        row.map(char =>
-            char.toLocaleUpperCase()
-        )
-    );
-}
-
-function getVirtualKeyboardLanguage() {
-    return (
-        db.settings
-            .virtualKeyboardLanguage ||
-        'korean'
-    );
-}
-
-function ensureVirtualKeyboardSettingsUI() {
-    const cursorPicker =
-        document.getElementById(
-            'cursor-picker'
-        );
-
-    if (!cursorPicker) return;
-
-    let section =
-        document.getElementById(
-            'virtual-keyboard-settings-section'
-        );
-
-    if (!section) {
-        section =
-            document.createElement('div');
-
-        section.id =
-            'virtual-keyboard-settings-section';
-
-        section.className =
-            'modal-section virtual-keyboard-settings-section';
-
-        section.innerHTML = `
-            <span class="field-label">
-                Ctrl + K Keyboard
-            </span>
-
-            <select
-                id="virtual-keyboard-language-select"
-                aria-label="Virtual keyboard language"
-            >
-                ${Object.entries(
-                    VIRTUAL_KEYBOARD_LANGUAGES
-                ).map(
-                    ([value, label]) =>
-                        `<option value="${value}">${label}</option>`
-                ).join('')}
-            </select>
-
-            <p class="progress-hint">
-                Press Ctrl + K in any text box to open or close it.
-            </p>
-        `;
-
-        const cursorSection =
-            cursorPicker.closest(
-                '.modal-section'
-            ) ||
-            cursorPicker.parentElement;
-
-        cursorSection.insertAdjacentElement(
-            'afterend',
-            section
-        );
-
-        section
-            .querySelector(
-                '#virtual-keyboard-language-select'
-            )
-            ?.addEventListener(
-                'change',
-                event => {
-                    db.settings
-                        .virtualKeyboardLanguage =
-                        event.target.value;
-
-                    saveDb();
-                    virtualKeyboardShift =
-                        false;
-
-                    virtualKeyboardJapaneseKatakana =
-                        false;
-
-                    commitHangulComposition();
-                    renderVirtualKeyboard();
-                }
-            );
-    }
-
-    const select =
-        document.getElementById(
-            'virtual-keyboard-language-select'
-        );
-
-    if (select) {
-        select.value =
-            getVirtualKeyboardLanguage();
-    }
-}
-
-function ensureVirtualKeyboard() {
-    let keyboard =
-        document.getElementById(
-            'floating-language-keyboard'
-        );
-
-    if (keyboard) return keyboard;
-
-    keyboard =
-        document.createElement('div');
-
-    keyboard.id =
-        'floating-language-keyboard';
-
-    keyboard.className =
-        'floating-language-keyboard hidden';
-
-    keyboard.innerHTML = `
-        <div
-            class="floating-keyboard-header"
-            id="floating-keyboard-drag-handle"
-        >
-            <span class="floating-keyboard-grip" aria-hidden="true">
-                <i class="ph ph-dots-six"></i>
-            </span>
-
-            <span
-                id="floating-keyboard-title"
-                class="floating-keyboard-title"
-            ></span>
-
-            <button
-                type="button"
-                id="floating-keyboard-close"
-                class="floating-keyboard-close"
-                title="Close keyboard"
-                aria-label="Close keyboard"
-            >
-                <i class="ph ph-x"></i>
-            </button>
-        </div>
-
-        <div
-            id="floating-keyboard-keys"
-            class="floating-keyboard-keys"
-        ></div>
-
-        <div
-            id="floating-keyboard-language-panel"
-            class="floating-keyboard-language-panel hidden"
-        >
-            <span>Language</span>
-
-            <select
-                id="floating-keyboard-language-select"
-                aria-label="Keyboard language"
-            >
-                ${Object.entries(
-                    VIRTUAL_KEYBOARD_LANGUAGES
-                ).map(
-                    ([value, label]) =>
-                        `<option value="${value}">${label}</option>`
-                ).join('')}
-            </select>
-        </div>
-    `;
-
-    document.body.appendChild(
-        keyboard
-    );
-
-    keyboard
-        .querySelector(
-            '#floating-keyboard-close'
-        )
-        ?.addEventListener(
-            'click',
-            closeVirtualKeyboard
-        );
-
-    keyboard
-        .querySelector(
-            '#floating-keyboard-language-select'
-        )
-        ?.addEventListener(
-            'change',
-            event => {
-                db.settings
-                    .virtualKeyboardLanguage =
-                    event.target.value;
-
-                saveDb();
-
-                virtualKeyboardShift =
-                    false;
-
-                virtualKeyboardJapaneseKatakana =
-                    false;
-
-                commitHangulComposition();
-                renderVirtualKeyboard();
-            }
-        );
-
-    const handle =
-        keyboard.querySelector(
-            '#floating-keyboard-drag-handle'
-        );
-
-    let dragState = null;
-
-    handle.addEventListener(
-        'pointerdown',
-        event => {
-            if (
-                event.target.closest(
-                    'button'
-                )
-            ) {
-                return;
-            }
-
-            const rect =
-                keyboard
-                    .getBoundingClientRect();
-
-            // Freeze the keyboard at its exact rendered position before
-            // beginning the drag. This prevents the old translateX(-50%)
-            // centering transform from causing the initial jump/offset.
-            keyboard.style.transform =
-                'none';
-
-            keyboard.style.left =
-                `${rect.left}px`;
-
-            keyboard.style.top =
-                `${rect.top}px`;
-
-            keyboard.style.right =
-                'auto';
-
-            keyboard.style.bottom =
-                'auto';
-
-            dragState = {
-                pointerId:
-                    event.pointerId,
-                offsetX:
-                    event.clientX -
-                    rect.left,
-                offsetY:
-                    event.clientY -
-                    rect.top
-            };
-
-            handle.setPointerCapture(
-                event.pointerId
-            );
-
-            keyboard.classList.add(
-                'is-dragging'
-            );
-
-            event.preventDefault();
-        }
-    );
-
-    handle.addEventListener(
-        'pointermove',
-        event => {
-            if (
-                !dragState ||
-                dragState.pointerId !==
-                    event.pointerId
-            ) {
-                return;
-            }
-
-            const width =
-                keyboard.offsetWidth;
-
-            const height =
-                keyboard.offsetHeight;
-
-            const maxLeft =
-                Math.max(
-                    8,
-                    window.innerWidth -
-                        width -
-                        8
-                );
-
-            const maxTop =
-                Math.max(
-                    8,
-                    window.innerHeight -
-                        height -
-                        8
-                );
-
-            const left =
-                Math.max(
-                    8,
-                    Math.min(
-                        maxLeft,
-                        event.clientX -
-                            dragState.offsetX
-                    )
-                );
-
-            const top =
-                Math.max(
-                    8,
-                    Math.min(
-                        maxTop,
-                        event.clientY -
-                            dragState.offsetY
-                    )
-                );
-
-            keyboard.style.left =
-                `${left}px`;
-
-            keyboard.style.top =
-                `${top}px`;
-
-            event.preventDefault();
-        }
-    );
-
-    const stopDrag =
-        event => {
-            if (
-                !dragState ||
-                dragState.pointerId !==
-                    event.pointerId
-            ) {
-                return;
-            }
-
-            try {
-                handle.releasePointerCapture(
-                    event.pointerId
-                );
-            } catch {}
-
-            dragState = null;
-
-            keyboard.classList.remove(
-                'is-dragging'
-            );
-        };
-
-    handle.addEventListener(
-        'pointerup',
-        stopDrag
-    );
-
-    handle.addEventListener(
-        'pointercancel',
-        stopDrag
-    );
-
-    return keyboard;
-}
-
-function renderVirtualKeyboard() {
-    const keyboard =
-        ensureVirtualKeyboard();
-
-    const language =
-        getVirtualKeyboardLanguage();
-
-    const title =
-        keyboard.querySelector(
-            '#floating-keyboard-title'
-        );
-
-    const keys =
-        keyboard.querySelector(
-            '#floating-keyboard-keys'
-        );
-
-    const languageSelect =
-        keyboard.querySelector(
-            '#floating-keyboard-language-select'
-        );
-
-    if (languageSelect) {
-        languageSelect.value =
-            language;
-    }
-
-    title.textContent =
-        VIRTUAL_KEYBOARD_LANGUAGES[
-            language
-        ] || 'Keyboard';
-
-    keys.innerHTML = '';
-
-    const rows =
-        getVirtualKeyboardRows(
-            language
-        );
-
-    rows.forEach(row => {
-        const rowEl =
-            document.createElement('div');
-
-        rowEl.className =
-            'floating-keyboard-row';
-
-        row.forEach(value => {
-            const button =
-                document.createElement(
-                    'button'
-                );
-
-            button.type = 'button';
-
-            button.className =
-                'floating-keyboard-key';
-
-            button.textContent =
-                value;
-
-            button.addEventListener(
-                'pointerdown',
-                event => {
-                    // Keep the text caret in the field the keyboard is typing into.
-                    event.preventDefault();
-                }
-            );
-
-            button.addEventListener(
-                'click',
-                () => {
-                    if (
-                        language ===
-                        'korean'
-                    ) {
-                        inputHangulJamo(
-                            value
-                        );
-                    } else {
-                        commitHangulComposition();
-
-                        insertVirtualKeyboardText(
-                            value
-                        );
-                    }
-
-                    if (
-                        virtualKeyboardShift
-                    ) {
-                        virtualKeyboardShift =
-                            false;
-
-                        renderVirtualKeyboard();
-                    }
-                }
-            );
-
-            rowEl.appendChild(
-                button
-            );
-        });
-
-        keys.appendChild(rowEl);
-    });
-
-    const controls =
-        document.createElement('div');
-
-    controls.className =
-        'floating-keyboard-row floating-keyboard-controls';
-
-    if (
-        language !== 'korean' &&
-        language !== 'japanese'
-    ) {
-        const shift =
-            document.createElement(
-                'button'
-            );
-
-        shift.type = 'button';
-
-        shift.className =
-            'floating-keyboard-key floating-keyboard-control-key';
-
-        shift.textContent =
-            virtualKeyboardShift
-                ? 'Shift ✓'
-                : 'Shift';
-
-        shift.addEventListener(
-            'pointerdown',
-            event =>
-                event.preventDefault()
-        );
-
-        shift.addEventListener(
-            'click',
-            () => {
-                virtualKeyboardShift =
-                    !virtualKeyboardShift;
-
-                renderVirtualKeyboard();
-            }
-        );
-
-        controls.appendChild(
-            shift
-        );
-    }
-
-    if (
-        language === 'japanese'
-    ) {
-        const kana =
-            document.createElement(
-                'button'
-            );
-
-        kana.type = 'button';
-
-        kana.className =
-            'floating-keyboard-key floating-keyboard-control-key';
-
-        kana.textContent =
-            virtualKeyboardJapaneseKatakana
-                ? 'カナ → かな'
-                : 'かな → カナ';
-
-        kana.addEventListener(
-            'pointerdown',
-            event =>
-                event.preventDefault()
-        );
-
-        kana.addEventListener(
-            'click',
-            () => {
-                virtualKeyboardJapaneseKatakana =
-                    !virtualKeyboardJapaneseKatakana;
-
-                renderVirtualKeyboard();
-            }
-        );
-
-        controls.appendChild(
-            kana
-        );
-    }
-
-    const makeControlButton = (
-        className,
-        labelHtml,
-        title,
-        action
-    ) => {
-        const button =
-            document.createElement(
-                'button'
-            );
-
-        button.type = 'button';
-
-        button.className =
-            `floating-keyboard-key floating-keyboard-control-key ${className || ''}`;
-
-        button.innerHTML =
-            labelHtml;
-
-        if (title) {
-            button.title = title;
-            button.setAttribute(
-                'aria-label',
-                title
-            );
-        }
-
-        button.addEventListener(
-            'pointerdown',
-            event =>
-                event.preventDefault()
-        );
-
-        button.addEventListener(
-            'click',
-            action
-        );
-
-        controls.appendChild(
-            button
-        );
-
-        return button;
-    };
-
-    makeControlButton(
-        'floating-keyboard-space',
-        'Space',
-        'Space',
-        () =>
-            insertVirtualKeyboardControl(
-                'space'
-            )
-    );
-
-    makeControlButton(
-        'floating-keyboard-backspace',
-        '<i class="ph ph-backspace"></i>',
-        'Backspace',
-        () =>
-            insertVirtualKeyboardControl(
-                'backspace'
-            )
-    );
-
-    makeControlButton(
-        'floating-keyboard-settings',
-        '<i class="ph ph-sliders-horizontal"></i>',
-        'Keyboard settings',
-        () => {
-            const panel =
-                keyboard.querySelector(
-                    '#floating-keyboard-language-panel'
-                );
-
-            panel?.classList.toggle(
-                'hidden'
-            );
-        }
-    );
-
-    makeControlButton(
-        'floating-keyboard-enter',
-        'Enter',
-        'Enter',
-        () =>
-            insertVirtualKeyboardControl(
-                'enter'
-            )
-    );
-
-    keys.appendChild(
-        controls
-    );
-}
-
-function openVirtualKeyboard() {
-    const active =
-        document.activeElement;
-
-    if (
-        isVirtualKeyboardTextTarget(
-            active
-        )
-    ) {
-        virtualKeyboardTarget =
-            active;
-    }
-
-    ensureVirtualKeyboard();
-    renderVirtualKeyboard();
-
-    const keyboard =
-        document.getElementById(
-            'floating-language-keyboard'
-        );
-
-    keyboard.classList.remove(
-        'hidden'
-    );
-}
-
-function closeVirtualKeyboard() {
-    commitHangulComposition();
-
-    document
-        .getElementById(
-            'floating-language-keyboard'
-        )
-        ?.classList.add(
-            'hidden'
-        );
-}
-
-function toggleVirtualKeyboard() {
-    const keyboard =
-        ensureVirtualKeyboard();
-
-    if (
-        keyboard.classList.contains(
-            'hidden'
-        )
-    ) {
-        openVirtualKeyboard();
-    } else {
-        closeVirtualKeyboard();
-    }
-}
-
-document.addEventListener(
-    'keydown',
-    event => {
-        if (
-            event.ctrlKey &&
-            !event.shiftKey &&
-            !event.altKey &&
-            !event.metaKey &&
-            event.key.toLowerCase() ===
-                'k'
-        ) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            toggleVirtualKeyboard();
-        }
-    },
-    true
-);
-
-
+// V449: The old standalone Ctrl+K keyboard was removed.
+// The only multilingual keyboard is now the floating Keyboard widget.
 
 // ============================================================
 // SPLIT SETTINGS
@@ -10508,40 +10190,25 @@ function openGlobalThemeSettings() {
             });
 
             themeSearchInput.select();
-
-            themeSearchInput.scrollIntoView({
-                block: 'nearest'
-            });
         }
     });
 
-    // Reopen the theme gallery itself at the active theme.
-    requestAnimationFrame(() => {
-        const selectedCard =
-            themePicker?.querySelector(
-                '.theme-picker-card.selected'
-            );
-
-        if (
-            selectedCard &&
-            themePicker
-        ) {
-            const top =
-                selectedCard.offsetTop -
-                Math.max(
-                    0,
-                    (
-                        themePicker.clientHeight -
-                        selectedCard.offsetHeight
-                    ) / 2
-                );
-
-            themePicker.scrollTo({
-                top,
-                behavior: 'instant'
-            });
-        }
-    });
+    // V454: Reopen the THEME DISPLAY CONTAINER at the actually applied theme.
+    // Never use scrollIntoView here because that can scroll the whole Settings modal.
+    const scrollThemeDisplayToAppliedV454 = () => {
+        if (!themePicker) return;
+        const appliedThemeV454 = String(db.settings?.theme || dailyThemeSelect?.value || themePickerSelected || 'default');
+        const cardsV454 = Array.from(themePicker.querySelectorAll('.theme-picker-card[data-theme]'));
+        const selectedCardV454 = cardsV454.find(card => String(card.dataset.theme || '') === appliedThemeV454)
+            || themePicker.querySelector('.theme-picker-card.selected');
+        if (!selectedCardV454) return;
+        const topV454 = Math.max(0, selectedCardV454.offsetTop - Math.max(0, (themePicker.clientHeight - selectedCardV454.offsetHeight) / 2));
+        themePicker.scrollTop = topV454;
+    };
+    scrollThemeDisplayToAppliedV454();
+    requestAnimationFrame(scrollThemeDisplayToAppliedV454);
+    setTimeout(scrollThemeDisplayToAppliedV454, 40);
+    setTimeout(scrollThemeDisplayToAppliedV454, 140);
 }
 
 
@@ -11165,6 +10832,7 @@ function showAppFormModal({
         }
 
         input.dataset.fieldName = field.name;
+        if (field.className) input.classList.add(...String(field.className).split(/\s+/).filter(Boolean));
         input.value = field.value ?? '';
         input.placeholder = field.placeholder || '';
 
@@ -11187,6 +10855,7 @@ function showAppFormModal({
             cancel.removeEventListener('click', onCancel);
             close.removeEventListener('click', onCancel);
             modal.removeEventListener('pointerdown', onBackdrop);
+            modal.removeEventListener('keydown', onKeydownV431);
         };
 
         const finish = value => {
@@ -11213,10 +10882,27 @@ function showAppFormModal({
             if (event.target === modal) onCancel();
         };
 
+        // V431: single-line app prompts/forms submit with Enter. This includes
+        // Knowledge Base Rename Category, so Save never requires a mouse click.
+        const onKeydownV431 = event => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                onCancel();
+                return;
+            }
+            if (event.key !== 'Enter' || event.shiftKey || event.ctrlKey || event.metaKey || event.altKey) return;
+            const target = event.target;
+            if (!(target instanceof HTMLElement) || !modal.contains(target)) return;
+            if (target.matches('textarea, [contenteditable="true"], [contenteditable=""]')) return;
+            event.preventDefault();
+            onSubmit();
+        };
+
         submit.addEventListener('click', onSubmit);
         cancel.addEventListener('click', onCancel);
         close.addEventListener('click', onCancel);
         modal.addEventListener('pointerdown', onBackdrop);
+        modal.addEventListener('keydown', onKeydownV431);
 
         requestAnimationFrame(() => {
             const first = inputs.values().next().value;
@@ -14058,6 +13744,23 @@ function ensureCustomTabCreateModal() {
     });
 
     modal.querySelector('#custom-tab-create-confirm').addEventListener('click', createCustomTabFromModal);
+
+    // V496: keyboard submit follows the exact same button path as a mouse click.
+    // Later prebuilt-tab code may replace/wrap that button, so resolve it at key
+    // time instead of calling an older create function directly.
+    modal.dataset.createTabEnterBoundV495 = '1';
+    modal.addEventListener('keydown', event => {
+        if (
+            event.key !== 'Enter' || event.repeat || event.shiftKey || event.ctrlKey ||
+            event.metaKey || event.altKey || event.target?.tagName === 'TEXTAREA' ||
+            event.target?.isContentEditable
+        ) return;
+        const submit = modal.querySelector('#custom-tab-create-confirm:not(:disabled)');
+        if (!submit || modal.classList.contains('hidden')) return;
+        event.preventDefault();
+        event.stopPropagation();
+        submit.click();
+    });
 }
 
 function openCustomTabCreateModal() {
@@ -14801,16 +14504,11 @@ async function createCustomItemFromDailyView(tab, component) {
 
 
 // ============================================================
-// DAILY LOG SHORTCUT
-// Hold Shift + L + D to jump to the most recent saved log day.
+// DAILY LOG SHORTCUT — V447
+// Press ArrowDown to jump to the most recent saved log day.
+// The shortcut stays out of text fields, menus/modals, and the full-screen
+// Whiteboard/Notebook so the Down Arrow keeps its normal editing/navigation use.
 // ============================================================
-
-const dailyLogShortcutState = {
-    shift: false,
-    l: false,
-    d: false,
-    fired: false
-};
 
 function getMostRecentSavedLogDay() {
     const days = Object.keys(db.days || {})
@@ -14851,35 +14549,35 @@ function jumpToMostRecentSavedLogDay() {
     });
 }
 
-document.addEventListener('keydown', event => {
-    if (event.key === 'Shift') dailyLogShortcutState.shift = true;
-    if (event.code === 'KeyL') dailyLogShortcutState.l = true;
-    if (event.code === 'KeyD') dailyLogShortcutState.d = true;
+function dailyLogArrowShortcutBlockedV447(event) {
+    if (!event || event.defaultPrevented) return true;
+    if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return true;
 
-    const active =
-        dailyLogShortcutState.shift &&
-        dailyLogShortcutState.l &&
-        dailyLogShortcutState.d;
-
-    if (active && !dailyLogShortcutState.fired) {
-        dailyLogShortcutState.fired = true;
-        event.preventDefault();
-        jumpToMostRecentSavedLogDay();
+    const target = event.target;
+    if (
+        target?.isContentEditable ||
+        target?.closest?.('input, textarea, select, [contenteditable="true"], [role="textbox"]')
+    ) {
+        return true;
     }
-});
-
-document.addEventListener('keyup', event => {
-    if (event.key === 'Shift') dailyLogShortcutState.shift = false;
-    if (event.code === 'KeyL') dailyLogShortcutState.l = false;
-    if (event.code === 'KeyD') dailyLogShortcutState.d = false;
 
     if (
-        !dailyLogShortcutState.shift ||
-        !dailyLogShortcutState.l ||
-        !dailyLogShortcutState.d
+        document.body.classList.contains('whiteboard-tab-active-v198') ||
+        document.body.classList.contains('notepad-tab-active-v249') ||
+        document.querySelector('.modal-overlay:not(.hidden)')
     ) {
-        dailyLogShortcutState.fired = false;
+        return true;
     }
+
+    return false;
+}
+
+document.addEventListener('keydown', event => {
+    if (event.key !== 'ArrowDown' || event.repeat) return;
+    if (dailyLogArrowShortcutBlockedV447(event)) return;
+
+    event.preventDefault();
+    jumpToMostRecentSavedLogDay();
 });
 
 // ============================================================
@@ -15116,6 +14814,7 @@ function normalizeKnowledgeField(field, index = 0, legacyConfig = {}) {
         pronunciation: !!field?.pronunciation,
         ttsLang: field?.ttsLang || db.settings?.ttsLang || 'ko',
         quiz: field?.quiz !== false,
+        quizPrimary: !!field?.quizPrimary,
         editable: !!field?.editable,
         options: Array.isArray(field?.options)
             ? field.options
@@ -15551,6 +15250,7 @@ function openKnowledgeCategoryCreateModal() {
 let pendingKnowledgeFieldKind = 'text';
 let pendingKnowledgeFieldPronunciation = false;
 let pendingKnowledgeFieldQuiz = true;
+let pendingKnowledgeFieldQuizPrimary = false;
 let pendingKnowledgeFieldEditable = false;
 let editingKnowledgeFieldId = null;
 
@@ -15667,6 +15367,18 @@ function ensureKnowledgeFieldCreateModal() {
                     >
                         <i class="ph ph-cursor-text"></i>
                     </button>
+
+                    <button
+                        type="button"
+                        id="kb-field-create-primary-quiz-v476"
+                        class="kb-clean-icon-option"
+                        data-tip="On Quizlet Learn Written mode, this field is what you have to write in order to learn the card"
+                        aria-label="On Quizlet Learn Written mode, this field is what you have to write in order to learn the card"
+                    >
+                        <i class="ph ph-star"></i>
+                    </button>
+
+
                 </div>
             </div>
 
@@ -15764,11 +15476,23 @@ function ensureKnowledgeFieldCreateModal() {
     quizButton?.addEventListener('click', () => {
         pendingKnowledgeFieldQuiz =
             !pendingKnowledgeFieldQuiz;
+        if (!pendingKnowledgeFieldQuiz) {
+            pendingKnowledgeFieldQuizPrimary = false;
+            modal.querySelector('#kb-field-create-primary-quiz-v476')?.classList.remove('selected');
+        }
 
         quizButton.classList.toggle(
             'selected',
             pendingKnowledgeFieldQuiz
         );
+    });
+
+    const primaryQuizButton = modal.querySelector('#kb-field-create-primary-quiz-v476');
+    primaryQuizButton?.addEventListener('click', () => {
+        pendingKnowledgeFieldQuizPrimary = !pendingKnowledgeFieldQuizPrimary;
+        if (pendingKnowledgeFieldQuizPrimary) pendingKnowledgeFieldQuiz = true;
+        primaryQuizButton.classList.toggle('selected', pendingKnowledgeFieldQuizPrimary);
+        modal.querySelector('#kb-field-create-quiz')?.classList.toggle('selected', pendingKnowledgeFieldQuiz);
     });
 
     const editableButton =
@@ -15854,6 +15578,7 @@ function ensureKnowledgeFieldCreateModal() {
                     pendingKnowledgeFieldPronunciation;
                 field.ttsLang = lang;
                 field.quiz = pendingKnowledgeFieldQuiz;
+                field.quizPrimary = pendingKnowledgeFieldQuizPrimary;
                 field.editable = pendingKnowledgeFieldEditable;
 
                 if (oldName !== name) {
@@ -15887,8 +15612,18 @@ function ensureKnowledgeFieldCreateModal() {
                         pendingKnowledgeFieldPronunciation,
                     ttsLang: lang,
                     quiz: pendingKnowledgeFieldQuiz,
+                    quizPrimary: pendingKnowledgeFieldQuizPrimary,
                     editable: pendingKnowledgeFieldEditable
                 });
+            }
+
+            if (pendingKnowledgeFieldQuizPrimary) {
+                const configNow = getCategoryConfig(activeCategorySettingTab);
+                configNow.fields.forEach(entry => {
+                    if (entry.id !== editingKnowledgeFieldId && entry.name !== name) entry.quizPrimary = false;
+                });
+                const savedField = configNow.fields.find(entry => entry.id === editingKnowledgeFieldId || entry.name === name);
+                if (savedField) { savedField.quizPrimary = true; savedField.quiz = true; }
             }
 
             saveDb();
@@ -15925,6 +15660,8 @@ function openKnowledgeFieldCreateModal(fieldId = null) {
 
     pendingKnowledgeFieldQuiz =
         field ? field.quiz !== false : true;
+
+    pendingKnowledgeFieldQuizPrimary = !!field?.quizPrimary;
 
     pendingKnowledgeFieldEditable =
         field ? !!field.editable : false;
@@ -16007,6 +15744,10 @@ function openKnowledgeFieldCreateModal(fieldId = null) {
         );
 
     modal
+        ?.querySelector('#kb-field-create-primary-quiz-v476')
+        ?.classList.toggle('selected', pendingKnowledgeFieldQuizPrimary);
+
+    modal
         ?.querySelector('#kb-field-create-editable')
         ?.classList.toggle(
             'selected',
@@ -16081,6 +15822,7 @@ function openNewKnowledgeFieldModalDirect() {
     pendingKnowledgeFieldKind = 'text';
     pendingKnowledgeFieldPronunciation = false;
     pendingKnowledgeFieldQuiz = true;
+    pendingKnowledgeFieldQuizPrimary = false;
     pendingKnowledgeFieldEditable = false;
 
     const nameInput = modal.querySelector('#kb-field-create-name');
@@ -16105,6 +15847,7 @@ function openNewKnowledgeFieldModalDirect() {
     }
 
     modal.querySelector('#kb-field-create-quiz')?.classList.add('selected');
+    modal.querySelector('#kb-field-create-primary-quiz-v476')?.classList.remove('selected');
     modal.querySelector('#kb-field-create-editable')?.classList.remove('selected');
     modal.querySelector('#kb-field-create-language-section')?.classList.add('hidden');
 
@@ -16296,14 +16039,17 @@ function renameKnowledgeField(categoryName, fieldId, nextName) {
     renderSettings();
 }
 
-function deleteKnowledgeField(categoryName, fieldId) {
+async function deleteKnowledgeField(categoryName, fieldId) {
     const config = getCategoryConfig(categoryName);
     const field = config.fields.find(entry => entry.id === fieldId);
     if (!field) return;
 
-    if (!confirm(`Delete the "${field.name}" field? Existing saved values for this field will also be removed.`)) {
-        return;
-    }
+    const confirmed = await showAppConfirm({
+        title: 'Delete Field',
+        message: `Delete “${field.name}”? Existing saved values for this field will also be removed.`,
+        confirmLabel: 'Delete Field'
+    });
+    if (!confirmed) return;
 
     config.fields = config.fields.filter(entry => entry.id !== fieldId);
 
@@ -17605,11 +17351,7 @@ function buildKnowledgeFieldDisplayHtml(
             </div>
         `;
     } else {
-        content = `
-            <div class="kb-display-text">
-                ${escapeKnowledgeHtml(safeValue)}
-            </div>
-        `;
+        content = `<div class="kb-display-text">${escapeKnowledgeHtml(safeValue)}</div>`;
     }
 
     const audioButton =
@@ -17880,48 +17622,29 @@ function openItemModal(
     const audioText =
         getItemAudioText(itemId);
 
-    if (audioText) {
-        titleEl.innerHTML = `
-            <span class="phrase-modal-title-main-row">
-                <span>
-                    ${escapeKnowledgeHtml(itemId)}
-                </span>
+    titleEl.innerHTML = `
+        <span class="phrase-modal-title-main-row">
+            <span>${escapeKnowledgeHtml(itemId)}</span>
+        </span>
+        <span class="phrase-modal-category-subtitle">
+            ${escapeKnowledgeHtml(categoryName)}
+        </span>
+    `;
 
-                <button
-                    type="button"
-                    class="small-icon-btn"
-                    id="phrase-modal-title-audio-btn"
-                    title="Play pronunciation"
-                >
-                    <i class="ph ph-speaker-high"></i>
-                </button>
-            </span>
-
-            <span class="phrase-modal-category-subtitle">
-                ${escapeKnowledgeHtml(categoryName)}
-            </span>
-        `;
-
-        document
-            .getElementById(
-                'phrase-modal-title-audio-btn'
-            )
-            ?.addEventListener('click', () => {
-                playTTSAudio(
-                    audioText,
-                    getItemAudioLang(itemId)
-                );
-            });
-    } else {
-        titleEl.innerHTML = `
-            <span class="phrase-modal-title-main-row">
-                <span>${escapeKnowledgeHtml(itemId)}</span>
-            </span>
-
-            <span class="phrase-modal-category-subtitle">
-                ${escapeKnowledgeHtml(categoryName)}
-            </span>
-        `;
+    const phraseCloseButtonV450 = document.getElementById('phrase-modal-close');
+    document.getElementById('phrase-modal-title-audio-btn')?.remove();
+    if (audioText && phraseCloseButtonV450) {
+        const audioButtonV450 = document.createElement('button');
+        audioButtonV450.type = 'button';
+        audioButtonV450.className = 'small-icon-btn phrase-modal-header-audio-v450';
+        audioButtonV450.id = 'phrase-modal-title-audio-btn';
+        audioButtonV450.title = 'Play pronunciation';
+        audioButtonV450.setAttribute('aria-label','Play pronunciation');
+        audioButtonV450.innerHTML = '<i class="ph ph-speaker-high"></i>';
+        phraseCloseButtonV450.before(audioButtonV450);
+        audioButtonV450.addEventListener('click', () => {
+            playTTSAudio(audioText, getItemAudioLang(itemId));
+        });
     }
 
     if (editInfo) {
@@ -18307,7 +18030,8 @@ function renderCardBackContent(meta) {
 
     const fields =
         getKnowledgeFieldDefs(categoryName)
-            .filter(field => field.quiz !== false);
+            .filter(field => field.quiz !== false)
+            .sort((a, b) => Number(!!b.quizPrimary) - Number(!!a.quizPrimary));
 
     const values =
         meta.custom_fields || {};
@@ -18853,11 +18577,24 @@ function moveKnowledgeItemToTrash(itemId) {
     if (index < 0) return;
 
     const meta = JSON.parse(JSON.stringify(db.phrase_meta?.[itemId] || {}));
+    const loggedDays = [];
+    Object.entries(db.days || {}).forEach(([dayNumber, dayData]) => {
+        if (!Array.isArray(dayData?.phrases)) return;
+        const positions = [];
+        dayData.phrases.forEach((value, position) => {
+            if (String(value) === String(itemId)) positions.push(position);
+        });
+        if (!positions.length) return;
+        loggedDays.push({ dayNumber, positions });
+        dayData.phrases = dayData.phrases.filter(value => String(value) !== String(itemId));
+    });
+
     getFeatureTrash().kbItems.unshift({
         deletedAt: new Date().toISOString(),
         originalIndex: index,
         itemId,
-        meta
+        meta,
+        loggedDays
     });
 
     db.phrases.splice(index, 1);
@@ -18872,8 +18609,17 @@ function moveKnowledgeItemToTrash(itemId) {
         const desired = Number.isFinite(Number(entry.originalIndex)) ? Number(entry.originalIndex) : db.phrases.length;
         db.phrases.splice(Math.max(0, Math.min(desired, db.phrases.length)), 0, entry.itemId);
         db.phrase_meta[entry.itemId] = entry.meta || {};
+        (entry.loggedDays || []).forEach(dayRef => {
+            const day = db.days?.[dayRef.dayNumber];
+            if (!day) return;
+            if (!Array.isArray(day.phrases)) day.phrases = [];
+            if (day.phrases.includes(entry.itemId)) return;
+            const target = Math.max(0, Math.min(Number(dayRef.positions?.[0] ?? day.phrases.length), day.phrases.length));
+            day.phrases.splice(target, 0, entry.itemId);
+        });
         saveDb();
         renderPhrasesLibrary();
+        try { if (currentDay && db.days?.[currentDay]) renderPhrases(db.days[currentDay].phrases || []); } catch {}
     });
 }
 
@@ -19840,6 +19586,130 @@ function getReadableTextColor(background) {
     return luminance > 155 ? '#111111' : '#ffffff';
 }
 
+// V505 — single core Heading Backdrop authority.
+// The Theme Builder preview and the real applied page both call this exact code.
+// Targets are the same structural titles Loggy already recognizes as renameable,
+// plus the explicit Theme Builder preview clones when they exist.
+let __loggyLastHeadingBackdropThemeV505 = {};
+function getHeadingBackdropTargetsV505(scope = document) {
+    const targets = new Set();
+
+    try {
+        scope.querySelectorAll('.view h1,.view h2').forEach(element => {
+            try {
+                if (typeof isRenameableSectionTitleV429 === 'function' && isRenameableSectionTitleV429(element)) {
+                    targets.add(element);
+                }
+            } catch (_) {}
+        });
+    } catch (_) {}
+
+    // Preview-only clones can live outside .view. Keep this list intentionally
+    // structural instead of targeting every h1/h2/h3 globally.
+    try {
+        scope.querySelectorAll([
+            '.theme-builder-live-page > h1',
+            '.theme-builder-live-page > h2',
+            '.theme-builder-live-page > header > h1',
+            '.theme-builder-live-page > header > h2',
+            '.theme-builder-live-page > .log-header-container > h1',
+            '.theme-builder-live-page > .log-header-container > h2',
+            '.theme-builder-live-page .section-header > h2',
+            '.theme-builder-live-page .custom-collection-header > h2',
+            '.theme-builder-live-page .custom-tab-title',
+            '.theme-builder-live-page .custom-user-heading',
+            '.theme-builder-live-page #anki-summary-title',
+            '.theme-builder-live-canvas > h1',
+            '.theme-builder-live-canvas > h2',
+            '.theme-builder-live-canvas > header > h1',
+            '.theme-builder-live-canvas > header > h2',
+            '.theme-builder-live-canvas > .log-header-container > h1',
+            '.theme-builder-live-canvas > .log-header-container > h2',
+            '.theme-builder-live-canvas .section-header > h2',
+            '.theme-builder-live-canvas .custom-collection-header > h2',
+            '.theme-builder-live-canvas .custom-tab-title',
+            '.theme-builder-live-canvas .custom-user-heading',
+            '.theme-builder-live-canvas #anki-summary-title'
+        ].join(',')).forEach(element => targets.add(element));
+    } catch (_) {}
+
+    return Array.from(targets).filter(element =>
+        element && !element.closest('.modal,.modal-overlay,.modal-box,[role="dialog"],.quiz-card,.flashcard-mode-card,.map-study-card-v172,.phrase-card')
+    );
+}
+
+function resolveHeadingBackdropThemeV505(theme = {}) {
+    const raw = theme && typeof theme === 'object' ? theme : {};
+    const variants = raw.themeBuilderAiVariantsV376;
+    const mode = String(raw.themeBuilderAiSelectedVariantV376 || raw.themeBuilderAiModeV364 || '').toLowerCase();
+    const variant = variants && typeof variants === 'object' && variants[mode] && typeof variants[mode] === 'object'
+        ? variants[mode]
+        : null;
+    const merged = variant ? { ...raw, ...variant } : { ...raw };
+
+    // Manual Heading Backdrop controls are theme-level authorities. Never let a
+    // stale light/dark snapshot overwrite what the visible controls currently say.
+    for (const key of [
+        'headingBackgroundEnabledV429',
+        'headingBackgroundColorV452',
+        'headingBackgroundOpacityV452',
+        'headingBackgroundPaddingV429',
+        'headingBackgroundRadiusV452'
+    ]) {
+        if (Object.prototype.hasOwnProperty.call(raw, key)) merged[key] = raw[key];
+    }
+    return merged;
+}
+
+function applyCoreHeadingBackdropV505(theme = __loggyLastHeadingBackdropThemeV505) {
+    const resolved = resolveHeadingBackdropThemeV505(theme || {});
+    __loggyLastHeadingBackdropThemeV505 = resolved;
+
+    const root = document.documentElement;
+    const enabled = resolved.headingBackgroundEnabledV429 === true;
+    const hex = value => /^#[0-9a-f]{6}$/i.test(String(value || '').trim()) ? String(value).trim() : '';
+    const color = hex(resolved.headingBackgroundColorV452) || hex(resolved.surface) || '#ffffff';
+    const opacity = Math.max(0, Math.min(100, Number(resolved.headingBackgroundOpacityV452 ?? 88)));
+    const padding = Math.max(0, Math.min(40, Number(resolved.headingBackgroundPaddingV429 ?? 10)));
+    const radius = Math.max(0, Math.min(40, Number(resolved.headingBackgroundRadiusV452 ?? resolved.radius ?? 0)));
+    const n = parseInt(color.slice(1), 16);
+    const rgba = `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${opacity / 100})`;
+
+    root.dataset.loggyHeadingBackgroundV431 = enabled ? '1' : '0';
+    root.style.setProperty('--loggy-heading-background-rgba-v431', enabled ? rgba : 'transparent');
+    root.style.setProperty('--loggy-heading-background-padding-v431', enabled ? `${padding}px` : '0px');
+    root.style.setProperty('--loggy-heading-background-radius-v452', enabled ? `${radius}px` : '0px');
+    root.style.setProperty('--custom-theme-heading-bg-color-v429', color);
+    root.style.setProperty('--custom-theme-heading-bg-opacity-v429', enabled ? `${opacity}%` : '0%');
+    root.style.setProperty('--custom-theme-heading-bg-padding-v429', enabled ? `${padding}px` : '0px');
+    root.style.setProperty('--custom-theme-heading-bg-radius-v452', enabled ? `${radius}px` : '0px');
+
+    getHeadingBackdropTargetsV505(document).forEach(element => {
+        if (enabled) {
+            element.dataset.loggyHeadingBackdropV505 = '1';
+            element.style.setProperty('display', 'inline-block', 'important');
+            element.style.setProperty('width', 'fit-content', 'important');
+            element.style.setProperty('max-width', '100%', 'important');
+            element.style.setProperty('box-sizing', 'border-box', 'important');
+            element.style.setProperty('background', rgba, 'important');
+            element.style.setProperty('background-color', rgba, 'important');
+            element.style.setProperty('background-image', 'none', 'important');
+            element.style.setProperty('padding', `${padding}px`, 'important');
+            element.style.setProperty('border-radius', `${radius}px`, 'important');
+            element.style.setProperty('box-decoration-break', 'clone', 'important');
+            element.style.setProperty('-webkit-box-decoration-break', 'clone', 'important');
+        } else if (element.dataset.loggyHeadingBackdropV505 === '1') {
+            delete element.dataset.loggyHeadingBackdropV505;
+            [
+                'display','width','max-width','box-sizing','background','background-color','background-image',
+                'padding','border-radius','box-decoration-break','-webkit-box-decoration-break'
+            ].forEach(property => element.style.removeProperty(property));
+        }
+    });
+}
+window.__loggyApplyCoreHeadingBackdropV505 = applyCoreHeadingBackdropV505;
+window.__loggySyncCoreHeadingBackdropV505 = () => applyCoreHeadingBackdropV505(__loggyLastHeadingBackdropThemeV505);
+
 function applyCustomBuiltTheme(theme = getCustomThemeSettings()) {
     const root = document.documentElement;
     const radius = Math.max(0, Math.min(30, Number(theme.radius) || 0));
@@ -19859,12 +19729,29 @@ function applyCustomBuiltTheme(theme = getCustomThemeSettings()) {
     root.style.setProperty('--custom-theme-font', CUSTOM_THEME_FONT_STACKS[theme.font] || CUSTOM_THEME_FONT_STACKS.hand);
     root.style.setProperty('--custom-theme-page-bg', theme.background);
     root.style.setProperty('--custom-theme-border-color', theme.border);
+
+    // V505: one shared heading authority for preview + applied themes.
+    applyCoreHeadingBackdropV505(theme);
+
+    const quizBackdropOnV456 = theme.quizBackdropEnabledV456 === true;
+    root.dataset.loggyQuizBoxBackdropV458 = quizBackdropOnV456 ? '1' : '0';
+    const quizBackdropColorV456 = quizBackdropOnV456 ? (theme.quizBackdropColorV456 || theme.contentBackdropColor || theme.surface || '#ffffff') : (theme.contentBackdropColor || theme.surface || '#ffffff');
+    const quizBackdropOpacityV456 = quizBackdropOnV456 ? Math.max(0, Math.min(100, Number(theme.quizBackdropOpacityV456 ?? 92))) : (theme.contentBackdropEnabled ? Math.max(0, Math.min(100, Number(theme.contentBackdropOpacity ?? 92))) : 0);
+    const quizBackdropRadiusV456 = Math.max(0, Math.min(40, Number(quizBackdropOnV456 ? theme.quizBackdropRadiusV456 : radius) || 0));
+    root.style.setProperty('--custom-theme-quiz-backdrop-color-v456', quizBackdropColorV456);
+    root.style.setProperty('--custom-theme-quiz-backdrop-opacity-v456', `${quizBackdropOpacityV456}%`);
+    root.style.setProperty('--custom-theme-quiz-backdrop-radius-v456', `${quizBackdropRadiusV456}px`);
+    const quizBackdropPaddingV459 = quizBackdropOnV456 ? Math.max(0, Math.min(40, Number(theme.quizBackdropPaddingV459 ?? 16))) : 0;
+    root.style.setProperty('--custom-theme-quiz-backdrop-padding-v459', `${quizBackdropPaddingV459}px`);
     root.style.setProperty('--custom-theme-theme-settings-plus-icon-v322', theme.themeSettingsPlusIconColorV322 || theme.text);
     root.style.setProperty('--custom-theme-theme-settings-plus-background-v322', theme.themeSettingsPlusBackgroundColorV322 || theme.surface);
     root.style.setProperty('--custom-theme-theme-settings-plus-border-v322', theme.themeSettingsPlusBorderColorV322 || theme.border);
     root.style.setProperty('--custom-theme-theme-settings-plus-hover-icon-v322', theme.themeSettingsPlusHoverIconColorV322 || theme.text);
     root.style.setProperty('--custom-theme-theme-settings-plus-hover-background-v322', theme.themeSettingsPlusHoverBackgroundColorV322 || theme.hoverColor || theme.accent);
     root.style.setProperty('--custom-theme-theme-settings-plus-hover-border-v322', theme.themeSettingsPlusHoverBorderColorV322 || theme.border);
+
+    // V505: repaint after the rest of the theme apply completes.
+    requestAnimationFrame(() => applyCoreHeadingBackdropV505(theme));
 }
 
 function themeBuilderField(label, key, value, type = 'color') {
@@ -20471,9 +20358,526 @@ const CUSTOM_THEME_MEDIA_DEFAULTS_V2 = {
 };
 
 let inlineGlobalSearchQueryV2 = '';
+
 let customThemeIntroAudioV2 = null;
 let customThemeIntroStopTimerV2 = null;
 let customThemeIntroFadeTimerV2 = null;
+
+// ============================================================================
+// V443 — SINGLE LOG INTRO AUDIO OWNER
+//
+// Rewritten from the Dashboard's working V41 + V413 flow. Applied Log themes
+// have exactly one active intro element and one optional gesture-prime element.
+// No legacy player is used for applied themes. The early V443 gate rejects any
+// unapproved Audio that tries to start while a theme is applying or while the
+// canonical intro is active.
+// ============================================================================
+(() => {
+    'use strict';
+    if (window.__loggyLogIntroAudioV443) return;
+
+    const AUTH_KEY = 'loggy-theme-intro-audio-v420';
+    const SHARED_KEY = 'loggy-shared-themes-v40';
+    const OVERRIDE_KEY = 'loggy-built-in-theme-overrides-v102';
+
+    const state = {
+        audio: null,
+        prime: null,
+        primeSrc: '',
+        boundaryCleanup: null,
+        retryCleanup: null,
+        themeId: '',
+        config: null,
+        startCount: 0,
+        lastStartAt: 0,
+        reason: ''
+    };
+
+    const readJson = (key, fallback) => {
+        try {
+            const value = JSON.parse(localStorage.getItem(key) || 'null');
+            return value ?? fallback;
+        } catch (_) {
+            return fallback;
+        }
+    };
+
+    const parseTime = (value, fallback = NaN) => {
+        if (typeof value === 'number' && Number.isFinite(value)) return Math.max(0, value);
+        const raw = String(value ?? '').trim();
+        if (!raw) return fallback;
+        if (/^\d+(?:\.\d+)?$/.test(raw)) return Math.max(0, Number(raw));
+        const parts = raw.split(':').map(part => part.trim());
+        if (parts.length < 2 || parts.length > 3 || parts.some(part => !/^\d+(?:\.\d+)?$/.test(part))) return fallback;
+        const nums = parts.map(Number);
+        const seconds = parts.length === 3
+            ? nums[0] * 3600 + nums[1] * 60 + nums[2]
+            : nums[0] * 60 + nums[1];
+        return Number.isFinite(seconds) ? Math.max(0, seconds) : fallback;
+    };
+
+    const comparableSrc = value => {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        try { return new URL(raw, location.href).href; } catch (_) { return raw; }
+    };
+
+    const flattenVariant = (theme, outer = {}) => {
+        if (!theme || typeof theme !== 'object') return {};
+        const variants = theme.themeBuilderAiVariantsV376;
+        const selected = String(
+            theme.themeBuilderAiSelectedVariantV376 ||
+            theme.themeBuilderAiModeV364 ||
+            outer.selectedVariant ||
+            outer.activeVariant ||
+            ''
+        ).toLowerCase();
+        if (variants && typeof variants === 'object' && !Array.isArray(variants) && variants[selected]) {
+            return { ...theme, ...variants[selected] };
+        }
+        return { ...theme };
+    };
+
+    const rawThemeForId = themeId => {
+        const id = String(themeId || '');
+        if (!id) return {};
+
+        try {
+            if (id === 'theme-custom-builder' && db?.settings?.customTheme) {
+                return flattenVariant(db.settings.customTheme);
+            }
+
+            const copies = db?.settings?.themeCopiesV30;
+            const copy = Array.isArray(copies)
+                ? copies.find(item => String(item?.id || '') === id)
+                : null;
+            if (copy?.theme) return flattenVariant(copy.theme, copy);
+
+            const legacyOverride = db?.settings?.themeOverrides?.[id];
+            if (legacyOverride && typeof legacyOverride === 'object') return flattenVariant(legacyOverride);
+        } catch (_) {}
+
+        const shared = readJson(SHARED_KEY, []);
+        if (Array.isArray(shared)) {
+            const row = shared.find(item => String(item?.id || '') === id);
+            if (row?.theme) return flattenVariant(row.theme, row);
+        }
+
+        const overrides = readJson(OVERRIDE_KEY, {});
+        const entry = overrides?.[id];
+        if (entry) return flattenVariant(entry?.theme || entry, entry);
+
+        return {};
+    };
+
+    // Same authority rule used by Dashboard V420.
+    const applyAuthority = (themeId, theme = {}) => {
+        const id = String(themeId || '');
+        const map = readJson(AUTH_KEY, {});
+        const authority = map?.[id];
+        if (!authority || typeof authority !== 'object') return { ...(theme || {}) };
+
+        const authorityStamp = Date.parse(String(authority.updatedAt || '')) || 0;
+        const themeStamp = Date.parse(String(theme?.introAudioUpdatedAtV420 || '')) || 0;
+        if (themeStamp > authorityStamp) return { ...(theme || {}) };
+
+        return {
+            ...(theme || {}),
+            introAudio: String(authority.introAudio || ''),
+            introAudioName: String(authority.introAudioName || ''),
+            introAudioProjectPath: String(authority.introAudioProjectPath || ''),
+            introAudioSourceThemeIdV364: String(authority.introAudioSourceThemeIdV364 || ''),
+            audioPlayMode: String(authority.audioPlayMode || 'full') === 'segment' ? 'segment' : 'full',
+            audioStart: String(authority.audioStart ?? '00:00'),
+            audioEnd: String(authority.audioEnd ?? '00:20'),
+            audioFade: authority.audioFade !== false,
+            audioVolume: Number.isFinite(Number(authority.audioVolume)) ? Number(authority.audioVolume) : 35,
+            introAudioRemovedV423:
+                authority.introAudioRemovedV423 === true ||
+                (!String(authority.introAudio || '').trim() && !!String(authority.updatedAt || '').trim()),
+            introAudioUpdatedAtV420: String(authority.updatedAt || '')
+        };
+    };
+
+    const hasAuthority = themeId => {
+        const map = readJson(AUTH_KEY, {});
+        return !!(map?.[String(themeId || '')] && typeof map[String(themeId || '')] === 'object');
+    };
+
+    const looksBuilderOwned = theme => !!(
+        theme && typeof theme === 'object' && (
+            Object.prototype.hasOwnProperty.call(theme, 'introAudio') ||
+            Object.prototype.hasOwnProperty.call(theme, 'audioPlayMode') ||
+            Object.prototype.hasOwnProperty.call(theme, 'audioVolume') ||
+            theme.introAudioRemovedV423 === true ||
+            !!String(theme.introAudioUpdatedAtV420 || theme.introAudioAuthorityV418 || '').trim()
+        )
+    );
+
+    const normalize = theme => {
+        const volumeRaw = Number(theme?.audioVolume);
+        return {
+            introAudio: String(theme?.introAudio || ''),
+            introAudioName: String(theme?.introAudioName || ''),
+            audioPlayMode: String(theme?.audioPlayMode || 'full') === 'segment' ? 'segment' : 'full',
+            audioStart: String(theme?.audioStart ?? '00:00'),
+            audioEnd: String(theme?.audioEnd ?? '00:20'),
+            audioFade: theme?.audioFade !== false,
+            audioVolume: Number.isFinite(volumeRaw) ? Math.max(0, Math.min(100, volumeRaw)) : 35,
+            introAudioRemovedV423: theme?.introAudioRemovedV423 === true
+        };
+    };
+
+    const resolveTheme = (themeId, suppliedTheme = null) => {
+        const id = String(themeId || '');
+        if (!id || id === 'default') return null;
+        const base = suppliedTheme && typeof suppliedTheme === 'object'
+            ? flattenVariant(suppliedTheme)
+            : rawThemeForId(id);
+        if (!hasAuthority(id) && !looksBuilderOwned(base)) return null;
+        return normalize(applyAuthority(id, base));
+    };
+
+    const gate = () => window.__loggyIntroAudioGateV443 || null;
+
+    const dispose = audio => {
+        if (!audio) return;
+        try { audio.pause(); } catch (_) {}
+        try { audio.currentTime = 0; } catch (_) {}
+        try { audio.removeAttribute?.('src'); } catch (_) {}
+        try { audio.src = ''; } catch (_) {}
+        try { audio.load?.(); } catch (_) {}
+    };
+
+    const clearRetry = () => {
+        try { state.retryCleanup?.(); } catch (_) {}
+        state.retryCleanup = null;
+    };
+
+    const clearBoundary = () => {
+        try { state.boundaryCleanup?.(); } catch (_) {}
+        state.boundaryCleanup = null;
+        clearRetry();
+    };
+
+    const stopCurrent = ({ disposeSource = true } = {}) => {
+        clearBoundary();
+        const audio = state.audio;
+        state.audio = null;
+        state.themeId = '';
+        state.config = null;
+        try { gate()?.setIntroActive?.(false); } catch (_) {}
+        if (!audio) return;
+        try { gate()?.block?.(audio); } catch (_) {}
+        try { audio.pause(); } catch (_) {}
+        if (disposeSource) dispose(audio);
+    };
+
+    const stopPrime = () => {
+        const audio = state.prime;
+        state.prime = null;
+        state.primeSrc = '';
+        try { gate()?.block?.(audio); } catch (_) {}
+        dispose(audio);
+    };
+
+    const stopAll = () => {
+        stopCurrent();
+        stopPrime();
+    };
+
+    const queueGestureRetry = audio => {
+        clearRetry();
+        const retry = () => {
+            if (state.audio !== audio) {
+                clearRetry();
+                return;
+            }
+            try {
+                const result = audio.play();
+                if (result?.then) result.then(clearRetry).catch(() => {});
+                else clearRetry();
+            } catch (_) {}
+        };
+        const cleanup = () => {
+            document.removeEventListener('pointerdown', retry, true);
+            document.removeEventListener('keydown', retry, true);
+            state.retryCleanup = null;
+        };
+        state.retryCleanup = cleanup;
+        document.addEventListener('pointerdown', retry, true);
+        document.addEventListener('keydown', retry, true);
+    };
+
+    // Dashboard-style gesture prime. This same element is adopted after async
+    // theme persistence/apply; it is never allowed to become a second player.
+    const prime = (theme = {}, themeId = '') => {
+        const id = String(themeId || '');
+        const config = id ? resolveTheme(id, theme) : normalize(theme || {});
+        const src = String(config?.introAudio || '').trim();
+        if (!src || config?.introAudioRemovedV423 === true) {
+            stopPrime();
+            return null;
+        }
+
+        const wanted = comparableSrc(src);
+        if (state.prime && comparableSrc(state.primeSrc) === wanted) return state.prime;
+
+        stopPrime();
+        let audio = null;
+        try { audio = new Audio(src); } catch (_) { return null; }
+        state.prime = audio;
+        state.primeSrc = src;
+        try { gate()?.allow?.(audio); } catch (_) {}
+        try { audio.__loggyCanonicalIntroV443 = true; } catch (_) {}
+        try { audio.volume = 0.001; } catch (_) {}
+        try {
+            const result = audio.play();
+            if (result?.catch) result.catch(() => {});
+        } catch (_) {}
+        return audio;
+    };
+
+    const takePrime = src => {
+        if (!state.prime) return null;
+        if (comparableSrc(state.primeSrc) !== comparableSrc(src)) {
+            stopPrime();
+            return null;
+        }
+        const audio = state.prime;
+        state.prime = null;
+        state.primeSrc = '';
+        return audio;
+    };
+
+    // Direct port of Dashboard V413's boundary behavior: actual currentTime is
+    // authoritative, with a 40ms safety interval and saved-volume enforcement.
+    const enforceBoundary = (audio, config) => {
+        clearBoundary();
+        if (!audio) return;
+
+        const segment = String(config?.audioPlayMode || 'full') === 'segment';
+        const start = segment ? parseTime(config?.audioStart, 0) : 0;
+        const requestedEnd = segment ? parseTime(config?.audioEnd, NaN) : NaN;
+        const fade = config?.audioFade !== false;
+        const base = Math.max(0, Math.min(1, (Number.isFinite(Number(config?.audioVolume)) ? Number(config.audioVolume) : 35) / 100));
+        let end = segment && Number.isFinite(requestedEnd) && requestedEnd > start ? requestedEnd : NaN;
+        let stopped = false;
+        let interval = 0;
+        let hardStop = 0;
+
+        const active = () => state.audio === audio;
+        const setVolume = value => {
+            try { audio.volume = Math.max(0, Math.min(1, value)); } catch (_) {}
+        };
+        const ready = () => {
+            if (!active()) return;
+            if (segment) {
+                try {
+                    audio.currentTime = Math.min(
+                        start,
+                        Number.isFinite(audio.duration) ? Math.max(0, audio.duration - 0.02) : start
+                    );
+                } catch (_) {}
+            }
+            if (!segment && Number.isFinite(audio.duration) && audio.duration > 0) end = audio.duration;
+            setVolume(base);
+        };
+        const finish = () => {
+            if (stopped || !active()) return;
+            stopped = true;
+            clearInterval(interval);
+            clearTimeout(hardStop);
+            clearRetry();
+            if (fade) setVolume(0);
+            try { audio.pause(); } catch (_) {}
+            try { gate()?.block?.(audio); } catch (_) {}
+            try { gate()?.setIntroActive?.(false); } catch (_) {}
+        };
+        const tick = () => {
+            if (stopped || !active()) return;
+            if (!Number.isFinite(end)) {
+                if (!segment && Number.isFinite(audio.duration) && audio.duration > 0) end = audio.duration;
+                else { setVolume(base); return; }
+            }
+            const total = Math.max(0.1, end - start);
+            const fadeDuration = fade ? Math.min(total, 1.4, Math.max(0.25, total * 0.35)) : 0;
+            const now = Number(audio.currentTime) || 0;
+            if (fadeDuration > 0 && now >= end - fadeDuration) {
+                setVolume(base * Math.max(0, Math.min(1, (end - now) / fadeDuration)));
+            } else {
+                setVolume(base);
+            }
+            if (now >= end - 0.025) finish();
+        };
+        const scheduleHardStop = () => {
+            if (!segment || !Number.isFinite(end) || stopped || !active()) return;
+            clearTimeout(hardStop);
+            const now = Number(audio.currentTime) || 0;
+            hardStop = window.setTimeout(finish, Math.max(0, (end - now) * 1000) + 90);
+        };
+        const onPlaying = () => { tick(); scheduleHardStop(); };
+        const onTimeUpdate = () => tick();
+        const onEnded = () => {
+            if (!active()) return;
+            try { gate()?.setIntroActive?.(false); } catch (_) {}
+        };
+
+        if (audio.readyState >= 1) ready();
+        else audio.addEventListener('loadedmetadata', ready, { once:true });
+        audio.addEventListener('timeupdate', onTimeUpdate);
+        audio.addEventListener('playing', onPlaying);
+        audio.addEventListener('ended', onEnded, { once:true });
+        interval = window.setInterval(tick, 40);
+
+        state.boundaryCleanup = () => {
+            stopped = true;
+            clearInterval(interval);
+            clearTimeout(hardStop);
+            audio.removeEventListener('timeupdate', onTimeUpdate);
+            audio.removeEventListener('playing', onPlaying);
+            audio.removeEventListener('ended', onEnded);
+            state.boundaryCleanup = null;
+        };
+    };
+
+    const playTheme = (themeId, options = {}) => {
+        const id = String(themeId || '');
+        const config = resolveTheme(id, options.theme || null);
+
+        stopCurrent();
+
+        if (!config || config.introAudioRemovedV423 === true || !String(config.introAudio || '').trim()) {
+            stopPrime();
+            state.reason = String(options.reason || 'no-intro-v443');
+            return null;
+        }
+
+        const src = String(config.introAudio || '').trim();
+        let audio = takePrime(src);
+        if (!audio) {
+            stopPrime();
+            try { audio = new Audio(src); } catch (_) { return null; }
+        }
+
+        try { gate()?.allow?.(audio); } catch (_) {}
+        try { audio.__loggyCanonicalIntroV443 = true; } catch (_) {}
+        try { audio.preload = 'auto'; } catch (_) {}
+        try { audio.muted = false; } catch (_) {}
+
+        state.audio = audio;
+        state.themeId = id;
+        state.config = config;
+        state.startCount += 1;
+        state.lastStartAt = Date.now();
+        state.reason = String(options.reason || 'play-theme-v443');
+
+        try { gate()?.setIntroActive?.(true); } catch (_) {}
+        enforceBoundary(audio, config);
+
+        const begin = () => {
+            if (state.audio !== audio) return;
+            try {
+                const result = audio.play();
+                if (result?.catch) result.catch(() => queueGestureRetry(audio));
+            } catch (_) {
+                queueGestureRetry(audio);
+            }
+        };
+
+        if (audio.readyState >= 1) begin();
+        else {
+            audio.addEventListener('loadedmetadata', begin, { once:true });
+            try { audio.load?.(); } catch (_) {}
+        }
+
+        return audio;
+    };
+
+    const currentThemeId = () => {
+        try {
+            const id = String(db?.settings?.theme || '');
+            if (id) return id;
+        } catch (_) {}
+        try {
+            if (typeof HOBBY !== 'undefined' && HOBBY) {
+                const id = String(localStorage.getItem(`loggy-log-theme:${HOBBY}`) || '');
+                if (id) return id;
+            }
+        } catch (_) {}
+        return 'default';
+    };
+
+    const debug = () => {
+        const id = currentThemeId();
+        const config = resolveTheme(id);
+        return {
+            themeId: id,
+            source: String(config?.introAudio || ''),
+            audioPlayMode: config?.audioPlayMode || null,
+            audioStart: config?.audioStart ?? null,
+            audioEnd: config?.audioEnd ?? null,
+            savedAudioVolume: config ? Number(config.audioVolume) : null,
+            expectedElementVolume: config ? Math.max(0, Math.min(100, Number(config.audioVolume))) / 100 : null,
+            actualElementVolume: state.audio ? Number(state.audio.volume) : null,
+            playing: !!state.audio && !state.audio.paused && !state.audio.ended,
+            currentTime: state.audio ? Number(state.audio.currentTime || 0) : null,
+            primed: !!state.prime,
+            primeSource: String(state.primeSrc || ''),
+            startCount: state.startCount,
+            lastStartAt: state.lastStartAt,
+            reason: state.reason,
+            gate: gate()?.debug?.() || null
+        };
+    };
+
+    const api = {
+        playTheme,
+        prime,
+        stopCurrent,
+        stopPrime,
+        stopAll,
+        resolveTheme,
+        applyAuthority,
+        parseTime,
+        debug,
+        currentThemeId,
+        get audio() { return state.audio; },
+        get primedAudio() { return state.prime; },
+        get state() { return { ...state }; }
+    };
+
+    window.__loggyLogIntroAudioV443 = api;
+    window.__loggyIntroAudioDebugV443 = debug;
+    window.__loggyStopAllIntroAudioV420 = stopAll;
+    window.__loggyRestartCurrentIntroV425 = options =>
+        playTheme(currentThemeId(), { ...(options || {}), reason:'compat-restart-v443' });
+    window.__loggyReplaySavedIntroV423 = () =>
+        playTheme(currentThemeId(), { reason:'compat-replay-v443' });
+
+    window.__loggyCoreIntroV428 = {
+        restart: (themeId, options = {}) =>
+            playTheme(themeId || currentThemeId(), { ...options, reason: options.reason || 'compat-core-restart-v443' }),
+        stop: stopAll,
+        resolve: resolveTheme,
+        parseTime,
+        debug,
+        get audio() { return state.audio; },
+        get state() { return { ...state }; }
+    };
+
+    for (const name of [
+        '__loggyIntroAudioDebugV442','__loggyIntroAudioDebugV441','__loggyIntroAudioDebugV440',
+        '__loggyIntroAudioDebugV439','__loggyIntroAudioDebugV438','__loggyIntroAudioDebugV437',
+        '__loggyIntroAudioDebugV436','__loggyIntroAudioDebugV431','__loggyIntroAudioDebugV430',
+        '__loggyIntroAudioDebugV428','__loggyIntroAudioDebugV427'
+    ]) window[name] = debug;
+
+    window.addEventListener('pagehide', stopAll);
+    window.addEventListener('pageshow', event => {
+        if (event?.persisted) playTheme(currentThemeId(), { reason:'pageshow-bfcache-v443' });
+    });
+})();
 
 function normalizeFeatureSuiteSettings() {
     if (!db.settings) db.settings = {};
@@ -21092,6 +21496,7 @@ function restoreLastTopLevelView() {
 function switchView(viewToShow) {
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     if (viewToShow) viewToShow.classList.add('active');
+    try { window.__loggySyncHeadingBackdropV501?.(); } catch {}
 
     // V206: keep Daily Logs at its final width from the very first paint instead
     // of waiting for the deferred enhancement bundle to add these classes.
@@ -21124,3 +21529,500 @@ function switchView(viewToShow) {
     finishInitialViewRestore();
 }
 
+
+
+// ============================================================================
+// V429 — PER-LOG SECTION/PAGE TITLE RENAMING
+// Right-click eligible headings, rename them in a theme-styled modal, and save
+// the overrides in this Loggy's own db.settings object.
+// ============================================================================
+function sectionTitleTextV429(element) {
+    if (!element) return '';
+    const clone = element.cloneNode(true);
+    clone.querySelectorAll('i,svg').forEach(node => node.remove());
+    return String(clone.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function sectionTitleKeyV429(element) {
+    if (!element) return '';
+    if (element.dataset.loggyTitleKeyV429) return element.dataset.loggyTitleKeyV429;
+
+    const view = element.closest('.view');
+    const viewId = view?.id || 'view';
+    const section = element.closest('section');
+    const stableId = element.id || section?.id || '';
+    const component = element.closest('[data-component-id]');
+
+    let base;
+    if (component?.dataset?.componentId && view?.dataset?.customTabId) {
+        base = `custom:${view.dataset.customTabId}:component:${component.dataset.componentId}:title`;
+    } else if (stableId) {
+        base = `${viewId}:id:${stableId}`;
+    } else if (element.matches('.custom-tab-title') && view?.dataset?.customTabId) {
+        base = `custom:${view.dataset.customTabId}:title`;
+    } else {
+        const original = sectionTitleTextV429(element) || 'heading';
+        base = `${viewId}:text:${original.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`;
+    }
+
+    element.dataset.loggyTitleKeyV429 = base;
+    if (!element.dataset.loggyOriginalTitleV429) {
+        element.dataset.loggyOriginalTitleV429 = sectionTitleTextV429(element);
+    }
+    return base;
+}
+
+function isRenameableSectionTitleV429(element) {
+    if (!(element instanceof HTMLElement)) return false;
+    if (!element.matches('h1,h2')) return false;
+    if (!element.closest('.view')) return false;
+    if (element.closest('.modal,.modal-overlay,[role="dialog"]')) return false;
+
+    // Main page/tab headings.
+    if (element.matches('.view > h1,.view > h2')) return true;
+    if (element.matches('.log-header-container > h1,.log-header-container > h2')) return true;
+    if (element.matches('.feature-page-header h1,.feature-page-header h2')) return true;
+    if (element.matches('.custom-tab-page-header .custom-tab-title')) return true;
+
+    // Section headings such as Items Learned, Log Notes, Tools, Video Logs,
+    // Media Resources, Tab Items, and custom-tab sections.
+    if (element.matches('.section-header > h2')) return true;
+    if (element.matches('.custom-collection-header > h2,.custom-user-heading')) return true;
+
+    // Specific built-in sub-heading requested by the user.
+    if (element.id === 'anki-summary-title') return true;
+
+    return false;
+}
+
+function setSectionTitleTextV429(element, value) {
+    if (!element) return;
+    const text = String(value || '').trim();
+    if (!text) return;
+
+    // Preserve a leading icon (Ready to Review uses one).
+    const icon = Array.from(element.children).find(child => child.matches?.('i,svg')) || null;
+    if (icon) {
+        Array.from(element.childNodes).forEach(node => {
+            if (node !== icon) node.remove();
+        });
+        element.appendChild(document.createTextNode(` ${text}`));
+    } else {
+        element.textContent = text;
+    }
+}
+
+function sectionTitleOverridesV429() {
+    if (!db?.settings) return {};
+    const value = db.settings.sectionTitleOverridesV429;
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function applySectionTitleOverridesV429(root = document) {
+    if (!root?.querySelectorAll) return;
+    const overrides = sectionTitleOverridesV429();
+
+    root.querySelectorAll('.view h1,.view h2').forEach(element => {
+        if (!isRenameableSectionTitleV429(element)) return;
+        const key = sectionTitleKeyV429(element);
+        const renamed = String(overrides[key] || '').trim();
+        if (renamed && sectionTitleTextV429(element) !== renamed) {
+            setSectionTitleTextV429(element, renamed);
+        }
+        element.classList.add('loggy-renamable-title-v429');
+        element.title = element.title || 'Right-click for section options';
+    });
+    // V434: per-Loggy hidden-section state is restored alongside title overrides so
+    // it is correct on initial load, day switches, and dynamically rendered views.
+    try { applyHiddenLoggySectionsV432(root); } catch (_) {}
+    try { window.__loggySyncCoreHeadingBackdropV505?.(); } catch (_) {}
+}
+
+function ensureSectionTitleRenameModalV429() {
+    let modal = document.getElementById('section-title-rename-modal-v429');
+    if (modal) return modal;
+
+    modal = document.createElement('div');
+    modal.id = 'section-title-rename-modal-v429';
+    modal.className = 'modal-overlay hidden';
+    modal.setAttribute('role','dialog');
+    modal.setAttribute('aria-modal','true');
+    modal.innerHTML = `
+        <div class="modal-box loggy-title-rename-box-v429">
+            <div class="modal-header">
+                <h2>Rename Section Title</h2>
+                <button type="button" class="small-icon-btn loggy-title-rename-close-v429" aria-label="Close">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <label class="field-label" for="loggy-title-rename-input-v429">Title</label>
+            <input id="loggy-title-rename-input-v429" type="text" maxlength="90" autocomplete="off">
+            <div class="loggy-title-rename-actions-v429">
+                <button type="button" class="icon-btn loggy-title-rename-reset-v429">Reset</button>
+                <button type="button" class="icon-btn loggy-title-rename-save-v429">Save</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    const close = () => {
+        modal.classList.add('hidden');
+        modal._targetV429 = null;
+    };
+    modal.querySelector('.loggy-title-rename-close-v429')?.addEventListener('click', close);
+    modal.addEventListener('pointerdown', event => {
+        if (event.target === modal) close();
+    });
+
+    async function saveValue(reset = false) {
+        const target = modal._targetV429;
+        if (!target?.isConnected) return close();
+        const key = sectionTitleKeyV429(target);
+        if (!key) return close();
+
+        if (!db.settings) db.settings = {};
+        if (!db.settings.sectionTitleOverridesV429 || typeof db.settings.sectionTitleOverridesV429 !== 'object' || Array.isArray(db.settings.sectionTitleOverridesV429)) {
+            db.settings.sectionTitleOverridesV429 = {};
+        }
+
+        if (reset) {
+            delete db.settings.sectionTitleOverridesV429[key];
+            const original = String(target.dataset.loggyOriginalTitleV429 || '').trim();
+            if (original) setSectionTitleTextV429(target, original);
+        } else {
+            const input = modal.querySelector('#loggy-title-rename-input-v429');
+            const next = String(input?.value || '').replace(/\s+/g, ' ').trim();
+            if (!next) {
+                input?.focus();
+                return;
+            }
+            db.settings.sectionTitleOverridesV429[key] = next;
+            setSectionTitleTextV429(target, next);
+        }
+
+        try { await saveDb(); } catch (error) { console.warn('Could not save renamed section title:', error); }
+        close();
+        applySectionTitleOverridesV429();
+    }
+
+    modal.querySelector('.loggy-title-rename-save-v429')?.addEventListener('click', () => saveValue(false));
+    modal.querySelector('.loggy-title-rename-reset-v429')?.addEventListener('click', () => saveValue(true));
+    modal.querySelector('#loggy-title-rename-input-v429')?.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            saveValue(false);
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            close();
+        }
+    });
+
+    return modal;
+}
+
+function openSectionTitleRenameV429(target) {
+    if (!isRenameableSectionTitleV429(target)) return;
+    sectionTitleKeyV429(target);
+    const modal = ensureSectionTitleRenameModalV429();
+    modal._targetV429 = target;
+    const input = modal.querySelector('#loggy-title-rename-input-v429');
+    if (input) input.value = sectionTitleTextV429(target);
+    modal.classList.remove('hidden');
+    requestAnimationFrame(() => {
+        try { input?.focus({ preventScroll:true }); input?.select(); } catch {}
+    });
+}
+
+// ============================================================================
+// V434 — RIGHT-CLICK SECTION MENU + PER-LOGGY HIDEABLE DAY-LOG SECTIONS
+// Right-clicking a supported heading opens a compact context menu at the pointer
+// instead of a modal. Tools, Video Logs, Tab Items, Log Notes, and Media
+// Resources can be hidden without deleting their data and restored in settings.
+// ============================================================================
+function loggyHiddenSectionsV432() {
+    if (!db?.settings) return {};
+    const value = db.settings.hiddenSectionsV432;
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function isVideoLogsHeadingV432(element) {
+    if (!(element instanceof HTMLElement)) return false;
+    const section = element.closest('.video-section');
+    return !!section && element.matches('.section-header > h2') && section.querySelector('.section-header > h2') === element;
+}
+
+function isToolsHeadingV433(element) {
+    if (!(element instanceof HTMLElement)) return false;
+    const section = element.closest('section');
+    if (!section || !element.matches('.section-header > h2')) return false;
+    return !!section.querySelector('#add-tool-to-day-btn,#tools-container,#tool-input-group');
+}
+
+function isTabItemsHeadingV433(element) {
+    if (!(element instanceof HTMLElement)) return false;
+    const section = element.closest('#daily-custom-tab-links-section');
+    return !!section && element.matches('.section-header > h2') && section.querySelector('.section-header > h2') === element;
+}
+
+function isLogNotesHeadingV434(element) {
+    if (!(element instanceof HTMLElement)) return false;
+    const section = element.closest('#log-view .notes-section');
+    return !!section && element.matches('.section-header > h2') && section.querySelector('.section-header > h2') === element;
+}
+
+function isMediaResourcesHeadingV434(element) {
+    if (!(element instanceof HTMLElement)) return false;
+    const section = element.closest('#day-resources-section');
+    return !!section && element.matches('.section-header > h2') && section.querySelector('.section-header > h2') === element;
+}
+
+function hideableDayLogSectionKeyV433(element) {
+    if (isVideoLogsHeadingV432(element)) return 'videoLogs';
+    if (isToolsHeadingV433(element)) return 'tools';
+    if (isTabItemsHeadingV433(element)) return 'tabItems';
+    if (isLogNotesHeadingV434(element)) return 'logNotes';
+    if (isMediaResourcesHeadingV434(element)) return 'mediaResources';
+    return '';
+}
+
+function dayLogSectionForKeyV433(key) {
+    if (key === 'videoLogs') return document.querySelector('#log-view .video-section');
+    if (key === 'tools') return document.getElementById('add-tool-to-day-btn')?.closest('section') || null;
+    if (key === 'tabItems') return document.getElementById('daily-custom-tab-links-section');
+    if (key === 'logNotes') return document.querySelector('#log-view .notes-section');
+    if (key === 'mediaResources') return document.getElementById('day-resources-section');
+    return null;
+}
+
+function toolboxBuiltInHiddenV433() {
+    try {
+        if (typeof isBuiltInTabHiddenV52 === 'function') return !!isBuiltInTabHiddenV52('tools');
+    } catch (_) {}
+    try { return !!db?.settings?.hiddenBuiltInTabsV52?.includes?.('tools'); } catch (_) {}
+    return false;
+}
+
+function ensureHiddenDayLogSectionsSettingsV433() {
+    const modalBox = document.querySelector('#daily-settings-modal .modal-box');
+    if (!modalBox) return null;
+    let section = document.getElementById('hidden-day-log-sections-v433');
+    if (section) return section;
+    section = document.createElement('div');
+    section.id = 'hidden-day-log-sections-v433';
+    section.className = 'modal-section hidden-day-log-sections-v433 hidden';
+    section.innerHTML = `
+        <span class="field-label">Hidden Day Log Sections</span>
+        <p class="progress-hint" style="margin-top:-5px;">Restore a section you hid from this Loggy.</p>
+        <div class="hidden-day-log-actions-v433"></div>
+    `;
+    const firstSection = modalBox.querySelector(':scope > .modal-section');
+    if (firstSection?.nextSibling) modalBox.insertBefore(section, firstSection.nextSibling);
+    else modalBox.appendChild(section);
+    return section;
+}
+
+function renderHiddenDayLogSectionSettingsV433() {
+    const section = ensureHiddenDayLogSectionsSettingsV433();
+    if (!section) return;
+    const hidden = loggyHiddenSectionsV432();
+    const entries = [
+        ['tools', 'Tools'],
+        ['videoLogs', 'Video Logs'],
+        ['tabItems', 'Tab Items'],
+        ['logNotes', 'Log Notes'],
+        ['mediaResources', 'Media Resources']
+    ].filter(([key]) => hidden[key] === true);
+    const actions = section.querySelector('.hidden-day-log-actions-v433');
+    section.classList.toggle('hidden', entries.length === 0);
+    if (!actions) return;
+    actions.innerHTML = entries.map(([key, label]) => `
+        <button type="button" class="icon-btn hidden-day-log-show-v433" data-show-section-v433="${key}">
+            Show ${label}
+        </button>
+    `).join('');
+    actions.querySelectorAll('[data-show-section-v433]').forEach(button => {
+        button.addEventListener('click', async () => {
+            const key = String(button.dataset.showSectionV433 || '');
+            if (!key) return;
+            if (!db.settings) db.settings = {};
+            if (!db.settings.hiddenSectionsV432 || typeof db.settings.hiddenSectionsV432 !== 'object' || Array.isArray(db.settings.hiddenSectionsV432)) {
+                db.settings.hiddenSectionsV432 = {};
+            }
+            delete db.settings.hiddenSectionsV432[key];
+            try { await saveDb(); } catch (error) { console.warn('Could not restore Day Log section:', error); }
+            applyHiddenLoggySectionsV432();
+        });
+    });
+}
+
+function syncDayLogMainColumnsV433() {
+    const logContent = document.querySelector('#log-view .log-content');
+    const rightColumn = logContent?.querySelector('.right-column');
+    const leftColumn = logContent?.querySelector('.left-column');
+    if (!logContent || !rightColumn || !leftColumn) return;
+
+    const hidden = loggyHiddenSectionsV432();
+    const toolsGone = hidden.tools === true || toolboxBuiltInHiddenV433();
+    const videosGone = hidden.videoLogs === true;
+    const expand = toolsGone && videosGone;
+
+    logContent.classList.toggle('loggy-day-main-wide-v433', expand);
+    leftColumn.classList.toggle('loggy-day-left-wide-v433', expand);
+    rightColumn.classList.toggle('loggy-day-right-hidden-v433', expand);
+    rightColumn.setAttribute('aria-hidden', expand ? 'true' : 'false');
+
+    requestAnimationFrame(() => {
+        try { syncNotesHeight(); } catch (_) {}
+    });
+}
+
+function applyHiddenLoggySectionsV432(root = document) {
+    const hidden = loggyHiddenSectionsV432();
+    const keys = ['videoLogs', 'tools', 'tabItems', 'logNotes', 'mediaResources'];
+
+    keys.forEach(key => {
+        const section = dayLogSectionForKeyV433(key);
+        if (!section) return;
+        const isHidden = key === 'tools'
+            ? (hidden.tools === true || toolboxBuiltInHiddenV433())
+            : hidden[key] === true;
+        section.classList.toggle('loggy-section-hidden-v433', isHidden);
+        section.hidden = isHidden;
+        section.setAttribute('aria-hidden', isHidden ? 'true' : 'false');
+    });
+
+    syncDayLogMainColumnsV433();
+    renderHiddenDayLogSectionSettingsV433();
+}
+window.__applyHiddenLoggySectionsV433 = applyHiddenLoggySectionsV432;
+
+function closeSectionTitleContextMenuV434() {
+    const menu = document.getElementById('section-title-context-menu-v434');
+    if (!menu) return;
+    menu.classList.add('hidden');
+    menu._targetV434 = null;
+}
+
+async function hideDayLogSectionFromHeadingV434(target) {
+    const key = hideableDayLogSectionKeyV433(target);
+    if (!key) return;
+    if (!db.settings) db.settings = {};
+    if (!db.settings.hiddenSectionsV432 || typeof db.settings.hiddenSectionsV432 !== 'object' || Array.isArray(db.settings.hiddenSectionsV432)) {
+        db.settings.hiddenSectionsV432 = {};
+    }
+    // Hide only. Never erase notes, tools, linked Tab Items, media resources,
+    // or saved video URLs.
+    db.settings.hiddenSectionsV432[key] = true;
+    try { await saveDb(); } catch (error) { console.warn('Could not hide Day Log section:', error); }
+    applyHiddenLoggySectionsV432();
+}
+
+function ensureSectionTitleContextMenuV434() {
+    let menu = document.getElementById('section-title-context-menu-v434');
+    if (menu) return menu;
+
+    menu = document.createElement('div');
+    menu.id = 'section-title-context-menu-v434';
+    menu.className = 'loggy-section-context-menu-v434 hidden';
+    menu.setAttribute('role', 'menu');
+    menu.setAttribute('aria-label', 'Section options');
+    menu.innerHTML = `
+        <div class="loggy-section-context-name-v434" aria-hidden="true"></div>
+        <button type="button" class="loggy-section-context-option-v434 loggy-section-context-rename-v434" role="menuitem">
+            <i class="ph ph-pencil-simple"></i><span>Rename</span>
+        </button>
+        <button type="button" class="loggy-section-context-option-v434 loggy-section-context-hide-v434 hidden" role="menuitem">
+            <i class="ph ph-eye-slash"></i><span>Hide</span>
+        </button>
+    `;
+    document.body.appendChild(menu);
+
+    menu.querySelector('.loggy-section-context-rename-v434')?.addEventListener('click', () => {
+        const target = menu._targetV434;
+        closeSectionTitleContextMenuV434();
+        if (target?.isConnected) openSectionTitleRenameV429(target);
+    });
+
+    menu.querySelector('.loggy-section-context-hide-v434')?.addEventListener('click', async () => {
+        const target = menu._targetV434;
+        closeSectionTitleContextMenuV434();
+        if (target?.isConnected) await hideDayLogSectionFromHeadingV434(target);
+    });
+
+    menu.addEventListener('contextmenu', event => event.preventDefault());
+    return menu;
+}
+
+function openSectionTitleContextMenuV434(target, clientX, clientY) {
+    if (!isRenameableSectionTitleV429(target)) return;
+    const menu = ensureSectionTitleContextMenuV434();
+    menu._targetV434 = target;
+
+    const name = menu.querySelector('.loggy-section-context-name-v434');
+    if (name) name.textContent = sectionTitleTextV429(target) || 'Section';
+
+    const hideButton = menu.querySelector('.loggy-section-context-hide-v434');
+    const hideKey = hideableDayLogSectionKeyV433(target);
+    hideButton?.classList.toggle('hidden', !hideKey);
+
+    menu.classList.remove('hidden');
+    menu.style.left = '0px';
+    menu.style.top = '0px';
+
+    const rect = menu.getBoundingClientRect();
+    const gap = 8;
+    const maxLeft = Math.max(gap, window.innerWidth - rect.width - gap);
+    const maxTop = Math.max(gap, window.innerHeight - rect.height - gap);
+    const left = Math.min(Math.max(gap, Number(clientX) || gap), maxLeft);
+    const top = Math.min(Math.max(gap, Number(clientY) || gap), maxTop);
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+
+    requestAnimationFrame(() => menu.querySelector('.loggy-section-context-rename-v434')?.focus({ preventScroll:true }));
+}
+
+(() => {
+    if (window.__loggySectionTitleRenameV429) return;
+    window.__loggySectionTitleRenameV429 = true;
+
+    document.addEventListener('contextmenu', event => {
+        const heading = event.target?.closest?.('h1,h2');
+        if (!isRenameableSectionTitleV429(heading)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        openSectionTitleContextMenuV434(heading, event.clientX, event.clientY);
+    }, true);
+
+    document.addEventListener('pointerdown', event => {
+        const menu = document.getElementById('section-title-context-menu-v434');
+        if (!menu || menu.classList.contains('hidden')) return;
+        if (!menu.contains(event.target)) closeSectionTitleContextMenuV434();
+    }, true);
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeSectionTitleContextMenuV434();
+    }, true);
+
+    window.addEventListener('scroll', closeSectionTitleContextMenuV434, true);
+    window.addEventListener('resize', closeSectionTitleContextMenuV434);
+
+    // Custom tabs/sections can be created after initial load.
+    const observer = new MutationObserver(records => {
+        for (const record of records) {
+            for (const node of record.addedNodes) {
+                if (!(node instanceof HTMLElement)) continue;
+                if (node.matches?.('.view,h1,h2,section') || node.querySelector?.('.view h1,.view h2,.section-header > h2')) {
+                    applySectionTitleOverridesV429(node.matches?.('.view') ? node : (node.closest?.('.view') || document));
+                    return;
+                }
+            }
+        }
+    });
+    observer.observe(document.body, { childList:true, subtree:true });
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => applySectionTitleOverridesV429(), { once:true });
+    } else {
+        applySectionTitleOverridesV429();
+    }
+})();

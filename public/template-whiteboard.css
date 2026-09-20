@@ -350,3 +350,270 @@ html.whiteboard-tab-active-v198.cursor-hide-native body .loggy-whiteboard-v198 b
   background:#fff !important;
   background-color:#fff !important;
 }
+
+
+/* V507 — real Quizzes window inside Whiteboard + annotation layer */
+.wb-quiz-window-v507{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(900px,78vw);height:min(760px,82vh);min-width:520px;min-height:420px;z-index:2147482350;display:flex;flex-direction:column;overflow:hidden;resize:both;background:var(--wb-panel,#fff);color:var(--wb-text,#1a1a1a);border:1px solid var(--wb-border,#ddd);border-radius:16px;box-shadow:0 22px 70px rgba(0,0,0,.28);pointer-events:auto!important}
+.wb-quiz-window-v507[hidden]{display:none!important}
+.wb-quiz-window-head-v507{height:52px;flex:0 0 52px;display:flex;align-items:center;gap:7px;padding:6px 8px 6px 12px;background:var(--wb-panel,#fff);border-bottom:1px solid var(--wb-border,#ddd);user-select:none;touch-action:none}
+.wb-quiz-window-drag-v507{display:flex;align-items:center;gap:8px;min-width:0;flex:1;cursor:grab;font:700 14px/1.2 Inter,ui-sans-serif,system-ui,sans-serif}.wb-quiz-window-drag-v507:active{cursor:grabbing}.wb-quiz-window-drag-v507 i{font-size:18px}.wb-quiz-window-drag-v507 span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-quiz-window-actions-v507{display:flex;align-items:center;gap:5px}.wb-quiz-window-actions-v507 button{height:34px;min-width:34px;padding:0 9px;border:1px solid var(--wb-border,#ddd);border-radius:9px;background:var(--wb-panel-2,#f7f7f8);color:inherit;cursor:pointer;font:650 12px/1 Inter,ui-sans-serif,system-ui,sans-serif}.wb-quiz-window-actions-v507 button:hover{filter:brightness(.96)}.wb-quiz-window-actions-v507 button.is-active{outline:2px solid currentColor;outline-offset:1px}.wb-quiz-window-actions-v507 .wb-quiz-close-v507{font-size:18px;padding:0;width:34px}
+.wb-quiz-window-body-v507{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--wb-panel,#fff)}
+.wb-quiz-portal-content-v507{position:absolute;inset:0;overflow:auto;padding:18px 22px 34px;overscroll-behavior:contain}
+.wb-quiz-portal-content-v507>.view{display:none!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;position:relative!important;inset:auto!important;transform:none!important;visibility:visible!important;pointer-events:auto!important}
+.wb-quiz-portal-content-v507>.view.wb-quiz-portal-current-v507{display:block!important}
+.wb-quiz-portal-content-v507 #quizzes-view .log-header-container,.wb-quiz-portal-content-v507 #quiz-learn-view .log-header-container{margin-top:0!important}
+.wb-quiz-annotation-v507{position:absolute;inset:0;width:100%;height:100%;z-index:12;overflow:hidden;touch-action:none;pointer-events:none}
+.wb-quiz-window-v507[data-quiz-write="1"] .wb-quiz-annotation-v507{pointer-events:auto;cursor:crosshair}
+.wb-quiz-window-v507[data-quiz-write="1"] .wb-quiz-portal-content-v507{user-select:none}
+.wb-quiz-annotation-v507 path{fill:none;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke}
+.wb-quiz-write-tools-v507{display:none;align-items:center;gap:4px}.wb-quiz-window-v507[data-quiz-write="1"] .wb-quiz-write-tools-v507{display:flex}
+body.whiteboard-tab-active-v198.whiteboard-quiz-portal-active-v507>.modal-overlay:not(.hidden),body.whiteboard-tab-active-v198.whiteboard-quiz-portal-active-v507>[class*="modal-overlay"]:not(.hidden){visibility:visible!important;pointer-events:auto!important;z-index:2147483000!important}
+@media(max-width:700px){.wb-quiz-window-v507{width:calc(100vw - 18px);height:calc(100dvh - 90px);min-width:0;min-height:360px}.wb-quiz-window-head-v507{padding-left:8px}.wb-quiz-window-actions-v507 button{padding:0 7px}.wb-quiz-window-actions-v507 button span{display:none}.wb-quiz-portal-content-v507{padding:14px 12px 28px}}
+
+
+/* ============================================================
+   V509 — Whiteboard tool hover + Whiteboard-controlled quiz ink
+   ============================================================ */
+/* Tool hover is icon-only: no tile/background movement. */
+.wb-left-v198 > button:hover{
+  background:transparent!important;
+  transform:none!important;
+  box-shadow:none!important;
+}
+.wb-left-v198 > button:hover > i{
+  -webkit-text-stroke:.55px currentColor;
+  text-shadow:0 0 0 currentColor;
+  opacity:1!important;
+}
+
+/* The Quizzes launcher is intentionally the final item in the tool rail. */
+.wb-left-v198 > button[data-action="quiz-window"]{order:999}
+
+/* Drawing interception comes only from the active WHITEBOARD drawing tool. */
+.wb-quiz-window-v507 .wb-quiz-annotation-v507{pointer-events:none!important;cursor:default}
+.wb-quiz-window-v507[data-quiz-drawing="1"] .wb-quiz-annotation-v507{pointer-events:auto!important;cursor:crosshair}
+.wb-quiz-tool-hint-v509{font:600 11px/1.2 Inter,ui-sans-serif,system-ui,sans-serif;opacity:.58;white-space:nowrap}
+
+/* Quizzes opened on Whiteboard always use Loggy's DEFAULT light quiz appearance,
+   independent of the currently applied custom theme. */
+.wb-quiz-default-theme-v509{
+  --black:#000!important;
+  --white:#fff!important;
+  --muted-text:rgba(0,0,0,.55)!important;
+  --track-bg:#eee!important;
+  --border-radius:12px!important;
+  --thin-border:2px solid #000!important;
+  --thick-border:3px solid #000!important;
+  --dashed-border:2px dashed #000!important;
+  --custom-theme-heading-backdrop-color:transparent!important;
+  --custom-theme-heading-backdrop-opacity:0%!important;
+  --custom-theme-content-backdrop-opacity:0%!important;
+  --custom-theme-quiz-backdrop-opacity-v456:0%!important;
+  background:#fff!important;
+  color:#000!important;
+}
+.wb-quiz-default-theme-v509 .wb-quiz-window-head-v507,
+.wb-quiz-default-theme-v509 .wb-quiz-window-body-v507,
+.wb-quiz-default-theme-v509 .wb-quiz-portal-content-v507,
+.wb-quiz-default-theme-v509 #quizzes-view,
+.wb-quiz-default-theme-v509 #quiz-learn-view{
+  background:#fff!important;
+  color:#000!important;
+}
+.wb-quiz-default-theme-v509 #quizzes-view .log-header-container>h1,
+.wb-quiz-default-theme-v509 #quiz-learn-view .log-header-container>h1{
+  color:#000!important;background:transparent!important;background-image:none!important;
+  padding:0!important;border-radius:0!important;box-shadow:none!important;
+}
+.wb-quiz-default-theme-v509 :is(.icon-btn,.filter-tab,.day-picker-box,.flashcard,.flashcard-mode-card,.quiz-learn-prompt-card-v38){
+  color:#000!important;border-color:#000!important;box-shadow:none;
+}
+.wb-quiz-default-theme-v509 :is(.flashcard,.flashcard-mode-card,.quiz-learn-prompt-card-v38,.day-picker-box){background:#fff!important}
+.wb-quiz-default-theme-v509 .filter-tab.active{background:#000!important;color:#fff!important}
+
+
+/* ============================================================
+   V511 — Whiteboard Quizzes window polish + dark/default parity
+   ============================================================ */
+/* No helper copy in the title bar; actions area is only the close control. */
+.wb-quiz-tool-hint-v509{display:none!important}
+
+/* Close button matches the Whiteboard chrome instead of the generic Loggy button. */
+.wb-quiz-window-v507 .wb-quiz-window-actions-v507 .wb-quiz-close-v507{
+  width:34px!important;height:34px!important;min-width:34px!important;
+  padding:0!important;margin:0!important;
+  display:grid!important;place-items:center!important;
+  border:0!important;border-radius:8px!important;
+  background:transparent!important;color:inherit!important;
+  box-shadow:none!important;outline:none!important;
+  line-height:1!important;
+}
+.wb-quiz-window-v507 .wb-quiz-window-actions-v507 .wb-quiz-close-v507 i{
+  font-size:20px!important;line-height:1!important;transition:transform .1s ease,font-weight .1s ease;
+}
+.wb-quiz-window-v507 .wb-quiz-window-actions-v507 .wb-quiz-close-v507:hover{
+  background:var(--wb-panel-2,#f7f7f8)!important;filter:none!important;
+}
+.wb-quiz-window-v507 .wb-quiz-window-actions-v507 .wb-quiz-close-v507:hover i{
+  -webkit-text-stroke:.45px currentColor;
+}
+
+/* The quiz window still uses Loggy's DEFAULT theme, but mirrors the Whiteboard's
+   light/dark mode. This is intentionally independent of the user's custom theme. */
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509{
+  --black:#f3f3f3!important;
+  --white:#171719!important;
+  --muted-text:rgba(255,255,255,.62)!important;
+  --track-bg:#2a2a2e!important;
+  --thin-border:2px solid #f3f3f3!important;
+  --thick-border:3px solid #f3f3f3!important;
+  --dashed-border:2px dashed #f3f3f3!important;
+  background:#171719!important;color:#f3f3f3!important;
+  border-color:#3a3a40!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 .wb-quiz-window-head-v507,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 .wb-quiz-window-body-v507,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 .wb-quiz-portal-content-v507,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 #quizzes-view,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 #quiz-learn-view{
+  background:#171719!important;color:#f3f3f3!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 .wb-quiz-window-head-v507{border-bottom-color:#3a3a40!important}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 #quizzes-view .log-header-container>h1,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 #quiz-learn-view .log-header-container>h1{
+  color:#f3f3f3!important;background:transparent!important;background-image:none!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 :is(
+  .icon-btn,.small-icon-btn,.filter-tab,.day-picker-box,.flashcard,.flashcard-mode-card,
+  .quiz-learn-prompt-card-v38,input,textarea,select,.quiz-extra-practice-card-v59
+){
+  color:#f3f3f3!important;border-color:#f3f3f3!important;background:#171719!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 :is(input,textarea,select)::placeholder{color:#a7a7ad!important}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 .filter-tab.active,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 .icon-btn:hover,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 .small-icon-btn:hover{
+  background:#f3f3f3!important;color:#171719!important;
+}
+
+/* Smart Placeholder Practice / Field to Field Practice are body-level real modals.
+   When launched from the Whiteboard quiz portal, keep them above the Whiteboard and
+   give them the same default light/dark appearance instead of the custom theme. */
+.wb-quiz-practice-modal-v511{
+  z-index:2147483300!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+.wb-quiz-practice-modal-v511 .modal-box{
+  background:#fff!important;color:#000!important;border-color:#000!important;
+}
+.wb-quiz-practice-modal-v511 :is(input,textarea,select,.icon-btn,.small-icon-btn,.sentence-builder-kb-result-v56,.smart-practice-mode-card-v468){
+  background:#fff!important;color:#000!important;border-color:#000!important;
+}
+.wb-quiz-practice-modal-v511[data-wb-theme-v511="dark"]{background:rgba(0,0,0,.68)!important}
+.wb-quiz-practice-modal-v511[data-wb-theme-v511="dark"] .modal-box{
+  background:#171719!important;color:#f3f3f3!important;border-color:#f3f3f3!important;
+}
+.wb-quiz-practice-modal-v511[data-wb-theme-v511="dark"] :is(input,textarea,select,.icon-btn,.small-icon-btn,.sentence-builder-kb-result-v56,.smart-practice-mode-card-v468){
+  background:#171719!important;color:#f3f3f3!important;border-color:#f3f3f3!important;
+}
+.wb-quiz-practice-modal-v511[data-wb-theme-v511="dark"] :is(input,textarea)::placeholder{color:#a7a7ad!important}
+.wb-quiz-practice-modal-v511[data-wb-theme-v511="dark"] :is(.icon-btn,.small-icon-btn):hover{
+  background:#f3f3f3!important;color:#171719!important;
+}
+
+/* ============================================================
+   V512 — Practice views live INSIDE the Whiteboard Quizzes window
+   ============================================================ */
+.wb-quiz-window-v507 .wb-quiz-practice-embedded-v512{
+  position:absolute!important;
+  inset:0!important;
+  width:auto!important;
+  height:auto!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:18px!important;
+  z-index:30!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:auto!important;
+  overscroll-behavior:contain!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  background:rgba(255,255,255,.94)!important;
+  backdrop-filter:none!important;
+}
+.wb-quiz-window-v507 .wb-quiz-practice-embedded-v512 .modal-box{
+  position:relative!important;
+  width:min(760px,100%)!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  margin:auto!important;
+  overflow:auto!important;
+  transform:none!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-window-v507 .wb-quiz-practice-embedded-v512{
+  background:rgba(23,23,25,.96)!important;
+}
+/* Whiteboard drawing tools still draw over whatever practice view is open. */
+.wb-quiz-window-v507 .wb-quiz-practice-embedded-v512{z-index:20!important}
+.wb-quiz-window-v507 .wb-quiz-annotation-v507{z-index:40!important}
+
+
+/* ============================================================
+   V516 — Whiteboard quiz layering + camera parity
+   Quiz stays above the board background, but actual board content (notes,
+   images, text and strokes inside .wb-world-v198) paints above the quiz.
+   ============================================================ */
+.loggy-whiteboard-v198 .wb-quiz-window-v507{z-index:2!important;}
+.loggy-whiteboard-v198 .wb-world-v198{z-index:3!important;}
+/* Toolbar/chrome already uses fixed 2147482xxx z-indices and remains above both. */
+
+
+/* V518 — clean sticky palette + per-object layer controls */
+.loggy-whiteboard-v198 .wb-palette-grid-v198 button{border:0!important;box-shadow:none!important;outline:0!important}
+.loggy-whiteboard-v198 .wb-world-v198>.wb-images-v251,
+.loggy-whiteboard-v198 .wb-world-v198>.wb-notes-v198,
+.loggy-whiteboard-v198 .wb-world-v198>.wb-texts-v251{display:contents!important;z-index:auto!important}
+.loggy-whiteboard-v198 .wb-layer-toggle-v518{position:absolute!important;right:8px!important;top:8px!important;width:30px!important;height:30px!important;display:grid!important;place-items:center!important;border:1px solid var(--wb-border)!important;border-radius:8px!important;background:var(--wb-panel)!important;color:var(--wb-text)!important;box-shadow:0 4px 12px rgba(0,0,0,.14)!important;cursor:pointer!important;z-index:2147481000!important;padding:0!important}
+.loggy-whiteboard-v198 .wb-layer-toggle-v518 i{font-size:17px!important;pointer-events:none}
+.loggy-whiteboard-v198 .wb-layer-menu-v518{position:absolute!important;right:8px!important;top:44px!important;width:154px!important;padding:5px!important;display:grid!important;gap:2px!important;background:var(--wb-panel)!important;color:var(--wb-text)!important;border:1px solid var(--wb-border)!important;border-radius:10px!important;box-shadow:0 12px 28px rgba(0,0,0,.18)!important;z-index:2147481001!important}
+.loggy-whiteboard-v198 .wb-layer-menu-v518[hidden]{display:none!important}
+.loggy-whiteboard-v198 .wb-layer-menu-v518 button{border:0!important;background:transparent!important;color:inherit!important;border-radius:7px!important;padding:8px 9px!important;display:flex!important;align-items:center!important;gap:7px!important;white-space:nowrap!important;cursor:pointer!important;font:600 12px/1.2 Inter,ui-sans-serif,system-ui,sans-serif!important}
+.loggy-whiteboard-v198 .wb-layer-menu-v518 button:hover{background:var(--wb-panel-2)!important}
+
+
+/* ============================================================
+   V520 — board content above Quizzes + shortcut tooltip polish
+   Keep the canvas background below the quiz window without making the
+   canvas itself a stacking context; the transformed world can then paint
+   above the quiz window. Newly-created board objects already receive the
+   highest per-object z value from nextLayerV518().
+   ============================================================ */
+.loggy-whiteboard-v198 .wb-canvas-v198{z-index:auto!important;}
+.loggy-whiteboard-v198 .wb-quiz-window-v507{z-index:2!important;}
+.loggy-whiteboard-v198 .wb-world-v198{z-index:3!important;}
+\n\n/* ============================================================\n   V521 — responsive contents when the Whiteboard Quizzes window is resized\n   The outer window remains independently draggable/resizable. Its REAL quiz\n   contents shrink/reflow inside the available space instead of being clipped.\n   ============================================================ */\n.wb-quiz-window-v507 .wb-quiz-portal-content-v507{\n  transform-origin:top left!important;\n  min-width:0!important;\n  box-sizing:border-box!important;\n}\n.wb-quiz-window-v507[data-wb-quiz-compact-v521=\"1\"] .wb-quiz-portal-content-v507 :is(\n  .log-header-container,.quiz-tabs,.quiz-mode-tabs,.filter-tabs,.quiz-learn-controls-v38,\n  .quiz-actions,.flashcard-actions,.quiz-extra-practice-host-v59\n){\n  flex-wrap:wrap!important;\n  min-width:0!important;\n}\n.wb-quiz-window-v507[data-wb-quiz-compact-v521=\"1\"] .wb-quiz-portal-content-v507 :is(\n  .flashcard,.flashcard-mode-card,.quiz-learn-prompt-card-v38,.quiz-card,.quiz-question-card\n){\n  max-width:100%!important;\n  min-width:0!important;\n  margin-left:auto!important;\n  margin-right:auto!important;\n}\n.wb-quiz-window-v507[data-wb-quiz-compact-v521=\"1\"] .wb-quiz-portal-content-v507 :is(button,.icon-btn,.small-icon-btn,input,textarea,select){\n  max-width:100%!important;\n}\n.wb-quiz-window-v507 .wb-quiz-practice-embedded-v512{transform-origin:top left!important}\n
+/* ============================================================
+   V522 — true board object layers around the Whiteboard Quizzes window
+   back world < quizzes window < front world
+   ============================================================ */
+.loggy-whiteboard-v198 .wb-world-back-v522{z-index:1!important;}
+.loggy-whiteboard-v198 .wb-quiz-window-v507{z-index:2!important;}
+.loggy-whiteboard-v198 .wb-world-front-v522{z-index:3!important;}
+.loggy-whiteboard-v198 .wb-world-back-v522,
+.loggy-whiteboard-v198 .wb-world-front-v522{pointer-events:none;}
+.loggy-whiteboard-v198 .wb-world-back-v522 :is(.wb-note-v198,.wb-image-v251,.wb-textbox-v251),
+.loggy-whiteboard-v198 .wb-world-front-v522 :is(.wb-note-v198,.wb-image-v251,.wb-textbox-v251){pointer-events:auto;}
+/* The sticky-note layer control belongs in the normal floating note toolbar. */
+.loggy-whiteboard-v198 .wb-note-toolbar-v198 .wb-note-layer-toggle-v522{
+  position:static!important;width:39px!important;height:39px!important;
+  border:0!important;box-shadow:none!important;background:transparent!important;
+  color:inherit!important;padding:0!important;
+}
+.loggy-whiteboard-v198 .wb-note-toolbar-v198 .wb-note-layer-toggle-v522:hover{background:var(--wb-panel-2)!important;}
+.loggy-whiteboard-v198 .wb-note-toolbar-v198 .wb-note-layer-menu-v522{
+  top:46px!important;right:4px!important;
+}

@@ -1,3 +1,10 @@
+// V443: applied Log intro audio is owned only by template.js.
+// Historical theme-rendering wrappers may still call this name for visual
+// reactions, but it never creates, starts, seeks, fades, or stops media.
+function playCustomThemeIntroAudioV2(_theme = {}, _options = {}) {
+    try { return window.__loggyLogIntroAudioV443?.audio || null; } catch (_) { return null; }
+}
+
 // ============================================================
 // THEME PICKER MANAGEMENT + MEDIA-ENHANCED THEME BUILDER
 // ============================================================
@@ -217,51 +224,8 @@ function mountCustomThemeBackgroundSvgsV2(theme) {
     document.body.prepend(stage);
 }
 
-function playCustomThemeIntroAudioV2(theme) {
-    const src = String(theme.introAudio || '');
-    if (!src) return;
-
-    const start = Math.max(0, Math.min(20, Number(theme.audioStart) || 0));
-    const requestedEnd = Number(theme.audioEnd);
-    const end = Math.max(start + 0.5, Math.min(20, Number.isFinite(requestedEnd) ? requestedEnd : 20));
-    const durationMs = Math.max(500, (end - start) * 1000);
-    const audio = new Audio(src);
-    customThemeIntroAudioV2 = audio;
-    audio.volume = 1;
-
-    const startPlayback = () => {
-        try {
-            const safeDuration = Number.isFinite(audio.duration) ? audio.duration : start + 1;
-            audio.currentTime = Math.min(start, Math.max(0, safeDuration - 0.05));
-        } catch (error) {}
-        audio.play().catch(() => {});
-
-        if (theme.audioFade && durationMs > 1400) {
-            const fadeDuration = Math.min(1400, durationMs * 0.35);
-            const fadeStart = Math.max(0, durationMs - fadeDuration);
-            setTimeout(() => {
-                if (customThemeIntroAudioV2 !== audio) return;
-                const started = performance.now();
-                customThemeIntroFadeTimerV2 = setInterval(() => {
-                    const progress = Math.min(1, (performance.now() - started) / fadeDuration);
-                    audio.volume = Math.max(0, 1 - progress);
-                    if (progress >= 1) {
-                        clearInterval(customThemeIntroFadeTimerV2);
-                        customThemeIntroFadeTimerV2 = null;
-                    }
-                }, 50);
-            }, fadeStart);
-        }
-
-        customThemeIntroStopTimerV2 = setTimeout(() => {
-            if (customThemeIntroAudioV2 !== audio) return;
-            audio.pause();
-            audio.volume = 1;
-        }, durationMs);
-    };
-
-    if (audio.readyState >= 1) startPlayback();
-    else audio.addEventListener('loadedmetadata', startPlayback, { once: true });
+function legacyPlayCustomThemeIntroAudioV2_A(theme) {
+    try { return window.__loggyLogIntroAudioV443?.audio || null; } catch (_) { return null; }
 }
 
 function applyCustomBuiltTheme(theme = getCustomThemeSettings()) {
@@ -689,52 +653,8 @@ function initializeFeatureSuiteAfterLoad() {
 // Prefer starting custom-theme audio inside the user's apply-theme gesture so
 // browsers are less likely to block playback. If metadata arrives later we
 // correct the requested start point without re-requesting permission.
-function playCustomThemeIntroAudioV2(theme) {
-    const src = String(theme.introAudio || '');
-    if (!src) return;
-
-    const start = Math.max(0, Math.min(20, Number(theme.audioStart) || 0));
-    const requestedEnd = Number(theme.audioEnd);
-    const end = Math.max(start + 0.5, Math.min(20, Number.isFinite(requestedEnd) ? requestedEnd : 20));
-    const durationMs = Math.max(500, (end - start) * 1000);
-    const audio = new Audio(src);
-    audio.preload = 'metadata';
-    audio.volume = 1;
-    customThemeIntroAudioV2 = audio;
-
-    const seekToStart = () => {
-        try {
-            const duration = Number.isFinite(audio.duration) ? audio.duration : start + 1;
-            audio.currentTime = Math.min(start, Math.max(0, duration - 0.05));
-        } catch (error) {}
-    };
-
-    seekToStart();
-    audio.addEventListener('loadedmetadata', seekToStart, { once: true });
-    audio.play().catch(() => {});
-
-    if (theme.audioFade && durationMs > 1400) {
-        const fadeDuration = Math.min(1400, durationMs * 0.35);
-        const fadeStart = Math.max(0, durationMs - fadeDuration);
-        setTimeout(() => {
-            if (customThemeIntroAudioV2 !== audio) return;
-            const started = performance.now();
-            customThemeIntroFadeTimerV2 = setInterval(() => {
-                const progress = Math.min(1, (performance.now() - started) / fadeDuration);
-                audio.volume = Math.max(0, 1 - progress);
-                if (progress >= 1) {
-                    clearInterval(customThemeIntroFadeTimerV2);
-                    customThemeIntroFadeTimerV2 = null;
-                }
-            }, 50);
-        }, fadeStart);
-    }
-
-    customThemeIntroStopTimerV2 = setTimeout(() => {
-        if (customThemeIntroAudioV2 !== audio) return;
-        audio.pause();
-        audio.volume = 1;
-    }, durationMs);
+function legacyPlayCustomThemeIntroAudioV2_B(theme) {
+    try { return window.__loggyLogIntroAudioV443?.audio || null; } catch (_) { return null; }
 }
 
 // Store the resource URL as well as its current index so Notes links still
@@ -2546,206 +2466,10 @@ function scheduleCustomThemeAudioEndV3(
     }
 }
 
-function playCustomThemeIntroAudioV2(
+function legacyPlayCustomThemeIntroAudioV2_C(
     theme
 ) {
-    const src =
-        String(
-            theme.introAudio ||
-            ''
-        );
-
-    if (!src) return;
-
-    const mode =
-        theme.audioPlayMode ===
-        'segment'
-            ? 'segment'
-            : 'full';
-
-    const audio =
-        new Audio(src);
-
-    audio.preload =
-        'metadata';
-
-    audio.volume = 1;
-
-    customThemeIntroAudioV2 =
-        audio;
-
-    const start =
-        Math.max(
-            0,
-            Number(
-                theme.audioStart
-            ) || 0
-        );
-
-    const end =
-        Math.max(
-            start + 0.1,
-            Number(
-                theme.audioEnd
-            ) || start + 20
-        );
-
-    const seekSegmentStart =
-        () => {
-            if (
-                mode !==
-                'segment'
-            ) {
-                return;
-            }
-
-            try {
-                const duration =
-                    Number.isFinite(
-                        audio.duration
-                    )
-                        ? audio.duration
-                        : start + 1;
-
-                audio.currentTime =
-                    Math.min(
-                        start,
-                        Math.max(
-                            0,
-                            duration - 0.05
-                        )
-                    );
-            } catch (error) {}
-        };
-
-    if (
-        mode ===
-        'segment'
-    ) {
-        seekSegmentStart();
-    }
-
-    audio.play().catch(
-        () => {}
-    );
-
-    audio.addEventListener(
-        'loadedmetadata',
-        () => {
-            if (
-                customThemeIntroAudioV2 !==
-                audio
-            ) {
-                return;
-            }
-
-            if (
-                mode ===
-                'segment'
-            ) {
-                seekSegmentStart();
-
-                const actualEnd =
-                    Number.isFinite(
-                        audio.duration
-                    )
-                        ? Math.min(
-                            end,
-                            audio.duration
-                        )
-                        : end;
-
-                const duration =
-                    Math.max(
-                        0.1,
-                        actualEnd -
-                        Math.min(
-                            start,
-                            actualEnd
-                        )
-                    );
-
-                scheduleCustomThemeAudioEndV3(
-                    audio,
-                    duration,
-                    true,
-                    !!theme.audioFade
-                );
-            } else if (
-                Number.isFinite(
-                    audio.duration
-                )
-            ) {
-                scheduleCustomThemeAudioEndV3(
-                    audio,
-                    audio.duration,
-                    false,
-                    !!theme.audioFade
-                );
-            }
-        },
-        {
-            once: true
-        }
-    );
-
-    if (
-        audio.readyState >= 1
-    ) {
-        if (
-            mode ===
-            'segment'
-        ) {
-            seekSegmentStart();
-
-            const actualEnd =
-                Number.isFinite(
-                    audio.duration
-                )
-                    ? Math.min(
-                        end,
-                        audio.duration
-                    )
-                    : end;
-
-            scheduleCustomThemeAudioEndV3(
-                audio,
-                Math.max(
-                    0.1,
-                    actualEnd -
-                    Math.min(
-                        start,
-                        actualEnd
-                    )
-                ),
-                true,
-                !!theme.audioFade
-            );
-        } else if (
-            Number.isFinite(
-                audio.duration
-            )
-        ) {
-            scheduleCustomThemeAudioEndV3(
-                audio,
-                audio.duration,
-                false,
-                !!theme.audioFade
-            );
-        }
-    }
-
-    audio.addEventListener(
-        'ended',
-        () => {
-            if (
-                customThemeIntroAudioV2 ===
-                audio
-            ) {
-                audio.volume = 1;
-            }
-        }
-    );
+    try { return window.__loggyLogIntroAudioV443?.audio || null; } catch (_) { return null; }
 }
 
 // ------------------------------------------------------------
@@ -4385,7 +4109,13 @@ const CUSTOM_THEME_VISUAL_DEFAULTS_V4 = {
 
     contentBackdropEnabled: false,
     contentBackdropColor: '#ffffff',
-    contentBackdropOpacity: 0
+    contentBackdropOpacity: 0,
+
+    // V429: optional backgrounds behind log-page section/page headings.
+    // This is intentionally OFF by default; AI themes may choose the color,
+    // opacity, and padding, but the user turns the feature on manually.
+    headingBackgroundEnabledV429: false,
+    headingBackgroundPaddingV429: 10
 };
 
 function normalizeFeatureSuiteSettings() {
@@ -6375,6 +6105,39 @@ function applyCustomBuiltTheme(
             : '0%'
     );
 
+    // V496: Heading Backdrop owns its own color/opacity/padding/radius.
+    // Never mirror Page Backdrop values here: this legacy apply layer runs after
+    // some newer theme code and used to repaint a saved heading back to white.
+    const headingBackdropEnabledV496 = theme.headingBackgroundEnabledV429 === true;
+    root.style.setProperty(
+        '--custom-theme-heading-bg-color-v429',
+        theme.headingBackgroundColorV452 || theme.contentBackdropColor || theme.surface
+    );
+    root.style.setProperty(
+        '--custom-theme-heading-bg-opacity-v429',
+        headingBackdropEnabledV496
+            ? `${Math.max(0, Math.min(100, Number(theme.headingBackgroundOpacityV452 ?? theme.contentBackdropOpacity) || 0))}%`
+            : '0%'
+    );
+    root.style.setProperty(
+        '--custom-theme-heading-bg-padding-v429',
+        headingBackdropEnabledV496
+            ? `${Math.max(0, Math.min(40, Number(theme.headingBackgroundPaddingV429) || 0))}px`
+            : '0px'
+    );
+    root.style.setProperty(
+        '--custom-theme-heading-bg-radius-v452',
+        headingBackdropEnabledV496
+            ? `${Math.max(0, Math.min(40, Number(theme.headingBackgroundRadiusV452 ?? theme.radius) || 0))}px`
+            : '0px'
+    );
+
+
+    // V505: template-extras-1 redeclares applyCustomBuiltTheme after template.js.
+    // Route that real active apply function back through the single core Heading
+    // Backdrop authority so it cannot silently drop the enabled dataset/variables.
+    try { window.__loggyApplyCoreHeadingBackdropV505?.(theme); } catch (_) {}
+
     root.style.setProperty('--custom-theme-theme-settings-plus-icon-v322', theme.themeSettingsPlusIconColorV322 || theme.text);
     root.style.setProperty('--custom-theme-theme-settings-plus-background-v322', theme.themeSettingsPlusBackgroundColorV322 || theme.surface);
     root.style.setProperty('--custom-theme-theme-settings-plus-border-v322', theme.themeSettingsPlusBorderColorV322 || theme.border);
@@ -6418,6 +6181,10 @@ function clearCustomBuiltTheme() {
         '--custom-theme-daily-bg-opacity',
         '--custom-theme-content-backdrop-color',
         '--custom-theme-content-backdrop-opacity',
+        '--custom-theme-heading-bg-color-v429',
+        '--custom-theme-heading-bg-opacity-v429',
+        '--custom-theme-heading-bg-padding-v429',
+        '--custom-theme-heading-bg-radius-v452',
         '--custom-theme-theme-settings-plus-icon-v322',
         '--custom-theme-theme-settings-plus-background-v322',
         '--custom-theme-theme-settings-plus-border-v322',
@@ -6904,7 +6671,21 @@ function applyThemeBuilderDraftToActualPreviewV5(
         '--custom-theme-content-backdrop-opacity':
             draft.contentBackdropEnabled
                 ? `${Math.max(0, Math.min(100, Number(draft.contentBackdropOpacity) || 0))}%`
-                : '0%'
+                : '0%',
+        '--custom-theme-heading-bg-color-v429':
+            draft.headingBackgroundColorV452 || draft.contentBackdropColor || draft.surface,
+        '--custom-theme-heading-bg-opacity-v429':
+            draft.headingBackgroundEnabledV429 === true
+                ? `${Math.max(0, Math.min(100, Number(draft.headingBackgroundOpacityV452 ?? draft.contentBackdropOpacity) || 0))}%`
+                : '0%',
+        '--custom-theme-heading-bg-padding-v429':
+            draft.headingBackgroundEnabledV429 === true
+                ? `${Math.max(0, Math.min(40, Number(draft.headingBackgroundPaddingV429) || 0))}px`
+                : '0px',
+        '--custom-theme-heading-bg-radius-v452':
+            draft.headingBackgroundEnabledV429 === true
+                ? `${Math.max(0, Math.min(40, Number(draft.headingBackgroundRadiusV452 ?? draft.radius) || 0))}px`
+                : '0px'
     };
 
     Object.entries(
@@ -7843,6 +7624,20 @@ function createThemePickerCard(
             await applyTheme(
                 option.value
             );
+
+            // V446: this is the card implementation that actually exists after
+            // the lazy extras load. Commit intro audio only AFTER the final
+            // wrapped applyTheme promise resolves; otherwise the next wrapper can
+            // immediately stop it and the theme appears silent until reload.
+            try {
+                window.__loggyLogIntroAudioV444?.ensureThemeAudio?.(
+                    option.value,
+                    typeof resolveAppliedCustomThemeV445 === 'function'
+                        ? resolveAppliedCustomThemeV445(option.value)
+                        : null,
+                    'theme-card-final-extras-v446'
+                );
+            } catch (_) {}
         }
     );
 
@@ -9197,6 +8992,8 @@ function previewThemeBuilderIntroV10(
             draft.introAudio
         );
 
+    try { window.__loggyIntroAudioGateV443?.allow?.(audio); } catch (_) {}
+
     modal._themeBuilderIntroPreviewAudioV10 =
         audio;
 
@@ -9381,16 +9178,6 @@ function syncThemeBuilderAdvancedVisibilityV10(
         ?.classList.toggle(
             'hidden',
             !hasSvgs
-        );
-
-    modal
-        .querySelector(
-            '.theme-builder-intro-preview-btn'
-        )
-        ?.classList.toggle(
-            'hidden',
-            !hasSvgs ||
-                !hasAudio
         );
 
     modal
@@ -9597,14 +9384,6 @@ function ensureThemeBuilderAdvancedControlsV10(
                 'Bop selected SVGs with intro audio',
                 !!merged.introSvgBounceEnabled
             )}
-
-            <button
-                type="button"
-                class="theme-builder-file-button theme-builder-intro-preview-btn"
-            >
-                <i class="ph ph-play"></i>
-                Preview Intro
-            </button>
         `;
 
         const fadeRow =
@@ -9650,18 +9429,6 @@ function ensureThemeBuilderAdvancedControlsV10(
                 }
             );
         }
-
-        host
-            .querySelector(
-                '.theme-builder-intro-preview-btn'
-            )
-            ?.addEventListener(
-                'click',
-                () =>
-                    previewThemeBuilderIntroV10(
-                        modal
-                    )
-            );
     }
 
     // ---------------- SVG behavior + hover sounds ----------------
@@ -11707,7 +11474,7 @@ function themeBuilderAccordionTitle(section, index = 0) {
         return 'Category Bars';
     }
     if (section?.classList.contains('theme-heading-background-controls-v59')) {
-        return 'Section Heading Background';
+        return 'Section Heading Backdrop';
     }
     if (section?.classList.contains('theme-builder-kb-card-opacity-v63')) {
         return 'Knowledge Base Cards';
@@ -23503,3 +23270,28 @@ openAnyThemeInBuilderV25 =
 
 
 // ============================================================
+
+// Intro-audio runtime ownership moved to template-extras-2.js.
+
+// ============================================================================
+// V443 — LEGACY APPLIED-LOG AUDIO CALLS ROUTE TO THE ONE V443 OWNER.
+// Historical visual wrappers may still call playCustomThemeIntroAudioV2(), but
+// ordinary calls never create or restart an Audio element mid-apply.
+// ============================================================================
+(() => {
+    'use strict';
+    const legacyAdapterV443 = function(_theme = {}, options = {}) {
+        const owner = window.__loggyLogIntroAudioV443;
+        if (!owner) return null;
+        if (options?.forceRestart === true || options?.__loggyCoreRestartV428 === true) {
+            return owner.playTheme?.(owner.currentThemeId?.() || '', {
+                reason: 'legacy-explicit-replay-v443',
+                force: true
+            }) || null;
+        }
+        return owner.audio || null;
+    };
+    legacyAdapterV443.__loggyV443Adapter = true;
+    try { playCustomThemeIntroAudioV2 = legacyAdapterV443; } catch (_) {}
+    try { window.playCustomThemeIntroAudioV2 = legacyAdapterV443; } catch (_) {}
+})();

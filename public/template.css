@@ -1008,6 +1008,15 @@ html.cursor-hide-native *::before,
 html.cursor-hide-native *::after {
     cursor: none !important;
 }
+
+/* V449: themed/custom pointers use the browser-native cursor renderer for
+   default-cursor-speed tracking. */
+html.cursor-native-theme-v449,
+html.cursor-native-theme-v449 *,
+html.cursor-native-theme-v449 *::before,
+html.cursor-native-theme-v449 *::after {
+    cursor: var(--loggy-native-theme-cursor-v449, auto) !important;
+}
 #custom-cursor-visual {
     position: fixed;
     top: 0; left: 0;
@@ -3714,7 +3723,7 @@ body[class*="theme-"] #settings-modal .kb-no-category-selected {
     filter: none !important;
 }
 
-/* Brief visual target when Shift + L + D jumps to the latest day. */
+/* Brief visual target when ArrowDown jumps to the latest saved day. */
 .recent-day-shortcut-highlight .day-box,
 .recent-day-shortcut-highlight.polaroid-card {
     outline: 3px solid var(--black);
@@ -4414,342 +4423,7 @@ body[class*="theme-"] #settings-modal .kb-no-category-selected {
 }
 
 
-/* ============================================================
-   VIRTUAL KEYBOARD SETTING
-   ============================================================ */
-
-.virtual-keyboard-settings-section {
-    margin-top: 14px;
-}
-
-.virtual-keyboard-settings-section select {
-    width: 100%;
-    min-height: 40px;
-    margin-top: 6px;
-}
-
-
-/* ============================================================
-   MOVABLE MULTILINGUAL VIRTUAL KEYBOARD
-   ============================================================ */
-
-.floating-language-keyboard {
-    position: fixed;
-    left: 50%;
-    bottom: 18px;
-    transform: translateX(-50%);
-    width: min(760px, calc(100vw - 28px));
-    max-height: min(460px, calc(100dvh - 28px));
-    z-index: 2147483000;
-    border: 2px solid var(--black);
-    background: var(--white);
-    color: var(--black);
-    box-shadow: 5px 5px 0 color-mix(in srgb, var(--black) 30%, transparent);
-    overflow: hidden;
-}
-
-.floating-language-keyboard[style*="left"] {
-    transform: none;
-}
-
-.floating-keyboard-header {
-    min-height: 38px;
-    padding: 6px 8px 6px 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    border-bottom: 1px solid color-mix(in srgb, var(--black) 25%, transparent);
-    cursor: move;
-    user-select: none;
-    touch-action: none;
-}
-
-#floating-keyboard-title {
-    font-size: .9rem;
-    font-weight: 700;
-}
-
-.floating-keyboard-close {
-    width: 28px;
-    height: 28px;
-    border: 0;
-    background: transparent;
-    color: var(--black);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.floating-keyboard-keys {
-    padding: 9px;
-    overflow: auto;
-    max-height: calc(min(460px, 100dvh - 28px) - 40px);
-    scrollbar-width: none;
-}
-
-.floating-keyboard-keys::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-    display: none;
-}
-
-.floating-keyboard-row {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    margin-bottom: 5px;
-    flex-wrap: wrap;
-}
-
-.floating-keyboard-key {
-    min-width: 42px;
-    min-height: 38px;
-    padding: 6px 8px;
-    border: 1px solid color-mix(in srgb, var(--black) 35%, transparent);
-    background: var(--white);
-    color: var(--black);
-    font: inherit;
-    font-size: 1rem;
-    cursor: pointer;
-    user-select: none;
-    touch-action: manipulation;
-}
-
-.floating-keyboard-key:hover {
-    background: var(--track-bg);
-}
-
-.floating-keyboard-key:active {
-    transform: translateY(1px);
-}
-
-.floating-keyboard-controls {
-    margin-top: 7px;
-    padding-top: 7px;
-    border-top: 1px solid color-mix(in srgb, var(--black) 18%, transparent);
-}
-
-.floating-keyboard-control-key {
-    min-width: 68px;
-    font-size: .84rem;
-}
-
-.floating-keyboard-space {
-    flex: 1 1 220px;
-    max-width: 320px;
-}
-
-@media (max-width: 640px) {
-    .floating-language-keyboard {
-        width: calc(100vw - 16px);
-        bottom: 8px;
-    }
-
-    .floating-keyboard-key {
-        min-width: 34px;
-        min-height: 34px;
-        padding: 5px 6px;
-        font-size: .9rem;
-    }
-
-    .floating-keyboard-control-key {
-        min-width: 58px;
-    }
-}
-
-
-/* ============================================================
-   COMPACT MULTILINGUAL KEYBOARD
-   ============================================================ */
-
-/* The language selector now lives inside the keyboard, not Daily Settings. */
-#virtual-keyboard-settings-section {
-    display: none !important;
-}
-
-.floating-language-keyboard {
-    width: min(570px, calc(100vw - 18px)) !important;
-    max-height: min(410px, calc(100dvh - 18px)) !important;
-    border: 2px solid var(--black) !important;
-    border-radius: 13px !important;
-    box-shadow: 3px 3px 0 color-mix(in srgb, var(--black) 24%, transparent) !important;
-}
-
-.floating-keyboard-header {
-    min-height: 28px !important;
-    padding: 3px 7px !important;
-    border-bottom: 0 !important;
-    cursor: grab !important;
-}
-
-.floating-language-keyboard.is-dragging .floating-keyboard-header {
-    cursor: grabbing !important;
-}
-
-.floating-keyboard-grip {
-    width: 22px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    opacity: .55;
-}
-
-.floating-keyboard-title {
-    flex: 1 1 auto;
-    text-align: center;
-    font-size: .72rem !important;
-    font-weight: 600 !important;
-    opacity: .7;
-}
-
-.floating-keyboard-close {
-    width: 24px !important;
-    height: 24px !important;
-    font-size: .8rem;
-}
-
-.floating-keyboard-keys {
-    padding: 5px 8px 8px !important;
-    max-height: calc(min(410px, 100dvh - 18px) - 30px) !important;
-}
-
-.floating-keyboard-row {
-    gap: 5px !important;
-    margin-bottom: 5px !important;
-    flex-wrap: nowrap !important;
-}
-
-.floating-keyboard-key {
-    min-width: 44px !important;
-    width: 44px;
-    min-height: 42px !important;
-    height: 42px;
-    padding: 3px 5px !important;
-    border: 2px solid var(--black) !important;
-    border-radius: 8px !important;
-    background: var(--white) !important;
-    color: var(--black) !important;
-    font-size: 1rem !important;
-    line-height: 1 !important;
-    box-shadow: none !important;
-    flex: 0 0 44px;
-}
-
-.floating-keyboard-key:hover {
-    background: var(--track-bg) !important;
-}
-
-.floating-keyboard-controls {
-    margin-top: 3px !important;
-    padding-top: 0 !important;
-    border-top: 0 !important;
-    justify-content: flex-start !important;
-}
-
-.floating-keyboard-control-key {
-    min-width: 54px !important;
-    width: auto;
-    flex: 0 0 auto;
-    font-size: .76rem !important;
-}
-
-.floating-keyboard-space {
-    min-width: 210px !important;
-    width: auto !important;
-    flex: 1 1 210px !important;
-    max-width: none !important;
-}
-
-.floating-keyboard-backspace,
-.floating-keyboard-settings {
-    min-width: 54px !important;
-    width: 54px !important;
-    flex: 0 0 54px !important;
-}
-
-.floating-keyboard-enter {
-    min-width: 64px !important;
-    width: 64px !important;
-    flex: 0 0 64px !important;
-}
-
-.floating-keyboard-language-panel {
-    position: absolute;
-    right: 8px;
-    bottom: 57px;
-    width: 180px;
-    padding: 8px;
-    border: 2px solid var(--black);
-    border-radius: 8px;
-    background: var(--white);
-    color: var(--black);
-    box-shadow: 3px 3px 0 color-mix(in srgb, var(--black) 20%, transparent);
-    z-index: 3;
-}
-
-.floating-keyboard-language-panel > span {
-    display: block;
-    margin-bottom: 5px;
-    font-size: .72rem;
-    font-weight: 700;
-}
-
-#floating-keyboard-language-select {
-    width: 100%;
-    min-height: 34px;
-    padding: 4px 7px;
-    border: 1px solid var(--black);
-    background: var(--white);
-    color: var(--black);
-    font: inherit;
-    font-size: .82rem;
-}
-
-/* Once the user starts dragging, position is fully absolute in viewport
-   coordinates; no transform is left behind to create a cursor offset. */
-.floating-language-keyboard[style*="top"] {
-    transform: none !important;
-}
-
-@media (max-width: 620px) {
-    .floating-language-keyboard {
-        width: calc(100vw - 12px) !important;
-    }
-
-    .floating-keyboard-row {
-        gap: 3px !important;
-    }
-
-    .floating-keyboard-key {
-        min-width: 0 !important;
-        width: auto !important;
-        flex: 1 1 0 !important;
-        min-height: 38px !important;
-        height: 38px;
-        padding: 2px 3px !important;
-        font-size: .88rem !important;
-    }
-
-    .floating-keyboard-space {
-        flex: 3 1 150px !important;
-    }
-
-    .floating-keyboard-backspace,
-    .floating-keyboard-settings,
-    .floating-keyboard-enter {
-        flex: 0 0 48px !important;
-        width: 48px !important;
-        min-width: 48px !important;
-    }
-
-    .floating-keyboard-language-panel {
-        right: 6px;
-        bottom: 50px;
-    }
-}
-
+/* V449: standalone floating keyboard styles removed; Keyboard is a widget. */
 
 /* ============================================================
    SPLIT GLOBAL + DAILY LOG SETTINGS
@@ -8822,7 +8496,6 @@ body.theme-custom-builder .day-box.has-data,
 .theme-builder-svg-effects-panel.hidden,
 .theme-builder-svg-hover-sound-details.hidden,
 .theme-builder-intro-svg-bop-wrap.hidden,
-.theme-builder-intro-preview-btn.hidden,
 .theme-builder-svg-option-row.hidden {
     display: none !important;
 }
@@ -28384,4 +28057,1561 @@ body:has(#kb-select-toggle-v163.selected) #phrases-library-grid .polaroid-card *
     background:var(--custom-theme-theme-settings-plus-hover-background-v322) !important;
     color:var(--custom-theme-theme-settings-plus-hover-icon-v322) !important;
     border-color:var(--custom-theme-theme-settings-plus-hover-border-v322) !important;
+}
+
+
+/* ==========================================================================
+   V430 — HEADING BACKGROUND RUNTIME + CENTERED TITLE RENAME + NONSELECTABLE ART
+   ========================================================================== */
+
+/* Do not depend on body.theme-custom-builder. Source-backed Builder themes keep
+   their source body class, and the Theme Builder preview uses the same live page
+   DOM. The CSS variables themselves are the enable/disable authority (0% when
+   the feature is off), so these selectors are safe for every theme. */
+body .view.active > h1,
+body .view.active > h2,
+body #grid-view.active > header > h1,
+body .view.active .log-header-container > h1,
+body .view.active .log-header-container > h2,
+body .view.active .feature-page-header h1,
+body .view.active .feature-page-header h2,
+body .view.active .custom-tab-page-header .custom-tab-title,
+body .view.active .section-header > h2,
+body .view.active .custom-collection-header > h2,
+body .view.active .custom-user-heading {
+    background:
+        color-mix(
+            in srgb,
+            var(
+                --custom-theme-heading-bg-color-v429,
+                var(--custom-theme-content-backdrop-color, var(--white))
+            )
+            var(--custom-theme-heading-bg-opacity-v429, 0%),
+            transparent
+        ) !important;
+    padding: var(--custom-theme-heading-bg-padding-v429, 0px) !important;
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-radius: var(--custom-theme-heading-bg-radius-v452, var(--border-radius, 12px)) !important;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+
+.loggy-renamable-title-v429 {
+    cursor: context-menu;
+}
+
+#section-title-rename-modal-v429 {
+    position: fixed !important;
+    inset: 0 !important;
+    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 7500 !important;
+}
+#section-title-rename-modal-v429.hidden { display: none !important; }
+
+#section-title-rename-modal-v429 .loggy-title-rename-box-v429 {
+    width: min(470px, calc(100vw - 36px));
+    max-width: 470px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+#section-title-rename-modal-v429 #loggy-title-rename-input-v429 {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#section-title-rename-modal-v429 .loggy-title-rename-actions-v429 {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+/* Decorations stay interactive for hover sounds/animations, but they can never
+   become blue browser selection highlights after a double-click/drag. */
+#custom-theme-background-stage,
+.custom-theme-background-stage,
+.custom-theme-background-svg,
+.custom-theme-background-svg *,
+.theme-svg-motion-shell,
+.theme-svg-motion-shell *,
+.theme-builder-live-art-item,
+.theme-builder-live-art-item * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -webkit-user-drag: none !important;
+}
+#custom-theme-background-stage::selection,
+.custom-theme-background-stage::selection,
+.custom-theme-background-svg::selection,
+.custom-theme-background-svg *::selection,
+.theme-svg-motion-shell *::selection {
+    background: transparent !important;
+}
+
+
+/* ========================================================================== */
+/* V431 — KB row alignment, heading-background authority, Knowledge component */
+/* ========================================================================== */
+
+/* Day Log resource helper intentionally matches the Daily↔Custom Tab helper. */
+#day-resources-section .ai-video-instructions.progress-hint.daily-custom-tab-links-hint {
+    font-size: .85rem !important;
+    color: var(--muted-text) !important;
+    margin: -2px 0 10px !important;
+    line-height: inherit !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+}
+
+/* Hide from quizzes = left aligned label immediately followed by switch. */
+#add-item-modal .kb-hide-from-quizzes-row-v59,
+#phrase-modal .kb-hide-from-quizzes-row-v59 {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    max-width: none !important;
+    gap: 10px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+}
+#add-item-modal .kb-hide-from-quizzes-row-v59 > .v250-toggle-copy,
+#phrase-modal .kb-hide-from-quizzes-row-v59 > .v250-toggle-copy {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    order: 1 !important;
+    margin: 0 !important;
+    text-align: left !important;
+}
+#add-item-modal .kb-hide-from-quizzes-row-v59 > .v250-switch,
+#phrase-modal .kb-hide-from-quizzes-row-v59 > .v250-switch {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    order: 2 !important;
+    margin: 0 !important;
+}
+
+/* V431 heading backing uses a precomputed RGBA value, rather than color-mix.
+   The data attribute is the real on/off authority for preview and applied pages. */
+html[data-loggy-heading-background-v431="1"] body .loggy-renamable-title-v429,
+html[data-loggy-heading-background-v431="1"] body .view.active > h1,
+html[data-loggy-heading-background-v431="1"] body .view.active > h2,
+html[data-loggy-heading-background-v431="1"] body .view.active .log-header-container > h1,
+html[data-loggy-heading-background-v431="1"] body .view.active .log-header-container > h2,
+html[data-loggy-heading-background-v431="1"] body .view.active .feature-page-header h1,
+html[data-loggy-heading-background-v431="1"] body .view.active .feature-page-header h2,
+html[data-loggy-heading-background-v431="1"] body .view.active .custom-tab-page-header .custom-tab-title,
+html[data-loggy-heading-background-v431="1"] body .view.active .section-header > h1,
+html[data-loggy-heading-background-v431="1"] body .view.active .section-header > h2,
+html[data-loggy-heading-background-v431="1"] body .view.active .custom-collection-header > h1,
+html[data-loggy-heading-background-v431="1"] body .view.active .custom-collection-header > h2,
+html[data-loggy-heading-background-v431="1"] body .view.active .custom-user-heading {
+    background: var(--loggy-heading-background-rgba-v431, transparent) !important;
+    background-color: var(--loggy-heading-background-rgba-v431, transparent) !important;
+    padding: var(--loggy-heading-background-padding-v431, 10px) !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: var(--loggy-heading-background-radius-v452, var(--border-radius, 12px)) !important;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+/* V453 — independent Custom KB custom-tab component. */
+.custom-kb-independent-v453 { display:grid; gap:10px; }
+.custom-kb-head-actions-v453 { display:flex; align-items:center; gap:8px; }
+.custom-kb-head-actions-v453 > span { color:var(--muted-text); font-size:.82rem; }
+.custom-kb-grid-v453 { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; }
+.custom-kb-card-v453 {
+    display:grid; gap:8px; min-width:0; padding:12px;
+    border:var(--thin-border); border-radius:var(--border-radius,10px);
+    background:var(--white); color:var(--black);
+}
+.custom-kb-card-head-v453 { display:flex; align-items:baseline; justify-content:space-between; gap:10px; min-width:0; }
+.custom-kb-card-head-v453 > strong { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.custom-kb-card-head-v453 > small { flex:0 0 auto; color:var(--muted-text); }
+.custom-kb-values-v453 { display:grid; gap:6px; }
+.custom-kb-field-v453 { display:grid; grid-template-columns:minmax(80px,auto) 1fr; gap:8px; align-items:start; font-size:.88rem; }
+.custom-kb-field-v453 > strong { color:var(--muted-text); }
+.custom-kb-field-v453 > span { white-space:pre-wrap; overflow-wrap:anywhere; }
+.custom-kb-empty-v453 { grid-column:1/-1; }
+
+/* ========================================================================== */
+/* V434 — right-click Day Log section context menu + hideable sections         */
+/* ========================================================================== */
+.loggy-section-hidden-v433,
+.loggy-section-deleted-v432 { display: none !important; }
+
+#log-view .log-content.loggy-day-main-wide-v433 {
+    display: block !important;
+    width: 100%;
+}
+#log-view .log-content.loggy-day-main-wide-v433 > .left-column,
+#log-view .log-content.loggy-day-main-wide-v433 > .left-column.loggy-day-left-wide-v433 {
+    width: 100% !important;
+    max-width: none !important;
+    flex: 1 1 100% !important;
+}
+#log-view .log-content.loggy-day-main-wide-v433 > .right-column.loggy-day-right-hidden-v433 {
+    display: none !important;
+}
+
+.hidden-day-log-sections-v433 { margin-top: 16px; }
+.hidden-day-log-actions-v433 {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+.hidden-day-log-actions-v433 .icon-btn {
+    width: auto;
+    min-width: 0;
+    padding: 8px 11px;
+}
+
+/* This is deliberately a context menu, not a modal/overlay. */
+#section-title-context-menu-v434 {
+    position: fixed;
+    z-index: 9000;
+    width: min(220px, calc(100vw - 16px));
+    padding: 7px;
+    display: grid;
+    gap: 4px;
+    box-sizing: border-box;
+    background: var(--white, #fff);
+    color: var(--black, #111);
+    border: var(--thin-border, 1px solid currentColor);
+    border-radius: var(--modal-radius-v380, var(--radius, 10px));
+    box-shadow: 0 12px 30px rgba(0,0,0,.18);
+}
+#section-title-context-menu-v434.hidden { display: none !important; }
+
+.loggy-section-context-name-v434 {
+    padding: 5px 9px 7px;
+    font-size: .78rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--muted-text, currentColor);
+    opacity: .78;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.loggy-section-context-option-v434 {
+    appearance: none;
+    width: 100%;
+    min-height: 36px;
+    border: 0;
+    border-radius: max(5px, calc(var(--radius, 10px) * .7));
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-align: left;
+    font: inherit;
+    font-weight: 700;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+.loggy-section-context-option-v434:hover,
+.loggy-section-context-option-v434:focus-visible {
+    outline: none;
+    background: var(--track-bg, rgba(127,127,127,.12));
+}
+.loggy-section-context-option-v434 i { font-size: 1.05em; }
+.loggy-section-context-option-v434.hidden { display: none !important; }
+
+/* ============================================================================
+   V447 — WHITEBOARD / NOTEBOOK TRUE FULL-SCREEN OWNER
+   These special tab templates must never inherit the normal Log view/card
+   sizing. Keep the special view and its runtime host pinned to the viewport,
+   even when a theme gives generic .view/.custom-tab-view elements a card width.
+   ============================================================================ */
+html.whiteboard-tab-active-v198,
+body.whiteboard-tab-active-v198,
+html.notepad-tab-active-v249,
+body.notepad-tab-active-v249 {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: hidden !important;
+}
+
+body > .whiteboard-tab-view-v198.loggy-special-fullscreen-v447,
+body > .whiteboard-tab-view-v198.view.active,
+body > .notepad-tab-view-v249.loggy-special-fullscreen-v447,
+body > .notepad-tab-view-v249.view.active {
+    position: fixed !important;
+    inset: 0 !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-width: 100vw !important;
+    min-height: 100dvh !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    z-index: 2147480000 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+body > .whiteboard-tab-view-v198 > .whiteboard-runtime-host-v198,
+body > .notepad-tab-view-v249 > .notepad-runtime-host-v249 {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-width: 100vw !important;
+    min-height: 100dvh !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+/* The loaded whiteboard/notebook runtime may put its own app shell directly
+   inside the host. Do not let that shell retain an old square/max-width card. */
+body.whiteboard-tab-active-v198 > .whiteboard-tab-view-v198 > .whiteboard-runtime-host-v198 > *,
+body.notepad-tab-active-v249 > .notepad-tab-view-v249 > .notepad-runtime-host-v249 > * {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body.whiteboard-tab-active-v198 > *:not(.whiteboard-tab-view-v198):not(script):not(style),
+body.notepad-tab-active-v249 > *:not(.notepad-tab-view-v249):not(script):not(style) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+
+/* ============================================================
+   V450 — persistent widgets, Items Learned chooser, compact item modal
+   ============================================================ */
+#loggy-widget-stage-v239 {
+    z-index: 2147483647 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+}
+#loggy-widget-stage-v239 .loggy-floating-widget-v239 {
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+#phrase-input-group {
+    position: relative !important;
+    overflow: visible !important;
+}
+.phrase-suggestions-v450 {
+    position: absolute;
+    z-index: 2147483000;
+    left: 0;
+    right: 0;
+    top: calc(100% + 5px);
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 5px;
+    background: var(--white, #fff);
+    color: var(--black, #111);
+    border: var(--thin-border, 1px solid #bbb);
+    border-radius: var(--border-radius, 10px);
+    box-shadow: var(--custom-theme-shadow, 0 8px 24px rgba(0,0,0,.16));
+}
+.phrase-suggestions-v450.hidden { display: none !important; }
+.phrase-suggestion-v450 {
+    width: 100%;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    padding: 7px 9px !important;
+    border: 0 !important;
+    border-radius: 7px;
+    background: transparent !important;
+    color: inherit !important;
+    text-align: left;
+    box-shadow: none !important;
+    font: inherit;
+    cursor: pointer;
+}
+.phrase-suggestion-v450:hover,
+.phrase-suggestion-v450.is-active {
+    background: var(--track-bg, #eee) !important;
+    outline: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+#phrase-modal > .modal-box {
+    width: min(680px, calc(100vw - 28px)) !important;
+    max-width: 680px !important;
+    max-height: min(84vh, 780px) !important;
+    overflow-y: auto !important;
+    padding: 14px 16px !important;
+}
+#phrase-modal .modal-header {
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    gap: 7px !important;
+    margin-bottom: 6px !important;
+}
+#phrase-modal .modal-header #phrase-modal-title {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+#phrase-modal .modal-header #phrase-modal-title-audio-btn {
+    margin-left: auto !important;
+    flex: 0 0 auto !important;
+}
+#phrase-modal .modal-header #phrase-modal-close { flex: 0 0 auto !important; }
+#phrase-modal #phrase-modal-dynamic-fields,
+#phrase-modal #kb-view-item-fields-body,
+#phrase-modal #kb-edit-item-fields-body { display:grid !important; gap:0 !important; }
+#phrase-modal .modal-section { margin-top:4px !important; margin-bottom:0 !important; }
+#phrase-modal .kb-display-field {
+    display:grid !important;
+    grid-template-columns:minmax(130px,155px) minmax(0,1fr) !important;
+    align-items:start !important;
+    column-gap:16px !important;
+    padding:9px 0 !important;
+    margin:0 !important;
+    min-height:0 !important;
+    height:auto !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+}
+#phrase-modal .kb-display-field + .kb-display-field { border-top:1px solid color-mix(in srgb,var(--black,#111) 10%,transparent) !important; }
+#phrase-modal .kb-display-field .kb-item-field-label-row,
+#phrase-modal .kb-item-field-label-row { margin:0 !important; min-height:0 !important; }
+#phrase-modal .field-label,
+#phrase-modal .modal-label,
+#phrase-modal .kb-display-field .field-label {
+    font-size:1rem !important;
+    line-height:1.25 !important;
+    font-weight:800 !important;
+    opacity:.76 !important;
+}
+#phrase-modal .kb-display-text,
+#phrase-modal .kb-v250-live {
+    padding:0 !important;
+    margin:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    min-height:0 !important;
+    height:auto !important;
+    line-height:1.35 !important;
+}
+#phrase-modal .kb-display-audio-btn { display:none !important; }
+#phrase-modal input:not([type="checkbox"]):not([type="radio"]),
+#phrase-modal select,
+#phrase-modal textarea { min-height:34px !important; padding:6px 9px !important; margin:2px 0 0 !important; }
+#phrase-modal textarea { min-height:58px !important; resize:vertical; }
+#phrase-modal-progress-section { padding-top:7px !important; }
+#phrase-modal .mini-day-list { margin-top:4px !important; }
+@media (max-width:620px) {
+    #phrase-modal .kb-display-field { grid-template-columns:1fr !important; row-gap:3px !important; padding:8px 0 !important; }
+}
+
+/* ============================================================
+   V451 — Korean Keyboard centering + KB starter/settings polish
+   ============================================================ */
+.loggy-keyboard-row-v239 > button.filter-tab {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    text-indent: 0 !important;
+    line-height: 1 !important;
+}
+
+#settings-modal .kb-placeholder-settings-v56 .kb-placeholder-settings-heading-v56,
+#knowledge-settings-modal .kb-placeholder-settings-v56 .kb-placeholder-settings-heading-v56,
+#phrases-settings-modal .kb-placeholder-settings-v56 .kb-placeholder-settings-heading-v56 {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    max-width: none !important;
+    gap: 12px !important;
+    text-align: left !important;
+}
+#settings-modal .kb-placeholder-copy-v451,
+#knowledge-settings-modal .kb-placeholder-copy-v451,
+#phrases-settings-modal .kb-placeholder-copy-v451 {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    text-align: left !important;
+}
+#settings-modal .kb-placeholder-title-row-v164,
+#knowledge-settings-modal .kb-placeholder-title-row-v164,
+#phrases-settings-modal .kb-placeholder-title-row-v164 {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+}
+#settings-modal .kb-placeholder-title-row-v164 .field-label,
+#knowledge-settings-modal .kb-placeholder-title-row-v164 .field-label,
+#phrases-settings-modal .kb-placeholder-title-row-v164 .field-label,
+#settings-modal .kb-placeholder-copy-v451 > .field-label,
+#knowledge-settings-modal .kb-placeholder-copy-v451 > .field-label,
+#phrases-settings-modal .kb-placeholder-copy-v451 > .field-label {
+    font: inherit !important;
+    font-weight: 700 !important;
+    color: inherit !important;
+}
+#settings-modal .kb-placeholder-copy-v451 > small,
+#knowledge-settings-modal .kb-placeholder-copy-v451 > small,
+#phrases-settings-modal .kb-placeholder-copy-v451 > small {
+    display: block !important;
+    margin-top: 3px !important;
+}
+#settings-modal .kb-placeholder-switch-v451,
+#knowledge-settings-modal .kb-placeholder-switch-v451,
+#phrases-settings-modal .kb-placeholder-switch-v451 {
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    flex: 0 0 auto !important;
+}
+/* The historical placeholder enhancer adds its own track. Hide the duplicate
+   recommendation-style track once that enhancer has supplied the active track. */
+.kb-placeholder-switch-v451.kb-placeholder-switch-label-v164 > .kb-switch-track-v173 {
+    display: none !important;
+}
+
+
+/* V505 — Heading Backdrop visuals are owned by the single core runtime in template.js. */
+
+/* V458 — Quiz Backdrop means the quiz BOX, never the whole Quizzes page.
+   The QUIZZES / QUIZ page titles continue to use Heading Backdrop only. */
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quizzes-view.view.active #anki-summary-box,
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quiz-learn-view.view.active .flashcard-mode-card,
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quiz-learn-view.view.active .quiz-learn-prompt-card-v38 {
+    background: color-mix(in srgb, var(--custom-theme-quiz-backdrop-color-v456, var(--custom-theme-content-backdrop-color)) var(--custom-theme-quiz-backdrop-opacity-v456, 0%), transparent) !important;
+    border-radius: var(--custom-theme-quiz-backdrop-radius-v456, var(--border-radius, 12px)) !important;
+    padding: var(--custom-theme-quiz-backdrop-padding-v459, 16px) !important;
+}
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quizzes-view"] #anki-summary-box,
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quiz-learn-view"] .flashcard-mode-card,
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quiz-learn-view"] .quiz-learn-prompt-card-v38 {
+    background: color-mix(in srgb, var(--custom-theme-quiz-backdrop-color-v456, var(--custom-theme-content-backdrop-color)) var(--custom-theme-quiz-backdrop-opacity-v456, 0%), transparent) !important;
+    border-radius: var(--custom-theme-quiz-backdrop-radius-v456, var(--border-radius, 12px)) !important;
+    padding: var(--custom-theme-quiz-backdrop-padding-v459, 16px) !important;
+}
+
+/* ============================================================
+   V457 — Smart Placeholder Practice modes
+   ============================================================ */
+.smart-practice-mode-switch-v457{
+    display:flex;
+    gap:8px;
+    margin:0 0 10px;
+    padding:4px;
+    border:1px solid var(--border-color,#d8d8d8);
+    border-radius:12px;
+    width:max-content;
+    max-width:100%;
+}
+.smart-practice-mode-v457{
+    border:0;
+    background:transparent;
+    color:inherit;
+    padding:7px 11px;
+    border-radius:9px;
+    cursor:pointer;
+    font:inherit;
+    font-weight:700;
+}
+.smart-practice-mode-v457.active{
+    background:var(--accent-color,#222);
+    color:var(--surface-color,#fff);
+}
+.smart-practice-mode-help-v457{
+    margin:-2px 0 12px;
+    font-size:.88rem;
+    opacity:.72;
+}
+.smart-practice-bank-v457,
+.smart-choice-bank-v457{
+    max-height:235px;
+    overflow:auto;
+    align-content:start;
+}
+.smart-choice-bank-v457{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    margin-top:10px;
+}
+.smart-choice-bank-v457 .smart-practice-item-v457{
+    width:100%;
+    min-width:0;
+}
+.smart-choice-passive-slot-v457{
+    opacity:.5;
+    cursor:default;
+}
+.smart-choice-target-v457{
+    outline:2px dashed color-mix(in srgb,var(--accent-color,#222) 55%,transparent);
+    outline-offset:2px;
+}
+.smart-practice-feedback-v457{
+    min-height:24px;
+    margin-top:10px;
+    font-weight:700;
+    font-size:.94rem;
+}
+.smart-practice-feedback-v457.correct{ color:#16803a; }
+.smart-practice-feedback-v457.wrong{ color:#b42318; }
+.smart-practice-feedback-v457.neutral{ opacity:.72; }
+.answer-correct-v457{
+    box-shadow:0 0 0 2px #16803a inset !important;
+}
+.answer-wrong-v457{
+    box-shadow:0 0 0 2px #b42318 inset !important;
+}
+@media (max-width:560px){
+    .smart-choice-bank-v457{ grid-template-columns:1fr; }
+    .smart-practice-mode-switch-v457{ width:100%; }
+    .smart-practice-mode-v457{ flex:1; }
+}
+
+/* V461 — standalone Custom KB parity */
+.custom-kb-parity-v461{width:100%;min-width:0}
+.custom-kb-header-v461{margin:0 0 12px!important;padding:0!important;min-height:44px}
+.custom-kb-header-v461 h1{margin:0;font:inherit;font-size:1.35rem;font-weight:800;letter-spacing:.02em}
+.custom-kb-header-actions-v461{margin-left:auto;display:flex;gap:10px;align-items:center}
+.custom-kb-tabs-v461{margin:0 0 14px}
+.custom-kb-grid-v461{width:100%}
+.custom-kb-card-v461{cursor:pointer;min-width:0}
+.custom-kb-card-v461 .chip-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.custom-kb-card-category-v461{font-size:.72rem;opacity:.68;font-weight:600}
+.custom-kb-settings-box-v461{width:min(760px,92vw);max-height:min(82vh,820px);overflow:hidden;display:flex;flex-direction:column}
+.custom-kb-settings-body-v461{overflow:auto;padding-right:4px}
+.custom-kb-settings-tabs-v461{margin:8px 0 10px}
+.custom-kb-cat-actions-v461{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+.custom-kb-fields-head-v461{margin-top:8px}
+.custom-kb-fields-v461{display:grid;grid-template-columns:1fr;gap:8px}
+.custom-kb-fields-v461 .kb-field-summary-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px}
+.custom-kb-fields-v461 .kb-field-summary-card>div:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.custom-kb-fields-v461 .kb-field-summary-card>div:last-child{display:flex;gap:6px;flex:0 0 auto}
+.custom-kb-fields-v461 small,.custom-kb-empty-note-v461{opacity:.66}
+
+/* V463 — full standalone Custom KB parity */
+.custom-kb-field-box-v463{width:min(720px,calc(100vw - 28px));max-height:min(88vh,820px);overflow:auto}
+.custom-kb-settings-box-v463{width:min(820px,calc(100vw - 28px))}
+.custom-kb-inline-v463{display:grid;grid-template-columns:minmax(130px,1fr) 90px 90px;gap:8px}
+.custom-kb-item-box-v463{width:min(720px,calc(100vw - 28px));max-height:min(88vh,820px);overflow:auto}
+.ckb-placeholder-shortcuts-v463{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ckb-placeholder-shortcuts-v463 .kb-placeholder-chip-v56{cursor:pointer}
+.custom-kb-full-v463 .phrase-card strong .kb-placeholder-token-v56{font-weight:800}
+.custom-kb-full-v463 .custom-kb-card-v461{min-height:70px}
+@media(max-width:640px){.custom-kb-inline-v463{grid-template-columns:1fr}}
+
+/* v464 — Knowledge Base bulk add with fields */
+.kb-bulk-fields-wrap-v464.hidden,.kb-bulk-delimiter-wrap-v464.hidden{display:none!important}
+.kb-bulk-field-choices-v464{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:7px;margin-top:6px}
+.kb-bulk-field-choice-row-v464{display:flex;align-items:center;gap:8px;padding:8px 10px;border:var(--thin-border);border-radius:10px;background:var(--white);cursor:pointer}
+.kb-bulk-field-choice-row-v464 span{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kb-bulk-field-choice-row-v464 small{margin-left:auto;color:var(--muted-text);font-size:11px}
+.kb-bulk-field-order-note-v464{display:block;margin-top:7px;color:var(--muted-text)}
+.kb-bulk-format-hint-v464{margin:2px 0 10px;padding:10px 12px;border:var(--thin-border);border-radius:10px;background:color-mix(in srgb,var(--accent) 7%,var(--white));font-size:12px;line-height:1.45;color:var(--text)}
+.kb-bulk-format-hint-v464 code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;overflow-wrap:anywhere}
+.kb-bulk-preview-record-v464{display:flex;flex-direction:column;gap:3px;min-width:0}
+.kb-bulk-preview-record-v464 em{font-style:normal;font-size:11px;color:var(--muted-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+
+/* ============================================================
+   V465 — Knowledge Base bulk count + edit form polish
+   ============================================================ */
+.kb-bulk-count-v465{
+    display:flex;align-items:center;gap:5px;margin-top:7px;font-size:.82rem;
+    color:var(--muted-text);min-height:20px
+}
+.kb-bulk-count-v465 strong{font-size:.95rem;color:var(--text);font-weight:800}
+.kb-bulk-count-v465 span{opacity:.82}
+
+/* Edit mode: every editable control uses the same full available width. */
+#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields,
+#phrase-modal[data-mode="edit"] #kb-edit-item-fields-body{width:100%;box-sizing:border-box}
+#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields .modal-section,
+#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields .kb-item-field{width:100%;max-width:none;box-sizing:border-box}
+#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields select,
+#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields textarea,
+#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields .kb-item-field-control,
+#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields .kb-v250-drop,
+#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields .kb-v250-date-grid{
+    width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important
+}
+#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields .kb-item-field-input-row{width:100%;box-sizing:border-box}
+#phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row{
+    margin-top:20px!important;padding-top:12px!important;border-top:1px solid color-mix(in srgb,currentColor 12%,transparent)!important;
+    width:100%!important;max-width:none!important;box-sizing:border-box!important
+}
+#phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row.v250-toggle-row{
+    display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;text-align:left!important
+}
+#phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row.v250-toggle-row>.v250-toggle-copy{
+    order:1!important;flex:0 0 auto!important;margin:0!important
+}
+#phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row.v250-toggle-row>.v250-toggle-copy .field-label{
+    font-size:1.1rem!important;font-weight:400!important;opacity:1!important;line-height:1.2!important;margin:0!important;color:inherit!important
+}
+#phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row.v250-toggle-row>.v250-switch{
+    order:2!important;flex:0 0 auto!important;margin:0!important
+}
+
+
+/* V467 — KB bulk/import + item display polish */
+.kb-bulk-copy-prompt-v466{padding:10px 14px!important;min-height:38px!important;}
+#phrase-modal .kb-display-text{display:block!important;width:100%!important;white-space:pre-wrap!important;text-align:left!important;text-indent:0!important;padding-left:0!important;margin-left:0!important;}
+#phrase-modal .kb-display-field> :not(.kb-item-field-label-row){min-width:0!important;justify-self:stretch!important;}
+.kb-shortcuts-v467{margin-top:18px!important;}
+.kb-shortcuts-v467 .global-shortcuts-list{display:grid;gap:8px;}
+.kb-shortcuts-v467 .global-shortcut-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.kb-shortcuts-v467 .global-shortcut-row p{margin:0 0 0 6px;flex:1 1 220px;}
+
+/* V468 Smart Placeholder Practice rewrite */
+.smart-practice-chooser-v468{display:flex;flex-direction:column;gap:16px}
+.smart-practice-chooser-intro-v468{margin:0;color:var(--muted-text,#666)}
+.smart-practice-mode-cards-v468{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.smart-practice-mode-card-v468{appearance:none;width:100%;min-height:132px;text-align:left;border:var(--thin-border,1px solid var(--black,#111));border-radius:14px;background:var(--white,#fff);color:var(--black,#111);padding:18px;display:flex;flex-direction:column;gap:8px;cursor:pointer}
+.smart-practice-mode-card-v468 strong{font-size:1.08rem}
+.smart-practice-mode-card-v468 span{font-size:.9rem;line-height:1.45;color:var(--muted-text,#666)}
+.smart-practice-mode-card-v468:hover{transform:translateY(-1px)}
+.smart-practice-mode-header-v468{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:var(--thin-border,1px solid rgba(127,127,127,.25))}
+.smart-practice-mode-header-v468>div{display:flex;min-width:0;flex-direction:column;gap:2px}
+.smart-practice-mode-header-v468 strong{font-size:1rem}
+.smart-practice-mode-header-v468 small{font-size:.78rem;color:var(--muted-text,#666)}
+.smart-choice-bank-v468{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.smart-practice-feedback-v468{min-height:24px;padding:9px 11px;border-radius:10px;font-weight:650}
+.smart-practice-feedback-v468:empty{padding:0;min-height:8px}
+.smart-practice-feedback-v468.correct{background:rgba(43,150,83,.12)}
+.smart-practice-feedback-v468.wrong{background:rgba(210,60,60,.12)}
+.smart-practice-feedback-v468.neutral{background:rgba(127,127,127,.09)}
+.smart-choice-passive-slot-v468{opacity:.62}
+@media(max-width:700px){.smart-practice-mode-cards-v468,.smart-choice-bank-v468{grid-template-columns:1fr}}
+
+/* ============================================================
+   V470 — standalone Knowledge Base settings polish
+   ============================================================ */
+#custom-kb-settings-v463 .custom-kb-settings-box-v463{
+    padding:22px 24px 24px !important;
+    gap:14px !important;
+}
+#custom-kb-settings-v463 .modal-header{
+    margin:0 !important;
+    padding:0 0 4px !important;
+    min-height:42px;
+}
+#custom-kb-settings-v463 .modal-header h2{
+    margin:0 !important;
+    font-size:1.35rem !important;
+    line-height:1.15 !important;
+    font-weight:800 !important;
+}
+#custom-kb-settings-v463 .custom-kb-settings-body-v461{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:18px !important;
+    padding:2px 4px 6px 0 !important;
+}
+#custom-kb-settings-v463 .custom-kb-settings-body-v461 > .modal-section,
+#custom-kb-settings-v463 .custom-kb-settings-body-v461 > section.modal-section{
+    margin:0 !important;
+}
+#custom-kb-settings-v463 .ckb-title-v463,
+#custom-kb-field-modal-v463 .ckb-field-name-v463{
+    width:100% !important;
+    box-sizing:border-box !important;
+    padding:11px 12px !important;
+    min-height:42px !important;
+}
+#custom-kb-settings-v463 .custom-kb-settings-tabs-v461{
+    margin:10px 0 0 !important;
+}
+#custom-kb-settings-v463 .custom-kb-settings-tabs-v461 [data-category]{
+    cursor:context-menu;
+}
+#custom-kb-settings-v463 .ckb-placeholders-v463.disabled-v56 .kb-placeholder-chips-v56,
+#custom-kb-settings-v463 .ckb-placeholders-v463.disabled-v56 .kb-placeholder-add-v56{
+    display:none !important;
+}
+#custom-kb-field-modal-v463 .modal-section{
+    margin-bottom:14px;
+}
+
+/* ============================================================
+   V473 — quiz centering / card flip clearance / quiz picker backdrop
+   ============================================================ */
+#quiz-learn-view.view.active {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+#quiz-flashcard-area {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    box-sizing: border-box !important;
+}
+#quiz-flashcard-area > .flashcard-wrap,
+#quiz-flashcard-area > .flashcard-mode-wrap,
+#quiz-learn-view .flashcard-wrap,
+#quiz-learn-view .flashcard-mode-wrap {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    align-self: center !important;
+}
+/* Keep all text/media content between the left/right slide arrows. */
+#quiz-learn-view .card-slider-wrapper > .kb-quiz-text-slide {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding-left: 58px !important;
+    padding-right: 58px !important;
+}
+#quiz-learn-view .card-slider-wrapper > .kb-quiz-image-slide,
+#quiz-learn-view .card-slider-wrapper > .kb-quiz-svg-slide {
+    box-sizing: border-box !important;
+    padding-left: 54px !important;
+    padding-right: 54px !important;
+}
+
+/* Quiz Box Backdrop also groups the Flashcards / Quizlet Learn setup controls. */
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quizzes-view.view.active #quiz-day-picker-section,
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quizzes-view.view.active #quiz-category-picker-section-v473 {
+    background: color-mix(in srgb, var(--custom-theme-quiz-backdrop-color-v456, var(--custom-theme-content-backdrop-color)) var(--custom-theme-quiz-backdrop-opacity-v456, 0%), transparent) !important;
+    border-radius: var(--custom-theme-quiz-backdrop-radius-v456, var(--border-radius, 12px)) !important;
+    padding: var(--custom-theme-quiz-backdrop-padding-v459, 16px) !important;
+    box-sizing: border-box !important;
+    margin-top: 14px !important;
+}
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quizzes-view.view.active #quiz-category-picker-section-v473 > .set-size-picker {
+    margin-top: 0 !important;
+}
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quizzes-view"] #quiz-day-picker-section,
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quizzes-view"] #quiz-category-picker-section-v473 {
+    background: color-mix(in srgb, var(--custom-theme-quiz-backdrop-color-v456, var(--custom-theme-content-backdrop-color)) var(--custom-theme-quiz-backdrop-opacity-v456, 0%), transparent) !important;
+    border-radius: var(--custom-theme-quiz-backdrop-radius-v456, var(--border-radius, 12px)) !important;
+    padding: var(--custom-theme-quiz-backdrop-padding-v459, 16px) !important;
+    box-sizing: border-box !important;
+}
+
+/* ============================================================
+   V474 — quiz picker authority + Smart Practice + quiz layout
+   ============================================================ */
+#quiz-day-quick-selectors-v227 label.selected {
+    background: var(--black) !important;
+    color: var(--white) !important;
+}
+
+/* Give the Anki progress/count row breathing room before the card. */
+#quiz-learn-view .set-progress-header {
+    margin-bottom: 22px !important;
+}
+
+/* Keep every quiz card centered on the actual page width. */
+#quiz-learn-view #quiz-flashcard-area {
+    width: 100% !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+    box-sizing: border-box !important;
+}
+#quiz-learn-view #quiz-flashcard-area > .flashcard-wrap,
+#quiz-learn-view #quiz-flashcard-area > .flashcard-mode-wrap {
+    width: min(540px, 100%) !important;
+    max-width: 540px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Quizlet Learn answers must be exactly the same width as its prompt card. */
+#quiz-learn-view .quiz-learn-compact-v38,
+#quiz-learn-view .quiz-learn-prompt-card-v38,
+#quiz-learn-view .quiz-learn-options-v38 {
+    width: 100% !important;
+    max-width: 540px !important;
+    box-sizing: border-box !important;
+}
+#quiz-learn-view .quiz-learn-options-v38 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Smart Placeholder Practice mode chooser — intentionally unmistakable. */
+.smart-practice-box-v474 { max-width: 760px !important; }
+.smart-practice-mode-chooser-v474 {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 14px !important;
+}
+.smart-practice-chooser-copy-v474 {
+    grid-column: 1 / -1;
+    margin: 0 0 4px !important;
+    color: var(--muted-text);
+}
+.smart-practice-mode-card-v474 {
+    min-height: 150px;
+    padding: 20px !important;
+    border: var(--thick-border) !important;
+    border-radius: 14px !important;
+    background: var(--white) !important;
+    color: var(--black) !important;
+    text-align: left !important;
+    cursor: pointer;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+.smart-practice-mode-card-v474 strong { font-size: 1.35rem; }
+.smart-practice-mode-card-v474 span { opacity: .72; line-height: 1.4; }
+.smart-practice-mode-top-v474 {
+    display:flex !important;
+    align-items:center !important;
+    gap:14px !important;
+    margin-bottom:16px !important;
+}
+.smart-practice-mode-top-v474 > div { display:flex; flex-direction:column; gap:2px; }
+.smart-practice-mode-top-v474 strong { font-size:1.2rem; }
+.smart-practice-mode-top-v474 small { color:var(--muted-text); }
+.smart-practice-feedback-v474 { min-height:28px; padding:8px 2px; font-weight:700; }
+.smart-practice-feedback-v474.correct { color:#198754; }
+.smart-practice-feedback-v474.wrong { color:#b42318; }
+.smart-choice-bank-v474 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.smart-practice-answer-v474 { width:100% !important; }
+@media (max-width: 620px) {
+  .smart-practice-mode-chooser-v474,
+  .smart-choice-bank-v474 { grid-template-columns:1fr !important; }
+}
+
+/* ============================================================
+   V475 — selectable Knowledge Base text values
+   ============================================================ */
+/* KB item values should behave like normal document text so users can drag
+   across a definition/example/etc. and copy it from either the Knowledge Base
+   or Daily Log -> Items Learned item viewer. Keep labels/buttons untouched. */
+#phrase-modal .kb-display-text,
+#phrase-modal .kb-display-text *,
+#phrase-modal #kb-view-item-fields-body .kb-display-text,
+#phrase-modal #kb-view-item-fields-body .kb-display-text * {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    user-select: text !important;
+    cursor: text !important;
+}
+
+/* ============================================================
+   V476 — Quizlet Learn modes + primary quiz field + finish layout
+   ============================================================ */
+.quizlet-learning-mode-section-v476 {
+    margin-top: 18px !important;
+}
+.quizlet-learning-mode-options-v476 {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    margin-top: 10px !important;
+}
+.quizlet-learning-mode-option-v476 {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    padding: 10px 14px !important;
+    border: var(--thin-border) !important;
+    border-radius: var(--border-radius) !important;
+    background: var(--white) !important;
+    color: var(--black) !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+}
+.quizlet-learning-mode-option-v476 input {
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 !important;
+    flex: 0 0 auto !important;
+}
+.quizlet-learning-mode-hint-v476 {
+    margin: 8px 0 0 !important;
+}
+.quizlet-question-kind-v476 {
+    width: 100% !important;
+    text-align: center !important;
+    font-size: .95rem !important;
+    opacity: .72 !important;
+    margin-bottom: 8px !important;
+}
+.quizlet-written-form-v476 {
+    width: 100% !important;
+    max-width: 540px !important;
+    display: flex !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+    box-sizing: border-box !important;
+}
+.quizlet-written-form-v476 input {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding: 12px 14px !important;
+    border: var(--thin-border) !important;
+    border-radius: var(--border-radius) !important;
+    background: var(--white) !important;
+    color: var(--black) !important;
+    font: inherit !important;
+    box-sizing: border-box !important;
+}
+.quizlet-written-form-v476 .icon-btn {
+    flex: 0 0 auto !important;
+}
+.quiz-finish-box-v476 {
+    width: min(540px, 100%) !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 24px !important;
+    box-sizing: border-box !important;
+}
+.quiz-finish-box-v476 h2 {
+    margin: 0 !important;
+    text-align: center !important;
+}
+.quiz-finish-back-v476 {
+    margin-top: 0 !important;
+}
+#kb-field-modal-safe-v221 .kb-field-primary-quiz-v476.selected,
+#kb-field-create-modal #kb-field-create-primary-quiz-v476.selected {
+    font-weight: 700 !important;
+}
+@media (max-width: 620px) {
+    .quizlet-written-form-v476 {
+        flex-direction: column !important;
+    }
+    .quizlet-written-form-v476 .icon-btn {
+        width: 100% !important;
+    }
+}
+
+/* ============================================================
+   V477 — Quizlet Learn Written answer reveal / grading
+   ============================================================ */
+.quizlet-written-feedback-v477 {
+    width: 100% !important;
+    max-width: 540px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px 14px !important;
+    margin: 12px auto 4px !important;
+    padding: 11px 14px !important;
+    border: var(--thin-border) !important;
+    border-radius: var(--border-radius) !important;
+    text-align: center !important;
+}
+.quizlet-written-feedback-v477 strong {
+    font-size: 1.12rem !important;
+}
+.quizlet-written-feedback-v477 span {
+    opacity: .82 !important;
+}
+.quizlet-written-reveal-v477 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    text-align: center !important;
+    animation: quizletWrittenRevealV477 .22s ease-out both !important;
+}
+.quizlet-written-answer-label-v477 {
+    font-size: .82rem !important;
+    opacity: .68 !important;
+}
+.quizlet-written-answer-value-v477 {
+    font-size: 1.65rem !important;
+    line-height: 1.25 !important;
+    overflow-wrap: anywhere !important;
+}
+.quizlet-written-form-v476 input:disabled {
+    opacity: .72 !important;
+    cursor: default !important;
+}
+@keyframes quizletWrittenRevealV477 {
+    from { transform: rotateX(8deg) scale(.985); opacity: .72; }
+    to { transform: rotateX(0) scale(1); opacity: 1; }
+}
+
+
+/* V478: KB field editor icon selection is underline-only. Clicking an option must
+   not darken/recolor its icon; the underline is the persistent selected state. */
+#kb-field-create-modal .kb-clean-icon-option,
+#kb-field-create-modal-v221 .kb-clean-icon-option {
+    opacity: 1 !important;
+    color: var(--black) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    border-bottom: 2px solid transparent !important;
+}
+#kb-field-create-modal .kb-clean-icon-option i,
+#kb-field-create-modal-v221 .kb-clean-icon-option i {
+    opacity: .58 !important;
+    color: inherit !important;
+}
+#kb-field-create-modal .kb-clean-icon-option:hover i,
+#kb-field-create-modal-v221 .kb-clean-icon-option:hover i {
+    opacity: .82 !important;
+}
+#kb-field-create-modal .kb-clean-icon-option.selected,
+#kb-field-create-modal .kb-clean-icon-option.selected:hover,
+#kb-field-create-modal .kb-clean-icon-option.selected:focus,
+#kb-field-create-modal-v221 .kb-clean-icon-option.selected,
+#kb-field-create-modal-v221 .kb-clean-icon-option.selected:hover,
+#kb-field-create-modal-v221 .kb-clean-icon-option.selected:focus {
+    color: var(--black) !important;
+    opacity: 1 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-bottom: 2px solid var(--black) !important;
+}
+#kb-field-create-modal .kb-clean-icon-option.selected i,
+#kb-field-create-modal .kb-clean-icon-option.selected:hover i,
+#kb-field-create-modal-v221 .kb-clean-icon-option.selected i,
+#kb-field-create-modal-v221 .kb-clean-icon-option.selected:hover i {
+    opacity: .58 !important;
+    color: inherit !important;
+}
+
+/* ============================================================
+   V480 — Quizlet Written cleanup, pinned-map cards, special-tab input
+   ============================================================ */
+.quizlet-written-wrap-v476 .quizlet-question-kind-v476,
+.quizlet-written-answer-label-v477 { display:none !important; }
+.quizlet-written-answer-value-v477 { width:100%; text-align:center; }
+
+/* Maps/images in Flashcards + Anki should not inherit the heavy black card frame. */
+#quiz-flashcard-area .pinned-standard-flashcard-v480 .pinned-flashcard-card-v480:has(.kb-pinned-stage-v169),
+#quiz-flashcard-area .pinned-standard-flashcard-v480 .kb-quiz-pinned-slide-v169,
+#quiz-flashcard-area .pinned-standard-flashcard-v480 .kb-pinned-stage-v169,
+#quiz-flashcard-area .map-study-card-v172,
+#quiz-flashcard-area .map-study-stage-v172 {
+    border:0 !important;
+    outline:0 !important;
+    box-shadow:none !important;
+    background:transparent !important;
+}
+#quiz-flashcard-area .pinned-standard-flashcard-v480 .kb-pinned-stage-v169 {
+    border-radius:0 !important;
+    overflow:visible !important;
+}
+#quiz-flashcard-area .pinned-standard-flashcard-v480 .kb-pinned-stage-v169 > img,
+#quiz-flashcard-area .map-study-stage-v480 > img {
+    border:0 !important;
+    outline:0 !important;
+    box-shadow:none !important;
+}
+#quiz-flashcard-area .pinned-standard-flashcard-v480 .kb-map-pin-label-v169,
+#quiz-flashcard-area .quiz-map-label-v480 { display:block !important; visibility:visible !important; opacity:1 !important; }
+.map-learn-options-v480 { width:min(700px,100%) !important; margin:14px auto 0 !important; }
+.map-learn-feedback-v480 { min-height:42px; display:flex; align-items:center; justify-content:center; gap:12px; margin-top:10px; }
+
+/* Whiteboard / Notebook own the viewport and accept pointer input. Floating widgets
+   can remain above them because their stage is pointer-events:none outside widgets. */
+body.whiteboard-tab-active-v198 > .whiteboard-tab-view-v198,
+body.notepad-tab-active-v249 > .notepad-tab-view-v249 {
+    z-index:2147483645 !important;
+    pointer-events:auto !important;
+    visibility:visible !important;
+}
+body.whiteboard-tab-active-v198 > .whiteboard-tab-view-v198 :is(.whiteboard-runtime-host-v198,.whiteboard-runtime-host-v198 > *),
+body.notepad-tab-active-v249 > .notepad-tab-view-v249 :is(.notepad-runtime-host-v249,.notepad-runtime-host-v249 > *) {
+    pointer-events:auto !important;
+    visibility:visible !important;
+}
+body.whiteboard-tab-active-v198 > #loggy-widget-stage-v239,
+body.notepad-tab-active-v249 > #loggy-widget-stage-v239 {
+    visibility:visible !important;
+    pointer-events:none !important;
+}
+body.whiteboard-tab-active-v198 > #loggy-widget-stage-v239 .loggy-floating-widget-v239,
+body.notepad-tab-active-v249 > #loggy-widget-stage-v239 .loggy-floating-widget-v239 {
+    visibility:visible !important;
+    pointer-events:auto !important;
+}
+
+/* ============================================================
+   V482 — pinned maps are frameless, labeled when revealed, and special
+   workspaces keep their real controls interactive.
+   ============================================================ */
+#quiz-flashcard-area .pinned-card-final-v482,
+#quiz-flashcard-area .pinned-map-answer-shell-v482,
+#quiz-flashcard-area .map-learn-final-v482,
+#quiz-flashcard-area .map-learn-final-v482 .map-study-card-v172,
+#quiz-flashcard-area .map-stage-final-v482,
+#quiz-flashcard-area .map-stage-final-v482 > img,
+#quiz-flashcard-area .flashcard-mode-card:has(.kb-pinned-stage-v169),
+#quiz-flashcard-area .quiz-media-fullscreen:has(.kb-pinned-stage-v169),
+#quiz-flashcard-area .card-slide:has(.kb-pinned-stage-v169),
+#quiz-flashcard-area .kb-quiz-pinned-slide-v169 {
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+#quiz-flashcard-area .pinned-map-answer-shell-v482 {
+    width: min(920px, 100%);
+    margin: 0 auto;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+#quiz-flashcard-area .map-stage-final-v482 {
+    position: relative !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    line-height: 0 !important;
+    overflow: visible !important;
+}
+#quiz-flashcard-area .map-stage-final-v482 > img {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: min(68dvh, 720px) !important;
+    object-fit: contain !important;
+}
+#quiz-flashcard-area .map-stage-final-v482 .kb-pinned-overlay-v169 { position:absolute !important; inset:0 !important; }
+#quiz-flashcard-area .map-stage-final-v482 .kb-map-pin-label-v169,
+#quiz-flashcard-area .map-label-final-v482 { display:block !important; visibility:visible !important; opacity:1 !important; }
+#quiz-flashcard-area .pinned-map-front-v482 { margin-inline:auto !important; }
+#quiz-flashcard-area .map-learn-options-final-v482 { width:100% !important; max-width:none !important; }
+
+body.whiteboard-tab-active-v198 > .whiteboard-tab-view-v198,
+body.notepad-tab-active-v249 > .notepad-tab-view-v249 {
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+    z-index:2147483646 !important;
+}
+body.whiteboard-tab-active-v198 .whiteboard-runtime-host-v198,
+body.notepad-tab-active-v249 .notepad-runtime-host-v249,
+body.whiteboard-tab-active-v198 .whiteboard-runtime-host-v198 > *,
+body.notepad-tab-active-v249 .notepad-runtime-host-v249 > * {
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+}
+body.whiteboard-tab-active-v198 .whiteboard-runtime-host-v198 :is(button,input,select,textarea,[contenteditable="true"],[role="button"],canvas,a),
+body.notepad-tab-active-v249 .notepad-runtime-host-v249 :is(button,input,select,textarea,[contenteditable="true"],[role="button"],canvas,a) {
+    pointer-events:auto !important;
+}
+
+/* V483 — saved pinned-map labels are permanent read-only content. */
+.kb-readonly-map-v483 .kb-pinned-stage-v169 {
+    overflow: visible !important;
+}
+.kb-readonly-map-v483 .kb-pinned-stage-v169 > img {
+    border-radius: inherit;
+}
+.kb-readonly-map-v483 .kb-pinned-overlay-v169,
+.kb-readonly-map-v483 .kb-readonly-map-label-v483 {
+    overflow: visible !important;
+}
+.kb-readonly-map-label-v483 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 20 !important;
+    line-height: 1.15 !important;
+}
+.map-stage-v483 .map-result-correct-v483 { --pin-color-v169:#22a06b !important; }
+.map-stage-v483 .map-result-wrong-v483 { --pin-color-v169:#d92d20 !important; }
+.map-stage-v483 [data-v483-pin] { pointer-events:auto !important; }
+
+/* ============================================================
+   V487 — Smart Placeholder Practice multi-slot reliability
+   ============================================================ */
+.smart-choice-bank-v487 {
+    margin-top: 18px !important;
+}
+.smart-practice-slot-v487 {
+    cursor: pointer !important;
+}
+.smart-practice-slot-v487.active {
+    outline: 2px solid currentColor !important;
+    outline-offset: 2px !important;
+}
+
+/* V489 — Smart Placeholder Practice stable drag/remove behavior */
+.smart-practice-slot-v487[draggable="true"] { cursor: grab; }
+.smart-practice-slot-v487[draggable="true"]:active { cursor: grabbing; }
+.smart-practice-remove-hint-v489 {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  line-height: 1.2;
+  opacity: .58;
+  font-weight: 500;
+}
+.smart-practice-bank-v487.remove-drop-ready-v489,
+.smart-choice-bank-v487.remove-drop-ready-v489 {
+  outline: 2px dashed currentColor;
+  outline-offset: 4px;
+}
+
+/* V494: decoration artwork node must remain painted; transparency belongs to wrapper. */
+#custom-theme-background-stage .custom-theme-background-svg img,
+.theme-builder-live-art-item img,
+.theme-builder-svg-card-preview img {
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  object-fit:contain !important;
+}
+
+/* ============================================================
+   V495 — map Learn cards honor Quiz Backdrop without restoring
+   the old heavy Anki/Flashcard frame.
+   ============================================================ */
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quiz-learn-view.view.active #quiz-flashcard-area .map-learn-final-v482 .map-study-card-v172,
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quiz-learn-view.view.active #quiz-flashcard-area .map-learn-v483 .map-study-card-v172 {
+    background: color-mix(in srgb, var(--custom-theme-quiz-backdrop-color-v456, var(--custom-theme-content-backdrop-color)) var(--custom-theme-quiz-backdrop-opacity-v456, 0%), transparent) !important;
+    border-radius: var(--custom-theme-quiz-backdrop-radius-v456, var(--border-radius, 12px)) !important;
+    padding: var(--custom-theme-quiz-backdrop-padding-v459, 16px) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quiz-learn-view"] .map-study-card-v172 {
+    background: color-mix(in srgb, var(--custom-theme-quiz-backdrop-color-v456, var(--custom-theme-content-backdrop-color)) var(--custom-theme-quiz-backdrop-opacity-v456, 0%), transparent) !important;
+    border-radius: var(--custom-theme-quiz-backdrop-radius-v456, var(--border-radius, 12px)) !important;
+    padding: var(--custom-theme-quiz-backdrop-padding-v459, 16px) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+/* Flashcards/Anki maps stay frameless even when Quiz Backdrop is enabled. */
+#quiz-flashcard-area .pinned-card-final-v482,
+#quiz-flashcard-area .pinned-map-answer-shell-v482,
+#quiz-flashcard-area .map-stage-final-v482,
+#quiz-flashcard-area .map-stage-final-v482 > img,
+#quiz-flashcard-area .flashcard-mode-card:has(.kb-pinned-stage-v169),
+#quiz-flashcard-area .quiz-media-fullscreen:has(.kb-pinned-stage-v169),
+#quiz-flashcard-area .card-slide:has(.kb-pinned-stage-v169),
+#quiz-flashcard-area .kb-quiz-pinned-slide-v169 {
+    border:0 !important;
+    outline:0 !important;
+    box-shadow:none !important;
+}
+
+
+/* V505 — legacy V496 Heading Backdrop CSS removed; pinned-map compatibility remains below. */
+/* A saved pinned map is artwork, not a black flashcard shell. This catches
+   both modern pinnedImage fields and legacy text fields recovered by payload. */
+#quiz-flashcard-area :is(
+  .quiz-pinned-card-v169,
+  .quiz-pinned-card-wrap-v169,
+  .pinned-standard-flashcard-v480,
+  .pinned-card-final-v482,
+  .pinned-map-answer-shell-v482,
+  .kb-quiz-pinned-slide-v169,
+  .kb-readonly-map-v483
+):has(.kb-pinned-stage-v169),
+#quiz-flashcard-area .flashcard-mode-card:has(.kb-pinned-stage-v169),
+#quiz-flashcard-area .card-slide-container:has(.kb-pinned-stage-v169),
+#quiz-flashcard-area .card-slider-wrapper:has(.kb-pinned-stage-v169) {
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+}
+#quiz-flashcard-area :is(.pinned-map-answer-shell-v482,.kb-quiz-pinned-slide-v169,.kb-readonly-map-v483) {
+  padding:0 !important;
+}
+
+/* Pin labels are permanent read-only map content after Done, everywhere a map
+   is displayed (KB, modal, Flashcards, Anki, and Quizlet Learn). */
+:is(.kb-pinned-readonly-v169,.kb-pinned-display-field-v169,.kb-readonly-map-v483,.kb-quiz-pinned-slide-v169,.map-stage-v483,.map-stage-final-v482)
+:is(.kb-map-pin-label-v169,.kb-readonly-map-label-v483,.quiz-map-label-v480,.map-label-final-v482) {
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  z-index:30 !important;
+}
+
+
+/* ============================================================
+   V497 — KB search / Items Learned hover / workspace input reliability
+   ============================================================ */
+/* Default-theme Items Learned row turns black/white on hover. The remove X
+   must inherit the same white foreground instead of keeping the older V52 black. */
+#phrases-container .chip:hover .delete-chip,
+#phrases-container .chip:hover .delete-chip:hover {
+    color: var(--white, #fff) !important;
+    opacity: 1 !important;
+}
+
+/* The special workspace shell owns pointer routing. Do not force pointer-events
+   on every descendant; that defeats each runtime's own overlays/canvas hit testing
+   and makes drag/click handling unnecessarily expensive. */
+body.whiteboard-tab-active-v198 .whiteboard-runtime-host-v198,
+body.notepad-tab-active-v249 .notepad-runtime-host-v249 {
+    pointer-events:auto !important;
+    visibility:visible !important;
+}
+body.whiteboard-tab-active-v198 .whiteboard-runtime-host-v198 > *,
+body.notepad-tab-active-v249 .notepad-runtime-host-v249 > * {
+    visibility:visible !important;
+}
+
+/* V505 — removed V498/V500/V501/V503 competing Heading Backdrop selector layers. */
+
+
+/* ============================================================
+   V506 — Toolbox Add Tool input parity
+   Tool name and Link (optional) intentionally share one compact
+   geometry so the first field cannot inherit the roomier global input style.
+   ============================================================ */
+#app-prompt-modal .app-prompt-field input.toolbox-add-tool-input-v506 {
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 9px 11px !important;
+    margin: 0 !important;
+    border: var(--thin-border) !important;
+    border-radius: 9px !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: var(--white) !important;
+    color: var(--black) !important;
+    font: inherit !important;
+    line-height: normal !important;
+    box-sizing: border-box !important;
+}
+#app-prompt-modal .app-prompt-field input.toolbox-add-tool-input-v506:focus {
+    border: var(--thick-border) !important;
+}
+
+
+/* ============================================================
+   V509 — real Quiz view card centering authority
+   ============================================================ */
+#quiz-learn-view:not(.wb-quiz-portaled-v507) #quiz-flashcard-area{
+  width:100%!important;
+  max-width:none!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+}
+#quiz-learn-view:not(.wb-quiz-portaled-v507) #quiz-flashcard-area > *{
+  margin-left:auto!important;
+  margin-right:auto!important;
+  align-self:center!important;
+  justify-self:center!important;
+  left:auto!important;
+  right:auto!important;
+}
+#quiz-learn-view:not(.wb-quiz-portaled-v507) #quiz-flashcard-area > .flashcard-wrap,
+#quiz-learn-view:not(.wb-quiz-portaled-v507) #quiz-flashcard-area > .flashcard-mode-wrap{
+  transform:none!important;
+}
+#quiz-learn-view:not(.wb-quiz-portaled-v507) .set-progress-header{
+  width:min(540px,100%)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+/* ============================================================
+   V517 — Quiz Backdrop spacing + Ready to Review border cleanup
+   Quiz Backdrop padding must be visible around the study surfaces for
+   Anki, Flashcards and Quizlet Learn. Ready to Review is intentionally
+   borderless in both the real Quizzes view and Theme Builder preview.
+   ============================================================ */
+
+/* Ready to Review is a backdrop/surface only — never draw a border/frame. */
+#quizzes-view #anki-summary-box,
+#quizzes-view #anki-summary-box:hover,
+#quizzes-view #anki-summary-box:focus,
+#theme-builder-modal .theme-builder-live-page[data-preview-original-id="quizzes-view"] #anki-summary-box,
+#theme-builder-modal .theme-builder-live-page[data-preview-original-id="quizzes-view"] #anki-summary-box:hover,
+#theme-builder-modal .theme-builder-live-page[data-preview-original-id="quizzes-view"] #anki-summary-box:focus {
+    border: 0 !important;
+    border-width: 0 !important;
+    border-color: transparent !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Keep the configured Quiz Backdrop padding as real breathing room around
+   the main Anki / Flashcards / Quizlet Learn study surfaces. */
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quiz-learn-view.view.active #quiz-flashcard-area > .flashcard-wrap,
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quiz-learn-view.view.active #quiz-flashcard-area > .flashcard-mode-wrap,
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quiz-learn-view.view.active .quiz-learn-compact-v38,
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quiz-learn-view"] #quiz-flashcard-area > .flashcard-wrap,
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quiz-learn-view"] #quiz-flashcard-area > .flashcard-mode-wrap,
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quiz-learn-view"] .quiz-learn-compact-v38 {
+    padding: var(--custom-theme-quiz-backdrop-padding-v459, 16px) !important;
+    box-sizing: border-box !important;
+}
+
+/* The individual card itself still gets the configured backdrop padding too,
+   so content never sits flush against the colored backdrop. */
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quiz-learn-view.view.active .flashcard-mode-card,
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quiz-learn-view.view.active .quiz-learn-prompt-card-v38,
+html[data-loggy-quiz-box-backdrop-v458="1"] body #quiz-learn-view.view.active .loggy-anki-flashcard-v245,
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quiz-learn-view"] .flashcard-mode-card,
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quiz-learn-view"] .quiz-learn-prompt-card-v38,
+html[data-loggy-quiz-box-backdrop-v458="1"] #theme-builder-modal .theme-builder-live-page[data-preview-original-id="quiz-learn-view"] .loggy-anki-flashcard-v245 {
+    padding: var(--custom-theme-quiz-backdrop-padding-v459, 16px) !important;
+    box-sizing: border-box !important;
 }

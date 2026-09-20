@@ -40,6 +40,119 @@
         begin();
     })();
     </script>
+    <script id="loggy-intro-audio-gate-v443">
+    (() => {
+        'use strict';
+        if (window.__loggyIntroAudioGateV443 || typeof HTMLMediaElement === 'undefined') return;
+
+        const proto = HTMLMediaElement.prototype;
+        const nativePlay = proto.play;
+        const allowed = new WeakSet();
+        const blocked = new WeakSet();
+        const seen = new Set();
+        let applyDepth = 0;
+        let introActive = false;
+        let holdUntil = 0;
+
+        const isAudio = media => {
+            try { return media?.tagName === 'AUDIO'; } catch (_) { return false; }
+        };
+
+        const stop = media => {
+            if (!media) return;
+            try { media.pause(); } catch (_) {}
+            try { media.currentTime = 0; } catch (_) {}
+        };
+
+        const shouldBlock = media => {
+            if (!isAudio(media) || allowed.has(media)) return false;
+            if (blocked.has(media)) return true;
+            return applyDepth > 0 || introActive || performance.now() < holdUntil;
+        };
+
+        const stopUnapproved = () => {
+            for (const media of Array.from(seen)) {
+                if (!media) { seen.delete(media); continue; }
+                if (allowed.has(media)) continue;
+                blocked.add(media);
+                stop(media);
+                try { if (media.ended) seen.delete(media); } catch (_) {}
+            }
+        };
+
+        proto.play = function(...args) {
+            if (isAudio(this)) {
+                seen.add(this);
+                try {
+                    if (!this.__loggyGateCleanupV443) {
+                        this.__loggyGateCleanupV443 = true;
+                        this.addEventListener('ended', () => seen.delete(this), { once:true });
+                    }
+                } catch (_) {}
+                if (shouldBlock(this)) {
+                    blocked.add(this);
+                    stop(this);
+                    return Promise.resolve();
+                }
+            }
+            return nativePlay.apply(this, args);
+        };
+
+        // Also catch browser/autoplay-driven starts that do not pass through a
+        // userland call to HTMLMediaElement.prototype.play().
+        document.addEventListener('play', event => {
+            const media = event.target;
+            if (!isAudio(media)) return;
+            seen.add(media);
+            if (!shouldBlock(media)) return;
+            blocked.add(media);
+            queueMicrotask(() => stop(media));
+        }, true);
+
+        const api = {
+            allow(media) {
+                if (!media) return media;
+                allowed.add(media);
+                blocked.delete(media);
+                return media;
+            },
+            block(media) {
+                if (!media) return;
+                try { allowed.delete(media); } catch (_) {}
+                blocked.add(media);
+                stop(media);
+            },
+            beginApply() {
+                applyDepth += 1;
+                stopUnapproved();
+            },
+            endApply(graceMs = 1800) {
+                applyDepth = Math.max(0, applyDepth - 1);
+                holdUntil = Math.max(holdUntil, performance.now() + Math.max(0, Number(graceMs) || 0));
+            },
+            setIntroActive(active) {
+                introActive = active === true;
+                if (introActive) stopUnapproved();
+            },
+            hold(ms = 1800) {
+                holdUntil = Math.max(holdUntil, performance.now() + Math.max(0, Number(ms) || 0));
+            },
+            stopUnapproved,
+            isAllowed(media) { return !!media && allowed.has(media); },
+            isBlocked(media) { return !!media && blocked.has(media); },
+            debug() {
+                return {
+                    applyDepth,
+                    introActive,
+                    holdMsRemaining: Math.max(0, Math.round(holdUntil - performance.now())),
+                    seenAudioCount: seen.size
+                };
+            }
+        };
+
+        window.__loggyIntroAudioGateV443 = api;
+    })();
+    </script>
     <script id="theme-builder-preview-bootstrap-v307">
     (() => {
         const params = new URLSearchParams(location.search);
@@ -221,8 +334,8 @@
             pointer-events: auto !important;
         }
     </style>
-<link rel="stylesheet" href="/template.css?v=390">
-    <link rel="preload" href="/template.js?v=300" as="script">
+<link rel="stylesheet" href="/template.css?v=517">
+    <link rel="preload" href="/template.js?v=506" as="script">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -413,7 +526,7 @@
                 <h2>Media Resources</h2>
                 <button id="add-resource-btn" class="small-icon-btn" title="Add Resource Link"><i class="ph ph-plus"></i></button>
             </div>
-            <p class="ai-video-instructions">Paste a YouTube (including Shorts) or TikTok link to whatever video you used to learn today.</p>
+            <p class="ai-video-instructions progress-hint daily-custom-tab-links-hint">Paste a YouTube (including Shorts) or TikTok link to whatever video you used to learn today.</p>
             <div class="input-group hidden" id="resource-input-group">
                 <input type="text" id="new-resource-url" placeholder="Paste a YouTube or TikTok link & press Enter">
             </div>
@@ -441,13 +554,13 @@
                 <button id="add-phrase-library-btn" class="icon-btn" title="Add New Item"><i class="ph ph-plus"></i></button>
             </div>
         </div>
-        <input type="text" id="phrases-search-bar" placeholder="Search...">
+        <input type="text" id="phrases-search-bar" placeholder="Search..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" name="loggy-kb-search-v497" data-lpignore="true" data-1p-ignore="true">
         <div class="filter-tabs" id="library-filter-tabs"></div>
         <div class="phrases-grid" id="phrases-library-grid"></div>
     </div>
 
     <!-- Quizzes View -->
-    <div id="quizzes-view" class="view">
+    <div id="quizzes-view" class="view" data-quiz-mode="anki">
         <div class="log-header-container">
             <button id="close-quizzes-btn" class="header-back-btn"><i class="ph ph-arrow-left"></i></button>
             <h1>QUIZZES</h1>
@@ -470,10 +583,27 @@
             <p id="anki-summary-detail"></p>
         </div>
 
-        <div class="set-size-picker" style="margin-top: 20px;">
-            <span class="modal-label">Quiz me on:</span>
+        <div id="quiz-category-picker-section-v473">
+            <div class="set-size-picker" style="margin-top: 20px;">
+                <span class="modal-label">Quiz me on:</span>
+            </div>
+            <div class="filter-tabs" id="quiz-type-filters"></div>
+
+            <div id="quizlet-learning-mode-section-v476" class="quizlet-learning-mode-section-v476 hidden">
+                <span class="modal-label">Choose Learning mode:</span>
+                <div class="quizlet-learning-mode-options-v476">
+                    <label class="quizlet-learning-mode-option-v476">
+                        <input type="checkbox" id="quizlet-mode-mc-v476" checked>
+                        <span>Multiple Choice</span>
+                    </label>
+                    <label class="quizlet-learning-mode-option-v476">
+                        <input type="checkbox" id="quizlet-mode-written-v476">
+                        <span>Written</span>
+                    </label>
+                </div>
+                <p class="progress-hint quizlet-learning-mode-hint-v476">Written answers use the starred quiz field from that item's category.</p>
+            </div>
         </div>
-        <div class="filter-tabs" id="quiz-type-filters"></div>
 
         <button id="start-quiz-btn" class="icon-btn ai-generate-btn mt-20"><i class="ph ph-play"></i> Start Quiz</button>
     </div>
@@ -795,7 +925,7 @@
         }, true);
     })();
     </script>
-    <script src="/template.js?v=300"></script>
+    <script src="/template.js?v=506"></script>
     <script>
 /* V389 - left-facing directional cursor parity for Log Settings + live cursor. */
 (()=>{
@@ -829,7 +959,7 @@
   window.addEventListener('loggy-extras-ready',patchV389,{once:true});
 })();
 </script>
-    <script src="/template-hotfix-v221.js?v=362"></script>
+    <script src="/template-hotfix-v221.js?v=518"></script>
     <script>
     /* V194 — full feature pack, split into small ordered chunks.
        The Daily Logs shell becomes clickable first. The old 2.9 MB enhancement
@@ -837,12 +967,12 @@
        clicks/hover/scroll are never held hostage by one giant JS task. */
     (() => {
         const EXTRA_PARTS_V194 = [
-            '/template-extras-1.js?v=372',
-            '/template-extras-2.js?v=382',
-            '/template-extras-3.js?v=304',
-            '/template-extras-4.js?v=382',
-            '/template-extras-5.js?v=302',
-            '/template-extras-6.js?v=382'
+            '/template-extras-1.js?v=505',
+            '/template-extras-2.js?v=504',
+            '/template-extras-3.js?v=518',
+            '/template-extras-4.js?v=513',
+            '/template-extras-5.js?v=522',
+            '/template-extras-6.js?v=519'
         ];
 
         let extrasPromise = null;
@@ -1008,6 +1138,6 @@
         }
     })();
     </script>
-    <script defer src="/widgets-loader-v241.js?v=246"></script>
+    <script defer src="/widgets-loader-v241.js?v=453"></script>
 </body>
 </html>

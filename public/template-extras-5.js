@@ -75,7 +75,7 @@
             const fieldDef = getKnowledgeFieldDefs(categoryForItemV162(id)).find(field => field?.name === fieldName);
             // A pinned-image primary display is rendered visually on the card
             // by V171; never expose its JSON payload as the visible label.
-            if (fieldDef?.kind === 'pinnedImage') return id;
+            if (fieldDef?.kind === 'pinnedImage' || window.__loggyPinnedImageV169?.isPinnedValue?.(value)) return id;
         } catch {}
         const text = String(value).trim();
         return text || id;
@@ -915,34 +915,176 @@
 
     // ------------------------------------------------------------
     // Bulk Knowledge Base import with preview.
+    // v464: Items Only + Items With Fields modes.
     // ------------------------------------------------------------
     let bulkPreviewV162 = null;
+    function bulkModeV464(modal){ return modal?.querySelector('.kb-bulk-mode-v464')?.value || 'items'; }
+    function bulkSelectedFieldsV464(modal){
+        return [...(modal?.querySelectorAll('.kb-bulk-field-choice-v464:checked')||[])].map(cb=>cb.value).filter(Boolean);
+    }
+    function bulkCategoryFieldsV464(category){
+        const cfg=getCategoryConfig(category);
+        return (cfg?.fields||[]).map((raw,i)=>normalizeKnowledgeField(raw,i,cfg)).filter(f=>f?.name);
+    }
+    function renderBulkFieldChoicesV464(){
+        const modal=document.getElementById('kb-bulk-modal-v162'); if(!modal)return;
+        const mode=bulkModeV464(modal); const wrap=modal.querySelector('.kb-bulk-fields-wrap-v464');
+        wrap.classList.toggle('hidden',mode!=='fields');
+        const label=modal.querySelector('.kb-bulk-items-label-v464');
+        const hint=modal.querySelector('.kb-bulk-format-hint-v464');
+        if(mode==='fields'){
+            const category=modal.querySelector('.kb-bulk-category-v162').value;
+            const fields=bulkCategoryFieldsV464(category);
+            const previous=new Set(bulkSelectedFieldsV464(modal));
+            const host=modal.querySelector('.kb-bulk-field-choices-v464');
+            host.innerHTML=fields.length?fields.map((f,i)=>`<label class="kb-bulk-field-choice-row-v464"><input type="checkbox" class="kb-bulk-field-choice-v464" value="${attr(f.name)}" ${previous.has(f.name)||(!previous.size&&i<2)?'checked':''}><span>${esc(f.name)}</span><small>${esc(f.type||'text')}</small></label>`).join(''):'<small>This category has no custom fields yet.</small>';
+            label.textContent='Records';
+            hint.innerHTML='<strong>Format:</strong> one record per line (or separate records with <code>;</code>). Use commas between columns. The first column is the item name; checked fields follow in the order shown below. Put a value in double quotes if it contains a comma. Example: <code>teacher,"a person who teaches","The teacher helps students."</code>';
+            modal.querySelector('.kb-bulk-text-v162').placeholder='teacher,"a person who teaches","The teacher helps students."\nstudent,"a person who learns","The student studies every day."';
+            host.querySelectorAll('input').forEach(el=>el.addEventListener('change',()=>invalidateBulkPreviewV464(modal)));
+        }else{
+            label.textContent='Items / Patterns';
+            hint.textContent='Paste item names using the delimiter below. This mode works exactly like the original bulk add.';
+            modal.querySelector('.kb-bulk-text-v162').placeholder='apple\nbanana\nI am {noun}\nCan I {verb} the {noun}?';
+        }
+        invalidateBulkPreviewV464(modal);
+    }
+    function bulkDetectedCountV465(modal){
+        if(!modal)return 0;
+        const text=modal.querySelector('.kb-bulk-text-v162')?.value||'';
+        if(bulkModeV464(modal)==='fields')return splitRecordsV464(text).length;
+        return parseBulkV162(text,modal.querySelector('.kb-bulk-delimiter-v162')?.value||'auto').length;
+    }
+    function updateBulkCountV465(modal,readyCount=null){
+        const count=bulkDetectedCountV465(modal);
+        const out=modal?.querySelector('.kb-bulk-count-v465');
+        if(!out)return;
+        out.innerHTML=`<strong>${count}</strong> item${count===1?'':'s'} detected${readyCount===null?'':` <span>· ${readyCount} ready to add</span>`}`;
+    }
+    function invalidateBulkPreviewV464(modal){
+        bulkPreviewV162=null;
+        modal?.querySelector('.kb-bulk-commit-v162')?.setAttribute('disabled','');
+        const out=modal?.querySelector('.kb-bulk-preview-v162'); if(out)out.innerHTML='';
+        updateBulkCountV465(modal);
+    }
     function ensureBulkImportV162() {
         if(document.getElementById('kb-bulk-modal-v162'))return;
         const modal=document.createElement('div');modal.id='kb-bulk-modal-v162';modal.className='modal-overlay hidden';modal.innerHTML=`<div class="modal-box kb-bulk-box-v162"><div class="modal-header"><h2>Bulk Add Knowledge Base Items</h2><button type="button" class="small-icon-btn kb-bulk-close-v162"><i class="ph ph-x"></i></button></div>
+        <div class="modal-section"><span class="field-label">Bulk Add Mode</span><select class="kb-bulk-mode-v464"><option value="items">Items Only</option><option value="fields">Items + Fields</option></select></div>
         <div class="modal-section"><span class="field-label">Category</span><select class="kb-bulk-category-v162"></select></div>
+        <div class="modal-section kb-bulk-fields-wrap-v464 hidden"><span class="field-label">Fields to Include</span><div class="kb-bulk-field-choices-v464"></div><small class="kb-bulk-field-order-note-v464">The checked fields are imported in the order shown here.</small></div>
         <div class="modal-section"><span class="field-label">Shared Tags</span><input type="text" class="kb-bulk-tags-v162" placeholder="noun, beginner"></div>
-        <div class="modal-section"><span class="field-label">Delimiter</span><select class="kb-bulk-delimiter-v162"><option value="auto">Auto detect</option><option value="newline">One item per line</option><option value="comma">Comma</option><option value="semicolon">Semicolon</option><option value="tab">Tab</option></select></div>
-        <div class="modal-section"><span class="field-label">Items / Patterns</span><textarea class="kb-bulk-text-v162" rows="10" placeholder="apple\nbanana\nI am {noun}\nCan I {verb} the {noun}?"></textarea></div>
-        <button type="button" class="icon-btn kb-bulk-preview-btn-v162"><i class="ph ph-eye"></i> Preview Import</button><div class="kb-bulk-preview-v162"></div><button type="button" class="icon-btn kb-bulk-commit-v162" disabled><i class="ph ph-check"></i> Add Items</button></div>`;
+        <div class="modal-section kb-bulk-delimiter-wrap-v464"><span class="field-label">Delimiter</span><select class="kb-bulk-delimiter-v162"><option value="auto">Auto detect</option><option value="newline">One item per line</option><option value="comma">Comma</option><option value="semicolon">Semicolon</option><option value="tab">Tab</option></select></div>
+        <div class="kb-bulk-format-hint-v464"></div>
+        <button type="button" class="icon-btn kb-bulk-copy-prompt-v466"><i class="ph ph-copy"></i> Copy AI Prompt</button>
+        <div class="modal-section"><span class="field-label kb-bulk-items-label-v464">Items / Patterns</span><textarea class="kb-bulk-text-v162" rows="10"></textarea><div class="kb-bulk-count-v465"><strong>0</strong> items detected</div></div>
+        <button type="button" class="icon-btn kb-bulk-preview-btn-v162">Preview Import</button><div class="kb-bulk-preview-v162"></div><button type="button" class="icon-btn kb-bulk-commit-v162" disabled><i class="ph ph-check"></i> Add Items</button></div>`;
         document.body.appendChild(modal);modal.querySelector('.kb-bulk-close-v162').onclick=()=>modal.classList.add('hidden');modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.add('hidden')});
+        modal.querySelector('.kb-bulk-copy-prompt-v466').onclick=()=>copyBulkAiPromptV466(modal);
         modal.querySelector('.kb-bulk-preview-btn-v162').onclick=previewBulkV162;modal.querySelector('.kb-bulk-commit-v162').onclick=commitBulkV162;
-        modal.querySelectorAll('textarea,input,select').forEach(input=>input.addEventListener('input',()=>{bulkPreviewV162=null;modal.querySelector('.kb-bulk-commit-v162').disabled=true}));
+        modal.querySelector('.kb-bulk-mode-v464').addEventListener('change',()=>{modal.querySelector('.kb-bulk-delimiter-wrap-v464').classList.toggle('hidden',bulkModeV464(modal)==='fields');renderBulkFieldChoicesV464();updateBulkCountV465(modal)});
+        modal.querySelector('.kb-bulk-category-v162').addEventListener('change',()=>{renderBulkFieldChoicesV464();updateBulkCountV465(modal)});
+        modal.querySelectorAll('textarea,input,select').forEach(input=>{if(!input.classList.contains('kb-bulk-mode-v464')&&!input.classList.contains('kb-bulk-category-v162'))input.addEventListener('input',()=>invalidateBulkPreviewV464(modal))});
+        renderBulkFieldChoicesV464();
+    }
+    function bulkItemsOnlySeparatorV466(modal){
+        const delimiter=modal?.querySelector('.kb-bulk-delimiter-v162')?.value||'auto';
+        if(delimiter==='comma')return {name:'commas',sample:'teacher,student,doctor'};
+        if(delimiter==='semicolon')return {name:'semicolons',sample:'teacher;student;doctor'};
+        if(delimiter==='tab')return {name:'tabs',sample:'teacher\tstudent\tdoctor'};
+        return {name:'one item per line',sample:'teacher\nstudent\ndoctor'};
+    }
+    function buildBulkAiPromptV466(modal){
+        const category=modal?.querySelector('.kb-bulk-category-v162')?.value||'the selected category';
+        const mode=bulkModeV464(modal);
+        if(mode==='fields'){
+            const fields=bulkSelectedFieldsV464(modal);
+            if(!fields.length)return '';
+            const columns=['Item Name',...fields];
+            const example=['teacher',...fields.map((f,i)=>i===0?'a person who teaches':i===1?'The teacher helps students.':`example ${f}`)];
+            const csvExample=example.map(v=>/[",;\n]/.test(v)?`"${String(v).replace(/"/g,'""')}"`:v).join(',');
+            return `Take the image, screenshot, PDF page, or other source I gave you and format the information so I can paste it directly into Loggy's Knowledge Base Bulk Add records box.\n\nCategory: ${category}\nColumns, in this EXACT order: ${columns.join(', ')}\n\nOUTPUT RULES:\n- Output ONLY the paste-ready records. Do not add an introduction, explanation, bullets, numbering, markdown, or code fences.\n- Put exactly ONE record per line.\n- Separate columns with commas.\n- The first column must always be the item name.\n- Then output the selected fields in exactly this order: ${fields.join(', ')}.\n- If a value contains a comma, semicolon, double quote, or line break, wrap that value in double quotes. Escape a double quote inside a quoted value by doubling it.\n- If a selected field is missing from the source, leave that field empty but KEEP its column/comma so every row has exactly ${columns.length} columns.\n- Do not invent definitions, examples, pronunciations, or other missing information. Use only information actually visible in the source.\n- Preserve the source wording unless a tiny OCR spacing error is obvious.\n- Include every applicable item you can clearly read from the source.\n\nFORMAT EXAMPLE (${columns.join(' | ')}):\n${csvExample}\n\nNow read the source I provided and return only the correctly formatted records.`;
+        }
+        const sep=bulkItemsOnlySeparatorV466(modal);
+        return `Take the image, screenshot, PDF page, or other source I gave you and extract the Knowledge Base item names for Loggy.\n\nCategory: ${category}\n\nOUTPUT RULES:\n- Output ONLY the paste-ready item names. Do not add an introduction, explanation, bullets, numbering, markdown, or code fences.\n- Use ${sep.name}.\n- Do not include definitions, notes, tags, labels, or extra commentary.\n- Do not invent items that are not visible in the source.\n- Preserve the source wording unless a tiny OCR spacing error is obvious.\n- Include every applicable item you can clearly read.\n\nFORMAT EXAMPLE:\n${sep.sample}\n\nNow read the source I provided and return only the correctly formatted items.`;
+    }
+    async function copyBulkAiPromptV466(modal){
+        const prompt=buildBulkAiPromptV466(modal);
+        if(!prompt){try{showFeatureToast('Choose at least one field first.')}catch{}return;}
+        let ok=false;
+        try{await navigator.clipboard.writeText(prompt);ok=true}catch{
+            try{const ta=document.createElement('textarea');ta.value=prompt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch{}
+        }
+        try{showFeatureToast(ok?'Copied AI formatting prompt.':'Could not copy the prompt.')}catch{}
     }
     function parseBulkV162(text,delimiter){
         const raw=String(text||'');let parts=[];
         if(delimiter==='newline')parts=raw.split(/\r?\n/);else if(delimiter==='comma')parts=raw.split(',');else if(delimiter==='semicolon')parts=raw.split(';');else if(delimiter==='tab')parts=raw.split('\t');else { parts=raw.split(/[\r\n,;\t]+/); }
         return parts.map(v=>v.trim()).filter(Boolean);
     }
+    function splitRecordsV464(text){
+        const raw=String(text||''); const out=[]; let cur=''; let quoted=false;
+        for(let i=0;i<raw.length;i++){
+            const ch=raw[i];
+            if(ch==='"'){
+                if(quoted&&raw[i+1]==='"'){cur+='"';i++;continue;}
+                quoted=!quoted;cur+=ch;continue;
+            }
+            if(!quoted&&(ch===';'||ch==='\n'||ch==='\r')){
+                if(ch==='\r'&&raw[i+1]==='\n')i++;
+                if(cur.trim())out.push(cur.trim());cur='';continue;
+            }
+            cur+=ch;
+        }
+        if(cur.trim())out.push(cur.trim());
+        return out;
+    }
+    function parseCsvRowV464(row){
+        const cols=[];let cur='';let quoted=false;
+        for(let i=0;i<row.length;i++){
+            const ch=row[i];
+            if(ch==='"'){
+                if(quoted&&row[i+1]==='"'){cur+='"';i++;continue;}
+                quoted=!quoted;continue;
+            }
+            if(ch===','&&!quoted){cols.push(cur.trim());cur='';continue;}
+            cur+=ch;
+        }
+        cols.push(cur.trim());
+        return {cols,unclosedQuote:quoted};
+    }
     function malformedBulkV162(value){let depth=0;for(const ch of value){if(ch==='{')depth++;if(ch==='}')depth--;if(depth<0)return true;}return depth!==0||value.length>500;}
     function previewBulkV162(){
-        const modal=document.getElementById('kb-bulk-modal-v162');const values=parseBulkV162(modal.querySelector('.kb-bulk-text-v162').value,modal.querySelector('.kb-bulk-delimiter-v162').value);const seen=new Set();const rows=values.map(value=>{let status='ready';if(db.phrases.includes(value))status='already exists';else if(seen.has(value))status='duplicate in paste';else if(malformedBulkV162(value))status='check formatting';seen.add(value);return{value,status}});bulkPreviewV162={signature:modal.querySelector('.kb-bulk-text-v162').value,category:modal.querySelector('.kb-bulk-category-v162').value,tags:splitList(modal.querySelector('.kb-bulk-tags-v162').value),rows};const ready=rows.filter(r=>r.status==='ready');const warning=rows.filter(r=>r.status!=='ready');modal.querySelector('.kb-bulk-preview-v162').innerHTML=`<div class="kb-bulk-summary-v162"><strong>${ready.length} ready</strong><span>${warning.length} skipped / needs review</span></div><div class="kb-bulk-preview-list-v162">${rows.slice(0,250).map(r=>`<div class="${r.status==='ready'?'ready':'warning'}"><span>${esc(r.value)}</span><small>${esc(r.status)}</small></div>`).join('')}${rows.length>250?`<div><small>+ ${rows.length-250} more</small></div>`:''}</div>`;modal.querySelector('.kb-bulk-commit-v162').disabled=!ready.length||warning.some(r=>r.status==='check formatting');
+        const modal=document.getElementById('kb-bulk-modal-v162'); const mode=bulkModeV464(modal); const category=modal.querySelector('.kb-bulk-category-v162').value; const tags=splitList(modal.querySelector('.kb-bulk-tags-v162').value);
+        if(mode==='fields'){
+            const fields=bulkSelectedFieldsV464(modal); const records=splitRecordsV464(modal.querySelector('.kb-bulk-text-v162').value); const seen=new Set();
+            const rows=records.map(record=>{
+                const parsed=parseCsvRowV464(record); const item=String(parsed.cols[0]||'').trim(); const values=parsed.cols.slice(1); let status='ready';
+                if(!fields.length)status='choose at least one field';
+                else if(parsed.unclosedQuote)status='unclosed quote';
+                else if(!item)status='missing item name';
+                else if(parsed.cols.length!==fields.length+1)status=`expected ${fields.length+1} columns`;
+                else if(db.phrases.includes(item))status='already exists';
+                else if(seen.has(item))status='duplicate in paste';
+                else if(malformedBulkV162(item))status='check formatting';
+                seen.add(item);
+                const custom={}; fields.forEach((name,i)=>custom[name]=values[i]??'');
+                return{value:item,values,custom,status,record};
+            });
+            bulkPreviewV162={mode,signature:modal.querySelector('.kb-bulk-text-v162').value,category,tags,fields,rows};
+            const ready=rows.filter(r=>r.status==='ready'), warning=rows.filter(r=>r.status!=='ready');
+            updateBulkCountV465(modal,ready.length);
+            modal.querySelector('.kb-bulk-preview-v162').innerHTML=`<div class="kb-bulk-summary-v162"><strong>${ready.length} ready</strong><span>${warning.length} skipped / needs review</span></div><div class="kb-bulk-preview-list-v162">${rows.slice(0,250).map(r=>`<div class="${r.status==='ready'?'ready':'warning'}"><span class="kb-bulk-preview-record-v464"><strong>${esc(r.value||'(no item)')}</strong>${fields.map((f,i)=>`<em>${esc(f)}: ${esc(r.values?.[i]??'')}</em>`).join('')}</span><small>${esc(r.status)}</small></div>`).join('')}${rows.length>250?`<div><small>+ ${rows.length-250} more</small></div>`:''}</div>`;
+            modal.querySelector('.kb-bulk-commit-v162').disabled=!ready.length||warning.some(r=>['unclosed quote','missing item name','choose at least one field','check formatting'].includes(r.status));
+            return;
+        }
+        const values=parseBulkV162(modal.querySelector('.kb-bulk-text-v162').value,modal.querySelector('.kb-bulk-delimiter-v162').value);const seen=new Set();const rows=values.map(value=>{let status='ready';if(db.phrases.includes(value))status='already exists';else if(seen.has(value))status='duplicate in paste';else if(malformedBulkV162(value))status='check formatting';seen.add(value);return{value,status}});bulkPreviewV162={mode:'items',signature:modal.querySelector('.kb-bulk-text-v162').value,category,tags,rows};const ready=rows.filter(r=>r.status==='ready');const warning=rows.filter(r=>r.status!=='ready');updateBulkCountV465(modal,ready.length);modal.querySelector('.kb-bulk-preview-v162').innerHTML=`<div class="kb-bulk-summary-v162"><strong>${ready.length} ready</strong><span>${warning.length} skipped / needs review</span></div><div class="kb-bulk-preview-list-v162">${rows.slice(0,250).map(r=>`<div class="${r.status==='ready'?'ready':'warning'}"><span>${esc(r.value)}</span><small>${esc(r.status)}</small></div>`).join('')}${rows.length>250?`<div><small>+ ${rows.length-250} more</small></div>`:''}</div>`;modal.querySelector('.kb-bulk-commit-v162').disabled=!ready.length||warning.some(r=>r.status==='check formatting');
     }
     function commitBulkV162(){
-        const modal=document.getElementById('kb-bulk-modal-v162');if(!bulkPreviewV162||bulkPreviewV162.signature!==modal.querySelector('.kb-bulk-text-v162').value)return previewBulkV162();const category=bulkPreviewV162.category||db.settings.categories?.[0]||'Category';const tags=bulkPreviewV162.tags.map(v=>v.replace(/^#/,''));let added=0;bulkPreviewV162.rows.filter(r=>r.status==='ready').forEach(row=>{if(db.phrases.includes(row.value))return;db.phrases.push(row.value);const cfg=getCategoryConfig(category);const custom={};(cfg.fields||[]).forEach(raw=>{const f=normalizeKnowledgeField(raw,0,cfg);custom[f.name]=''});db.phrase_meta[row.value]={...(db.phrase_meta[row.value]||{}),type:category,tags:[...tags],custom_fields:custom,enableParts:false,parts:[]};added++});saveDb();try{populatePhrasesDatalist();renderLibraryTabs();renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value||'')}catch{}modal.classList.add('hidden');bulkPreviewV162=null;try{showFeatureToast(`Added ${added} Knowledge Base item${added===1?'':'s'}.`)}catch{}
+        const modal=document.getElementById('kb-bulk-modal-v162');if(!bulkPreviewV162||bulkPreviewV162.signature!==modal.querySelector('.kb-bulk-text-v162').value)return previewBulkV162();const category=bulkPreviewV162.category||db.settings.categories?.[0]||'Category';const tags=bulkPreviewV162.tags.map(v=>v.replace(/^#/,''));let added=0;bulkPreviewV162.rows.filter(r=>r.status==='ready').forEach(row=>{if(db.phrases.includes(row.value))return;db.phrases.push(row.value);const cfg=getCategoryConfig(category);const custom={};(cfg.fields||[]).forEach((raw,i)=>{const f=normalizeKnowledgeField(raw,i,cfg);custom[f.name]=''});if(bulkPreviewV162.mode==='fields')Object.entries(row.custom||{}).forEach(([name,value])=>{if(Object.prototype.hasOwnProperty.call(custom,name))custom[name]=value});db.phrase_meta[row.value]={...(db.phrase_meta[row.value]||{}),type:category,tags:[...tags],custom_fields:custom,enableParts:false,parts:[]};added++});saveDb();try{populatePhrasesDatalist();renderLibraryTabs();renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value||'')}catch{}modal.classList.add('hidden');bulkPreviewV162=null;try{showFeatureToast(`Added ${added} Knowledge Base item${added===1?'':'s'}.`)}catch{}
     }
     function ensureBulkButtonV162(){
-        const header=document.querySelector('#phrases-library-view .log-header-container > div:last-child');if(!header||document.getElementById('kb-bulk-add-btn-v162'))return;const btn=document.createElement('button');btn.id='kb-bulk-add-btn-v162';btn.className='icon-btn';btn.title='Bulk add items';btn.innerHTML='<i class="ph ph-stack-plus"></i>';btn.onclick=()=>{ensureBulkImportV162();const modal=document.getElementById('kb-bulk-modal-v162');const select=modal.querySelector('.kb-bulk-category-v162');select.innerHTML=(db.settings.categories||[]).map(c=>`<option value="${attr(c)}">${esc(c)}</option>`).join('');select.value=libraryFilter&&libraryFilter!=='all'?libraryFilter:(db.settings.categories?.[0]||'');modal.querySelector('.kb-bulk-text-v162').value='';modal.querySelector('.kb-bulk-preview-v162').innerHTML='';modal.querySelector('.kb-bulk-commit-v162').disabled=true;bulkPreviewV162=null;modal.classList.remove('hidden')};header.insertBefore(btn,document.getElementById('add-phrase-library-btn'));
+        const header=document.querySelector('#phrases-library-view .log-header-container > div:last-child');if(!header||document.getElementById('kb-bulk-add-btn-v162'))return;const btn=document.createElement('button');btn.id='kb-bulk-add-btn-v162';btn.className='icon-btn';btn.title='Bulk add items';btn.innerHTML='<i class="ph ph-stack-plus"></i>';btn.onclick=()=>{ensureBulkImportV162();const modal=document.getElementById('kb-bulk-modal-v162');const select=modal.querySelector('.kb-bulk-category-v162');select.innerHTML=(db.settings.categories||[]).map(c=>`<option value="${attr(c)}">${esc(c)}</option>`).join('');select.value=libraryFilter&&libraryFilter!=='all'?libraryFilter:(db.settings.categories?.[0]||'');modal.querySelector('.kb-bulk-text-v162').value='';modal.querySelector('.kb-bulk-preview-v162').innerHTML='';modal.querySelector('.kb-bulk-commit-v162').disabled=true;bulkPreviewV162=null;renderBulkFieldChoicesV464();updateBulkCountV465(modal);modal.classList.remove('hidden')};header.insertBefore(btn,document.getElementById('add-phrase-library-btn'));
     }
 
     // ------------------------------------------------------------
@@ -1024,9 +1166,9 @@
 
     // Durable decoration URL normalization + error-time server resolution.
     function publicUrlFromProjectPathV162(projectPath){let p=String(projectPath||'').replace(/\\/g,'/').replace(/^\.\//,'');const marker='/public/';const i=p.toLowerCase().lastIndexOf(marker);if(i>=0)p=p.slice(i+marker.length);else if(p.toLowerCase().startsWith('public/'))p=p.slice(7);if(!p)return'';return'/'+p.split('/').filter(Boolean).map(part=>encodeURIComponent(decodeURIComponent(part))).join('/')}
-    function normalizeThemeAssetsV162(theme){if(!theme||typeof theme!=='object')return theme;(theme.backgroundSvgs||[]).forEach(asset=>{if(!asset||typeof asset!=='object')return;const resolved=publicUrlFromProjectPathV162(asset.projectPath||asset.path);if(resolved)asset.url=resolved});const bgPath=theme.backgroundImageProjectPathV3||theme.backgroundImageProjectPath;if(bgPath){const r=publicUrlFromProjectPathV162(bgPath);if(r)theme.backgroundImage=r}return theme}
+    function normalizeThemeAssetsV162(theme){if(!theme||typeof theme!=='object')return theme;(theme.backgroundSvgs||[]).forEach(asset=>{if(!asset||typeof asset!=='object')return;const resolved=publicUrlFromProjectPathV162(asset.projectPath||asset.path);if(resolved){asset._projectUrlV495=resolved;if(!String(asset.url||asset.src||'').trim())asset.url=resolved}const current=String(asset.url||asset.src||'').trim();if(current&&!/^blob:/i.test(current)&&!asset._stableUrlV164)asset._stableUrlV164=current});const bgPath=theme.backgroundImageProjectPathV3||theme.backgroundImageProjectPath;if(bgPath){const r=publicUrlFromProjectPathV162(bgPath);if(r&&!String(theme.backgroundImage||'').trim())theme.backgroundImage=r}return theme}
     try{const before=populateThemeBuilder;populateThemeBuilder=function(modal,theme){normalizeThemeAssetsV162(theme);return before.call(this,modal,theme)}}catch{}
-    function repairBuilderImagesV162(modal){if(!modal)return;(modal._themeBackgroundSvgs||[]).forEach(asset=>{const repaired=publicUrlFromProjectPathV162(asset?.projectPath||asset?.path);if(repaired&&(!asset.url||/^blob:|^data:/i.test(asset.url)))asset.url=repaired});modal.querySelectorAll('img').forEach(img=>{if(img.dataset.assetRepairBoundV162)return;img.dataset.assetRepairBoundV162='1';img.addEventListener('error',async()=>{if(img.dataset.assetRepairTriedV162)return;img.dataset.assetRepairTriedV162='1';const card=img.closest('[data-asset-id],[data-index],.theme-builder-svg-card,.theme-builder-art-card-v69');let asset=null;const assets=modal._themeBackgroundSvgs||[];const idx=Number(card?.dataset?.index);if(Number.isInteger(idx)&&assets[idx])asset=assets[idx];if(!asset){const current=decodeURIComponent(String(img.src||''));asset=assets.find(a=>current.includes(decodeURIComponent(String(a.url||'')))||String(a.url||'')===img.getAttribute('src'))}if(!asset)return;let candidate=publicUrlFromProjectPathV162(asset.projectPath||asset.path);if(candidate){asset.url=candidate;img.src=candidate;return}if(asset.projectPath){try{const res=await fetch(`/api/theme-asset-resolve/${encodeURIComponent(HOBBY)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({projectPath:asset.projectPath})});if(res.ok){const data=await res.json();if(data?.url){asset.url=data.url;img.src=data.url;return}}}catch{}}card?.classList.add('theme-asset-missing-v162');card?.setAttribute('title','Decoration file is missing. Re-upload this decoration to repair it.');})})}
+    function repairBuilderImagesV162(modal){if(!modal)return;(modal._themeBackgroundSvgs||[]).forEach(asset=>{if(!asset||typeof asset!=='object')return;const repaired=publicUrlFromProjectPathV162(asset.projectPath||asset.path);if(repaired)asset._projectUrlV495=repaired;const current=String(asset.url||asset.src||'').trim();if(current&&!/^blob:/i.test(current)&&!asset._stableUrlV164)asset._stableUrlV164=current});modal.querySelectorAll('img').forEach(img=>{if(img.dataset.assetRepairBoundV162)return;img.dataset.assetRepairBoundV162='1';img.addEventListener('error',async()=>{const card=img.closest('[data-asset-id],[data-index],.theme-builder-svg-card,.theme-builder-art-card-v69');let asset=null;const assets=modal._themeBackgroundSvgs||[];const idx=Number(card?.dataset?.index);if(Number.isInteger(idx)&&assets[idx])asset=assets[idx];if(!asset){const current=decodeURIComponent(String(img.src||''));asset=assets.find(a=>current.includes(decodeURIComponent(String(a.url||'')))||String(a.url||'')===img.getAttribute('src'))}if(!asset)return;let tried;try{tried=new Set(JSON.parse(img.dataset.assetRepairTriedV495||'[]'))}catch{tried=new Set()}const failed=String(img.getAttribute('src')||img.src||'').trim();if(failed)tried.add(failed);const candidates=[asset._stableUrlV164,asset.url,asset.src,asset._projectUrlV495,publicUrlFromProjectPathV162(asset.projectPath||asset.path)].map(v=>String(v||'').trim()).filter(Boolean);let candidate=candidates.find(v=>!tried.has(v));if(candidate){tried.add(candidate);img.dataset.assetRepairTriedV495=JSON.stringify([...tried]);img.src=candidate;return}if(asset.projectPath&&!img.dataset.assetRepairServerTriedV495){img.dataset.assetRepairServerTriedV495='1';try{const res=await fetch(`/api/theme-asset-resolve/${encodeURIComponent(HOBBY)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({projectPath:asset.projectPath})});if(res.ok){const data=await res.json();if(data?.url&&!tried.has(String(data.url))){img.src=data.url;return}}}catch{}}card?.classList.add('theme-asset-missing-v162');card?.setAttribute('title','Decoration file is missing. Re-upload this decoration to repair it.');});img.addEventListener('load',()=>{const current=String(img.getAttribute('src')||img.src||'').trim();if(!current||/^blob:/i.test(current))return;const card=img.closest('[data-asset-id],[data-index],.theme-builder-svg-card,.theme-builder-art-card-v69');const assets=modal._themeBackgroundSvgs||[];const idx=Number(card?.dataset?.index);const asset=Number.isInteger(idx)?assets[idx]:null;if(asset){asset._stableUrlV164=current;asset.url=current}img.dataset.assetRepairTriedV495='[]';})})}
     try{const before=renderThemeBuilderSvgListV2;renderThemeBuilderSvgListV2=function(modal){const r=before.apply(this,arguments);repairBuilderImagesV162(modal);return r}}catch{}
 
     // ------------------------------------------------------------
@@ -1250,7 +1392,7 @@
 
     // ---------------- Contextual help for every component ----------------
     const HELP={
-      heading:['Heading','Adds a visual section title.','Use it to divide a tab into clear sections.','Example: “Weekly Review”'],text:['Text','Freeform notes or instructions.','Good for summaries, directions, or reference text.','Example: “Remember to review verbs.”'],search:['Local Search','Searches only the component directly below it.','Place it immediately above a large list, cards, checklist, or collection.','Example: type “Korean” to filter the list below.'],globalSearchV163:['Global Search','Searches every component below it in this tab.','Best near the top of a long custom tab.','Example: one search filters cards + checklist + resources below.'],categoryBar:['Category Bar','Groups small items into switchable categories.','Right-click a category to rename it; use the folder-plus and plus buttons to add categories/items.','Example: Grammar | Vocabulary | Listening'],cards:['Cards','Flexible title + body cards.','Store short notes, ideas, facts, or mini records.','Example: “Concept” / “What it means…”'],polaroids:['Polaroids','Visual cards for images and supported media.','Useful for memories, references, moodboards, or progress photos.','Example: photo + caption'],checklist:['Checklist','Track tasks with completion dates.','Add, edit, check off, and delete items.','Example: □ Review 10 flashcards'],practiceLog:['Practice Log','Stores dated practice sessions and minutes.','Use it for music, language, art, fitness skills, etc.','Example: Scales · 30 min'],progressMeter:['Progress Meter','Manual numeric progress toward a target.','Use +/− and edit the target/unit by right-clicking.','Example: 7 / 20 lessons'],skillRatings:['Skill Ratings','Rates skills from 1–5 stars.','Track confidence across several sub-skills.','Example: Pronunciation ★★★★☆'],vocabulary:['Vocabulary','Stores terms, meanings, and notes.','Useful for language or subject-specific terms.','Example: casa → house'],resources:['Resources','Stores named links with notes.','Keep videos, articles, docs, and reference sites together.','Example: “Lesson 4 video” ↗'],dailyLogCollection:['Daily Log Collection','Surfaces selected Daily Log content.','Use it to review recurring activity across days.','Example: recent logs'],milestones:['Milestones','Checklist-style major achievements.','Completed milestones retain their completion date.','Example: “Finish Unit 1”'],projectGallery:['Project Gallery','Stores project images with titles and notes.','Useful for before/after or portfolio snapshots.','Example: sketch image + note'],recipeTracker:['Recipe Tracker','Stores repeatable recipe/project records.','Useful for recipes and structured creations.','Example: Bread · baked twice'],tableV162:['Table','Editable rows, columns, and cells.','Use it for structured comparisons or trackers.','Example: Date | Topic | Score'],qaV162:['Q&A','Stores questions and synced answers.','Expand a question, answer it here or from a Daily Log, and follow Daily Log references.','Example: “Why does this chord work?” ▸'],goalsV162:['Goals','Tracks manual and automatic progress.','Automatic progress can count matching KB categories/tags added to Daily Logs.','Example: 22 / 50 Korean nouns'],kbDynamicCollectionV162:['Dynamic Collection','Automatically shows matching Knowledge Base items.','Filter by category/tags/metadata and display as cards or polaroids.','Example: all “Chord” items tagged jazz'],divider:['Divider','Adds visual separation.','Use between sections without adding content.','Example: ─────────'],spacer:['Spacer','Adds empty breathing room.','Use to visually separate groups of components.','Example: 36px blank space']
+      heading:['Heading','Adds a visual section title.','Use it to divide a tab into clear sections.','Example: “Weekly Review”'],text:['Text','Freeform notes or instructions.','Good for summaries, directions, or reference text.','Example: “Remember to review verbs.”'],search:['Local Search','Searches only the component directly below it.','Place it immediately above a large list, cards, checklist, or collection.','Example: type “Korean” to filter the list below.'],globalSearchV163:['Global Search','Searches every component below it in this tab.','Best near the top of a long custom tab.','Example: one search filters cards + checklist + resources below.'],categoryBar:['Category Bar','Groups small items into switchable categories.','Right-click a category to rename it; use the folder-plus and plus buttons to add categories/items.','Example: Grammar | Vocabulary | Listening'],cards:['Cards','Flexible title + body cards.','Store short notes, ideas, facts, or mini records.','Example: “Concept” / “What it means…”'],polaroids:['Polaroids','Visual cards for images and supported media.','Useful for memories, references, moodboards, or progress photos.','Example: photo + caption'],checklist:['Checklist','Track tasks with completion dates.','Add, edit, check off, and delete items.','Example: □ Review 10 flashcards'],practiceLog:['Practice Log','Stores dated practice sessions and minutes.','Use it for music, language, art, fitness skills, etc.','Example: Scales · 30 min'],progressMeter:['Progress Meter','Manual numeric progress toward a target.','Use +/− and edit the target/unit by right-clicking.','Example: 7 / 20 lessons'],skillRatings:['Skill Ratings','Rates skills from 1–5 stars.','Track confidence across several sub-skills.','Example: Pronunciation ★★★★☆'],vocabulary:['Vocabulary','Stores terms, meanings, and notes.','Useful for language or subject-specific terms.','Example: casa → house'],resources:['Resources','Stores named links with notes.','Keep videos, articles, docs, and reference sites together.','Example: “Lesson 4 video” ↗'],dailyLogCollection:['Daily Log Collection','Surfaces selected Daily Log content.','Use it to review recurring activity across days.','Example: recent logs'],milestones:['Milestones','Checklist-style major achievements.','Completed milestones retain their completion date.','Example: “Finish Unit 1”'],projectGallery:['Project Gallery','Stores project images with titles and notes.','Useful for before/after or portfolio snapshots.','Example: sketch image + note'],recipeTracker:['Recipe Tracker','Stores repeatable recipe/project records.','Useful for recipes and structured creations.','Example: Bread · baked twice'],tableV162:['Table','Editable rows, columns, and cells.','Use it for structured comparisons or trackers.','Example: Date | Topic | Score'],qaV162:['Q&A','Stores questions and synced answers.','Expand a question, answer it here or from a Daily Log, and follow Daily Log references.','Example: “Why does this chord work?” ▸'],goalsV162:['Goals','Tracks manual and automatic progress.','Automatic progress can count matching KB categories/tags added to Daily Logs.','Example: 22 / 50 Korean nouns'],customKnowledgeBaseV453:['Knowledge Base','An independent Knowledge Base stored only inside this custom tab.','It has its own categories, fields, placeholders, and items and does not read or change the log page Knowledge Base.','Example: a separate research glossary'],kbDynamicCollectionV162:['Dynamic Collection','Automatically shows matching Knowledge Base items.','Filter by category/tags/metadata and display as cards or polaroids.','Example: all “Chord” items tagged jazz'],divider:['Divider','Adds visual separation.','Use between sections without adding content.','Example: ─────────'],spacer:['Spacer','Adds empty breathing room.','Use to visually separate groups of components.','Example: 36px blank space']
     };
     function decorateComponentHelpV163(tab,canvas){
         $$('.custom-tab-component',canvas).forEach((wrap,i)=>{if($('.custom-component-help-v163',wrap))return;const component=tab.components?.[i]||tab.components?.find(x=>x.id===wrap.dataset.componentId);if(!component)return;const def=HELP[component.type]||[CUSTOM_COMPONENT_LIBRARY.find(x=>x.type===component.type)?.label||'Component','Reusable custom-tab component.','Configure it in edit mode.','Example: customize this component'];const b=document.createElement('button');b.type='button';b.className='custom-component-help-v163';b.textContent='?';b.setAttribute('aria-label',`About ${def[0]}`);const tip=document.createElement('div');tip.className='custom-component-help-tooltip-v163';tip.innerHTML=`<strong>${esc(def[0])}</strong><span>${esc(def[1])}</span><span>${esc(def[2])}</span><small>${esc(def[3])}</small>`;b.appendChild(tip);wrap.appendChild(b)})
@@ -1269,6 +1411,60 @@
     const kbSelectionV163=new Set(); let kbSelectModeV163=false; let kbLastSelectedIdV164=null;
     async function deleteKbIdsV163(ids){ids=[...new Set(ids)].filter(id=>(db.phrases||[]).includes(id));if(!ids.length)return;const ok=await showAppConfirm({title:ids.length===1?'Delete Knowledge Base Item':'Delete Selected Items',message:ids.length===1?`Move “${ids[0]}” to Trash?`:`Move ${ids.length} selected Knowledge Base items to Trash?`,confirmLabel:ids.length===1?'Delete':'Delete Selected'});if(!ok)return;ids.forEach(id=>{try{moveKnowledgeItemToTrash(id)}catch{}});kbSelectionV163.clear();kbLastSelectedIdV164=null;kbSelectModeV163=false;try{renderPhrasesLibrary($('#phrases-search-bar')?.value||'')}catch{}}
     function ensureKbSelectionToolbarV163(){const header=$('#phrases-library-view .log-header-container > div:last-child');if(!header)return;let select=$('#kb-select-toggle-v163');if(!select){select=document.createElement('button');select.id='kb-select-toggle-v163';select.className='icon-btn';select.title='Select multiple items';select.innerHTML='<i class="ph ph-check-square-offset"></i>';select.onclick=()=>{kbSelectModeV163=!kbSelectModeV163;if(!kbSelectModeV163){kbSelectionV163.clear();kbLastSelectedIdV164=null}renderPhrasesLibrary($('#phrases-search-bar')?.value||'')};header.insertBefore(select,$('#add-phrase-library-btn'))}let bar=$('#kb-selection-bar-v163');if(!bar){bar=document.createElement('div');bar.id='kb-selection-bar-v163';bar.className='kb-selection-bar-v163 hidden';bar.innerHTML='<span class="kb-selection-count-v163">0 selected</span><span class="progress-hint kb-selection-hint-v164">Shift-click to select a range · right-click a selected item to delete</span>';$('#phrases-search-bar')?.insertAdjacentElement('afterend',bar)}bar.classList.toggle('hidden',!kbSelectModeV163);$('.kb-selection-count-v163',bar).textContent=`${kbSelectionV163.size} selected`;select.classList.toggle('selected',kbSelectModeV163)}
+
+    // V467 — Knowledge Base shortcuts + in-modal shortcut reference.
+    function kbViewVisibleV467(){
+        const view=document.getElementById('phrases-library-view');
+        return !!view && !view.classList.contains('hidden') && getComputedStyle(view).display!=='none';
+    }
+    function ensureKbShortcutDefaultsV467(){
+        db.settings||={};
+        db.settings.kbShortcutsV467||={bulkAdd:'Shift+=',bulkDelete:'Shift+Delete'};
+        if(!db.settings.kbShortcutsV467.bulkAdd)db.settings.kbShortcutsV467.bulkAdd='Shift+=';
+        if(!db.settings.kbShortcutsV467.bulkDelete)db.settings.kbShortcutsV467.bulkDelete='Shift+Delete';
+    }
+    function ensureKbShortcutsSectionV467(){
+        const modal=document.getElementById('settings-modal');
+        const box=modal?.querySelector('.modal-box');
+        if(!box)return;
+        let section=document.getElementById('kb-shortcuts-v467');
+        if(!section){
+            section=document.createElement('div');
+            section.id='kb-shortcuts-v467';
+            section.className='modal-section kb-shortcuts-v467';
+            section.innerHTML=`<span class="field-label">Knowledge Base Shortcuts</span><div class="global-shortcuts-list"><div class="global-shortcut-row"><kbd>Shift</kbd><span>+</span><kbd>=</kbd><p>Open Bulk Add Knowledge Base Items.</p></div><div class="global-shortcut-row"><kbd>Shift</kbd><span>+</span><kbd>Delete</kbd><p>Delete the currently selected Knowledge Base items. If none are selected yet, enter bulk-select mode.</p></div></div>`;
+            box.appendChild(section);
+        } else if(section.parentElement!==box){
+            box.appendChild(section);
+        }
+    }
+    ensureKbShortcutDefaultsV467();
+    document.addEventListener('keydown',event=>{
+        const target=event.target;
+        const typing=target?.matches?.('input,textarea,select,[contenteditable="true"]');
+        if(typing||!kbViewVisibleV467())return;
+        if(event.shiftKey&&!event.ctrlKey&&!event.altKey&&!event.metaKey&&event.code==='Equal'){
+            event.preventDefault();event.stopPropagation();
+            const button=document.getElementById('kb-bulk-add-btn-v162');
+            if(button){button.click();return;}
+            try{ensureBulkImportV162();}catch{}
+            requestAnimationFrame(()=>document.getElementById('kb-bulk-add-btn-v162')?.click());
+            return;
+        }
+        if(event.shiftKey&&!event.ctrlKey&&!event.altKey&&!event.metaKey&&event.code==='Delete'){
+            event.preventDefault();event.stopPropagation();
+            if(kbSelectionV163.size){deleteKbIdsV163([...kbSelectionV163]);return;}
+            kbSelectModeV163=true;kbLastSelectedIdV164=null;
+            try{renderPhrasesLibrary($('#phrases-search-bar')?.value||'')}catch{}
+            try{showFeatureToast('Bulk delete mode: select Knowledge Base items, then press Shift+Delete again.')}catch{}
+        }
+    },true);
+    const kbSettingsObserverV467=new MutationObserver(()=>{
+        const modal=document.getElementById('settings-modal');
+        if(modal&&!modal.classList.contains('hidden'))ensureKbShortcutsSectionV467();
+    });
+    kbSettingsObserverV467.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    document.addEventListener('click',event=>{if(event.target.closest?.('#open-settings-btn,#knowledge-settings-btn,#open-kb-settings-btn'))setTimeout(ensureKbShortcutsSectionV467,0)},true);
     function toggleKbSelectionV164(id,shiftKey,cards){const ordered=cards.map(card=>card.dataset.kbItemIdV163).filter(Boolean);if(shiftKey&&kbLastSelectedIdV164&&ordered.includes(kbLastSelectedIdV164)&&ordered.includes(id)){const a=ordered.indexOf(kbLastSelectedIdV164),b=ordered.indexOf(id);ordered.slice(Math.min(a,b),Math.max(a,b)+1).forEach(itemId=>kbSelectionV163.add(itemId))}else{kbSelectionV163.has(id)?kbSelectionV163.delete(id):kbSelectionV163.add(id)}kbLastSelectedIdV164=id}
     function decorateKbCardsV163(){ensureKbSelectionToolbarV163();const grid=$('#phrases-library-grid');if(!grid)return;const cards=$$('.phrase-card,.polaroid-card',grid);const filterText=$('#phrases-search-bar')?.value||'';const visibleIds=(db.phrases||[]).filter(id=>libraryFilter==='all'||db.phrase_meta?.[id]?.type===libraryFilter).filter(id=>String(id).toLowerCase().includes(String(filterText).toLowerCase())).sort();cards.forEach((card,cardIndex)=>{let id=card.dataset.kbItemIdV162||card.dataset.itemId||card.dataset.phrase||card.dataset.id||visibleIds[cardIndex];if(!id){const txt=(card.querySelector('strong,.phrase-card-title,.polaroid-caption,.chip-text')?.textContent||card.textContent||'').trim();id=(db.phrases||[]).find(x=>{try{return window.__loggyV162?.getKnowledgeDisplayLabel?.(x,'kb')===txt||x===txt}catch{return x===txt}})}if(id)card.dataset.kbItemIdV163=id});cards.forEach(card=>{const id=card.dataset.kbItemIdV163;if(!id)return;card.classList.toggle('kb-selected-v163',kbSelectionV163.has(id));if(kbSelectModeV163){let c=$('.kb-select-check-v163',card);if(!c){c=document.createElement('span');c.className='kb-select-check-v163';c.innerHTML='<i class="ph ph-check"></i>';card.appendChild(c)}c.classList.toggle('selected',kbSelectionV163.has(id));if(!card.dataset.kbSelectBoundV164){card.dataset.kbSelectBoundV164='1';card.addEventListener('click',e=>{if(!kbSelectModeV163)return;e.preventDefault();e.stopImmediatePropagation();const itemId=card.dataset.kbItemIdV163;if(!itemId)return;toggleKbSelectionV164(itemId,!!e.shiftKey,cards);decorateKbCardsV163()},true)}}else $('.kb-select-check-v163',card)?.remove();card.oncontextmenu=e=>{e.preventDefault();if(kbSelectModeV163){if(!kbSelectionV163.has(id)){kbSelectionV163.add(id);kbLastSelectedIdV164=id;decorateKbCardsV163()}const ids=[...kbSelectionV163];showCustomItemContextMenu(e.clientX,e.clientY,[{label:`Delete ${ids.length} selected`,icon:'ph-trash',danger:true,action:()=>deleteKbIdsV163(ids)}]);return}showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Open item',icon:'ph-eye',action:()=>openItemModal(id,true)},{label:'Delete item',icon:'ph-trash',danger:true,action:()=>deleteKbIdsV163([id])}])}});const view=db.settings?.libraryView||'list';if(view==='polaroid'){const active=(libraryFilter&&libraryFilter!=='all'?libraryFilter:null);const cfg=active?db.settings?.categorySettings?.[active]:null;const count=Math.max(1,Math.min(8,Number(cfg?.polaroidsPerRowV163||db.settings.polaroidsPerRowV163||4)));grid.style.setProperty('--kb-polaroids-per-row-v163',String(count));grid.classList.toggle('kb-polaroid-horizontal-v163',(cfg?.polaroidOrientationV163||db.settings.polaroidOrientationV163)==='horizontal');cards.forEach(card=>{if(cfg?.hideTagsInPolaroidV163||db.settings.hideTagsInPolaroidV163){$('.kb-tags-v163',card)?.remove();return}const id=card.dataset.kbItemIdV163;let tags=[];try{tags=getKnowledgeItemTagsV55(id)||[]}catch{tags=db.phrase_meta?.[id]?.tags||[]}if(tags.length&&!$('.kb-tags-v163',card)){const t=document.createElement('div');t.className='kb-tags-v163';t.innerHTML=tags.map(x=>`<span>#${esc(String(x).replace(/^#/,''))}</span>`).join('');card.appendChild(t)}})}}
     try{const beforeLibrary=renderPhrasesLibrary;renderPhrasesLibrary=function(){const r=beforeLibrary.apply(this,arguments);requestAnimationFrame(decorateKbCardsV163);return r}}catch{}
@@ -1522,7 +1718,7 @@
     function installStyledToolboxAddV164(){
         const old=$('#add-tool-btn');if(!old||old.dataset.v164StyledTool)return;
         const button=old.cloneNode(true);button.dataset.v164StyledTool='1';old.replaceWith(button);
-        button.addEventListener('click',async()=>{const values=await showAppFormModal({title:'Add Tool',submitLabel:'Add Tool',fields:[{name:'name',label:'Tool name',placeholder:'Dictionary, tuner, reference site…'},{name:'link',label:'Link (optional)',type:'url',placeholder:'https://…'}]});if(!values||!String(values.name||'').trim())return;db.tools.push({name:String(values.name).trim(),link:String(values.link||'').trim()});saveDb();populateToolsDatalist();renderToolbox()});
+        button.addEventListener('click',async()=>{const values=await showAppFormModal({title:'Add Tool',submitLabel:'Add Tool',fields:[{name:'name',label:'Tool name',placeholder:'Dictionary, tuner, reference site…',className:'toolbox-add-tool-input-v506'},{name:'link',label:'Link (optional)',type:'url',placeholder:'https://…',className:'toolbox-add-tool-input-v506'}]});if(!values||!String(values.name||'').trim())return;db.tools.push({name:String(values.name).trim(),link:String(values.link||'').trim()});saveDb();populateToolsDatalist();renderToolbox()});
     }
 
     // ------------------------------------------------------------
@@ -1530,7 +1726,7 @@
     // already-placed components.
     // ------------------------------------------------------------
     const HELP_V164={
-      searchBar:'Search only the component directly below this bar. Example: place it above a Vocabulary component to filter that vocabulary list.',globalSearchV163:'Search every searchable component below this bar in the same tab. Example: find “Korean” across notes, cards, Q&A, and collections.',categoryGroup:'Organize items into named categories. Add categories/items, rename categories by right-clicking, and display compact item cards.',qaV162:'Store reusable questions and answers. Answers can sync with Daily Logs and each question can show the days where it was discussed.',goalsV162:'Track a target manually with +/− or automatically from matching Knowledge Base activity.',tableV162:'Create an editable table and add/remove rows or columns.',kbDynamicCollectionV162:'Automatically shows Knowledge Base items matching selected categories, tags, placeholder type, learned state, parts state, or metadata.',checklist:'Track a list of things to complete. Example: a study routine or packing list.',cards:'A flexible set of small cards for facts, ideas, or grouped notes.',polaroids:'Visual cards with an image and caption. Example: artwork, vocabulary pictures, or inspiration.',text:'A freeform text block for notes or instructions.',heading:'A section heading used to divide a tab into readable areas.',dailyLog:'Display Daily Log content inside the custom tab.',practiceLog:'Record practice sessions and notes.',progressMeter:'Track progress toward a numeric target.',skillRatings:'Give skills a 1–5 confidence rating.',vocabulary:'Keep words/phrases with meanings and notes.',resources:'Save useful links and references.',milestones:'Track important achievements or checkpoints.',projectGallery:'Display projects with images and notes.',recipeTracker:'Keep recipes or repeatable procedures.'
+      searchBar:'Search only the component directly below this bar. Example: place it above a Vocabulary component to filter that vocabulary list.',globalSearchV163:'Search every searchable component below this bar in the same tab. Example: find “Korean” across notes, cards, Q&A, and collections.',categoryGroup:'Organize items into named categories. Add categories/items, rename categories by right-clicking, and display compact item cards.',qaV162:'Store reusable questions and answers. Answers can sync with Daily Logs and each question can show the days where it was discussed.',goalsV162:'Track a target manually with +/− or automatically from matching Knowledge Base activity.',tableV162:'Create an editable table and add/remove rows or columns.',customKnowledgeBaseV453:'An independent empty Knowledge Base. It stores its own categories, fields, placeholders, and items. A normal reusable Search Bar can filter it when you choose to add one.',kbDynamicCollectionV162:'Automatically shows Knowledge Base items matching selected categories, tags, placeholder type, learned state, parts state, or metadata.',checklist:'Track a list of things to complete. Example: a study routine or packing list.',cards:'A flexible set of small cards for facts, ideas, or grouped notes.',polaroids:'Visual cards with an image and caption. Example: artwork, vocabulary pictures, or inspiration.',text:'A freeform text block for notes or instructions.',heading:'A section heading used to divide a tab into readable areas.',dailyLog:'Display Daily Log content inside the custom tab.',practiceLog:'Record practice sessions and notes.',progressMeter:'Track progress toward a numeric target.',skillRatings:'Give skills a 1–5 confidence rating.',vocabulary:'Keep words/phrases with meanings and notes.',resources:'Save useful links and references.',milestones:'Track important achievements or checkpoints.',projectGallery:'Display projects with images and notes.',recipeTracker:'Keep recipes or repeatable procedures.'
     };
     function decoratePaletteHelpV164(palette){
         $$('.custom-component-palette-item',palette).forEach(card=>{
@@ -1567,20 +1763,26 @@
         let path=String(projectPath||'').replace(/\\/g,'/').replace(/^\.\//,'');const marker='/public/';const lower=path.toLowerCase();const i=lower.lastIndexOf(marker);if(i>=0)path=path.slice(i+marker.length);else if(lower.startsWith('public/'))path=path.slice(7);if(!path)return'';return'/'+path.split('/').filter(Boolean).map(part=>{try{return encodeURIComponent(decodeURIComponent(part))}catch{return encodeURIComponent(part)}}).join('/');
     }
     function stabilizeAssetArrayV164(assets){
-        (Array.isArray(assets)?assets:[]).forEach(asset=>{if(!asset||typeof asset!=='object')return;const durable=publicAssetUrlV164(asset.projectPath||asset.path);if(durable){asset._stableUrlV164=durable;asset.url=durable}else if(asset.url&&!/^blob:/i.test(asset.url)){asset._stableUrlV164=asset.url}});return assets;
+        (Array.isArray(assets)?assets:[]).forEach(asset=>{if(!asset||typeof asset!=='object')return;const durable=publicAssetUrlV164(asset.projectPath||asset.path);if(durable)asset._projectUrlV495=durable;const current=String(asset.url||asset.src||'').trim();if(current&&!/^blob:/i.test(current)&&!asset._stableUrlV164)asset._stableUrlV164=current;if(!current&&durable)asset.url=durable});return assets;
     }
     function stabilizeBuilderImagesV164(modal){
         if(!modal)return;const assets=stabilizeAssetArrayV164(modal._themeBackgroundSvgs||[]);
         $$('.theme-builder-svg-card[data-svg-index] img,.theme-builder-svg-card img',modal).forEach((img,fallbackIndex)=>{
-            const card=img.closest('.theme-builder-svg-card');const idx=Number(card?.dataset?.svgIndex);const asset=assets[Number.isInteger(idx)?idx:fallbackIndex];if(!asset)return;const stable=asset._stableUrlV164||asset.url;if(!stable)return;
-            if(/^blob:/i.test(img.getAttribute('src')||'')&&!/^blob:/i.test(stable))img.src=stable;
-            if(!img.dataset.v164StableBound){img.dataset.v164StableBound='1';img.addEventListener('load',()=>{if(!/^blob:/i.test(img.currentSrc||img.src))asset._stableUrlV164=img.getAttribute('src')||img.src});img.addEventListener('error',()=>{if(img.dataset.v164StableRetry)return;img.dataset.v164StableRetry='1';const candidate=publicAssetUrlV164(asset.projectPath||asset.path)||asset._stableUrlV164;if(candidate&&img.getAttribute('src')!==candidate){asset.url=candidate;img.src=candidate}},true)}
+            const card=img.closest('.theme-builder-svg-card');const idx=Number(card?.dataset?.svgIndex);const asset=assets[Number.isInteger(idx)?idx:fallbackIndex];if(!asset)return;
+            if(!img.dataset.v164StableBound){img.dataset.v164StableBound='1';img.addEventListener('load',()=>{const loaded=String(img.getAttribute('src')||img.currentSrc||img.src||'').trim();if(loaded&&!/^blob:/i.test(loaded)){asset._stableUrlV164=loaded;asset.url=loaded}img.dataset.v164TriedV495='[]'});img.addEventListener('error',()=>{let tried;try{tried=new Set(JSON.parse(img.dataset.v164TriedV495||'[]'))}catch{tried=new Set()}const failed=String(img.getAttribute('src')||img.src||'').trim();if(failed)tried.add(failed);const candidates=[asset._stableUrlV164,asset.url,asset.src,asset._projectUrlV495,publicAssetUrlV164(asset.projectPath||asset.path)].map(v=>String(v||'').trim()).filter(Boolean);const candidate=candidates.find(v=>!tried.has(v));if(!candidate)return;tried.add(candidate);img.dataset.v164TriedV495=JSON.stringify([...tried]);img.src=candidate},true)}
         });
     }
     try{const before=renderThemeBuilderSvgListV2;renderThemeBuilderSvgListV2=function(modal){stabilizeAssetArrayV164(modal?._themeBackgroundSvgs);const r=before.apply(this,arguments);try{const token=Number(modal?._themeImageHydrateTokenV62);if(modal&&Number.isFinite(token)&&typeof hydrateThemeImageCardsV62==='function'){hydrateThemeImageCardsV62(modal,token);modal._themeImageHydrateTokenV62=token+1}}catch{}stabilizeBuilderImagesV164(modal);requestAnimationFrame(()=>stabilizeBuilderImagesV164(modal));return r}}catch{}
     try{const before=populateThemeBuilder;populateThemeBuilder=function(modal,theme){stabilizeAssetArrayV164(theme?.backgroundSvgs);const r=before.call(this,modal,theme);stabilizeAssetArrayV164(modal?._themeBackgroundSvgs);stabilizeBuilderImagesV164(modal);return r}}catch{}
-    try{const before=mountCustomThemeBackgroundSvgsV2;mountCustomThemeBackgroundSvgsV2=function(theme){stabilizeAssetArrayV164(theme?.backgroundSvgs);const r=before.apply(this,arguments);const stage=$('#custom-theme-background-stage');if(stage){const assets=theme?.backgroundSvgs||[];$$('img',stage).forEach((img,index)=>{const asset=assets[index];if(!asset||img.dataset.v164RuntimeStable)return;img.dataset.v164RuntimeStable='1';img.addEventListener('error',()=>{if(img.dataset.v164RuntimeRetry)return;img.dataset.v164RuntimeRetry='1';const stable=publicAssetUrlV164(asset.projectPath||asset.path)||asset._stableUrlV164||asset.url;if(stable&&img.getAttribute('src')!==stable){asset.url=stable;img.src=stable}})})}return r}}catch{}
-    try{const before=applyTheme;let lastKey='',lastAt=0,lastResult=null;applyTheme=function(themeValue,options){const key=String(themeValue??'');const now=performance.now();if(key&&key===lastKey&&now-lastAt<500&&!options?.force)return lastResult;lastKey=key;lastAt=now;lastResult=before.apply(this,arguments);return lastResult}}catch{}
+    // V496: keep only durable-source normalization here. The old V164 runtime
+    // repair matched stage images to backgroundSvgs by raw DOM index; hidden
+    // assets and cross-page clones can shift that index, causing a perfectly
+    // good image to be replaced with another asset's broken URL. V494 (loaded
+    // later) is the single runtime repair owner and maps wrappers back to their
+    // actual placement/asset before trying fallbacks.
+    try{const before=mountCustomThemeBackgroundSvgsV2;mountCustomThemeBackgroundSvgsV2=function(theme){stabilizeAssetArrayV164(theme?.backgroundSvgs);return before.apply(this,arguments)}}catch{}
+    // V421 consolidation: removed the redundant 500ms applyTheme dedupe here.
+    // V171 later in this file is the single same-theme dedupe/restack owner.
 
     // ------------------------------------------------------------
     // Clean new theme: modal stays hidden until a truly blank/default
@@ -1726,6 +1928,30 @@
                 image: text
             };
         }
+    }
+
+    // V495: recognize saved pinned maps by their data shape, not only by the
+    // current field definition. Older backups can still call the field "text"
+    // even though its saved value is a complete pinned-image payload.
+    function pinnedPayloadShapeV495(value) {
+        let raw = value;
+        if (typeof raw === 'string') {
+            const text = raw.trim();
+            if (!text || text[0] !== '{') return null;
+            try { raw = JSON.parse(text); } catch { return null; }
+        }
+        if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+        if (!String(raw.image || '').trim() || !Array.isArray(raw.pins)) return null;
+        const hasPin = raw.pins.some(pin =>
+            pin && typeof pin === 'object' &&
+            Number.isFinite(Number(pin.x)) && Number.isFinite(Number(pin.y)) &&
+            String(pin.label || '').trim()
+        );
+        return hasPin ? raw : null;
+    }
+
+    function isPinnedValueV495(value) {
+        return !!pinnedPayloadShapeV495(value);
     }
 
     function serializePinnedValueV169(data, field = null) {
@@ -2107,11 +2333,12 @@
         upload.addEventListener('click', chooseImage);
         placePins?.addEventListener('click', () => {
             if (!data.image) return;
-            setPlacementMode(!placementMode);
-            if (placementMode) {
-                selectedId = '';
-                render();
-            }
+            const nextPlacementMode = !placementMode;
+            setPlacementMode(nextPlacementMode);
+            if (nextPlacementMode) selectedId = '';
+            // Rebuild both when entering and when clicking Done Placing so the
+            // normal map preview immediately contains every saved label.
+            render();
         });
 
         removeImage?.addEventListener('click', () => {
@@ -2407,11 +2634,13 @@
     try {
         const beforeBuildDisplayV169 = buildKnowledgeFieldDisplayHtml;
         buildKnowledgeFieldDisplayHtml = function(field, value = '') {
-            if (field?.kind !== PINNED_KIND_V169) return beforeBuildDisplayV169.apply(this, arguments);
+            const legacyPinnedV496 = field?.kind !== PINNED_KIND_V169 && isPinnedValueV495(value);
+            if (field?.kind !== PINNED_KIND_V169 && !legacyPinnedV496) return beforeBuildDisplayV169.apply(this, arguments);
+            const effectiveFieldV496 = field?.kind === PINNED_KIND_V169 ? field : { ...field, kind: PINNED_KIND_V169 };
             return `
-                <div class="modal-section mt-10 kb-item-field kb-display-field kb-pinned-display-field-v169">
+                <div class="modal-section mt-10 kb-item-field kb-display-field kb-pinned-display-field-v169 kb-readonly-map-v483">
                     <div class="kb-item-field-label-row"><span class="field-label">${escV169(field.name)}</span></div>
-                    ${labeledPinnedDisplayV169(field, value)}
+                    ${labeledPinnedDisplayV169(effectiveFieldV496, value)}
                 </div>
             `;
         };
@@ -2423,15 +2652,36 @@
     function pinnedFieldForItemV169(itemId) {
         const meta = db.phrase_meta?.[itemId];
         if (!meta) return null;
-        const fields = getKnowledgeFieldDefs(meta.type).filter(field => field.quiz !== false && field.kind === PINNED_KIND_V169);
-        for (const field of fields) {
-            const raw = meta.custom_fields?.[field.name];
+        const values = meta.custom_fields || {};
+        const defs = getKnowledgeFieldDefs(meta.type).filter(field => field?.quiz !== false);
+        const byName = new Map(defs.map(field => [String(field?.name || ''), field]));
+
+        // Prefer correctly typed maps, then recover legacy fields whose saved
+        // JSON is a pinned map even when the old field definition says text.
+        const ordered = [
+            ...defs.filter(field => field?.kind === PINNED_KIND_V169),
+            ...defs.filter(field => field?.kind !== PINNED_KIND_V169)
+        ];
+        for (const field of ordered) {
+            const raw = values[field.name];
             if (!raw) continue;
-            const data = parsePinnedValueV169(raw, field);
+            if (field.kind !== PINNED_KIND_V169 && !isPinnedValueV495(raw)) continue;
+            const effectiveField = field.kind === PINNED_KIND_V169 ? field : { ...field, kind: PINNED_KIND_V169 };
+            const data = parsePinnedValueV169(raw, effectiveField);
             const labeledPins = data.pins.filter(pin => String(pin.label || '').trim());
             if (data.image && labeledPins.length) {
-                return { field, data: { ...data, pins: labeledPins }, raw };
+                return { field: effectiveField, data: { ...data, pins: labeledPins }, raw, legacyKindV495: field.kind !== PINNED_KIND_V169 };
             }
+        }
+
+        // Very old backups can retain the value after the field definition was
+        // removed. Keep that card studyable instead of exposing serialized JSON.
+        for (const [name, raw] of Object.entries(values)) {
+            if (byName.has(String(name)) || !isPinnedValueV495(raw)) continue;
+            const field = { id: `legacy-map-${String(name)}`, name: String(name), kind: PINNED_KIND_V169, quiz: true, defaultPinColor: DEFAULT_PIN_COLOR_V169 };
+            const data = parsePinnedValueV169(raw, field);
+            const labeledPins = data.pins.filter(pin => String(pin.label || '').trim());
+            if (data.image && labeledPins.length) return { field, data: { ...data, pins: labeledPins }, raw, legacyKindV495: true };
         }
         return null;
     }
@@ -2446,7 +2696,9 @@
     try {
         renderCardBackContent = function(meta) {
             const categoryName = meta.type || db.settings.categories[0];
-            const fields = getKnowledgeFieldDefs(categoryName).filter(field => field.quiz !== false);
+            const fields = getKnowledgeFieldDefs(categoryName)
+                .filter(field => field.quiz !== false)
+                .sort((a, b) => Number(!!b.quizPrimary) - Number(!!a.quizPrimary));
             const values = meta.custom_fields || {};
             const slides = [];
 
@@ -2456,10 +2708,12 @@
                 const value = String(raw).trim();
                 if (!value) return;
 
-                if (field.kind === PINNED_KIND_V169) {
-                    const data = parsePinnedValueV169(value, field);
+                const legacyPinnedV496 = field.kind !== PINNED_KIND_V169 && isPinnedValueV495(raw);
+                if (field.kind === PINNED_KIND_V169 || legacyPinnedV496) {
+                    const effectiveFieldV496 = field.kind === PINNED_KIND_V169 ? field : { ...field, kind: PINNED_KIND_V169 };
+                    const data = parsePinnedValueV169(raw, effectiveFieldV496);
                     if (data.image) {
-                        slides.push(`<div class="quiz-media-fullscreen kb-quiz-pinned-slide-v169">${pinnedStageHtmlV169(data, { labeled: true })}</div>`);
+                        slides.push(`<div class="quiz-media-fullscreen kb-quiz-pinned-slide-v169 kb-readonly-map-v483">${pinnedStageHtmlV169(data, { labeled: true })}</div>`);
                     }
                     return;
                 }
@@ -2749,6 +3003,7 @@
     window.__loggyPinnedImageV169 = {
         parse: parsePinnedValueV169,
         serialize: serializePinnedValueV169,
+        isPinnedValue: isPinnedValueV495,
         answersMatch: answersMatchV169,
         fieldForItem: pinnedFieldForItemV169,
         defaultPinColor: DEFAULT_PIN_COLOR_V169
@@ -6210,7 +6465,7 @@ DASHBOARD TITLE NOTE:
             try { hideDailyOnlyControlsFromGlobalSettings?.(); } catch {}
             try { ensureGlobalShortcutsSection?.(); ensureGlobalUtilitiesSection?.(); } catch {}
             const title = modal.querySelector('.modal-header h2');
-            if (title) title.textContent = 'Theme Settings';
+            if (title) title.textContent = 'Settings';
             const current = db.settings?.theme || 'default';
             if (dailyThemeSelect) dailyThemeSelect.value = current;
             themePickerSelected = current;
@@ -7041,13 +7296,18 @@ DASHBOARD TITLE NOTE:
     function setWhiteboardNativeCursorV207(active) {
         const html = document.documentElement, body = document.body;
         if (active) {
-            if (!cursorSnapshotV207) cursorSnapshotV207 = { htmlHide:html.classList.contains('cursor-hide-native'), bodyNone:body.classList.contains('cursor-none') };
-            html.classList.remove('cursor-hide-native'); body.classList.remove('cursor-none');
+            if (!cursorSnapshotV207) cursorSnapshotV207 = {
+                htmlHide:html.classList.contains('cursor-hide-native'),
+                nativeTheme:html.classList.contains('cursor-native-theme-v449'),
+                bodyNone:body.classList.contains('cursor-none')
+            };
+            html.classList.remove('cursor-hide-native','cursor-native-theme-v449'); body.classList.remove('cursor-none');
             html.style.setProperty('cursor','auto','important'); body.style.setProperty('cursor','auto','important');
         } else {
             html.style.removeProperty('cursor'); body.style.removeProperty('cursor');
             if (cursorSnapshotV207) {
                 html.classList.toggle('cursor-hide-native', !!cursorSnapshotV207.htmlHide);
+                html.classList.toggle('cursor-native-theme-v449', !!cursorSnapshotV207.nativeTheme);
                 body.classList.toggle('cursor-none', !!cursorSnapshotV207.bodyNone);
                 cursorSnapshotV207 = null;
             }
@@ -7110,7 +7370,7 @@ DASHBOARD TITLE NOTE:
             document.querySelector('link[data-loggy-whiteboard-css-v197]')?.remove();
             link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = '/template-whiteboard.css?v=260';
+            link.href = '/template-whiteboard.css?v=522';
             link.dataset.loggyWhiteboardCssV198 = '1';
             document.head.appendChild(link);
         }
@@ -7125,7 +7385,7 @@ DASHBOARD TITLE NOTE:
                 return;
             }
             const script = document.createElement('script');
-            script.src = '/template-whiteboard.js?v=251';
+            script.src = '/template-whiteboard.js?v=522';
             script.async = true;
             script.dataset.loggyWhiteboardJsV198 = '1';
             script.addEventListener('load', () => resolve(window.LoggyWhiteboardV198), { once: true });
@@ -7244,13 +7504,379 @@ DASHBOARD TITLE NOTE:
         }).catch(() => null);
     }
 
+    // V509: Real Quizzes portal inside Whiteboard. The real Quizzes/Quiz Learn
+    // DOM remains authoritative. Drawing on top of it is controlled ONLY by the
+    // Whiteboard's own pen/highlighter/eraser tools; the quiz window has no duplicate
+    // ink toolbar. Select/lasso/sticky/text leave the quiz fully interactive.
+    let activeWhiteboardQuizPortalV507 = null;
+
+    function whiteboardQuizViewIsPortaledV507(view) {
+        return !!activeWhiteboardQuizPortalV507 && (view === quizzesView || view === quizLearnView);
+    }
+
+    function showWhiteboardQuizPortalViewV507(view) {
+        const state = activeWhiteboardQuizPortalV507;
+        if (!state || !whiteboardQuizViewIsPortaledV507(view)) return false;
+        [quizzesView, quizLearnView].forEach(item => item?.classList?.toggle('wb-quiz-portal-current-v507', item === view));
+        state.currentView = view;
+        const title = state.panel?.querySelector('[data-role="wb-quiz-title-v507"]');
+        if (title) title.textContent = view === quizLearnView ? 'Quiz' : 'Quizzes';
+        return true;
+    }
+
+    function closeWhiteboardQuizPortalV507() {
+        const state = activeWhiteboardQuizPortalV507;
+        if (!state) return;
+        activeWhiteboardQuizPortalV507 = null;
+        document.body.classList.remove('whiteboard-quiz-portal-active-v507');
+        try { state.quizView?.removeEventListener('click', state.closeCapture, true); } catch {}
+        try { state.whiteboardRoot?.removeEventListener('loggy-whiteboard-toolchange-v509', state.syncTool); } catch {}
+        try { state.whiteboardRoot?.removeEventListener('loggy-whiteboard-camera-v516', state.syncZoomV516); } catch {}
+        try { state.toolObserver?.disconnect(); } catch {}
+        try { state.practiceObserver?.disconnect(); } catch {}
+        try { state.resizeObserverV521?.disconnect(); } catch {}
+        try { if (state.syncResponsiveV521) window.removeEventListener('resize', state.syncResponsiveV521); } catch {}
+        try { state.content?.removeEventListener('click', state.practiceLaunchCaptureV514, true); } catch {}
+        if (window.__loggyWhiteboardQuizPracticeRouterV518 === state.practiceRouterV518) delete window.__loggyWhiteboardQuizPracticeRouterV518;
+        // V514: restore any real practice modal to the exact place it came from.
+        // Never remove it: newer Smart/Field-to-Field runtimes may reuse that node.
+        for (const rec of state.practiceRecordsV514 || []) {
+            const modal = rec?.modal;
+            if (!modal) continue;
+            modal.classList.remove('wb-quiz-practice-modal-v511','wb-quiz-practice-embedded-v512');
+            delete modal.dataset.wbThemeV511;
+            if (rec.parent) {
+                try { rec.parent.insertBefore(modal, rec.next && rec.next.parentNode === rec.parent ? rec.next : null); }
+                catch { try { rec.parent.appendChild(modal); } catch {} }
+            }
+        }
+        try { state.panel?.remove(); } catch {}
+        for (const rec of state.records || []) {
+            const el = rec.el;
+            if (!el) continue;
+            el.classList.remove('wb-quiz-portaled-v507','wb-quiz-portal-current-v507');
+            if (rec.parent) {
+                try { rec.parent.insertBefore(el, rec.next && rec.next.parentNode === rec.parent ? rec.next : null); }
+                catch { try { rec.parent.appendChild(el); } catch {} }
+            }
+            el.classList.toggle('active', !!rec.wasActive);
+        }
+    }
+
+    function openWhiteboardQuizPortalV507(whiteboardRoot) {
+        if (!whiteboardRoot || !document.contains(whiteboardRoot)) return;
+        if (activeWhiteboardQuizPortalV507) {
+            activeWhiteboardQuizPortalV507.panel?.removeAttribute('hidden');
+            showWhiteboardQuizPortalViewV507(activeWhiteboardQuizPortalV507.currentView || quizzesView);
+            activeWhiteboardQuizPortalV507.syncTool?.();
+            return;
+        }
+        if (!quizzesView || !quizLearnView) return;
+        try { updateQuizUI(); } catch {}
+
+        const panel = document.createElement('section');
+        panel.className = 'wb-quiz-window-v507 wb-quiz-default-theme-v509';
+        panel.dataset.quizDrawing = '0';
+        panel.innerHTML = `
+          <div class="wb-quiz-window-head-v507">
+            <div class="wb-quiz-window-drag-v507" data-role="wb-quiz-drag-v507"><i class="ph ph-cards"></i><span data-role="wb-quiz-title-v507">Quizzes</span></div>
+            <div class="wb-quiz-window-actions-v507">
+              <button type="button" class="wb-quiz-close-v507" data-quiz-close-v507 title="Close" aria-label="Close quizzes window"><i class="ph ph-x"></i></button>
+            </div>
+          </div>
+          <div class="wb-quiz-window-body-v507">
+            <div class="wb-quiz-portal-content-v507" data-role="wb-quiz-content-v507"></div>
+            <svg class="wb-quiz-annotation-v507" data-role="wb-quiz-annotation-v507"></svg>
+          </div>`;
+        whiteboardRoot.appendChild(panel);
+        const content = panel.querySelector('[data-role="wb-quiz-content-v507"]');
+        const svg = panel.querySelector('[data-role="wb-quiz-annotation-v507"]');
+        const records = [quizzesView, quizLearnView].map(el => ({el,parent:el.parentNode,next:el.nextSibling,wasActive:el.classList.contains('active')}));
+        records.forEach(({el}) => { el.classList.remove('active'); el.classList.add('wb-quiz-portaled-v507'); content.appendChild(el); });
+
+        const state = {panel,content,svg,records,quizView:quizzesView,currentView:quizzesView,drawing:null,paths:[],whiteboardRoot,baseZoomV516:Math.max(.05,Number(whiteboardRoot.dataset.cameraZoomV516)||.72)};
+        activeWhiteboardQuizPortalV507 = state;
+        document.body.classList.add('whiteboard-quiz-portal-active-v507');
+        showWhiteboardQuizPortalViewV507(quizzesView);
+        // V518: match the real Quizzes tab: rebuild optional practice cards after
+        // the view is portaled, and treat the portaled Quizzes view as visible.
+        try { renderQuizExtraPracticeSectionsV59?.(); } catch {}
+        const practiceHostV518 = document.getElementById('quiz-extra-practice-host-v59');
+        if (practiceHostV518) {
+            practiceHostV518.classList.remove('view-hidden-v60');
+            practiceHostV518.classList.toggle('hidden', !practiceHostV518.children.length);
+        }
+
+        // The original Quizzes back button means “close this Whiteboard window” here.
+        state.closeCapture = event => {
+            if (!event.target?.closest?.('#close-quizzes-btn')) return;
+            event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation();
+            closeWhiteboardQuizPortalV507();
+        };
+        quizzesView.addEventListener('click', state.closeCapture, true);
+
+        panel.addEventListener('click', event => {
+            if (event.target.closest?.('[data-quiz-close-v507]')) closeWhiteboardQuizPortalV507();
+        });
+
+        // The Whiteboard tool is the one source of truth for whether the quiz overlay
+        // should receive drawing input. No separate Interact/Write mode exists.
+        const drawingTools = new Set(['pen','highlighter','eraser','precision']);
+        const practiceSelectorV514 = '[id^="smart-placeholder-practice-modal-"],#transformation-practice-modal-v59';
+
+        const setPortalTitleV514 = value => {
+            const title = panel.querySelector('[data-role="wb-quiz-title-v507"]');
+            const next = String(value || '').trim() || (state.currentView === quizLearnView ? 'Quiz' : 'Quizzes');
+            if (title && title.textContent !== next) title.textContent = next;
+        };
+
+        const practiceIsVisibleV514 = modal => {
+            if (!modal || !modal.isConnected || modal.hidden) return false;
+            if (modal.classList.contains('hidden')) return false;
+            try { return getComputedStyle(modal).display !== 'none' && getComputedStyle(modal).visibility !== 'hidden'; } catch { return true; }
+        };
+
+        const portalPracticeModalV514 = modal => {
+            if (!modal || !activeWhiteboardQuizPortalV507 || !practiceIsVisibleV514(modal)) return false;
+            const body = panel.querySelector('.wb-quiz-window-body-v507');
+            if (!body) return false;
+            state.practiceRecordsV514 ||= [];
+            if (!state.practiceRecordsV514.some(rec => rec.modal === modal)) {
+                state.practiceRecordsV514.push({modal,parent:modal.parentNode,next:modal.nextSibling});
+            }
+            modal.classList.add('wb-quiz-practice-modal-v511','wb-quiz-practice-embedded-v512');
+            modal.dataset.wbThemeV511 = whiteboardRoot.dataset.theme === 'dark' ? 'dark' : 'light';
+            if (modal.parentElement !== body) body.appendChild(modal);
+            setPortalTitleV514(modal.querySelector('.modal-header h2')?.textContent || 'Practice');
+            try { state.syncResponsiveV521?.(); } catch {}
+            return true;
+        };
+
+        const syncPracticeThemeV514 = () => {
+            for (const rec of state.practiceRecordsV514 || []) {
+                if (rec.modal?.isConnected) rec.modal.dataset.wbThemeV511 = whiteboardRoot.dataset.theme === 'dark' ? 'dark' : 'light';
+            }
+        };
+
+        const syncAfterPracticeLaunchV514 = () => {
+            let found = false;
+            document.querySelectorAll(practiceSelectorV514).forEach(modal => {
+                if (portalPracticeModalV514(modal)) found = true;
+            });
+            if (!found) setPortalTitleV514();
+        };
+
+        state.syncTool = () => {
+            const tool = String(whiteboardRoot.dataset.activeTool || 'select');
+            panel.dataset.wbTool = tool;
+            panel.dataset.quizDrawing = drawingTools.has(tool) ? '1' : '0';
+            panel.dataset.wbThemeV511 = whiteboardRoot.dataset.theme === 'dark' ? 'dark' : 'light';
+            syncPracticeThemeV514();
+        };
+        whiteboardRoot.addEventListener('loggy-whiteboard-toolchange-v509', state.syncTool);
+        state.toolObserver = new MutationObserver(state.syncTool);
+        state.toolObserver.observe(whiteboardRoot, {attributes:true, attributeFilter:['data-active-tool','data-theme','data-wb-pen-color-v509','data-wb-highlighter-color-v509','data-wb-pen-width-v509','data-wb-highlighter-width-v509']});
+        state.syncTool();
+
+        // V516: route the two practice launchers directly through their REAL
+        // runtime functions while the Quizzes portal is active. V514 tried to wait
+        // until some other click handler created a body-level modal and then catch
+        // it afterward; newer Smart Placeholder versions can replace that modal in
+        // the same click, so the catch was unreliable. We invoke the same runtime,
+        // then immediately embed the exact modal it created in this window.
+        state.practiceRouterV518 = kind => {
+            const fn = kind === 'smart'
+                ? (window.openSmartPlaceholderPracticeV487 || window.openSmartPlaceholderPracticeV474 || window.openSmartPlaceholderPracticeV473 || window.openSmartPlaceholderPracticeV468 || window.openSmartPlaceholderPracticeV59)
+                : (window.openTransformationPracticeV59 || window.openFieldToFieldPracticeV60);
+            if (typeof fn !== 'function') return false;
+            try { fn(); } catch (error) { console.error('[Whiteboard Quizzes V518] practice launch failed', error); return false; }
+            syncAfterPracticeLaunchV514();
+            queueMicrotask(syncAfterPracticeLaunchV514);
+            requestAnimationFrame(syncAfterPracticeLaunchV514);
+            return true;
+        };
+        window.__loggyWhiteboardQuizPracticeRouterV518 = state.practiceRouterV518;
+
+        state.practiceLaunchCaptureV514 = event => {
+            const smart = event.target?.closest?.('.open-smart-practice-v59');
+            const field = event.target?.closest?.('.open-transformation-practice-v59');
+            if (!smart && !field) return;
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            state.practiceRouterV518?.(smart ? 'smart' : 'field');
+        };
+        content.addEventListener('click', state.practiceLaunchCaptureV514, true);
+
+        // V516: the quiz window participates in Whiteboard +/- zoom. It keeps the
+        // size it had when opened as 100%, then follows the camera proportionally.
+        state.syncZoomV516 = event => {
+            const current = Math.max(.05, Number(event?.detail?.zoom ?? whiteboardRoot.dataset.cameraZoomV516) || state.baseZoomV516);
+            const factor = Math.max(.35, Math.min(3, current / state.baseZoomV516));
+            state.quizScaleV518 = factor;
+            panel.style.zoom = '';
+            panel.dataset.wbQuizZoomV516 = String(factor);
+            if (state.dragPositionedV518) {
+                panel.style.transformOrigin = 'top left';
+                panel.style.transform = `scale(${factor})`;
+            } else {
+                panel.style.transformOrigin = 'center center';
+                panel.style.transform = `translate(-50%,-50%) scale(${factor})`;
+            }
+        };
+        whiteboardRoot.addEventListener('loggy-whiteboard-camera-v516', state.syncZoomV516);
+        state.syncZoomV516();
+
+        // V521: resizing the outer Quizzes window also resizes the UI INSIDE it.
+        // The portal keeps its normal responsive layout until the window becomes
+        // smaller than the size it opened at; then the real quiz UI scales down
+        // proportionally while its layout viewport is expanded to the inverse size.
+        // This keeps cards/buttons readable and prevents content from simply being
+        // clipped by a smaller frame. Whiteboard camera zoom remains a separate
+        // transform owned by syncZoomV516 above.
+        const quizBodyResponsiveV521 = panel.querySelector('.wb-quiz-window-body-v507');
+        const clampQuizInnerScaleV521 = value => Math.max(.58, Math.min(1, Number(value) || 1));
+        state.syncResponsiveV521 = () => {
+            const body = quizBodyResponsiveV521;
+            if (!body || !content?.isConnected) return;
+            const width = Math.max(1, panel.clientWidth || body.clientWidth || 1);
+            const height = Math.max(1, (panel.clientHeight - 52) || body.clientHeight || 1);
+            const sizeKey = `${Math.round(width)}x${Math.round(height)}`;
+            if (state.lastResponsiveSizeV522 === sizeKey) return;
+            state.lastResponsiveSizeV522 = sizeKey;
+            if (!state.baseInnerSizeV521 || !state.baseInnerSizeV521.w || !state.baseInnerSizeV521.h) {
+                state.baseInnerSizeV521 = {w:width,h:height};
+            }
+            const base = state.baseInnerSizeV521;
+            const scale = clampQuizInnerScaleV521(Math.min(width / base.w, height / base.h));
+            state.innerScaleV521 = scale;
+            panel.style.setProperty('--wb-quiz-inner-scale-v521', String(scale));
+            panel.dataset.wbQuizCompactV521 = scale < .86 ? '1' : '0';
+
+            // CSS zoom is intentionally applied ONLY to the portal contents, never
+            // to the draggable outer panel. Expanding the layout box by 1/scale
+            // makes the shrunken UI continue to fill the resized window.
+            const inverse = (100 / scale).toFixed(4) + '%';
+            content.style.zoom = String(scale);
+            content.style.width = inverse;
+            content.style.height = inverse;
+            content.style.right = 'auto';
+            content.style.bottom = 'auto';
+
+            for (const rec of state.practiceRecordsV514 || []) {
+                const modal = rec?.modal;
+                if (!modal?.classList?.contains('wb-quiz-practice-embedded-v512')) continue;
+                modal.style.setProperty('zoom', String(scale), 'important');
+                modal.style.setProperty('width', inverse, 'important');
+                modal.style.setProperty('height', inverse, 'important');
+                modal.style.setProperty('right', 'auto', 'important');
+                modal.style.setProperty('bottom', 'auto', 'important');
+            }
+        };
+        // Capture the opening size after layout has settled, then observe only the
+        // quiz body. Updating descendants cannot resize the fixed outer panel, so
+        // this observer does not create the mutation/resize loops seen in V512.
+        requestAnimationFrame(() => {
+            state.baseInnerSizeV521 = null;
+            state.syncResponsiveV521?.();
+        });
+        if (typeof ResizeObserver === 'function' && panel) {
+            // V522: observe ONLY the outer resizable panel. Placeholder drag/drop
+            // mutates quiz contents heavily; observing the body caused resize -> zoom
+            // -> resize feedback during HTML5 drag and could freeze the page.
+            state.resizeObserverV521 = new ResizeObserver(() => state.syncResponsiveV521?.());
+            state.resizeObserverV521.observe(panel);
+        } else {
+            window.addEventListener('resize', state.syncResponsiveV521, {passive:true});
+        }
+
+        // If an embedded practice closes/removes itself, restore the normal Quizzes
+        // title without observing the rest of the document. This observer is scoped
+        // strictly to the quiz window body and never mutates the observed subtree.
+        const quizBodyV514 = panel.querySelector('.wb-quiz-window-body-v507');
+        state.practiceObserver = new MutationObserver(() => {
+            const embedded = quizBodyV514?.querySelector('.wb-quiz-practice-embedded-v512');
+            if (!embedded || !practiceIsVisibleV514(embedded)) setPortalTitleV514();
+        });
+        if (quizBodyV514) state.practiceObserver.observe(quizBodyV514, {childList:true});
+
+        // Drag only from the title area so quiz controls remain fully interactive.
+        const drag = panel.querySelector('[data-role="wb-quiz-drag-v507"]');
+        drag?.addEventListener('pointerdown', event => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            const rect = panel.getBoundingClientRect();
+            const factor = Math.max(.35, Number(state.quizScaleV518) || 1);
+            state.dragPositionedV518 = true;
+            panel.style.left = `${rect.left}px`;
+            panel.style.top = `${rect.top}px`;
+            panel.style.transformOrigin = 'top left';
+            panel.style.transform = `scale(${factor})`;
+            const sx=event.clientX, sy=event.clientY, ox=rect.left, oy=rect.top;
+            const visualW=panel.offsetWidth*factor, visualH=panel.offsetHeight*factor;
+            const move = e => {
+                panel.style.left = `${Math.max(0,Math.min(innerWidth-visualW,e.clientX-sx+ox))}px`;
+                panel.style.top = `${Math.max(0,Math.min(innerHeight-visualH,e.clientY-sy+oy))}px`;
+            };
+            const up = () => { window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); };
+            window.addEventListener('pointermove',move); window.addEventListener('pointerup',up,{once:true});
+        });
+
+        // V520: convert viewport pointer coordinates through the SVG's actual
+        // screen transform. This keeps quiz annotations directly under the pen at
+        // every Whiteboard zoom level instead of assuming a 1:1 CSS pixel mapping.
+        const point = event => {
+            try {
+                const matrix = svg.getScreenCTM?.();
+                if (matrix) {
+                    const pt = svg.createSVGPoint();
+                    pt.x = event.clientX; pt.y = event.clientY;
+                    const local = pt.matrixTransform(matrix.inverse());
+                    return {x:local.x,y:local.y};
+                }
+            } catch (_) {}
+            const r=svg.getBoundingClientRect();
+            const sx = r.width ? (svg.clientWidth || r.width) / r.width : 1;
+            const sy = r.height ? (svg.clientHeight || r.height) / r.height : 1;
+            return {x:(event.clientX-r.left)*sx,y:(event.clientY-r.top)*sy};
+        };
+        const pathData = pts => pts.length ? `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}` + pts.slice(1).map(p=>` L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join('') : '';
+        svg.addEventListener('pointerdown', event => {
+            const tool = String(whiteboardRoot.dataset.activeTool || 'select');
+            if (!drawingTools.has(tool) || event.button !== 0) return;
+            event.preventDefault(); event.stopPropagation();
+            if (tool === 'eraser' || tool === 'precision') {
+                const hit = event.target.closest?.('path[data-quiz-stroke-v507]');
+                if (hit) { hit.remove(); state.paths=state.paths.filter(x=>x.el!==hit); }
+                return;
+            }
+            const p=point(event), el=document.createElementNS('http://www.w3.org/2000/svg','path');
+            const high=tool==='highlighter';
+            const color = high ? (whiteboardRoot.dataset.wbHighlighterColorV509 || '#FFF200') : (whiteboardRoot.dataset.wbPenColorV509 || '#202124');
+            const width = Math.max(1,Number(high ? whiteboardRoot.dataset.wbHighlighterWidthV509 : whiteboardRoot.dataset.wbPenWidthV509) || (high?26:5));
+            el.dataset.quizStrokeV507='1'; el.setAttribute('stroke', color); el.setAttribute('stroke-width',String(width)); el.setAttribute('opacity',high?'.42':'1');
+            svg.appendChild(el); state.drawing={id:event.pointerId,pts:[p],el}; state.paths.push(state.drawing); try{svg.setPointerCapture(event.pointerId)}catch{}
+        });
+        svg.addEventListener('pointermove', event => {
+            const d=state.drawing; if(!d||d.id!==event.pointerId)return; event.preventDefault(); d.pts.push(point(event)); d.el.setAttribute('d',pathData(d.pts));
+        });
+        const finish = event => { const d=state.drawing;if(!d||d.id!==event.pointerId)return;d.el.setAttribute('d',pathData(d.pts));state.drawing=null;try{svg.releasePointerCapture(event.pointerId)}catch{} };
+        svg.addEventListener('pointerup',finish); svg.addEventListener('pointercancel',finish);
+    }
+
     function mountWhiteboardTabV198(tab, view) {
         if (!tab || !view || !isWhiteboardTabV198(tab)) return;
         const host = view.querySelector('.whiteboard-runtime-host-v198');
         if (!host) return;
         const state = migrateTabWhiteboardStateV198(tab);
+        // V497: render/switch wrappers can call this mount path several times while
+        // opening one tab. The whiteboard runtime's mount(existingHost) performs a
+        // full renderAll(), so repeated calls make the workspace sluggish and can
+        // interrupt pointer gestures. One host gets one controller mount.
+        if (host.dataset.whiteboardMountedV497 === '1' || host.dataset.whiteboardMountingV497 === '1') return;
+        host.dataset.whiteboardMountingV497 = '1';
         ensureWhiteboardRuntimeV198().then(runtime => {
-            if (!runtime || !document.contains(view)) return;
+            if (!runtime || !document.contains(view)) { delete host.dataset.whiteboardMountingV497; return; }
             runtime.mount(host, {
                 id: tab.id,
                 name: tab.name || 'Whiteboard',
@@ -7258,6 +7884,7 @@ DASHBOARD TITLE NOTE:
                 saveState: next => { tab.whiteboardV198 = next; rememberWhiteboardRouteV207(tab, next?.activeBoardId); try { saveDb(); } catch {} },
                 routeChanged: boardId => rememberWhiteboardRouteV207(tab, boardId),
                 ensureNativeCursor: () => setWhiteboardNativeCursorV207(true),
+                openQuizzes: whiteboardRoot => openWhiteboardQuizPortalV507(whiteboardRoot),
                 uploadImage: (file, boardId) => uploadWhiteboardImageV251(tab, boardId, file),
                 deleteImage: deleteWhiteboardImageV251,
                 exit: () => {
@@ -7268,7 +7895,10 @@ DASHBOARD TITLE NOTE:
                     try { switchView(gridView); } catch {}
                 }
             });
+            delete host.dataset.whiteboardMountingV497;
+            host.dataset.whiteboardMountedV497 = '1';
         }).catch(error => {
+            delete host.dataset.whiteboardMountingV497;
             console.error('Whiteboard runtime failed to load', error);
             host.innerHTML = '<div class="whiteboard-runtime-loading-v198">Could not load the whiteboard. Refresh this page and try again.</div>';
         });
@@ -7294,6 +7924,12 @@ DASHBOARD TITLE NOTE:
             view = replacement;
             if (wasActive) view.classList.add('active');
         }
+        // V404: fullscreen CSS hides every other direct body child. A special
+        // view left nested inside the normal custom-tab host gets hidden with its
+        // parent, so always promote it to the body before opening/switching.
+        if (view && view.parentElement !== document.body) {
+            document.body.insertBefore(view, document.getElementById('companion-stage') || null);
+        }
         return view;
     }
 
@@ -7318,8 +7954,13 @@ DASHBOARD TITLE NOTE:
 
     const switchViewBeforeWhiteboardV198 = switchView;
     switchView = function(viewToShow) {
+        if (activeWhiteboardQuizPortalV507 && (viewToShow === quizzesView || viewToShow === quizLearnView)) {
+            showWhiteboardQuizPortalViewV507(viewToShow);
+            return;
+        }
         const isWhiteboard = !!viewToShow?.classList?.contains('whiteboard-tab-view-v198');
         const wasWhiteboard = document.body.classList.contains('whiteboard-tab-active-v198');
+        if (activeWhiteboardQuizPortalV507 && wasWhiteboard && !isWhiteboard) closeWhiteboardQuizPortalV507();
         ensureWhiteboardBootstrapStyleV198();
         document.body.classList.toggle('whiteboard-tab-active-v198', isWhiteboard);
         document.documentElement.classList.toggle('whiteboard-tab-active-v198', isWhiteboard);
@@ -7382,29 +8023,42 @@ DASHBOARD TITLE NOTE:
 
     function ensureDailyWhiteboardLinksV198() {
         ensureWhiteboardBootstrapStyleV198();
-        if(!logView || document.getElementById('daily-whiteboard-links-v198')) return;
-        const section=document.createElement('section');
-        section.id='daily-whiteboard-links-v198'; section.className='borderless-section daily-whiteboard-links-v198';
-        section.innerHTML=`<div class="section-header"><h2>Whiteboards</h2><button type="button" class="small-icon-btn" id="add-daily-whiteboard-v198" title="Link a whiteboard"><i class="ph ph-plus"></i></button></div><p class="progress-hint">Attach a board to this day and reopen it exactly where you left it.</p><div class="daily-whiteboard-links-list-v198" id="daily-whiteboard-links-list-v198"></div>`;
-        const anchor=document.getElementById('daily-custom-tab-links-section') || logView.querySelector('.log-content');
-        if(anchor) anchor.insertAdjacentElement('afterend',section); else logView.appendChild(section);
-        section.querySelector('#add-daily-whiteboard-v198').addEventListener('click',openDailyWhiteboardPickerV198);
+        // V449: Whiteboards belong inside Tab Items, never as a standalone Daily Log section.
+        document.getElementById('daily-whiteboard-links-v198')?.remove();
+        try { ensureDailyCustomTabLinksUI?.(); } catch {}
+        try { applyHiddenLoggySectionsV432?.(); } catch {}
+        if (!window.__syncDailySpecialTabItemsEmptyV449) {
+            window.__syncDailySpecialTabItemsEmptyV449 = () => {
+                const list=document.getElementById('daily-custom-tab-links-list'); if(!list)return;
+                const rows=list.querySelectorAll('.daily-custom-tab-link');
+                let empty=list.querySelector('.daily-custom-tab-empty');
+                if(rows.length){ empty?.remove(); return; }
+                if(!empty){ empty=document.createElement('div'); empty.className='daily-custom-tab-empty'; empty.textContent='Nothing from your custom tabs is linked to this day yet.'; list.appendChild(empty); }
+            };
+        }
     }
 
     function renderDailyWhiteboardLinksV198() {
-        ensureDailyWhiteboardLinksV198(); const list=document.getElementById('daily-whiteboard-links-list-v198'); if(!list)return;
-        list.innerHTML=''; const links=getDailyWhiteboardLinksV198();
-        if(!links.length){const e=document.createElement('div');e.className='daily-custom-tab-empty';e.textContent='No whiteboards linked to this day yet.';list.appendChild(e);return}
+        ensureDailyWhiteboardLinksV198();
+        const list=document.getElementById('daily-custom-tab-links-list'); if(!list)return;
+        list.querySelectorAll('.daily-tab-whiteboard-item-v449').forEach(node=>node.remove());
+        const links=getDailyWhiteboardLinksV198();
         links.forEach(link=>{
             const tab=getCustomTab?.(link.tabId), state=tab&&isWhiteboardTabV198(tab)?migrateTabWhiteboardStateV198(tab):null, board=state?.boards?.find(b=>b.id===link.boardId);
-            const row=document.createElement('div');row.className='daily-whiteboard-link-v198';
-            const main=document.createElement('button');main.type='button';main.className='daily-whiteboard-link-main-v198';
-            const thumb=document.createElement('span');thumb.className='daily-whiteboard-thumb-v198';thumb.innerHTML=boardPreviewSvgV198(board||{},state?.theme||'light');
-            const text=document.createElement('span');text.className='daily-whiteboard-link-text-v198';const strong=document.createElement('strong');strong.textContent=board?.name||link.boardName||'Missing whiteboard';const small=document.createElement('small');small.textContent=tab?.name||link.tabName||'Whiteboard tab';text.append(strong,small);main.append(thumb,text);main.disabled=!board;main.addEventListener('click',()=>board&&openExactWhiteboardV198(tab.id,board.id));
-            const del=document.createElement('button');del.type='button';del.className='small-icon-btn daily-whiteboard-unlink-v198';del.title='Remove from this day';del.innerHTML='<i class="ph ph-x"></i>';del.addEventListener('click',()=>{db.days[currentDay].whiteboardLinksV198=getDailyWhiteboardLinksV198().filter(x=>x.id!==link.id);saveDb();renderDailyWhiteboardLinksV198()});
-            row.append(main,del);list.appendChild(row);
+            const row=document.createElement('div'); row.className='daily-custom-tab-link daily-whiteboard-link-v198 daily-tab-whiteboard-item-v449';
+            const main=document.createElement('button'); main.type='button'; main.className='daily-custom-tab-link-main daily-whiteboard-link-main-v198';
+            const thumb=document.createElement('span'); thumb.className='daily-whiteboard-thumb-v198'; thumb.innerHTML=boardPreviewSvgV198(board||{},state?.theme||'light');
+            const text=document.createElement('span'); text.className='daily-custom-tab-link-text daily-whiteboard-link-text-v198';
+            const strong=document.createElement('strong'); strong.textContent=board?.name||link.boardName||'Missing whiteboard';
+            const small=document.createElement('small'); small.textContent=`${tab?.name||link.tabName||'Whiteboard'} · Whiteboard`;
+            text.append(strong,small); main.append(thumb,text); main.disabled=!board; main.addEventListener('click',()=>board&&openExactWhiteboardV198(tab.id,board.id));
+            const del=document.createElement('button'); del.type='button'; del.className='daily-custom-tab-unlink daily-whiteboard-unlink-v198'; del.title='Remove from this day'; del.innerHTML='<i class="ph ph-x"></i>';
+            del.addEventListener('click',()=>{db.days[currentDay].whiteboardLinksV198=getDailyWhiteboardLinksV198().filter(x=>x.id!==link.id);saveDb();renderDailyWhiteboardLinksV198()});
+            row.append(main,del); list.appendChild(row);
         });
+        window.__syncDailySpecialTabItemsEmptyV449?.();
     }
+    window.__renderDailyWhiteboardTabItemsV449 = renderDailyWhiteboardLinksV198;
 
     function ensureDailyWhiteboardPickerV198() {
         if(document.getElementById('daily-whiteboard-picker-v198'))return;
@@ -7583,7 +8237,7 @@ DASHBOARD TITLE NOTE:
             const modal = (typeof dailySettingsModal !== 'undefined' && dailySettingsModal) || document.getElementById('daily-settings-modal');
             if (!modal) return;
             const title = modal.querySelector('.modal-header h2');
-            if (title) title.textContent = 'Theme Settings';
+            if (title) title.textContent = 'Settings';
             const current = (typeof db !== 'undefined' && db?.settings?.theme) || 'default';
             try { if (dailyThemeSelect) dailyThemeSelect.value = current; } catch {}
             try { themePickerSelected = current; } catch {}
@@ -8525,6 +9179,7 @@ DASHBOARD TITLE NOTE:
                         <button type="button" class="kb-clean-icon-option kb-field-pronunciation-v221" data-tip="Enable pronunciation" aria-label="Enable pronunciation"><i class="ph ph-speaker-high"></i></button>
                         <button type="button" class="kb-clean-icon-option selected kb-field-quiz-v221" data-tip="Show on quiz card back" aria-label="Show on quiz card back"><i class="ph ph-cards"></i></button>
                         <button type="button" class="kb-clean-icon-option kb-field-editable-v221" data-tip="Allow editing from Daily Logs" aria-label="Allow editing from Daily Logs"><i class="ph ph-cursor-text"></i></button>
+                        <button type="button" class="kb-clean-icon-option kb-field-primary-quiz-v476" data-tip="On Quizlet Learn Written mode, this field is what you have to write in order to learn the card" aria-label="On Quizlet Learn Written mode, this field is what you have to write in order to learn the card"><i class="ph ph-star"></i></button>
                     </div>
                 </div>
 
@@ -8570,6 +9225,7 @@ DASHBOARD TITLE NOTE:
             kind: 'text',
             pronunciation: false,
             quiz: true,
+            quizPrimary: false,
             editable: false,
             category: '',
             editingId: ''
@@ -8582,6 +9238,7 @@ DASHBOARD TITLE NOTE:
             });
             modal.querySelector('.kb-field-pronunciation-v221')?.classList.toggle('selected', state.pronunciation);
             modal.querySelector('.kb-field-quiz-v221')?.classList.toggle('selected', state.quiz);
+            modal.querySelector('.kb-field-primary-quiz-v476')?.classList.toggle('selected', state.quizPrimary);
             modal.querySelector('.kb-field-editable-v221')?.classList.toggle('selected', state.editable);
             modal.querySelector('.kb-field-language-section-v221')?.classList.toggle('hidden', !state.pronunciation);
             modal.querySelector('.kb-field-select-section-v221')?.classList.toggle('hidden', state.kind !== 'select');
@@ -8607,6 +9264,12 @@ DASHBOARD TITLE NOTE:
         });
         modal.querySelector('.kb-field-quiz-v221')?.addEventListener('click', () => {
             state.quiz = !state.quiz;
+            if (!state.quiz) state.quizPrimary = false;
+            sync();
+        });
+        modal.querySelector('.kb-field-primary-quiz-v476')?.addEventListener('click', () => {
+            state.quizPrimary = !state.quizPrimary;
+            if (state.quizPrimary) state.quiz = true;
             sync();
         });
         modal.querySelector('.kb-field-editable-v221')?.addEventListener('click', () => {
@@ -8672,6 +9335,7 @@ DASHBOARD TITLE NOTE:
                 pronunciation: !!state.pronunciation,
                 ttsLang: language,
                 quiz: !!state.quiz,
+                quizPrimary: !!state.quizPrimary,
                 editable: !!state.editable,
                 options: []
             };
@@ -8699,6 +9363,12 @@ DASHBOARD TITLE NOTE:
 
             if (editingIndex >= 0) config.fields[editingIndex] = field;
             else config.fields.push(field);
+            if (field.quizPrimary) {
+                config.fields.forEach(entry => {
+                    if (entry !== field && entry && typeof entry === 'object') entry.quizPrimary = false;
+                });
+                field.quiz = true;
+            }
 
             try {
                 if (typeof activeCategorySettingTab !== 'undefined') activeCategorySettingTab = category;
@@ -8751,6 +9421,7 @@ DASHBOARD TITLE NOTE:
         state.kind = field?.kind || 'text';
         state.pronunciation = !!field?.pronunciation;
         state.quiz = field ? field.quiz !== false : true;
+        state.quizPrimary = field ? !!field.quizPrimary : false;
         state.editable = field ? !!field.editable : false;
         state.category = category;
         state.editingId = field?.id || '';
@@ -8782,6 +9453,7 @@ DASHBOARD TITLE NOTE:
         });
         modal.querySelector('.kb-field-pronunciation-v221')?.classList.toggle('selected', state.pronunciation);
         modal.querySelector('.kb-field-quiz-v221')?.classList.toggle('selected', state.quiz);
+        modal.querySelector('.kb-field-primary-quiz-v476')?.classList.toggle('selected', state.quizPrimary);
         modal.querySelector('.kb-field-editable-v221')?.classList.toggle('selected', state.editable);
         modal.querySelector('.kb-field-language-section-v221')?.classList.toggle('hidden', !state.pronunciation);
         modal.querySelector('.kb-field-select-section-v221')?.classList.toggle('hidden', state.kind !== 'select');
@@ -9041,8 +9713,8 @@ DASHBOARD TITLE NOTE:
     }
     function normalizeThemeV245(theme){
         if(!theme||typeof theme!=='object')return theme;
-        (theme.backgroundSvgs||[]).forEach(asset=>{if(!asset||typeof asset!=='object')return;const url=stableThemeUrlV245(asset.projectPath||asset.path);if(url)asset.url=url});
-        const bgPath=theme.backgroundImageProjectPathV3||theme.backgroundImageProjectPath;if(bgPath){const url=stableThemeUrlV245(bgPath);if(url)theme.backgroundImage=url}
+        (theme.backgroundSvgs||[]).forEach(asset=>{if(!asset||typeof asset!=='object')return;const url=stableThemeUrlV245(asset.projectPath||asset.path);if(url)asset._projectUrlV495=url;const current=String(asset.url||asset.src||'').trim();if(current&&!/^blob:/i.test(current)&&!asset._stableUrlV164)asset._stableUrlV164=current;if(!current&&url)asset.url=url});
+        const bgPath=theme.backgroundImageProjectPathV3||theme.backgroundImageProjectPath;if(bgPath){const url=stableThemeUrlV245(bgPath);if(url&&!String(theme.backgroundImage||'').trim())theme.backgroundImage=url}
         return theme;
     }
     try { const beforeGetV245=getCustomThemeSettings; getCustomThemeSettings=function(){return normalizeThemeV245(beforeGetV245.apply(this,arguments))}; } catch {}
@@ -9372,7 +10044,7 @@ DASHBOARD TITLE NOTE:
         if (!document.querySelector('link[data-loggy-notepad-v250-css]')) {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = '/template-notepad-v250.css?v=279';
+            link.href = '/template-notepad-v250.css?v=503';
             link.dataset.loggyNotepadV250Css = '1';
             document.head.appendChild(link);
         }
@@ -9386,7 +10058,7 @@ DASHBOARD TITLE NOTE:
                 return;
             }
             const script = document.createElement('script');
-            script.src = '/template-notepad-v250.js?v=279';
+            script.src = '/template-notepad-v250.js?v=503';
             script.async = true;
             script.dataset.loggyNotepadV250Js = '1';
             script.addEventListener('load', resolve, {once:true});
@@ -9406,7 +10078,7 @@ DASHBOARD TITLE NOTE:
             if (!document.querySelector('link[data-loggy-notepad-css-v249]')) {
                 const link = document.createElement('link');
                 link.rel = 'stylesheet';
-                link.href = '/template-notepad.css?v=279';
+                link.href = '/template-notepad.css?v=503';
                 link.dataset.loggyNotepadCssV249 = '1';
                 document.head.appendChild(link);
             }
@@ -9419,7 +10091,7 @@ DASHBOARD TITLE NOTE:
                     return;
                 }
                 const script = document.createElement('script');
-                script.src = '/template-notepad.js?v=279';
+                script.src = '/template-notepad.js?v=503';
                 script.async = true;
                 script.dataset.loggyNotepadJsV249 = '1';
                 script.addEventListener('load',() => resolve(window.LoggyNotepadV249),{once:true});
@@ -9577,6 +10249,11 @@ DASHBOARD TITLE NOTE:
         if (!view?.classList.contains('notepad-tab-view-v249')) {
             const replacement = buildNotepadViewV249(tab), wasActive = !!view?.classList.contains('active'); if (view) view.replaceWith(replacement); else document.body.insertBefore(replacement,document.getElementById('companion-stage') || null); view = replacement; if (wasActive) view.classList.add('active');
         }
+        // V404: Notebook must be a direct body child for the fullscreen isolation
+        // selectors to keep it visible while hiding the normal Log shell.
+        if (view && view.parentElement !== document.body) {
+            document.body.insertBefore(view, document.getElementById('companion-stage') || null);
+        }
         return view;
     }
     function mountNotepadTabV249(tab,view) {
@@ -9642,19 +10319,32 @@ DASHBOARD TITLE NOTE:
         if (!currentDay || !db?.days?.[currentDay]) return []; if (!Array.isArray(db.days[currentDay].notepadLinksV249)) db.days[currentDay].notepadLinksV249=[]; return db.days[currentDay].notepadLinksV249;
     }
     function ensureDailyNotepadLinksV249() {
-        ensureNotepadBootstrapStyleV249(); if (!logView || document.getElementById('daily-notepad-links-v249')) return;
-        const section=document.createElement('section'); section.id='daily-notepad-links-v249'; section.className='borderless-section daily-notepad-links-v249'; section.innerHTML=`<div class="section-header"><h2>Notebook Pages</h2><button type="button" class="small-icon-btn" data-add-notepad title="Link a notebook page"><i class="ph ph-plus"></i></button></div><p class="progress-hint">Link a notebook page to this day. The link keeps a visual preview of the page.</p><div class="daily-notepad-links-list-v249" data-notepad-links></div>`;
-        const anchor=document.getElementById('daily-whiteboard-links-v198') || document.getElementById('daily-custom-tab-links-section') || logView.querySelector('.log-content'); if (anchor) anchor.insertAdjacentElement('afterend',section); else logView.appendChild(section); section.querySelector('[data-add-notepad]').onclick=openDailyNotepadPickerV249;
+        ensureNotepadBootstrapStyleV249();
+        // V449: Notebook Pages belong inside Tab Items, never as a standalone Daily Log section.
+        document.getElementById('daily-notepad-links-v249')?.remove();
+        try { ensureDailyCustomTabLinksUI?.(); } catch {}
+        try { applyHiddenLoggySectionsV432?.(); } catch {}
     }
     function renderDailyNotepadLinksV249() {
-        ensureDailyNotepadLinksV249(); const list=document.querySelector('#daily-notepad-links-v249 [data-notepad-links]'); if (!list) return; list.innerHTML=''; const links=getDailyNotepadLinksV249();
-        if (!links.length) { list.innerHTML='<div class="daily-custom-tab-empty">No notebook pages linked to this day yet.</div>'; return; }
-        links.forEach(link => {
-            const tab=getCustomTab?.(link.tabId),state=tab&&isNotepadTabV249(tab)?migrateTabNotepadStateV249(tab):null,page=state?.pages?.find(item=>item.id===link.pageId); const row=document.createElement('div');row.className='daily-notepad-link-v249';
-            const main=document.createElement('button');main.type='button';main.className='daily-notepad-link-main-v249';main.innerHTML=`<span class="daily-notepad-thumb-v249">${notepadPagePreviewV249(page||{title:link.pageTitle})}</span><span class="daily-notepad-link-text-v249"><strong></strong><small></small></span>`; main.querySelector('strong').textContent=page?.title||link.pageTitle||'Missing notebook page';main.querySelector('small').textContent=tab?.name||link.tabName||'Untitled Notebook';main.disabled=!page;main.onclick=()=>page&&openExactNotepadPageV249(tab.id,page.id);
-            const del=document.createElement('button');del.type='button';del.className='small-icon-btn';del.title='Remove from this day';del.innerHTML='<i class="ph ph-x"></i>';del.onclick=()=>{db.days[currentDay].notepadLinksV249=getDailyNotepadLinksV249().filter(item=>item.id!==link.id);saveDb();renderDailyNotepadLinksV249()};row.append(main,del);list.appendChild(row);
+        ensureDailyNotepadLinksV249();
+        const list=document.getElementById('daily-custom-tab-links-list'); if(!list)return;
+        list.querySelectorAll('.daily-tab-notepad-item-v449').forEach(node=>node.remove());
+        const links=getDailyNotepadLinksV249();
+        links.forEach(link=>{
+            const tab=getCustomTab?.(link.tabId),state=tab&&isNotepadTabV249(tab)?migrateTabNotepadStateV249(tab):null,page=state?.pages?.find(item=>item.id===link.pageId);
+            const row=document.createElement('div'); row.className='daily-custom-tab-link daily-notepad-link-v249 daily-tab-notepad-item-v449';
+            const main=document.createElement('button'); main.type='button'; main.className='daily-custom-tab-link-main daily-notepad-link-main-v249';
+            main.innerHTML=`<span class="daily-notepad-thumb-v249">${notepadPagePreviewV249(page||{title:link.pageTitle})}</span><span class="daily-custom-tab-link-text daily-notepad-link-text-v249"><strong></strong><small></small></span>`;
+            main.querySelector('strong').textContent=page?.title||link.pageTitle||'Missing notebook page';
+            main.querySelector('small').textContent=`${tab?.name||link.tabName||'Untitled Notebook'} · Notebook Page`;
+            main.disabled=!page; main.onclick=()=>page&&openExactNotepadPageV249(tab.id,page.id);
+            const del=document.createElement('button'); del.type='button'; del.className='daily-custom-tab-unlink'; del.title='Remove from this day'; del.innerHTML='<i class="ph ph-x"></i>';
+            del.onclick=()=>{db.days[currentDay].notepadLinksV249=getDailyNotepadLinksV249().filter(item=>item.id!==link.id);saveDb();renderDailyNotepadLinksV249()};
+            row.append(main,del); list.appendChild(row);
         });
+        window.__syncDailySpecialTabItemsEmptyV449?.();
     }
+    window.__renderDailyNotepadTabItemsV449 = renderDailyNotepadLinksV249;
     function ensureDailyNotepadPickerV249() {
         if (document.getElementById('daily-notepad-picker-v249')) return; const modal=document.createElement('div');modal.id='daily-notepad-picker-v249';modal.className='modal-overlay hidden daily-notepad-picker-v249';modal.innerHTML=`<div class="modal-box"><div class="modal-header"><div><h2>Choose a Notebook Page</h2><p class="progress-hint" style="margin:3px 0 0">Each card is a preview of the saved notebook page.</p></div><button type="button" class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div><div class="daily-notepad-picker-grid-v249" data-grid></div></div>`;document.body.appendChild(modal);const close=()=>modal.classList.add('hidden');modal.querySelector('[data-close]').onclick=close;modal.onclick=e=>{if(e.target===modal)close()};
     }
@@ -9671,6 +10361,22 @@ DASHBOARD TITLE NOTE:
         openDayLog = function(){const result=openDayLogBeforeNotepadV249.apply(this,arguments);requestAnimationFrame(renderDailyNotepadLinksV249);return result};
         if (currentDay) requestAnimationFrame(renderDailyNotepadLinksV249);
     } catch (error) { console.warn('Daily Notepad links setup failed',error); }
+
+    // V449: the base Tab Items renderer clears its list, so restore special
+    // Whiteboard/Notebook rows immediately after every normal Tab Items render.
+    try {
+        if (!window.__loggyDailySpecialTabItemsRefreshV449 && typeof renderDailyCustomTabLinks === 'function') {
+            window.__loggyDailySpecialTabItemsRefreshV449 = true;
+            const renderDailyCustomTabLinksBeforeV449 = renderDailyCustomTabLinks;
+            renderDailyCustomTabLinks = function() {
+                const result = renderDailyCustomTabLinksBeforeV449.apply(this, arguments);
+                try { window.__renderDailyWhiteboardTabItemsV449?.(); } catch {}
+                try { window.__renderDailyNotepadTabItemsV449?.(); } catch {}
+                return result;
+            };
+            if (currentDay) requestAnimationFrame(() => renderDailyCustomTabLinks());
+        }
+    } catch (error) { console.warn('V449 Tab Items special-link refresh failed', error); }
 
     // Reuse Daily Logs > Add from a Tab. Selecting a Notepad tab swaps the
     // Component dropdown for notebook-page preview cards.
@@ -9740,10 +10446,13 @@ DASHBOARD TITLE NOTE:
     function syncDailyToolsSectionV276() {
         const section = dailyToolsSectionV276();
         if (!section) return;
-        const hidden = toolboxHiddenV276();
+        const perLoggyHiddenV433 = db?.settings?.hiddenSectionsV432?.tools === true;
+        const hidden = toolboxHiddenV276() || perLoggyHiddenV433;
         section.classList.toggle('daily-tools-hidden-v276', hidden);
+        section.classList.toggle('loggy-section-hidden-v433', perLoggyHiddenV433);
         section.hidden = hidden;
         section.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+        try { window.__applyHiddenLoggySectionsV433?.(); } catch (_) {}
     }
 
     window.__syncDailyToolsSectionV276 = syncDailyToolsSectionV276;
@@ -9802,4 +10511,1375 @@ DASHBOARD TITLE NOTE:
 
     requestAnimationFrame(syncDailyToolsSectionV276);
     setTimeout(syncDailyToolsSectionV276, 120);
+})();
+
+
+// ============================================================================
+// V404 — FINAL WHITEBOARD / NOTEBOOK FULLSCREEN STRUCTURAL OWNER
+// Special full-screen tabs must remain direct children of <body>. Later custom
+// tab render passes may recreate/move views, so re-promote them at the final
+// layer before switchView can hide the regular Log shell.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggySpecialTabFullscreenV404) return;
+  window.__loggySpecialTabFullscreenV404 = true;
+
+  const promote = view => {
+    if (!view || !(view instanceof HTMLElement)) return view;
+    if (!view.classList.contains('whiteboard-tab-view-v198') && !view.classList.contains('notepad-tab-view-v249')) return view;
+    if (view.parentElement !== document.body) document.body.insertBefore(view, document.getElementById('companion-stage') || null);
+    return view;
+  };
+  const viewFor = id => document.getElementById(`custom-tab-view-${String(id || '')}`);
+
+  try {
+    const old = window.openCustomTab;
+    if (typeof old === 'function' && !old.__fullscreenV404) {
+      const fn = function(tabId) {
+        promote(viewFor(tabId));
+        const result = old.apply(this, arguments);
+        const finish = () => {
+          const view = promote(viewFor(tabId));
+          const whiteboard = !!view?.classList.contains('whiteboard-tab-view-v198');
+          const notebook = !!view?.classList.contains('notepad-tab-view-v249');
+          if (whiteboard || notebook) {
+            document.body.classList.toggle('whiteboard-tab-active-v198', whiteboard);
+            document.documentElement.classList.toggle('whiteboard-tab-active-v198', whiteboard);
+            document.body.classList.toggle('notepad-tab-active-v249', notebook);
+            document.documentElement.classList.toggle('notepad-tab-active-v249', notebook);
+          }
+        };
+        finish(); requestAnimationFrame(finish);
+        return result;
+      };
+      fn.__fullscreenV404 = true; window.openCustomTab = fn; try { openCustomTab = fn; } catch {}
+    }
+  } catch {}
+
+  try {
+    const old = window.switchView;
+    if (typeof old === 'function' && !old.__fullscreenV404) {
+      const fn = function(viewToShow) {
+        promote(viewToShow);
+        const result = old.apply(this, arguments);
+        promote(viewToShow);
+        return result;
+      };
+      fn.__fullscreenV404 = true; window.switchView = fn; try { switchView = fn; } catch {}
+    }
+  } catch {}
+
+  const repair = () => document.querySelectorAll('.whiteboard-tab-view-v198,.notepad-tab-view-v249').forEach(promote);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', repair, {once:true}); else repair();
+})();
+
+
+// ============================================================================
+// V453 — INDEPENDENT CUSTOM KB COMPONENT
+// This is intentionally separate from the log page's real Knowledge Base.
+// Adding it also inserts the existing reusable Search Bar component directly
+// above it instead of maintaining a second one-off search implementation.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyCustomKnowledgeComponentV453) return;
+  window.__loggyCustomKnowledgeComponentV453 = true;
+
+  const TYPE = 'customKnowledgeBaseV453';
+  const LEGACY_TYPE = 'knowledgeBaseV431';
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const uid = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+  const splitList = value => [...new Set(String(value || '').split(',').map(x => x.trim()).filter(Boolean))];
+
+  try {
+    for (let i = CUSTOM_COMPONENT_LIBRARY.length - 1; i >= 0; i--) {
+      if (CUSTOM_COMPONENT_LIBRARY[i]?.type === LEGACY_TYPE || CUSTOM_COMPONENT_LIBRARY[i]?.type === TYPE) {
+        CUSTOM_COMPONENT_LIBRARY.splice(i, 1);
+      }
+    }
+    const after = CUSTOM_COMPONENT_LIBRARY.findIndex(def => def.type === 'resources');
+    CUSTOM_COMPONENT_LIBRARY.splice(after >= 0 ? after + 1 : CUSTOM_COMPONENT_LIBRARY.length, 0,
+      {type:TYPE,label:'Knowledge Base',icon:'ph-books'});
+  } catch {}
+
+  try {
+    const before = defaultCustomComponent;
+    defaultCustomComponent = function(type) {
+      if (type === TYPE) return {
+        id: uid('component'),
+        type: TYPE,
+        title: 'Knowledge Base',
+        titleBackground: 'none',
+        categories: [],
+        fields: [],
+        items: []
+      };
+      return before.apply(this, arguments);
+    };
+  } catch {}
+
+  function normalize(component) {
+    if (!component) return component;
+    component.type = TYPE;
+    component.title = String(component.title || 'Knowledge Base');
+    component.categories = Array.isArray(component.categories) ? component.categories.map(String).filter(Boolean) : [];
+    component.fields = Array.isArray(component.fields) ? component.fields.map(String).filter(Boolean) : [];
+    component.items = Array.isArray(component.items) ? component.items : [];
+    component.items.forEach(item => {
+      item.id ||= uid('kb-item');
+      item.title = String(item.title || 'Untitled Item');
+      item.category = String(item.category || '');
+      item.values = item.values && typeof item.values === 'object' && !Array.isArray(item.values) ? item.values : {};
+    });
+    return component;
+  }
+
+  function migrateLegacy() {
+    let changed = false;
+    try {
+      (db?.settings?.customTabs || []).forEach(tab => {
+        if (!Array.isArray(tab.components)) return;
+        for (let i = 0; i < tab.components.length; i++) {
+          const component = tab.components[i];
+          if (component?.type !== LEGACY_TYPE) continue;
+          // The old component pointed at the real KB. Do not carry those links
+          // into the new independent component; start clean as requested.
+          tab.components[i] = normalize({
+            id: component.id || uid('component'),
+            type: TYPE,
+            title: component.title || 'Knowledge Base',
+            titleBackground: component.titleBackground || 'none',
+            categories: [], fields: [], items: []
+          });
+          if (i === 0 || tab.components[i - 1]?.type !== 'search') {
+            const search = defaultCustomComponent('search');
+            search.placeholder = 'Search Custom KB...';
+            tab.components.splice(i, 0, search);
+            i++;
+          }
+          changed = true;
+        }
+      });
+      if (changed) saveDb?.();
+    } catch {}
+    return changed;
+  }
+
+  async function editItem(tab, component, item = null) {
+    normalize(component);
+    const current = item || {id:uid('kb-item'), title:'', category:'', values:{}};
+    const formFields = [
+      {name:'title',label:'Item Name',value:current.title || ''}
+    ];
+    if (component.categories.length) {
+      formFields.push({
+        name:'category', label:'Category', type:'select', value:current.category || component.categories[0],
+        options:component.categories.map(name => ({value:name,label:name}))
+      });
+    } else {
+      formFields.push({name:'category',label:'Category (optional)',value:current.category || '',placeholder:'e.g. Grammar'});
+    }
+    component.fields.forEach((field, index) => {
+      formFields.push({name:`field_${index}`,label:field,value:String(current.values?.[field] || ''),type:'textarea'});
+    });
+    const values = await showAppFormModal({
+      title:item ? 'Edit Knowledge Base Item' : 'Add Knowledge Base Item',
+      submitLabel:item ? 'Save' : 'Add',
+      fields:formFields
+    });
+    if (!values || !String(values.title || '').trim()) return;
+    current.title = String(values.title).trim();
+    current.category = String(values.category || '').trim();
+    current.values ||= {};
+    component.fields.forEach((field,index) => { current.values[field] = String(values[`field_${index}`] || ''); });
+    if (!item) component.items.push(current);
+    try { await saveDb(); } catch {}
+    renderCustomTabView(tab.id);
+  }
+
+  function renderCustomKb(tab, component, content) {
+    normalize(component);
+    content.innerHTML = `
+      <div class="custom-kb-independent-v453">
+        <div class="custom-collection-header">
+          <h2>${esc(component.title || 'Knowledge Base')}</h2>
+          <div class="custom-kb-head-actions-v453">
+            <span>${component.items.length} item${component.items.length===1?'':'s'}</span>
+            <button type="button" class="small-icon-btn custom-kb-add-v453" title="Add item" aria-label="Add Knowledge Base item"><i class="ph ph-plus"></i></button>
+          </div>
+        </div>
+        <div class="custom-kb-grid-v453"></div>
+      </div>`;
+
+    const grid = content.querySelector('.custom-kb-grid-v453');
+    if (!component.items.length) {
+      grid.innerHTML = '<div class="custom-feature-empty-v162 custom-kb-empty-v453">This Knowledge Base is empty. Use + to add your first item.</div>';
+    } else {
+      component.items.forEach(item => {
+        const article = document.createElement('article');
+        article.className = 'custom-kb-card-v453 custom-searchable-item custom-content-editable';
+        article.dataset.customItemId = item.id;
+        const fieldText = component.fields.map(field => `${field} ${item.values?.[field] || ''}`).join(' ');
+        article.dataset.searchText = `${item.title || ''} ${item.category || ''} ${fieldText}`.toLowerCase();
+        const valuesHtml = component.fields
+          .filter(field => String(item.values?.[field] || '').trim())
+          .map(field => `<div class="custom-kb-field-v453"><strong>${esc(field)}</strong><span>${esc(item.values[field])}</span></div>`)
+          .join('');
+        article.innerHTML = `
+          <div class="custom-kb-card-head-v453">
+            <strong>${esc(item.title || 'Untitled Item')}</strong>
+            ${item.category ? `<small>${esc(item.category)}</small>` : ''}
+          </div>
+          ${valuesHtml ? `<div class="custom-kb-values-v453">${valuesHtml}</div>` : ''}`;
+        article.addEventListener('dblclick', () => editItem(tab, component, item));
+        article.addEventListener('contextmenu', event => {
+          event.preventDefault();
+          showCustomItemContextMenu(event.clientX,event.clientY,[
+            {label:'Edit item',icon:'ph-pencil-simple',action:()=>editItem(tab,component,item)},
+            {label:'Delete item',icon:'ph-trash',danger:true,action:async()=>{
+              const ok=await showAppConfirm({title:'Delete Knowledge Base Item',message:`Delete “${item.title || 'this item'}”?`,confirmLabel:'Delete'});
+              if(!ok)return;
+              component.items=component.items.filter(entry=>entry.id!==item.id);
+              try{await saveDb();}catch{}
+              renderCustomTabView(tab.id);
+            }}
+          ]);
+        });
+        grid.appendChild(article);
+      });
+    }
+    content.querySelector('.custom-kb-add-v453')?.addEventListener('click',()=>editItem(tab,component));
+  }
+
+  try {
+    const before = renderCustomComponentContent;
+    renderCustomComponentContent = function(tab, component, content) {
+      if (component?.type === LEGACY_TYPE) { component.type = TYPE; component.categories = []; component.fields = []; component.items = []; try{saveDb?.();}catch{} }
+      if (component?.type === TYPE) return renderCustomKb(tab, normalize(component), content);
+      return before.apply(this, arguments);
+    };
+  } catch {}
+
+  try {
+    const before = getCustomComponentItemArray;
+    getCustomComponentItemArray = function(component) {
+      if (component?.type === LEGACY_TYPE) { component.type=TYPE; component.categories=[]; component.fields=[]; component.items=[]; }
+      if (component?.type === TYPE) return normalize(component).items;
+      return before.apply(this, arguments);
+    };
+  } catch {}
+
+  try {
+    const before = getCustomItemLabel;
+    getCustomItemLabel = function(component, item) {
+      if (component?.type === LEGACY_TYPE) component.type=TYPE;
+      if (component?.type === TYPE) return String(item?.title || 'Knowledge Base Item');
+      return before.apply(this, arguments);
+    };
+  } catch {}
+
+  try {
+    const before = editCustomComponent;
+    editCustomComponent = async function(tabId, componentId) {
+      const tab = getCustomTab(tabId);
+      const component = tab?.components?.find(c => c.id === componentId);
+      if (component?.type === TYPE) {
+        normalize(component);
+        const values = await showAppFormModal({
+          title:'Knowledge Base Settings', submitLabel:'Save', fields:[
+            {name:'title',label:'Section Title',value:component.title || 'Knowledge Base'},
+            {name:'categories',label:'Categories',value:component.categories.join(', '),placeholder:'e.g. Words, Patterns, Grammar'},
+            {name:'fields',label:'Item Fields',value:component.fields.join(', '),placeholder:'e.g. Meaning, Pronunciation, Example'}
+          ]
+        });
+        if (!values) return;
+        component.title = String(values.title || '').trim() || 'Knowledge Base';
+        component.categories = splitList(values.categories);
+        component.fields = splitList(values.fields);
+        try { await saveDb(); } catch {}
+        renderCustomTabView(tabId);
+        return;
+      }
+      return before.apply(this, arguments);
+    };
+  } catch {}
+
+  // Add the REAL reusable Search Bar component above every newly-created
+  // Custom KB. It stays independently editable/movable/deletable.
+  try {
+    const before = addCustomComponent;
+    addCustomComponent = function(tabId, type, index = null) {
+      if (type !== TYPE) return before.apply(this, arguments);
+      const tab = getCustomTab(tabId);
+      if (!tab) return;
+      if (!Array.isArray(tab.components)) tab.components=[];
+      const search = defaultCustomComponent('search');
+      search.placeholder = 'Search Custom KB...';
+      const kb = defaultCustomComponent(TYPE);
+      const insertAt = index === null || index < 0 || index > tab.components.length ? tab.components.length : index;
+      tab.components.splice(insertAt,0,search,kb);
+      saveDb();
+      renderCustomTabView(tabId);
+    };
+  } catch {}
+
+  try {
+    const before = createCustomItemFromDailyView;
+    createCustomItemFromDailyView = async function(tab, component) {
+      if (component?.type === TYPE) {
+        await editItem(tab, normalize(component));
+        return null;
+      }
+      return before.apply(this, arguments);
+    };
+  } catch {}
+
+  migrateLegacy();
+  document.addEventListener('DOMContentLoaded',()=>{ if(migrateLegacy()) try{renderAllCustomTabViews?.();renderCustomTabNavigation?.();}catch{} },{once:true});
+  setTimeout(()=>{ if(migrateLegacy()) try{renderAllCustomTabViews?.();renderCustomTabNavigation?.();}catch{} },700);
+  setTimeout(()=>{ if(migrateLegacy()) try{renderAllCustomTabViews?.();renderCustomTabNavigation?.();}catch{} },1800);
+})();
+
+// ============================================================================
+// V447 — FINAL TRUE-FULLSCREEN OWNER FOR WHITEBOARD + NOTEBOOK
+// Generic theme/view styling can still turn these special tabs into card-sized
+// squares. This final layer promotes them to <body>, stamps viewport geometry
+// with inline !important values, and repairs the loaded runtime root as well.
+// ============================================================================
+(() => {
+    'use strict';
+    if (window.__loggySpecialTabFullscreenV447) return;
+    window.__loggySpecialTabFullscreenV447 = true;
+
+    const isWhiteboard = view => !!view?.classList?.contains('whiteboard-tab-view-v198');
+    const isNotebook = view => !!view?.classList?.contains('notepad-tab-view-v249');
+    const isSpecial = view => isWhiteboard(view) || isNotebook(view);
+
+    const setImportant = (element, property, value) => {
+        try { element?.style?.setProperty(property, value, 'important'); } catch (_) {}
+    };
+
+    function stampFullscreenV447(view) {
+        if (!view || !(view instanceof HTMLElement) || !isSpecial(view)) return view;
+
+        if (view.parentElement !== document.body) {
+            document.body.insertBefore(view, document.getElementById('companion-stage') || null);
+        }
+
+        view.classList.add('loggy-special-fullscreen-v447');
+        [
+            ['position','fixed'],['inset','0'],['left','0'],['top','0'],['right','0'],['bottom','0'],
+            ['width','100vw'],['height','100dvh'],['min-width','100vw'],['min-height','100dvh'],
+            ['max-width','none'],['max-height','none'],['margin','0'],['padding','0'],
+            ['transform','none'],['border-radius','0'],['overflow','hidden'],
+            ['box-sizing','border-box'],['z-index','2147480000'],['visibility','visible'],
+            ['pointer-events','auto']
+        ].forEach(([property, value]) => setImportant(view, property, value));
+
+        const host = view.querySelector(
+            isWhiteboard(view) ? '.whiteboard-runtime-host-v198' : '.notepad-runtime-host-v249'
+        );
+
+        if (host) {
+            [
+                ['position','fixed'],['inset','0'],['left','0'],['top','0'],['right','0'],['bottom','0'],
+                ['width','100vw'],['height','100dvh'],['min-width','100vw'],['min-height','100dvh'],
+                ['max-width','none'],['max-height','none'],['margin','0'],['padding','0'],
+                ['transform','none'],['border-radius','0'],['overflow','hidden'],
+                ['box-sizing','border-box'],['visibility','visible'],['pointer-events','auto']
+            ].forEach(([property, value]) => setImportant(host, property, value));
+
+            const runtimeRoot = host.firstElementChild;
+            if (runtimeRoot) {
+                [
+                    ['width','100%'],['height','100%'],['min-width','100%'],['min-height','100%'],
+                    ['max-width','none'],['max-height','none'],['margin','0'],['box-sizing','border-box']
+                ].forEach(([property, value]) => setImportant(runtimeRoot, property, value));
+            }
+        }
+
+        return view;
+    }
+
+    function syncSpecialFullscreenV447(view) {
+        if (!isSpecial(view)) return;
+        stampFullscreenV447(view);
+
+        const whiteboard = isWhiteboard(view);
+        const notebook = isNotebook(view);
+        document.body.classList.toggle('whiteboard-tab-active-v198', whiteboard);
+        document.documentElement.classList.toggle('whiteboard-tab-active-v198', whiteboard);
+        document.body.classList.toggle('notepad-tab-active-v249', notebook);
+        document.documentElement.classList.toggle('notepad-tab-active-v249', notebook);
+
+        // Repair again after the async runtime inserts its own root.
+        requestAnimationFrame(() => stampFullscreenV447(view));
+        setTimeout(() => stampFullscreenV447(view), 60);
+        setTimeout(() => stampFullscreenV447(view), 240);
+    }
+
+    const viewFor = tabId => document.getElementById(`custom-tab-view-${String(tabId || '')}`);
+
+    try {
+        const previous = window.openCustomTab || (typeof openCustomTab === 'function' ? openCustomTab : null);
+        if (typeof previous === 'function' && !previous.__fullscreenV447) {
+            const wrapped = function(tabId) {
+                let view = stampFullscreenV447(viewFor(tabId));
+                const result = previous.apply(this, arguments);
+                const finish = () => {
+                    view = stampFullscreenV447(viewFor(tabId) || view);
+                    if (isSpecial(view)) syncSpecialFullscreenV447(view);
+                };
+                finish();
+                requestAnimationFrame(finish);
+                setTimeout(finish, 80);
+                return result;
+            };
+            wrapped.__fullscreenV447 = true;
+            window.openCustomTab = wrapped;
+            try { openCustomTab = wrapped; } catch (_) {}
+        }
+    } catch (_) {}
+
+    try {
+        const previous = window.switchView || (typeof switchView === 'function' ? switchView : null);
+        if (typeof previous === 'function' && !previous.__fullscreenV447) {
+            const wrapped = function(viewToShow) {
+                if (isSpecial(viewToShow)) stampFullscreenV447(viewToShow);
+                const result = previous.apply(this, arguments);
+                if (isSpecial(viewToShow)) syncSpecialFullscreenV447(viewToShow);
+                return result;
+            };
+            wrapped.__fullscreenV447 = true;
+            window.switchView = wrapped;
+            try { switchView = wrapped; } catch (_) {}
+        }
+    } catch (_) {}
+
+    const repairAll = () => {
+        document.querySelectorAll('.whiteboard-tab-view-v198,.notepad-tab-view-v249').forEach(view => {
+            stampFullscreenV447(view);
+            if (view.classList.contains('active')) syncSpecialFullscreenV447(view);
+        });
+    };
+
+    // V499: activation wrappers above are the only fullscreen owner.
+    // Do NOT watch the entire document: Whiteboard/Notebook generate lots of DOM
+    // changes while drawing, typing and dragging, and the old observer re-stamped
+    // the whole workspace on each one, making clicks and gestures appear frozen.
+    if (document.body) repairAll();
+    else document.addEventListener('DOMContentLoaded', repairAll, { once:true });
+})();
+
+// ============================================================================
+// V461 — CUSTOM KB PARITY
+// Standalone custom-tab Knowledge Base with the normal KB layout language.
+// It owns its own categories/field schemas/items and has zero Daily Log links.
+// Normal reusable Search Bar components can filter its item cards.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyCustomKbParityV461) return;
+  window.__loggyCustomKbParityV461 = true;
+  const TYPE='customKnowledgeBaseV453';
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const uid=p=>`${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+
+  function normalize(c){
+    if(!c)return c;
+    c.type=TYPE;c.title=String(c.title||'Knowledge Base');if(c.title==='Custom KB')c.title='Knowledge Base';
+    c.categories=Array.isArray(c.categories)?c.categories.map(String).filter(Boolean):[];
+    c.categorySettings=(c.categorySettings&&typeof c.categorySettings==='object')?c.categorySettings:{};
+    // Migrate the old global field list into every existing category once.
+    if(Array.isArray(c.fields)&&c.fields.length){
+      c.categories.forEach(cat=>{if(!c.categorySettings[cat])c.categorySettings[cat]={fields:c.fields.map(name=>({id:uid('field'),name:String(name),kind:'text'}))};});
+      delete c.fields;
+    }
+    c.categories.forEach(cat=>{
+      const cfg=c.categorySettings[cat]||(c.categorySettings[cat]={fields:[]});
+      cfg.fields=Array.isArray(cfg.fields)?cfg.fields.map((f,i)=>typeof f==='string'?{id:uid('field'),name:f,kind:'text'}:{id:f.id||uid('field'),name:String(f.name||`Field ${i+1}`),kind:String(f.kind||'text')}):[];
+    });
+    c.items=Array.isArray(c.items)?c.items:[];
+    c.items.forEach(it=>{it.id||=uid('kb-item');it.title=String(it.title||'Untitled Item');it.category=String(it.category||c.categories[0]||'');it.values=(it.values&&typeof it.values==='object')?it.values:{};it.tags=Array.isArray(it.tags)?it.tags:[];});
+    if(c.activeCategory!=='all'&&!c.categories.includes(c.activeCategory))c.activeCategory='all';
+    c.activeCategory ||= 'all';
+    return c;
+  }
+  const fieldsFor=(c,cat)=>normalize(c).categorySettings?.[cat]?.fields||[];
+
+  async function addCategory(tab,c){
+    const v=await showAppPrompt({title:'Add Category',label:'Category Name',value:'',submitLabel:'Add Category'});
+    const name=String(v||'').trim(); if(!name||c.categories.includes(name))return;
+    c.categories.push(name);c.categorySettings[name]={fields:[]};c.activeCategory=name;await saveDb();renderCustomTabView(tab.id);
+  }
+  async function renameCategory(tab,c,old){
+    const v=await showAppPrompt({title:'Rename Category',label:'Category Name',value:old,submitLabel:'Save'});
+    const name=String(v||'').trim();if(!name||name===old||c.categories.includes(name))return;
+    c.categories=c.categories.map(x=>x===old?name:x);c.categorySettings[name]=c.categorySettings[old]||{fields:[]};delete c.categorySettings[old];c.items.forEach(i=>{if(i.category===old)i.category=name});if(c.activeCategory===old)c.activeCategory=name;await saveDb();renderCustomTabView(tab.id);
+  }
+  async function deleteCategory(tab,c,cat){
+    const ok=await showAppConfirm({title:'Delete Category',message:`Delete “${cat}”? Items in it will remain but become uncategorized.`,confirmLabel:'Delete'});if(!ok)return;
+    c.categories=c.categories.filter(x=>x!==cat);delete c.categorySettings[cat];c.items.forEach(i=>{if(i.category===cat)i.category=''});c.activeCategory='all';await saveDb();renderCustomTabView(tab.id);
+  }
+  async function addField(tab,c,cat){
+    if(!cat){showFeatureToast?.('Add a category first.');return;}
+    const r=await showAppFormModal({title:'Add Field',submitLabel:'Add Field',fields:[
+      {name:'name',label:'Field Name',value:'',placeholder:'e.g. Meaning, Pronunciation, Example'},
+      {name:'kind',label:'Field Type',type:'select',value:'text',options:[{value:'text',label:'Text'},{value:'textarea',label:'Long Text'},{value:'pronunciation',label:'Pronunciation / Phonetic Spelling'},{value:'url',label:'Link / URL'}]}
+    ]});
+    const name=String(r?.name||'').trim();if(!name)return;
+    c.categorySettings[cat] ||= {fields:[]};c.categorySettings[cat].fields.push({id:uid('field'),name,kind:r.kind||'text'});await saveDb();renderCustomTabView(tab.id);
+  }
+  async function editField(tab,c,cat,f){
+    const r=await showAppFormModal({title:'Edit Field',submitLabel:'Save',fields:[{name:'name',label:'Field Name',value:f.name},{name:'kind',label:'Field Type',type:'select',value:f.kind||'text',options:[{value:'text',label:'Text'},{value:'textarea',label:'Long Text'},{value:'pronunciation',label:'Pronunciation / Phonetic Spelling'},{value:'url',label:'Link / URL'}]}]});
+    if(!r)return;const old=f.name;f.name=String(r.name||old).trim()||old;f.kind=r.kind||'text';if(f.name!==old)c.items.forEach(i=>{if(Object.prototype.hasOwnProperty.call(i.values,old)){i.values[f.name]=i.values[old];delete i.values[old]}});await saveDb();renderCustomTabView(tab.id);
+  }
+  async function deleteField(tab,c,cat,f){const ok=await showAppConfirm({title:'Delete Field',message:`Delete “${f.name}” from ${cat}?`,confirmLabel:'Delete'});if(!ok)return;c.categorySettings[cat].fields=c.categorySettings[cat].fields.filter(x=>x.id!==f.id);c.items.forEach(i=>delete i.values?.[f.name]);await saveDb();renderCustomTabView(tab.id);}
+
+  async function editItem(tab,c,item=null){
+    normalize(c); if(!c.categories.length){await addCategory(tab,c);return;}
+    const cur=item||{id:uid('kb-item'),title:'',category:c.activeCategory!=='all'?c.activeCategory:c.categories[0],values:{},tags:[]};
+    const category=cur.category&&c.categories.includes(cur.category)?cur.category:c.categories[0];
+    const defs=fieldsFor(c,category);
+    const form=[{name:'title',label:'Item Name',value:cur.title||''},{name:'category',label:'Category',type:'select',value:category,options:c.categories.map(x=>({value:x,label:x}))}];
+    defs.forEach((f,i)=>form.push({name:`f_${i}`,label:f.name,value:String(cur.values?.[f.name]||''),type:f.kind==='textarea'?'textarea':'text',placeholder:f.kind==='pronunciation'?'Phonetic spelling / pronunciation…':f.name+'…'}));
+    form.push({name:'tags',label:'Tags',value:(cur.tags||[]).join(', '),placeholder:'Optional, comma separated'});
+    const r=await showAppFormModal({title:item?'Edit Knowledge Base Item':'Add Knowledge Base Item',submitLabel:item?'Save':'Add Item',fields:form});if(!r||!String(r.title||'').trim())return;
+    const chosen=String(r.category||category);cur.title=String(r.title).trim();cur.category=chosen;cur.values=cur.values||{};
+    // If the category changed, capture values from whichever schema is visible now, then let a second edit expose the destination schema.
+    defs.forEach((f,i)=>cur.values[f.name]=String(r[`f_${i}`]||''));cur.tags=String(r.tags||'').split(',').map(x=>x.trim()).filter(Boolean);
+    if(!item)c.items.push(cur);await saveDb();renderCustomTabView(tab.id);
+  }
+
+  function openSettings(tab,c){
+    normalize(c);
+    let overlay=document.getElementById('custom-kb-settings-v461');overlay?.remove();
+    overlay=document.createElement('div');overlay.id='custom-kb-settings-v461';overlay.className='modal-overlay';
+    overlay.innerHTML=`<div class="modal-box custom-kb-settings-box-v461"><div class="modal-header"><h2>Knowledge Base Settings</h2><button class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div><div class="custom-kb-settings-body-v461"></div></div>`;
+    document.body.appendChild(overlay);
+    const body=overlay.querySelector('.custom-kb-settings-body-v461');
+    const draw=()=>{
+      normalize(c);const active=(c._settingsCategoryV461&&c.categories.includes(c._settingsCategoryV461))?c._settingsCategoryV461:c.categories[0]||'';c._settingsCategoryV461=active;
+      body.innerHTML=`
+        <div class="modal-section"><span class="field-label">Section Title</span><input class="custom-kb-title-v461" value="${esc(c.title)}"></div>
+        <div class="kb-category-config-panel custom-kb-config-v461">
+          <div class="section-header"><h3>Categories</h3><button class="small-icon-btn" data-add-cat title="Add Category"><i class="ph ph-plus"></i></button></div>
+          <div class="filter-tabs custom-kb-settings-tabs-v461">${c.categories.map(cat=>`<button class="filter-tab ${cat===active?'active':''}" data-cat="${esc(cat)}">${esc(cat)}</button>`).join('')||'<span class="custom-kb-empty-note-v461">No categories yet.</span>'}</div>
+          ${active?`<div class="custom-kb-cat-actions-v461"><button class="btn-secondary" data-rename>Rename Category</button><button class="btn-secondary danger" data-delete-cat>Delete Category</button></div><div class="section-header custom-kb-fields-head-v461"><h3>Fields</h3><button class="small-icon-btn" data-add-field title="Add Field"><i class="ph ph-plus"></i></button></div><div class="kb-field-card-grid custom-kb-fields-v461">${fieldsFor(c,active).map(f=>`<article class="kb-field-summary-card" data-field="${f.id}"><div><strong>${esc(f.name)}</strong><small>${esc(f.kind==='pronunciation'?'Pronunciation / Phonetic Spelling':f.kind==='textarea'?'Long Text':f.kind==='url'?'Link / URL':'Text')}</small></div><div><button class="small-icon-btn" data-edit-field="${f.id}"><i class="ph ph-pencil-simple"></i></button><button class="small-icon-btn" data-delete-field="${f.id}"><i class="ph ph-trash"></i></button></div></article>`).join('')||'<div class="custom-kb-empty-note-v461">No fields in this category yet.</div>'}</div>`:''}
+        </div>`;
+      body.querySelector('.custom-kb-title-v461').onchange=async e=>{c.title=e.target.value.trim()||'Knowledge Base';await saveDb();};
+      body.querySelector('[data-add-cat]')?.addEventListener('click',async()=>{await addCategory(tab,c);draw()});
+      body.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{c._settingsCategoryV461=b.dataset.cat;draw()});
+      body.querySelector('[data-rename]')?.addEventListener('click',async()=>{await renameCategory(tab,c,active);draw()});
+      body.querySelector('[data-delete-cat]')?.addEventListener('click',async()=>{await deleteCategory(tab,c,active);draw()});
+      body.querySelector('[data-add-field]')?.addEventListener('click',async()=>{await addField(tab,c,active);draw()});
+      body.querySelectorAll('[data-edit-field]').forEach(b=>b.onclick=async()=>{const f=fieldsFor(c,active).find(x=>x.id===b.dataset.editField);if(f){await editField(tab,c,active,f);draw()}});
+      body.querySelectorAll('[data-delete-field]').forEach(b=>b.onclick=async()=>{const f=fieldsFor(c,active).find(x=>x.id===b.dataset.deleteField);if(f){await deleteField(tab,c,active,f);draw()}});
+    };
+    overlay.querySelector('[data-close]').onclick=()=>{overlay.remove();renderCustomTabView(tab.id)};overlay.addEventListener('click',e=>{if(e.target===overlay){overlay.remove();renderCustomTabView(tab.id)}});draw();
+  }
+
+  function render(tab,c,content){
+    normalize(c);const active=c.activeCategory||'all';const items=c.items.filter(i=>active==='all'||i.category===active);
+    content.innerHTML=`<div class="custom-kb-parity-v461">
+      <div class="log-header-container custom-kb-header-v461"><h1>${esc(c.title||'Knowledge Base')}</h1><div class="custom-kb-header-actions-v461"><button class="icon-btn custom-kb-settings-btn-v461" title="Knowledge Base Settings"><i class="ph ph-sliders-horizontal"></i></button><button class="icon-btn custom-kb-add-btn-v461" title="Add New Item"><i class="ph ph-plus"></i></button></div></div>
+      <div class="filter-tabs custom-kb-tabs-v461"><button class="filter-tab ${active==='all'?'active':''}" data-filter="all">All</button>${c.categories.map(cat=>`<button class="filter-tab ${active===cat?'active':''}" data-filter="${esc(cat)}">${esc(cat)}</button>`).join('')}</div>
+      <div class="phrases-grid custom-kb-grid-v461">${items.map(i=>{const defs=fieldsFor(c,i.category);const search=[i.title,i.category,(i.tags||[]).join(' '),...defs.map(f=>i.values?.[f.name]||'')].join(' ').toLowerCase();return `<article class="phrase-card custom-searchable-item custom-content-editable custom-kb-card-v461" data-id="${esc(i.id)}" data-search-text="${esc(search)}"><span class="chip-text"><strong>${esc(i.title)}</strong>${i.category?`<small class="custom-kb-card-category-v461">${esc(i.category)}</small>`:''}</span></article>`}).join('')||'<div class="custom-feature-empty-v162 custom-kb-empty-v461">No items here yet. Use + to add one.</div>'}</div>
+    </div>`;
+    content.querySelector('.custom-kb-settings-btn-v461').onclick=()=>openSettings(tab,c);content.querySelector('.custom-kb-add-btn-v461').onclick=()=>editItem(tab,c);
+    content.querySelectorAll('.custom-kb-tabs-v461 [data-filter]').forEach(b=>b.onclick=()=>{c.activeCategory=b.dataset.filter;saveDb();renderCustomTabView(tab.id)});
+    content.querySelectorAll('.custom-kb-card-v461').forEach(card=>{const item=c.items.find(i=>i.id===card.dataset.id);card.onclick=()=>editItem(tab,c,item);card.oncontextmenu=e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit item',icon:'ph-pencil-simple',action:()=>editItem(tab,c,item)},{label:'Delete item',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Knowledge Base Item',message:`Delete “${item.title}”?`,confirmLabel:'Delete'});if(ok){c.items=c.items.filter(x=>x.id!==item.id);await saveDb();renderCustomTabView(tab.id)}}}])}});
+  }
+
+  // Final renderer/settings override.
+  try{const prev=renderCustomComponentContent;renderCustomComponentContent=function(tab,c,content){if(c?.type===TYPE)return render(tab,normalize(c),content);return prev.apply(this,arguments)}}catch{}
+  try{const prev=editCustomComponent;editCustomComponent=async function(tabId,componentId){const tab=getCustomTab(tabId),c=tab?.components?.find(x=>x.id===componentId);if(c?.type===TYPE){openSettings(tab,normalize(c));return;}return prev.apply(this,arguments)}}catch{}
+
+  // New Custom KBs must be inserted alone. Do not auto-create Search Bar.
+  try{const prev=addCustomComponent;addCustomComponent=function(tabId,type,index=null){if(type!==TYPE)return prev.apply(this,arguments);const tab=getCustomTab(tabId);if(!tab)return;tab.components ||= [];const kb=defaultCustomComponent(TYPE);normalize(kb);const at=index===null||index<0||index>tab.components.length?tab.components.length:index;tab.components.splice(at,0,kb);saveDb();renderCustomTabView(tabId)}}catch{}
+
+  // Remove only the old automatically-created search bars (distinct placeholder)
+  // directly before a Custom KB. User-created normal search bars are preserved.
+  function removeLegacyAutoSearch(){let changed=false;try{(db?.settings?.customTabs||[]).forEach(tab=>{for(let i=(tab.components||[]).length-1;i>=1;i--){const c=tab.components[i],p=tab.components[i-1];if(c?.type===TYPE&&p?.type==='search'&&String(p.placeholder||'')==='Search Custom KB...'){tab.components.splice(i-1,1);changed=true;i--;}}});if(changed)saveDb();}catch{}return changed;}
+  removeLegacyAutoSearch();
+  document.addEventListener('DOMContentLoaded',()=>{if(removeLegacyAutoSearch())try{renderAllCustomTabViews?.()}catch{}},{once:true});
+})();
+
+// ============================================================================
+// V463 — FULL CUSTOM KB PARITY
+// Custom-tab KB mirrors the real KB's standalone feature set while remaining
+// entirely isolated from Daily Logs, Quizzes, recommendations and real KB data.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyCustomKbFullParityV463) return;
+  window.__loggyCustomKbFullParityV463 = true;
+
+  const TYPE = 'customKnowledgeBaseV453';
+  const FIELD_KINDS = [
+    ['text','Plain text','ph-text-t'], ['video','YouTube or MP4','ph-video-camera'],
+    ['image','Image','ph-image'], ['svg','SVG code','ph-code'],
+    ['select','Dropdown / custom options','ph-list-bullets'], ['rating','Star rating','ph-star'],
+    ['pinnedImage','Pinned image / map','ph-map-pin'], ['latex','LaTeX','ph-function'],
+    ['attachment','Attachment','ph-paperclip'], ['numberFormat','Formatted number','ph-hash'],
+    ['dateTime','Date / time','ph-calendar'], ['boolean','On / off','ph-toggle-right']
+  ];
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const attr = esc;
+  const uid = p => `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+  const normPlaceholder = v => String(v||'').trim().replace(/^\\+/,'').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9_\-\u00C0-\u024F\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/gi,'');
+
+  function normalize(c){
+    if(!c) return c;
+    c.type = TYPE;
+    c.title = String(c.title || 'Knowledge Base');
+    if (c.title === 'Custom KB') c.title = 'Knowledge Base';
+    c.categories = Array.isArray(c.categories) ? [...new Set(c.categories.map(String).filter(Boolean))] : [];
+    c.categorySettings = c.categorySettings && typeof c.categorySettings === 'object' ? c.categorySettings : {};
+    c.placeholdersEnabledV463 = c.placeholdersEnabledV463 !== false;
+    c.placeholdersV463 = Array.isArray(c.placeholdersV463) ? [...new Set(c.placeholdersV463.map(normPlaceholder).filter(Boolean))] : ['noun','verb','adjective'];
+    c.items = Array.isArray(c.items) ? c.items : [];
+    c.categories.forEach(cat => {
+      const cfg = c.categorySettings[cat] && typeof c.categorySettings[cat] === 'object' ? c.categorySettings[cat] : {};
+      cfg.fields = Array.isArray(cfg.fields) ? cfg.fields.map((f,i) => {
+        if(typeof f === 'string') f = {name:f};
+        const kind = FIELD_KINDS.some(x=>x[0]===f?.kind) ? f.kind : (f?.kind==='textarea'?'text':f?.kind==='pronunciation'?'text':'text');
+        return {
+          ...(f||{}), id:f?.id||uid('kb-field'), name:String(f?.name||`Field ${i+1}`), kind,
+          pronunciation: !!(f?.pronunciation || f?.kind==='pronunciation'), ttsLang:String(f?.ttsLang||'en'),
+          options:Array.isArray(f?.options)?f.options.map(String):[], maxRating:Math.max(1,Math.min(10,Number(f?.maxRating)||5)),
+          defaultPinColor:String(f?.defaultPinColor||'#e53935'), numberStyle:['number','currency','percent'].includes(f?.numberStyle)?f.numberStyle:'number',
+          decimals:Math.max(0,Math.min(8,Number(f?.decimals??2))), currencySymbol:String(f?.currencySymbol||'$').slice(0,6),
+          dateMode:f?.dateMode==='range'?'range':'single'
+        };
+      }) : [];
+      c.categorySettings[cat] = cfg;
+    });
+    c.items.forEach(item => {
+      item.id ||= uid('kb-item'); item.title = String(item.title||'Untitled Item');
+      item.category = String(item.category||c.categories[0]||''); item.values = item.values&&typeof item.values==='object'?item.values:{};
+      item.tags = Array.isArray(item.tags)?item.tags:[];
+    });
+    if(c.activeCategory !== 'all' && !c.categories.includes(c.activeCategory)) c.activeCategory = 'all';
+    c.activeCategory ||= 'all';
+    return c;
+  }
+  const fieldsFor = (c,cat) => normalize(c).categorySettings?.[cat]?.fields || [];
+  const kindLabel = kind => FIELD_KINDS.find(x=>x[0]===kind)?.[1] || 'Plain text';
+
+  function patternHtml(c,text){
+    const source=String(text||'');
+    if(!c.placeholdersEnabledV463) return esc(source);
+    return source.replace(/\\([a-z0-9_\-\u00C0-\u024F\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]+)/gi,(m,n)=>c.placeholdersV463.includes(normPlaceholder(n))?`<strong class="kb-placeholder-token-v56">${esc(m)}</strong>`:esc(m));
+  }
+
+  function speak(text,lang='en'){
+    try{
+      speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(String(text||'')); u.lang=lang||'en'; speechSynthesis.speak(u);
+    }catch{}
+  }
+
+  function openFieldModal(tab,c,category,field=null,onDone=()=>{}){
+    normalize(c); const current = field ? {...field, options:[...(field.options||[])]} : {id:'',name:'',kind:'text',pronunciation:false,ttsLang:'en',options:[],maxRating:5,defaultPinColor:'#e53935',numberStyle:'number',decimals:2,currencySymbol:'$',dateMode:'single'};
+    document.getElementById('custom-kb-field-modal-v463')?.remove();
+    const overlay=document.createElement('div'); overlay.id='custom-kb-field-modal-v463'; overlay.className='modal-overlay';
+    overlay.innerHTML=`<div class="modal-box kb-field-create-modal-box kb-field-safe-box-v221 custom-kb-field-box-v463">
+      <div class="modal-header"><h2>${field?'Edit Field':'Add Field'}</h2><button class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div>
+      <div class="modal-section"><span class="field-label">Field Name</span><input class="ckb-field-name-v463" maxlength="48" value="${attr(current.name)}" placeholder="e.g. Meaning, Tutorial, Reference Image"></div>
+      <div class="modal-section"><span class="field-label">Field Type</span><div class="kb-field-modal-icons ckb-kinds-v463">${FIELD_KINDS.map(([k,label,icon])=>`<button type="button" class="kb-clean-icon-option ${current.kind===k?'selected':''}" data-kind="${k}" data-tip="${attr(label)}" title="${attr(label)}"><i class="ph ${icon}"></i></button>`).join('')}</div></div>
+      <div class="modal-section"><span class="field-label">Options</span><div class="kb-field-modal-icons"><button type="button" class="kb-clean-icon-option ckb-pron-v463 ${current.pronunciation?'selected':''}" title="Enable pronunciation"><i class="ph ph-speaker-high"></i></button></div></div>
+      <div class="modal-section ckb-lang-v463 ${current.pronunciation?'':'hidden'}"><span class="field-label">Pronunciation Language Code</span><input class="ckb-lang-input-v463" value="${attr(current.ttsLang||'en')}" placeholder="en, ko, es, ja…"></div>
+      <div class="modal-section ckb-select-v463 ${current.kind==='select'?'':'hidden'}"><span class="field-label">Dropdown Options</span><textarea class="ckb-options-v463" rows="4" placeholder="One option per line">${esc((current.options||[]).join('\n'))}</textarea></div>
+      <div class="modal-section ckb-rating-v463 ${current.kind==='rating'?'':'hidden'}"><span class="field-label">Maximum Rating</span><input type="number" class="ckb-rating-input-v463" min="1" max="10" value="${current.maxRating||5}"></div>
+      <div class="modal-section ckb-pin-v463 ${current.kind==='pinnedImage'?'':'hidden'}"><span class="field-label">Default Pin Color</span><input type="color" class="ckb-pin-input-v463" value="${attr(current.defaultPinColor||'#e53935')}"></div>
+      <div class="modal-section ckb-number-v463 ${current.kind==='numberFormat'?'':'hidden'}"><span class="field-label">Number Format</span><div class="custom-kb-inline-v463"><select class="ckb-number-style-v463"><option value="number">Number</option><option value="currency">Currency</option><option value="percent">Percent</option></select><input type="number" class="ckb-decimals-v463" min="0" max="8" value="${current.decimals??2}" title="Decimals"><input class="ckb-currency-v463" maxlength="6" value="${attr(current.currencySymbol||'$')}" title="Currency symbol"></div></div>
+      <div class="modal-section ckb-date-v463 ${current.kind==='dateTime'?'':'hidden'}"><span class="field-label">Date Mode</span><select class="ckb-date-mode-v463"><option value="single">Single date/time</option><option value="range">Date/time range</option></select></div>
+      <button class="icon-btn kb-modal-primary ckb-field-save-v463">${field?'Done':'Add Field'}</button>
+    </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('.ckb-number-style-v463').value=current.numberStyle||'number'; overlay.querySelector('.ckb-date-mode-v463').value=current.dateMode||'single';
+    const sync=()=>{
+      overlay.querySelectorAll('[data-kind]').forEach(b=>b.classList.toggle('selected',b.dataset.kind===current.kind));
+      overlay.querySelector('.ckb-lang-v463').classList.toggle('hidden',!current.pronunciation);
+      overlay.querySelector('.ckb-select-v463').classList.toggle('hidden',current.kind!=='select'); overlay.querySelector('.ckb-rating-v463').classList.toggle('hidden',current.kind!=='rating');
+      overlay.querySelector('.ckb-pin-v463').classList.toggle('hidden',current.kind!=='pinnedImage'); overlay.querySelector('.ckb-number-v463').classList.toggle('hidden',current.kind!=='numberFormat'); overlay.querySelector('.ckb-date-v463').classList.toggle('hidden',current.kind!=='dateTime');
+    };
+    overlay.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{current.kind=b.dataset.kind;sync()});
+    overlay.querySelector('.ckb-pron-v463').onclick=e=>{current.pronunciation=!current.pronunciation;e.currentTarget.classList.toggle('selected',current.pronunciation);sync()};
+    const close=()=>overlay.remove(); overlay.querySelector('[data-close]').onclick=close; overlay.onclick=e=>{if(e.target===overlay)close()};
+    overlay.querySelector('.ckb-field-save-v463').onclick=async()=>{
+      const name=String(overlay.querySelector('.ckb-field-name-v463').value||'').trim(); if(!name){overlay.querySelector('.ckb-field-name-v463').focus();return;}
+      const cfg=c.categorySettings[category]||(c.categorySettings[category]={fields:[]}); const duplicate=cfg.fields.some(f=>f!==field&&f.name.toLowerCase()===name.toLowerCase()); if(duplicate){showFeatureToast?.('That field already exists in this category.');return;}
+      const oldName=field?.name||'';
+      Object.assign(current,{id:field?.id||uid('kb-field'),name,ttsLang:String(overlay.querySelector('.ckb-lang-input-v463').value||'en').trim()||'en',options:String(overlay.querySelector('.ckb-options-v463').value||'').split(/\n|,/).map(x=>x.trim()).filter(Boolean),maxRating:Math.max(1,Math.min(10,Number(overlay.querySelector('.ckb-rating-input-v463').value)||5)),defaultPinColor:overlay.querySelector('.ckb-pin-input-v463').value||'#e53935',numberStyle:overlay.querySelector('.ckb-number-style-v463').value,decimals:Math.max(0,Math.min(8,Number(overlay.querySelector('.ckb-decimals-v463').value)||0)),currencySymbol:String(overlay.querySelector('.ckb-currency-v463').value||'$').slice(0,6),dateMode:overlay.querySelector('.ckb-date-mode-v463').value});
+      if(field) Object.assign(field,current); else cfg.fields.push(current);
+      if(field&&oldName&&oldName!==name)c.items.forEach(i=>{if(Object.prototype.hasOwnProperty.call(i.values||{},oldName)){i.values[name]=i.values[oldName];delete i.values[oldName]}});
+      await saveDb(); close(); onDone();
+    };
+    requestAnimationFrame(()=>overlay.querySelector('.ckb-field-name-v463')?.focus());
+  }
+
+  function fieldInputHtml(f,value=''){
+    const v=String(value??'');
+    if(f.kind==='select') return `<select data-field-id="${attr(f.id)}"><option value="">Choose…</option>${(f.options||[]).map(o=>`<option value="${attr(o)}" ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+    if(f.kind==='rating') return `<input data-field-id="${attr(f.id)}" type="number" min="0" max="${f.maxRating||5}" value="${attr(v)}">`;
+    if(f.kind==='boolean') return `<label class="kb-switch-v173"><input data-field-id="${attr(f.id)}" type="checkbox" ${v==='true'||v===true?'checked':''}><span class="kb-switch-track-v173"></span></label>`;
+    if(f.kind==='dateTime') return `<input data-field-id="${attr(f.id)}" type="datetime-local" value="${attr(v)}">`;
+    if(f.kind==='numberFormat') return `<input data-field-id="${attr(f.id)}" type="number" step="any" value="${attr(v)}">`;
+    if(['svg','latex'].includes(f.kind)) return `<textarea data-field-id="${attr(f.id)}" rows="4">${esc(v)}</textarea>`;
+    if(['video','image','pinnedImage','attachment'].includes(f.kind)) return `<input data-field-id="${attr(f.id)}" value="${attr(v)}" placeholder="${f.kind==='video'?'Video URL':f.kind==='attachment'?'File/attachment URL':'Image URL or data URL'}">`;
+    return `<input data-field-id="${attr(f.id)}" value="${attr(v)}">`;
+  }
+
+  function openItemEditor(tab,c,item=null){
+    normalize(c); if(!c.categories.length){showFeatureToast?.('Add a category in Knowledge Base Settings first.');return;}
+    const draft=item?item:{id:uid('kb-item'),title:'',category:c.activeCategory!=='all'&&c.categories.includes(c.activeCategory)?c.activeCategory:c.categories[0],values:{},tags:[]};
+    document.getElementById('custom-kb-item-modal-v463')?.remove(); const overlay=document.createElement('div'); overlay.id='custom-kb-item-modal-v463'; overlay.className='modal-overlay';
+    const draw=()=>{const category=c.categories.includes(draft.category)?draft.category:c.categories[0];draft.category=category;const fields=fieldsFor(c,category);
+      overlay.innerHTML=`<div class="modal-box custom-kb-item-box-v463"><div class="modal-header"><h2>${item?'Edit Knowledge Base Item':'Add Knowledge Base Item'}</h2><button class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div>
+      <div class="modal-section"><span class="field-label">Item Name</span><input class="ckb-item-title-v463" value="${attr(draft.title)}" placeholder="Item name or pattern such as I am a \\noun"><div class="ckb-placeholder-shortcuts-v463">${c.placeholdersEnabledV463?c.placeholdersV463.map(p=>`<button type="button" class="kb-placeholder-chip-v56" data-insert-placeholder="${attr(p)}">\\${esc(p)}</button>`).join(''):''}</div></div>
+      <div class="modal-section"><span class="field-label">Category</span><select class="ckb-item-category-v463">${c.categories.map(cat=>`<option value="${attr(cat)}" ${cat===category?'selected':''}>${esc(cat)}</option>`).join('')}</select></div>
+      <div class="ckb-item-fields-v463">${fields.map(f=>`<div class="modal-section kb-item-field"><div class="kb-item-field-label-row"><span class="field-label">${esc(f.name)}</span>${f.pronunciation?`<button type="button" class="small-icon-btn" data-speak-field="${attr(f.id)}" title="Pronounce"><i class="ph ph-speaker-high"></i></button>`:''}</div>${fieldInputHtml(f,draft.values?.[f.name]??'')}</div>`).join('')||'<div class="custom-kb-empty-note-v461">This category has no fields yet. Add fields in Knowledge Base Settings.</div>'}</div>
+      <div class="modal-section"><span class="field-label">Tags</span><input class="ckb-item-tags-v463" value="${attr((draft.tags||[]).join(', '))}" placeholder="Optional, comma separated"></div>
+      <button class="icon-btn kb-modal-primary ckb-item-save-v463">${item?'Save':'Add Item'}</button></div>`;
+      const title=overlay.querySelector('.ckb-item-title-v463'); overlay.querySelectorAll('[data-insert-placeholder]').forEach(b=>b.onclick=()=>{const token='\\'+b.dataset.insertPlaceholder;const s=title.selectionStart??title.value.length,e=title.selectionEnd??s;title.setRangeText(token,s,e,'end');title.focus()});
+      overlay.querySelector('.ckb-item-category-v463').onchange=e=>{capture();draft.category=e.target.value;draw()};
+      overlay.querySelectorAll('[data-speak-field]').forEach(b=>b.onclick=()=>{const f=fields.find(x=>x.id===b.dataset.speakField);const el=overlay.querySelector(`[data-field-id="${CSS.escape(f.id)}"]`);const val=el?.type==='checkbox'?String(el.checked):el?.value;speak(val,f.ttsLang)});
+      overlay.querySelector('[data-close]').onclick=()=>overlay.remove(); overlay.querySelector('.ckb-item-save-v463').onclick=async()=>{capture();if(!draft.title.trim()){title.focus();return;}if(!item)c.items.push(draft);await saveDb();overlay.remove();renderCustomTabView(tab.id)};
+      function capture(){draft.title=String(overlay.querySelector('.ckb-item-title-v463')?.value||draft.title);draft.tags=String(overlay.querySelector('.ckb-item-tags-v463')?.value||'').split(',').map(x=>x.trim()).filter(Boolean);fields.forEach(f=>{const el=overlay.querySelector(`[data-field-id="${CSS.escape(f.id)}"]`);if(!el)return;draft.values[f.name]=el.type==='checkbox'?String(el.checked):el.value})}
+    };
+    document.body.appendChild(overlay); overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});draw();requestAnimationFrame(()=>overlay.querySelector('.ckb-item-title-v463')?.focus());
+  }
+
+  function openSettings(tab,c){
+    normalize(c); document.getElementById('custom-kb-settings-v463')?.remove(); const overlay=document.createElement('div');overlay.id='custom-kb-settings-v463';overlay.className='modal-overlay';
+    overlay.innerHTML=`<div class="modal-box custom-kb-settings-box-v461 custom-kb-settings-box-v463"><div class="modal-header"><h2>Knowledge Base Settings</h2><button class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div><div class="custom-kb-settings-body-v461"></div></div>`;document.body.appendChild(overlay); const body=overlay.querySelector('.custom-kb-settings-body-v461');
+    const draw=()=>{normalize(c);const active=c.categories.includes(c._settingsCategoryV463)?c._settingsCategoryV463:c.categories[0]||'';c._settingsCategoryV463=active;const fields=active?fieldsFor(c,active):[];
+      body.innerHTML=`<div class="modal-section"><span class="field-label">Knowledge Base Title</span><input class="ckb-title-v463" value="${attr(c.title)}"></div>
+      <section class="modal-section kb-placeholder-settings-v56 ckb-placeholders-v463 ${c.placeholdersEnabledV463?'':'disabled-v56'}"><div class="kb-placeholder-settings-heading-v56 kb-placeholder-heading-row-v451"><div class="kb-daily-recommend-copy-v173 kb-placeholder-copy-v451"><span class="field-label">Placeholders</span><small>Type \\ in item titles to build reusable patterns inside this Knowledge Base.</small></div><label class="kb-switch-v173"><input type="checkbox" class="ckb-placeholder-toggle-v463" ${c.placeholdersEnabledV463?'checked':''}><span class="kb-switch-track-v173"></span></label></div><div class="kb-placeholder-chips-v56 ${c.placeholdersEnabledV463?'':'hidden'}">${c.placeholdersV463.map(p=>`<span class="kb-placeholder-chip-v56"><strong>\\${esc(p)}</strong><button data-remove-placeholder="${attr(p)}"><i class="ph ph-x"></i></button></span>`).join('')||'<span class="kb-placeholder-empty-v56">Add the placeholder names you want to reuse.</span>'}</div><div class="kb-placeholder-add-v56 ${c.placeholdersEnabledV463?'':'hidden'}"><input class="ckb-placeholder-new-v463" placeholder="e.g. noun"><button class="icon-btn ckb-placeholder-add-v463">Add Placeholder</button></div></section>
+      <div class="modal-section"><div class="section-header"><h3>Categories</h3><button class="small-icon-btn" data-add-category><i class="ph ph-plus"></i></button></div><div class="filter-tabs custom-kb-settings-tabs-v461">${c.categories.map(cat=>`<button class="filter-tab ${cat===active?'active':''}" data-category="${attr(cat)}">${esc(cat)}</button>`).join('')||'<span class="custom-kb-empty-note-v461">No categories yet.</span>'}</div></div>
+      ${active?`<div class="modal-section"><div class="section-header"><h3>Edit Fields</h3><button class="small-icon-btn" data-add-field><i class="ph ph-plus"></i></button></div><div class="kb-field-card-grid custom-kb-fields-v461">${fields.map(f=>`<article class="kb-field-summary-card" data-field-id="${attr(f.id)}"><div><strong>${esc(f.name)}</strong><small>${esc(kindLabel(f.kind))}${f.pronunciation?' · Pronunciation enabled':''}</small></div><div><button class="small-icon-btn" data-edit-field="${attr(f.id)}"><i class="ph ph-pencil-simple"></i></button><button class="small-icon-btn" data-delete-field="${attr(f.id)}"><i class="ph ph-trash"></i></button></div></article>`).join('')||'<div class="custom-kb-empty-note-v461">No fields yet. Press + to add one.</div>'}</div></div>`:''}`;
+      body.querySelector('.ckb-title-v463').onchange=async e=>{c.title=e.target.value.trim()||'Knowledge Base';await saveDb()};
+      const syncPlaceholderVisibility=()=>body.querySelector('.kb-placeholder-add-v56')?.classList.toggle('hidden',!c.placeholdersEnabledV463);
+      body.querySelector('.ckb-placeholder-toggle-v463').onchange=async e=>{c.placeholdersEnabledV463=e.target.checked;await saveDb();draw()};
+      body.querySelector('.ckb-placeholder-add-v463')?.addEventListener('click',async()=>{const input=body.querySelector('.ckb-placeholder-new-v463');const p=normPlaceholder(input.value);if(p&&!c.placeholdersV463.includes(p)){c.placeholdersV463.push(p);await saveDb();draw()}});
+      body.querySelectorAll('[data-remove-placeholder]').forEach(b=>b.onclick=async()=>{c.placeholdersV463=c.placeholdersV463.filter(x=>x!==b.dataset.removePlaceholder);await saveDb();draw()});
+      body.querySelector('[data-add-category]')?.addEventListener('click',async()=>{const v=await showAppPrompt({title:'Add Category',label:'Category Name',submitLabel:'Add Category'});const n=String(v||'').trim();if(n&&!c.categories.includes(n)){c.categories.push(n);c.categorySettings[n]={fields:[]};c._settingsCategoryV463=n;await saveDb();draw()}});
+      body.querySelectorAll('[data-category]').forEach(b=>{
+        b.onclick=()=>{c._settingsCategoryV463=b.dataset.category;draw()};
+        b.oncontextmenu=e=>{
+          e.preventDefault();
+          const category=b.dataset.category;
+          showCustomItemContextMenu(e.clientX,e.clientY,[
+            {label:'Rename category',icon:'ph-pencil-simple',action:async()=>{
+              const v=await showAppPrompt({title:'Rename Category',label:'Category Name',value:category,submitLabel:'Save'});
+              const n=String(v||'').trim(); if(!n||n===category||c.categories.includes(n))return;
+              c.categories=c.categories.map(x=>x===category?n:x); c.categorySettings[n]=c.categorySettings[category]; delete c.categorySettings[category];
+              c.items.forEach(i=>{if(i.category===category)i.category=n}); c._settingsCategoryV463=n; await saveDb(); draw();
+            }},
+            {label:'Delete category',icon:'ph-trash',danger:true,action:async()=>{
+              const ok=await showAppConfirm({title:'Delete Category',message:`Delete “${category}”?`,confirmLabel:'Delete'}); if(!ok)return;
+              c.categories=c.categories.filter(x=>x!==category); delete c.categorySettings[category]; c.items.forEach(i=>{if(i.category===category)i.category=''});
+              c._settingsCategoryV463=c.categories[0]||''; await saveDb(); draw();
+            }}
+          ]);
+        };
+      });
+      body.querySelector('[data-add-field]')?.addEventListener('click',()=>openFieldModal(tab,c,active,null,draw));
+      body.querySelectorAll('[data-edit-field]').forEach(b=>b.onclick=()=>{const f=fields.find(x=>x.id===b.dataset.editField);if(f)openFieldModal(tab,c,active,f,draw)});
+      body.querySelectorAll('[data-delete-field]').forEach(b=>b.onclick=async()=>{const f=fields.find(x=>x.id===b.dataset.deleteField);if(!f)return;const ok=await showAppConfirm({title:'Delete Field',message:`Delete “${f.name}”?`,confirmLabel:'Delete'});if(!ok)return;c.categorySettings[active].fields=c.categorySettings[active].fields.filter(x=>x.id!==f.id);c.items.forEach(i=>delete i.values?.[f.name]);await saveDb();draw()});
+      syncPlaceholderVisibility();
+    };
+    overlay.querySelector('[data-close]').onclick=()=>{overlay.remove();renderCustomTabView(tab.id)}; overlay.onclick=e=>{if(e.target===overlay){overlay.remove();renderCustomTabView(tab.id)}};draw();
+  }
+
+  function render(tab,c,content){
+    normalize(c);const active=c.activeCategory||'all';const items=c.items.filter(i=>active==='all'||i.category===active);
+    content.innerHTML=`<div class="custom-kb-parity-v461 custom-kb-full-v463"><div class="log-header-container custom-kb-header-v461"><h1>${esc(c.title)}</h1><div class="custom-kb-header-actions-v461"><button class="icon-btn ckb-settings-v463" title="Knowledge Base Settings"><i class="ph ph-sliders-horizontal"></i></button><button class="icon-btn ckb-add-v463" title="Add New Item"><i class="ph ph-plus"></i></button></div></div><div class="filter-tabs custom-kb-tabs-v461"><button class="filter-tab ${active==='all'?'active':''}" data-filter="all">All</button>${c.categories.map(cat=>`<button class="filter-tab ${active===cat?'active':''}" data-filter="${attr(cat)}">${esc(cat)}</button>`).join('')}</div><div class="phrases-grid custom-kb-grid-v461">${items.map(item=>{const defs=fieldsFor(c,item.category);const search=[item.title,item.category,(item.tags||[]).join(' '),...defs.map(f=>item.values?.[f.name]||'')].join(' ').toLowerCase();return `<article class="phrase-card custom-searchable-item custom-content-editable custom-kb-card-v461" data-id="${attr(item.id)}" data-search-text="${attr(search)}"><span class="chip-text"><strong>${patternHtml(c,item.title)}</strong>${item.category?`<small class="custom-kb-card-category-v461">${esc(item.category)}</small>`:''}</span></article>`}).join('')||'<div class="custom-feature-empty-v162 custom-kb-empty-v461">No items here yet. Use + to add one.</div>'}</div></div>`;
+    content.querySelector('.ckb-settings-v463').onclick=()=>openSettings(tab,c);content.querySelector('.ckb-add-v463').onclick=()=>openItemEditor(tab,c);
+    content.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{c.activeCategory=b.dataset.filter;saveDb();renderCustomTabView(tab.id)});
+    content.querySelectorAll('.custom-kb-card-v461').forEach(card=>{const item=c.items.find(i=>i.id===card.dataset.id);card.onclick=()=>openItemEditor(tab,c,item);card.oncontextmenu=e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit item',icon:'ph-pencil-simple',action:()=>openItemEditor(tab,c,item)},{label:'Delete item',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Knowledge Base Item',message:`Delete “${item.title}”?`,confirmLabel:'Delete'});if(ok){c.items=c.items.filter(x=>x.id!==item.id);await saveDb();renderCustomTabView(tab.id)}}}])}});
+  }
+
+  try{const prev=renderCustomComponentContent;renderCustomComponentContent=function(tab,c,content){if(c?.type===TYPE)return render(tab,normalize(c),content);return prev.apply(this,arguments)}}catch{}
+  try{const prev=editCustomComponent;editCustomComponent=async function(tabId,componentId){const tab=getCustomTab(tabId),c=tab?.components?.find(x=>x.id===componentId);if(c?.type===TYPE){openSettings(tab,normalize(c));return;}return prev.apply(this,arguments)}}catch{}
+})();
+
+// ============================================================================
+// V480 — authoritative pinned-image quiz compatibility + special-tab input
+// Maps respect Quizlet Learn MC/Written modes and never expose serialized JSON.
+// Whiteboard/Notebook are repaired as true interactive top-level workspaces.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyPinnedQuizAndSpecialTabsV480) return;
+  window.__loggyPinnedQuizAndSpecialTabsV480 = true;
+
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const attr = esc;
+  const norm = value => String(value ?? '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+  const mapSessions = new Map();
+
+  function currentItemId() {
+    try { return quizMode === 'learn' ? String(learnQueue?.[0]?.id || '') : String(activeQuizDeck?.[activeQuizIndex] || ''); }
+    catch { return ''; }
+  }
+  function pinnedFor(itemId) {
+    try { return window.__loggyPinnedImageV169?.fieldForItem?.(itemId) || null; } catch { return null; }
+  }
+  function labeledPins(pinned) {
+    return (pinned?.data?.pins || []).filter(pin => String(pin?.label || '').trim());
+  }
+  function pinStage(data, {active='', revealed=new Set(), revealAll=false}={}) {
+    const pins = (data?.pins || []).filter(pin => String(pin?.label || '').trim());
+    return `<div class="map-study-stage-v172 map-study-stage-v480"><img src="${attr(data?.image || '')}" alt="Pinned study image"><div class="kb-pinned-overlay-v169">${pins.map((pin,index) => {
+      const id=String(pin.id || index), label=String(pin.label || '').trim();
+      const dir=['up','right','down','left'].includes(pin.direction)?pin.direction:'down';
+      const scale=Math.max(.55,Math.min(2.2,Number(pin.size)||1));
+      const showLabel=revealAll || revealed.has(id);
+      return `<button type="button" class="kb-map-pin-v169 pin-dir-${dir} ${active===id?'map-study-active-v172':''}" data-map-pin-v480="${attr(id)}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;--pin-color-v169:${attr(pin.color||data.pinColor||'#e53935')};--pin-scale-v171:${scale};"><span class="kb-map-pin-dot-v169"></span></button>${showLabel?`<span class="kb-map-pin-label-v169 quiz-map-label-v480" data-pin-label-for-v170="${attr(id)}" data-pin-x-v170="${Number(pin.x)||0}" data-pin-y-v170="${Number(pin.y)||0}" data-label-dx-v170="${Number(pin.labelDx)||0}" data-label-dy-v170="${Number(pin.labelDy)||0}" data-label-manual-v170="${pin.labelManual?'1':'0'}">${esc(label)}</span>`:''}`;
+    }).join('')}</div></div>`;
+  }
+  function layoutLabels(root) { requestAnimationFrame(() => { try { window.__layoutPinnedLabelsV170?.(root); } catch {} }); }
+  function setCounter() { try { document.getElementById('quiz-set-label').textContent=`${Math.min((activeQuizIndex||0)+1, activeQuizDeck?.length||0)} / ${activeQuizDeck?.length||0}`; } catch {} }
+
+  function renderPinnedFlashcard(area,itemId,pinned) {
+    setCounter();
+    const meta=db.phrase_meta?.[itemId] || {custom_fields:{}};
+    const content=quizCardFlipped ? renderCardBackContent(meta) : `<span style="font-size:2.8rem">${esc(itemId)}</span>`;
+    area.innerHTML=`<div class="flashcard-mode-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" id="quiz-flip-front-v480" style="padding:${quizCardFlipped?'0':'20px'}">${content}</div><div class="flashcard-hint-text">Tap the card to flip it</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-prev-v480 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-next-v480><i class="ph ph-arrow-right"></i></button></div></div>`;
+    area.querySelector('#quiz-flip-front-v480')?.addEventListener('click', e=>{
+      if(e.target.closest('button,.card-dot,.card-slide-arrow,a,input,video,iframe,audio')) return;
+      quizCardFlipped=!quizCardFlipped; currentSlideIndex=0; showQuizCard();
+    });
+    area.querySelector('[data-prev-v480]')?.addEventListener('click',()=>{if(activeQuizIndex>0){activeQuizIndex--;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();}});
+    area.querySelector('[data-next-v480]')?.addEventListener('click',()=>{activeQuizIndex++;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();});
+    try { attachAudioPlayButtons(area); } catch {}
+    layoutLabels(area);
+  }
+
+  function renderPinnedAnki(area,itemId,pinned) {
+    setCounter();
+    const meta=db.phrase_meta?.[itemId] || {custom_fields:{}};
+    if(!quizCardFlipped){
+      area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" data-anki-flip-v480><span style="font-size:2.8rem">${esc(itemId)}</span></div><div class="flashcard-hint-text">Tap the card to flip it</div></div>`;
+      area.querySelector('[data-anki-flip-v480]')?.addEventListener('click',()=>{quizCardFlipped=true;currentSlideIndex=0;showQuizCard();});
+    } else {
+      area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" style="padding:0">${renderCardBackContent(meta)}</div><div class="quiz-pinned-anki-actions-v169"><button class="icon-btn still-learning-btn" data-anki-again-v480><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button><button class="icon-btn got-it-btn" data-anki-good-v480><i class="ph ph-check"></i> Got It!</button></div></div>`;
+      area.querySelector('[data-anki-again-v480]')?.addEventListener('click',()=>processAnkiAnswer('Again'));
+      area.querySelector('[data-anki-good-v480]')?.addEventListener('click',()=>processAnkiAnswer('Good'));
+    }
+    try { attachAudioPlayButtons(area); } catch {}
+    layoutLabels(area);
+  }
+
+  function getLearnSession(itemId,pinned) {
+    const key=`learn:${itemId}:${pinned?.field?.id || pinned?.field?.name || 'map'}`;
+    let state=mapSessions.get(key);
+    if(!state){
+      let type='mc';
+      try { type=typeof chooseQuizletLearnQuestionTypeV476==='function'?chooseQuizletLearnQuestionTypeV476(db.phrase_meta?.[itemId]||{}):'mc'; } catch {}
+      state={key,type,index:0,revealed:new Set(),hadWrong:false,waiting:false};
+      mapSessions.set(key,state);
+    }
+    return state;
+  }
+  function finishMapLearn(state, correct) {
+    mapSessions.delete(state.key);
+    processLearnAnswer(correct);
+  }
+  function renderMapLearnMc(area,itemId,pinned,state) {
+    setCounter();
+    const pins=labeledPins(pinned);
+    if(!pins.length) return finishMapLearn(state,true);
+    state.index=Math.max(0,Math.min(state.index,pins.length-1));
+    const active=pins[state.index];
+    const activeId=String(active.id);
+    const choices=[String(active.label).trim()];
+    const distractors=pins.filter(p=>String(p.id)!==activeId).map(p=>String(p.label).trim()).filter(Boolean);
+    while(choices.length<4 && distractors.length){ const i=Math.floor(Math.random()*distractors.length); const c=distractors.splice(i,1)[0]; if(!choices.includes(c)) choices.push(c); }
+    choices.sort(()=>Math.random()-.5);
+    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-mc-v480"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>Which label fits the highlighted pin?</strong><span>${state.index+1} / ${pins.length}</span></div>${pinStage(pinned.data,{active:activeId,revealed:state.revealed})}<div class="quiz-learn-options-v38 map-learn-options-v480">${choices.map(c=>`<button class="icon-btn" data-map-choice-v480="${attr(c)}">${esc(c)}</button>`).join('')}</div><div class="map-learn-feedback-v480" aria-live="polite"></div></div></div>`;
+    area.querySelectorAll('[data-map-choice-v480]').forEach(btn=>btn.addEventListener('click',()=>{
+      if(state.waiting) return;
+      const correct=norm(btn.dataset.mapChoiceV480)===norm(active.label);
+      const feedback=area.querySelector('.map-learn-feedback-v480');
+      if(!correct){ state.hadWrong=true; feedback.innerHTML='<strong>Incorrect</strong>'; return; }
+      state.revealed.add(activeId); state.waiting=true;
+      feedback.innerHTML=`<strong>Correct</strong><button type="button" class="icon-btn map-next-v480">${state.index>=pins.length-1?'Continue':'Next'}</button>`;
+      layoutLabels(area);
+      feedback.querySelector('.map-next-v480')?.addEventListener('click',()=>{
+        state.waiting=false; state.revealed.clear();
+        if(state.index>=pins.length-1) finishMapLearn(state,!state.hadWrong); else {state.index++;renderMapLearnMc(area,itemId,pinned,state);}
+      });
+    }));
+    layoutLabels(area);
+  }
+  function renderMapLearnWritten(area,itemId,pinned,state) {
+    setCounter();
+    const pins=labeledPins(pinned);
+    if(!pins.length) return finishMapLearn(state,true);
+    state.index=Math.max(0,Math.min(state.index,pins.length-1));
+    const active=pins[state.index], activeId=String(active.id);
+    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-written-v480"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>Type the label for the highlighted pin</strong><span>${state.index+1} / ${pins.length}</span></div>${pinStage(pinned.data,{active:activeId,revealed:state.revealed})}<form class="map-study-answer-v172 map-written-form-v480"><div><input type="text" class="map-study-input-v172" autocomplete="off" spellcheck="false" placeholder="Type your answer…"><button type="submit" class="icon-btn">Check Answer</button></div><small class="map-study-status-v172" aria-live="polite">Capitalization does not matter.</small></form></div></div>`;
+    const form=area.querySelector('.map-written-form-v480'), input=form?.querySelector('input'), status=form?.querySelector('.map-study-status-v172'), button=form?.querySelector('button');
+    form?.addEventListener('submit',e=>{
+      e.preventDefault();
+      if(state.waiting){
+        state.waiting=false; state.revealed.clear();
+        if(state.index>=pins.length-1) finishMapLearn(state,!state.hadWrong); else {state.index++;renderMapLearnWritten(area,itemId,pinned,state);} return;
+      }
+      if(!input?.value.trim()) return;
+      const correct=norm(input.value)===norm(active.label);
+      if(!correct){
+        state.hadWrong=true; state.revealed.add(activeId); status.innerHTML='<strong>Incorrect</strong> · Type the correct answer to continue.'; status.classList.add('is-wrong-v172'); input.value=''; layoutLabels(area); input.focus(); return;
+      }
+      state.revealed.add(activeId); status.classList.remove('is-wrong-v172'); status.innerHTML='<strong>Correct</strong>'; state.waiting=true; input.disabled=true; button.textContent=state.index>=pins.length-1?'Continue':'Next'; layoutLabels(area);
+    });
+    layoutLabels(area); requestAnimationFrame(()=>input?.focus({preventScroll:true}));
+  }
+
+  try {
+    const previous=showQuizCard;
+    const wrapped=function(){
+      const area=document.getElementById('quiz-flashcard-area'), itemId=currentItemId(), pinned=itemId?pinnedFor(itemId):null;
+      if(!area || !pinned?.data?.image) return previous.apply(this,arguments);
+      if(quizMode==='flashcards'){ renderPinnedFlashcard(area,itemId,pinned); return; }
+      if(quizMode==='anki'){ renderPinnedAnki(area,itemId,pinned); return; }
+      if(quizMode==='learn'){
+        const state=getLearnSession(itemId,pinned);
+        if(state.type==='written') renderMapLearnWritten(area,itemId,pinned,state); else renderMapLearnMc(area,itemId,pinned,state);
+        return;
+      }
+      return previous.apply(this,arguments);
+    };
+    window.showQuizCard=wrapped; try { showQuizCard=wrapped; } catch {}
+  } catch {}
+
+  // Whiteboard / Notebook: ensure the active workspace itself is the interaction
+  // surface. Remove stale inert states and keep it directly below floating widgets.
+  function repairSpecialInputV480(){
+    const white=document.querySelector('.whiteboard-tab-view-v198.active,.whiteboard-tab-view-v198.loggy-special-fullscreen-v447');
+    const note=document.querySelector('.notepad-tab-view-v249.active,.notepad-tab-view-v249.loggy-special-fullscreen-v447');
+    const view=(document.body.classList.contains('whiteboard-tab-active-v198')?white:null) || (document.body.classList.contains('notepad-tab-active-v249')?note:null);
+    if(!view) return;
+    try { document.body.inert=false; document.body.removeAttribute('inert'); } catch {}
+    [view, view.querySelector('.whiteboard-runtime-host-v198,.notepad-runtime-host-v249'), view.querySelector('.whiteboard-runtime-host-v198 > *,.notepad-runtime-host-v249 > *')].filter(Boolean).forEach(el=>{
+      try { el.inert=false; el.removeAttribute('inert'); } catch {}
+      el.style.setProperty('pointer-events','auto','important');
+      el.style.setProperty('visibility','visible','important');
+    });
+    view.style.setProperty('z-index','2147483645','important');
+    view.querySelectorAll('[inert]').forEach(el=>{try{el.inert=false;el.removeAttribute('inert')}catch{}});
+  }
+  // V499: do this once at startup. Opening/switching the special tab already
+  // normalizes the workspace through V404/V447. Never capture every user click.
+  const queueRepairV480=()=>requestAnimationFrame(repairSpecialInputV480);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',queueRepairV480,{once:true}); else queueRepairV480();
+})();
+
+// ============================================================================
+// V482 — final pinned-image quiz renderer + reliable special workspace input
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyPinnedFinalV482) return;
+  window.__loggyPinnedFinalV482 = true;
+
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const attr = esc;
+  const norm = value => String(value ?? '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+  const sessions = new Map();
+
+  function itemIdV482() {
+    try { return quizMode === 'learn' ? String(learnQueue?.[0]?.id || '') : String(activeQuizDeck?.[activeQuizIndex] || ''); }
+    catch { return ''; }
+  }
+  function pinnedV482(id) {
+    try { return window.__loggyPinnedImageV169?.fieldForItem?.(id) || null; }
+    catch { return null; }
+  }
+  function pinsV482(pinned) {
+    return (pinned?.data?.pins || []).filter(pin => String(pin?.label || '').trim());
+  }
+  function labelV482(pin) { return String(pin?.label || '').trim(); }
+  function setCountV482() {
+    try {
+      const total = activeQuizDeck?.length || 0;
+      const n = quizMode === 'learn' ? Math.max(1, total - (learnQueue?.length || 0) + 1) : Math.min((activeQuizIndex || 0) + 1,total);
+      const el=document.getElementById('quiz-set-label'); if(el) el.textContent=`${Math.min(n,total)} / ${total}`;
+    } catch {}
+  }
+
+  function stageV482(data,{active='',showLabels=false,revealed=null}={}) {
+    const pins=(data?.pins || []).filter(pin=>String(pin?.label||'').trim());
+    const shown = revealed instanceof Set ? revealed : new Set();
+    return `<div class="map-study-stage-v172 map-stage-final-v482"><img src="${attr(data?.image||'')}" alt="Pinned study image"><div class="kb-pinned-overlay-v169">${pins.map((pin,index)=>{
+      const id=String(pin.id||index), dir=['up','right','down','left'].includes(pin.direction)?pin.direction:'down';
+      const scale=Math.max(.55,Math.min(2.2,Number(pin.size)||1));
+      const reveal=showLabels || shown.has(id);
+      return `<button type="button" class="kb-map-pin-v169 pin-dir-${dir} ${active===id?'map-study-active-v172':''}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;--pin-color-v169:${attr(pin.color||data.pinColor||'#e53935')};--pin-scale-v171:${scale};" tabindex="-1"><span class="kb-map-pin-dot-v169"></span></button>${reveal?`<span class="kb-map-pin-label-v169 map-label-final-v482" data-pin-label-for-v170="${attr(id)}" data-pin-x-v170="${Number(pin.x)||0}" data-pin-y-v170="${Number(pin.y)||0}" data-label-dx-v170="${Number(pin.labelDx)||0}" data-label-dy-v170="${Number(pin.labelDy)||0}" data-label-manual-v170="${pin.labelManual?'1':'0'}">${esc(labelV482(pin))}</span>`:''}`;
+    }).join('')}</div></div>`;
+  }
+  function layoutV482(root) {
+    const run=()=>{ try { window.__layoutPinnedLabelsV170?.(root); } catch {} };
+    requestAnimationFrame(run); setTimeout(run,40); setTimeout(run,140);
+  }
+
+  function renderStudyBackV482(area,id,pinned,anki=false) {
+    setCountV482();
+    area.innerHTML=`<div class="flashcard-wrap pinned-card-final-v482"><div class="pinned-map-answer-shell-v482">${stageV482(pinned.data,{showLabels:true})}</div>${anki?`<div class="quiz-pinned-anki-actions-v169"><button class="icon-btn still-learning-btn" data-map-again-v482><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button><button class="icon-btn got-it-btn" data-map-good-v482><i class="ph ph-check"></i> Got It!</button></div>`:`<div class="flashcard-hint-text">Tap the map to flip back</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-map-prev-v482 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-map-next-v482><i class="ph ph-arrow-right"></i></button></div>`}</div>`;
+    layoutV482(area);
+    if(anki){
+      area.querySelector('[data-map-again-v482]')?.addEventListener('click',()=>processAnkiAnswer('Again'));
+      area.querySelector('[data-map-good-v482]')?.addEventListener('click',()=>processAnkiAnswer('Good'));
+    } else {
+      area.querySelector('.pinned-map-answer-shell-v482')?.addEventListener('click',e=>{if(e.target.closest('button'))return;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();});
+      area.querySelector('[data-map-prev-v482]')?.addEventListener('click',()=>{if(activeQuizIndex>0){activeQuizIndex--;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();}});
+      area.querySelector('[data-map-next-v482]')?.addEventListener('click',()=>{activeQuizIndex++;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();});
+    }
+  }
+  function renderStudyFrontV482(area,id,anki=false) {
+    setCountV482();
+    area.innerHTML=`<div class="flashcard-wrap pinned-card-final-v482"><div class="flashcard-mode-card pinned-map-front-v482" data-map-flip-v482><span style="font-size:2.8rem">${esc(id)}</span></div><div class="flashcard-hint-text">Tap the card to flip it</div>${anki?'':`<div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-map-prev-v482 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-map-next-v482><i class="ph ph-arrow-right"></i></button></div>`}</div>`;
+    area.querySelector('[data-map-flip-v482]')?.addEventListener('click',()=>{quizCardFlipped=true;currentSlideIndex=0;showQuizCard();});
+    if(!anki){
+      area.querySelector('[data-map-prev-v482]')?.addEventListener('click',()=>{if(activeQuizIndex>0){activeQuizIndex--;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();}});
+      area.querySelector('[data-map-next-v482]')?.addEventListener('click',()=>{activeQuizIndex++;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();});
+    }
+  }
+
+  function otherMapLabelsV482(itemId,pinned) {
+    const category=String(db.phrase_meta?.[itemId]?.type||'');
+    const values=[];
+    for(const candidate of Object.keys(db.phrase_meta||{})){
+      if(candidate===itemId || String(db.phrase_meta?.[candidate]?.type||'')!==category) continue;
+      const p=pinnedV482(candidate); if(!p) continue;
+      pinsV482(p).forEach(pin=>{const label=labelV482(pin);if(label)values.push(label)});
+    }
+    return [...new Set(values)];
+  }
+  function shuffledV482(values){return [...values].sort(()=>Math.random()-.5)}
+  function modeV482(id){
+    try { return typeof chooseQuizletLearnQuestionTypeV476==='function' ? chooseQuizletLearnQuestionTypeV476(db.phrase_meta?.[id]||{}) : 'mc'; }
+    catch { return 'mc'; }
+  }
+  function sessionV482(id,pinned){
+    const key=`v482:${id}:${pinned?.field?.id||pinned?.field?.name||'map'}`;
+    let s=sessions.get(key);
+    if(!s){s={key,type:modeV482(id),index:0,wrong:false,ready:false,revealed:new Set()};sessions.set(key,s)}
+    return s;
+  }
+  function finishV482(s,correct){sessions.delete(s.key);processLearnAnswer(correct)}
+
+  function renderMapMcV482(area,id,pinned,s){
+    setCountV482(); const pins=pinsV482(pinned); if(!pins.length)return finishV482(s,true);
+    s.index=Math.max(0,Math.min(s.index,pins.length-1)); const pin=pins[s.index], pid=String(pin.id||s.index), answer=labelV482(pin);
+    const pool=[...pins.filter(x=>String(x.id)!==pid).map(labelV482),...otherMapLabelsV482(id,pinned)].filter(Boolean).filter(x=>norm(x)!==norm(answer));
+    const choices=[answer]; for(const c of shuffledV482([...new Set(pool)])){if(choices.length>=4)break;if(!choices.some(x=>norm(x)===norm(c)))choices.push(c)}
+    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-final-v482"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>Which label fits the highlighted pin?</strong><span>${s.index+1} / ${pins.length}</span></div>${stageV482(pinned.data,{active:pid,revealed:s.revealed})}<div class="quiz-learn-options-v38 map-learn-options-final-v482">${shuffledV482(choices).map(c=>`<button class="icon-btn" data-map-mc-v482="${attr(c)}">${esc(c)}</button>`).join('')}</div><div class="map-learn-feedback-v482" aria-live="polite"></div></div></div>`;
+    area.querySelectorAll('[data-map-mc-v482]').forEach(btn=>btn.addEventListener('click',()=>{
+      if(s.ready)return; const ok=norm(btn.dataset.mapMcV482)===norm(answer), feedback=area.querySelector('.map-learn-feedback-v482');
+      if(!ok){s.wrong=true;feedback.innerHTML='<strong>Incorrect</strong>';return}
+      s.revealed.add(pid);s.ready=true;feedback.innerHTML=`<strong>Correct</strong><button class="icon-btn" data-map-continue-v482>${s.index>=pins.length-1?'Continue':'Next'}</button>`;layoutV482(area);
+      feedback.querySelector('[data-map-continue-v482]')?.addEventListener('click',()=>{s.ready=false;s.revealed.clear();if(s.index>=pins.length-1)finishV482(s,!s.wrong);else{s.index++;renderMapMcV482(area,id,pinned,s)}});
+    })); layoutV482(area);
+  }
+
+  function renderMapWrittenV482(area,id,pinned,s){
+    setCountV482(); const pins=pinsV482(pinned); if(!pins.length)return finishV482(s,true);
+    s.index=Math.max(0,Math.min(s.index,pins.length-1)); const pin=pins[s.index], pid=String(pin.id||s.index), answer=labelV482(pin);
+    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-final-v482"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>Type the label for the highlighted pin</strong><span>${s.index+1} / ${pins.length}</span></div>${stageV482(pinned.data,{active:pid,revealed:s.revealed})}<form class="map-study-answer-v172 map-written-final-v482"><div><input type="text" autocomplete="off" spellcheck="false" placeholder="Type your answer…"><button type="submit" class="icon-btn">Check Answer</button></div><small aria-live="polite">Capitalization does not matter.</small></form></div></div>`;
+    const form=area.querySelector('.map-written-final-v482'),input=form?.querySelector('input'),button=form?.querySelector('button'),status=form?.querySelector('small');
+    const advance=()=>{s.ready=false;s.revealed.clear();if(s.index>=pins.length-1)finishV482(s,!s.wrong);else{s.index++;renderMapWrittenV482(area,id,pinned,s)}};
+    form?.addEventListener('submit',e=>{e.preventDefault();if(s.ready){advance();return}if(!input?.value.trim())return;const ok=norm(input.value)===norm(answer);if(!ok){s.wrong=true;s.revealed.add(pid);status.innerHTML='<strong>Incorrect</strong> · Type the correct answer to continue.';input.value='';button.textContent='Check Again';layoutV482(area);input.focus();return}s.revealed.add(pid);s.ready=true;status.innerHTML='<strong>Correct</strong>';input.disabled=true;button.textContent=s.index>=pins.length-1?'Continue':'Next';layoutV482(area)});
+    // Second Enter continues even after the now-disabled input can no longer submit the form.
+    const key=e=>{if(e.key!=='Enter'||!s.ready||!document.body.contains(form))return;e.preventDefault();e.stopImmediatePropagation();document.removeEventListener('keydown',key,true);advance()};
+    document.addEventListener('keydown',key,true); layoutV482(area); requestAnimationFrame(()=>input?.focus({preventScroll:true}));
+  }
+
+  try {
+    const previous=window.showQuizCard || showQuizCard;
+    const finalShow=function(){
+      const area=document.getElementById('quiz-flashcard-area'),id=itemIdV482(),pinned=id?pinnedV482(id):null;
+      if(!area||!pinned?.data?.image)return previous.apply(this,arguments);
+      if(quizMode==='flashcards'){quizCardFlipped?renderStudyBackV482(area,id,pinned,false):renderStudyFrontV482(area,id,false);return}
+      if(quizMode==='anki'){quizCardFlipped?renderStudyBackV482(area,id,pinned,true):renderStudyFrontV482(area,id,true);return}
+      if(quizMode==='learn'){const s=sessionV482(id,pinned);if(s.type==='written')renderMapWrittenV482(area,id,pinned,s);else renderMapMcV482(area,id,pinned,s);return}
+      return previous.apply(this,arguments);
+    };
+    finalShow.__pinnedFinalV482=true;window.showQuizCard=finalShow;try{showQuizCard=finalShow}catch{}
+  } catch {}
+
+  // Keep labels visible in every non-testing map presentation after pin placement.
+  function revealStaticLabelsV482(root=document){
+    root.querySelectorAll?.('.kb-pinned-stage-v169').forEach(stage=>{
+      if(stage.closest('#quiz-flashcard-area .map-learn-final-v482'))return;
+      stage.querySelectorAll('.kb-map-pin-label-v169').forEach(label=>{label.style.setProperty('display','block','important');label.style.setProperty('visibility','visible','important');label.style.setProperty('opacity','1','important')});
+      layoutV482(stage);
+    });
+  }
+  const labelObs=new MutationObserver(records=>{for(const rec of records)for(const node of rec.addedNodes||[])if(node.nodeType===1){if(node.matches?.('.kb-pinned-stage-v169')||node.querySelector?.('.kb-pinned-stage-v169'))revealStaticLabelsV482(node.matches?.('.kb-pinned-stage-v169')?node.parentElement||node:node)}});
+  if(document.body)labelObs.observe(document.body,{childList:true,subtree:true});
+  document.addEventListener('click',e=>{if(e.target.closest?.('.kb-pinned-place-v171,.kb-pinned-place-done-v171,.kb-pinned-editor-done-v171,[data-done-pins]'))setTimeout(()=>revealStaticLabelsV482(document),0)},true);
+
+  // Whiteboard / Notebook: make the real runtime controls interactive, not only
+  // the outer shell. This also clears stale hidden/inert state inherited from
+  // the ordinary Log view when a special workspace is promoted to fullscreen.
+  function repairWorkspaceV482(){
+    const isWhite=document.body.classList.contains('whiteboard-tab-active-v198');
+    const isNote=document.body.classList.contains('notepad-tab-active-v249');
+    if(!isWhite&&!isNote)return;
+    const selector=isWhite?'.whiteboard-tab-view-v198':'.notepad-tab-view-v249';
+    const hostSelector=isWhite?'.whiteboard-runtime-host-v198':'.notepad-runtime-host-v249';
+    const views=[...document.querySelectorAll(selector)];
+    const view=views.find(v=>v.classList.contains('active'))||views.at(-1);
+    if(!view)return;
+    if(view.parentElement!==document.body)document.body.insertBefore(view,document.getElementById('loggy-widget-stage-v239')||document.getElementById('companion-stage')||null);
+    view.classList.add('active','loggy-special-fullscreen-v447');
+    try{view.inert=false;view.removeAttribute('inert');view.removeAttribute('aria-hidden')}catch{}
+    view.style.setProperty('display','block','important');
+    view.style.setProperty('visibility','visible','important');
+    view.style.setProperty('pointer-events','auto','important');
+    const host=view.querySelector(hostSelector);
+    if(host){
+      try{host.inert=false;host.removeAttribute('inert');host.removeAttribute('aria-hidden')}catch{}
+      host.style.setProperty('visibility','visible','important');
+      host.style.setProperty('pointer-events','auto','important');
+    }
+    // Do not touch descendants. Whiteboard canvas/overlays and Notebook editors
+    // intentionally manage pointer-events themselves.
+  }
+  const scheduleRepairV482=()=>requestAnimationFrame(repairWorkspaceV482);
+  // V499: one startup repair only. V404/V447 run again whenever a special tab
+  // is actually opened/switched, so no body-wide observer or click interception.
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scheduleRepairV482,{once:true});else scheduleRepairV482();
+})();
+
+
+// ============================================================================
+// V483 — pinned maps are first-class Quizlet Learn items + permanent readonly labels
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyPinnedQuizV483) return;
+  window.__loggyPinnedQuizV483 = true;
+
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const attr = esc;
+  const norm = v => String(v ?? '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+  const sessions = new Map();
+
+  function itemId(){
+    try { return quizMode === 'learn' ? String(learnQueue?.[0]?.id || '') : String(activeQuizDeck?.[activeQuizIndex] || ''); }
+    catch { return ''; }
+  }
+  function pinned(id){ try { return window.__loggyPinnedImageV169?.fieldForItem?.(id) || null; } catch { return null; } }
+  function pins(p){ return (p?.data?.pins || []).filter(x => String(x?.label || '').trim()); }
+  function label(pin){ return String(pin?.label || '').trim(); }
+  function validMap(id){ const p=pinned(id); return !!(p?.data?.image && pins(p).length); }
+
+  // Base template.js calls this during Written-mode eligibility filtering.
+  window.__loggyPinnedQuizEligibleV483 = function(meta, id){
+    if (id && validMap(String(id))) return true;
+    try {
+      const category=String(meta?.type || '');
+      const defs=typeof getKnowledgeFieldDefs==='function' ? getKnowledgeFieldDefs(category) : [];
+      const values=meta?.custom_fields || {};
+      for(const f of defs){
+        const raw=values[f.name];
+        const legacy=window.__loggyPinnedImageV169?.isPinnedValue?.(raw);
+        if(f?.kind!=='pinnedImage' && !legacy) continue;
+        const effective=f?.kind==='pinnedImage'?f:{...f,kind:'pinnedImage'};
+        const data=window.__loggyPinnedImageV169?.parse?.(raw,effective);
+        if(data?.image && (data.pins||[]).some(pin=>String(pin?.label||'').trim())) return true;
+      }
+    } catch {}
+    return false;
+  };
+
+  function otherLabels(id){
+    const cat=String(db.phrase_meta?.[id]?.type || '');
+    const out=[];
+    for(const candidate of Object.keys(db.phrase_meta || {})){
+      if(candidate===id || String(db.phrase_meta?.[candidate]?.type||'')!==cat) continue;
+      const p=pinned(candidate); if(!p) continue;
+      pins(p).forEach(pin=>{const x=label(pin);if(x)out.push(x)});
+    }
+    return [...new Set(out)];
+  }
+  const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+
+  function questionType(id){
+    try {
+      syncQuizletLearnModesV476?.();
+      const mc=quizletLearnModesV476?.has?.('mc');
+      const wr=quizletLearnModesV476?.has?.('written');
+      if(mc&&wr){ const t=(quizletLearnQuestionCounterV476 % 2===0)?'mc':'written'; quizletLearnQuestionCounterV476++; return t; }
+      return wr?'written':'mc';
+    } catch { return 'mc'; }
+  }
+
+  function session(id,p){
+    const key=`v483:${id}:${p?.field?.id||p?.field?.name||'map'}`;
+    let s=sessions.get(key);
+    if(!s){
+      s={key,type:questionType(id),index:0,hadWrong:false,ready:false,results:new Map(),revealed:new Set(),firstWrong:new Set()};
+      sessions.set(key,s);
+    }
+    return s;
+  }
+  function finish(s){ sessions.delete(s.key); processLearnAnswer(!s.hadWrong); }
+
+  function setCount(){
+    try{
+      const total=activeQuizDeck?.length||0;
+      const n=Math.max(1,total-(learnQueue?.length||0)+1);
+      const el=document.getElementById('quiz-set-label'); if(el)el.textContent=`${Math.min(n,total)} / ${total}`;
+    }catch{}
+  }
+
+  function stage(data,s,activeId,{revealActive=false,showAll=false}={}){
+    const whole=data?.testMode!=='parts';
+    return `<div class="map-study-stage-v172 map-stage-v483"><img src="${attr(data?.image||'')}" alt="Pinned study image"><div class="kb-pinned-overlay-v169">${(data?.pins||[]).filter(p=>String(p?.label||'').trim()).map((pin,i)=>{
+      const id=String(pin.id||i), status=s?.results?.get(id)||'', dir=['up','right','down','left'].includes(pin.direction)?pin.direction:'down';
+      const scale=Math.max(.55,Math.min(2.2,Number(pin.size)||1));
+      const color=status==='correct'?'#22a06b':status==='wrong'?'#d92d20':(pin.color||data.pinColor||'#e53935');
+      const reveal=showAll || s?.revealed?.has(id) || (revealActive && id===activeId);
+      return `<button type="button" class="kb-map-pin-v169 pin-dir-${dir} ${id===activeId?'map-study-active-v172':''} ${status?`map-result-${status}-v483`:''}" data-v483-pin="${attr(id)}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;--pin-color-v169:${attr(color)};--pin-scale-v171:${scale};" tabindex="-1"><span class="kb-map-pin-dot-v169"></span></button>${reveal?`<span class="kb-map-pin-label-v169 map-label-final-v483" style="left:calc(${Number(pin.x)||0}% + 15px);top:${Number(pin.y)||0}%;transform:translateY(-50%);display:block!important;visibility:visible!important;opacity:1!important;z-index:10" title="${attr(label(pin))}">${esc(label(pin))}</span>`:''}`;
+    }).join('')}</div></div>`;
+  }
+
+  function heading(p,s,total){
+    const whole=p?.data?.testMode!=='parts';
+    return `<div class="map-study-prompt-v172"><strong>${whole?'Whole image round':'Test by part'} · ${s.type==='written'?'Written':'Multiple Choice'}</strong><span>${s.index+1} / ${total}</span></div>`;
+  }
+
+  function advance(area,id,p,s,renderer){
+    s.ready=false;
+    const ps=pins(p);
+    if(s.index>=ps.length-1){ finish(s); return; }
+    s.index++;
+    renderer(area,id,p,s);
+  }
+
+  function bindWholePinClicks(area,id,p,s,renderer){
+    area.querySelectorAll('[data-v483-pin]').forEach(btn=>btn.addEventListener('click',()=>{
+      const pid=String(btn.dataset.v483Pin||'');
+      if(!pid || s.results.has(pid))return;
+      s.activeId=pid;
+      renderer(area,id,p,s);
+    }));
+  }
+
+  function wholeRoundShell(area,id,p,s,renderer){
+    const ps=pins(p), done=s.results.size>=ps.length;
+    if(done){
+      area.innerHTML=`<div class="map-study-wrap-v172 map-learn-v483"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>Whole image round complete</strong><span>${ps.length} / ${ps.length}</span></div>${stage(p.data,s,'',{showAll:true})}<div class="map-learn-feedback-v483"><button class="icon-btn" data-v483-finish>Finish Round</button></div></div></div>`;
+      area.querySelector('[data-v483-finish]')?.addEventListener('click',()=>finish(s));
+      return true;
+    }
+    if(!s.activeId){
+      area.innerHTML=`<div class="map-study-wrap-v172 map-learn-v483"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>Whole image round · ${s.type==='written'?'Written':'Multiple Choice'}</strong><span>${s.results.size} / ${ps.length}</span></div>${stage(p.data,s,'')}<div class="map-learn-feedback-v483"><strong>Click any unanswered pin to test it.</strong></div></div></div>`;
+      bindWholePinClicks(area,id,p,s,renderer);
+      return true;
+    }
+    return false;
+  }
+
+  function renderMc(area,id,p,s){
+    setCount(); const ps=pins(p); if(!ps.length){finish(s);return}
+    const whole=p.data.testMode!=='parts';
+    if(whole && wholeRoundShell(area,id,p,s,renderMc))return;
+    s.index=Math.max(0,Math.min(s.index,ps.length-1));
+    const pin=whole ? ps.find(x=>String(x.id)===String(s.activeId)) : ps[s.index];
+    if(!pin){s.activeId='';return renderMc(area,id,p,s)}
+    const pid=String(pin.id||s.index), answer=label(pin);
+    const pool=[...ps.filter(x=>String(x.id)!==pid).map(label),...otherLabels(id)].filter(Boolean).filter(x=>norm(x)!==norm(answer));
+    const choices=[answer]; for(const c of shuffle([...new Set(pool)])){if(choices.length>=4)break;if(!choices.some(x=>norm(x)===norm(c)))choices.push(c)}
+    const title=whole?`Whole image round · Multiple Choice`:`Test by part · Multiple Choice`;
+    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-v483"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>${title}</strong><span>${whole?s.results.size+1:s.index+1} / ${ps.length}</span></div>${stage(p.data,s,pid)}<div class="quiz-learn-options-v38 map-learn-options-v483">${shuffle(choices).map(c=>`<button class="icon-btn" data-v483-choice="${attr(c)}">${esc(c)}</button>`).join('')}</div><div class="map-learn-feedback-v483" aria-live="polite"></div></div></div>`;
+    area.querySelectorAll('[data-v483-choice]').forEach(btn=>btn.addEventListener('click',()=>{
+      const ok=norm(btn.dataset.v483Choice)===norm(answer);
+      s.results.set(pid,ok?'correct':'wrong'); s.revealed.add(pid); if(!ok)s.hadWrong=true;
+      if(whole){s.activeId='';renderMc(area,id,p,s);return}
+      area.innerHTML=`<div class="map-study-wrap-v172 map-learn-v483"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>${title}</strong><span>${s.index+1} / ${ps.length}</span></div>${stage(p.data,s,pid)}<div class="quiz-learn-options-v38 map-learn-options-v483">${shuffle(choices).map(c=>`<button class="icon-btn" disabled>${esc(c)}</button>`).join('')}</div><div class="map-learn-feedback-v483"><strong>${ok?'Correct':'Incorrect'}</strong><button class="icon-btn" data-v483-next>${s.index>=ps.length-1?'Finish Round':'Next Pin'}</button></div></div></div>`;
+      area.querySelector('[data-v483-next]')?.addEventListener('click',()=>advance(area,id,p,s,renderMc));
+    }));
+  }
+
+  function renderWritten(area,id,p,s){
+    setCount(); const ps=pins(p); if(!ps.length){finish(s);return}
+    const whole=p.data.testMode!=='parts';
+    if(whole && wholeRoundShell(area,id,p,s,renderWritten))return;
+    s.index=Math.max(0,Math.min(s.index,ps.length-1));
+    const pin=whole ? ps.find(x=>String(x.id)===String(s.activeId)) : ps[s.index];
+    if(!pin){s.activeId='';return renderWritten(area,id,p,s)}
+    const pid=String(pin.id||s.index),answer=label(pin);
+    const title=whole?'Whole image round · Written':'Test by part · Written';
+    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-v483"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>${title}</strong><span>${whole?s.results.size+1:s.index+1} / ${ps.length}</span></div>${stage(p.data,s,pid)}<form class="map-study-answer-v172 map-written-v483"><div><input type="text" autocomplete="off" spellcheck="false" placeholder="Type the pin label…"><button type="submit" class="icon-btn">Check Answer</button></div><small aria-live="polite">Capitalization does not matter.</small></form></div></div>`;
+    const form=area.querySelector('.map-written-v483'),input=form?.querySelector('input'),button=form?.querySelector('button');
+    const redraw=(message,ready)=>{
+      area.querySelector('.map-study-stage-v172')?.replaceWith((()=>{const box=document.createElement('div');box.innerHTML=stage(p.data,s,pid);return box.firstElementChild})());
+      const st=area.querySelector('.map-written-v483 small'); if(st)st.innerHTML=message;
+      const b=area.querySelector('.map-written-v483 button'); if(b)b.textContent=ready?(whole?'Done With Pin':(s.index>=ps.length-1?'Finish Round':'Next Pin')):'Check Again';
+    };
+    form?.addEventListener('submit',e=>{
+      e.preventDefault();
+      if(s.ready){
+        s.ready=false;
+        if(whole){s.activeId='';renderWritten(area,id,p,s)}else advance(area,id,p,s,renderWritten);
+        return;
+      }
+      if(!input?.value.trim())return;
+      const ok=norm(input.value)===norm(answer);
+      if(!ok){
+        s.hadWrong=true; s.firstWrong.add(pid); s.results.set(pid,'wrong'); s.revealed.add(pid);
+        redraw('<strong>Incorrect</strong> · Type the correct answer to continue.',false);
+        input.value=''; input.focus(); return;
+      }
+      if(!s.firstWrong.has(pid))s.results.set(pid,'correct');
+      s.revealed.add(pid); s.ready=true;
+      redraw('<strong>Correct</strong>',true);
+      input.disabled=true;
+    });
+    requestAnimationFrame(()=>input?.focus({preventScroll:true}));
+  }
+
+  // Final owner for pinned-map Quizlet Learn only. Flashcards/Anki continue to
+  // use the V482 frameless revealed-map renderer.
+  try{
+    const previous=window.showQuizCard || showQuizCard;
+    const finalShow=function(){
+      const area=document.getElementById('quiz-flashcard-area'),id=itemId(),p=id?pinned(id):null;
+      if(quizMode!=='learn' || !area || !p?.data?.image || !pins(p).length) return previous.apply(this,arguments);
+      const s=session(id,p); if(s.type==='written')renderWritten(area,id,p,s); else renderMc(area,id,p,s);
+    };
+    finalShow.__pinnedMapV483=true; window.showQuizCard=finalShow; try{showQuizCard=finalShow}catch{}
+  }catch{}
+
+  // Permanent read-only renderer for maps opened from KB or Day Log Items Learned.
+  // It does not depend on the placement editor's label lifecycle; labels are part
+  // of the map markup and are positioned directly next to their saved pins.
+  function readonlyMap(field,value){
+    const data=window.__loggyPinnedImageV169?.parse?.(value,field); if(!data?.image)return '<div class="kb-display-empty">Not added</div>';
+    const html=(data.pins||[]).map((pin,i)=>{
+      const txt=String(pin?.label||'').trim(), id=String(pin?.id||i), dir=['up','right','down','left'].includes(pin.direction)?pin.direction:'down';
+      const scale=Math.max(.55,Math.min(2.2,Number(pin.size)||1));
+      const dx=Number(pin.labelDx)||0,dy=Number(pin.labelDy)||0;
+      return `<span class="kb-map-pin-v169 pin-dir-${dir}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;--pin-color-v169:${attr(pin.color||data.pinColor||'#e53935')};--pin-scale-v171:${scale};"><span class="kb-map-pin-dot-v169"></span></span>${txt?`<span class="kb-map-pin-label-v169 kb-readonly-map-label-v483" data-pin-label-for-v170="${attr(id)}" data-pin-x-v170="${Number(pin.x)||0}" data-pin-y-v170="${Number(pin.y)||0}" data-label-dx-v170="${dx}" data-label-dy-v170="${dy}" data-label-manual-v170="${pin.labelManual?'1':'0'}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;transform:translate(calc(16px + ${dx}px),calc(-50% + ${dy}px));display:block!important;visibility:visible!important;opacity:1!important;z-index:20;max-width:220px;white-space:normal">${esc(txt)}</span>`:''}`;
+    }).join('');
+    return `<div class="kb-pinned-readonly-v169 kb-readonly-map-v483"><div class="kb-pinned-stage-v169"><img src="${attr(data.image)}" alt=""><div class="kb-pinned-overlay-v169">${html}</div></div></div>`;
+  }
+  try{
+    const before=buildKnowledgeFieldDisplayHtml;
+    buildKnowledgeFieldDisplayHtml=function(field,value=''){
+      const legacy=window.__loggyPinnedImageV169?.isPinnedValue?.(value);
+      if(field?.kind!=='pinnedImage'&&!legacy)return before.apply(this,arguments);
+      const effective=field?.kind==='pinnedImage'?field:{...(field||{}),kind:'pinnedImage'};
+      return `<div class="modal-section mt-10 kb-item-field kb-display-field kb-pinned-display-field-v169"><div class="kb-item-field-label-row"><span class="field-label">${esc(effective.name||'Map')}</span></div>${readonlyMap(effective,value)}</div>`;
+    };
+    window.buildKnowledgeFieldDisplayHtml=buildKnowledgeFieldDisplayHtml;
+  }catch{}
 })();

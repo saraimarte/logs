@@ -891,3 +891,36 @@ html body.notepad-tab-active-v249 .loggy-notepad-v249 .np-editor-v249 .np-latex-
   border-radius:0!important;
   filter:none!important;
 }
+
+
+/* V502 — notebook toolbar/sidebar seam. Keep the first grid row exactly the
+   visible toolbar height so hidden/overflow toolbar content cannot create a gap. */
+@media (min-width:821px){
+  .loggy-notepad-v249{grid-template-rows:60px minmax(0,1fr)!important;}
+  .loggy-notepad-v249>.np-top-v249{grid-row:1!important;height:60px!important;min-height:60px!important;max-height:60px!important;align-self:stretch!important;}
+  .loggy-notepad-v249>.np-sidebar-v249,
+  .loggy-notepad-v249>.np-workspace-v249{grid-row:2!important;align-self:stretch!important;margin-top:0!important;top:auto!important;}
+}
+
+/* V502 — the active page must always accept text unless drawing mode is explicitly on. */
+.loggy-notepad-v249:not(.np-drawing-v250) .np-paper-v249:not(.np-page-preview-paper-v254)>.np-editor-v249{
+  pointer-events:auto!important;
+  user-select:text!important;
+  -webkit-user-select:text!important;
+  cursor:text!important;
+}
+.loggy-notepad-v249:not(.np-drawing-v250) .np-paper-v249:not(.np-page-preview-paper-v254){cursor:text!important;}
+
+
+/* V503 — active notebook text surface authority. */
+.loggy-notepad-v249:not(.np-drawing-v250) .np-paper-v249:not(.np-page-preview-paper-v254)>.np-editor-v249{
+  position:relative!important;
+  z-index:8!important;
+  pointer-events:auto!important;
+  user-select:text!important;
+  -webkit-user-select:text!important;
+  cursor:text!important;
+  touch-action:manipulation!important;
+}
+.loggy-notepad-v249:not(.np-drawing-v250) .np-paper-v249:not(.np-page-preview-paper-v254)>.np-images-v249{z-index:9!important;pointer-events:none!important;}
+.loggy-notepad-v249:not(.np-drawing-v250) .np-paper-v249:not(.np-page-preview-paper-v254)>.np-images-v249>.np-image-card-v249{pointer-events:auto!important;}

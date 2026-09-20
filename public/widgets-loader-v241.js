@@ -16,7 +16,7 @@ applyEarlyThemeSoundPrefsV244();
 function loadWidgetRuntimeV241() {
   if (window.__loggyWidgetsV239 || document.querySelector('script[data-loggy-widgets-runtime-v241]')) return;
   const script = document.createElement('script');
-  script.src = '/widgets-v239.js?v=245';
+  script.src = '/widgets-v239.js?v=453';
   script.async = true;
   script.dataset.loggyWidgetsRuntimeV241 = '1';
   script.addEventListener('load',()=>{

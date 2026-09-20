@@ -2425,6 +2425,15 @@ applyTheme =
             themeOverrideApplySuppressedV25 =
                 true;
 
+            // V422: this source module is only supplying its visual/interaction
+            // layer. The copy/shared Builder record below is the audio authority.
+            // Tell core template.js to suppress any legacy startup Audio created
+            // by the source module while it mounts.
+            const previousLegacyStartupAudioGuardV422 =
+                window.__loggySuppressLegacyThemeStartupAudioV422;
+            window.__loggySuppressLegacyThemeStartupAudioV422 =
+                true;
+
             try {
                 await applyThemeBeforeCopiesV30(
                     copy.sourceThemeId,
@@ -2434,6 +2443,16 @@ applyTheme =
                     }
                 );
             } finally {
+                if (
+                    previousLegacyStartupAudioGuardV422 ===
+                    undefined
+                ) {
+                    delete window.__loggySuppressLegacyThemeStartupAudioV422;
+                } else {
+                    window.__loggySuppressLegacyThemeStartupAudioV422 =
+                        previousLegacyStartupAudioGuardV422;
+                }
+
                 themeOverrideApplySuppressedV25 =
                     false;
             }
@@ -10120,84 +10139,19 @@ function ensureImageRespacingButtonV41(
 // Theme audio: prime on pointerdown and reuse after async apply.
 // ------------------------------------------------------------
 
-let primedThemeAudioV41 =
-    null;
-
-let primedThemeAudioSrcV41 =
-    '';
-
-let customThemeAudioRetryCleanupV41 =
-    null;
+let customThemeAudioRetryCleanupV41 = null;
 
 function stopPrimedThemeAudioV41() {
-    if (
-        primedThemeAudioV41
-    ) {
-        try {
-            primedThemeAudioV41.pause();
-
-            primedThemeAudioV41.currentTime =
-                0;
-        } catch {}
-    }
-
-    primedThemeAudioV41 =
-        null;
-
-    primedThemeAudioSrcV41 =
-        '';
+    try { window.__loggyLogIntroAudioV443?.stopPrime?.(); } catch {}
 }
 
-function primeThemeAudioV41(
-    theme
-) {
-    const src =
-        String(
-            theme?.introAudio ||
-            ''
-        );
-
-    if (!src) {
-        return;
-    }
-
-    if (
-        primedThemeAudioV41 &&
-        primedThemeAudioSrcV41 ===
-            src
-    ) {
-        return;
-    }
-
-    stopPrimedThemeAudioV41();
-
-    const audio =
-        new Audio(
-            src
-        );
-
-    primedThemeAudioV41 =
-        audio;
-
-    primedThemeAudioSrcV41 =
-        src;
-
-    audio.volume =
-        0.001;
-
-    const attempt =
-        audio.play();
-
-    if (
-        attempt &&
-        typeof attempt.catch ===
-            'function'
-    ) {
-        attempt.catch(
-            () => {}
-        );
-    }
+function primeThemeAudioV41(theme, themeId = '') {
+    try { return window.__loggyLogIntroAudioV443?.prime?.(theme || {}, themeId) || null; } catch { return null; }
 }
+
+// Compatibility names retained for old callers; V443 owns the prime directly.
+window.__loggyStopPrimedThemeAudioV440 = stopPrimedThemeAudioV41;
+window.__loggyTakePrimedThemeAudioV440 = function() { return null; };
 
 function themeDataForThemeIdV41(
     themeId
@@ -10252,7 +10206,8 @@ if (
                 themeDataForThemeIdV41(
                     card.dataset
                         .theme
-                )
+                ),
+                card.dataset.theme
             );
         },
         true
@@ -10287,292 +10242,12 @@ document.addEventListener(
     true
 );
 
-function scheduleThemeAudioRetryV41(
-    audio
-) {
-    customThemeAudioRetryCleanupV41?.();
-
-    const retry =
-        () => {
-            if (
-                customThemeIntroAudioV2 !==
-                audio
-            ) {
-                cleanup();
-
-                return;
-            }
-
-            audio.play()
-                .then(
-                    cleanup
-                )
-                .catch(
-                    () => {}
-                );
-        };
-
-    const cleanup =
-        () => {
-            document.removeEventListener(
-                'pointerdown',
-                retry,
-                true
-            );
-
-            document.removeEventListener(
-                'keydown',
-                retry,
-                true
-            );
-
-            customThemeAudioRetryCleanupV41 =
-                null;
-        };
-
-    customThemeAudioRetryCleanupV41 =
-        cleanup;
-
-    document.addEventListener(
-        'pointerdown',
-        retry,
-        true
-    );
-
-    document.addEventListener(
-        'keydown',
-        retry,
-        true
-    );
+function scheduleThemeAudioRetryV41() {
+    // V443 owns the only autoplay retry path.
+    return null;
 }
 
-playCustomThemeIntroAudioV2 =
-    function(
-        theme
-    ) {
-        const src =
-            String(
-                theme?.introAudio ||
-                ''
-            );
-
-        if (!src) {
-            return;
-        }
-
-        let audio;
-
-        if (
-            primedThemeAudioV41 &&
-            primedThemeAudioSrcV41 ===
-                src
-        ) {
-            audio =
-                primedThemeAudioV41;
-
-            primedThemeAudioV41 =
-                null;
-
-            primedThemeAudioSrcV41 =
-                '';
-        } else {
-            audio =
-                new Audio(
-                    src
-                );
-        }
-
-        customThemeIntroAudioV2 =
-            audio;
-
-        const playMode =
-            theme.audioPlayMode ===
-                'segment'
-                ? 'segment'
-                : 'full';
-
-        const start =
-            playMode ===
-                'segment'
-                ? Math.max(
-                    0,
-                    Number(
-                        theme.audioStart
-                    ) ||
-                    0
-                )
-                : 0;
-
-        const requestedEnd =
-            Number(
-                theme.audioEnd
-            );
-
-        const useSegmentEnd =
-            playMode ===
-                'segment' &&
-            Number.isFinite(
-                requestedEnd
-            ) &&
-            requestedEnd >
-                start;
-
-        const end =
-            useSegmentEnd
-                ? requestedEnd
-                : null;
-
-        const startPlayback =
-            () => {
-                try {
-                    audio.currentTime =
-                        start;
-                } catch {}
-
-                audio.volume =
-                    1;
-
-                const play =
-                    audio.play();
-
-                if (
-                    play &&
-                    typeof play.catch ===
-                        'function'
-                ) {
-                    play.catch(
-                        () =>
-                            scheduleThemeAudioRetryV41(
-                                audio
-                            )
-                    );
-                }
-
-                if (
-                    end !==
-                    null
-                ) {
-                    const durationMs =
-                        Math.max(
-                            500,
-                            (
-                                end -
-                                start
-                            ) *
-                            1000
-                        );
-
-                    if (
-                        theme.audioFade &&
-                        durationMs >
-                            1400
-                    ) {
-                        const fadeDuration =
-                            Math.min(
-                                1400,
-                                durationMs *
-                                    .35
-                            );
-
-                        const fadeStart =
-                            Math.max(
-                                0,
-                                durationMs -
-                                    fadeDuration
-                            );
-
-                        setTimeout(
-                            () => {
-                                if (
-                                    customThemeIntroAudioV2 !==
-                                    audio
-                                ) {
-                                    return;
-                                }
-
-                                const started =
-                                    performance.now();
-
-                                customThemeIntroFadeTimerV2 =
-                                    setInterval(
-                                        () => {
-                                            const progress =
-                                                Math.min(
-                                                    1,
-                                                    (
-                                                        performance.now() -
-                                                        started
-                                                    ) /
-                                                        fadeDuration
-                                                );
-
-                                            audio.volume =
-                                                Math.max(
-                                                    0,
-                                                    1 -
-                                                        progress
-                                                );
-
-                                            if (
-                                                progress >=
-                                                1
-                                            ) {
-                                                clearInterval(
-                                                    customThemeIntroFadeTimerV2
-                                                );
-
-                                                customThemeIntroFadeTimerV2 =
-                                                    null;
-                                            }
-                                        },
-                                        50
-                                    );
-                            },
-                            fadeStart
-                        );
-                    }
-
-                    customThemeIntroStopTimerV2 =
-                        setTimeout(
-                            () => {
-                                if (
-                                    customThemeIntroAudioV2 !==
-                                    audio
-                                ) {
-                                    return;
-                                }
-
-                                audio.pause();
-
-                                audio.volume =
-                                    1;
-                            },
-                            durationMs
-                        );
-                }
-            };
-
-        if (
-            audio.readyState >=
-            1
-        ) {
-            startPlayback();
-        } else {
-            audio.addEventListener(
-                'loadedmetadata',
-                startPlayback,
-                {
-                    once:
-                        true
-                }
-            );
-
-            // Start the fetch immediately; if this is a primed element it may
-            // already be allowed to play even after async theme application.
-            audio.load?.();
-        }
-    };
-
+// Superseded V41 intro player removed; V420 below is the single runtime owner.
 
 // ------------------------------------------------------------
 // Dashboard save-from-dashboard must select the new shared theme on return.
@@ -11081,225 +10756,7 @@ previewThemeBuilderIntroV10 =
         }
     };
 
-// Final runtime intro-audio implementation with volume.
-playCustomThemeIntroAudioV2 =
-    function(
-        theme
-    ) {
-        const src =
-            String(
-                theme?.introAudio ||
-                ''
-            );
-
-        if (!src) {
-            return;
-        }
-
-        let audio;
-
-        if (
-            primedThemeAudioV41 &&
-            primedThemeAudioSrcV41 ===
-                src
-        ) {
-            audio =
-                primedThemeAudioV41;
-
-            primedThemeAudioV41 =
-                null;
-
-            primedThemeAudioSrcV41 =
-                '';
-        } else {
-            audio =
-                new Audio(
-                    src
-                );
-        }
-
-        customThemeIntroAudioV2 =
-            audio;
-
-        const baseVolume =
-            clampThemeVolumeV42(
-                theme.audioVolume,
-                THEME_AUDIO_VOLUME_DEFAULT_V42
-            ) /
-            100;
-
-        const segment =
-            theme.audioPlayMode ===
-                'segment';
-
-        const start =
-            segment
-                ? Math.max(
-                    0,
-                    Number(
-                        theme.audioStart
-                    ) ||
-                    0
-                )
-                : 0;
-
-        const requestedEnd =
-            Number(
-                theme.audioEnd
-            );
-
-        const end =
-            segment &&
-            Number.isFinite(
-                requestedEnd
-            ) &&
-            requestedEnd >
-                start
-                ? requestedEnd
-                : null;
-
-        const begin =
-            () => {
-                try {
-                    audio.currentTime =
-                        start;
-                } catch {}
-
-                audio.volume =
-                    baseVolume;
-
-                const promise =
-                    audio.play();
-
-                promise
-                    ?.catch(
-                        () =>
-                            scheduleThemeAudioRetryV41(
-                                audio
-                            )
-                    );
-
-                if (
-                    end ===
-                    null
-                ) {
-                    return;
-                }
-
-                const durationMs =
-                    Math.max(
-                        500,
-                        (
-                            end -
-                            start
-                        ) *
-                            1000
-                    );
-
-                if (
-                    theme.audioFade &&
-                    durationMs >
-                        1400
-                ) {
-                    const fadeDuration =
-                        Math.min(
-                            1400,
-                            durationMs *
-                                .35
-                        );
-
-                    const fadeStart =
-                        Math.max(
-                            0,
-                            durationMs -
-                                fadeDuration
-                        );
-
-                    setTimeout(
-                        () => {
-                            if (
-                                customThemeIntroAudioV2 !==
-                                audio
-                            ) {
-                                return;
-                            }
-
-                            const started =
-                                performance.now();
-
-                            customThemeIntroFadeTimerV2 =
-                                setInterval(
-                                    () => {
-                                        const progress =
-                                            Math.min(
-                                                1,
-                                                (
-                                                    performance.now() -
-                                                    started
-                                                ) /
-                                                    fadeDuration
-                                            );
-
-                                        audio.volume =
-                                            baseVolume *
-                                            Math.max(
-                                                0,
-                                                1 -
-                                                    progress
-                                            );
-
-                                        if (
-                                            progress >=
-                                            1
-                                        ) {
-                                            clearInterval(
-                                                customThemeIntroFadeTimerV2
-                                            );
-
-                                            customThemeIntroFadeTimerV2 =
-                                                null;
-                                        }
-                                    },
-                                    50
-                                );
-                        },
-                        fadeStart
-                    );
-                }
-
-                customThemeIntroStopTimerV2 =
-                    setTimeout(
-                        () => {
-                            if (
-                                customThemeIntroAudioV2 ===
-                                audio
-                            ) {
-                                audio.pause();
-                            }
-                        },
-                        durationMs
-                    );
-            };
-
-        if (
-            audio.readyState >=
-            1
-        ) {
-            begin();
-        } else {
-            audio.addEventListener(
-                'loadedmetadata',
-                begin,
-                {
-                    once:
-                        true
-                }
-            );
-
-            audio.load?.();
-        }
-    };
-
+// Superseded V42 intro player removed; V420 below owns volume + segment playback.
 
 // ------------------------------------------------------------
 // Dashboard colors: exact same field markup/grid as other Colors.
@@ -16568,62 +16025,9 @@ updateThemeBuilderPreview =
 
 // ============================================================
 // V47 — INDEPENDENT NEW THEMES / CURRENT CUSTOM THEME SELECTION
-// DASHBOARD PLACEMENT PARITY
+// V404: Dashboard placement snapshots retired. Dashboard and Log now compute
+// the same distribution directly from svgDistribution/manualPlacementSlotsV40.
 // ============================================================
-
-
-// ------------------------------------------------------------
-// Save the actual preview positions with every Theme Builder draft.
-// Dashboard can then use the same coordinate set instead of its older,
-// separate fallback distribution.
-// ------------------------------------------------------------
-
-const getThemeBuilderDraftBeforePlacementSnapshotV47 =
-    getThemeBuilderDraft;
-
-getThemeBuilderDraft =
-    function(
-        modal
-    ) {
-        const draft =
-            getThemeBuilderDraftBeforePlacementSnapshotV47(
-                modal
-            );
-
-        try {
-            const assignments =
-                getPreviewSvgAssignmentsV10(
-                    modal,
-                    draft
-                );
-
-            if (
-                Array.isArray(
-                    assignments
-                ) &&
-                assignments.length
-            ) {
-                draft.dashboardPlacementSlotsV47 =
-                    assignments.map(
-                        assignment => ({
-                            x:
-                                Number(
-                                    assignment.left
-                                ) ||
-                                50,
-                            y:
-                                Number(
-                                    assignment.top
-                                ) ||
-                                50
-                        })
-                    );
-            }
-        } catch {}
-
-        return draft;
-    };
-
 
 // ------------------------------------------------------------
 // V368: applied-theme selection on Settings open is owned by the final
@@ -19141,6 +18545,18 @@ const CUSTOM_TAB_TEMPLATES_V53 = [
         name: 'Alphabet',
         icon: 'ph-translate',
         description: 'Build a character or alphabet reference with audio cards, category practice, and review.'
+    },
+    {
+        id: 'whiteboard-v197',
+        name: 'Whiteboard',
+        icon: 'ph-selection-background',
+        description: 'A full-screen multi-board canvas with sticky notes, movable images, text boxes, drawing, lasso, erasers, connections, and visual board previews.'
+    },
+    {
+        id: 'notepad-v249',
+        name: 'Notebook',
+        icon: 'ph-notebook',
+        description: 'A full-screen multi-page notebook with page categories, paper styles, movable images, drawing tools, and exact-page links from Daily Logs.'
     }
 ];
 
@@ -19511,6 +18927,20 @@ function buildPrebuiltTabComponentsV53(
                     reviewState: {}
                 }
             ];
+
+        case 'whiteboard-v197':
+            return [{
+                id: customId('component'),
+                type: 'miroWhiteboardV197',
+                title: 'Whiteboard'
+            }];
+
+        case 'notepad-v249':
+            return [{
+                id: customId('component'),
+                type: 'fullNotepadV249',
+                title: 'Notebook'
+            }];
 
         default:
             return [];
@@ -20880,6 +20310,25 @@ function patchCustomTabCreateButtonV53() {
         'click',
         createCustomTabFromModalV53
     );
+
+    // V495: Enter inside Create Tab uses the exact same final button click path
+    // as the mouse. This survives later button-handler wrappers and avoids a
+    // second, older create function being called directly.
+    if (modal.dataset.createTabEnterBoundV495 !== '1') {
+        modal.dataset.createTabEnterBoundV495 = '1';
+        modal.addEventListener('keydown', event => {
+            if (
+                event.key !== 'Enter' || event.repeat || event.shiftKey ||
+                event.ctrlKey || event.metaKey || event.altKey ||
+                event.target?.tagName === 'TEXTAREA' || event.target?.isContentEditable
+            ) return;
+            const submit = modal.querySelector('#custom-tab-create-confirm:not(:disabled)');
+            if (!submit || modal.classList.contains('hidden')) return;
+            event.preventDefault();
+            event.stopPropagation();
+            submit.click();
+        });
+    }
 }
 
 function createCustomTabFromModalV53() {
@@ -20892,6 +20341,19 @@ function createCustomTabFromModalV53() {
         modal?.querySelector(
             '#custom-tab-name-input'
         );
+
+    // V496: Whiteboard/Notebook creation must never block on lazy feature boot.
+    // V484 waited for a readiness flag and recursively re-entered this function;
+    // if the flag lagged or never flipped, the tab was never inserted. The tab's
+    // built-in component is enough to persist immediately. Trigger the lazy
+    // runtime in parallel and let its normal renderer attach when available.
+    const requestedTemplateV496 = String(modal?.dataset?.selectedTemplateV53 || '');
+    const isSpecialWorkspaceV496 =
+        requestedTemplateV496 === 'whiteboard-v197' ||
+        requestedTemplateV496 === 'notepad-v249';
+    if (isSpecialWorkspaceV496 && typeof window.ensureLoggyExtras === 'function') {
+        try { window.ensureLoggyExtras({ urgent: true }).catch(() => {}); } catch {}
+    }
 
     if (
         !modal ||
@@ -25010,4 +24472,116 @@ renderCustomTabNavigation =
         try { renderCompanion?.(); } catch {}
         try { saveDb?.(); } catch {}
     });
+})();
+
+// ============================================================================
+// V418 — SHARED THEME AUDIO / LEGACY COPY AUTHORITY
+// A shared saved theme is authoritative over any same-ID themeCopiesV30 mirror.
+// This prevents an older copy from priming the previous intro song or being
+// republished back over a freshly saved shared theme.
+// ============================================================================
+(() => {
+    'use strict';
+    if (window.__loggySharedThemeAudioAuthorityV418) return;
+    window.__loggySharedThemeAudioAuthorityV418 = true;
+
+    const SHARED_KEY_V418 = 'loggy-shared-themes-v40';
+    const cloneV418 = value => {
+        try { return structuredClone(value); } catch {}
+        try { return JSON.parse(JSON.stringify(value)); } catch {}
+        return value && typeof value === 'object' ? { ...value } : value;
+    };
+    const readSharedV418 = () => {
+        try {
+            const rows = JSON.parse(localStorage.getItem(SHARED_KEY_V418) || '[]');
+            return Array.isArray(rows) ? rows : [];
+        } catch { return []; }
+    };
+    const sharedRowV418 = id => readSharedV418().find(row => String(row?.id || '') === String(id || '')) || null;
+
+    function repairSharedMirrorsV418() {
+        let copies = [];
+        try { copies = ensureThemeCopiesV30?.() || []; } catch {}
+        if (!Array.isArray(copies)) return;
+        const shared = readSharedV418();
+        if (!shared.length) return;
+        const byId = new Map(shared.filter(row => row?.id && row?.theme).map(row => [String(row.id), row]));
+        copies.forEach(copy => {
+            const row = byId.get(String(copy?.id || ''));
+            if (!row) return;
+            copy.name = row.name || row.theme?.name || copy.name || 'Shared Theme';
+            copy.sourceThemeId = row.sourceThemeId || '';
+            copy.theme = cloneV418(row.theme);
+            copy.sharedV40 = true;
+            copy.createdAt = row.updatedAt || copy.createdAt || new Date().toISOString();
+        });
+    }
+
+    // Audio priming must read the same saved shared record that Edit Theme uses.
+    try {
+        const oldThemeDataV418 = themeDataForThemeIdV41;
+        themeDataForThemeIdV41 = function(themeId) {
+            const row = sharedRowV418(themeId);
+            if (row?.theme) return row.theme;
+            return oldThemeDataV418.apply(this, arguments);
+        };
+    } catch {}
+
+    // The historical sync only replaced an existing mirror when sharedV40 was
+    // already true. Repair every same-ID mirror regardless of that old flag.
+    try {
+        const oldSyncV418 = syncSharedThemesIntoLogV40;
+        syncSharedThemesIntoLogV40 = function() {
+            const result = oldSyncV418.apply(this, arguments);
+            repairSharedMirrorsV418();
+            return result;
+        };
+    } catch {}
+
+    // Before the legacy publisher runs, canonicalize/mark every same-ID copy as
+    // shared so publishCurrentLogThemesV40 cannot republish stale audio over it.
+    try {
+        const oldPublishCurrentV418 = publishCurrentLogThemesV40;
+        publishCurrentLogThemesV40 = function() {
+            repairSharedMirrorsV418();
+            return oldPublishCurrentV418.apply(this, arguments);
+        };
+    } catch {}
+
+    // Keep mirrors corrected when another frame saves/updates the shared library.
+    window.addEventListener('storage', event => {
+        if (event.key === SHARED_KEY_V418) repairSharedMirrorsV418();
+    });
+    try { repairSharedMirrorsV418(); } catch {}
+})();
+
+// ============================================================================
+// V443 — LOG INTRO COMPATIBILITY ADAPTER
+// All historical applied-theme audio entry points route to the single clean
+// V443 owner in template.js. Ordinary visual-apply calls do not restart audio.
+// ============================================================================
+(() => {
+  'use strict';
+  const owner = () => window.__loggyLogIntroAudioV443 || null;
+  const adapter = function(_theme = {}, options = {}) {
+    const audio = owner();
+    if (!audio) return null;
+    if (options?.forceRestart === true || options?.__loggyCoreRestartV428 === true) {
+      return audio.playTheme?.(audio.currentThemeId?.() || '', {
+        reason:'legacy-explicit-replay-v443',
+        force:true
+      }) || null;
+    }
+    return audio.audio || null;
+  };
+  adapter.__loggyV443Adapter = true;
+
+  try { playCustomThemeIntroAudioV2 = adapter; } catch {}
+  try { window.playCustomThemeIntroAudioV2 = adapter; } catch {}
+
+  window.__loggyStopAllIntroAudioV420 = () => owner()?.stopAll?.();
+  window.__loggyRestartCurrentIntroV425 = options =>
+    owner()?.playTheme?.(owner()?.currentThemeId?.() || '', { ...(options || {}), force:true }) || null;
+  window.__loggyReplaySavedIntroV423 = () =>
+    owner()?.playTheme?.(owner()?.currentThemeId?.() || '', { reason:'compat-replay-v443', force:true }) || null;
 })();

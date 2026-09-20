@@ -224,17 +224,17 @@ function ensureKnowledgePlaceholderSettingsUiV56() {
             'modal-section kb-placeholder-settings-v56';
 
         section.innerHTML = `
-            <div class="kb-placeholder-settings-heading-v56">
-                <div>
+            <div class="kb-placeholder-settings-heading-v56 kb-placeholder-heading-row-v451">
+                <div class="kb-daily-recommend-copy-v173 kb-placeholder-copy-v451">
                     <span class="field-label">Placeholders</span>
                     <small>
                         Type \\ in a Knowledge Base item title to insert one.
                     </small>
                 </div>
 
-                <label class="feature-toggle-row kb-placeholder-toggle-v56">
+                <label class="kb-switch-v173 kb-placeholder-toggle-v56 kb-placeholder-switch-v451" title="Enable placeholders">
                     <input type="checkbox" class="kb-placeholders-enabled-v56">
-                    <span>Enable placeholders</span>
+                    <span class="kb-switch-track-v173"></span>
                 </label>
             </div>
 
@@ -3435,12 +3435,12 @@ function ensureThemeHeadingControlsV59(modal) {
     section.dataset.themeBuilderPanelGroup = 'colors';
     section.innerHTML = `
         <div class="theme-builder-control-heading">
-            <strong>Section Heading Background</strong>
+            <strong>Section Heading Backdrop</strong>
             <small>Add a padded background behind headings such as Items Learned, Tools, Media Resources, and custom-tab section titles.</small>
         </div>
         <label class="feature-toggle-row theme-heading-background-toggle-v59">
             <input type="checkbox" class="theme-heading-background-enabled-v59">
-            <span>Use heading background</span>
+            <span>Use heading backdrop</span>
         </label>
         <div class="theme-heading-background-details-v59">
             <label class="theme-builder-field">
@@ -3753,7 +3753,7 @@ function renderQuizExtraPracticeSectionsV59() {
         <section class="quiz-extra-practice-card-v59"><div><strong>Conjugation / Form Transformations</strong><small>Practice the transformation rules you configured without changing your normal quiz decks.</small></div><button class="icon-btn open-transformation-practice-v59">Start Practice</button></section>`);
     host.innerHTML = cards.join('');
     host.classList.toggle('hidden', !cards.length);
-    host.querySelector('.open-smart-practice-v59')?.addEventListener('click', openSmartPlaceholderPracticeV59);
+    host.querySelector('.open-smart-practice-v59')?.addEventListener('click', event => { event.preventDefault(); event.stopImmediatePropagation(); (window.openSmartPlaceholderPracticeV473 || window.openSmartPlaceholderPracticeV468 || openSmartPlaceholderPracticeV59)(); });
     host.querySelector('.open-transformation-practice-v59')?.addEventListener('click', openTransformationPracticeV59);
 }
 
@@ -6589,28 +6589,11 @@ function themePreviewHeadingNodesV62(
         return [];
     }
 
-    return Array.from(
-        page.querySelectorAll(
-            [
-                '.borderless-section > h1',
-                '.borderless-section > h2',
-                '.borderless-section > h3',
-                '.section-header > h1',
-                '.section-header > h2',
-                '.section-header > h3',
-                '.custom-collection-header h1',
-                '.custom-collection-header h2',
-                '.custom-collection-header h3',
-                '.feature-page-header h1',
-                '.feature-page-header h2',
-                '.custom-tab-title',
-                '.weekly-review-title',
-                '.weekly-review-section h2',
-                '.weekly-review-section h3',
-                '.custom-user-heading'
-            ].join(',')
-        )
-    );
+    // V501: preview every structural tab/page heading. The previous explicit list
+    // missed generated/custom layouts, so KB/Quizzes/Toolbox/custom tabs could
+    // preview without the Heading Backdrop even though Daily Log worked.
+    return Array.from(page.querySelectorAll('h1,h2,h3,.custom-tab-title,.custom-user-heading'))
+        .filter(node => !node.closest('.modal-overlay,.modal-box,.quiz-card,.flashcard-mode-card,.map-study-card-v172'));
 }
 
 function applyHeadingPreviewV62(
@@ -6632,28 +6615,64 @@ function applyHeadingPreviewV62(
         return;
     }
 
-    const enabled =
-        !!draft
-            .sectionHeadingBackgroundEnabledV59;
+    // V496: this older preview helper still runs, so it must read the same
+    // dedicated Heading Backdrop fields as the current Theme Builder. Otherwise
+    // its inline !important styles can repaint the preview with a stale white
+    // legacy value after the modern preview has already rendered correctly.
+    const hasModernHeadingV496 =
+        Object.prototype.hasOwnProperty.call(draft || {}, 'headingBackgroundEnabledV429') ||
+        Object.prototype.hasOwnProperty.call(draft || {}, 'headingBackgroundColorV452');
 
-    const color =
-        draft
-            .sectionHeadingBackgroundColorV59 ||
-        draft.surface ||
-        '#ffffff';
+    const enabled = hasModernHeadingV496
+        ? draft?.headingBackgroundEnabledV429 === true
+        : !!draft?.sectionHeadingBackgroundEnabledV59;
 
-    const padding =
-        Math.max(
-            2,
-            Math.min(
-                18,
-                Number(
-                    draft
-                        .sectionHeadingBackgroundPaddingV59
-                ) ||
-                6
-            )
-        );
+    const color = hasModernHeadingV496
+        ? (draft?.headingBackgroundColorV452 || draft?.surface || '#ffffff')
+        : (draft?.sectionHeadingBackgroundColorV59 || draft?.surface || '#ffffff');
+
+    const opacity = Math.max(
+        0,
+        Math.min(
+            100,
+            Number(
+                hasModernHeadingV496
+                    ? (draft?.headingBackgroundOpacityV452 ?? 88)
+                    : 100
+            ) || 0
+        )
+    );
+
+    const headingRgbaV496 = (() => {
+        const match = /^#([0-9a-f]{6})$/i.exec(String(color || '').trim());
+        if (!match) return color;
+        const n = parseInt(match[1], 16);
+        return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${opacity / 100})`;
+    })();
+
+    const padding = Math.max(
+        0,
+        Math.min(
+            40,
+            Number(
+                hasModernHeadingV496
+                    ? (draft?.headingBackgroundPaddingV429 ?? 10)
+                    : (draft?.sectionHeadingBackgroundPaddingV59 ?? 6)
+            ) || 0
+        )
+    );
+
+    const radius = Math.max(
+        0,
+        Math.min(
+            40,
+            Number(
+                hasModernHeadingV496
+                    ? (draft?.headingBackgroundRadiusV452 ?? draft?.radius ?? 10)
+                    : (draft?.radius ?? 10)
+            ) || 0
+        )
+    );
 
     themePreviewHeadingNodesV62(
         modal
@@ -6709,7 +6728,7 @@ function applyHeadingPreviewV62(
             node.style
                 .setProperty(
                     'background-color',
-                    color,
+                    headingRgbaV496,
                     'important'
                 );
 
@@ -6730,7 +6749,7 @@ function applyHeadingPreviewV62(
             node.style
                 .setProperty(
                     'border-radius',
-                    '8px',
+                    `${radius}px`,
                     'important'
                 );
 
@@ -8916,10 +8935,10 @@ function refreshOptionalQuizPracticeSectionsV66() {
     // If the user is currently on Quizzes, the newly enabled card should
     // become visible immediately. On every other page it remains hidden.
     const quizzesActive =
-        !!quizzesView &&
-        quizzesView.classList.contains(
-            'active'
-        );
+        !!quizzesView && (
+        quizzesView.classList.contains('active') ||
+        quizzesView.classList.contains('wb-quiz-portal-current-v507')
+    );
 
     host.classList.toggle(
         'view-hidden-v60',
@@ -15186,13 +15205,19 @@ requestAnimationFrame(() => {
                     localStorage.getItem(SHARED_KEY_V95)
                 );
 
-                // Once the project library exists, the server is authoritative.
-                // Do NOT union it with stale per-browser localStorage: doing that
-                // resurrected deleted themes and created random duplicate cards.
-                // Only the very first browser migrates its local library.
-                const chosen = initialized
-                    ? remote
-                    : mergeThemeLibrariesV95(remote, local);
+                // V408: the server remains authoritative for membership (so a
+                // deleted local-only theme cannot resurrect), but for an ID that
+                // exists on BOTH sides the newest updatedAt wins. This prevents a
+                // Dashboard/Studio startup GET from rolling a just-saved animation
+                // back to an older server copy.
+                let chosen;
+                if (initialized) {
+                    const remoteIds = new Set(remote.filter(item=>item?.id).map(item=>String(item.id)));
+                    const sameIdsLocal = local.filter(item=>item?.id && remoteIds.has(String(item.id)));
+                    chosen = mergeThemeLibrariesV95(remote, sameIdsLocal);
+                } else {
+                    chosen = mergeThemeLibrariesV95(remote, local);
+                }
 
                 suppressMirror = true;
                 nativeSetItem.call(
@@ -15203,7 +15228,9 @@ requestAnimationFrame(() => {
                 suppressMirror = false;
                 serverReady = true;
 
-                if (!initialized) {
+                if (!initialized || JSON.stringify(chosen) !== JSON.stringify(remote)) {
+                    // If a newer local edit won for an existing ID, immediately
+                    // repair the server copy too so the next page sees the same save.
                     await putSharedThemesToServerV95(chosen);
                 }
 
@@ -16504,7 +16531,7 @@ requestAnimationFrame(() => {
         openGlobalThemeSettings = function() {
             const result = openThemeSettingsBeforeV97();
             const title = document.querySelector('#daily-settings-modal .modal-header h2');
-            if (title) title.textContent = 'Theme Settings';
+            if (title) title.textContent = 'Settings';
             document.querySelectorAll('#daily-settings-modal .theme-picker-hint').forEach(node => node.remove());
             return result;
         };
@@ -16528,7 +16555,7 @@ requestAnimationFrame(() => {
         const modal = document.getElementById('theme-builder-modal');
         if (modal) v97PolishThemeBuilder(modal, (() => { try { return getThemeBuilderDraft(modal); } catch { return {}; } })());
         const title = document.querySelector('#daily-settings-modal .modal-header h2');
-        if (title?.textContent?.trim() === 'Settings') title.textContent = 'Theme Settings';
+        if (title?.textContent?.trim() === 'Settings') title.textContent = 'Settings';
     });
 })();
 
@@ -17477,7 +17504,7 @@ requestAnimationFrame(() => {
     // boot/edit hydration that iframe can temporarily mount a real theme, whose
     // intro audio would otherwise start from 0 and sound like the Dashboard's
     // already-playing song had reset. Silence ONLY audio created/started by
-    // that automatic inspection. Audio created later by Preview Intro, hover
+    // that automatic inspection. Audio created later by manual auditions or hover
     // auditions, etc. is untouched.
     if (inDashboardStudio && !window.__themeStudioAudioGuardV101) {
         window.__themeStudioAudioGuardV101 = true;
@@ -17519,7 +17546,7 @@ requestAnimationFrame(() => {
             silentDepth = Math.max(0, silentDepth - 1);
             if (silentDepth === 0) {
                 // The modal is now ready. Future user-created audio objects
-                // (Preview Intro / hover-sound audition) are allowed to play.
+                // (manual audio / hover-sound auditions) are allowed to play.
                 bootSilent = false;
             }
         };
@@ -17618,3 +17645,609 @@ requestAnimationFrame(() => {
 })();
 
 // ============================================================
+
+// ============================================================
+// V457 — SMART PLACEHOLDER PRACTICE: TWO REAL ANSWER MODES
+// ============================================================
+(function(){
+    function shuffleV457(list){
+        const out = [...list];
+        for(let i = out.length - 1; i > 0; i--){
+            const j = Math.floor(Math.random() * (i + 1));
+            [out[i], out[j]] = [out[j], out[i]];
+        }
+        return out;
+    }
+
+    function learnedNonPatternItemsV457(){
+        const patternIds = new Set(knowledgePatternItemsV56());
+        return Array.from(new Set(getAllLoggedItemIdsV58()))
+            .filter(id => !patternIds.has(id))
+            .filter(id => !String(id).includes('\\'))
+            .filter(id => !!db.phrase_meta?.[id])
+            .filter(id => !isHiddenFromQuizzesV59(id))
+            .sort((a,b) => String(a).localeCompare(String(b)));
+    }
+
+    function answerablePatternsV457(items){
+        return learnedPlaceholderPatternsV59().filter(patternId => {
+            const slots = placeholderSegmentsV56(patternId).filter(seg => seg.type === 'slot');
+            return slots.length && slots.every(slot =>
+                items.some(itemId => placeholderRequirementMatchesItemV58(slot.name, itemId))
+            );
+        });
+    }
+
+    function randomFromV457(list){
+        return list.length ? list[Math.floor(Math.random() * list.length)] : null;
+    }
+
+    function buildChoiceQuestionV457(patterns, items){
+        const possible = [];
+        patterns.forEach(patternId => {
+            const segments = placeholderSegmentsV56(patternId);
+            segments.filter(seg => seg.type === 'slot').forEach(slot => {
+                const correct = items.filter(id => placeholderRequirementMatchesItemV58(slot.name, id));
+                const wrong = items.filter(id => !placeholderRequirementMatchesItemV58(slot.name, id));
+                if(correct.length && wrong.length >= 3){
+                    possible.push({ patternId, segments, slot, correct, wrong });
+                }
+            });
+        });
+        const picked = randomFromV457(possible);
+        if(!picked) return null;
+        const correctId = randomFromV457(picked.correct);
+        const distractors = shuffleV457(picked.wrong).slice(0,3);
+        return {
+            ...picked,
+            correctId,
+            choices: shuffleV457([correctId, ...distractors]),
+            selectedId: ''
+        };
+    }
+
+    function smartFeedbackV457(body, message, state){
+        const feedback = body.querySelector('.smart-practice-feedback-v457');
+        if(!feedback) return;
+        feedback.classList.remove('correct','wrong','neutral');
+        feedback.classList.add(state || 'neutral');
+        feedback.textContent = message || '';
+    }
+
+    function itemButtonV457(id, dataAttr){
+        return `<button type="button" class="sentence-builder-kb-result-v56 smart-practice-item-v457" draggable="true" ${dataAttr}="${escapeKnowledgeAttr(id)}"><span>${placeholderTokenHtmlV56(id)}</span><i class="ph ph-dots-six-vertical"></i></button>`;
+    }
+
+    openSmartPlaceholderPracticeV59 = function(){
+        const allItems = learnedNonPatternItemsV457();
+        const patterns = answerablePatternsV457(allItems);
+        const modal = createPracticeModalV59('smart-placeholder-practice-modal-v59', 'Smart Placeholder Practice');
+        const body = modal.querySelector('.quiz-practice-body-v59');
+
+        if(!allItems.length){
+            body.innerHTML = '<div class="quiz-settings-empty-v58">No learned non-pattern Knowledge Base items are available yet.</div>';
+            return;
+        }
+        if(!patterns.length){
+            body.innerHTML = '<div class="quiz-settings-empty-v58">No learned placeholder pattern currently has a learned item that can correctly fill every placeholder.</div>';
+            return;
+        }
+
+        let mode = 'all';
+        let currentPattern = randomFromV457(patterns);
+        let values = {};
+        let choiceQuestion = null;
+
+        const newAllPattern = () => {
+            currentPattern = randomFromV457(patterns);
+            values = {};
+        };
+        const newChoiceQuestion = () => {
+            choiceQuestion = buildChoiceQuestionV457(patterns, allItems);
+        };
+
+        function renderModeBarV457(){
+            return `
+                <div class="smart-practice-mode-switch-v457" role="tablist" aria-label="Smart Placeholder Practice mode">
+                    <button type="button" class="smart-practice-mode-v457 ${mode === 'all' ? 'active' : ''}" data-smart-mode-v457="all">All Learned Items</button>
+                    <button type="button" class="smart-practice-mode-v457 ${mode === 'choices' ? 'active' : ''}" data-smart-mode-v457="choices">4 Choices</button>
+                </div>`;
+        }
+
+        function bindModeBarV457(){
+            body.querySelectorAll('[data-smart-mode-v457]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const next = button.dataset.smartModeV457;
+                    if(next === mode) return;
+                    mode = next;
+                    if(mode === 'all') newAllPattern();
+                    else newChoiceQuestion();
+                    render();
+                });
+            });
+        }
+
+        function renderAllModeV457(){
+            const segments = placeholderSegmentsV56(currentPattern);
+            const slots = segments.filter(seg => seg.type === 'slot');
+            body.innerHTML = `
+                ${renderModeBarV457()}
+                <div class="smart-practice-mode-help-v457">Search by learned item name, then decide for yourself which item actually fits each placeholder.</div>
+                <div class="quiz-practice-toolbar-v59">
+                    <strong>${placeholderTokenHtmlV56(currentPattern)}</strong>
+                    <button type="button" class="small-icon-btn smart-next-pattern-v59" title="New pattern"><i class="ph ph-shuffle"></i></button>
+                </div>
+                <div class="sentence-builder-canvas-v56 smart-practice-canvas-v59">
+                    ${segments.map(seg => seg.type === 'text'
+                        ? `<span class="sentence-builder-literal-v56">${escapeKnowledgeHtml(seg.text)}</span>`
+                        : `<div class="sentence-builder-slot-v56 ${values[seg.slotIndex] ? 'filled' : ''}" data-smart-slot-v457="${seg.slotIndex}" data-smart-name-v457="${escapeKnowledgeAttr(seg.name)}">
+                            <span class="sentence-builder-slot-label-v56">${escapeKnowledgeHtml(seg.name.toUpperCase())}</span>
+                            <div class="sentence-builder-slot-value-v56">${values[seg.slotIndex] ? `<strong>${escapeKnowledgeHtml(values[seg.slotIndex])}</strong>` : '<span>Drop an item here</span>'}</div>
+                        </div>`).join('')}
+                </div>
+                <div class="sentence-builder-search-v56"><i class="ph ph-magnifying-glass"></i><input class="smart-practice-search-v457" placeholder="Search learned items…" autocomplete="off"></div>
+                <div class="sentence-builder-kb-results-v56 smart-practice-bank-v457"></div>
+                <div class="smart-practice-feedback-v457 neutral" aria-live="polite"></div>
+                <div class="quiz-generated-actions-v58"><button type="button" class="icon-btn smart-practice-check-v457">Check Answer</button></div>`;
+
+            bindModeBarV457();
+            const search = body.querySelector('.smart-practice-search-v457');
+            const bank = body.querySelector('.smart-practice-bank-v457');
+            const drawBank = () => {
+                const q = String(search.value || '').trim().toLowerCase();
+                // Deliberately title-only: tags and metadata cannot be used to reveal the placeholder type.
+                const filtered = allItems.filter(id => !q || String(id).toLowerCase().includes(q));
+                bank.innerHTML = filtered.length
+                    ? filtered.map(id => itemButtonV457(id, 'data-smart-item-v457')).join('')
+                    : '<div class="sentence-pattern-no-results-v55">No learned items match that name.</div>';
+                bank.querySelectorAll('[data-smart-item-v457]').forEach(btn => {
+                    btn.addEventListener('dragstart', event => {
+                        event.dataTransfer.effectAllowed = 'copy';
+                        event.dataTransfer.setData('text/smart-v457', btn.dataset.smartItemV457);
+                    });
+                });
+            };
+            search.addEventListener('input', drawBank);
+            drawBank();
+
+            body.querySelectorAll('[data-smart-slot-v457]').forEach(slot => {
+                slot.addEventListener('dragover', event => {
+                    if(!event.dataTransfer.types.includes('text/smart-v457')) return;
+                    event.preventDefault();
+                    slot.classList.add('drop-ready');
+                });
+                slot.addEventListener('dragleave', () => slot.classList.remove('drop-ready'));
+                slot.addEventListener('drop', event => {
+                    const itemId = event.dataTransfer.getData('text/smart-v457');
+                    if(!itemId) return;
+                    event.preventDefault();
+                    slot.classList.remove('drop-ready');
+                    values[Number(slot.dataset.smartSlotV457)] = itemId;
+                    render();
+                });
+            });
+
+            body.querySelector('.smart-next-pattern-v59')?.addEventListener('click', () => {
+                newAllPattern();
+                render();
+            });
+            body.querySelector('.smart-practice-check-v457')?.addEventListener('click', () => {
+                const missing = slots.filter(slot => !values[slot.slotIndex]);
+                if(missing.length){
+                    smartFeedbackV457(body, 'Fill every placeholder first.', 'neutral');
+                    return;
+                }
+                const wrong = [];
+                slots.forEach(slot => {
+                    const el = body.querySelector(`[data-smart-slot-v457="${slot.slotIndex}"]`);
+                    const itemId = values[slot.slotIndex];
+                    const ok = placeholderRequirementMatchesItemV58(slot.name, itemId);
+                    el?.classList.toggle('answer-correct-v457', ok);
+                    el?.classList.toggle('answer-wrong-v457', !ok);
+                    if(!ok) wrong.push({slot, itemId});
+                });
+                if(!wrong.length){
+                    smartFeedbackV457(body, 'Correct! Every item matches its placeholder.', 'correct');
+                }else if(wrong.length === 1){
+                    smartFeedbackV457(body, `Incorrect. “${wrong[0].itemId}” does not match ${wrong[0].slot.name.toUpperCase()}.`, 'wrong');
+                }else{
+                    smartFeedbackV457(body, `Incorrect. ${wrong.length} choices do not match their placeholders.`, 'wrong');
+                }
+            });
+        }
+
+        function renderChoiceModeV457(){
+            if(!choiceQuestion) newChoiceQuestion();
+            if(!choiceQuestion){
+                body.innerHTML = `
+                    ${renderModeBarV457()}
+                    <div class="quiz-settings-empty-v58">4 Choices needs at least one learned item that matches a placeholder and three learned non-matching items. Add a few more learned items, then try again.</div>`;
+                bindModeBarV457();
+                return;
+            }
+
+            const q = choiceQuestion;
+            const targetIndex = q.slot.slotIndex;
+            body.innerHTML = `
+                ${renderModeBarV457()}
+                <div class="smart-practice-mode-help-v457">Choose which learned item correctly fits <strong>${escapeKnowledgeHtml(q.slot.name.toUpperCase())}</strong>. Patterns are never used as answer choices.</div>
+                <div class="quiz-practice-toolbar-v59">
+                    <strong>${placeholderTokenHtmlV56(q.patternId)}</strong>
+                    <button type="button" class="small-icon-btn smart-next-choice-v457" title="New question"><i class="ph ph-shuffle"></i></button>
+                </div>
+                <div class="sentence-builder-canvas-v56 smart-practice-canvas-v59 smart-choice-canvas-v457">
+                    ${q.segments.map(seg => {
+                        if(seg.type === 'text') return `<span class="sentence-builder-literal-v56">${escapeKnowledgeHtml(seg.text)}</span>`;
+                        if(seg.slotIndex !== targetIndex) return `<div class="sentence-builder-slot-v56 smart-choice-passive-slot-v457"><span class="sentence-builder-slot-label-v56">${escapeKnowledgeHtml(seg.name.toUpperCase())}</span></div>`;
+                        return `<div class="sentence-builder-slot-v56 smart-choice-target-v457 ${q.selectedId ? 'filled' : ''}" data-smart-choice-slot-v457="true">
+                            <span class="sentence-builder-slot-label-v56">${escapeKnowledgeHtml(seg.name.toUpperCase())}</span>
+                            <div class="sentence-builder-slot-value-v56">${q.selectedId ? `<strong>${escapeKnowledgeHtml(q.selectedId)}</strong>` : '<span>Drag one answer here</span>'}</div>
+                        </div>`;
+                    }).join('')}
+                </div>
+                <div class="smart-choice-bank-v457">
+                    ${q.choices.map(id => itemButtonV457(id, 'data-smart-choice-v457')).join('')}
+                </div>
+                <div class="smart-practice-feedback-v457 neutral" aria-live="polite"></div>
+                <div class="quiz-generated-actions-v58"><button type="button" class="icon-btn smart-choice-check-v457">Check Answer</button></div>`;
+
+            bindModeBarV457();
+            const target = body.querySelector('[data-smart-choice-slot-v457]');
+            body.querySelectorAll('[data-smart-choice-v457]').forEach(btn => {
+                btn.addEventListener('dragstart', event => {
+                    event.dataTransfer.effectAllowed = 'copy';
+                    event.dataTransfer.setData('text/smart-choice-v457', btn.dataset.smartChoiceV457);
+                });
+                // Clicking is an accessibility/fallback equivalent to dragging.
+                btn.addEventListener('click', () => {
+                    q.selectedId = btn.dataset.smartChoiceV457;
+                    render();
+                });
+            });
+            target?.addEventListener('dragover', event => {
+                if(!event.dataTransfer.types.includes('text/smart-choice-v457')) return;
+                event.preventDefault();
+                target.classList.add('drop-ready');
+            });
+            target?.addEventListener('dragleave', () => target.classList.remove('drop-ready'));
+            target?.addEventListener('drop', event => {
+                const itemId = event.dataTransfer.getData('text/smart-choice-v457');
+                if(!itemId) return;
+                event.preventDefault();
+                q.selectedId = itemId;
+                render();
+            });
+            body.querySelector('.smart-next-choice-v457')?.addEventListener('click', () => {
+                newChoiceQuestion();
+                render();
+            });
+            body.querySelector('.smart-choice-check-v457')?.addEventListener('click', () => {
+                if(!q.selectedId){
+                    smartFeedbackV457(body, 'Choose one answer first.', 'neutral');
+                    return;
+                }
+                const ok = placeholderRequirementMatchesItemV58(q.slot.name, q.selectedId);
+                target?.classList.toggle('answer-correct-v457', ok);
+                target?.classList.toggle('answer-wrong-v457', !ok);
+                if(ok){
+                    smartFeedbackV457(body, `Correct! “${q.selectedId}” matches ${q.slot.name.toUpperCase()}.`, 'correct');
+                }else{
+                    smartFeedbackV457(body, `Incorrect. “${q.selectedId}” does not match ${q.slot.name.toUpperCase()}.`, 'wrong');
+                }
+            });
+        }
+
+        function render(){
+            if(mode === 'choices') renderChoiceModeV457();
+            else renderAllModeV457();
+        }
+
+        render();
+    };
+
+    // Keep the practice-card copy accurate for the new two-mode behavior.
+    const renderQuizExtraPracticeSectionsBeforeV457 = renderQuizExtraPracticeSectionsV59;
+    renderQuizExtraPracticeSectionsV59 = function(){
+        const result = renderQuizExtraPracticeSectionsBeforeV457();
+        const card = document.querySelector('.open-smart-practice-v59')?.closest('.quiz-extra-practice-card-v59');
+        const small = card?.querySelector('small');
+        if(small) small.textContent = 'Practice placeholder patterns using all learned items or a four-choice challenge.';
+        return result;
+    };
+})();
+
+// ============================================================
+// V460 — ENSURE SMART PLACEHOLDER PRACTICE BUTTON USES V457 TWO-MODE UI
+// ============================================================
+(function(){
+    function bindTwoModeSmartPracticeButtonV460(){
+        document.querySelectorAll('.open-smart-practice-v59').forEach(oldButton => {
+            if(oldButton.dataset.smartTwoModeBoundV460 === '1') return;
+
+            // The original V59 renderer bound the old one-mode function directly
+            // with addEventListener. Cloning removes that stale listener so the
+            // button can reliably open the current two-mode implementation.
+            const button = oldButton.cloneNode(true);
+            button.dataset.smartTwoModeBoundV460 = '1';
+            oldButton.replaceWith(button);
+            button.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                openSmartPlaceholderPracticeV59();
+            });
+
+            const card = button.closest('.quiz-extra-practice-card-v59');
+            const small = card?.querySelector('small');
+            if(small){
+                small.textContent = 'Practice placeholder patterns using all learned items or a four-choice challenge.';
+            }
+        });
+    }
+
+    // Future quiz UI refreshes must also discard the stale V59 listener.
+    const renderQuizExtraPracticeSectionsBeforeV460 = renderQuizExtraPracticeSectionsV59;
+    renderQuizExtraPracticeSectionsV59 = function(){
+        const result = renderQuizExtraPracticeSectionsBeforeV460.apply(this, arguments);
+        bindTwoModeSmartPracticeButtonV460();
+        return result;
+    };
+
+    // Fix any Smart Practice card that was rendered before the V457/V460 patches loaded.
+    bindTwoModeSmartPracticeButtonV460();
+    if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', bindTwoModeSmartPracticeButtonV460, { once: true });
+    }else{
+        requestAnimationFrame(bindTwoModeSmartPracticeButtonV460);
+    }
+})();
+
+// ============================================================
+// V468 — SMART PLACEHOLDER PRACTICE REWRITE
+// Completely replaces the legacy practice entry point/UI.
+// ============================================================
+(() => {
+  'use strict';
+
+  function spShuffleV468(list){
+    const out=[...list];
+    for(let i=out.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [out[i],out[j]]=[out[j],out[i]];
+    }
+    return out;
+  }
+  function spPickV468(list){ return list.length ? list[Math.floor(Math.random()*list.length)] : null; }
+  function spLearnedItemsV468(){
+    const patterns=new Set(knowledgePatternItemsV56());
+    return Array.from(new Set(getAllLoggedItemIdsV58()))
+      .filter(id=>!patterns.has(id))
+      .filter(id=>!!db.phrase_meta?.[id])
+      .sort((a,b)=>String(a).localeCompare(String(b)));
+  }
+  function spPatternsV468(){
+    return learnedPlaceholderPatternsV59().filter(id=>placeholderSegmentsV56(id).some(seg=>seg.type==='slot'));
+  }
+  function spAnswerButtonV468(id, attr){
+    return `<button type="button" class="sentence-builder-kb-result-v56 smart-practice-answer-v468" draggable="true" ${attr}="${escapeKnowledgeAttr(id)}"><span>${placeholderTokenHtmlV56(id)}</span><i class="ph ph-dots-six-vertical"></i></button>`;
+  }
+  function spSetFeedbackV468(body,text,state='neutral'){
+    const el=body.querySelector('.smart-practice-feedback-v468');
+    if(!el)return;
+    el.className=`smart-practice-feedback-v468 ${state}`;
+    el.textContent=text||'';
+  }
+  function spBuildChoiceV468(patterns,items){
+    const possible=[];
+    patterns.forEach(patternId=>{
+      const segments=placeholderSegmentsV56(patternId);
+      segments.filter(seg=>seg.type==='slot').forEach(slot=>{
+        const correct=items.filter(id=>placeholderRequirementMatchesItemV58(slot.name,id));
+        const wrong=items.filter(id=>!placeholderRequirementMatchesItemV58(slot.name,id));
+        if(correct.length && wrong.length>=3) possible.push({patternId,segments,slot,correct,wrong});
+      });
+    });
+    const base=spPickV468(possible);
+    if(!base)return null;
+    const correctId=spPickV468(base.correct);
+    const choices=spShuffleV468([correctId,...spShuffleV468(base.wrong).slice(0,3)]);
+    return {...base,correctId,choices,selectedId:''};
+  }
+
+  function openSmartPlaceholderPracticeV468(){
+    document.getElementById('smart-placeholder-practice-modal-v59')?.remove();
+    document.getElementById('smart-placeholder-practice-modal-v468')?.remove();
+
+    const modal=createPracticeModalV59('smart-placeholder-practice-modal-v468','Smart Placeholder Practice');
+    const body=modal.querySelector('.quiz-practice-body-v59');
+    const allItems=spLearnedItemsV468();
+    const patterns=spPatternsV468();
+    let mode='';
+    let allPattern=null;
+    let allValues={};
+    let choice=null;
+
+    const showModeChooser=()=>{
+      mode='';
+      body.innerHTML=`
+        <div class="smart-practice-chooser-v468">
+          <p class="smart-practice-chooser-intro-v468">Choose how you want to practice.</p>
+          <div class="smart-practice-mode-cards-v468">
+            <button type="button" class="smart-practice-mode-card-v468" data-mode-v468="all">
+              <strong>All Learned Items</strong>
+              <span>Search all learned non-pattern items and decide what fits each placeholder yourself.</span>
+            </button>
+            <button type="button" class="smart-practice-mode-card-v468" data-mode-v468="choices">
+              <strong>4 Choices</strong>
+              <span>Choose the one learned item that correctly fits the active placeholder.</span>
+            </button>
+          </div>
+        </div>`;
+      body.querySelectorAll('[data-mode-v468]').forEach(btn=>btn.addEventListener('click',()=>{
+        mode=btn.dataset.modeV468;
+        if(mode==='all') startAllMode(); else startChoiceMode();
+      }));
+    };
+
+    const modeHeader=(title,subtitle)=>`
+      <div class="smart-practice-mode-header-v468">
+        <button type="button" class="small-icon-btn smart-practice-back-v468" title="Choose another mode"><i class="ph ph-arrow-left"></i></button>
+        <div><strong>${escapeKnowledgeHtml(title)}</strong><small>${escapeKnowledgeHtml(subtitle)}</small></div>
+      </div>`;
+
+    const bindBack=()=>body.querySelector('.smart-practice-back-v468')?.addEventListener('click',showModeChooser);
+
+    const chooseAllPattern=()=>{
+      const answerable=patterns.filter(patternId=>{
+        const slots=placeholderSegmentsV56(patternId).filter(seg=>seg.type==='slot');
+        return slots.length && slots.every(slot=>allItems.some(id=>placeholderRequirementMatchesItemV58(slot.name,id)));
+      });
+      allPattern=spPickV468(answerable.length?answerable:patterns);
+      allValues={};
+    };
+
+    function startAllMode(){
+      if(!allItems.length){
+        body.innerHTML=`${modeHeader('All Learned Items','All learned non-pattern KB items')}<div class="quiz-settings-empty-v58">No learned non-pattern Knowledge Base items are available yet.</div>`;
+        bindBack();return;
+      }
+      if(!patterns.length){
+        body.innerHTML=`${modeHeader('All Learned Items','All learned non-pattern KB items')}<div class="quiz-settings-empty-v58">No learned placeholder patterns are available yet.</div>`;
+        bindBack();return;
+      }
+      chooseAllPattern();
+      renderAllMode();
+    }
+
+    function renderAllMode(){
+      const segments=placeholderSegmentsV56(allPattern);
+      const slots=segments.filter(seg=>seg.type==='slot');
+      body.innerHTML=`
+        ${modeHeader('All Learned Items','Search names only. Tags and metadata are not searched.')}
+        <div class="quiz-practice-toolbar-v59">
+          <strong>${placeholderTokenHtmlV56(allPattern)}</strong>
+          <button type="button" class="small-icon-btn smart-practice-new-v468" title="New pattern"><i class="ph ph-shuffle"></i></button>
+        </div>
+        <div class="sentence-builder-canvas-v56 smart-practice-canvas-v59">
+          ${segments.map(seg=>seg.type==='text'
+            ? `<span class="sentence-builder-literal-v56">${escapeKnowledgeHtml(seg.text)}</span>`
+            : `<div class="sentence-builder-slot-v56 ${allValues[seg.slotIndex]?'filled':''}" data-all-slot-v468="${seg.slotIndex}" data-slot-name-v468="${escapeKnowledgeAttr(seg.name)}">
+                <span class="sentence-builder-slot-label-v56">${escapeKnowledgeHtml(seg.name.toUpperCase())}</span>
+                <div class="sentence-builder-slot-value-v56">${allValues[seg.slotIndex]?`<strong>${escapeKnowledgeHtml(allValues[seg.slotIndex])}</strong>`:'<span>Drop any learned item here</span>'}</div>
+              </div>`).join('')}
+        </div>
+        <div class="sentence-builder-search-v56"><i class="ph ph-magnifying-glass"></i><input class="smart-practice-search-v468" placeholder="Search learned item names…" autocomplete="off"></div>
+        <div class="sentence-builder-kb-results-v56 smart-practice-bank-v468"></div>
+        <div class="smart-practice-feedback-v468 neutral" aria-live="polite"></div>
+        <div class="quiz-generated-actions-v58"><button type="button" class="icon-btn smart-practice-check-v468">Check Answer</button></div>`;
+      bindBack();
+      const search=body.querySelector('.smart-practice-search-v468');
+      const bank=body.querySelector('.smart-practice-bank-v468');
+      const draw=()=>{
+        const q=String(search.value||'').trim().toLowerCase();
+        const shown=allItems.filter(id=>!q||String(id).toLowerCase().includes(q));
+        bank.innerHTML=shown.length?shown.map(id=>spAnswerButtonV468(id,'data-all-item-v468')).join(''):'<div class="sentence-pattern-no-results-v55">No learned item names match that search.</div>';
+        bank.querySelectorAll('[data-all-item-v468]').forEach(btn=>btn.addEventListener('dragstart',e=>{
+          e.dataTransfer.effectAllowed='copy';
+          e.dataTransfer.setData('text/loggy-smart-all-v468',btn.dataset.allItemV468);
+        }));
+      };
+      search.addEventListener('input',draw);draw();
+      body.querySelectorAll('[data-all-slot-v468]').forEach(slot=>{
+        slot.addEventListener('dragover',e=>{ if(!e.dataTransfer.types.includes('text/loggy-smart-all-v468'))return; e.preventDefault();slot.classList.add('drop-ready'); });
+        slot.addEventListener('dragleave',()=>slot.classList.remove('drop-ready'));
+        slot.addEventListener('drop',e=>{
+          const id=e.dataTransfer.getData('text/loggy-smart-all-v468');
+          if(!id)return;
+          e.preventDefault();
+          allValues[Number(slot.dataset.allSlotV468)]=id;
+          renderAllMode();
+        });
+      });
+      body.querySelector('.smart-practice-new-v468')?.addEventListener('click',()=>{chooseAllPattern();renderAllMode();});
+      body.querySelector('.smart-practice-check-v468')?.addEventListener('click',()=>{
+        const missing=slots.filter(s=>!allValues[s.slotIndex]);
+        if(missing.length){spSetFeedbackV468(body,'Fill every placeholder first.','neutral');return;}
+        let wrong=0;
+        slots.forEach(s=>{
+          const ok=placeholderRequirementMatchesItemV58(s.name,allValues[s.slotIndex]);
+          const el=body.querySelector(`[data-all-slot-v468="${s.slotIndex}"]`);
+          el?.classList.toggle('answer-correct-v457',ok);
+          el?.classList.toggle('answer-wrong-v457',!ok);
+          if(!ok)wrong++;
+        });
+        if(!wrong)spSetFeedbackV468(body,'Correct. Every item fits its placeholder.','correct');
+        else spSetFeedbackV468(body,`Incorrect. ${wrong===1?'One item does':`${wrong} items do`} not fit ${wrong===1?'its':'their'} placeholder${wrong===1?'':'s'}.`,'wrong');
+      });
+    }
+
+    function startChoiceMode(){
+      if(!allItems.length||!patterns.length){
+        body.innerHTML=`${modeHeader('4 Choices','Exactly four learned non-pattern answer choices')}<div class="quiz-settings-empty-v58">You need learned placeholder patterns and learned non-pattern items before using this mode.</div>`;
+        bindBack();return;
+      }
+      choice=spBuildChoiceV468(patterns,allItems);
+      renderChoiceMode();
+    }
+
+    function renderChoiceMode(){
+      if(!choice){
+        body.innerHTML=`${modeHeader('4 Choices','Exactly four learned non-pattern answer choices')}<div class="quiz-settings-empty-v58">I could not build a four-choice question with exactly one correct learned item and three incorrect learned items. Add more varied learned items and try again.</div>`;
+        bindBack();return;
+      }
+      const targetIndex=choice.slot.slotIndex;
+      body.innerHTML=`
+        ${modeHeader('4 Choices','Exactly one of the four choices fits the active placeholder.')}
+        <div class="quiz-practice-toolbar-v59">
+          <strong>${placeholderTokenHtmlV56(choice.patternId)}</strong>
+          <button type="button" class="small-icon-btn smart-choice-new-v468" title="New question"><i class="ph ph-shuffle"></i></button>
+        </div>
+        <div class="sentence-builder-canvas-v56 smart-practice-canvas-v59">
+          ${choice.segments.map(seg=>{
+            if(seg.type==='text')return `<span class="sentence-builder-literal-v56">${escapeKnowledgeHtml(seg.text)}</span>`;
+            if(seg.slotIndex!==targetIndex)return `<div class="sentence-builder-slot-v56 smart-choice-passive-slot-v468"><span class="sentence-builder-slot-label-v56">${escapeKnowledgeHtml(seg.name.toUpperCase())}</span></div>`;
+            return `<div class="sentence-builder-slot-v56 ${choice.selectedId?'filled':''}" data-choice-slot-v468="true"><span class="sentence-builder-slot-label-v56">${escapeKnowledgeHtml(seg.name.toUpperCase())}</span><div class="sentence-builder-slot-value-v56">${choice.selectedId?`<strong>${escapeKnowledgeHtml(choice.selectedId)}</strong>`:'<span>Drag or click one answer</span>'}</div></div>`;
+          }).join('')}
+        </div>
+        <div class="smart-choice-bank-v468">${choice.choices.map(id=>spAnswerButtonV468(id,'data-choice-item-v468')).join('')}</div>
+        <div class="smart-practice-feedback-v468 neutral" aria-live="polite"></div>
+        <div class="quiz-generated-actions-v58"><button type="button" class="icon-btn smart-choice-check-v468">Check Answer</button></div>`;
+      bindBack();
+      const target=body.querySelector('[data-choice-slot-v468]');
+      body.querySelectorAll('[data-choice-item-v468]').forEach(btn=>{
+        btn.addEventListener('dragstart',e=>{e.dataTransfer.effectAllowed='copy';e.dataTransfer.setData('text/loggy-smart-choice-v468',btn.dataset.choiceItemV468);});
+        btn.addEventListener('click',()=>{choice.selectedId=btn.dataset.choiceItemV468;renderChoiceMode();});
+      });
+      target?.addEventListener('dragover',e=>{if(!e.dataTransfer.types.includes('text/loggy-smart-choice-v468'))return;e.preventDefault();target.classList.add('drop-ready');});
+      target?.addEventListener('dragleave',()=>target.classList.remove('drop-ready'));
+      target?.addEventListener('drop',e=>{const id=e.dataTransfer.getData('text/loggy-smart-choice-v468');if(!id)return;e.preventDefault();choice.selectedId=id;renderChoiceMode();});
+      body.querySelector('.smart-choice-new-v468')?.addEventListener('click',()=>{choice=spBuildChoiceV468(patterns,allItems);renderChoiceMode();});
+      body.querySelector('.smart-choice-check-v468')?.addEventListener('click',()=>{
+        if(!choice.selectedId){spSetFeedbackV468(body,'Choose one answer first.','neutral');return;}
+        const ok=placeholderRequirementMatchesItemV58(choice.slot.name,choice.selectedId);
+        target?.classList.toggle('answer-correct-v457',ok);
+        target?.classList.toggle('answer-wrong-v457',!ok);
+        spSetFeedbackV468(body,ok?'Correct. That item fits the placeholder.':'Incorrect. That item does not fit the placeholder.',ok?'correct':'wrong');
+      });
+    }
+
+    showModeChooser();
+  }
+
+  window.openSmartPlaceholderPracticeV468=openSmartPlaceholderPracticeV468;
+  window.openSmartPlaceholderPracticeV473=openSmartPlaceholderPracticeV468;
+  // Replace the legacy global too, so any old listeners still resolve to the rewrite.
+  openSmartPlaceholderPracticeV59=openSmartPlaceholderPracticeV468;
+
+  // One authoritative capture handler. It runs before legacy bubble listeners.
+  if(!window.__loggySmartPracticeEntryV468){
+    window.__loggySmartPracticeEntryV468=true;
+    document.addEventListener('click',event=>{
+      const button=event.target.closest?.('.open-smart-practice-v59');
+      if(!button)return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      openSmartPlaceholderPracticeV468();
+    },true);
+  }
+})();

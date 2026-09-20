@@ -29,6 +29,26 @@
         dashboardIconColorV81: BLACK,
         dashboardLogIconColorV85: BLACK,
         dashboardLogIconBackgroundV107: WHITE,
+
+        // V391: explicit Dashboard log-button + New Log button palettes.
+        // Legacy V85/V107 fields remain compatibility fallbacks only.
+        dashboardLogButtonBackgroundV391: WHITE,
+        dashboardLogButtonTextColorV391: BLACK,
+        dashboardLogButtonIconColorV391: BLACK,
+        dashboardLogButtonBorderColorV391: BLACK,
+        dashboardLogButtonHoverBackgroundV391: '#eeeeee',
+        dashboardLogButtonHoverTextColorV391: BLACK,
+        dashboardLogButtonHoverIconColorV391: BLACK,
+        dashboardLogButtonHoverBorderColorV391: BLACK,
+        dashboardNewLogButtonBackgroundV391: WHITE,
+        dashboardNewLogButtonTextColorV391: BLACK,
+        dashboardNewLogButtonIconColorV391: BLACK,
+        dashboardNewLogButtonBorderColorV391: BLACK,
+        dashboardNewLogButtonHoverBackgroundV391: '#eeeeee',
+        dashboardNewLogButtonHoverTextColorV391: BLACK,
+        dashboardNewLogButtonHoverIconColorV391: BLACK,
+        dashboardNewLogButtonHoverBorderColorV391: BLACK,
+
         dashboardCreateLogIconHoverColorV320: BLACK,
         dashboardCreateLogIconHoverBackgroundV320: '#eeeeee',
         dashboardCreateLogCategoryBackgroundColorV321: WHITE,
@@ -37,6 +57,47 @@
         dashboardCreateLogCategoryHoverBackgroundColorV321: '#eeeeee',
         dashboardCreateLogCategoryHoverTextColorV321: BLACK,
         dashboardCreateLogCategoryHoverBorderColorV321: BLACK,
+
+        // V396: complete Create New Log modal palette. Normal interactive surfaces
+        // default to the modal surface so they read as border-only until hover/selection.
+        dashboardCreateLogOverlayColorV396: BLACK,
+        dashboardCreateLogModalBackgroundColorV396: WHITE,
+        dashboardCreateLogModalTextColorV396: BLACK,
+        dashboardCreateLogModalBorderColorV396: BLACK,
+        dashboardCreateLogTitleColorV396: BLACK,
+        dashboardCreateLogLabelColorV396: BLACK,
+        dashboardCreateLogInputBackgroundColorV396: WHITE,
+        dashboardCreateLogInputTextColorV396: BLACK,
+        dashboardCreateLogInputBorderColorV396: BLACK,
+        dashboardCreateLogInputHoverBackgroundColorV396: WHITE,
+        dashboardCreateLogInputHoverTextColorV396: BLACK,
+        dashboardCreateLogInputHoverBorderColorV396: BLACK,
+        dashboardCreateLogInputFocusBackgroundColorV396: WHITE,
+        dashboardCreateLogInputFocusTextColorV396: BLACK,
+        dashboardCreateLogInputFocusBorderColorV396: BLACK,
+        dashboardCreateLogIconBackgroundColorV396: WHITE,
+        dashboardCreateLogIconColorV396: BLACK,
+        dashboardCreateLogIconBorderColorV396: BLACK,
+        dashboardCreateLogIconHoverBackgroundColorV396: '#eeeeee',
+        dashboardCreateLogIconHoverColorV396: BLACK,
+        dashboardCreateLogIconHoverBorderColorV396: BLACK,
+        dashboardCreateLogIconSelectedBackgroundColorV396: BLACK,
+        dashboardCreateLogIconSelectedColorV396: WHITE,
+        dashboardCreateLogIconSelectedBorderColorV396: BLACK,
+        dashboardCreateLogButtonBackgroundColorV396: WHITE,
+        dashboardCreateLogButtonTextColorV396: BLACK,
+        dashboardCreateLogButtonIconColorV396: BLACK,
+        dashboardCreateLogButtonBorderColorV396: BLACK,
+        dashboardCreateLogButtonHoverBackgroundColorV396: BLACK,
+        dashboardCreateLogButtonHoverTextColorV396: WHITE,
+        dashboardCreateLogButtonHoverIconColorV396: WHITE,
+        dashboardCreateLogButtonHoverBorderColorV396: BLACK,
+        dashboardCreateLogCloseBackgroundColorV396: WHITE,
+        dashboardCreateLogCloseIconColorV396: BLACK,
+        dashboardCreateLogCloseBorderColorV396: BLACK,
+        dashboardCreateLogCloseHoverBackgroundColorV396: '#eeeeee',
+        dashboardCreateLogCloseHoverIconColorV396: BLACK,
+        dashboardCreateLogCloseHoverBorderColorV396: BLACK,
 
         themeSettingsPlusIconColorV322: BLACK,
         themeSettingsPlusBackgroundColorV322: WHITE,
@@ -90,6 +151,17 @@
         settingsWidgetBackgroundColorV380: WHITE,
         settingsWidgetTextColorV380: BLACK,
         settingsWidgetBorderColorV380: BLACK,
+
+        // V394: readable Settings accessory/theme labels + Dashboard context menus.
+        settingsCursorNameTextColorV394: BLACK,
+        settingsCompanionNameTextColorV394: BLACK,
+        settingsThemeNameTextColorV394: BLACK,
+        settingsThemeNameHoverTextColorV394: BLACK,
+        dashboardContextMenuBackgroundColorV394: WHITE,
+        dashboardContextMenuTextColorV394: BLACK,
+        dashboardContextMenuBorderColorV394: BLACK,
+        dashboardContextMenuHoverBackgroundColorV394: '#eeeeee',
+        dashboardContextMenuHoverTextColorV394: BLACK,
 
         kbCategoryBackgroundColor: WHITE,
         kbCategoryTextColor: BLACK,
@@ -156,7 +228,7 @@
   .developer-mode-actions:empty{display:none!important}.v250-hide-plus{display:none!important}
   #grid-view.view.active #days-grid .daily-add-day-slot-v238.v251-hide-final-plus,#grid-view.view.active #days-grid .daily-add-day-slot-v238.v251-hide-final-plus>.day-box,#grid-view.view.active #days-grid>.day-box.v251-hide-final-plus,#grid-view.view.active #days-grid>.polaroid-card.v251-hide-final-plus{display:none!important;visibility:hidden!important;pointer-events:none!important}
   #grid-view.view.active #days-grid[data-final-active-page-v257="0"] .daily-add-day-slot-v238,#grid-view.view.active #days-grid[data-final-active-page-v257="0"]>.day-box[title="Add extra log day"],#grid-view.view.active #days-grid[data-final-active-page-v257="0"]>.polaroid-card[title="Add extra log day"]{display:none!important;visibility:hidden!important;pointer-events:none!important}
-  #phrase-modal .kb-display-field{padding:7px 0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;min-height:0!important}#phrase-modal .kb-display-field+.kb-display-field{border-top:1px solid color-mix(in srgb,var(--black,#111) 10%,transparent)!important}#phrase-modal .kb-display-field .kb-item-field-label-row{margin:0 0 3px!important}#phrase-modal .kb-display-field .field-label{font-size:.78rem!important;font-weight:700!important;opacity:.62!important}#phrase-modal .kb-display-field .kb-display-text,#phrase-modal .kb-display-field .kb-v250-live{padding:0!important;border:0!important;background:transparent!important;min-height:0!important;line-height:1.45!important}
+  #phrase-modal .kb-display-field{display:grid!important;grid-template-columns:minmax(130px,155px) minmax(0,1fr)!important;align-items:start!important;column-gap:16px!important;padding:9px 0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;min-height:0!important;height:auto!important}#phrase-modal .kb-display-field+.kb-display-field{border-top:1px solid color-mix(in srgb,var(--black,#111) 10%,transparent)!important}#phrase-modal .kb-display-field .kb-item-field-label-row{margin:0!important;min-height:0!important;align-self:start!important}#phrase-modal .kb-display-field .field-label{font-size:1rem!important;font-weight:800!important;opacity:.72!important;line-height:1.25!important}#phrase-modal .kb-display-field .kb-display-text,#phrase-modal .kb-display-field .kb-v250-live{padding:0!important;margin:0!important;border:0!important;background:transparent!important;min-height:0!important;height:auto!important;line-height:1.35!important;align-self:start!important}#phrase-modal .kb-display-audio-btn{display:none!important}@media(max-width:620px){#phrase-modal .kb-display-field{grid-template-columns:1fr!important;row-gap:3px!important;padding:8px 0!important}}
   .custom-tab-component .custom-component-title-toggle-v245{position:static!important;width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;padding:0!important;margin:0!important;border:0!important;border-radius:6px!important;box-shadow:none!important;background:transparent!important;font-size:16px!important;display:inline-grid!important;place-items:center!important}.custom-tab-component .custom-component-title-toggle-v245:hover{background:color-mix(in srgb,currentColor 8%,transparent)!important}.custom-tab-component .custom-component-title-toggle-v245 i{font-size:16px!important}
   #daily-log-collection-settings-modal .daily-collection-save{width:auto!important;min-width:0!important;min-height:42px!important;padding:10px 16px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px!important}
   .daily-collection-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important;grid-auto-rows:min-content!important;align-items:start!important;gap:12px!important}.daily-collection-card{height:auto!important;min-height:0!important;align-self:start!important;padding:12px!important}.daily-collection-card-body{height:auto!important;min-height:0!important;display:block!important}.daily-collection-card[data-daily-kind=audio]{min-height:0!important}.daily-collection-card[data-daily-kind=audio] .daily-collection-card-body{padding-top:6px!important}.daily-collection-audio{width:100%!important;height:34px!important;display:block!important}.daily-collection-text{margin:5px 0 0!important;min-height:0!important;white-space:pre-wrap!important}.daily-collection-knowledge{min-height:36px!important;height:auto!important}.daily-collection-image{height:auto!important;max-height:360px!important;object-fit:contain!important}.daily-collection-video{aspect-ratio:16/9!important;height:auto!important}.daily-collection-pdf{height:260px!important}
@@ -169,7 +241,7 @@
   #kb-field-create-modal-v221 .kb-field-pronunciation-v221.selected,#kb-field-create-modal-v221 .kb-field-quiz-v221.selected,#kb-field-create-modal-v221 .kb-field-editable-v221.selected{color:inherit!important;border-bottom-color:currentColor!important;background:transparent!important;box-shadow:none!important}
   #kb-field-create-modal-v221 .kb-field-pronunciation-v221 i,#kb-field-create-modal-v221 .kb-field-quiz-v221 i,#kb-field-create-modal-v221 .kb-field-editable-v221 i{color:inherit!important;stroke:currentColor!important}
   #kb-field-create-modal-v221 .kb-clean-icon-option,#kb-field-create-modal .kb-clean-icon-option{color:inherit!important;border-bottom:2px solid transparent!important;border-radius:0!important;box-shadow:none!important}
-  #kb-field-create-modal-v221 .kb-clean-icon-option.selected,#kb-field-create-modal .kb-clean-icon-option.selected{color:inherit!important;border-bottom-color:currentColor!important;background:transparent!important;box-shadow:none!important}
+  #kb-field-create-modal-v221 .kb-clean-icon-option,#kb-field-create-modal .kb-clean-icon-option{opacity:1!important;color:var(--black)!important;background:transparent!important;box-shadow:none!important;border-bottom:2px solid transparent!important}#kb-field-create-modal-v221 .kb-clean-icon-option i,#kb-field-create-modal .kb-clean-icon-option i{opacity:.58!important;color:inherit!important}#kb-field-create-modal-v221 .kb-clean-icon-option.selected,#kb-field-create-modal .kb-clean-icon-option.selected{color:var(--black)!important;opacity:1!important;border-bottom:2px solid var(--black)!important;background:transparent!important;box-shadow:none!important}#kb-field-create-modal-v221 .kb-clean-icon-option.selected i,#kb-field-create-modal .kb-clean-icon-option.selected i{opacity:.58!important;color:inherit!important}
   #kb-field-create-modal-v221 .kb-clean-icon-option i,#kb-field-create-modal .kb-clean-icon-option i{color:inherit!important;stroke:currentColor!important}
   /* V254: nested Dropdown components do not receive an extra wrapper card/border. */
   .custom-component-dropdownV239 .dropdown-child-borderless-v254,.custom-component-dropdownV239 .custom-component-content .custom-tab-component:not(.custom-component-dropdownV239),.custom-component-dropdownV239 .custom-component-content [class*="dropdown-child"],.custom-component-dropdownV239 .custom-component-content [class*="nested-component"]{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;padding:0!important}
@@ -250,7 +322,7 @@
     }
     if(label&&label!==control&&!label.closest('.v250-toggle-copy')){const copy=document.createElement('div');copy.className='v250-toggle-copy';label.parentNode.insertBefore(copy,label);copy.append(label)}
   }
-  function syncToggles(){toggleify($('#add-item-enable-parts'),'Enable Parts');toggleify($('#kb-hide-from-quizzes-v59'),'Hide from quizzes');toggleify($('#edit-kb-hide-from-quizzes-v59'),'Hide from quizzes');toggleify($('#daily-logs-show-search-toggle'),'Hide Daily Logs Search');toggleify($('#daily-logs-hide-global-search-toggle'),'Hide Global Search')}
+  function syncToggles(){toggleify($('#add-item-enable-parts'),'Enable Parts');toggleify($('#edit-item-enable-parts'),'Enable Parts');toggleify($('#kb-hide-from-quizzes-v59'),'Hide from quizzes');toggleify($('#edit-kb-hide-from-quizzes-v59'),'Hide from quizzes');toggleify($('#daily-logs-show-search-toggle'),'Hide Daily Logs Search');toggleify($('#daily-logs-hide-global-search-toggle'),'Hide Global Search')}
   setTimeout(syncToggles,100);
   try{const beforeAddFieldsV250=renderAddKnowledgeFields;renderAddKnowledgeFields=function(){const r=beforeAddFieldsV250.apply(this,arguments);requestAnimationFrame(syncToggles);return r}}catch{}
   try{const beforeEditFieldsV250=renderKnowledgeEditFields;renderKnowledgeEditFields=function(){const r=beforeEditFieldsV250.apply(this,arguments);requestAnimationFrame(syncToggles);return r}}catch{}
@@ -466,6 +538,44 @@
     if (window.__loggyThemePreviewBridgeV307) return;
     window.__loggyThemePreviewBridgeV307 = true;
 
+    // V414: Theme Builder preview is visual by default. Intro songs are auditioned
+    // only by the Audio tab's Play button in the parent editor. This prevents an
+    // iframe-owned intro from playing underneath/restarting beside the editor's
+    // audition Audio object whenever any unrelated draft setting changes.
+    function stopPreviewIframeIntroV414() {
+      let audio = null;
+      try { audio = customThemeIntroAudioV2 || null; } catch {}
+      try {
+        if (customThemeIntroStopTimerV2) clearTimeout(customThemeIntroStopTimerV2);
+        if (customThemeIntroFadeTimerV2) clearInterval(customThemeIntroFadeTimerV2);
+        if (typeof customThemeIntroFadeStartTimerV3 !== 'undefined' && customThemeIntroFadeStartTimerV3) clearTimeout(customThemeIntroFadeStartTimerV3);
+        customThemeIntroStopTimerV2 = null;
+        customThemeIntroFadeTimerV2 = null;
+        if (typeof customThemeIntroFadeStartTimerV3 !== 'undefined') customThemeIntroFadeStartTimerV3 = null;
+      } catch {}
+      if (audio) {
+        try { audio.pause(); } catch {}
+        try { audio.currentTime = 0; } catch {}
+        try { audio.removeAttribute?.('src'); } catch {}
+        try { audio.src = ''; } catch {}
+        try { audio.load?.(); } catch {}
+      }
+      try { if (customThemeIntroAudioV2 === audio) customThemeIntroAudioV2 = null; } catch {}
+    }
+    try {
+      const playBeforeV414 = window.playCustomThemeIntroAudioV2 || (typeof playCustomThemeIntroAudioV2 === 'function' ? playCustomThemeIntroAudioV2 : null);
+      if (typeof playBeforeV414 === 'function' && !playBeforeV414.__themeBuilderSilentPreviewV414) {
+        const silentPlayV414 = function () { stopPreviewIframeIntroV414(); return null; };
+        silentPlayV414.__themeBuilderSilentPreviewV414 = true;
+        window.playCustomThemeIntroAudioV2 = silentPlayV414;
+        try { playCustomThemeIntroAudioV2 = silentPlayV414; } catch {}
+      }
+    } catch {}
+    window.addEventListener('message', event => {
+      if (event.origin !== location.origin || event.data?.type !== 'loggy-theme-preview-stop-intro-v414') return;
+      stopPreviewIframeIntroV414();
+    });
+
     function installPreviewLayeringV309() {
       let style = document.getElementById('theme-builder-preview-layering-v309');
       if (!style) {
@@ -617,6 +727,215 @@
       });
     }
 
+    // V510 — live Theme Builder decoration preview authority.
+    // The saved/apply runtime already honors hidden/uploaded decorations, but the
+    // iframe preview could keep its previous stage until the editor was saved and
+    // reopened. Reconcile the actual preview stage from the CURRENT draft after
+    // every preview message so upload + visibility changes are immediate.
+    function decorationHiddenV510(asset) {
+      if (!asset || typeof asset !== 'object') return false;
+      if (typeof asset.hiddenOnScreenV63 === 'boolean') return asset.hiddenOnScreenV63;
+      if (typeof asset.showOnScreen === 'boolean') return asset.showOnScreen === false;
+      if (typeof asset.visibleV63 === 'boolean') return asset.visibleV63 === false;
+      if (typeof asset.visible === 'boolean') return asset.visible === false;
+      if (typeof asset.enabled === 'boolean') return asset.enabled === false;
+      return false;
+    }
+
+    function normalizedPreviewDecorationsV510(draft = {}) {
+      return (Array.isArray(draft?.backgroundSvgs) ? draft.backgroundSvgs : []).map((asset, index) => {
+        if (!asset || typeof asset !== 'object') return asset;
+        const hidden = decorationHiddenV510(asset);
+        return {
+          ...asset,
+          hiddenOnScreenV63: hidden,
+          showOnScreen: !hidden,
+          visibleV63: !hidden,
+          visible: !hidden,
+          placementIndexV405: Number.isFinite(Number(asset.placementIndexV405)) ? Number(asset.placementIndexV405) : index
+        };
+      });
+    }
+
+    function previewDecorationSignatureV510(draft = {}) {
+      const list = normalizedPreviewDecorationsV510(draft);
+      return JSON.stringify({
+        preventOverlap: draft?.preventDecorationOverlapV367 === true,
+        reduceOverlap: draft?.reduceDecorationOverlapV361 === true,
+        allowOverlap: draft?.svgAllowOverlap === true,
+        distribution: String(draft?.svgDistribution || 'random'),
+        scale: Number(draft?.svgGlobalScale ?? 100),
+        globalOpacity: Number(draft?.decorationsOpacityV117 ?? 100),
+        placements: Array.isArray(draft?.resolvedDecorationPlacementsV405) ? draft.resolvedDecorationPlacementsV405 : [],
+        assets: list.map((asset, index) => ({
+          index,
+          id: asset?.id || '',
+          url: asset?.url || asset?.src || asset?.dataUrl || '',
+          markup: asset?.markup || '',
+          hidden: decorationHiddenV510(asset),
+          alwaysShow: asset?.alwaysShowOnScreenV370 === true,
+          opacity: asset?.opacityV109 ?? asset?.opacity ?? null,
+          opacityOverride: asset?.opacityOverrideV326 === true,
+          animation: asset?.animationOverride || draft?.svgDefaultAnimation || asset?.animation || '',
+          x: draft?.resolvedDecorationPlacementsV405?.[asset?.placementIndexV405 ?? index]?.x ?? null,
+          y: draft?.resolvedDecorationPlacementsV405?.[asset?.placementIndexV405 ?? index]?.y ?? null
+        }))
+      });
+    }
+
+    // V516: final live-preview asset reconciliation. The historical mount stack
+    // has many wrappers and can occasionally finish a remount without creating a
+    // wrapper/image for the newest uploaded URL-backed decoration. Saving/reopening
+    // works because the next full load reconstructs it. In preview, create ONLY the
+    // missing source-index nodes immediately; placement/overlap/motion remain owned
+    // by the canonical runtimes that run right after this function.
+    // V519: authoritative hide/show cleanup for Theme Builder preview.
+    // Older decoration renderers can briefly recreate a decoration after the
+    // editor has already marked it hidden. This pass removes only nodes that
+    // correspond to CURRENTLY hidden assets and runs after every preview apply.
+    function previewDecorationAssetKeyV519(asset = {}) {
+      const raw = String(asset?.url || asset?.src || asset?.dataUrl || asset?.projectPath || asset?.path || '').trim();
+      if (raw) {
+        try {
+          const u = new URL(raw, location.href);
+          return `url:${decodeURIComponent(u.pathname).replace(/\\/g,'/').toLowerCase()}`;
+        } catch {
+          return `url:${raw.split('?')[0].split('#')[0].replace(/\\/g,'/').toLowerCase()}`;
+        }
+      }
+      const markup = String(asset?.markup || '').replace(/\s+/g,' ').trim();
+      if (markup) return `markup:${markup}`;
+      return `name:${String(asset?.id || asset?.name || '').trim().toLowerCase()}`;
+    }
+
+    function previewDecorationNodeKeyV519(node) {
+      if (!node) return '';
+      const media = node.querySelector?.('img[src],object[data],image[href],image[xlink\:href]');
+      const raw = String(media?.getAttribute?.('src') || media?.getAttribute?.('data') || media?.getAttribute?.('href') || media?.getAttribute?.('xlink:href') || '').trim();
+      if (raw) {
+        try {
+          const u = new URL(raw, location.href);
+          return `url:${decodeURIComponent(u.pathname).replace(/\\/g,'/').toLowerCase()}`;
+        } catch {
+          return `url:${raw.split('?')[0].split('#')[0].replace(/\\/g,'/').toLowerCase()}`;
+        }
+      }
+      const shell = node.querySelector?.('.theme-svg-motion-shell,.theme-image-motion-shell-v36') || node;
+      const markup = String(shell?.innerHTML || '').replace(/\s+/g,' ').trim();
+      return markup ? `markup:${markup}` : '';
+    }
+
+    function removeHiddenPreviewDecorationsV519(draft = {}) {
+      const stage = document.getElementById('custom-theme-background-stage');
+      if (!stage) return stage;
+      const all = normalizedPreviewDecorationsV510(draft);
+      const hiddenKeys = new Set(all.filter(decorationHiddenV510).map(previewDecorationAssetKeyV519).filter(Boolean));
+      if (!hiddenKeys.size) return stage;
+      Array.from(stage.querySelectorAll(':scope > .custom-theme-background-svg')).forEach(node => {
+        const nodeKey = previewDecorationNodeKeyV519(node);
+        if (nodeKey && hiddenKeys.has(nodeKey)) { node.remove(); return; }
+        const sourceIndex = Number(node?.dataset?.svgIndex);
+        // Index matching is only used when the node has no media/markup key.
+        // This avoids deleting the wrong item when legacy renderers renumber
+        // visible-only decorations after an earlier item is hidden.
+        if (!nodeKey && Number.isFinite(sourceIndex) && decorationHiddenV510(all[sourceIndex])) node.remove();
+      });
+      return stage;
+    }
+    window.__loggyRemoveHiddenPreviewDecorationsV519 = removeHiddenPreviewDecorationsV519;
+
+    function ensurePreviewDecorationNodesV516(draft = {}) {
+      const stage = document.getElementById('custom-theme-background-stage');
+      if (!stage) return stage;
+      const all = normalizedPreviewDecorationsV510(draft);
+      const visibleEntries = all.map((asset,index)=>({asset,index})).filter(x=>x.asset && !decorationHiddenV510(x.asset));
+      const wrappers = Array.from(stage.querySelectorAll(':scope > .custom-theme-background-svg'));
+      // Historical renderers renumber visible-only assets, so source indices are
+      // not reliable when earlier decorations are hidden. For immediate uploads,
+      // only fill the missing TAIL nodes. This is exactly the failure mode here:
+      // the newly uploaded decoration is appended to the draft but omitted from
+      // the already-mounted preview stage.
+      if (wrappers.length >= visibleEntries.length) return stage;
+      for (const {asset,index} of visibleEntries.slice(wrappers.length)) {
+        const item = document.createElement('div');
+        const anim = String(asset?.animationOverride || draft?.svgDefaultAnimation || asset?.animation || 'float');
+        item.className = `custom-theme-background-svg theme-svg-anim-${anim}`;
+        item.dataset.svgIndex = String(index);
+        item.dataset.previewImmediateUploadV516 = 'true';
+        item.style.left = '50%';
+        item.style.top = '50%';
+        item.style.setProperty('--theme-svg-delay', `${(index % 13) * -0.41}s`);
+        const shell = document.createElement('div');
+        shell.className = 'theme-svg-motion-shell';
+        const markup = String(asset?.markup || '').trim();
+        if (markup) {
+          shell.innerHTML = markup;
+        } else {
+          const src = String(asset?.url || asset?.src || asset?.dataUrl || '').trim();
+          if (!src) continue;
+          const img = document.createElement('img');
+          img.className = 'theme-decoration-image-v36 theme-decoration-image-health-v494';
+          img.alt = '';
+          img.draggable = false;
+          img.decoding = 'async';
+          img.src = src;
+          shell.appendChild(img);
+        }
+        item.appendChild(shell);
+        stage.appendChild(item);
+      }
+      return stage;
+    }
+    window.__loggyEnsurePreviewDecorationNodesV516 = ensurePreviewDecorationNodesV516;
+
+    function forcePreviewDecorationSceneV510(draft = {}) {
+      const fullList = normalizedPreviewDecorationsV510(draft);
+      const visible = fullList.filter(asset => asset && !decorationHiddenV510(asset));
+      const signature = previewDecorationSignatureV510(draft);
+      const stage = document.getElementById('custom-theme-background-stage');
+      const currentCount = stage?.querySelectorAll?.(':scope > .custom-theme-background-svg')?.length || 0;
+      if (stage?.dataset?.previewDecorationsV510 === signature && currentCount === visible.length) return stage;
+
+      try { stage?.remove(); } catch {}
+      if (!visible.length) return null;
+
+      const previewTheme = {
+        ...(draft || {}),
+        backgroundSvgs: visible.map(asset => ({ ...asset }))
+      };
+
+      // Preserve original placement indices while passing only visible assets to
+      // historical renderers. The V405/V407 placement runtime resolves them back
+      // to the saved scene coordinates.
+      try {
+        const mounted = mountCustomThemeBackgroundSvgsV2?.(previewTheme);
+        const next = document.getElementById('custom-theme-background-stage');
+        if (next) next.dataset.previewDecorationsV510 = signature;
+        ensurePreviewDecorationNodesV516(previewTheme);
+        removeHiddenPreviewDecorationsV519(draft);
+        // V513: use the same strict/reduce-overlap authority as the real applied
+        // theme immediately after this preview remount. The old V510 path could
+        // rebuild the stage after parity had already run, leaving overlap controls
+        // visually stale until Save/reopen.
+        // V515: the V510/V513 preview remount happens AFTER the normal theme
+        // renderer. Re-apply the canonical distribution coordinates immediately
+        // or this late remount falls back to the legacy fixed 8-position layout.
+        try { window.__loggyApplyCanonicalPlacementV405?.(previewTheme); } catch {}
+        try { window.__loggyApplyDecorationParityV513?.(previewTheme); } catch {}
+        requestAnimationFrame(() => {
+          ensurePreviewDecorationNodesV516(previewTheme);
+          removeHiddenPreviewDecorationsV519(draft);
+          try { window.__loggyApplyCanonicalPlacementV405?.(previewTheme); } catch {}
+          try { window.__loggyApplyDecorationParityV513?.(previewTheme); } catch {}
+          try { window.__loggyRepairDecorationImagesV494?.(previewTheme); } catch {}
+        });
+        return next || mounted || null;
+      } catch (error) {
+        console.warn('[Theme Preview V510] decoration reconcile failed', error);
+        return null;
+      }
+    }
+
     function resetPreviewToDailyLogsV354() {
       try {
         const grid = document.getElementById('grid-view');
@@ -639,8 +958,26 @@
           previewPendingV354 = null;
           if (job.resetView) resetPreviewToDailyLogsV354();
           try {
+            // V414: applying visual preview updates must never auto-start the
+            // intro song. The Audio tab's Play button is the single audition
+            // owner, so changing a color/image/etc. cannot create a second song.
+            stopPreviewIframeIntroV414();
             if (typeof applyCustomBuiltTheme === 'function') {
-              await Promise.resolve(applyCustomBuiltTheme(copy(job.draft || {})));
+              const visualDraftV414 = copy(job.draft || {});
+              visualDraftV414.introAudio = '';
+              visualDraftV414.introAudioName = '';
+              visualDraftV414.introAudioProjectPath = '';
+              visualDraftV414.introAudioSourceThemeIdV364 = '';
+              ['introAudioUrl','introSong','introMusic','song','music','introSongName','songName','musicName'].forEach(key => {
+                if (Object.prototype.hasOwnProperty.call(visualDraftV414,key)) visualDraftV414[key] = '';
+              });
+              await Promise.resolve(applyCustomBuiltTheme(visualDraftV414));
+              // V510: saved/apply already had the right decoration state; make the
+              // live iframe obey that same draft immediately instead of waiting
+              // for Save Theme / reopen to remount its artwork.
+              forcePreviewDecorationSceneV510(job.draft || {});
+              removeHiddenPreviewDecorationsV519(job.draft || {});
+              stopPreviewIframeIntroV414();
             }
             // V363: the real Log page already gets the distinct V362 default
             // motions, but Theme Builder preview artwork can be rebuilt again at
@@ -653,6 +990,12 @@
             // at the end of the same apply cycle. This does not rebuild the page.
             refreshPreviewHoverV356(job.draft || {});
             requestAnimationFrame(() => {
+              // A few legacy theme layers can replace the stage at the tail end of
+              // the same paint. Reconcile once more only if its signature/count no
+              // longer matches the current draft; this is a verification pass, not
+              // a polling/remount loop.
+              forcePreviewDecorationSceneV510(job.draft || {});
+              removeHiddenPreviewDecorationsV519(job.draft || {});
               try { window.__loggyApplyDefaultMotionsV363?.(job.draft || {}); } catch {}
               refreshPreviewHoverV356(job.draft || {});
             });
@@ -685,9 +1028,46 @@
 
     window.addEventListener('message', event => {
       if (event.origin !== location.origin) return;
-      if (event.data?.type === 'loggy-theme-preview-intro-v370') {
-        const draft=copy(event.data?.draft||{});
-        try { playCustomThemeIntroAudioV2?.(draft); } catch {}
+      if (event.data?.type === 'loggy-theme-preview-decoration-visibility-v519') {
+        const visibilityDraftV519 = event.data.draft || {};
+        try { window.__loggySetPreviewThemeV372?.(visibilityDraftV519); } catch {
+          window.__loggyActivePreviewThemeV372 = copy(visibilityDraftV519);
+        }
+        // Hide must feel instantaneous: remove the matching live node first,
+        // then reconcile the complete decoration scene from the same draft.
+        removeHiddenPreviewDecorationsV519(visibilityDraftV519);
+        forcePreviewDecorationSceneV510(visibilityDraftV519);
+        removeHiddenPreviewDecorationsV519(visibilityDraftV519);
+        requestAnimationFrame(() => {
+          forcePreviewDecorationSceneV510(visibilityDraftV519);
+          removeHiddenPreviewDecorationsV519(visibilityDraftV519);
+          try { window.__loggyApplyCanonicalPlacementV405?.(visibilityDraftV519); } catch {}
+          try { window.__loggyApplyDecorationParityV513?.(visibilityDraftV519); } catch {}
+          refreshPreviewHoverV356(visibilityDraftV519);
+        });
+        return;
+      }
+      if (event.data?.type === 'loggy-theme-preview-decorations-v513') {
+        const decorationDraftV513 = event.data.draft || {};
+        try { window.__loggySetPreviewThemeV372?.(decorationDraftV513); } catch {
+          window.__loggyActivePreviewThemeV372 = copy(decorationDraftV513);
+        }
+        forcePreviewDecorationSceneV510(decorationDraftV513);
+        ensurePreviewDecorationNodesV516(decorationDraftV513);
+        removeHiddenPreviewDecorationsV519(decorationDraftV513);
+        try { window.__loggyApplyCanonicalPlacementV405?.(decorationDraftV513); } catch {}
+        try { window.__loggyApplyDecorationParityV513?.(decorationDraftV513); } catch {}
+        try { window.__loggyApplyDefaultMotionsV363?.(decorationDraftV513); } catch {}
+        refreshPreviewHoverV356(decorationDraftV513);
+        requestAnimationFrame(() => {
+          forcePreviewDecorationSceneV510(decorationDraftV513);
+          ensurePreviewDecorationNodesV516(decorationDraftV513);
+          removeHiddenPreviewDecorationsV519(decorationDraftV513);
+          try { window.__loggyApplyCanonicalPlacementV405?.(decorationDraftV513); } catch {}
+          try { window.__loggyApplyDecorationParityV513?.(decorationDraftV513); } catch {}
+          try { window.__loggyRepairDecorationImagesV494?.(decorationDraftV513); } catch {}
+          refreshPreviewHoverV356(decorationDraftV513);
+        });
         return;
       }
       if (event.data?.type !== 'loggy-theme-preview-apply-v307') return;
@@ -850,8 +1230,43 @@
     touched: new Set(), dashboardOverlayKeys: new Set(), decorationsDirty: false, openToken: 0,
     previewReady: false, previewFrame: null, previewRaf: 0, previewResetViewV354: false,
     previewRequestV354: 0, previewAwaitingV354: 0, audioBundleCache: new Map(),
-    aiJsonText: '', aiJsonAppliedV325: false, aiThemeMode: 'light', aiVariantsV376: { light:null, dark:null }, smartPaletteSeed: '#8b6fd8', smartPaletteMode: 'light', autoThemeTool: ''
+    aiJsonText: '', aiJsonAppliedV325: false, aiThemeMode: 'light', aiVariantsV376: { light:null, dark:null }, smartPaletteSeed: '#8b6fd8', smartPaletteMode: 'light', autoThemeTool: '',
+    // V432: AI prompt behavior controls. Basic preserves the current restrained
+    // builder behavior; Advanced may style deeper UI surfaces and richer scenes.
+    aiBuilderDepthV432: 'basic', aiBackgroundFocusV479: 'standard', aiDecorationModeV432: 'decorations',
+    // V400: decorations/media behavior and explicit manual control overrides are
+    // shared across Light/Dark. Palette colors remain variant-specific.
+    aiSharedDecorationsV400: null, aiSharedOverridesV400: Object.create(null),
+    // V416: one authoritative intro-song selection + monotonic request token.
+    // Async uploads/reuse fetches must never be able to overwrite a newer choice.
+    introSourceRevisionV416: 0, introSelectionV416: { url:'', name:'', projectPath:'', sourceThemeId:'' }
   };
+
+  // V493 — Prevent Decoration Overlap is placement-only. Preserve the exact
+  // visible opacity of every decoration across the overlap remount/reflow.
+  function decorationEffectiveOpacityFromDraftV493(asset) {
+    const global = clamp(state.draft?.decorationsOpacityV117, 0, 100, 100) / 100;
+    const own = clamp(asset?.opacityV109 ?? asset?.opacity, 0, 100, 100) / 100;
+    return asset?.opacityOverrideV326 === true ? own : global;
+  }
+  function captureDecorationOpacityLockV493() {
+    const modal = state.modal;
+    const assets = Array.isArray(state.draft?.backgroundSvgs) ? state.draft.backgroundSvgs : [];
+    const values = assets.map(asset => decorationEffectiveOpacityFromDraftV493(asset));
+    if (modal) {
+      modal.querySelectorAll('.theme-builder-live-art-item,.theme-builder-dashboard-art-item-v45,.theme-builder-dashboard-art-item-v40,.theme-builder-dashboard-art-item').forEach((item, displayIndex) => {
+        let index = Number(item.dataset.svgIndex);
+        if (!Number.isFinite(index) || index < 0 || index >= assets.length) index = displayIndex % Math.max(1, assets.length);
+        const visible = Number.parseFloat(getComputedStyle(item).opacity);
+        if (Number.isFinite(visible) && index >= 0 && index < values.length) values[index] = visible;
+      });
+    }
+    window.__loggyDecorationOpacityLockV493 = { modal, values };
+  }
+  function clearDecorationOpacityLockV493() {
+    const lock = window.__loggyDecorationOpacityLockV493;
+    if (!lock || !state.modal || lock.modal === state.modal) delete window.__loggyDecorationOpacityLockV493;
+  }
 
   // V376 — AI themes keep BOTH appearance variants inside one saved theme.
   // The runtime still receives only the selected variant, so existing theme code
@@ -893,6 +1308,142 @@
     const mode = state.aiThemeMode === 'dark' ? 'dark' : 'light';
     if (!hasAiVariantV376(mode)) return;
     state.aiVariantsV376[mode] = stripAiVariantMetaV376(state.draft || {});
+    // Decorations are one shared visual identity across both AI variants.
+    if (Array.isArray(state.draft?.backgroundSvgs)) state.aiSharedDecorationsV400 = clone(state.draft.backgroundSvgs);
+  }
+
+  // V400 — manual non-palette overrides belong to the THEME, not to only the
+  // currently visible appearance. This is what keeps choices such as page
+  // backdrops, distribution, animation, opacity, audio behavior, radius, etc.
+  // unchanged when the user flips between Light and Dark. Color pickers are
+  // intentionally excluded so each appearance can retain its own contrast.
+  function rememberAiSharedOverrideV400(key, value = state.draft?.[key]) {
+    if (!key || !(aiVariantCountV376() > 0 || state.autoThemeTool === 'ai')) return;
+    state.aiSharedOverridesV400 ||= Object.create(null);
+    state.aiSharedOverridesV400[key] = clone(value);
+  }
+  function rememberAiSharedDecorationsV400() {
+    if (!(aiVariantCountV376() > 0 || state.autoThemeTool === 'ai')) return;
+    state.aiSharedDecorationsV400 = clone(Array.isArray(state.draft?.backgroundSvgs) ? state.draft.backgroundSvgs : []);
+  }
+  function applyAiSharedStateV400(theme = {}) {
+    const out = theme;
+    const shared = state.aiSharedOverridesV400 || {};
+    for (const [key,value] of Object.entries(shared)) out[key] = clone(value);
+    if (Array.isArray(state.aiSharedDecorationsV400)) out.backgroundSvgs = clone(state.aiSharedDecorationsV400);
+    return out;
+  }
+  function propagateAiSharedStateToVariantsV400() {
+    if (!(state.aiVariantsV376 && typeof state.aiVariantsV376 === 'object')) return;
+    for (const mode of ['light','dark']) {
+      const v = state.aiVariantsV376[mode];
+      if (!v || typeof v !== 'object' || Array.isArray(v)) continue;
+      applyAiSharedStateV400(v);
+    }
+  }
+
+
+  // V496 — Heading Backdrop manual controls have one durable source of truth.
+  // This survives AI Light/Dark snapshots and older preview/apply layers.
+  function headingBackdropAuthorityV496(theme = state.draft || {}) {
+    const saved = theme?.themeBuilderHeadingBackdropOverrideV496;
+    const legacy = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+    const own = key => Object.prototype.hasOwnProperty.call(theme || {}, key);
+    // V504: the visible flat controls are the live source of truth. The saved
+    // override object is fallback-only for old themes. Previously a stale
+    // {enabled:false} object could silently turn the preview back off even while
+    // the current Theme Builder toggle visibly said ON.
+    return {
+      enabled: own('headingBackgroundEnabledV429') ? theme.headingBackgroundEnabledV429 === true : legacy.enabled === true,
+      color: safeHex(own('headingBackgroundColorV452') ? theme.headingBackgroundColorV452 : legacy.color, safeHex(theme?.contentBackdropColor, theme?.surface || '#ffffff')),
+      opacity: clamp(own('headingBackgroundOpacityV452') ? theme.headingBackgroundOpacityV452 : legacy.opacity, 0, 100, 88),
+      padding: clamp(own('headingBackgroundPaddingV429') ? theme.headingBackgroundPaddingV429 : legacy.padding, 0, 40, 10),
+      radius: clamp(own('headingBackgroundRadiusV452') ? theme.headingBackgroundRadiusV452 : legacy.radius, 0, 40, Number(theme?.radius) || 10)
+    };
+  }
+  function currentHeadingBackdropAuthorityV496(theme = state.draft || {}) {
+    return {
+      enabled: theme?.headingBackgroundEnabledV429 === true,
+      color: safeHex(theme?.headingBackgroundColorV452, safeHex(theme?.contentBackdropColor, theme?.surface || '#ffffff')),
+      opacity: clamp(theme?.headingBackgroundOpacityV452, 0, 100, 88),
+      padding: clamp(theme?.headingBackgroundPaddingV429, 0, 40, 10),
+      radius: clamp(theme?.headingBackgroundRadiusV452, 0, 40, Number(theme?.radius) || 10)
+    };
+  }
+  function applyHeadingBackdropAuthorityV496(theme, authority = null) {
+    if (!theme || typeof theme !== 'object') return theme;
+    const a = authority || headingBackdropAuthorityV496(theme);
+    theme.headingBackgroundEnabledV429 = a.enabled === true;
+    theme.headingBackgroundColorV452 = safeHex(a.color, '#ffffff');
+    theme.headingBackgroundOpacityV452 = clamp(a.opacity, 0, 100, 88);
+    theme.headingBackgroundPaddingV429 = clamp(a.padding, 0, 40, 10);
+    theme.headingBackgroundRadiusV452 = clamp(a.radius, 0, 40, Number(theme?.radius) || 10);
+    theme.themeBuilderHeadingBackdropOverrideV496 = {
+      enabled: theme.headingBackgroundEnabledV429,
+      color: theme.headingBackgroundColorV452,
+      opacity: theme.headingBackgroundOpacityV452,
+      padding: theme.headingBackgroundPaddingV429,
+      radius: theme.headingBackgroundRadiusV452
+    };
+    return theme;
+  }
+  function rememberHeadingBackdropAuthorityV496() {
+    const a = applyHeadingBackdropAuthorityV496(state.draft || {}, currentHeadingBackdropAuthorityV496(state.draft || {}));
+    for (const key of ['headingBackgroundEnabledV429','headingBackgroundColorV452','headingBackgroundOpacityV452','headingBackgroundPaddingV429','headingBackgroundRadiusV452','themeBuilderHeadingBackdropOverrideV496']) {
+      rememberAiSharedOverrideV400(key, clone(a[key]));
+    }
+    propagateAiSharedStateToVariantsV400();
+  }
+
+  // V492 — Quiz Box Backdrop manual controls have one durable source of truth.
+  // Keep this separate from AI variant snapshots so a stale Light/Dark value can
+  // never replace what the user picked in the Theme Builder.
+  function quizBackdropAuthorityV492(theme = state.draft || {}) {
+    const saved = theme?.themeBuilderQuizBackdropOverrideV492;
+    const src = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : theme;
+    return {
+      enabled: src.enabled ?? src.quizBackdropEnabledV456 === true,
+      color: safeHex(src.color ?? src.quizBackdropColorV456, safeHex(theme?.quizBackdropColorV456, safeHex(theme?.contentBackdropColor, theme?.surface || '#ffffff'))),
+      opacity: clamp(src.opacity ?? src.quizBackdropOpacityV456, 0, 100, 92),
+      radius: clamp(src.radius ?? src.quizBackdropRadiusV456, 0, 40, Number(theme?.radius) || 10),
+      padding: clamp(src.padding ?? src.quizBackdropPaddingV459, 0, 40, 16)
+    };
+  }
+  function currentQuizBackdropAuthorityV492(theme = state.draft || {}) {
+    return {
+      enabled: theme?.quizBackdropEnabledV456 === true,
+      color: safeHex(theme?.quizBackdropColorV456, safeHex(theme?.contentBackdropColor, theme?.surface || '#ffffff')),
+      opacity: clamp(theme?.quizBackdropOpacityV456,0,100,92),
+      radius: clamp(theme?.quizBackdropRadiusV456,0,40,Number(theme?.radius)||10),
+      padding: clamp(theme?.quizBackdropPaddingV459,0,40,16)
+    };
+  }
+  function applyQuizBackdropAuthorityV492(theme, authority = null) {
+    if (!theme || typeof theme !== 'object') return theme;
+    const a = authority || quizBackdropAuthorityV492(theme);
+    theme.quizBackdropEnabledV456 = a.enabled === true;
+    theme.quizBackdropColorV456 = safeHex(a.color, '#ffffff');
+    theme.quizBackdropOpacityV456 = clamp(a.opacity,0,100,92);
+    theme.quizBackdropRadiusV456 = clamp(a.radius,0,40,10);
+    theme.quizBackdropPaddingV459 = clamp(a.padding,0,40,16);
+    theme.themeBuilderQuizBackdropOverrideV492 = {
+      enabled: theme.quizBackdropEnabledV456,
+      color: theme.quizBackdropColorV456,
+      opacity: theme.quizBackdropOpacityV456,
+      radius: theme.quizBackdropRadiusV456,
+      padding: theme.quizBackdropPaddingV459
+    };
+    return theme;
+  }
+  function rememberQuizBackdropAuthorityV492() {
+    const a = applyQuizBackdropAuthorityV492(state.draft || {}, currentQuizBackdropAuthorityV492(state.draft || {}));
+    rememberAiSharedOverrideV400('quizBackdropEnabledV456', a.quizBackdropEnabledV456);
+    rememberAiSharedOverrideV400('quizBackdropColorV456', a.quizBackdropColorV456);
+    rememberAiSharedOverrideV400('quizBackdropOpacityV456', a.quizBackdropOpacityV456);
+    rememberAiSharedOverrideV400('quizBackdropRadiusV456', a.quizBackdropRadiusV456);
+    rememberAiSharedOverrideV400('quizBackdropPaddingV459', a.quizBackdropPaddingV459);
+    rememberAiSharedOverrideV400('themeBuilderQuizBackdropOverrideV492', a.themeBuilderQuizBackdropOverrideV492);
+    propagateAiSharedStateToVariantsV400();
   }
 
   function toast(message) {
@@ -989,6 +1540,8 @@
 
   function canonicalThemeDraftV312(theme = {}) {
     const out = canonicalBackgroundDraftV311(theme);
+    applyHeadingBackdropAuthorityV496(out);
+    applyQuizBackdropAuthorityV492(out);
     const useBackdrops = inferPageBackdropsEnabledV312(out);
     out.pageBackdropsEnabledV312 = useBackdrops;
     if (!useBackdrops) {
@@ -1031,11 +1584,48 @@
       contentBackdropEnabled: !!out.contentBackdropEnabled,
       contentBackdropColor: safeHex(out.contentBackdropColor, surface),
       contentBackdropOpacity: clamp(out.contentBackdropOpacity, 0, 100, 92),
+      headingBackgroundEnabledV429: out.headingBackgroundEnabledV429 === true,
+      headingBackgroundPaddingV429: clamp(out.headingBackgroundPaddingV429, 0, 40, 10),
+      headingBackgroundColorV452: safeHex(out.headingBackgroundColorV452, safeHex(out.contentBackdropColor, surface)),
+      headingBackgroundOpacityV452: clamp(out.headingBackgroundOpacityV452, 0, 100, clamp(out.contentBackdropOpacity, 0, 100, 88)),
+      headingBackgroundRadiusV452: clamp(out.headingBackgroundRadiusV452, 0, 40, Number(out.radius) || 10),
+      pageBackdropColorV452: safeHex(out.pageBackdropColorV452, safeHex(out.dailyLogBackgroundColor, safeHex(out.contentBackdropColor, surface))),
+      pageBackdropOpacityV452: clamp(out.pageBackdropOpacityV452, 0, 100, clamp(out.dailyLogBackgroundOpacity, 0, 100, 92)),
+      quizBackdropEnabledV456: out.quizBackdropEnabledV456 === true,
+      quizBackdropColorV456: safeHex(out.quizBackdropColorV456, safeHex(out.contentBackdropColor, surface)),
+      quizBackdropOpacityV456: clamp(out.quizBackdropOpacityV456, 0, 100, clamp(out.contentBackdropOpacity, 0, 100, 92)),
+      quizBackdropRadiusV456: clamp(out.quizBackdropRadiusV456, 0, 40, Number(out.radius) || 10),
+      quizBackdropPaddingV459: clamp(out.quizBackdropPaddingV459, 0, 40, 16),
+      advancedUiEnabledV432: out.advancedUiEnabledV432 === true,
+      advancedBorderStyleV432: ['solid','dashed','dotted','double'].includes(String(out.advancedBorderStyleV432)) ? String(out.advancedBorderStyleV432) : 'solid',
+      advancedInputBorderStyleV432: ['solid','dashed','dotted','double'].includes(String(out.advancedInputBorderStyleV432)) ? String(out.advancedInputBorderStyleV432) : 'solid',
+      advancedButtonBorderStyleV432: ['solid','dashed','dotted','double'].includes(String(out.advancedButtonBorderStyleV432)) ? String(out.advancedButtonBorderStyleV432) : 'solid',
+      advancedBorderWidthV432: clamp(out.advancedBorderWidthV432, 1, 4, 1),
+      advancedInputRadiusV432: clamp(out.advancedInputRadiusV432, 0, 28, Number(out.radius) || 10),
+      advancedCardRadiusV432: clamp(out.advancedCardRadiusV432, 0, 28, Number(out.radius) || 10),
+      advancedButtonRadiusV432: clamp(out.advancedButtonRadiusV432, 0, 28, Number(out.radius) || 10),
+      aiDecorationsModeV432: String(out.aiDecorationsModeV432 || '') === 'none' ? 'none' : 'decorations',
       dashboardBackgroundV40: safeHex(out.dashboardBackgroundV40, background), dashboardCardV40: safeHex(out.dashboardCardV40, surface),
       dashboardTextV40: safeHex(out.dashboardTextV40, text), dashboardAccentV40: safeHex(out.dashboardAccentV40, accent),
       dashboardTitleColorV79: safeHex(out.dashboardTitleColorV79, text), dashboardIconColorV81: safeHex(out.dashboardIconColorV81, text),
       dashboardLogIconColorV85: safeHex(out.dashboardLogIconColorV85, text),
       dashboardLogIconBackgroundV107: safeHex(out.dashboardLogIconBackgroundV107, surface),
+      dashboardLogButtonBackgroundV391: safeHex(out.dashboardLogButtonBackgroundV391, safeHex(out.dashboardLogIconBackgroundV107, surface)),
+      dashboardLogButtonTextColorV391: safeHex(out.dashboardLogButtonIconColorV391, safeHex(out.dashboardLogIconColorV85, text)),
+      dashboardLogButtonIconColorV391: safeHex(out.dashboardLogButtonIconColorV391, safeHex(out.dashboardLogIconColorV85, text)),
+      dashboardLogButtonBorderColorV391: safeHex(out.dashboardLogButtonBorderColorV391, safeHex(out.border, text)),
+      dashboardLogButtonHoverBackgroundV391: safeHex(out.dashboardLogButtonHoverBackgroundV391, safeHex(out.hoverColor, accent)),
+      dashboardLogButtonHoverTextColorV391: safeHex(out.dashboardLogButtonHoverTextColorV391, safeHex(out.dashboardTextV40, text)),
+      dashboardLogButtonHoverIconColorV391: safeHex(out.dashboardLogButtonHoverIconColorV391, safeHex(out.dashboardLogIconColorV85, text)),
+      dashboardLogButtonHoverBorderColorV391: safeHex(out.dashboardLogButtonHoverBorderColorV391, safeHex(out.border, text)),
+      dashboardNewLogButtonBackgroundV391: safeHex(out.dashboardLogButtonBackgroundV391, safeHex(out.dashboardLogIconBackgroundV107, surface)),
+      dashboardNewLogButtonTextColorV391: safeHex(out.dashboardLogButtonIconColorV391, safeHex(out.dashboardLogIconColorV85, text)),
+      dashboardNewLogButtonIconColorV391: safeHex(out.dashboardLogButtonIconColorV391, safeHex(out.dashboardLogIconColorV85, text)),
+      dashboardNewLogButtonBorderColorV391: safeHex(out.dashboardLogButtonBorderColorV391, safeHex(out.border, text)),
+      dashboardNewLogButtonHoverBackgroundV391: safeHex(out.dashboardLogButtonHoverBackgroundV391, safeHex(out.hoverColor, accent)),
+      dashboardNewLogButtonHoverTextColorV391: safeHex(out.dashboardLogButtonHoverTextColorV391, safeHex(out.dashboardTextV40, text)),
+      dashboardNewLogButtonHoverIconColorV391: safeHex(out.dashboardLogButtonHoverIconColorV391, safeHex(out.dashboardLogIconColorV85, text)),
+      dashboardNewLogButtonHoverBorderColorV391: safeHex(out.dashboardLogButtonHoverBorderColorV391, safeHex(out.border, text)),
       dashboardCreateLogIconHoverColorV320: safeHex(out.dashboardCreateLogIconHoverColorV320, text),
       dashboardCreateLogIconHoverBackgroundV320: safeHex(out.dashboardCreateLogIconHoverBackgroundV320, '#eeeeee'),
       dashboardCreateLogCategoryBackgroundColorV321: safeHex(out.dashboardCreateLogCategoryBackgroundColorV321, surface),
@@ -1044,6 +1634,46 @@
       dashboardCreateLogCategoryHoverBackgroundColorV321: safeHex(out.dashboardCreateLogCategoryHoverBackgroundColorV321, '#eeeeee'),
       dashboardCreateLogCategoryHoverTextColorV321: safeHex(out.dashboardCreateLogCategoryHoverTextColorV321, text),
       dashboardCreateLogCategoryHoverBorderColorV321: safeHex(out.dashboardCreateLogCategoryHoverBorderColorV321, text),
+
+      dashboardCreateLogOverlayColorV396: safeHex(out.dashboardCreateLogOverlayColorV396, background),
+      dashboardCreateLogModalBackgroundColorV396: safeHex(out.dashboardCreateLogModalBackgroundColorV396, safeHex(out.settingsModalBackgroundColorV380, surface)),
+      dashboardCreateLogModalTextColorV396: safeHex(out.dashboardCreateLogModalTextColorV396, safeHex(out.settingsModalTextColorV380, text)),
+      dashboardCreateLogModalBorderColorV396: safeHex(out.dashboardCreateLogModalBorderColorV396, safeHex(out.settingsModalBorderColorV380, out.border || text)),
+      dashboardCreateLogTitleColorV396: safeHex(out.dashboardCreateLogTitleColorV396, safeHex(out.dashboardCreateLogModalTextColorV396, text)),
+      dashboardCreateLogLabelColorV396: safeHex(out.dashboardCreateLogLabelColorV396, safeHex(out.dashboardCreateLogModalTextColorV396, text)),
+      dashboardCreateLogInputBackgroundColorV396: safeHex(out.dashboardCreateLogInputBackgroundColorV396, surface),
+      dashboardCreateLogInputTextColorV396: safeHex(out.dashboardCreateLogInputTextColorV396, text),
+      dashboardCreateLogInputBorderColorV396: safeHex(out.dashboardCreateLogInputBorderColorV396, out.border || text),
+      dashboardCreateLogInputHoverBackgroundColorV396: safeHex(out.dashboardCreateLogInputHoverBackgroundColorV396, safeHex(out.dashboardCreateLogInputBackgroundColorV396, surface)),
+      dashboardCreateLogInputHoverTextColorV396: safeHex(out.dashboardCreateLogInputHoverTextColorV396, safeHex(out.dashboardCreateLogInputTextColorV396, text)),
+      dashboardCreateLogInputHoverBorderColorV396: safeHex(out.dashboardCreateLogInputHoverBorderColorV396, safeHex(out.hoverColor, out.border || text)),
+      dashboardCreateLogInputFocusBackgroundColorV396: safeHex(out.dashboardCreateLogInputFocusBackgroundColorV396, safeHex(out.dashboardCreateLogInputBackgroundColorV396, surface)),
+      dashboardCreateLogInputFocusTextColorV396: safeHex(out.dashboardCreateLogInputFocusTextColorV396, safeHex(out.dashboardCreateLogInputTextColorV396, text)),
+      dashboardCreateLogInputFocusBorderColorV396: safeHex(out.dashboardCreateLogInputFocusBorderColorV396, safeHex(out.accent, out.border || text)),
+      dashboardCreateLogIconBackgroundColorV396: safeHex(out.dashboardCreateLogIconBackgroundColorV396, safeHex(out.dashboardCreateLogModalBackgroundColorV396, surface)),
+      dashboardCreateLogIconColorV396: safeHex(out.dashboardCreateLogIconColorV396, text),
+      dashboardCreateLogIconBorderColorV396: safeHex(out.dashboardCreateLogIconBorderColorV396, out.border || text),
+      dashboardCreateLogIconHoverBackgroundColorV396: safeHex(out.dashboardCreateLogIconHoverBackgroundColorV396, safeHex(out.dashboardCreateLogIconHoverBackgroundV320, out.hoverColor || accent)),
+      dashboardCreateLogIconHoverColorV396: safeHex(out.dashboardCreateLogIconHoverColorV396, safeHex(out.dashboardCreateLogIconHoverColorV320, text)),
+      dashboardCreateLogIconHoverBorderColorV396: safeHex(out.dashboardCreateLogIconHoverBorderColorV396, out.border || text),
+      dashboardCreateLogIconSelectedBackgroundColorV396: safeHex(out.dashboardCreateLogIconSelectedBackgroundColorV396, accent),
+      dashboardCreateLogIconSelectedColorV396: safeHex(out.dashboardCreateLogIconSelectedColorV396, text),
+      dashboardCreateLogIconSelectedBorderColorV396: safeHex(out.dashboardCreateLogIconSelectedBorderColorV396, out.border || text),
+      dashboardCreateLogButtonBackgroundColorV396: safeHex(out.dashboardCreateLogButtonBackgroundColorV396, safeHex(out.dashboardCreateLogModalBackgroundColorV396, surface)),
+      dashboardCreateLogButtonTextColorV396: safeHex(out.dashboardCreateLogButtonTextColorV396, text),
+      dashboardCreateLogButtonIconColorV396: safeHex(out.dashboardCreateLogButtonIconColorV396, safeHex(out.dashboardCreateLogButtonTextColorV396, text)),
+      dashboardCreateLogButtonBorderColorV396: safeHex(out.dashboardCreateLogButtonBorderColorV396, out.border || text),
+      dashboardCreateLogButtonHoverBackgroundColorV396: safeHex(out.dashboardCreateLogButtonHoverBackgroundColorV396, safeHex(out.hoverColor, accent)),
+      dashboardCreateLogButtonHoverTextColorV396: safeHex(out.dashboardCreateLogButtonHoverTextColorV396, text),
+      dashboardCreateLogButtonHoverIconColorV396: safeHex(out.dashboardCreateLogButtonHoverIconColorV396, safeHex(out.dashboardCreateLogButtonHoverTextColorV396, text)),
+      dashboardCreateLogButtonHoverBorderColorV396: safeHex(out.dashboardCreateLogButtonHoverBorderColorV396, out.border || text),
+      dashboardCreateLogCloseBackgroundColorV396: safeHex(out.dashboardCreateLogCloseBackgroundColorV396, safeHex(out.dashboardCreateLogModalBackgroundColorV396, surface)),
+      dashboardCreateLogCloseIconColorV396: safeHex(out.dashboardCreateLogCloseIconColorV396, text),
+      dashboardCreateLogCloseBorderColorV396: safeHex(out.dashboardCreateLogCloseBorderColorV396, out.border || text),
+      dashboardCreateLogCloseHoverBackgroundColorV396: safeHex(out.dashboardCreateLogCloseHoverBackgroundColorV396, safeHex(out.hoverColor, surface)),
+      dashboardCreateLogCloseHoverIconColorV396: safeHex(out.dashboardCreateLogCloseHoverIconColorV396, text),
+      dashboardCreateLogCloseHoverBorderColorV396: safeHex(out.dashboardCreateLogCloseHoverBorderColorV396, out.border || text),
+
       themeSettingsPlusIconColorV322: safeHex(out.themeSettingsPlusIconColorV322, text),
       themeSettingsPlusBackgroundColorV322: safeHex(out.themeSettingsPlusBackgroundColorV322, surface),
       themeSettingsPlusBorderColorV322: safeHex(out.themeSettingsPlusBorderColorV322, out.border || text),
@@ -1074,6 +1704,16 @@
       settingsWidgetBackgroundColorV380: safeHex(out.settingsWidgetBackgroundColorV380, surface),
       settingsWidgetTextColorV380: safeHex(out.settingsWidgetTextColorV380, text),
       settingsWidgetBorderColorV380: safeHex(out.settingsWidgetBorderColorV380, out.border || text),
+      settingsCursorNameTextColorV394: safeHex(out.settingsCursorNameTextColorV394, safeHex(out.settingsWidgetTextColorV380, text)),
+      settingsCompanionNameTextColorV394: safeHex(out.settingsCompanionNameTextColorV394, safeHex(out.settingsWidgetTextColorV380, text)),
+      settingsThemeNameTextColorV394: safeHex(out.settingsThemeNameTextColorV394, safeHex(out.settingsModalCardTextColorV380, text)),
+      settingsThemeNameHoverTextColorV394: safeHex(out.settingsThemeNameHoverTextColorV394, safeHex(out.settingsModalHoverTextColorV380, text)),
+      // Context-menu background is intentionally linked to Settings Modal Background.
+      dashboardContextMenuBackgroundColorV394: safeHex(out.settingsModalBackgroundColorV380, surface),
+      dashboardContextMenuTextColorV394: safeHex(out.dashboardContextMenuTextColorV394, safeHex(out.settingsModalTextColorV380, text)),
+      dashboardContextMenuBorderColorV394: safeHex(out.dashboardContextMenuBorderColorV394, safeHex(out.settingsModalBorderColorV380, out.border || text)),
+      dashboardContextMenuHoverBackgroundColorV394: safeHex(out.dashboardContextMenuHoverBackgroundColorV394, safeHex(out.settingsModalHoverBackgroundColorV380, out.hoverColor || accent)),
+      dashboardContextMenuHoverTextColorV394: safeHex(out.dashboardContextMenuHoverTextColorV394, safeHex(out.settingsModalHoverTextColorV380, text)),
       kbCategoryBackgroundColor: safeHex(out.kbCategoryBackgroundColor, surface), kbCategoryTextColor: safeHex(out.kbCategoryTextColor, text),
       kbCategoryHoverBackgroundColor: safeHex(out.kbCategoryHoverBackgroundColor, accent), kbCategoryHoverTextColor: safeHex(out.kbCategoryHoverTextColor, text),
       radius: Number.isFinite(Number(out.radius)) ? clamp(out.radius, 0, 30, 20) : 20, shadow: Number.isFinite(Number(out.shadow)) ? clamp(out.shadow, 0, 12, 0) : 0, font: String(out.font || 'hand'),
@@ -1132,6 +1772,10 @@
         muted: dark ? '#d1d5db' : '#666666', tabIconColor:ink, tabTitleColor:ink, backButtonColor:ink,
         dashboardBackgroundV40:p[0] || '#ffffff', dashboardCardV40:p[1] || '#ffffff', dashboardTextV40:ink,
         dashboardAccentV40:p[2] || p[1] || '#eeeeee', dashboardTitleColorV79:ink, dashboardIconColorV81:ink, dashboardLogIconColorV85:ink,
+        dashboardLogButtonBackgroundV391:p[1] || '#ffffff', dashboardLogButtonTextColorV391:ink, dashboardLogButtonIconColorV391:ink, dashboardLogButtonBorderColorV391:ink,
+        dashboardLogButtonHoverBackgroundV391:p[2] || p[1] || '#eeeeee', dashboardLogButtonHoverTextColorV391:ink, dashboardLogButtonHoverIconColorV391:ink, dashboardLogButtonHoverBorderColorV391:ink,
+        dashboardNewLogButtonBackgroundV391:p[1] || '#ffffff', dashboardNewLogButtonTextColorV391:ink, dashboardNewLogButtonIconColorV391:ink, dashboardNewLogButtonBorderColorV391:ink,
+        dashboardNewLogButtonHoverBackgroundV391:p[2] || p[1] || '#eeeeee', dashboardNewLogButtonHoverTextColorV391:ink, dashboardNewLogButtonHoverIconColorV391:ink, dashboardNewLogButtonHoverBorderColorV391:ink,
         dashboardCreateLogIconHoverColorV320:ink, dashboardCreateLogIconHoverBackgroundV320:'#eeeeee',
         dashboardCreateLogCategoryBackgroundColorV321:p[1] || '#ffffff', dashboardCreateLogCategoryTextColorV321:ink, dashboardCreateLogCategoryBorderColorV321:ink,
         dashboardCreateLogCategoryHoverBackgroundColorV321:p[2] || p[1] || '#eeeeee', dashboardCreateLogCategoryHoverTextColorV321:ink, dashboardCreateLogCategoryHoverBorderColorV321:ink,
@@ -1207,18 +1851,88 @@
     return out;
   }
 
+  // V420 — SAVED INTRO AUDIO AUTHORITY
+  // Theme records have several compatibility mirrors. Keep intro audio in one
+  // tiny per-theme authority record so an older mirror can never resurrect a
+  // replaced/removed song after Save.
+  const INTRO_AUTHORITY_KEY_V420 = 'loggy-theme-intro-audio-v420';
+  function readIntroAuthorityMapV420() {
+    try {
+      const value = JSON.parse(localStorage.getItem(INTRO_AUTHORITY_KEY_V420) || '{}');
+      return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    } catch { return {}; }
+  }
+  function writeIntroAuthorityMapV420(map) {
+    try { localStorage.setItem(INTRO_AUTHORITY_KEY_V420, JSON.stringify(map || {})); } catch {}
+  }
+  function audioAuthorityFromThemeV420(theme = {}, updatedAt = '') {
+    return {
+      introAudio:String(theme?.introAudio || ''),
+      introAudioName:String(theme?.introAudioName || ''),
+      introAudioProjectPath:String(theme?.introAudioProjectPath || ''),
+      introAudioSourceThemeIdV364:String(theme?.introAudioSourceThemeIdV364 || ''),
+      audioPlayMode:String(theme?.audioPlayMode || 'full') === 'segment' ? 'segment' : 'full',
+      audioStart:String(theme?.audioStart ?? '00:00'),
+      audioEnd:String(theme?.audioEnd ?? '00:20'),
+      audioFade:theme?.audioFade !== false,
+      audioVolume:clamp(theme?.audioVolume,0,100,35),
+      // V423: an explicit removal must survive empty-string merges and server
+      // re-hydration. Older V420 rows with an empty intro + timestamp are
+      // automatically interpreted as a removal tombstone.
+      introAudioRemovedV423:
+        theme?.introAudioRemovedV423 === true ||
+        (!String(theme?.introAudio || '').trim() &&
+         !!String(theme?.introAudioUpdatedAtV420 || theme?.introAudioAuthorityV418 || '').trim()),
+      updatedAt:String(updatedAt || theme?.introAudioUpdatedAtV420 || new Date().toISOString())
+    };
+  }
+  function writeAudioAuthorityToThemeV420(theme, authority) {
+    if (!theme || typeof theme !== 'object' || !authority) return theme;
+    const a=authority;
+    theme.introAudio=String(a.introAudio || '');
+    theme.introAudioName=String(a.introAudioName || '');
+    theme.introAudioProjectPath=String(a.introAudioProjectPath || '');
+    theme.introAudioSourceThemeIdV364=String(a.introAudioSourceThemeIdV364 || '');
+    theme.audioPlayMode=String(a.audioPlayMode || 'full') === 'segment' ? 'segment' : 'full';
+    theme.audioStart=String(a.audioStart ?? '00:00');
+    theme.audioEnd=String(a.audioEnd ?? '00:20');
+    theme.audioFade=a.audioFade !== false;
+    theme.audioVolume=clamp(a.audioVolume,0,100,35);
+    theme.introAudioRemovedV423 =
+      a.introAudioRemovedV423 === true ||
+      (!String(a.introAudio || '').trim() && !!String(a.updatedAt || '').trim());
+    theme.introAudioUpdatedAtV420=String(a.updatedAt || '');
+    // Canonical empty introAudio means removed. Never let a legacy alias refill it.
+    for (const key of ['introAudioUrl','introSong','introMusic','song','music','introSongName','songName','musicName']) theme[key]='';
+    return theme;
+  }
+  function applySavedIntroAuthorityV420(themeId, theme) {
+    const id=String(themeId || '');
+    if (!id || !theme || typeof theme !== 'object') return theme;
+    const a=readIntroAuthorityMapV420()[id];
+    if (!a || typeof a !== 'object') return theme;
+    const authTime=Date.parse(String(a.updatedAt || '')) || 0;
+    const themeTime=Date.parse(String(theme.introAudioUpdatedAtV420 || '')) || 0;
+    if (themeTime > authTime) return theme;
+    return writeAudioAuthorityToThemeV420(theme,a);
+  }
+
   function resolveImmediate(themeId, name = '') {
     const base = blankDraft();
+    const finalize = payload => {
+      if (payload?.draft) payload.draft = applySavedIntroAuthorityV420(themeId, payload.draft);
+      return payload;
+    };
     const shared = readJsonStorage(SHARED_KEY, []);
     const sharedEntry = Array.isArray(shared) ? shared.find(x => String(x?.id || '') === themeId) : null;
-    if (sharedEntry?.theme) return { kind:'shared', sourceThemeId:sharedEntry.sourceThemeId || '', dashboardOverlayKeys:Object.keys(sharedEntry.theme || {}), draft:{ ...base, ...clone(sharedEntry.theme), name:sharedEntry.name || sharedEntry.theme.name || name || 'Custom Theme', backgroundSvgs:mergeDecorations(sharedEntry.theme.backgroundSvgs || []) } };
+    if (sharedEntry?.theme) return finalize({ kind:'shared', sourceThemeId:sharedEntry.sourceThemeId || '', dashboardOverlayKeys:Object.keys(sharedEntry.theme || {}), draft:{ ...base, ...clone(sharedEntry.theme), name:sharedEntry.name || sharedEntry.theme.name || name || 'Custom Theme', backgroundSvgs:mergeDecorations(sharedEntry.theme.backgroundSvgs || []) } });
     try {
       const copyTheme = getThemeCopyV30?.(themeId);
-      if (copyTheme?.theme) return { kind:'copy', sourceThemeId:copyTheme.sourceThemeId || '', dashboardOverlayKeys:Object.keys(copyTheme.theme || {}), draft:{ ...base, ...clone(copyTheme.theme), name:copyTheme.name || copyTheme.theme.name || name || 'Theme Copy', backgroundSvgs:mergeDecorations(copyTheme.theme.backgroundSvgs || []) } };
+      if (copyTheme?.theme) return finalize({ kind:'copy', sourceThemeId:copyTheme.sourceThemeId || '', dashboardOverlayKeys:Object.keys(copyTheme.theme || {}), draft:{ ...base, ...clone(copyTheme.theme), name:copyTheme.name || copyTheme.theme.name || name || 'Theme Copy', backgroundSvgs:mergeDecorations(copyTheme.theme.backgroundSvgs || []) } });
     } catch {}
     if (themeId === 'theme-custom-builder') {
       let custom = {}; try { custom = clone(getCustomThemeSettings?.() || db?.settings?.customTheme || {}); } catch {}
-      return { kind:'custom', sourceThemeId:'', dashboardOverlayKeys:Object.keys(custom || {}), draft:{ ...base, ...custom, name:custom.name || name || 'Custom Theme', backgroundSvgs:mergeDecorations(custom.backgroundSvgs || []) } };
+      return finalize({ kind:'custom', sourceThemeId:'', dashboardOverlayKeys:Object.keys(custom || {}), draft:{ ...base, ...custom, name:custom.name || name || 'Custom Theme', backgroundSvgs:mergeDecorations(custom.backgroundSvgs || []) } });
     }
     let override = null;
     try { override = getThemeOverrideV25?.(themeId) || null; } catch {}
@@ -1226,7 +1940,7 @@
       const map = readJsonStorage(OVERRIDE_KEY, {});
       override = map?.[themeId]?.theme || map?.[themeId] || null;
     }
-    return { kind:'built-in', sourceThemeId:themeId, dashboardOverlayKeys:Object.keys(override || {}), draft:{ ...base, ...builtInFallback(themeId), ...(override ? clone(override) : {}), backgroundSvgs:mergeDecorations(override?.backgroundSvgs || []), name:override?.name || name || displayName(themeId) } };
+    return finalize({ kind:'built-in', sourceThemeId:themeId, dashboardOverlayKeys:Object.keys(override || {}), draft:{ ...base, ...builtInFallback(themeId), ...(override ? clone(override) : {}), backgroundSvgs:mergeDecorations(override?.backgroundSvgs || []), name:override?.name || name || displayName(themeId) } });
   }
 
   function gradientPresets() {
@@ -1318,7 +2032,7 @@
       #${MODAL_ID} .tb311-bg-source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#${MODAL_ID} .tb311-bg-source{display:flex;align-items:flex-start;gap:9px;text-align:left;border:1px solid #c9c9c9;border-radius:12px;background:#fff;padding:10px;cursor:pointer;color:#171717}#${MODAL_ID} .tb311-bg-source:hover{border-color:#777}#${MODAL_ID} .tb311-bg-source.active{border:2px solid #171717;padding:9px;background:#f7f7f7}#${MODAL_ID} .tb311-bg-switch{width:34px;height:20px;border-radius:999px;background:#d6d6d6;position:relative;flex:0 0 auto;margin-top:1px}#${MODAL_ID} .tb311-bg-switch::after{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}#${MODAL_ID} .tb311-bg-source.active .tb311-bg-switch{background:#171717}#${MODAL_ID} .tb311-bg-source.active .tb311-bg-switch::after{transform:translateX(14px)}#${MODAL_ID} .tb311-bg-source-copy{display:grid;gap:2px;min-width:0}#${MODAL_ID} .tb311-bg-source-copy strong{font-size:.92rem}#${MODAL_ID} .tb311-bg-source-copy small{font-size:.72rem;color:#666;line-height:1.2}#${MODAL_ID} .tb311-active-bg{border:1px solid #d8d8d8;border-radius:12px;background:#fafafa;padding:10px;display:grid;gap:9px}
       #${MODAL_ID} .tb312-use-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;-webkit-user-select:none;padding:2px 0}#${MODAL_ID} .tb312-use-toggle>input{position:absolute;opacity:0;pointer-events:none}#${MODAL_ID} .tb312-switch-track{width:42px;height:24px;border-radius:999px;border:1px solid #aaa;background:#ddd;position:relative;flex:0 0 auto;transition:.15s}#${MODAL_ID} .tb312-switch-track::after{content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;border-radius:50%;background:#fff;border:1px solid rgba(0,0,0,.12);box-shadow:0 1px 2px rgba(0,0,0,.12);transition:transform .15s}#${MODAL_ID} .tb312-use-toggle>input:checked+.tb312-switch-track{background:#171717;border-color:#171717}#${MODAL_ID} .tb312-use-toggle>input:checked+.tb312-switch-track::after{transform:translateX(18px)}#${MODAL_ID} .tb312-use-copy{display:grid;gap:1px;min-width:0}#${MODAL_ID} .tb312-use-copy strong{font-size:.9rem}#${MODAL_ID} .tb312-use-copy small{color:#666;font-size:.74rem;line-height:1.2}#${MODAL_ID} .tb312-subsettings{display:grid;gap:9px;border-top:1px solid #ececec;padding-top:9px;margin-top:2px}
       #${MODAL_ID} .tb315-cursor-emoji{display:grid;place-items:center;width:100%;height:100%;font-size:2rem;line-height:1}#${MODAL_ID} .tb315-trinket-gallery.is-disabled{opacity:.42;filter:saturate(.7)}#${MODAL_ID} .tb315-trinket-gallery.is-disabled .tb307-trinket{cursor:default}
-      #${MODAL_ID} .tb324-auto-choice{border:1px solid #d4d4d4;border-radius:12px;background:#fff;padding:11px;display:grid;gap:10px;margin-bottom:10px}#${MODAL_ID} .tb324-auto-choice.is-active{border-color:#171717;box-shadow:inset 0 0 0 1px #171717}#${MODAL_ID} .tb324-auto-choice-body{display:grid;gap:11px;border-top:1px solid #ececec;padding-top:11px}#${MODAL_ID} .tb324-auto-choice .tb312-use-toggle{padding:0}#${MODAL_ID} .tb312-ai-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}#${MODAL_ID} .tb312-ai-step{border:1px solid #ddd;border-radius:10px;padding:9px;background:#fafafa;display:grid;gap:3px}#${MODAL_ID} .tb312-ai-step strong{font-size:.86rem}#${MODAL_ID} .tb312-ai-step small{font-size:.74rem;color:#666;line-height:1.3}#${MODAL_ID} .tb312-ai-json{min-height:260px!important}#${MODAL_ID} .tb312-ai-status{min-height:20px;font-size:.82rem;font-weight:750;color:#555}#${MODAL_ID} .tb325-ai-apply-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}#${MODAL_ID} .tb325-ai-apply{min-width:150px;min-height:42px;border:1px solid #171717;border-radius:9px;background:#171717;color:#fff;font:inherit;font-weight:850;cursor:pointer}#${MODAL_ID} .tb325-ai-apply:disabled{opacity:.42;cursor:not-allowed}#${MODAL_ID} .tb316-toggle-settings{display:grid;gap:9px;padding:10px 0 0 46px;border-top:1px solid #eee;margin-top:2px}#${MODAL_ID} .tb316-auto-theme{gap:12px}#${MODAL_ID} .tb312-ai-step small{display:block;margin-top:5px;color:#666;line-height:1.35;font-weight:500}#${MODAL_ID} .tb316-copy-prompt{width:100%;min-height:42px;border:1px solid #171717;border-radius:9px;background:#171717;color:#fff;font:inherit;font-weight:850;cursor:pointer}#${MODAL_ID} .tb316-ai-paste{display:grid;gap:7px;padding-top:2px}#${MODAL_ID} .tb316-ai-paste-head{display:flex;align-items:center;justify-content:space-between;gap:8px}#${MODAL_ID} .tb323-mode-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}#${MODAL_ID} .tb323-mode-row>strong{margin-right:auto}#${MODAL_ID} .tb323-mode-btn{border:1px solid #aaa;background:#fff;color:#171717;border-radius:999px;padding:7px 13px;font-weight:800;cursor:pointer;user-select:none;-webkit-user-select:none}#${MODAL_ID} .tb323-mode-btn.active{background:#171717;color:#fff;border-color:#171717}#${MODAL_ID} .tb323-smart-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:end}#${MODAL_ID} .tb323-smart-seed{display:grid;grid-template-columns:minmax(0,1fr) 46px 104px;gap:7px;align-items:center}#${MODAL_ID} .tb323-smart-seed>span{font-weight:800}#${MODAL_ID} .tb323-smart-seed input[type=color]{width:46px;height:38px;padding:2px;border:1px solid #aaa;border-radius:8px;background:#fff}#${MODAL_ID} .tb323-smart-seed input[type=text]{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}#${MODAL_ID} .tb323-swatches{display:grid;grid-template-columns:repeat(7,1fr);height:22px;border:1px solid #ccc;border-radius:999px;overflow:hidden}#${MODAL_ID} .tb323-swatches span{min-width:0}
+      #${MODAL_ID} .tb324-auto-choice{border:1px solid #d4d4d4;border-radius:12px;background:#fff;padding:11px;display:grid;gap:10px;margin-bottom:10px}#${MODAL_ID} .tb324-auto-choice.is-active{border-color:#171717;box-shadow:inset 0 0 0 1px #171717}#${MODAL_ID} .tb324-auto-choice-body{display:grid;gap:11px;border-top:1px solid #ececec;padding-top:11px}#${MODAL_ID} .tb324-auto-choice .tb312-use-toggle{padding:0}#${MODAL_ID} .tb312-ai-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}#${MODAL_ID} .tb312-ai-step{border:1px solid #ddd;border-radius:10px;padding:9px;background:#fafafa;display:grid;gap:3px}#${MODAL_ID} .tb312-ai-step strong{font-size:.86rem}#${MODAL_ID} .tb312-ai-step small{font-size:.74rem;color:#666;line-height:1.3}#${MODAL_ID} .tb312-ai-json{min-height:260px!important}#${MODAL_ID} .tb312-ai-status{min-height:20px;font-size:.82rem;font-weight:750;color:#555}#${MODAL_ID} .tb325-ai-apply-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}#${MODAL_ID} .tb325-ai-apply{min-width:150px;min-height:42px;border:1px solid #171717;border-radius:9px;background:#171717;color:#fff;font:inherit;font-weight:850;cursor:pointer}#${MODAL_ID} .tb325-ai-apply:disabled{opacity:.42;cursor:not-allowed}#${MODAL_ID} .tb316-toggle-settings{display:grid;gap:9px;padding:10px 0 0 46px;border-top:1px solid #eee;margin-top:2px}#${MODAL_ID} .tb316-auto-theme{gap:12px}#${MODAL_ID} .tb312-ai-step small{display:block;margin-top:5px;color:#666;line-height:1.35;font-weight:500}#${MODAL_ID} .tb316-copy-prompt{width:100%;min-height:42px;border:1px solid #171717;border-radius:9px;background:#171717;color:#fff;font:inherit;font-weight:850;cursor:pointer}#${MODAL_ID} .tb316-copy-prompt{transition:transform .15s ease,box-shadow .15s ease,background .15s ease,color .15s ease}#${MODAL_ID} .tb316-copy-prompt:hover{transform:translateY(-2px);background:#fff;color:#171717;box-shadow:0 4px 0 #171717,0 8px 18px rgba(0,0,0,.12)}#${MODAL_ID} .tb316-copy-prompt:active{transform:translateY(0);box-shadow:0 2px 0 #171717}#${MODAL_ID} .tb316-ai-paste{display:grid;gap:7px;padding-top:2px}#${MODAL_ID} .tb316-ai-paste-head{display:flex;align-items:center;justify-content:space-between;gap:8px}#${MODAL_ID} .tb323-mode-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}#${MODAL_ID} .tb323-mode-row>strong{margin-right:auto}#${MODAL_ID} .tb323-mode-btn{border:1px solid #aaa;background:#fff;color:#171717;border-radius:999px;padding:7px 13px;font-weight:800;cursor:pointer;user-select:none;-webkit-user-select:none}#${MODAL_ID} .tb323-mode-btn.active{background:#171717;color:#fff;border-color:#171717}#${MODAL_ID} .tb432-ai-options{display:grid;gap:10px;padding:11px;border:1px solid #e2e2e2;border-radius:11px;background:#fafafa}#${MODAL_ID} .tb432-ai-option-row{display:grid;grid-template-columns:minmax(120px,.6fr) minmax(0,1fr);gap:12px;align-items:center}#${MODAL_ID} .tb432-ai-option-label{display:grid;gap:2px}#${MODAL_ID} .tb432-ai-option-label strong{font-size:.86rem}#${MODAL_ID} .tb432-ai-option-label small{font-size:.72rem;color:#666;line-height:1.3}#${MODAL_ID} .tb432-ai-segments{display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}#${MODAL_ID} .tb432-ai-segment{border:1px solid #aaa;background:#fff;color:#171717;border-radius:999px;padding:7px 12px;font:inherit;font-size:.8rem;font-weight:850;cursor:pointer}#${MODAL_ID} .tb432-ai-segment.active{background:#171717;color:#fff;border-color:#171717}@media(max-width:720px){#${MODAL_ID} .tb432-ai-option-row{grid-template-columns:1fr}#${MODAL_ID} .tb432-ai-segments{justify-content:flex-start}}#${MODAL_ID} .tb323-smart-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:end}#${MODAL_ID} .tb323-smart-seed{display:grid;grid-template-columns:minmax(0,1fr) 46px 104px;gap:7px;align-items:center}#${MODAL_ID} .tb323-smart-seed>span{font-weight:800}#${MODAL_ID} .tb323-smart-seed input[type=color]{width:46px;height:38px;padding:2px;border:1px solid #aaa;border-radius:8px;background:#fff}#${MODAL_ID} .tb323-smart-seed input[type=text]{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}#${MODAL_ID} .tb323-swatches{display:grid;grid-template-columns:repeat(7,1fr);height:22px;border:1px solid #ccc;border-radius:999px;overflow:hidden}#${MODAL_ID} .tb323-swatches span{min-width:0}
       #${MODAL_ID} .tb307-range-row{display:grid;grid-template-columns:34px minmax(0,1fr) 48px 34px;gap:6px;align-items:center}.tb307-range-row button{width:34px;height:34px;border:1px solid #aaa;border-radius:8px;background:#fff;cursor:pointer;font-weight:900}.tb307-range-value{text-align:center;font-weight:800;color:#333}
       #${MODAL_ID} .tb307-sound-list{display:grid;gap:7px}.tb307-sound{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:center;border:1px solid #ddd;border-radius:9px;padding:7px}.tb307-sound-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tb307-sound button{border:1px solid #aaa;background:#fff;border-radius:7px;padding:5px 8px;cursor:pointer}
       #${MODAL_ID} .tb307-deco-grid{display:grid;grid-template-columns:1fr;gap:9px}.tb307-deco-card{border:1px solid #c9c9c9;border-radius:12px;background:#fff;overflow:hidden}.tb307-deco-head{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:9px;align-items:center;padding:8px}.tb307-deco-art{width:70px;height:70px;display:grid;place-items:center;overflow:hidden;border-radius:8px;background:linear-gradient(45deg,#f0f0f0 25%,#fff 25%,#fff 50%,#f0f0f0 50%,#f0f0f0 75%,#fff 75%);background-size:14px 14px}.tb307-deco-art img,.tb307-deco-art svg{max-width:64px;max-height:64px}.tb307-deco-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}.tb307-deco-card details{border-top:1px solid #e5e5e5}.tb307-deco-card details summary{padding:8px 10px;cursor:pointer;font-weight:800;user-select:none;-webkit-user-select:none}.tb307-deco-head,.tb307-deco-name,.tb307-deco-card details summary *{user-select:none;-webkit-user-select:none}.tb307-deco-options{padding:0 10px 10px;display:grid;gap:8px}.tb307-direction{display:flex;gap:6px}.tb307-direction button{flex:1;border:1px solid #aaa;border-radius:8px;background:#fff;padding:7px;cursor:pointer}.tb307-direction button.selected{background:#171717;color:#fff;border-color:#171717}
@@ -1363,7 +2077,7 @@
 
   function colorGroup(key) {
     const k = String(key || '').toLowerCase();
-    if (k.includes('dashboard') || k.includes('settingsmodal') || k.includes('settingswidget')) return 'dashboard';
+    if (k.includes('dashboard') || k.includes('settingsmodal') || k.includes('settingswidget') || k.includes('settingscursor') || k.includes('settingscompanion') || k.includes('settingstheme')) return 'dashboard';
     if (k.includes('kb') || k.includes('knowledge')) return 'knowledge';
     if (k.includes('themesettingsplus')) return 'themeSettings';
     if (k.includes('category')) return 'categories';
@@ -1374,7 +2088,8 @@
   }
 
   function colorKeys() {
-    const all = Object.entries(state.draft).filter(([,value]) => isHex(value)).map(([key]) => key);
+    const hiddenLegacyV391 = new Set(['dashboardLogIconColorV85','dashboardLogIconBackgroundV107','dashboardLogButtonTextColorV391','dashboardNewLogButtonTextColorV391','dashboardCreateLogIconHoverColorV320','dashboardCreateLogIconHoverBackgroundV320','dashboardCreateLogCloseBackgroundColorV396','dashboardCreateLogCloseHoverBackgroundColorV396']);
+    const all = Object.entries(state.draft).filter(([key,value]) => isHex(value) && !hiddenLegacyV391.has(key)).map(([key]) => key);
     const priority = ['background','surface','text','border','accent','muted','hoverColor'];
     return all.sort((a,b) => {
       const ai = priority.indexOf(a), bi = priority.indexOf(b);
@@ -1385,6 +2100,22 @@
 
   function colorRow(key, label = titleFromKey(key)) {
     const customLabelsV320 = {
+      dashboardLogButtonBackgroundV391: 'Log Button Background',
+      dashboardLogButtonTextColorV391: 'Log Button Text',
+      dashboardLogButtonIconColorV391: 'Log Button Icon',
+      dashboardLogButtonBorderColorV391: 'Log Button Border',
+      dashboardLogButtonHoverBackgroundV391: 'Log Button Hover Background',
+      dashboardLogButtonHoverTextColorV391: 'Log Button Hover Text',
+      dashboardLogButtonHoverIconColorV391: 'Log Button Hover Icon',
+      dashboardLogButtonHoverBorderColorV391: 'Log Button Hover Border',
+      dashboardNewLogButtonBackgroundV391: 'New Log Button Background (linked to Log Button)',
+      dashboardNewLogButtonTextColorV391: 'New Log Button Text',
+      dashboardNewLogButtonIconColorV391: 'New Log Button Plus Icon (linked to Log Button)',
+      dashboardNewLogButtonBorderColorV391: 'New Log Button Border (linked to Log Button)',
+      dashboardNewLogButtonHoverBackgroundV391: 'New Log Button Hover Background (linked to Log Button)',
+      dashboardNewLogButtonHoverTextColorV391: 'New Log Button Hover Text (linked to Log Button)',
+      dashboardNewLogButtonHoverIconColorV391: 'New Log Button Hover Plus Icon (linked to Log Button)',
+      dashboardNewLogButtonHoverBorderColorV391: 'New Log Button Hover Border (linked to Log Button)',
       dashboardCreateLogIconHoverColorV320: 'Create Log Icon Hover Color',
       dashboardCreateLogIconHoverBackgroundV320: 'Create Log Icon Hover Background',
       dashboardCreateLogCategoryBackgroundColorV321: 'Create Log Category Background',
@@ -1393,6 +2124,44 @@
       dashboardCreateLogCategoryHoverBackgroundColorV321: 'Create Log Category Hover Background',
       dashboardCreateLogCategoryHoverTextColorV321: 'Create Log Category Hover Text',
       dashboardCreateLogCategoryHoverBorderColorV321: 'Create Log Category Hover Border',
+      dashboardCreateLogOverlayColorV396: 'Create Log Overlay Tint',
+      dashboardCreateLogModalBackgroundColorV396: 'Create Log Modal Background (linked to Settings)',
+      dashboardCreateLogModalTextColorV396: 'Create Log Modal Text (linked to Settings)',
+      dashboardCreateLogModalBorderColorV396: 'Create Log Modal Border (linked to Settings)',
+      dashboardCreateLogTitleColorV396: 'Create Log Title Text',
+      dashboardCreateLogLabelColorV396: 'Create Log Field Labels',
+      dashboardCreateLogInputBackgroundColorV396: 'Create Log Input Background (linked to Settings)',
+      dashboardCreateLogInputTextColorV396: 'Create Log Name + Icon Search Text/Placeholder (shared; linked to Settings)',
+      dashboardCreateLogInputBorderColorV396: 'Create Log Input Border (linked to Settings)',
+      dashboardCreateLogInputHoverBackgroundColorV396: 'Create Log Input Hover Background',
+      dashboardCreateLogInputHoverTextColorV396: 'Create Log Name + Icon Search Hover Text (shared)',
+      dashboardCreateLogInputHoverBorderColorV396: 'Create Log Input Hover Border',
+      dashboardCreateLogInputFocusBackgroundColorV396: 'Create Log Input Focus Background',
+      dashboardCreateLogInputFocusTextColorV396: 'Create Log Name + Icon Search Focus Text (shared)',
+      dashboardCreateLogInputFocusBorderColorV396: 'Create Log Input Focus Border',
+      dashboardCreateLogIconBackgroundColorV396: 'Create Log Icon Background',
+      dashboardCreateLogIconColorV396: 'Create Log Icon Color',
+      dashboardCreateLogIconBorderColorV396: 'Create Log Icon Border',
+      dashboardCreateLogIconHoverBackgroundColorV396: 'Create Log Icon Hover Background',
+      dashboardCreateLogIconHoverColorV396: 'Create Log Icon Hover Color',
+      dashboardCreateLogIconHoverBorderColorV396: 'Create Log Icon Hover Border',
+      dashboardCreateLogIconSelectedBackgroundColorV396: 'Create Log Icon Selected Background',
+      dashboardCreateLogIconSelectedColorV396: 'Create Log Icon Selected Color',
+      dashboardCreateLogIconSelectedBorderColorV396: 'Create Log Icon Selected Border',
+      dashboardCreateLogButtonBackgroundColorV396: 'Create Page Button Background',
+      dashboardCreateLogButtonTextColorV396: 'Create Page Button Text',
+      dashboardCreateLogButtonIconColorV396: 'Create Page Button Icon',
+      dashboardCreateLogButtonBorderColorV396: 'Create Page Button Border',
+      dashboardCreateLogButtonHoverBackgroundColorV396: 'Create Page Button Hover Background',
+      dashboardCreateLogButtonHoverTextColorV396: 'Create Page Button Hover Text',
+      dashboardCreateLogButtonHoverIconColorV396: 'Create Page Button Hover Icon',
+      dashboardCreateLogButtonHoverBorderColorV396: 'Create Page Button Hover Border',
+      dashboardCreateLogCloseBackgroundColorV396: 'Create Log Close Background',
+      dashboardCreateLogCloseIconColorV396: 'Create Log Close X Color',
+      dashboardCreateLogCloseBorderColorV396: 'Create Log Close Border',
+      dashboardCreateLogCloseHoverBackgroundColorV396: 'Create Log Close Hover Background',
+      dashboardCreateLogCloseHoverIconColorV396: 'Create Log Close Hover X Color',
+      dashboardCreateLogCloseHoverBorderColorV396: 'Create Log Close Hover Border',
       themeSettingsPlusIconColorV322: 'Plus Icon Color',
       themeSettingsPlusBackgroundColorV322: 'Plus Background',
       themeSettingsPlusBorderColorV322: 'Plus Border',
@@ -1422,7 +2191,16 @@
       settingsModalButtonBorderColorV380: 'Settings Button Border',
       settingsWidgetBackgroundColorV380: 'Log Settings Widget Background',
       settingsWidgetTextColorV380: 'Log Settings Widget Text',
-      settingsWidgetBorderColorV380: 'Log Settings Widget Border'
+      settingsWidgetBorderColorV380: 'Log Settings Widget Border',
+      settingsCursorNameTextColorV394: 'Cursor Name Text',
+      settingsCompanionNameTextColorV394: 'Companion Name Text',
+      settingsThemeNameTextColorV394: 'Theme Name Text',
+      settingsThemeNameHoverTextColorV394: 'Theme Name Hover Text',
+      dashboardContextMenuBackgroundColorV394: 'Right-click Menu Background (linked to Settings)',
+      dashboardContextMenuTextColorV394: 'Right-click Menu Text',
+      dashboardContextMenuBorderColorV394: 'Right-click Menu Border',
+      dashboardContextMenuHoverBackgroundColorV394: 'Right-click Menu Hover Background',
+      dashboardContextMenuHoverTextColorV394: 'Right-click Menu Hover Text'
     };
     label = customLabelsV320[key] || label;
     const value = safeHex(state.draft[key], '#ffffff');
@@ -1512,6 +2290,7 @@
     state.draft.shapeTypeEnabledV312 = useShape;
     const dailyBackdrop = state.draft.dailyLogBackgroundEnabled === true;
     const contentBackdrop = state.draft.contentBackdropEnabled === true;
+    const headingBackdropV429 = state.draft.headingBackgroundEnabledV429 === true;
     const sourceCard = (id, title, description) => `<button type="button" class="tb311-bg-source${source===id?' active':''}" data-action="background-source" data-source="${attr(id)}" aria-pressed="${source===id?'true':'false'}"><span class="tb311-bg-switch" aria-hidden="true"></span><span class="tb311-bg-source-copy"><strong>${esc(title)}</strong><small>${esc(description)}</small></span></button>`;
 
     let activeControls = '';
@@ -1541,12 +2320,38 @@
       <details class="tb307-accordion tb312-background-group"${useBackdrops?' open':''}>
         <summary>Page Backdrops</summary>
         <div class="tb307-accordion-body">
-          ${toggleRowV312('pageBackdropsEnabledV312','Use it','Adds optional content backdrops above the active background and behind page components.')}
+          ${toggleRowV312('pageBackdropsEnabledV312','Use it','Adds one shared backdrop style inside Log pages only. Dashboard never uses a page backdrop.')}
           ${useBackdrops ? `<div class="tb312-subsettings">
-            ${toggleRowV312('dailyLogBackgroundEnabled','Daily Logs','Use a backdrop behind the Daily Logs grid/page.')}
-            ${dailyBackdrop ? `${colorRow('dailyLogBackgroundColor', 'Daily Log Backdrop Color')}${sliderField('dailyLogBackgroundOpacity', 'Daily Log Backdrop Opacity', 0, 100, 1, '%')}` : ''}
-            ${toggleRowV312('contentBackdropEnabled','Dashboard + Other Pages','Use the same backdrop behind the Dashboard and behind Knowledge, Quizzes, Toolbox and other content pages.')}
-            ${contentBackdrop ? `${colorRow('contentBackdropColor', 'Other Page Backdrop Color')}${sliderField('contentBackdropOpacity', 'Other Page Backdrop Opacity', 0, 100, 1, '%')}` : ''}
+            ${colorRow('pageBackdropColorV452', 'Backdrop color')}
+            ${sliderField('pageBackdropOpacityV452', 'Backdrop opacity', 0, 100, 1, '%')}
+            ${toggleRowV312('dailyLogBackgroundEnabled','Daily Logs','Use this backdrop on Daily Logs.')}
+            ${toggleRowV312('contentBackdropEnabled','Other Log Pages','Use this same backdrop on Knowledge, Quizzes, Toolbox, custom tabs, and other pages inside a Log.')}
+          </div>` : ''}
+        </div>
+      </details>
+
+      <details class="tb307-accordion tb312-background-group"${state.draft.quizBackdropEnabledV456===true?' open':''}>
+        <summary>Quiz Box Backdrop</summary>
+        <div class="tb307-section">
+          ${toggleRowV312('quizBackdropEnabledV456','Use Quiz Box Backdrop','Style the quiz box/card independently. The QUIZZES page title still follows Heading Backdrop.')}
+          ${state.draft.quizBackdropEnabledV456===true ? `<div class="tb312-subsettings">
+            ${colorRow('quizBackdropColorV456', 'Quiz Box Color')}
+            ${sliderField('quizBackdropOpacityV456', 'Quiz Box Opacity', 0, 100, 1, '%')}
+            ${sliderField('quizBackdropRadiusV456', 'Quiz Box Roundness', 0, 40, 1, 'px')}
+            ${sliderField('quizBackdropPaddingV459', 'Quiz Box Padding', 0, 40, 1, 'px')}
+          </div>` : ''}
+        </div>
+      </details>
+
+      <details class="tb307-accordion tb312-background-group"${headingBackdropV429?' open':''}>
+        <summary>Heading Backdrop</summary>
+        <div class="tb307-accordion-body">
+          ${toggleRowV312('headingBackgroundEnabledV429','Use Heading Backdrop','Adds a readable background behind main Log-page titles and section headings such as Items Learned, Log Notes, Video Logs, Knowledge Base, Quizzes, Ready to Review, and custom-tab titles.')}
+          ${headingBackdropV429 ? `<div class="tb312-subsettings">
+            ${colorRow('headingBackgroundColorV452', 'Heading Backdrop Color')}
+            ${sliderField('headingBackgroundOpacityV452', 'Heading Backdrop Opacity', 0, 100, 1, '%')}
+            ${sliderField('headingBackgroundPaddingV429', 'Heading Backdrop Padding', 0, 40, 1, 'px')}
+            ${sliderField('headingBackgroundRadiusV452', 'Heading Backdrop Roundness', 0, 40, 1, 'px')}
           </div>` : ''}
         </div>
       </details>
@@ -1581,8 +2386,14 @@
 
   function exactAudioBundle(theme) {
     if (!theme || typeof theme !== 'object') return { introAudio:null, hoverSounds:[] };
-    const introRaw = theme.introAudio || theme.introAudioUrl || theme.introSong || theme.introMusic || theme.song || theme.music || '';
-    const introAudio = normalizeAudioItem(typeof introRaw === 'object' ? introRaw : { url:introRaw, name:theme.introAudioName || theme.introSongName || theme.songName || theme.musicName || '' }, 'Intro Audio');
+    // V416: once a theme has the canonical introAudio field, even an empty
+    // string is authoritative. Do not resurrect an old song from legacy aliases
+    // after Remove/replacement has intentionally cleared the canonical source.
+    const hasCanonicalIntroV416 = Object.prototype.hasOwnProperty.call(theme,'introAudio');
+    const introRaw = hasCanonicalIntroV416
+      ? theme.introAudio
+      : (theme.introAudioUrl || theme.introSong || theme.introMusic || theme.song || theme.music || '');
+    const introAudio = normalizeAudioItem(typeof introRaw === 'object' ? introRaw : { url:introRaw, name:hasCanonicalIntroV416 ? (theme.introAudioName || '') : (theme.introAudioName || theme.introSongName || theme.songName || theme.musicName || '') }, 'Intro Audio');
     const hover = [];
     [theme.svgHoverSounds, theme.hoverSounds, theme.hoverAudio, theme.hoverSfx, theme.soundEffects].forEach(source => {
       (Array.isArray(source) ? source : (source ? [source] : [])).forEach(item => { const normalized = normalizeAudioItem(item, 'Hover Sound'); if (normalized) hover.push(normalized); });
@@ -1597,9 +2408,11 @@
   function savedThemeRecord(themeId) {
     const id = String(themeId || ''); if (!id) return { theme:null, authoritative:false };
     if (id === 'theme-custom-builder') { try { const theme = getCustomThemeSettings?.(); if (theme) return { theme, authoritative:true }; } catch {} }
-    try { const copy = getThemeCopyV30?.(id); if (copy?.theme) return { theme:copy.theme, authoritative:true }; } catch {}
+    // V416: shared custom-theme records are the canonical saved source. A
+    // themeCopiesV30 mirror can lag one save behind and must not win audio reuse.
     const shared = readJsonStorage(SHARED_KEY, []); const entry = Array.isArray(shared) ? shared.find(item => String(item?.id || '') === id) : null;
     if (entry?.theme) return { theme:entry.theme, authoritative:true };
+    try { const copy = getThemeCopyV30?.(id); if (copy?.theme) return { theme:copy.theme, authoritative:true }; } catch {}
     try { const override = getThemeOverrideV25?.(id); if (override && typeof override === 'object') return { theme:override, authoritative:true }; } catch {}
     const map = readJsonStorage(OVERRIDE_KEY, {}); const override = map?.[id]?.theme || map?.[id];
     if (override && typeof override === 'object') return { theme:override, authoritative:true };
@@ -1632,16 +2445,41 @@
     }).join('')}</div>`;
   }
 
+  let introReuseOptionsRequestV413 = 0;
+  async function refreshIntroReuseOptionsV413(panel) {
+    const select = $('[data-action-select="reuse-intro"]', panel || state.modal);
+    if (!select) return;
+    const requestId = ++introReuseOptionsRequestV413;
+    const selectedId = String(state.draft.introAudioSourceThemeIdV364 || '');
+    const candidates = availableThemeOptions();
+    select.disabled = true;
+    select.innerHTML = '<option value="">Loading themes with intro songs…</option>';
+    const rows = await Promise.all(candidates.map(async item => {
+      try {
+        const bundle = await configuredAudioBundle(item.id);
+        return bundle?.introAudio?.url ? item : null;
+      } catch { return null; }
+    }));
+    if (requestId !== introReuseOptionsRequestV413 || !select.isConnected) return;
+    const themesWithSongs = rows.filter(Boolean).sort((a,b) => a.name.localeCompare(b.name));
+    select.innerHTML = `<option value="">${themesWithSongs.length ? 'Select a theme…' : 'No other themes have intro songs'}</option>${themesWithSongs.map(item=>`<option value="${attr(item.id)}">${esc(item.name)}</option>`).join('')}`;
+    if (selectedId && themesWithSongs.some(item => String(item.id) === selectedId)) select.value = selectedId;
+    select.disabled = themesWithSongs.length === 0;
+  }
+
   function renderAudio() {
     const panel = $('[data-panel="audio"]', state.modal); if (!panel) return;
     const themes = availableThemeOptions();
-    const introName = state.draft.introAudioName || (state.draft.introAudio ? fileName(state.draft.introAudio, 'Intro Audio') : 'No intro song');
+    const introRemovedV423 = state.draft.introAudioRemovedV423 === true;
+    const introName = introRemovedV423
+      ? 'No intro song'
+      : (state.draft.introAudioName || (state.draft.introAudio ? fileName(state.draft.introAudio, 'Intro Audio') : 'No intro song'));
     const hoverSoundsEnabled = !!state.draft.svgHoverSoundsEnabled;
     panel.innerHTML = `
       <div class="tb307-section">
         <h3>Intro Song</h3><p class="tb307-hint">Upload a song or reuse the configured intro song from another theme.</p>
         <div class="tb307-actions"><button type="button" data-action="choose-audio">Choose Song</button><button type="button" data-action="clear-audio">Remove</button><button type="button" data-action="play-intro">Play</button><span class="tb307-hint">${esc(introName)}</span><input type="file" accept="audio/*" data-file="audio" hidden></div>
-        <label class="tb307-field"><span>Reuse song from theme</span><select data-action-select="reuse-intro"><option value="">Select a theme…</option>${themes.map(item=>`<option value="${attr(item.id)}"${String(state.draft.introAudioSourceThemeIdV364||'')===String(item.id)?' selected':''}>${esc(item.name)}</option>`).join('')}</select></label>
+        <label class="tb307-field"><span>Reuse song from theme</span><select data-action-select="reuse-intro"><option value="">Loading themes with intro songs…</option></select></label>
         <label class="tb307-field"><span>Playback</span><select data-theme-key="audioPlayMode"><option value="full">Play Full Audio</option><option value="segment">Use Start & End</option></select></label>
         ${String(state.draft.audioPlayMode||'full')==='segment' ? `<div class="tb307-inline" data-audio-segment-fields-v364><label class="tb307-field"><span>Start</span><input type="text" data-theme-key="audioStart" placeholder="00:00"></label><label class="tb307-field"><span>End</span><input type="text" data-theme-key="audioEnd" placeholder="00:20"></label></div>` : ''}
         <label class="tb307-check"><input type="checkbox" data-bool-key="audioFade"> Fade out at the end</label>
@@ -1659,6 +2497,7 @@
         </div>` : ''}
       </div>`;
     syncSimpleControls(panel);
+    refreshIntroReuseOptionsV413(panel);
   }
 
   function safeMarkup(markup) {
@@ -1702,7 +2541,7 @@
     const manual = state.draft.svgDistribution === 'manual-fixed';
     const slot = (state.draft.manualPlacementSlotsV40 || [])[index] || { x:50, y:50 };
     return `<div class="tb307-deco-card" data-decoration-index="${index}">
-      <div class="tb307-deco-head"><div class="tb307-deco-art">${decorationVisual(asset)}</div><div><div class="tb307-deco-name" title="${attr(asset?.name || `Decoration ${index+1}`)}">${esc(asset?.name || `Decoration ${index+1}`)}</div><div class="tb307-hint">${esc(registeredAnimationsV326().find(([id])=>id===animation)?.[1] || titleFromKey(animation))}</div></div><button type="button" class="tb307-small" data-action="remove-decoration" data-index="${index}">Remove</button></div>
+      <div class="tb307-deco-head"><div class="tb307-deco-art">${decorationVisual(asset)}</div><div><div class="tb307-deco-name" title="${attr(asset?.name || `Decoration ${index+1}`)}">${esc(asset?.name || `Decoration ${index+1}`)}</div><div class="tb307-hint">${esc(registeredAnimationsV326().find(([id])=>id===animation)?.[1] || titleFromKey(animation))}</div></div><div style="display:flex;align-items:center;gap:6px"><button type="button" class="tb307-small" data-action="download-decoration-v429" data-index="${index}" title="Download this decoration" aria-label="Download this decoration"><i class="ph ph-download-simple"></i></button><button type="button" class="tb307-small" data-action="remove-decoration" data-index="${index}">Remove</button></div></div>
       <details><summary>Customize</summary><div class="tb307-deco-options">
         <label class="tb307-check"><input type="checkbox" data-deco-hidden="${index}"${asset?.hiddenOnScreenV63===true?' checked':''}> Don't show on screen</label>
         <label class="tb307-check"><input type="checkbox" data-deco-always-show="${index}"${asset?.alwaysShowOnScreenV370===true?' checked':''}${asset?.hiddenOnScreenV63===true?' disabled':''}> Always show on screen</label>
@@ -1745,7 +2584,6 @@
           ${sliderField('introSvgBopIntensityV369','Bop Intensity',25,200,5,'%')}
         </div>` : ''}
         ${toggleRowV312('introMusicReactionsEnabledV154','Enable Extra Intro-Music Visual Reactions','Add the extra music-reactive visual effects.')}
-        ${(state.draft.introSvgBounceEnabled || state.draft.introMusicReactionsEnabledV154) ? `<div class="tb307-actions"><button type="button" data-action="preview-intro-reactions">Preview Intro</button></div>` : ''}
       </div>
       <div class="tb307-section">
         <h3>Hover Animations</h3>
@@ -1754,8 +2592,185 @@
           <label class="tb307-field"><span>Default Hover Animation</span><select data-theme-key="svgHoverAnimationV82">${hoverOptions(state.draft.svgHoverAnimationV82, false)}</select></label>
         </div>` : ''}
       </div>
-      <div class="tb307-section"><h3>Decorations · ${list.length}</h3>${list.length ? `<div class="tb307-deco-grid">${list.map(decorationCard).join('')}</div>` : `<div class="tb307-empty">This theme has no decorations yet. Use Add Decorations above.</div>`}</div>`;
+      <div class="tb307-section"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h3 style="margin:0">Decorations · ${list.length}</h3>${list.length ? `<button type="button" class="tb307-small" data-action="download-all-decorations-v429" title="Download all decorations" aria-label="Download all decorations"><i class="ph ph-download-simple"></i> All</button>` : ''}</div>${list.length ? `<div class="tb307-deco-grid">${list.map(decorationCard).join('')}</div>` : `<div class="tb307-empty">This theme has no decorations yet. Use Add Decorations above.</div>`}</div>`;
     syncSimpleControls(panel);
+  }
+
+  // V429 — decoration export helpers.
+  function safeDownloadNameV429(value, fallback = 'decoration.svg') {
+    let name = String(value || fallback).split(/[?#]/)[0].split('/').pop() || fallback;
+    try { name = decodeURIComponent(name); } catch {}
+    name = name.replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim() || fallback;
+    return name;
+  }
+
+  function extensionFromTypeV429(type = '') {
+    const t = String(type || '').toLowerCase();
+    if (t.includes('svg')) return '.svg';
+    if (t.includes('png')) return '.png';
+    if (t.includes('jpeg') || t.includes('jpg')) return '.jpg';
+    if (t.includes('webp')) return '.webp';
+    if (t.includes('gif')) return '.gif';
+    return '';
+  }
+
+  async function decorationBlobV429(asset) {
+    const item = normalizeDecoration(asset);
+    if (!item) throw new Error('Decoration is unavailable.');
+    if (String(item.markup || '').trim()) {
+      const markup = String(item.markup).trim();
+      return { blob:new Blob([markup], { type:'image/svg+xml;charset=utf-8' }), preferredName:safeDownloadNameV429(item.name || 'decoration.svg','decoration.svg') };
+    }
+    const src = String(item.url || '').trim();
+    if (!src) throw new Error('Decoration has no downloadable source.');
+    const response = await fetch(src, { cache:'no-store' });
+    if (!response.ok) throw new Error(`Download failed (${response.status}).`);
+    const blob = await response.blob();
+    return { blob, preferredName:safeDownloadNameV429(item.name || src, `decoration${extensionFromTypeV429(blob.type) || '.svg'}`) };
+  }
+
+  async function downloadDecorationV429(asset, index = 0) {
+    const { blob, preferredName } = await decorationBlobV429(asset);
+    let name = preferredName;
+    if (!/\.[a-z0-9]{2,5}$/i.test(name)) name += extensionFromTypeV429(blob.type) || '.svg';
+    if (!name) name = `decoration-${index + 1}.svg`;
+    const href = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = href;
+    anchor.download = name;
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(href), 2500);
+  }
+
+  function crc32V429(bytes) {
+    let crc = 0xffffffff;
+    for (let i = 0; i < bytes.length; i++) {
+      crc ^= bytes[i];
+      for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  function zipDateTimeV429(date = new Date()) {
+    const year = Math.max(1980, date.getFullYear());
+    const time = ((date.getHours() & 31) << 11) | ((date.getMinutes() & 63) << 5) | ((Math.floor(date.getSeconds() / 2)) & 31);
+    const day = ((year - 1980) << 9) | (((date.getMonth() + 1) & 15) << 5) | (date.getDate() & 31);
+    return { time, day };
+  }
+
+  function u16V429(value) {
+    const b = new Uint8Array(2);
+    new DataView(b.buffer).setUint16(0, value, true);
+    return b;
+  }
+
+  function u32V429(value) {
+    const b = new Uint8Array(4);
+    new DataView(b.buffer).setUint32(0, value >>> 0, true);
+    return b;
+  }
+
+  async function buildDecorationZipV429(files) {
+    const encoder = new TextEncoder();
+    const localParts = [];
+    const centralParts = [];
+    let offset = 0;
+    const stamp = zipDateTimeV429();
+
+    for (const file of files) {
+      const nameBytes = encoder.encode(file.name);
+      const data = new Uint8Array(await file.blob.arrayBuffer());
+      const crc = crc32V429(data);
+
+      const local = [
+        u32V429(0x04034b50),
+        u16V429(20),
+        u16V429(0x0800),
+        u16V429(0),
+        u16V429(stamp.time),
+        u16V429(stamp.day),
+        u32V429(crc),
+        u32V429(data.length),
+        u32V429(data.length),
+        u16V429(nameBytes.length),
+        u16V429(0),
+        nameBytes,
+        data
+      ];
+      localParts.push(...local);
+
+      const central = [
+        u32V429(0x02014b50),
+        u16V429(20),
+        u16V429(20),
+        u16V429(0x0800),
+        u16V429(0),
+        u16V429(stamp.time),
+        u16V429(stamp.day),
+        u32V429(crc),
+        u32V429(data.length),
+        u32V429(data.length),
+        u16V429(nameBytes.length),
+        u16V429(0),
+        u16V429(0),
+        u16V429(0),
+        u16V429(0),
+        u32V429(0),
+        u32V429(offset),
+        nameBytes
+      ];
+      centralParts.push(...central);
+
+      offset += 30 + nameBytes.length + data.length;
+    }
+
+    const centralSize = centralParts.reduce((sum, part) => sum + part.byteLength, 0);
+    const end = [
+      u32V429(0x06054b50),
+      u16V429(0),
+      u16V429(0),
+      u16V429(files.length),
+      u16V429(files.length),
+      u32V429(centralSize),
+      u32V429(offset),
+      u16V429(0)
+    ];
+
+    return new Blob([...localParts, ...centralParts, ...end], { type:'application/zip' });
+  }
+
+  async function downloadAllDecorationsV429() {
+    const list = Array.isArray(state.draft.backgroundSvgs) ? state.draft.backgroundSvgs : [];
+    if (!list.length) { setStatus('No decorations to download.'); return; }
+
+    const files = [];
+    for (let index = 0; index < list.length; index++) {
+      try {
+        const { blob, preferredName } = await decorationBlobV429(list[index]);
+        let name = preferredName || `decoration-${index + 1}`;
+        if (!/\.[a-z0-9]{2,5}$/i.test(name)) name += extensionFromTypeV429(blob.type) || '.svg';
+        files.push({ name, blob });
+      } catch (error) {
+        console.warn('[Theme Builder V429] Decoration download failed:', error);
+      }
+    }
+
+    if (!files.length) { setStatus('Could not download any decorations.'); return; }
+
+    const zip = await buildDecorationZipV429(files);
+    const href = URL.createObjectURL(zip);
+    const anchor = document.createElement('a');
+    anchor.href = href;
+    anchor.download = `${slugV326(state.draft.name || 'theme')}-decorations.zip`;
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(href), 5000);
+    setStatus(`Downloaded ${files.length} decoration${files.length === 1 ? '' : 's'} as one ZIP.`);
   }
 
   function optionValue(option) { return typeof option === 'string' ? option : String(option?.id || option?.value || option?.key || ''); }
@@ -1798,6 +2813,8 @@
 
   function renderTrinkets() {
     const panel = $('[data-panel="trinkets"]', state.modal); if (!panel) return;
+    const panelScrollV452 = panel.scrollTop;
+    const galleriesV452 = Array.from(panel.querySelectorAll('.tb307-trinket-grid')).map(el => el.scrollTop);
     const cursorEnabled = !!state.draft.useThemeCursor;
     const companionEnabled = !!state.draft.useThemeCompanion;
     const cursorValue = String(state.draft.themeCursorStyle || 'default');
@@ -1815,6 +2832,12 @@
         <div class="tb307-trinket-grid tb315-trinket-gallery${companionEnabled?'':' is-disabled'}">${companionOptions.map(option=>{const id=optionValue(option)||'none';return `<button type="button" class="tb307-trinket${companionValue===id?' selected':''}" data-action="select-companion" data-value="${attr(id)}" aria-disabled="${companionEnabled?'false':'true'}"${companionEnabled?'':' disabled'}><span class="tb307-trinket-art">${optionVisual(option)}</span><span>${esc(optionLabel(option)||'None')}</span></button>`}).join('')}</div>
       </div>`;
     syncSimpleControls(panel);
+    requestAnimationFrame(() => {
+      panel.scrollTop = panelScrollV452;
+      Array.from(panel.querySelectorAll('.tb307-trinket-grid')).forEach((el,index) => {
+        if (Number.isFinite(galleriesV452[index])) el.scrollTop = galleriesV452[index];
+      });
+    });
   }
 
   function autoThemeToggleV324(tool, label, description) {
@@ -1843,14 +2866,24 @@
       <div class="tb324-auto-choice${aiOpen?' is-active':''}">
         ${autoThemeToggleV324('ai','AI Theme Builder','Generate matching Light + Dark versions from the same visual references, then switch between them anytime.')}
         ${aiOpen ? `<div class="tb324-auto-choice-body">
-          <div class="tb323-mode-row"><strong>Theme Version</strong><button type="button" class="tb323-mode-btn${state.aiThemeMode==='light'?' active':''}" data-action="ai-theme-mode" data-value="light">Light${lightReady?' ✓':''}</button><button type="button" class="tb323-mode-btn${state.aiThemeMode==='dark'?' active':''}" data-action="ai-theme-mode" data-value="dark">Dark${darkReady?' ✓':''}</button></div>
+          <div class="tb323-mode-row"><strong>Theme Version</strong><button type="button" class="tb323-mode-btn${state.aiThemeMode==='light'?' active':''}" data-action="ai-theme-mode" data-value="light">Light</button><button type="button" class="tb323-mode-btn${state.aiThemeMode==='dark'?' active':''}" data-action="ai-theme-mode" data-value="dark">Dark</button></div>
           <small class="tb307-hint">${esc(versionSummary)} Click Light or Dark to preview a saved version immediately, then use Save Theme to make that version active.</small>
+          <div class="tb432-ai-options">
+            <div class="tb432-ai-option-row">
+              <div class="tb432-ai-option-label"><strong>AI Styling</strong><small>${state.aiBuilderDepthV432==='advanced'?'Advanced builds a stronger material/style language across cards, inputs, buttons, borders, surfaces, and motion while keeping the layout usable.':'Basic uses Loggy’s normal theme controls to create a polished, coordinated palette, surfaces, typography, radii, shadows, states, and background without redesigning the UI materials.'}</small></div>
+              <div class="tb432-ai-segments"><button type="button" class="tb432-ai-segment${state.aiBuilderDepthV432==='basic'?' active':''}" data-action="ai-builder-depth-v432" data-value="basic">Basic</button><button type="button" class="tb432-ai-segment${state.aiBuilderDepthV432==='advanced'?' active':''}" data-action="ai-builder-depth-v432" data-value="advanced">Advanced</button></div>
+            </div>
+            <div class="tb432-ai-option-row">
+              <div class="tb432-ai-option-label"><strong>Background Focus</strong><small>${state.aiBackgroundFocusV479==='enhanced'?'Enhanced asks the AI to spend extra design effort on the page scene/background, including richer ambient detail when it fits the references.':'Standard keeps the background polished and supportive instead of making it a major visual focus.'}</small></div>
+              <div class="tb432-ai-segments"><button type="button" class="tb432-ai-segment${state.aiBackgroundFocusV479==='standard'?' active':''}" data-action="ai-background-focus-v479" data-value="standard">Standard</button><button type="button" class="tb432-ai-segment${state.aiBackgroundFocusV479==='enhanced'?' active':''}" data-action="ai-background-focus-v479" data-value="enhanced">Enhanced</button></div>
+            </div>
+          </div>
           <div class="tb312-ai-steps">
             <div class="tb312-ai-step"><strong>1 · Copy Prompt</strong><small>Copy one prompt and add your visual references.</small></div>
             <div class="tb312-ai-step"><strong>2 · Generate Both</strong><small>AI returns one JSON bundle containing a complete Light version and a complete Dark version.</small></div>
             <div class="tb312-ai-step"><strong>3 · Paste + Apply</strong><small>Paste the bundle once. Choose Light or Dark, preview it, then save. The other version stays attached to this theme.</small></div>
           </div>
-          <button type="button" class="tb316-copy-prompt" data-action="copy-ai-prompt">Copy Light + Dark Prompt</button>
+          <button type="button" class="tb316-copy-prompt" data-action="copy-ai-prompt">Copy Prompt</button>
           <div class="tb316-ai-paste">
             <div class="tb316-ai-paste-head"><strong>Paste Light + Dark Theme JSON</strong><button type="button" class="tb307-small" data-action="clear-ai-json">Clear Paste</button></div>
             <textarea class="tb312-ai-json" data-ai-json spellcheck="false" placeholder="Paste the dual Light + Dark theme JSON bundle here">${esc(state.aiJsonText || '')}</textarea>
@@ -1924,11 +2957,64 @@
     return frame;
   }
 
+  // V405 — ONE canonical decoration placement contract for Preview, Log and Dashboard.
+  // Save exact percentage coordinates with the theme so no page/runtime is allowed
+  // to independently reroll or reinterpret the selected distribution.
+  // V410 — the saved placement map is generated by the SAME placement engine
+  // used by the real Log page (buildThemePlacementPointsV26 + V245 stable seed).
+  // The prior V405 helper reimplemented the legacy mode names with simplified
+  // geometry. That was the Dashboard/Log mismatch: e.g. Log `side-random` is
+  // normalized to V26 `random-edges-safe`, while V405 put items left/right only.
+  function decorationPlacementSeedV410(theme = {}) {
+    const text=[theme?.name||'',theme?.svgDistribution||'',...(theme?.backgroundSvgs||[]).map(a=>a?.id||a?.name||a?.projectPath||a?.url||'')].join('|');
+    let h=2166136261;
+    for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}
+    return Math.abs(h>>>0)%100000;
+  }
+  function computeDecorationPlacementsV405(theme = {}, count = 0) {
+    const mode=String(theme?.svgDistribution||'random');
+    const slots=Array.isArray(theme?.manualPlacementSlotsV40)?theme.manualPlacementSlotsV40:[];
+    if(mode==='manual-fixed'){
+      return Array.from({length:count},(_,i)=>{
+        const p=slots[i]||{x:50,y:50};
+        return{x:Number.isFinite(Number(p.x))?Number(p.x):50,y:Number.isFinite(Number(p.y))?Number(p.y):50};
+      });
+    }
+    try{
+      if(typeof buildThemePlacementPointsV26==='function'){
+        const points=buildThemePlacementPointsV26(mode,count,{
+          seed:decorationPlacementSeedV410(theme),
+          allowOverlap:!!theme?.svgAllowOverlap,
+          svgGlobalScale:theme?.svgGlobalScale
+        });
+        if(Array.isArray(points)&&points.length>=count){
+          return points.slice(0,count).map(p=>({x:+Number(p?.x??50).toFixed(6),y:+Number(p?.y??50).toFixed(6)}));
+        }
+      }
+    }catch{}
+    // Safe fallback only for an unexpectedly unavailable legacy engine. This is
+    // deliberately ordinary scatter, never a mode-specific Dashboard algorithm.
+    const out=[],seed=decorationPlacementSeedV410(theme);
+    const rand=(i,salt)=>{const raw=Math.sin((seed*.913+i*17.171+salt*31.337)*12.9898)*43758.5453123;return raw-Math.floor(raw)};
+    for(let i=0;i<count;i++)out.push({x:+(9+rand(i,227)*82).toFixed(6),y:+(15+rand(i,229)*74).toFixed(6)});
+    return out;
+  }
+  function stampDecorationLayoutV405(theme = {}) {
+    if (!theme || typeof theme !== 'object') return theme;
+    const list = Array.isArray(theme.backgroundSvgs) ? theme.backgroundSvgs : [];
+    theme.backgroundSvgs = list.map((asset,index)=>asset&&typeof asset==='object'?{...asset,placementIndexV405:index}:asset);
+    theme.resolvedDecorationPlacementsV405 = computeDecorationPlacementsV405(theme, theme.backgroundSvgs.length);
+    theme.decorationPlacementEngineV410 = 'log-v26';
+    return theme;
+  }
+  window.__loggyStampDecorationLayoutV405 = stampDecorationLayoutV405;
+
   function previewDraft() {
     const draft = canonicalThemeDraftV312(state.draft);
     draft.backgroundSvgs = (draft.backgroundSvgs || []).map(item => {
       const copyItem = clone(item); delete copyItem.inheritedBuiltInV307; delete copyItem.inheritedBuiltInV306; delete copyItem.inheritedBuiltInV303; delete copyItem.inheritedBuiltInV109; delete copyItem.inheritedBuiltInV30; return copyItem;
     });
+    stampDecorationLayoutV405(draft);
 
     // V319: Dashboard preview must start from the exact source theme when editing
     // a built-in or source-backed duplicate. The old preview injected the whole
@@ -1945,7 +3031,7 @@
           'interactiveBackgroundCodeV56','dashboardBackgroundV40','dashboardCardV40','dashboardTextV40','dashboardAccentV40'
         ];
         if (backgroundKeys.some(key => keys.has(key))) backgroundKeys.forEach(key => keys.add(key));
-        const decorationKeysV326 = ['backgroundSvgs','svgDefaultAnimation','svgDistribution','svgGlobalScale','decorationsOpacityV117','svgAllowOverlap','reduceDecorationOverlapV361','preventDecorationOverlapV367','manualPlacementSlotsV40'];
+        const decorationKeysV326 = ['backgroundSvgs','svgDefaultAnimation','svgDistribution','svgGlobalScale','decorationsOpacityV117','svgAllowOverlap','reduceDecorationOverlapV361','preventDecorationOverlapV367','manualPlacementSlotsV40','resolvedDecorationPlacementsV405','decorationPlacementEngineV410'];
         if (state.decorationsDirty || decorationKeysV326.some(key => keys.has(key))) {
           decorationKeysV326.forEach(key => keys.add(key));
         }
@@ -1976,6 +3062,29 @@
     } catch {}
   }
 
+  function pushDecorationVisibilityPreviewV519(index) {
+    const frame = ensurePreviewFrame();
+    if (!frame?.contentWindow || !state.previewReady) return;
+    try {
+      frame.contentWindow.postMessage({
+        type:'loggy-theme-preview-decoration-visibility-v519',
+        index:Number(index),
+        draft:previewDraft()
+      }, location.origin);
+    } catch {}
+  }
+
+  function pushDecorationPreviewV513() {
+    const frame = ensurePreviewFrame();
+    if (!frame?.contentWindow || !state.previewReady) return;
+    try {
+      frame.contentWindow.postMessage({
+        type:'loggy-theme-preview-decorations-v513',
+        draft:previewDraft()
+      }, location.origin);
+    } catch {}
+  }
+
   function schedulePreview() {
     if (state.previewRaf) cancelAnimationFrame(state.previewRaf);
     state.previewRaf = requestAnimationFrame(() => { state.previewRaf = 0; ensurePreviewFrame(); pushPreview(); });
@@ -1992,13 +3101,6 @@
       const requestId = Number(event.data?.requestIdV354) || 0;
       if (requestId && requestId !== state.previewAwaitingV354) return;
       const loading = $('.tb307-preview-loading', state.modal); if (loading) loading.hidden = true;
-      if(state.previewIntroPendingV371){
-        state.previewIntroPendingV371=false;
-        const draft=previewDraft();
-        requestAnimationFrame(()=>{
-          try{frame.contentWindow?.postMessage?.({type:'loggy-theme-preview-intro-v370',draft},location.origin)}catch{}
-        });
-      }
     }
   });
   window.addEventListener('resize', () => { if (state.modal && !state.modal.hidden) fitPreviewFrame(); });
@@ -2076,29 +3178,270 @@
     return theme;
   }
 
+  // V391: AI-generated Dashboard button colors are corrected for readability
+  // before they are previewed/saved. Manual color choices remain fully user-controlled.
+  function hexRgbV391(value) {
+    const hex = String(value || '').trim();
+    if (!/^#[0-9a-f]{6}$/i.test(hex)) return null;
+    return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
+  }
+  function relativeLumV391(value) {
+    const rgb = hexRgbV391(value); if (!rgb) return null;
+    const c = rgb.map(v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; });
+    return .2126*c[0] + .7152*c[1] + .0722*c[2];
+  }
+  function contrastV391(a,b) {
+    const x=relativeLumV391(a), y=relativeLumV391(b); if(x==null||y==null)return 1;
+    const hi=Math.max(x,y), lo=Math.min(x,y); return (hi+.05)/(lo+.05);
+  }
+  function readableAgainstV391(bg, requested, candidates = []) {
+    const choices=[requested,...candidates,'#111111','#000000','#ffffff','#f7f7f7'].filter(isHex);
+    let best=choices[0]||'#111111', score=contrastV391(bg,best);
+    for(const color of choices.slice(1)){const next=contrastV391(bg,color);if(next>score){best=color;score=next}}
+    return contrastV391(bg,requested)>=4.5 ? requested : best;
+  }
+  function visibleAgainstV391(bg, requested, fallback) {
+    if(isHex(requested) && contrastV391(bg,requested)>=3) return requested;
+    return readableAgainstV391(bg, fallback || requested, []);
+  }
+  function ensureAiDashboardButtonContrastV391(theme) {
+    if(!theme||typeof theme!=='object'||Array.isArray(theme))return theme;
+    const pageText=safeHex(theme.dashboardTextV40,safeHex(theme.text,'#111111'));
+    const surface=safeHex(theme.dashboardCardV40,safeHex(theme.surface,'#ffffff'));
+    const hover=safeHex(theme.hoverColor,safeHex(theme.dashboardAccentV40,safeHex(theme.accent,'#eeeeee')));
+    const border=safeHex(theme.border,pageText);
+    const legacyBg=safeHex(theme.dashboardLogIconBackgroundV107,surface);
+    const legacyIcon=safeHex(theme.dashboardLogIconColorV85,pageText);
+
+    const normalize=(prefix, fallbackBg, fallbackHoverBg, fallbackIcon)=>{
+      const bgKey=`${prefix}BackgroundV391`, textKey=`${prefix}TextColorV391`, iconKey=`${prefix}IconColorV391`, borderKey=`${prefix}BorderColorV391`;
+      const hbgKey=`${prefix}HoverBackgroundV391`, htextKey=`${prefix}HoverTextColorV391`, hiconKey=`${prefix}HoverIconColorV391`, hborderKey=`${prefix}HoverBorderColorV391`;
+      const bg=safeHex(theme[bgKey],fallbackBg), hbg=safeHex(theme[hbgKey],fallbackHoverBg);
+      theme[bgKey]=bg;
+      theme[iconKey]=readableAgainstV391(bg,safeHex(theme[iconKey],fallbackIcon),[pageText,legacyIcon]);
+      theme[textKey]=theme[iconKey];
+      theme[borderKey]=visibleAgainstV391(bg,safeHex(theme[borderKey],border),theme[iconKey]);
+      theme[hbgKey]=hbg;
+      theme[htextKey]=readableAgainstV391(hbg,safeHex(theme[htextKey],pageText),[pageText,theme[textKey]]);
+      theme[hiconKey]=readableAgainstV391(hbg,safeHex(theme[hiconKey],fallbackIcon),[theme[htextKey],pageText]);
+      theme[hborderKey]=visibleAgainstV391(hbg,safeHex(theme[hborderKey],border),theme[htextKey]);
+    };
+    normalize('dashboardLogButton',legacyBg,hover,legacyIcon);
+    normalize('dashboardNewLogButton',legacyBg,hover,legacyIcon);
+
+    // V400: + New Log is not a second design. It is the SAME component style
+    // as an ordinary Log circle in both normal AND hover states.
+    theme.dashboardNewLogButtonBackgroundV391=theme.dashboardLogButtonBackgroundV391;
+    theme.dashboardNewLogButtonIconColorV391=theme.dashboardLogButtonIconColorV391;
+    theme.dashboardNewLogButtonTextColorV391=theme.dashboardLogButtonIconColorV391;
+    theme.dashboardNewLogButtonBorderColorV391=theme.dashboardLogButtonBorderColorV391;
+    theme.dashboardNewLogButtonHoverBackgroundV391=theme.dashboardLogButtonHoverBackgroundV391;
+    theme.dashboardNewLogButtonHoverTextColorV391=theme.dashboardLogButtonHoverTextColorV391;
+    theme.dashboardNewLogButtonHoverIconColorV391=theme.dashboardLogButtonHoverIconColorV391;
+    theme.dashboardNewLogButtonHoverBorderColorV391=theme.dashboardLogButtonHoverBorderColorV391;
+    return theme;
+  }
+
+  // V397: Dark AI variants may inherit white defaults from blankDraft when a
+  // newer modal field is missing. Resolve those defaults to a real dark surface
+  // before contrast normalization so every modal shell stays dark in Dark mode.
+  function darkSurfaceV397(value, candidates = []) {
+    const pool=[value,...candidates].filter(isHex);
+    for(const c of pool){ const l=relativeLumV391(c); if(l!=null && l<=.22) return c; }
+    const base=hexRgbV391(pool[0]||'#1b1b1b')||[27,27,27];
+    let factor=.72, out='#1b1b1b';
+    for(let i=0;i<8;i++){
+      const rgb=base.map(v=>Math.max(0,Math.min(255,Math.round(v*factor))));
+      out='#'+rgb.map(v=>v.toString(16).padStart(2,'0')).join('');
+      if(relativeLumV391(out)<=.22) return out;
+      factor*=.72;
+    }
+    return out;
+  }
+
+  // V394: generated Settings labels/context-menu colors are also contrast-safe.
+  function ensureAiSettingsContrastV394(theme, mode = '') {
+    if(!theme||typeof theme!=='object'||Array.isArray(theme))return theme;
+    if(mode==='dark'){
+      theme.settingsModalBackgroundColorV380=darkSurfaceV397(theme.settingsModalBackgroundColorV380,[theme.surface,theme.dashboardCardV40,theme.dashboardBackgroundV40,theme.background]);
+      theme.settingsModalInputBackgroundColorV380=darkSurfaceV397(theme.settingsModalInputBackgroundColorV380,[theme.settingsModalBackgroundColorV380,theme.surface]);
+      theme.settingsModalCardBackgroundColorV380=darkSurfaceV397(theme.settingsModalCardBackgroundColorV380,[theme.settingsModalBackgroundColorV380,theme.surface]);
+      theme.settingsWidgetBackgroundColorV380=darkSurfaceV397(theme.settingsWidgetBackgroundColorV380,[theme.settingsModalBackgroundColorV380,theme.surface]);
+    }
+    const modalBg=safeHex(theme.settingsModalBackgroundColorV380,safeHex(theme.surface,'#ffffff'));
+    theme.settingsModalTextColorV380=readableAgainstV391(modalBg,safeHex(theme.settingsModalTextColorV380,safeHex(theme.text,'#111111')),[theme.text,'#f7f7f7','#ffffff','#111111']);
+    const modalText=theme.settingsModalTextColorV380;
+    theme.settingsModalBorderColorV380=visibleAgainstV391(modalBg,safeHex(theme.settingsModalBorderColorV380,safeHex(theme.border,modalText)),modalText);
+    const modalBorder=theme.settingsModalBorderColorV380;
+    const widgetBg=safeHex(theme.settingsWidgetBackgroundColorV380,modalBg);
+    const cardBg=safeHex(theme.settingsModalCardBackgroundColorV380,modalBg);
+    theme.settingsModalInputTextColorV380=readableAgainstV391(safeHex(theme.settingsModalInputBackgroundColorV380,modalBg),safeHex(theme.settingsModalInputTextColorV380,modalText),[modalText,'#ffffff','#111111']);
+    theme.settingsModalCardTextColorV380=readableAgainstV391(cardBg,safeHex(theme.settingsModalCardTextColorV380,modalText),[modalText,'#ffffff','#111111']);
+    theme.settingsWidgetTextColorV380=readableAgainstV391(widgetBg,safeHex(theme.settingsWidgetTextColorV380,modalText),[modalText,'#ffffff','#111111']);
+    const hoverBg=safeHex(theme.settingsModalHoverBackgroundColorV380,safeHex(theme.hoverColor,safeHex(theme.accent,cardBg)));
+    theme.settingsCursorNameTextColorV394=readableAgainstV391(widgetBg,safeHex(theme.settingsCursorNameTextColorV394,modalText),[modalText,'#111111','#ffffff']);
+    theme.settingsCompanionNameTextColorV394=readableAgainstV391(widgetBg,safeHex(theme.settingsCompanionNameTextColorV394,modalText),[modalText,'#111111','#ffffff']);
+    theme.settingsThemeNameTextColorV394=readableAgainstV391(cardBg,safeHex(theme.settingsThemeNameTextColorV394,modalText),[modalText,'#111111','#ffffff']);
+    theme.settingsThemeNameHoverTextColorV394=readableAgainstV391(hoverBg,safeHex(theme.settingsThemeNameHoverTextColorV394,modalText),[modalText,theme.settingsThemeNameTextColorV394,'#111111','#ffffff']);
+    // Right-click menu surface is deliberately identical to the Settings modal surface.
+    theme.dashboardContextMenuBackgroundColorV394=modalBg;
+    theme.dashboardContextMenuTextColorV394=readableAgainstV391(modalBg,safeHex(theme.dashboardContextMenuTextColorV394,modalText),[modalText,'#111111','#ffffff']);
+    theme.dashboardContextMenuBorderColorV394=visibleAgainstV391(modalBg,safeHex(theme.dashboardContextMenuBorderColorV394,modalBorder),theme.dashboardContextMenuTextColorV394);
+    theme.dashboardContextMenuHoverBackgroundColorV394=safeHex(theme.dashboardContextMenuHoverBackgroundColorV394,hoverBg);
+    theme.dashboardContextMenuHoverTextColorV394=readableAgainstV391(theme.dashboardContextMenuHoverBackgroundColorV394,safeHex(theme.dashboardContextMenuHoverTextColorV394,modalText),[theme.dashboardContextMenuTextColorV394,modalText,'#111111','#ffffff']);
+    return theme;
+  }
+
+  // V398: Create New Log is a Dashboard sibling of Settings, so its neutral
+  // shell/input states deliberately inherit the SAME Settings palette. This removes
+  // the old failure mode where a Dark theme had dark Settings but a pale Create Log
+  // modal. Interactive hover/selected states still get explicit, contrast-safe colors.
+  function ensureAiCreateLogModalContrastV396(theme, mode = '') {
+    if(!theme||typeof theme!=='object'||Array.isArray(theme))return theme;
+
+    // Settings normalization runs immediately before this function. Treat those
+    // resolved Settings colors as authoritative for the Create New Log neutral states.
+    const modalBg=safeHex(theme.settingsModalBackgroundColorV380,safeHex(theme.surface,'#ffffff'));
+    const modalText=readableAgainstV391(modalBg,safeHex(theme.settingsModalTextColorV380,safeHex(theme.text,'#111111')),[theme.text,'#111111','#ffffff']);
+    const modalBorder=visibleAgainstV391(modalBg,safeHex(theme.settingsModalBorderColorV380,safeHex(theme.border,modalText)),modalText);
+    const inputBg=safeHex(theme.settingsModalInputBackgroundColorV380,modalBg);
+    const inputText=readableAgainstV391(inputBg,safeHex(theme.settingsModalInputTextColorV380,modalText),[modalText,'#111111','#ffffff']);
+    const inputBorder=visibleAgainstV391(inputBg,safeHex(theme.settingsModalInputBorderColorV380,modalBorder),inputText);
+    const hoverBg=safeHex(theme.settingsModalHoverBackgroundColorV380,safeHex(theme.hoverColor,safeHex(theme.accent,modalBg)));
+    const hoverText=readableAgainstV391(hoverBg,safeHex(theme.settingsModalHoverTextColorV380,modalText),[modalText,'#111111','#ffffff']);
+    const selectedBg=safeHex(theme.settingsModalSelectedBackgroundColorV380,safeHex(theme.accent,hoverBg));
+    const selectedText=readableAgainstV391(selectedBg,safeHex(theme.settingsModalSelectedTextColorV380,modalText),[modalText,'#111111','#ffffff']);
+    const selectedBorder=visibleAgainstV391(selectedBg,safeHex(theme.settingsModalSelectedBorderColorV380,modalBorder),selectedText);
+    const settingsButtonBg=safeHex(theme.settingsModalButtonBackgroundColorV380,hoverBg);
+    const settingsButtonText=readableAgainstV391(settingsButtonBg,safeHex(theme.settingsModalButtonTextColorV380,modalText),[modalText,'#111111','#ffffff']);
+    const settingsButtonBorder=visibleAgainstV391(settingsButtonBg,safeHex(theme.settingsModalButtonBorderColorV380,modalBorder),settingsButtonText);
+
+    theme.dashboardCreateLogOverlayColorV396=safeHex(theme.settingsModalOverlayColorV381,safeHex(theme.dashboardBackgroundV40,safeHex(theme.background,'#000000')));
+    theme.dashboardCreateLogModalBackgroundColorV396=modalBg;
+    theme.dashboardCreateLogModalTextColorV396=modalText;
+    theme.dashboardCreateLogModalBorderColorV396=modalBorder;
+    theme.dashboardCreateLogTitleColorV396=modalText;
+    theme.dashboardCreateLogLabelColorV396=modalText;
+
+    // Normal inputs match Settings inputs exactly.
+    theme.dashboardCreateLogInputBackgroundColorV396=inputBg;
+    theme.dashboardCreateLogInputTextColorV396=inputText;
+    theme.dashboardCreateLogInputBorderColorV396=modalBorder;
+    theme.dashboardCreateLogInputHoverBackgroundColorV396=hoverBg;
+    theme.dashboardCreateLogInputHoverTextColorV396=hoverText;
+    theme.dashboardCreateLogInputHoverBorderColorV396=visibleAgainstV391(hoverBg,safeHex(theme.settingsModalSelectedBorderColorV380,modalBorder),hoverText);
+    theme.dashboardCreateLogInputFocusBackgroundColorV396=inputBg;
+    theme.dashboardCreateLogInputFocusTextColorV396=inputText;
+    theme.dashboardCreateLogInputFocusBorderColorV396=selectedBorder;
+
+    // Normal icon choices intentionally blend into the modal (border-only appearance).
+    theme.dashboardCreateLogIconBackgroundColorV396=modalBg;
+    theme.dashboardCreateLogIconColorV396=readableAgainstV391(modalBg,safeHex(theme.settingsModalIconColorV381,modalText),[modalText,'#111111','#ffffff']);
+    theme.dashboardCreateLogIconBorderColorV396=visibleAgainstV391(modalBg,modalBorder,theme.dashboardCreateLogIconColorV396);
+    theme.dashboardCreateLogIconHoverBackgroundColorV396=hoverBg;
+    theme.dashboardCreateLogIconHoverColorV396=hoverText;
+    theme.dashboardCreateLogIconHoverBorderColorV396=visibleAgainstV391(hoverBg,selectedBorder,hoverText);
+    theme.dashboardCreateLogIconSelectedBackgroundColorV396=selectedBg;
+    theme.dashboardCreateLogIconSelectedColorV396=selectedText;
+    theme.dashboardCreateLogIconSelectedBorderColorV396=selectedBorder;
+
+    // Create Page is border-only at rest, then uses the Settings button palette on hover.
+    theme.dashboardCreateLogButtonBackgroundColorV396=modalBg;
+    theme.dashboardCreateLogButtonTextColorV396=readableAgainstV391(modalBg,modalText,[theme.settingsModalIconColorV381,'#111111','#ffffff']);
+    theme.dashboardCreateLogButtonIconColorV396=theme.dashboardCreateLogButtonTextColorV396;
+    theme.dashboardCreateLogButtonBorderColorV396=visibleAgainstV391(modalBg,modalBorder,theme.dashboardCreateLogButtonTextColorV396);
+    theme.dashboardCreateLogButtonHoverBackgroundColorV396=settingsButtonBg;
+    theme.dashboardCreateLogButtonHoverTextColorV396=settingsButtonText;
+    theme.dashboardCreateLogButtonHoverIconColorV396=settingsButtonText;
+    theme.dashboardCreateLogButtonHoverBorderColorV396=settingsButtonBorder;
+
+    // The close X is permanently transparent; only glyph/border colors matter.
+    theme.dashboardCreateLogCloseBackgroundColorV396=modalBg;
+    theme.dashboardCreateLogCloseHoverBackgroundColorV396=modalBg;
+    theme.dashboardCreateLogCloseIconColorV396=modalText;
+    theme.dashboardCreateLogCloseHoverIconColorV396=modalText;
+    theme.dashboardCreateLogCloseBorderColorV396=modalBorder;
+    theme.dashboardCreateLogCloseHoverBorderColorV396=modalBorder;
+    return theme;
+  }
+
   function aiThemePrompt() {
     const d = canonicalThemeDraftV312(state.draft);
     const colorFields = colorKeys().map(key => `- ${key}: ${d[key]}`).join('\n');
     const animations=registeredAnimationsV326().map(([id,label])=>`- ${id}: ${label}`).join('\n');
     const fonts=fontChoicesV326().map(([id,label])=>`- ${id}: ${label}`).join('\n');
+    const advancedV432 = state.aiBuilderDepthV432 === 'advanced';
+    const enhancedBackgroundV479 = state.aiBackgroundFocusV479 === 'enhanced';
+    const modeRulesV432 = advancedV432 ? `AI BUILDER MODE — ADVANCED:
+- Advanced is the expressive UI mode. Build a coherent material/style language across the existing Loggy interface while preserving layout, readability, and usability.
+- Set advancedUiEnabledV432:true in BOTH variants.
+- REQUIRED advanced UI fields in BOTH variants: advancedBorderStyleV432, advancedInputBorderStyleV432, advancedButtonBorderStyleV432 = solid | dashed | dotted | double; advancedBorderWidthV432 = 1–4; advancedInputRadiusV432 / advancedCardRadiusV432 / advancedButtonRadiusV432 = 0–28.
+- Style Log-page inputs/search boxes, cards, content boxes, buttons, modal surfaces, and category chips so they share a reference-supported material language. Examples include scrapbook/cut-paper edges, terminal/tech linework, lab/HUD framing, stitched stationery, glossy plastic, index-card edges, or another treatment genuinely supported by the references.
+- Be materially creative when the references support it: backgrounds and surfaces may feel like felt, handmade paper, watercolor paper, cardstock, cork, linen, canvas, soft fabric, recycled paper, newsprint, frosted plastic, brushed metal, glass, or other tactile media. Build these looks with lightweight gradients/patterns/inline SVG/CSS texture rather than external assets.
+- IMPORTANT: advancedBorderStyleV432 / advancedInputBorderStyleV432 / advancedButtonBorderStyleV432 and the advanced radius fields are LOG-PAGE-ONLY controls. Do not use them to reshape Dashboard controls. Dashboard Log-page tiles and the New Log tile must remain perfect circles.
+- Use the normal color/radius/shadow/font system together with the advanced fields. Do not redesign page layout or make controls harder to use.
+- IMPORTANT: Advanced does NOT automatically mean a complex background. Follow the separate BACKGROUND FOCUS setting below.` : `AI BUILDER MODE — BASIC:
+- Basic creates a polished, coordinated theme using Loggy’s normal Theme Builder controls without materially redesigning component construction.
+- Build a complete palette and state system: page/background colors, surfaces, text, borders, hover/selected states, Dashboard controls, modal colors, typography, normal radius, and normal shadow.
+- Keep cards, inputs, buttons, search boxes, and modal surfaces structurally familiar to Loggy; visual identity should come from the references through color, type, normal radii/shadows, background treatment, and any reference-supported decorative accents.
+- Set advancedUiEnabledV432:false in BOTH variants.
+- Do not depend on advanced border/radius fields for the design.
+- IMPORTANT: Basic can still have an Enhanced background when BACKGROUND FOCUS says so; Standard Basic is the restrained behavior used before this option existed.`;
+    const backgroundRulesV479 = enhancedBackgroundV479 ? `BACKGROUND FOCUS — ENHANCED:
+- Spend extra design effort on the PAGE BACKGROUND / ambient scene in BOTH variants.
+- Make the background visibly reference-specific instead of a generic gradient: use layered tonal depth, broad ambient shapes, texture/pattern language, light/shadow structure, atmospheric motifs, grid/scanline/paper/water/glass/sky/etc. cues when supported by the references.
+- TACTILE MATERIALS ARE ENCOURAGED when they fit the references: felt/fuzzy fibers, handmade or torn paper, parchment, scrapbook cardstock, linen/canvas weave, cork, watercolor wash, fabric, grainy print/newsprint, frosted glass, brushed metal, or similarly tactile surfaces. Make the texture visible enough to give character without hurting legibility.
+- In Basic mode, keep the implementation within normal safe theme background controls whenever possible: a richer backgroundGradientV56 and coordinated backdrop colors can do most of the work. interactiveBackgroundCodeV56 is allowed only when the reference identity genuinely needs motion/ambient behavior and it remains lightweight.
+- In Advanced mode, a richer self-contained interactiveBackgroundCodeV56 scene is encouraged when supported by the references: subtle CSS/SVG/canvas motion, pointer-reactive ambience, scan sweeps, drifting marks, particles, light sweeps, or other reference-specific effects.
+- Keep every background effect behind the UI, pointer-safe, performant, readable, and respectful of prefers-reduced-motion.` : `BACKGROUND FOCUS — STANDARD:
+- Keep the background polished, reference-derived, and supportive rather than making it the main visual event.
+- Use a strong solid/gradient background and coordinated backdrop colors, but avoid unnecessary ambient layers or interactive scenes.
+- A Standard background does NOT have to look flat. It may use subtle tactile material texture such as paper grain, felt fibers, linen weave, cardstock speckle, soft watercolor mottling, cork-like flecks, or another reference-supported surface, as long as it stays lightweight and readable.
+- In Basic mode this is the original restrained Basic behavior.
+- In Advanced mode, the UI materials may still be expressive, but the background itself should remain comparatively simple.
+- Do not create interactiveBackgroundCodeV56 unless the references clearly require it.`;
     return `Create ONE complete Loggy AI theme bundle inspired by the visual references I provide. The bundle MUST contain TWO coordinated, fully usable versions of the SAME theme: one LIGHT and one DARK.
+
+${modeRulesV432}
+
+${backgroundRulesV479}
+
+VISUAL ACCENTS:
+- If the references genuinely support small decorative accents, you may include a restrained coordinated set. This is automatic, not a separate user-selected mode.
+- Background Focus controls how much visual effort goes into the page background itself.
+- Keep Light and Dark variants coordinated in accent identity and placement behavior.
 
 DUAL-VERSION REQUIREMENT — MANDATORY:
 - Generate BOTH versions in the same response. Do not ask me to choose Light or Dark first.
 - The Light and Dark versions must clearly be the same design identity: same theme name, mood, visual era, materials, overall accent family, layout philosophy, decoration distribution, and motion personality.
 - Adapt backgrounds, surfaces, text, borders, hover/selected states, dashboard colors, Settings-modal colors, widget colors, and cursor colors so each version has intentional contrast. Every settingsModal*V380 and settingsWidget*V380 color field must be present in BOTH variants.
-- LIGHT must be genuinely light. It may use tinted off-whites, cream, blush, lavender, sky, mint, parchment, pale gray, or soft light gradients. It does not need to be pure white.
-- DARK must be genuinely dark. Use a true dark page/background system such as charcoal, midnight, plum-black, forest-black, dark brown, or a dark gradient with readable light text. Dark cards on a light page do NOT count.
+- LIGHT must be genuinely light, but LIGHT DOES NOT MEAN PURE WHITE. Do NOT reflexively use #FFFFFF or a nearly-white page just because this is the Light variant. Derive the Light background family from the actual references first. It may use cream, parchment, oat, sand, butter, blush, peach, dusty rose, pale sage, soft mint, powder blue, sky, light teal, warm beige, pale gray, tinted neutrals, or other reference-supported light colors and gradients.
+- Give the Light variant a designed atmosphere, not a blank canvas. When supported by the references, use tinted surfaces, layered light neutrals, soft gradients, gentle tonal contrast, subtle texture, and restrained decorative patterning so the Light version feels intentional and visually rich rather than sterile white with one accent color.
+- DARK must be genuinely dark. Use a true dark page/background system such as charcoal, graphite, ink-black, midnight navy, blackened teal, forest-black, espresso, dark brown, oxblood, slate, or a dark reference-derived gradient with readable light text. Dark cards on a light page do NOT count. EVERY modal shell in the Dark variant must also be dark, especially settingsModalBackgroundColorV380 and dashboardCreateLogModalBackgroundColorV396. Never put a white/cream/light modal on the Dark variant.
 - Both versions must be COMPLETE Theme Builder configurations, not partial palettes.
+
+PALETTE SELECTION + DARK-VARIANT COLOR DIVERSITY — CRITICAL:
+- Derive the hue family from the ACTUAL visual references before choosing theme colors. Internally identify the references' dominant neutrals, dominant chromatic colors, secondary colors, and small accent colors by visual weight.
+- PURPLE HAS NO SPECIAL PRIORITY. Do NOT default the Dark variant to purple, violet, lavender, lilac, mauve, magenta, or plum just because the requested theme is dark, moody, dreamy, feminine, vintage, magical, or aesthetic.
+- Use a purple-family Dark palette ONLY when purple/violet/plum is genuinely a dominant or clearly important recurring color in the references. A tiny purple object, shadow, flower, glow, or isolated accent is NOT enough reason to make the whole Dark theme purple.
+- If the references contain stronger non-purple colors, prefer those. Examples: blue/cyan references can become midnight navy or ink blue; green references can become forest/olive/blackened teal; warm beige/gold references can become espresso/umber/bronze-black; red/pink references can become oxblood/burgundy/blackened rose; orange/rust references can become burnt umber/rust-black; mostly monochrome references should become graphite/charcoal/ink rather than invented purple.
+- If several color families are present, choose the one with the strongest visual presence or the one that best supports the foreground subjects. Do not automatically choose the most stereotypically 'dark-theme' hue.
+- If the references do not contain a clear chromatic direction, default to a NEUTRAL dark base such as charcoal, graphite, black, espresso, or slate with a restrained reference-derived accent. Do NOT invent purple as the fallback.
+- Keep Light and Dark recognizably the same identity by carrying the SAME reference-derived accent family across variants whenever practical. Change value/saturation for contrast rather than arbitrarily changing the Dark hue family to purple.
+- Before outputting JSON, explicitly sanity-check internally: "Would I still have chosen this purple family if purple were removed from my generic idea of a dark aesthetic?" If the answer is no, choose a reference-supported non-purple palette instead.
 
 PERSISTENT SWITCHING:
 Loggy stores both variants under one theme. I can apply Light now, save the theme, reopen it later, switch to Dark, preview it, and save again without regenerating the AI theme. Therefore each variant must be independently complete.
 
 VISUAL REFERENCE RULES:
-- Analyze all references together for palette, mood, softness, era, contrast, materials, lighting and atmosphere.
+- Analyze all references together for palette, mood, softness, era, contrast, materials, lighting and atmosphere. Color choice must be evidence-led: weight colors by how much of the references they actually occupy and how often they recur, not by generic aesthetic associations.
+- For the LIGHT variant specifically, identify at least one light reference-derived base family before choosing the page background. Pure white is only appropriate when the references themselves strongly support a crisp white/minimal look. Otherwise prefer a tinted light base that belongs to the reference palette.
+- When references contain multiple colors, do not collapse them into purple unless purple is truly one of the strongest recurring families. Preserve distinctive non-purple identity when the references support blue, green, teal, brown, gold, red, rust, pink, orange, monochrome, or another family.
 - Make the background/UI help my foreground references and decorations pop instead of competing with them.
 - References are inspiration only. Do not embed, trace, redraw, or recreate their main subjects as SVGs.
-- You may create 0–6 small ORIGINAL secondary accent SVG decorations such as sparkles, bubbles, stars, abstract waves, dots, swirls, petals, or tiny symbols.
+- Background pattern language is separate from foreground decorations and is still allowed when appropriate: sparse dots, tiny stars, checker accents, scallop bands, soft stripes, small floral marks, paper grain, stitched/doodle marks, wave lines, scanlines, grids, formulas, or other lightweight reference-supported motifs that stay behind the UI.
+- Treat BACKGROUND MATERIAL as a first-class design choice, not only color. When appropriate, deliberately choose a tactile surface (for example felt, textured paper, fibrous stationery, canvas/linen, cork, watercolor stock, or printed grain) and carry that material identity coherently through Light and Dark variants. Do not default every theme to a smooth digital gradient.
+- Do NOT add visual noise just to make a theme busy. Every pattern, scene element, or decoration must support the shared Light/Dark identity and preserve readability.
 
 NAME — REQUIRED:
 - Invent ONE short polished theme name.
@@ -2113,9 +3456,16 @@ BACKGROUND + PAGE BACKDROPS — CHOOSE INTENTIONALLY IN BOTH:
 - backgroundGradientNameV56 / backgroundGradientV56
 - backgroundImage: empty unless I explicitly supplied a usable image file/path
 - interactiveBackgroundCodeV56 may contain one self-contained inline HTML/CSS/canvas/SVG/JS background. No external URLs, fetches, imports, fonts, images, audio, or libraries.
-- pageBackdropsEnabledV312: true | false
-- dailyLogBackgroundEnabled / dailyLogBackgroundColor / dailyLogBackgroundOpacity
-- contentBackdropEnabled / contentBackdropColor / contentBackdropOpacity (this same backdrop must visibly work on the Dashboard as well as Log auxiliary/content pages)
+- V432 Advanced UI fields: advancedUiEnabledV432, advancedBorderStyleV432, advancedInputBorderStyleV432, advancedButtonBorderStyleV432, advancedBorderWidthV432, advancedInputRadiusV432, advancedCardRadiusV432, advancedButtonRadiusV432. Follow AI BUILDER MODE and BACKGROUND FOCUS exactly.
+- pageBackdropsEnabledV312: true | false. THIS CONTROLS LOG-PAGE BACKDROPS ONLY. It must NEVER create a Dashboard backdrop.
+- pageBackdropColorV452 / pageBackdropOpacityV452 define ONE shared Log-page backdrop style.
+- dailyLogBackgroundEnabled and contentBackdropEnabled independently choose where that shared backdrop appears. Never create a Dashboard backdrop.
+- quizBackdropEnabledV456: true | false. When true, the quiz CONTENT BOX/CARD uses quizBackdropColorV456 / quizBackdropOpacityV456 / quizBackdropRadiusV456 / quizBackdropPaddingV459. Never apply these values to the QUIZZES/QUIZ page title or the whole quiz page; titles follow Heading Backdrop.
+- quizBackdropColorV456: #RRGGBB. quizBackdropOpacityV456: 0–100. quizBackdropRadiusV456: 0–40. quizBackdropPaddingV459: 0–40.
+- headingBackgroundEnabledV429 MUST be false in AI output. The user may manually turn Heading Backdrop on later; AI must NEVER auto-enable it.
+- headingBackgroundColorV452 / headingBackgroundOpacityV452 define the Heading Backdrop independently from Page Backdrops.
+- headingBackgroundPaddingV429: 0–40. Pick a sensible padding value (normally 6–14) in BOTH variants even though headingBackgroundEnabledV429 stays false.
+- headingBackgroundRadiusV452: 0–40. Pick intentional heading-background roundness in BOTH variants.
 - settingsModalBackgroundColorV380 / settingsModalTextColorV380 / settingsModalBorderColorV380
 - settingsModalOverlayColorV381 / settingsModalSectionBorderColorV381 / settingsModalMutedTextColorV381 / settingsModalIconColorV381
 - settingsModalInputBackgroundColorV380 / settingsModalInputTextColorV380 / settingsModalInputBorderColorV380
@@ -2125,6 +3475,19 @@ BACKGROUND + PAGE BACKDROPS — CHOOSE INTENTIONALLY IN BOTH:
 - settingsModalButtonBackgroundColorV380 / settingsModalButtonTextColorV380 / settingsModalButtonBorderColorV380
 - settingsWidgetBackgroundColorV380 / settingsWidgetTextColorV380 / settingsWidgetBorderColorV380
 - If a backdrop is enabled, give it a visibly useful opacity rather than 0.
+
+SETTINGS LABELS + DASHBOARD RIGHT-CLICK MENUS — CONTRAST REQUIRED:
+- settingsCursorNameTextColorV394 must be clearly readable against settingsWidgetBackgroundColorV380.
+- settingsCompanionNameTextColorV394 must be clearly readable against settingsWidgetBackgroundColorV380.
+- settingsThemeNameTextColorV394 must be clearly readable against settingsModalCardBackgroundColorV380.
+- settingsThemeNameHoverTextColorV394 must be clearly readable against settingsModalHoverBackgroundColorV380. Do NOT blindly switch theme names to white on hover. Choose from the actual hover/title background.
+- dashboardContextMenuBackgroundColorV394 MUST equal settingsModalBackgroundColorV380 exactly. Dashboard right-click menus intentionally share the Settings modal surface.
+- dashboardContextMenuTextColorV394 must strongly contrast with dashboardContextMenuBackgroundColorV394.
+- dashboardContextMenuBorderColorV394 must remain visible against dashboardContextMenuBackgroundColorV394.
+- dashboardContextMenuHoverTextColorV394 must strongly contrast with dashboardContextMenuHoverBackgroundColorV394.
+- The Trash card/button inside Settings is ALWAYS transparent/border-only. Do not try to give Trash a fill color; its text/icon use the Settings modal text color for contrast.
+- The Settings modal close X is ALSO ALWAYS transparent in normal/hover/focus/active states. It may have a border, or no visible border. Its X glyph MUST use settingsModalTextColorV380. Never give the Settings X a filled background.
+- Target at least 4.5:1 contrast for names/menu text and 3:1 for borders/icons in BOTH Light and Dark.
 
 SHAPE & TYPE — ALWAYS ACTIVE:
 - radius: 0–30, normally 20 unless references suggest otherwise.
@@ -2147,7 +3510,8 @@ AUDIO — SAME CONTENT/BEHAVIOR IN BOTH UNLESS CONTRAST DOES NOT APPLY:
 - svgHoverSoundStopModeV87 / svgHoverSoundStopDelayV87
 
 DECORATION MOTION + LAYOUT:
-- Prefer the SAME distribution, scale, overlap settings, animation choice, and overall decoration set in both variants so switching appearance does not rearrange the theme identity.
+- Use the SAME distribution, scale, overlap settings, animation choice, and exact decoration set in both variants. Loggy treats uploaded/edited decorations as shared theme assets, so Light/Dark switching must never make them disappear.
+- Non-color behavior overrides are shared across variants. If the user turns a toggle such as Page Backdrops off in one appearance, switching appearances must keep that toggle off. Keep corresponding boolean/number/select behavior settings aligned unless a color field is explicitly appearance-specific.
 - svgDistribution: ${DISTRIBUTIONS.map(([id])=>id).join(', ')}
 - svgGlobalScale: 50–220
 - decorationsOpacityV117: 0–100
@@ -2157,17 +3521,53 @@ DECORATION MOTION + LAYOUT:
 - Existing default animations:
 ${animations}
 - If one fits, set svgDefaultAnimation to its exact ID in BOTH variants.
+- IMPORTANT DEFAULT-ANIMATION RULE: backgroundSvgs MUST NOT contain animationOverride unless the user explicitly set a per-decoration override in the editor. AI-generated decorations should inherit svgDefaultAnimation. If svgDefaultAnimation is cross-screen, EVERY visible decoration inherits Across Screen by default.
+- STRICT OVERLAP + ACROSS SCREEN RULE: preventDecorationOverlapV367 must NEVER suppress or hide a decoration whose effective animation is cross-screen. Moving decorations do not occupy a static X position, so static collision suppression does not apply to them and they must not suppress stationary decorations either.
 - Only if none fits, create ONE gentle reusable custom animation and use the SAME spec in both variants:
   "svgDefaultAnimation":"theme-custom-animation",
   "customAnimationV159":{"duration":6.8,"timing":"ease-in-out","direction":"alternate","keyframes":[{"offset":0,"x":0,"y":4,"rotate":-2,"scale":1,"opacity":1},{"offset":0.5,"x":8,"y":-8,"rotate":2,"scale":1.02,"opacity":1},{"offset":1,"x":0,"y":4,"rotate":-2,"scale":1,"opacity":1}]}
-- backgroundSvgs may contain 0–6 safe static original accents. No scripts, foreignObject, event handlers, external href/src/url(), imports, or network references.
+- backgroundSvgs may contain 0–6 safe static original accents when the references genuinely support them. Keep them secondary to the UI and background. No scripts, foreignObject, event handlers, external href/src/url(), imports, or network references.
 - introSvgBounceEnabled / introSvgBopMode: some | all
 - introMusicReactionsEnabledV154
 - svgHoverAnimationsEnabledV82
 - svgHoverAnimationV82: ${HOVER_ANIMATIONS.map(([id])=>id).join(', ')}
 
+CREATE NEW LOG MODAL — SETTINGS-PARITY COLOR SYSTEM:
+- Fill every V396 Create New Log color field that appears in the REQUIRED COLOR FIELD list in BOTH Light and Dark variants. Categories already have their V321 controls; do not replace those. The two legacy close-background fields are intentionally hidden/ignored because the X is always transparent.
+- CRITICAL PARITY RULE: Create New Log is styled from the SAME neutral palette as the Settings modal. In EACH variant set dashboardCreateLogModalBackgroundColorV396 EXACTLY equal to settingsModalBackgroundColorV380, dashboardCreateLogModalTextColorV396 EXACTLY equal to settingsModalTextColorV380, and dashboardCreateLogModalBorderColorV396 EXACTLY equal to settingsModalBorderColorV380. Do not invent a separate pale Create Log shell. If Dark Settings is dark, Create New Log MUST be that same dark surface.
+- RUNTIME PARITY NOTE: those Create Log shell fields are aliases of Settings, not an independent shell palette. The real Dashboard uses the resolved Settings modal background/text/border for Create New Log. In a Dark variant, if Settings is #12110F then Create New Log is #12110F too. Never output a conflicting shell color.
+- Title/labels: dashboardCreateLogTitleColorV396 and dashboardCreateLogLabelColorV396 should equal settingsModalTextColorV380 so Create New Log text can never disappear into its modal background.
+- Normal Create Log Log Name and Icon Search fields MUST use the same background and text palette. Their normal border MUST equal dashboardCreateLogModalBorderColorV396 (the same border used by the icon container), not a separate input-border color. Specifically: dashboardCreateLogInputBackgroundColorV396 = settingsModalInputBackgroundColorV380, dashboardCreateLogInputTextColorV396 = settingsModalInputTextColorV380, dashboardCreateLogInputBorderColorV396 = dashboardCreateLogModalBorderColorV396.
+- V426 SINGLE TEXT-COLOR RULE — CRITICAL: inside Create New Log, the visible text color used for the Icon Search field (including the "Search icons…" placeholder) is the ONE shared text color for BOTH fields. The Log Name placeholder (for example "e.g. Skateboarding, Baking, Civics...") AND the text the user types into Log Name MUST use EXACTLY the same color as "Search icons…". Do NOT invent a muted, secondary, gray, translucent, or separate placeholder color for Log Name. Use dashboardCreateLogInputTextColorV396 as this single normal-state color. The browser runtime deliberately applies that same color to #new-log-name, #new-log-name::placeholder, the Icon Search input, and the Icon Search placeholder.
+- The same parity applies to interaction states: dashboardCreateLogInputHoverTextColorV396 is shared by Log Name and Icon Search while hovered; dashboardCreateLogInputFocusTextColorV396 is shared by both while focused. Never make the two fields use different text-color families.
+- V428 AUXILIARY DASHBOARD MODALS: the Add Custom SVG Icon modal, Move This Log to Trash confirmation, Trash manager, and Add/Rename Category text modal intentionally inherit the SAME Settings modal palette. Their shell background/text/border use settingsModalBackgroundColorV380 / settingsModalTextColorV380 / settingsModalBorderColorV380; fields use settingsModalInput*V380; action buttons use settingsModalButton*V380 and hover states use settingsModalHover*V380. Existing themes automatically inherit this styling, so never assume these modals are default white/black.
+- V428 CUSTOM ICON + BUTTON PARITY: the plus button beside "Search icons…" uses the SAME normal field background/text/border as the Icon Search box, including the theme's border/radius language. Its hover/focus state may use the Settings hover palette but must remain clearly part of that same field family.
+- Modal shell: dashboardCreateLogOverlayColorV396 / dashboardCreateLogModalBackgroundColorV396 / dashboardCreateLogModalTextColorV396 / dashboardCreateLogModalBorderColorV396 / dashboardCreateLogTitleColorV396 / dashboardCreateLogLabelColorV396.
+- Inputs + icon search: dashboardCreateLogInputBackgroundColorV396 / dashboardCreateLogInputTextColorV396 / dashboardCreateLogInputBorderColorV396 / dashboardCreateLogInputHoverBackgroundColorV396 / dashboardCreateLogInputHoverTextColorV396 / dashboardCreateLogInputHoverBorderColorV396 / dashboardCreateLogInputFocusBackgroundColorV396 / dashboardCreateLogInputFocusTextColorV396 / dashboardCreateLogInputFocusBorderColorV396.
+- Do not give Log Name and Icon Search different normal colors. Their normal background/text/border must render identically from first paint. V401 rule: Log Name autofocus MUST NOT change its border color either; Log Name, Icon Search, and the icon grid use one continuous border color with no focus/opening flash.
+- Icon choices: dashboardCreateLogIconBackgroundColorV396 / dashboardCreateLogIconColorV396 / dashboardCreateLogIconBorderColorV396 / dashboardCreateLogIconHoverBackgroundColorV396 / dashboardCreateLogIconHoverColorV396 / dashboardCreateLogIconHoverBorderColorV396 / dashboardCreateLogIconSelectedBackgroundColorV396 / dashboardCreateLogIconSelectedColorV396 / dashboardCreateLogIconSelectedBorderColorV396.
+- Create Page button: dashboardCreateLogButtonBackgroundColorV396 / dashboardCreateLogButtonTextColorV396 / dashboardCreateLogButtonIconColorV396 / dashboardCreateLogButtonBorderColorV396 / dashboardCreateLogButtonHoverBackgroundColorV396 / dashboardCreateLogButtonHoverTextColorV396 / dashboardCreateLogButtonHoverIconColorV396 / dashboardCreateLogButtonHoverBorderColorV396.
+- Close X: only dashboardCreateLogCloseIconColorV396 / dashboardCreateLogCloseBorderColorV396 / dashboardCreateLogCloseHoverIconColorV396 / dashboardCreateLogCloseHoverBorderColorV396 are visually meaningful. The close X background is ALWAYS transparent in normal AND hover/focus states. Never design a filled close-X box.
+- NORMAL-STATE DESIGN RULE FOR AI: dashboardCreateLogIconBackgroundColorV396 and dashboardCreateLogButtonBackgroundColorV396 MUST equal dashboardCreateLogModalBackgroundColorV396. This intentionally makes normal controls look border-only/no-fill. Hover and selected states may use a visible filled surface.
+- HOVER/SELECTED PARITY: use Settings hover/selected/button colors as the first-choice palette for Create Log hover/selected states. This keeps both modals visually coordinated instead of creating a second unrelated UI palette.
+- DARK VARIANT MODAL RULE: dashboardCreateLogModalBackgroundColorV396 MUST equal the already-dark settingsModalBackgroundColorV380. Normal Create Log inputs must use the dark Settings input surface. NEVER use white, cream, pale beige, pale gray, or any light neutral for the Create New Log shell in the Dark variant. The Create New Log title/text MUST strongly contrast with that dark surface.
+- Icon SELECTED must be visually distinct from both normal and hover. Use a clear selected surface and readable icon color.
+- Create Page normal text/icon must strongly contrast with the modal-colored normal button surface; hover text/icon must strongly contrast with the hover surface.
+- Inputs must remain readable in normal, hover, and focus states. Borders must stay visible. Target 4.5:1 for text and 3:1 for icons/borders.
+
 DASHBOARD:
 - Dashboard and Log pages must feel like the SAME theme in each variant.
+- The regular Log buttons and the + New Log button have EXPLICIT color systems. Fill ALL of these in BOTH variants:
+  dashboardLogButtonBackgroundV391 / dashboardLogButtonTextColorV391 / dashboardLogButtonIconColorV391 / dashboardLogButtonBorderColorV391
+  dashboardLogButtonHoverBackgroundV391 / dashboardLogButtonHoverTextColorV391 / dashboardLogButtonHoverIconColorV391 / dashboardLogButtonHoverBorderColorV391
+  dashboardNewLogButtonBackgroundV391 / dashboardNewLogButtonTextColorV391 / dashboardNewLogButtonIconColorV391 / dashboardNewLogButtonBorderColorV391
+  dashboardNewLogButtonHoverBackgroundV391 / dashboardNewLogButtonHoverTextColorV391 / dashboardNewLogButtonHoverIconColorV391 / dashboardNewLogButtonHoverBorderColorV391
+- NORMAL-STATE LINK RULE: dashboardLogButtonTextColorV391 MUST equal dashboardLogButtonIconColorV391 exactly, and dashboardNewLogButtonTextColorV391 MUST equal dashboardNewLogButtonIconColorV391 exactly. Loggy intentionally uses the icon color for the normal-state label so the circle text can never disappear while its icon remains readable.
+- V400 HARD FULL PARITY: + New Log MUST be visually identical to a normal Log-page circle in BOTH normal AND hover states. Set all 8 dashboardNewLogButton*V391 values exactly equal to their dashboardLogButton*V391 counterparts. Do not invent a separate + New Log palette for any state.
+- V402 LIVE-VARIABLE GUARANTEE: the real Dashboard does NOT cache or independently render + New Log colors. + New Log reads the exact same live dashboardLogButton*V391 CSS variables as normal Log circles in both normal and hover states. dashboardNewLogButton*V391 fields are compatibility aliases only and MUST remain exact copies of the matching dashboardLogButton*V391 fields.
+- CONTRAST IS MANDATORY: choose the NORMAL icon/text color to be clearly readable against its exact button background, and choose readable HOVER text/icons against the hover background. Target at least WCAG 4.5:1 for label text and 3:1 for icons/borders.
+- Never choose text/icon colors that are the same as or visually close to the button background. A pale/light button normally needs dark text/icons; a deep/dark button normally needs light text/icons. Decide from the ACTUAL background color, not simply from whether the whole theme is Light or Dark.
+- Design and contrast-check the regular Log button first. Then COPY its exact normal and hover background/text/icon/border values to + New Log. + New Log must never be independently styled or independently contrast-corrected.
 - Dashboard log-tile icons should normally be black, white, or a selected-category/accent color with strong contrast.
 - Do not add or style a visible Dashboard Settings button; Dashboard Settings is accessed from the context menu.
 
@@ -2195,7 +3595,10 @@ OUTPUT RULES — CRITICAL:
 7. Media fields that require real uploaded files must use safe empty values instead of invented paths.
 8. Include customCursorV161 in BOTH variants.
 9. If you create customFontV326 or customAnimationV159, follow the safe schemas exactly and keep them coordinated across variants.
-10. Before answering, verify internally that Light is truly light, Dark is truly dark, both have strong readable contrast, and the JSON parses.
+10. Before answering, verify internally that Light is truly light WITHOUT reflexively defaulting to pure white, Dark is truly dark, both have strong readable contrast, and the JSON parses. Verify that the Light background/surface family is visibly derived from the references and feels intentionally designed; if it is plain white, confirm the references actually justify white. Also verify that the Dark hue family is supported by the supplied references and is not a reflexive purple/violet/plum choice. Follow AI BUILDER MODE and BACKGROUND FOCUS independently and exactly.
+11. NEVER escape JSON colons or SVG angle brackets. Do not output \:, \<, or \>.
+12. NEVER use Markdown link syntax anywhere inside JSON. In SVG, xmlns must remain the literal URL http://www.w3.org/2000/svg, never [http://...](http://...).
+13. Every backgroundSvgs item must be one COMPLETE SVG string ending in </svg>, with all double quotes correctly JSON-escaped.
 
 I will paste this ONE raw bundle into Loggy. Loggy will store both variants together, let me switch between Light and Dark anytime, preview either version, and save whichever version I currently want active.`;
   }
@@ -2207,18 +3610,178 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
   }
 
 
+  // V390: AI chat/copy surfaces sometimes mutate otherwise-correct theme JSON:
+  //   "key"\:true, \<svg..., and xmlns URLs converted to Markdown links.
+  // Strict JSON stays untouched. Only after strict parsing fails do we repair
+  // these known copy artifacts, including malformed backgroundSvgs strings.
+  function repairAiMarkdownUrlV390(value) {
+    return String(value || '').replace(/\[(https?:\/\/[^\]\s]+)\]\((https?:\/\/[^)\s]+)\)/g, (match, label, href) => label === href ? label : match);
+  }
+
+  function repairAiBackgroundSvgArraysV390(value) {
+    return String(value || '').replace(/("backgroundSvgs"\s*:\s*)\[(.*?)\](?=\s*,\s*"[A-Za-z0-9_]+"\s*:)/gs, (whole, prefix, inner) => {
+      const body = String(inner || '').trim();
+      if (!body) return `${prefix}[]`;
+      // This repair is intentionally narrow. A malformed AI paste separates
+      // SVG items with ","<svg while leaving attribute quotes unescaped.
+      if (!/(?:\\<svg|<svg)[\s>]/i.test(body)) return whole;
+      const parts = body.split(/"\s*,\s*"(?=\\?<svg\b|<svg\b)/i);
+      if (!parts.length) return whole;
+      const repaired = parts.map((part, index) => {
+        let svg = String(part || '').trim();
+        if (index === 0 && svg.startsWith('"')) svg = svg.slice(1);
+        if (index === parts.length - 1 && svg.endsWith('"')) svg = svg.slice(0, -1);
+        svg = svg.replace(/\\([:<>])/g, '$1');
+        svg = repairAiMarkdownUrlV390(svg);
+        if (/^<svg\b/i.test(svg) && !/<\/svg>\s*$/i.test(svg)) svg += '</svg>';
+        return JSON.stringify(svg);
+      });
+      return `${prefix}[${repaired.join(',')}]`;
+    });
+  }
+
+  function repairAiThemePasteV390(value) {
+    let raw = String(value || '')
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      // Backslashes before colon/angle brackets are not valid JSON escapes and
+      // are a common artifact of copied AI output.
+      .replace(/\\([:<>])/g, '$1');
+    raw = repairAiMarkdownUrlV390(raw);
+    raw = repairAiBackgroundSvgArraysV390(raw);
+    return raw;
+  }
+
+  function stripJsonCommentsV479(value) {
+    const src = String(value || '');
+    let out = '', inString = false, escape = false, quote = '"';
+    for (let i = 0; i < src.length; i++) {
+      const ch = src[i], next = src[i + 1];
+      if (inString) {
+        out += ch;
+        if (escape) { escape = false; continue; }
+        if (ch === '\\') { escape = true; continue; }
+        if (ch === quote) inString = false;
+        continue;
+      }
+      if (ch === '"') { inString = true; quote = ch; out += ch; continue; }
+      if (ch === '/' && next === '/') {
+        i += 2;
+        while (i < src.length && src[i] !== '\n' && src[i] !== '\r') i++;
+        if (i < src.length) out += src[i];
+        continue;
+      }
+      if (ch === '/' && next === '*') {
+        i += 2;
+        while (i < src.length && !(src[i] === '*' && src[i + 1] === '/')) i++;
+        i++;
+        continue;
+      }
+      out += ch;
+    }
+    return out;
+  }
+
+  function removeTrailingJsonCommasV479(value) {
+    const src = String(value || '');
+    let out = '', inString = false, escape = false;
+    for (let i = 0; i < src.length; i++) {
+      const ch = src[i];
+      if (inString) {
+        out += ch;
+        if (escape) { escape = false; continue; }
+        if (ch === '\\') { escape = true; continue; }
+        if (ch === '"') inString = false;
+        continue;
+      }
+      if (ch === '"') { inString = true; out += ch; continue; }
+      if (ch === ',') {
+        let j = i + 1;
+        while (j < src.length && /\s/.test(src[j])) j++;
+        if (src[j] === '}' || src[j] === ']') continue;
+      }
+      out += ch;
+    }
+    return out;
+  }
+
+  function extractFirstJsonContainerV479(value) {
+    const src = String(value || '');
+    let start = -1, opener = '', closer = '', depth = 0, inString = false, escape = false;
+    for (let i = 0; i < src.length; i++) {
+      const ch = src[i];
+      if (inString) {
+        if (escape) { escape = false; continue; }
+        if (ch === '\\') { escape = true; continue; }
+        if (ch === '"') inString = false;
+        continue;
+      }
+      if (ch === '"') { inString = true; continue; }
+      if (start < 0 && (ch === '{' || ch === '[')) {
+        start = i; opener = ch; closer = ch === '{' ? '}' : ']'; depth = 1; continue;
+      }
+      if (start >= 0) {
+        if (ch === opener) depth++;
+        else if (ch === closer) {
+          depth--;
+          if (depth === 0) return src.slice(start, i + 1);
+        }
+      }
+    }
+    return start >= 0 ? src.slice(start) : src;
+  }
+
+  function parseJsonCandidateV479(raw) {
+    try {
+      let value = JSON.parse(raw);
+      // Some AI/file surfaces return a JSON object encoded inside one JSON string.
+      if (typeof value === 'string') {
+        const nested = String(value).trim();
+        if (nested.startsWith('{') || nested.startsWith('[')) value = JSON.parse(nested);
+      }
+      return value;
+    } catch { return null; }
+  }
+
   function parseAiThemePayloadV376(text) {
     let raw = String(text || '').trim();
     if (!raw) return null;
-    raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
-    if (!raw.startsWith('{')) {
-      const first = raw.indexOf('{'), last = raw.lastIndexOf('}');
-      if (first >= 0 && last > first) raw = raw.slice(first, last + 1);
+    raw = raw.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+    raw = raw.replace(/^```(?:json|javascript|js)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    raw = raw.replace(/^\s*json\s*[:\-]?\s*(?=[{[])/i, '');
+
+    const accept = value => {
+      if (Array.isArray(value)) return value;
+      return value && typeof value === 'object' ? value : null;
+    };
+
+    // 1) Exact valid JSON is always preferred and never modified.
+    let parsed = parseJsonCandidateV479(raw);
+    if (accept(parsed)) return parsed;
+
+    // 2) If surrounding prose exists, isolate the first complete JSON object/array.
+    const isolated = extractFirstJsonContainerV479(raw).trim();
+    if (isolated && isolated !== raw) {
+      parsed = parseJsonCandidateV479(isolated);
+      if (accept(parsed)) return parsed;
+      raw = isolated;
     }
-    try {
-      const payload = JSON.parse(raw);
-      return payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : null;
-    } catch { return null; }
+
+    // 3) Repair only common copy/AI artifacts; never eval pasted text.
+    let repaired = repairAiThemePasteV390(raw)
+      .replace(/[“”]/g, '"')
+      .replace(/\u00A0/g, ' ');
+    repaired = stripJsonCommentsV479(repaired);
+    repaired = removeTrailingJsonCommasV479(repaired);
+    parsed = parseJsonCandidateV479(repaired);
+    if (accept(parsed)) return parsed;
+
+    // 4) One more SVG-array repair after comma/comment normalization.
+    const svgRepaired = repairAiBackgroundSvgArraysV390(repaired);
+    if (svgRepaired !== repaired) {
+      parsed = parseJsonCandidateV479(svgRepaired);
+      if (accept(parsed)) return parsed;
+    }
+    return null;
   }
 
   function unwrapAiThemeV376(value, fallbackName = '') {
@@ -2237,18 +3800,36 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
   function parseAiThemeBundleV376(text) {
     const payload = parseAiThemePayloadV376(text);
     if (!payload) return null;
-    const name = String(payload.name || payload.theme?.name || '').trim();
-    const rawVariants = payload.variants && typeof payload.variants === 'object' && !Array.isArray(payload.variants)
+
+    // Also accept a simple [lightTheme, darkTheme] pair.
+    if (Array.isArray(payload)) {
+      if (!payload.length) return null;
+      const light = unwrapAiThemeV376(payload[0], payload[0]?.name || 'Custom Theme');
+      const dark = unwrapAiThemeV376(payload[1], payload[1]?.name || payload[0]?.name || 'Custom Theme');
+      const finalName = String(light?.name || dark?.name || 'Custom Theme').trim() || 'Custom Theme';
+      if (light) light.name = finalName;
+      if (dark) dark.name = finalName;
+      return light || dark ? { name:finalName, variants:{ light, dark }, dual:!!light && !!dark } : null;
+    }
+
+    const name = String(payload.name || payload.theme?.name || payload.light?.name || payload.dark?.name || '').trim();
+    let rawVariants = payload.variants && typeof payload.variants === 'object' && !Array.isArray(payload.variants)
       ? payload.variants
       : payload.theme?.variants && typeof payload.theme.variants === 'object' && !Array.isArray(payload.theme.variants)
         ? payload.theme.variants
         : null;
+
+    // Friendly shorthand: {"light":{...},"dark":{...}} is accepted too.
+    if (!rawVariants && ((payload.light && typeof payload.light === 'object') || (payload.dark && typeof payload.dark === 'object'))) {
+      rawVariants = { light:payload.light || null, dark:payload.dark || null };
+    }
+
     const variants = { light:null, dark:null };
     if (rawVariants) {
       variants.light = unwrapAiThemeV376(rawVariants.light, name);
       variants.dark = unwrapAiThemeV376(rawVariants.dark, name);
     } else {
-      // Backward compatibility with the old single-theme AI JSON format.
+      // Backward compatibility with old one-theme JSON and raw Theme Builder objects.
       const single = unwrapAiThemeV376(payload, name);
       if (single) variants[state.aiThemeMode === 'dark' ? 'dark' : 'light'] = single;
     }
@@ -2312,13 +3893,59 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     const currentBackgroundImagePath = current.backgroundImageProjectPath || current.backgroundImageProjectPathV3;
 
     const next = { ...blankDraft(), ...clone(imported) };
+    // V452: the new Heading Backdrop and Page Backdrop controls are independent.
+    // Accept both new V452 JSON and older legacy backdrop fields, then keep the
+    // legacy runtime mirrors synchronized so preview and applied pages match.
+    next.headingBackgroundColorV452 = safeHex(
+      imported.headingBackgroundColorV452,
+      safeHex(imported.contentBackdropColor, next.headingBackgroundColorV452 || next.surface || '#ffffff')
+    );
+    next.headingBackgroundOpacityV452 = clamp(
+      Object.prototype.hasOwnProperty.call(imported,'headingBackgroundOpacityV452') ? imported.headingBackgroundOpacityV452 : imported.contentBackdropOpacity,
+      0, 100, next.headingBackgroundOpacityV452 || 88
+    );
+    next.headingBackgroundRadiusV452 = clamp(
+      imported.headingBackgroundRadiusV452, 0, 40, Number(next.headingBackgroundRadiusV452 ?? next.radius) || 10
+    );
+    next.pageBackdropColorV452 = safeHex(
+      imported.pageBackdropColorV452,
+      safeHex(imported.dailyLogBackgroundColor, safeHex(imported.contentBackdropColor, next.pageBackdropColorV452 || next.surface || '#ffffff'))
+    );
+    next.pageBackdropOpacityV452 = clamp(
+      Object.prototype.hasOwnProperty.call(imported,'pageBackdropOpacityV452') ? imported.pageBackdropOpacityV452 : (Object.prototype.hasOwnProperty.call(imported,'dailyLogBackgroundOpacity') ? imported.dailyLogBackgroundOpacity : imported.contentBackdropOpacity),
+      0, 100, next.pageBackdropOpacityV452 || 92
+    );
+    next.quizBackdropEnabledV456 = imported.quizBackdropEnabledV456 === true;
+    next.quizBackdropColorV456 = safeHex(imported.quizBackdropColorV456, safeHex(imported.contentBackdropColor, next.pageBackdropColorV452 || next.surface || '#ffffff'));
+    next.quizBackdropOpacityV456 = clamp(imported.quizBackdropOpacityV456, 0, 100, clamp(imported.contentBackdropOpacity, 0, 100, 92));
+    next.quizBackdropRadiusV456 = clamp(imported.quizBackdropRadiusV456, 0, 40, Number(imported.radius ?? next.radius) || 10);
+    next.quizBackdropPaddingV459 = clamp(imported.quizBackdropPaddingV459, 0, 40, Number(next.quizBackdropPaddingV459) || 16);
+    next.dailyLogBackgroundColor = next.pageBackdropColorV452;
+    next.contentBackdropColor = next.pageBackdropColorV452;
+    next.dailyLogBackgroundOpacity = next.pageBackdropOpacityV452;
+    next.contentBackdropOpacity = next.pageBackdropOpacityV452;
+    ensureAiDashboardButtonContrastV391(next);
+    ensureAiSettingsContrastV394(next, mode);
+    ensureAiCreateLogModalContrastV396(next, mode);
     const themeName = String(bundleName || next.name || imported.name || current.name || 'Custom Theme').trim() || 'Custom Theme';
     next.name = themeName;
     if (!Object.prototype.hasOwnProperty.call(imported,'radius')) next.radius = 20;
     if (!Object.prototype.hasOwnProperty.call(imported,'shadow')) next.shadow = 0;
 
-    if (!Array.isArray(imported.backgroundSvgs) || imported.backgroundSvgs.length === 0) next.backgroundSvgs = currentDecorations;
+    // V400: one decoration set is shared by both appearances. The first applied
+    // variant establishes it; after that, switching Light/Dark never swaps it out.
+    if (Object.prototype.hasOwnProperty.call(imported,'advancedUiEnabledV432')) state.aiBuilderDepthV432 = imported.advancedUiEnabledV432 === true ? 'advanced' : 'basic';
+    if (Object.prototype.hasOwnProperty.call(imported,'themeBuilderAiBackgroundFocusV479')) state.aiBackgroundFocusV479 = String(imported.themeBuilderAiBackgroundFocusV479) === 'enhanced' ? 'enhanced' : 'standard';
+    state.aiDecorationModeV432 = 'decorations';
+    next.aiDecorationsModeV432 = 'decorations';
+    if (Array.isArray(state.aiSharedDecorationsV400)) next.backgroundSvgs = clone(state.aiSharedDecorationsV400);
+    else if (!Array.isArray(imported.backgroundSvgs) || imported.backgroundSvgs.length === 0) next.backgroundSvgs = currentDecorations;
     if (!Array.isArray(imported.svgHoverSounds) || imported.svgHoverSounds.length === 0) next.svgHoverSounds = currentSounds;
+
+    // V429: AI may choose heading color/opacity/padding, but may not auto-enable.
+    // A manual shared override is applied immediately afterward and may win.
+    next.headingBackgroundEnabledV429 = false;
+    applyAiSharedStateV400(next);
     if (!String(imported.introAudio || '').trim() && currentIntro) {
       next.introAudio = currentIntro;
       next.introAudioName = currentIntroName;
@@ -2345,14 +3972,36 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     next.pageBackdropsEnabledV312 = inferPageBackdropsEnabledV312(next);
     next.shapeTypeEnabledV312 = true;
     const targetDefault = String(next.svgDefaultAnimation || 'float').trim() || 'float';
-    next.backgroundSvgs = (next.backgroundSvgs || []).map(asset => ({
-      ...(asset || {}),
-      animation:String(asset?.animationOverride || '').trim() || targetDefault
-    }));
+    const normalizeAiDecorationAnimationV404 = asset => {
+      const a={...(asset||{})};
+      // AI themes inherit the global Default Animation. Only an override that the
+      // user explicitly chose in the per-decoration editor is allowed to opt out.
+      const override=a.animationOverrideUserSetV404===true?String(a.animationOverride||'').trim():'';
+      a.animationOverride=override;
+      a.animation=override||targetDefault;
+      return a;
+    };
+    next.backgroundSvgs = (next.backgroundSvgs || []).map(normalizeAiDecorationAnimationV404);
 
     state.aiThemeMode = mode;
     state.aiVariantsV376 ||= { light:null, dark:null };
+    // V486: Decorations/No Decorations was removed from the AI Builder in V481.
+    // The apply path still referenced the deleted noDecorationsV432 variable,
+    // which raised a ReferenceError AFTER JSON validation and prevented either
+    // Light or Dark from ever being applied. Keep the shared decoration set
+    // normally and never depend on that retired control.
+    if (!Array.isArray(state.aiSharedDecorationsV400)) state.aiSharedDecorationsV400 = clone(next.backgroundSvgs || []);
+    state.aiSharedDecorationsV400 = (state.aiSharedDecorationsV400 || []).map(normalizeAiDecorationAnimationV404);
+    next.backgroundSvgs = clone(state.aiSharedDecorationsV400);
+    applyAiSharedStateV400(next);
+    const manualHeadingBackdropV496 = state.draft?.themeBuilderHeadingBackdropOverrideV496;
+    if (manualHeadingBackdropV496 && typeof manualHeadingBackdropV496 === 'object') {
+      applyHeadingBackdropAuthorityV496(next, headingBackdropAuthorityV496({ ...next, themeBuilderHeadingBackdropOverrideV496: manualHeadingBackdropV496 }));
+    }
+    const manualQuizBackdropV492 = state.draft?.themeBuilderQuizBackdropOverrideV492;
+    if (manualQuizBackdropV492 && typeof manualQuizBackdropV492 === 'object') applyQuizBackdropAuthorityV492(next, quizBackdropAuthorityV492({ ...next, themeBuilderQuizBackdropOverrideV492: manualQuizBackdropV492 }));
     state.aiVariantsV376[mode] = stripAiVariantMetaV376(next);
+    propagateAiSharedStateToVariantsV400();
 
     next.themeBuilderAiJsonV364 = state.aiJsonText;
     next.themeBuilderAiUsedV364 = true;
@@ -2366,6 +4015,9 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     state.autoThemeTool = 'ai';
     state.aiJsonAppliedV325 = true;
     state.decorationsDirty = Array.isArray(imported.backgroundSvgs) && imported.backgroundSvgs.length > 0;
+    state.draft.themeBuilderAiDepthV432 = state.aiBuilderDepthV432;
+    state.draft.themeBuilderAiBackgroundFocusV479 = state.aiBackgroundFocusV479;
+    state.draft.themeBuilderAiDecorationModeV432 = state.aiDecorationModeV432;
     Object.keys(imported).forEach(markTouched);
     ['name','backgroundSourceV311','pageBackdropsEnabledV312','shapeTypeEnabledV312','themeBuilderAiJsonV364','themeBuilderAiUsedV364','themeBuilderAiModeV364',AI_SELECTED_KEY_V376,AI_VARIANTS_KEY_V376,'themeBuilderAutoToolV364'].forEach(markTouched);
     if (next.customFontV326) ['customFontV326','font'].forEach(markTouched);
@@ -2417,18 +4069,29 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
   async function uploadBackground(file) {
     const saved = await projectUpload(file, 'background'); if (!saved?.url) return;
     state.draft.backgroundImage = saved.url; state.draft.backgroundImageName = saved.name || file.name || 'Background'; state.draft.backgroundModeV158 = 'image'; state.draft.backgroundSourceV311 = 'image';
-    ['backgroundImage','backgroundImageName','backgroundModeV158','backgroundSourceV311'].forEach(key => state.touched.add(key)); renderBackground(); schedulePreview();
+    ['backgroundImage','backgroundImageName','backgroundModeV158','backgroundSourceV311'].forEach(key => { state.touched.add(key); rememberAiSharedOverrideV400(key,state.draft[key]); }); if(state.draft.backgroundImageProjectPath)rememberAiSharedOverrideV400('backgroundImageProjectPath',state.draft.backgroundImageProjectPath); renderBackground(); schedulePreview();
   }
   async function uploadIntroAudio(file) {
-    const saved = await projectUpload(file, 'audio'); if (!saved?.url) return;
-    state.draft.introAudio = saved.url; state.draft.introAudioName = saved.name || file.name || 'Intro Audio'; state.draft.introAudioProjectPath = saved.projectPath || ''; state.draft.introAudioSourceThemeIdV364 = '';
-    ['introAudio','introAudioName','introAudioProjectPath','introAudioSourceThemeIdV364'].forEach(key => state.touched.add(key)); renderAudio(); schedulePreview();
+    // V416: claim a replacement transaction BEFORE the async upload starts. If
+    // Remove/a second upload/reuse happens meanwhile, this older result is stale.
+    const requestV416 = ++state.introSourceRevisionV416;
+    stopAllThemeBuilderIntroPlaybackV414();
+    const saved = await projectUpload(file, 'audio');
+    if (requestV416 !== state.introSourceRevisionV416 || !saved?.url) return;
+    replaceThemeBuilderIntroSourceV414({
+      url:saved.url,
+      name:saved.name || file.name || 'Intro Audio',
+      projectPath:saved.projectPath || '',
+      sourceThemeId:'',
+      requestIdV416:requestV416
+    });
+    renderAudio(); schedulePreview();
   }
   async function uploadHoverSounds(files) {
     const added = [];
     for (const file of files.slice(0,24)) { const saved = await projectUpload(file,'audio'); if (saved?.url) added.push({ name:saved.name || file.name || 'Hover Sound', url:saved.url, projectPath:saved.projectPath || '' }); }
     if (!added.length) return;
-    state.draft.svgHoverSounds = mergeSounds(state.draft.svgHoverSounds || [], added); state.draft.svgHoverSoundsEnabled = true; state.draft.hoverAudioSourceThemeIdV364=''; state.touched.add('svgHoverSounds'); state.touched.add('svgHoverSoundsEnabled'); state.touched.add('hoverAudioSourceThemeIdV364'); renderAudio(); renderDecorations();
+    state.draft.svgHoverSounds = mergeSounds(state.draft.svgHoverSounds || [], added); state.draft.svgHoverSoundsEnabled = true; state.draft.hoverAudioSourceThemeIdV364=''; state.touched.add('svgHoverSounds'); state.touched.add('svgHoverSoundsEnabled'); state.touched.add('hoverAudioSourceThemeIdV364'); rememberAiSharedOverrideV400('svgHoverSounds',state.draft.svgHoverSounds); rememberAiSharedOverrideV400('svgHoverSoundsEnabled',true); rememberAiSharedOverrideV400('hoverAudioSourceThemeIdV364',''); renderAudio(); renderDecorations();
   }
   async function uploadDecorations(files) {
     const added = [];
@@ -2437,23 +4100,250 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
       if (saved?.url) added.push(normalizeDecoration({ name:file.name, url:saved.url, projectPath:saved.projectPath || '', type:saved.type || file.type }, false));
     }
     if (!added.length) return;
-    state.draft.backgroundSvgs = mergeDecorations(state.draft.backgroundSvgs || [], added); state.decorationsDirty = true; state.touched.add('backgroundSvgs'); renderDecorations(); schedulePreview();
+    state.draft.backgroundSvgs = mergeDecorations(state.draft.backgroundSvgs || [], added); state.decorationsDirty = true; state.touched.add('backgroundSvgs'); rememberAiSharedDecorationsV400(); renderDecorations(); pushDecorationPreviewV513(); schedulePreview();
   }
 
   let audioPreview = null;
+  let audioPreviewGuardV413 = null;
+
+  // V414 — one active Theme Builder intro source + one audition player.
+  const INTRO_SOURCE_KEYS_V414 = ['introAudio','introAudioName','introAudioProjectPath','introAudioSourceThemeIdV364','introAudioRemovedV423'];
+  const LEGACY_INTRO_KEYS_V414 = ['introAudioUrl','introSong','introMusic','song','music','introSongName','songName','musicName'];
+  function disposeThemeBuilderAudioV414(audio) {
+    if (!audio) return;
+    try { audio.pause(); } catch {}
+    try { audio.currentTime = 0; } catch {}
+    try { audio.removeAttribute?.('src'); } catch {}
+    try { audio.src = ''; } catch {}
+    try { audio.load?.(); } catch {}
+  }
+  function stopParentThemeBuilderIntroV414() {
+    try { audioPreviewGuardV413?.(); } catch {}
+    disposeThemeBuilderAudioV414(audioPreview);
+    audioPreview = null;
+  }
+  function stopPreviewFrameIntroV414() {
+    try {
+      const frame = state.previewFrame || $('.tb307-frame', state.modal);
+      frame?.contentWindow?.postMessage({ type:'loggy-theme-preview-stop-intro-v414' }, location.origin);
+    } catch {}
+  }
+  function stopAppliedHostIntroV416() {
+    if (STUDIO) {
+      try { parent.postMessage({ type:'loggy-theme-builder-stop-host-intro-v416' }, location.origin); } catch {}
+    }
+
+    // V443: one applied-Log owner. Stop both its active player and any gesture
+    // prime before an Audio-tab audition begins.
+    try { window.__loggyLogIntroAudioV443?.stopAll?.(); } catch {}
+
+    // Keep preview/audition-only historical objects cleaned up too. These are
+    // not applied-Log owners; they exist only inside Theme Builder preview UIs.
+    let audio = null;
+    try { audio = customThemeIntroAudioV2 || null; } catch {}
+    try { if (customThemeIntroStopTimerV2) clearTimeout(customThemeIntroStopTimerV2); } catch {}
+    try { if (customThemeIntroFadeTimerV2) clearInterval(customThemeIntroFadeTimerV2); } catch {}
+    try { if (typeof customThemeIntroFadeStartTimerV3 !== 'undefined' && customThemeIntroFadeStartTimerV3) clearTimeout(customThemeIntroFadeStartTimerV3); } catch {}
+    disposeThemeBuilderAudioV414(audio);
+    try { if (customThemeIntroAudioV2 === audio) customThemeIntroAudioV2 = null; } catch {}
+
+    try {
+      for (const modal of [document.getElementById('theme-builder-modal'), document.getElementById('theme-builder-v307-modal')]) {
+        const legacy = modal?._themeBuilderIntroPreviewAudioV10 || null;
+        disposeThemeBuilderAudioV414(legacy);
+        if (modal) modal._themeBuilderIntroPreviewAudioV10 = null;
+      }
+    } catch {}
+  }
+  function stopAllThemeBuilderIntroPlaybackV414() {
+    try { window.dispatchEvent(new CustomEvent('loggy-intro-audio-stop-v420')); } catch {}
+    stopParentThemeBuilderIntroV414();
+    stopPreviewFrameIntroV414();
+    stopAppliedHostIntroV416();
+  }
+  function introSelectionFromThemeV416(theme = state.draft || {}) {
+    return {
+      url:String(theme?.introAudio || ''),
+      name:String(theme?.introAudioName || ''),
+      projectPath:String(theme?.introAudioProjectPath || ''),
+      sourceThemeId:String(theme?.introAudioSourceThemeIdV364 || '')
+    };
+  }
+  function writeIntroSelectionToThemeV416(theme, selection = state.introSelectionV416) {
+    if (!theme || typeof theme !== 'object') return theme;
+    const sel = selection || {url:'',name:'',projectPath:'',sourceThemeId:''};
+    theme.introAudio = String(sel.url || '');
+    theme.introAudioName = String(sel.name || (sel.url ? fileName(sel.url,'Intro Audio') : ''));
+    theme.introAudioProjectPath = String(sel.projectPath || '');
+    theme.introAudioSourceThemeIdV364 = String(sel.sourceThemeId || '');
+    // Explicitly blank every historical alias. Later merge-based compatibility
+    // code therefore cannot resurrect the replaced/removed source.
+    LEGACY_INTRO_KEYS_V414.forEach(key => { theme[key] = ''; });
+    return theme;
+  }
+  function commitIntroSelectionEverywhereV416() {
+    state.introSelectionV416 ||= introSelectionFromThemeV416(state.draft);
+    writeIntroSelectionToThemeV416(state.draft, state.introSelectionV416);
+    INTRO_SOURCE_KEYS_V414.forEach(key => {
+      state.touched.add(key);
+      try { rememberAiSharedOverrideV400(key,state.draft[key]); } catch {}
+    });
+    // Audio is theme-level behavior, not appearance-specific. Both AI variants
+    // must carry the exact same replacement source before save/switch/reopen.
+    if (state.aiVariantsV376 && typeof state.aiVariantsV376 === 'object') {
+      for (const mode of ['light','dark']) {
+        const variant = state.aiVariantsV376[mode];
+        if (variant && typeof variant === 'object' && !Array.isArray(variant)) writeIntroSelectionToThemeV416(variant,state.introSelectionV416);
+      }
+    }
+  }
+  window.__loggyApplySavedIntroAuthorityV420 = applySavedIntroAuthorityV420;
+  window.__loggyReadIntroAuthorityV420 = readIntroAuthorityMapV420;
+
+  function clearThemeBuilderIntroSourceV414(options = {}) {
+    if (options.bumpRevisionV416 !== false) state.introSourceRevisionV416 = Number(state.introSourceRevisionV416 || 0) + 1;
+    stopAllThemeBuilderIntroPlaybackV414();
+    state.introSelectionV416 = { url:'', name:'', projectPath:'', sourceThemeId:'' };
+    writeIntroSelectionToThemeV416(state.draft,state.introSelectionV416);
+    state.draft.introAudioRemovedV423 = true;
+    INTRO_SOURCE_KEYS_V414.forEach(key => {
+      state.touched.add(key);
+      try { rememberAiSharedOverrideV400(key,state.draft[key]); } catch {}
+    });
+    // Clear the same source from both stored appearance drafts immediately, not
+    // only after a later mode switch/save.
+    if (state.aiVariantsV376 && typeof state.aiVariantsV376 === 'object') {
+      for (const mode of ['light','dark']) {
+        const variant = state.aiVariantsV376[mode];
+        if (variant && typeof variant === 'object' && !Array.isArray(variant)) {
+          writeIntroSelectionToThemeV416(variant,state.introSelectionV416);
+          variant.introAudioRemovedV423 = true;
+        }
+      }
+    }
+    try { state.audioBundleCache?.delete?.(String(state.themeId||'')); } catch {}
+  }
+  function replaceThemeBuilderIntroSourceV414({url='',name='',projectPath='',sourceThemeId='',requestIdV416=null} = {}) {
+    if (requestIdV416 != null && Number(requestIdV416) !== Number(state.introSourceRevisionV416 || 0)) return false;
+    if (requestIdV416 == null) state.introSourceRevisionV416 = Number(state.introSourceRevisionV416 || 0) + 1;
+    clearThemeBuilderIntroSourceV414({ bumpRevisionV416:false });
+    state.introSelectionV416 = {
+      url:String(url || ''),
+      name:String(name || (url ? fileName(url,'Intro Audio') : '')),
+      projectPath:String(projectPath || ''),
+      sourceThemeId:String(sourceThemeId || '')
+    };
+    state.draft.introAudioRemovedV423 = false;
+    if (state.aiVariantsV376 && typeof state.aiVariantsV376 === 'object') {
+      for (const mode of ['light','dark']) {
+        const variant = state.aiVariantsV376[mode];
+        if (variant && typeof variant === 'object' && !Array.isArray(variant)) variant.introAudioRemovedV423 = false;
+      }
+    }
+    commitIntroSelectionEverywhereV416();
+    try { state.audioBundleCache?.delete?.(String(state.themeId||'')); } catch {}
+    return true;
+  }
+
+  function parseThemeAudioTimeV413(value, fallback = NaN) {
+    if (typeof value === 'number' && Number.isFinite(value)) return Math.max(0, value);
+    const raw = String(value ?? '').trim();
+    if (!raw) return fallback;
+    if (/^\d+(?:\.\d+)?$/.test(raw)) return Math.max(0, Number(raw));
+    const parts = raw.split(':').map(part => part.trim());
+    if (parts.length < 2 || parts.length > 3 || parts.some(part => !/^\d+(?:\.\d+)?$/.test(part))) return fallback;
+    const nums = parts.map(Number);
+    const seconds = parts.length === 3 ? nums[0] * 3600 + nums[1] * 60 + nums[2] : nums[0] * 60 + nums[1];
+    return Number.isFinite(seconds) ? Math.max(0, seconds) : fallback;
+  }
+  function guardThemeBuilderIntroAudioV413(audio, theme, baseVolume) {
+    try { audioPreviewGuardV413?.(); } catch {}
+    if (!audio) return;
+    const segment = String(theme?.audioPlayMode || 'full') === 'segment';
+    const start = segment ? parseThemeAudioTimeV413(theme?.audioStart, 0) : 0;
+    const requestedEnd = segment ? parseThemeAudioTimeV413(theme?.audioEnd, NaN) : NaN;
+    const fade = theme?.audioFade !== false;
+    let end = segment && Number.isFinite(requestedEnd) && requestedEnd > start ? requestedEnd : NaN;
+    let base = Math.max(0, Math.min(1, Number(baseVolume)));
+    if (!Number.isFinite(base)) base = .35;
+    let stopped = false;
+    let interval = 0;
+    const ready = () => {
+      if (segment) {
+        try { audio.currentTime = Math.min(start, Number.isFinite(audio.duration) ? Math.max(0, audio.duration - .02) : start); } catch {}
+      }
+      if (!segment && Number.isFinite(audio.duration) && audio.duration > 0) end = audio.duration;
+    };
+    const tick = () => {
+      if (stopped || audioPreview !== audio) return;
+      if (!Number.isFinite(end)) {
+        if (!segment && Number.isFinite(audio.duration) && audio.duration > 0) end = audio.duration;
+        else { audio.volume = base; return; }
+      }
+      const total = Math.max(.1, end - start);
+      const fadeDuration = fade ? Math.min(total, 1.4, Math.max(.25, total * .35)) : 0;
+      const now = Number(audio.currentTime) || 0;
+      if (fadeDuration > 0 && now >= end - fadeDuration) {
+        audio.volume = base * Math.max(0, Math.min(1, (end - now) / fadeDuration));
+      } else {
+        audio.volume = base;
+      }
+      if (now >= end - .025) {
+        stopped = true;
+        if (fade) audio.volume = 0;
+        try { audio.pause(); } catch {}
+        clearInterval(interval);
+      }
+    };
+    if (audio.readyState >= 1) ready(); else audio.addEventListener('loadedmetadata', ready, { once:true });
+    audio.addEventListener('timeupdate', tick);
+    audio.addEventListener('playing', tick);
+    interval = window.setInterval(tick, 40);
+    audioPreviewGuardV413 = () => {
+      stopped = true;
+      clearInterval(interval);
+      audio.removeEventListener('timeupdate', tick);
+      audio.removeEventListener('playing', tick);
+      audioPreviewGuardV413 = null;
+    };
+  }
   function playUrl(url, volume = 35) {
     const source = String(url || ''); if (!source) return;
-    try { audioPreview?.pause?.(); } catch {}
-    try { audioPreview = new Audio(source); audioPreview.volume = clamp(volume,0,100,35)/100; audioPreview.play().catch(()=>{}); } catch {}
+    stopParentThemeBuilderIntroV414();
+    try { audioPreview = new Audio(source); window.__loggyIntroAudioGateV443?.allow?.(audioPreview); audioPreview.volume = clamp(volume,0,100,35)/100; audioPreview.play().catch(()=>{}); } catch {}
+  }
+  function playThemeBuilderIntroPreviewV413(theme = {}) {
+    const source = String(theme?.introAudio || ''); if (!source) return;
+    // Explicit Play is the only Theme Builder intro audition owner. Silence the
+    // live iframe first so two copies/sources can never play together.
+    stopAllThemeBuilderIntroPlaybackV414();
+    try {
+      const audio = new Audio(source);
+      try { window.__loggyIntroAudioGateV443?.allow?.(audio); } catch {}
+      audioPreview = audio;
+      const base = clamp(theme?.audioVolume,0,100,35)/100;
+      audio.volume = base;
+      guardThemeBuilderIntroAudioV413(audio, theme, base);
+      audio.play().catch(()=>{});
+    } catch {}
   }
 
   async function importIntroFromTheme(themeId, select) {
     if (!themeId) return;
+    const requestV416 = ++state.introSourceRevisionV416;
+    stopAllThemeBuilderIntroPlaybackV414();
     if (select) select.disabled = true; setStatus(`Loading song from ${displayName(themeId)}…`);
     const bundle = await configuredAudioBundle(themeId); if (select) select.disabled=false;
+    if (requestV416 !== state.introSourceRevisionV416) return;
     if (!bundle?.introAudio?.url) { setStatus(`${displayName(themeId)} has no configured intro song.`); return; }
-    state.draft.introAudio = bundle.introAudio.url; state.draft.introAudioName = bundle.introAudio.name || fileName(bundle.introAudio.url,'Intro Audio'); state.draft.introAudioProjectPath = ''; state.draft.introAudioSourceThemeIdV364=String(themeId);
-    ['introAudio','introAudioName','introAudioProjectPath','introAudioSourceThemeIdV364'].forEach(key => state.touched.add(key)); setStatus(`Using ${state.draft.introAudioName} from ${displayName(themeId)}.`); renderAudio(); schedulePreview();
+    if (!replaceThemeBuilderIntroSourceV414({
+      url:bundle.introAudio.url,
+      name:bundle.introAudio.name || fileName(bundle.introAudio.url,'Intro Audio'),
+      projectPath:'',
+      sourceThemeId:String(themeId),
+      requestIdV416:requestV416
+    })) return;
+    setStatus(`Using ${state.draft.introAudioName} from ${displayName(themeId)}.`); renderAudio(); schedulePreview();
   }
 
   async function importHoverFromTheme(themeId, select) {
@@ -2470,6 +4360,76 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
 
   function openDecorationDetails(index) {
     requestAnimationFrame(() => { const card = $(`[data-decoration-index="${index}"]`, state.modal); const details = card?.querySelector('details'); if (details) details.open = true; });
+  }
+
+  // V398: neutral Create Log colors are intentionally linked to the Settings
+  // palette in the Theme Builder UI as well, so manual edits and AI previews agree.
+  function linkedColorPeersV398(key) {
+    const groups = [
+      // V399: normal + New Log is deliberately the same visual as a normal Log circle.
+      ['dashboardLogButtonBackgroundV391','dashboardNewLogButtonBackgroundV391'],
+      ['dashboardLogButtonIconColorV391','dashboardLogButtonTextColorV391','dashboardNewLogButtonIconColorV391','dashboardNewLogButtonTextColorV391'],
+      ['dashboardLogButtonBorderColorV391','dashboardNewLogButtonBorderColorV391'],
+      ['dashboardLogButtonHoverBackgroundV391','dashboardNewLogButtonHoverBackgroundV391'],
+      ['dashboardLogButtonHoverTextColorV391','dashboardNewLogButtonHoverTextColorV391'],
+      ['dashboardLogButtonHoverIconColorV391','dashboardNewLogButtonHoverIconColorV391'],
+      ['dashboardLogButtonHoverBorderColorV391','dashboardNewLogButtonHoverBorderColorV391'],
+      ['settingsModalBackgroundColorV380','dashboardContextMenuBackgroundColorV394','dashboardCreateLogModalBackgroundColorV396','dashboardCreateLogIconBackgroundColorV396','dashboardCreateLogButtonBackgroundColorV396'],
+      ['settingsModalTextColorV380','dashboardCreateLogModalTextColorV396','dashboardCreateLogTitleColorV396','dashboardCreateLogLabelColorV396'],
+      ['settingsModalBorderColorV380','dashboardCreateLogModalBorderColorV396','dashboardCreateLogInputBorderColorV396'],
+      ['settingsModalInputBackgroundColorV380','dashboardCreateLogInputBackgroundColorV396','dashboardCreateLogInputFocusBackgroundColorV396'],
+      ['settingsModalInputTextColorV380','dashboardCreateLogInputTextColorV396','dashboardCreateLogInputFocusTextColorV396'],
+      ['settingsModalInputBorderColorV380'],
+      ['settingsModalHoverBackgroundColorV380','dashboardCreateLogInputHoverBackgroundColorV396','dashboardCreateLogIconHoverBackgroundColorV396'],
+      ['settingsModalHoverTextColorV380','dashboardCreateLogInputHoverTextColorV396','dashboardCreateLogIconHoverColorV396'],
+      ['settingsModalSelectedBackgroundColorV380','dashboardCreateLogIconSelectedBackgroundColorV396'],
+      ['settingsModalSelectedTextColorV380','dashboardCreateLogIconSelectedColorV396'],
+      ['settingsModalSelectedBorderColorV380','dashboardCreateLogIconSelectedBorderColorV396','dashboardCreateLogInputFocusBorderColorV396'],
+      ['settingsModalButtonBackgroundColorV380','dashboardCreateLogButtonHoverBackgroundColorV396'],
+      ['settingsModalButtonTextColorV380','dashboardCreateLogButtonHoverTextColorV396','dashboardCreateLogButtonHoverIconColorV396'],
+      ['settingsModalButtonBorderColorV380','dashboardCreateLogButtonHoverBorderColorV396']
+    ];
+    const group=groups.find(g=>g.includes(key));
+    return group ? group.filter(k=>k!==key) : [];
+  }
+  function syncLinkedColorV398(key,value) {
+    for(const linked of linkedColorPeersV398(key)){
+      state.draft[linked]=value; markTouched(linked);
+      const row=$(`[data-color-key="${CSS.escape(linked)}"]`,state.modal);
+      const picker=row?.querySelector('[data-color-picker]'), text=row?.querySelector('[data-color-text]');
+      if(picker)picker.value=value;if(text)text.value=value;
+    }
+  }
+
+  // V495: a Theme Builder key can be rendered in more than one panel. Keep every
+  // live copy synchronized so a hidden/stale control can never overwrite the
+  // value the user just changed when Save Theme runs.
+  function syncDuplicateControlsV495(key, value, source = null) {
+    if (!state.modal || !key) return;
+    const escaped = CSS.escape(String(key));
+    state.modal.querySelectorAll(`[data-color-picker="${escaped}"]`).forEach(node => { if (node !== source) node.value = String(value); });
+    state.modal.querySelectorAll(`[data-color-text="${escaped}"]`).forEach(node => { if (node !== source) node.value = String(value); });
+    state.modal.querySelectorAll(`[data-number-key="${escaped}"]`).forEach(node => { if (node !== source) node.value = String(value); });
+    state.modal.querySelectorAll(`[data-bool-key="${escaped}"]`).forEach(node => { if (node !== source) node.checked = !!value; });
+    state.modal.querySelectorAll(`[data-output-for="${escaped}"]`).forEach(node => {
+      const numberNode = state.modal.querySelector(`[data-number-key="${escaped}"]`);
+      node.textContent = `${value}${numberNode?.dataset?.outputSuffix || (key === 'svgGlobalScale' ? '%' : '')}`;
+    });
+  }
+
+  // V430: Page Background is the actual scene background for both Log and
+  // Dashboard when the Theme Color background source is being edited manually.
+  // Keep the Dashboard mirror in sync so the Dashboard cannot retain a stale
+  // dashboardBackgroundV40 after the user changes Page Background.
+  function syncDashboardPageBackgroundV430(key,value){
+    if(key!=='background')return;
+    state.draft.dashboardBackgroundV40=value;
+    markTouched('dashboardBackgroundV40');
+    rememberAiSharedOverrideV400('dashboardBackgroundV40',value);
+    const row=$(`[data-color-key="dashboardBackgroundV40"]`,state.modal);
+    const picker=row?.querySelector('[data-color-picker]'), text=row?.querySelector('[data-color-text]');
+    if(picker)picker.value=value;
+    if(text)text.value=value;
   }
 
   function handleInput(event) {
@@ -2510,19 +4470,40 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
 
     if (el.matches('[data-color-picker]')) {
       const key = el.dataset.colorPicker; state.draft[key] = el.value; markTouched(key);
-      const text = el.closest('.tb307-color-row')?.querySelector(`[data-color-text="${CSS.escape(key)}"]`); if (text) text.value = el.value;
+      syncDuplicateControlsV495(key, el.value, el);
+      syncLinkedColorV398(key,el.value);
+      syncDashboardPageBackgroundV430(key,el.value);
+      if (key === 'pageBackdropColorV452') {
+        state.draft.dailyLogBackgroundColor = el.value;
+        state.draft.contentBackdropColor = el.value;
+        ['dailyLogBackgroundColor','contentBackdropColor'].forEach(markTouched);
+      }
+      if (key === 'headingBackgroundColorV452') { rememberAiSharedOverrideV400(key, el.value); rememberHeadingBackdropAuthorityV496(); try { window.__loggyApplyHeadingBackgroundV431?.(state.draft); } catch {} }
+      if (key === 'quizBackdropColorV456') { rememberQuizBackdropAuthorityV492(); try { window.__loggyApplyQuizBackdropV456?.(state.draft); } catch {} }
       schedulePreview(); return;
     }
     if (el.matches('[data-color-text]')) {
       const key = el.dataset.colorText, value = String(el.value || '').trim();
-      if (isHex(value)) { state.draft[key] = value; markTouched(key); const picker = el.closest('.tb307-color-row')?.querySelector(`[data-color-picker="${CSS.escape(key)}"]`); if (picker) picker.value = value; schedulePreview(); }
+      if (isHex(value)) {
+        state.draft[key] = value; markTouched(key); syncDuplicateControlsV495(key, value, el);
+        syncLinkedColorV398(key,value);
+        syncDashboardPageBackgroundV430(key,value);
+        if (key === 'pageBackdropColorV452') {
+          state.draft.dailyLogBackgroundColor = value;
+          state.draft.contentBackdropColor = value;
+          ['dailyLogBackgroundColor','contentBackdropColor'].forEach(markTouched);
+        }
+        if (key === 'headingBackgroundColorV452') { rememberAiSharedOverrideV400(key, el.value); rememberHeadingBackdropAuthorityV496(); try { window.__loggyApplyHeadingBackgroundV431?.(state.draft); } catch {} }
+        if (key === 'quizBackdropColorV456') { rememberQuizBackdropAuthorityV492(); try { window.__loggyApplyQuizBackdropV456?.(state.draft); } catch {} }
+        schedulePreview();
+      }
       return;
     }
 
     if (el.matches('[data-theme-key]')) {
       const key = el.dataset.themeKey;
       const previousValue = state.draft[key];
-      state.draft[key] = el.value; markTouched(key);
+      state.draft[key] = el.value; markTouched(key); rememberAiSharedOverrideV400(key, state.draft[key]);
       if (key === 'svgDefaultAnimation' && previousValue !== el.value) {
         // Older builders sometimes copied the old global default into every
         // decoration override. If every decoration mirrors that old value, it
@@ -2530,10 +4511,17 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
         // newly selected Default Animation can actually own the scene.
         const list = Array.isArray(state.draft.backgroundSvgs) ? state.draft.backgroundSvgs : [];
         const overrides = list.map(a=>String(a?.animationOverride||'').trim()).filter(Boolean);
-        if (list.length && overrides.length === list.length && overrides.every(v=>v===String(previousValue||''))) {
-          list.forEach(a=>{ if(a&&typeof a==='object') a.animationOverride=''; });
-          state.decorationsDirty = true; markTouched('backgroundSvgs');
+        let clearedLegacy=false;
+        list.forEach(a=>{
+          if(!a||typeof a!=='object')return;
+          if(a.animationOverrideUserSetV404===true)return;
+          if(String(a.animationOverride||'').trim()){a.animationOverride='';clearedLegacy=true;}
+        });
+        if(!clearedLegacy && list.length && overrides.length === list.length && overrides.every(v=>v===String(previousValue||''))) {
+          list.forEach(a=>{ if(a&&typeof a==='object'&&a.animationOverrideUserSetV404!==true) a.animationOverride=''; });
+          clearedLegacy=true;
         }
+        if(clearedLegacy){state.decorationsDirty = true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400();}
         // V373: keep the legacy compatibility field synchronized immediately,
         // not only when Save is pressed. Several older Log/preview renderers still
         // read `asset.animation` while the editor is open. Without this, changing
@@ -2545,27 +4533,51 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
           a.animation=override||String(el.value||'float').trim()||'float';
         });
       }
-      if (key === 'svgDistribution') { ensureManualSlots(); renderDecorations(); }
+      if (key === 'svgDistribution') {
+        ensureManualSlots();
+        // V515: distribution is a decoration-only visual edit. Stamp the new
+        // coordinates now and push them straight to the iframe instead of
+        // waiting for the full theme apply queue.
+        try { stampDecorationLayoutV405(state.draft); } catch {}
+        renderDecorations();
+        pushDecorationPreviewV513();
+      }
       else if (key === 'svgDefaultAnimation' || key === 'svgHoverSoundMode') renderDecorations();
       else if (key === 'audioPlayMode') { renderAudio(); }
       schedulePreview(); return;
     }
     if (el.matches('[data-number-key]')) {
-      const key = el.dataset.numberKey; state.draft[key] = +el.value; markTouched(key);
+      const key = el.dataset.numberKey;
+      if (key === 'decorationsOpacityV117') clearDecorationOpacityLockV493();
+      state.draft[key] = +el.value; markTouched(key); rememberAiSharedOverrideV400(key, state.draft[key]);
+      syncDuplicateControlsV495(key, state.draft[key], el);
+      if (key === 'pageBackdropOpacityV452') {
+        state.draft.dailyLogBackgroundOpacity = +el.value;
+        state.draft.contentBackdropOpacity = +el.value;
+        ['dailyLogBackgroundOpacity','contentBackdropOpacity'].forEach(markTouched);
+      }
       const output = $(`[data-output-for="${CSS.escape(key)}"]`, state.modal); if (output) output.textContent = `${el.value}${el.dataset.outputSuffix || (key==='svgGlobalScale'?'%':'')}`;
+      if (key === 'headingBackgroundOpacityV452' || key === 'headingBackgroundPaddingV429' || key === 'headingBackgroundRadiusV452') {
+        rememberHeadingBackdropAuthorityV496();
+        try { window.__loggyApplyHeadingBackgroundV431?.(state.draft); } catch {}
+      }
+      if (key === 'quizBackdropOpacityV456' || key === 'quizBackdropRadiusV456' || key === 'quizBackdropPaddingV459') {
+        rememberQuizBackdropAuthorityV492();
+        try { window.__loggyApplyQuizBackdropV456?.(state.draft); } catch {}
+      }
       schedulePreview(); return;
     }
     if (el.matches('[data-bool-key]')) {
-      const key = el.dataset.boolKey; state.draft[key] = !!el.checked; markTouched(key);
+      const key = el.dataset.boolKey; state.draft[key] = !!el.checked; markTouched(key); rememberAiSharedOverrideV400(key, state.draft[key]);
+      syncDuplicateControlsV495(key, state.draft[key], el);
       if (key === 'pageBackdropsEnabledV312') {
-        if (state.draft[key] && !state.draft.dailyLogBackgroundEnabled && !state.draft.contentBackdropEnabled) {
-          state.draft.dailyLogBackgroundEnabled = true; state.draft.contentBackdropEnabled = true;
-          markTouched('dailyLogBackgroundEnabled'); markTouched('contentBackdropEnabled');
-        }
         if (state.draft[key]) {
-          if (!(Number(state.draft.dailyLogBackgroundOpacity) > 0)) state.draft.dailyLogBackgroundOpacity = 92;
-          if (!(Number(state.draft.contentBackdropOpacity) > 0)) state.draft.contentBackdropOpacity = 92;
-          markTouched('dailyLogBackgroundOpacity'); markTouched('contentBackdropOpacity');
+          if (!(Number(state.draft.pageBackdropOpacityV452) > 0)) state.draft.pageBackdropOpacityV452 = 92;
+          state.draft.dailyLogBackgroundColor = safeHex(state.draft.pageBackdropColorV452, state.draft.dailyLogBackgroundColor || state.draft.surface || '#ffffff');
+          state.draft.contentBackdropColor = state.draft.dailyLogBackgroundColor;
+          state.draft.dailyLogBackgroundOpacity = clamp(state.draft.pageBackdropOpacityV452,0,100,92);
+          state.draft.contentBackdropOpacity = state.draft.dailyLogBackgroundOpacity;
+          ['pageBackdropOpacityV452','dailyLogBackgroundColor','contentBackdropColor','dailyLogBackgroundOpacity','contentBackdropOpacity'].forEach(markTouched);
         }
         renderBackground(); schedulePreview(); return;
       }
@@ -2574,33 +4586,70 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
           state.draft.pageBackdropsEnabledV312 = true;
           const opacityKey = key === 'dailyLogBackgroundEnabled' ? 'dailyLogBackgroundOpacity' : 'contentBackdropOpacity';
           if (!(Number(state.draft[opacityKey]) > 0)) state.draft[opacityKey] = 92;
-          markTouched(opacityKey);
+          markTouched(opacityKey); rememberAiSharedOverrideV400(opacityKey);
         }
-        markTouched('pageBackdropsEnabledV312'); renderBackground(); schedulePreview(); return;
+        markTouched('pageBackdropsEnabledV312'); rememberAiSharedOverrideV400('pageBackdropsEnabledV312'); renderBackground(); schedulePreview(); return;
+      }
+      if (key === 'quizBackdropEnabledV456') {
+        rememberQuizBackdropAuthorityV492();
+        try { window.__loggyApplyQuizBackdropV456?.(state.draft); } catch {}
+        renderBackground(); schedulePreview(); return;
+      }
+      if (key === 'headingBackgroundEnabledV429') {
+        if (state.draft[key] && !(Number(state.draft.headingBackgroundOpacityV452) > 0)) {
+          state.draft.headingBackgroundOpacityV452 = 88;
+          markTouched('headingBackgroundOpacityV452');
+          rememberAiSharedOverrideV400('headingBackgroundOpacityV452', state.draft.headingBackgroundOpacityV452);
+        }
+        // V504: synchronize the durable override immediately, before previewDraft()
+        // canonicalizes the draft. This keeps the iframe preview identical to the
+        // toggle the user is looking at right now.
+        rememberHeadingBackdropAuthorityV496();
+        try { window.__loggyApplyHeadingBackgroundV431?.(state.draft); } catch {}
+        renderBackground(); schedulePreview(); return;
       }
       if (key === 'preventDecorationOverlapV367') {
+        // V493: lock exact visible transparency before any collision renderer
+        // remounts/reindexes the preview decorations.
+        captureDecorationOpacityLockV493();
+        // V490: overlap prevention is placement-only. Snapshot all opacity data
+        // and restore it before rendering so this toggle can never alter either
+        // the global opacity or a decoration's own opacity/override state.
+        const globalOpacityV490 = state.draft.decorationsOpacityV117;
+        const opacitySnapshotV490 = (Array.isArray(state.draft.backgroundSvgs) ? state.draft.backgroundSvgs : []).map(asset => ({
+          opacityV109: asset?.opacityV109,
+          opacity: asset?.opacity,
+          opacityOverrideV326: asset?.opacityOverrideV326
+        }));
         if (state.draft[key]) {
           state.draft.svgAllowOverlap = false;
           state.draft.reduceDecorationOverlapV361 = false;
-          markTouched('svgAllowOverlap'); markTouched('reduceDecorationOverlapV361');
+          markTouched('svgAllowOverlap'); markTouched('reduceDecorationOverlapV361'); rememberAiSharedOverrideV400('svgAllowOverlap'); rememberAiSharedOverrideV400('reduceDecorationOverlapV361');
         }
-        renderDecorations(); schedulePreview(); return;
+        state.draft.decorationsOpacityV117 = globalOpacityV490;
+        (Array.isArray(state.draft.backgroundSvgs) ? state.draft.backgroundSvgs : []).forEach((asset,index) => {
+          const snap = opacitySnapshotV490[index]; if (!asset || !snap) return;
+          if (snap.opacityV109 === undefined) delete asset.opacityV109; else asset.opacityV109 = snap.opacityV109;
+          if (snap.opacity === undefined) delete asset.opacity; else asset.opacity = snap.opacity;
+          if (snap.opacityOverrideV326 === undefined) delete asset.opacityOverrideV326; else asset.opacityOverrideV326 = snap.opacityOverrideV326;
+        });
+        renderDecorations(); pushDecorationPreviewV513(); schedulePreview(); return;
       }
       if (key === 'reduceDecorationOverlapV361' && state.draft[key]) {
         state.draft.preventDecorationOverlapV367 = false;
-        markTouched('preventDecorationOverlapV367');
-        renderDecorations(); schedulePreview(); return;
+        markTouched('preventDecorationOverlapV367'); rememberAiSharedOverrideV400('preventDecorationOverlapV367');
+        renderDecorations(); pushDecorationPreviewV513(); schedulePreview(); return;
       }
       if (key === 'svgAllowOverlap' && state.draft[key]) {
         state.draft.preventDecorationOverlapV367 = false;
         state.draft.reduceDecorationOverlapV361 = false;
         markTouched('preventDecorationOverlapV367'); markTouched('reduceDecorationOverlapV361');
-        renderDecorations(); schedulePreview(); return;
+        renderDecorations(); pushDecorationPreviewV513(); schedulePreview(); return;
       }
       if (key === 'svgHoverSoundsEnabled') { renderAudio(); renderDecorations(); schedulePreview(); return; }
       if (key === 'introSvgBounceEnabled' || key === 'introMusicReactionsEnabledV154' || key === 'svgHoverAnimationsEnabledV82') { renderDecorations(); schedulePreview(); return; }
       if (key === 'useThemeCursor') { renderTrinkets(); schedulePreview(); return; }
-      if (key === 'useThemeCompanion') { state.draft.themeCompanionEnabledV163 = !!state.draft.useThemeCompanion; markTouched('themeCompanionEnabledV163'); renderTrinkets(); schedulePreview(); return; }
+      if (key === 'useThemeCompanion') { state.draft.themeCompanionEnabledV163 = !!state.draft.useThemeCompanion; markTouched('themeCompanionEnabledV163'); rememberAiSharedOverrideV400('themeCompanionEnabledV163'); renderTrinkets(); schedulePreview(); return; }
       schedulePreview(); return;
     }
 
@@ -2611,43 +4660,48 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
       const index = +el.dataset.decoHidden, asset = state.draft.backgroundSvgs?.[index]; if (!asset) return;
       asset.hiddenOnScreenV63 = !!el.checked;
       if (asset.hiddenOnScreenV63) asset.alwaysShowOnScreenV370 = false;
-      state.decorationsDirty = true; markTouched('backgroundSvgs');
-      renderDecorations(); openDecorationDetails(index); schedulePreview(); return;
+      state.decorationsDirty = true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400();
+      // V519: push visibility BEFORE rebuilding the editor controls or queuing a
+      // full preview apply. The iframe removes the live decoration immediately.
+      pushDecorationVisibilityPreviewV519(index);
+      renderDecorations(); openDecorationDetails(index); pushDecorationPreviewV513(); schedulePreview(); return;
     }
     if (el.matches('[data-deco-always-show]')) {
       const index = +el.dataset.decoAlwaysShow, asset = state.draft.backgroundSvgs?.[index]; if (!asset) return;
       asset.alwaysShowOnScreenV370 = !!el.checked;
       if (asset.alwaysShowOnScreenV370) asset.hiddenOnScreenV63 = false;
-      state.decorationsDirty = true; markTouched('backgroundSvgs');
+      state.decorationsDirty = true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400();
       renderDecorations(); openDecorationDetails(index); schedulePreview(); return;
     }
     if (el.matches('[data-deco-opacity-override]')) {
+      clearDecorationOpacityLockV493();
       const index = +el.dataset.decoOpacityOverride, asset = state.draft.backgroundSvgs?.[index]; if (!asset) return;
       asset.opacityOverrideV326 = !!el.checked;
-      state.decorationsDirty = true; markTouched('backgroundSvgs');
+      state.decorationsDirty = true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400();
       renderDecorations(); openDecorationDetails(index); schedulePreview(); return;
     }
     if (el.matches('[data-deco-opacity]')) {
+      clearDecorationOpacityLockV493();
       const index = +el.dataset.decoOpacity, asset = state.draft.backgroundSvgs?.[index]; if (!asset) return;
-      asset.opacityV109 = +el.value; asset.opacityOverrideV326 = true; state.decorationsDirty = true; markTouched('backgroundSvgs');
+      asset.opacityV109 = +el.value; asset.opacityOverrideV326 = true; state.decorationsDirty = true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400();
       const output = $(`[data-deco-opacity-output="${index}"]`, state.modal); if (output) output.textContent = `${el.value}%`; schedulePreview(); return;
     }
     if (el.matches('[data-deco-animation]')) {
       const index = +el.dataset.decoAnimation, asset = state.draft.backgroundSvgs?.[index]; if (!asset) return;
-      asset.animationOverride = el.value; state.decorationsDirty = true; markTouched('backgroundSvgs'); renderDecorations(); openDecorationDetails(index); schedulePreview(); return;
+      asset.animationOverride = el.value; asset.animationOverrideUserSetV404 = !!String(el.value||'').trim(); state.decorationsDirty = true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400(); renderDecorations(); openDecorationDetails(index); schedulePreview(); return;
     }
     if (el.matches('[data-deco-bop]')) {
       const index = +el.dataset.decoBop, asset = state.draft.backgroundSvgs?.[index]; if (!asset) return;
-      asset.bopModeV60 = el.value; state.decorationsDirty = true; markTouched('backgroundSvgs'); schedulePreview(); return;
+      asset.bopModeV60 = el.value; state.decorationsDirty = true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400(); schedulePreview(); return;
     }
     if (el.matches('[data-deco-hover]')) {
       const index = +el.dataset.decoHover, asset = state.draft.backgroundSvgs?.[index]; if (!asset) return;
-      asset.hoverAnimationOverrideV82 = el.value; state.decorationsDirty = true; markTouched('backgroundSvgs'); schedulePreview(); return;
+      asset.hoverAnimationOverrideV82 = el.value; state.decorationsDirty = true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400(); schedulePreview(); return;
     }
     if (el.matches('[data-deco-sound]')) {
       const index = +el.dataset.decoSound, asset = state.draft.backgroundSvgs?.[index]; if (!asset) return;
       const sound = (state.draft.svgHoverSounds || []).map(item=>normalizeAudioItem(item,'Hover Sound')).find(item=>item?.url===el.value);
-      asset.hoverSoundUrl = sound?.url || ''; asset.hoverSoundName = sound?.name || ''; state.decorationsDirty = true; markTouched('backgroundSvgs'); return;
+      asset.hoverSoundUrl = sound?.url || ''; asset.hoverSoundName = sound?.name || ''; state.decorationsDirty = true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400(); return;
     }
     if (el.matches('[data-slot-index][data-slot-axis]')) {
       const index = +el.dataset.slotIndex, axis = el.dataset.slotAxis; ensureManualSlots();
@@ -2672,7 +4726,11 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     if (type === 'smart-palette-mode') { state.smartPaletteMode = action.dataset.value === 'dark' ? 'dark' : 'light'; applySmartPaletteV323(state.smartPaletteSeed, state.smartPaletteMode); return; }
     if (type === 'ai-theme-mode') {
       const nextMode = action.dataset.value === 'dark' ? 'dark' : 'light';
-      if (nextMode !== state.aiThemeMode) syncActiveAiVariantV376();
+      if (nextMode !== state.aiThemeMode) {
+        rememberAiSharedDecorationsV400();
+        syncActiveAiVariantV376();
+        propagateAiSharedStateToVariantsV400();
+      }
       state.aiThemeMode = nextMode;
       state.draft.themeBuilderAiModeV364=state.aiThemeMode;
       state.draft[AI_SELECTED_KEY_V376]=state.aiThemeMode;
@@ -2683,12 +4741,36 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
       if (hasAiVariantV376(nextMode)) { applyStoredAiVariantV376(nextMode); return; }
       renderAI(); refreshAiJsonStateV325(); return;
     }
-    if (type === 'copy-ai-prompt') { copyText(aiThemePrompt(), 'AI Light + Dark theme prompt copied.'); return; }
+    if (type === 'ai-builder-depth-v432') {
+      state.aiBuilderDepthV432 = action.dataset.value === 'advanced' ? 'advanced' : 'basic';
+      state.draft.themeBuilderAiDepthV432 = state.aiBuilderDepthV432;
+      try { localStorage.setItem('loggy-ai-builder-depth-v432', state.aiBuilderDepthV432); } catch {}
+      markTouched('themeBuilderAiDepthV432'); renderAI(); return;
+    }
+    if (type === 'ai-background-focus-v479') {
+      state.aiBackgroundFocusV479 = action.dataset.value === 'enhanced' ? 'enhanced' : 'standard';
+      state.draft.themeBuilderAiBackgroundFocusV479 = state.aiBackgroundFocusV479;
+      try { localStorage.setItem('loggy-ai-background-focus-v479', state.aiBackgroundFocusV479); } catch {}
+      markTouched('themeBuilderAiBackgroundFocusV479'); renderAI(); return;
+    }
+    if (type === 'copy-ai-prompt') { copyText(aiThemePrompt(), 'AI theme prompt copied.'); return; }
     if (type === 'clear-ai-json') { state.aiJsonText=''; state.draft.themeBuilderAiJsonV364=''; state.draft.themeBuilderAiUsedV364=true; state.draft.themeBuilderAutoToolV364='ai'; ['themeBuilderAiJsonV364','themeBuilderAiUsedV364','themeBuilderAutoToolV364'].forEach(markTouched); state.aiJsonAppliedV325=aiVariantCountV376()>0; renderAI(); return; }
     if (type === 'apply-ai-theme') {
-      const parsed = parseAiThemeBundleV376(state.aiJsonText);
-      if (parsed?.variants?.[state.aiThemeMode]) applyAiThemeJsonV312(state.aiJsonText);
-      else applyStoredAiVariantV376(state.aiThemeMode);
+      let applied = false;
+      try {
+        const parsed = parseAiThemeBundleV376(state.aiJsonText);
+        if (parsed?.variants?.[state.aiThemeMode]) applied = applyAiThemeJsonV312(state.aiJsonText) === true;
+        else applied = applyStoredAiVariantV376(state.aiThemeMode) === true;
+      } catch (error) {
+        console.error('[Loggy Theme Builder] AI theme apply failed:', error);
+        applied = false;
+      }
+      if (!applied) {
+        state.aiJsonAppliedV325 = false;
+        refreshAiJsonStateV325();
+        setStatus(`Could not apply the AI ${state.aiThemeMode === 'dark' ? 'Dark' : 'Light'} version. The JSON parsed, but the theme could not be mounted.`);
+        try { toast(`Could not apply the ${state.aiThemeMode === 'dark' ? 'Dark' : 'Light'} version.`); } catch {}
+      }
       return;
     }
     if (type === 'copy-background-prompt') { copyText(backgroundPrompt(), 'Background prompt copied.'); return; }
@@ -2696,46 +4778,41 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
       const source = String(action.dataset.source || 'theme-color'); if (!BACKGROUND_SOURCES_V311.has(source)) return;
       state.draft.backgroundSourceV311 = source;
       state.draft.backgroundModeV158 = source === 'gradient' ? 'gradient' : source === 'image' ? 'image' : 'solid';
-      markTouched('backgroundSourceV311'); markTouched('backgroundModeV158'); renderBackground(); schedulePreview(); return;
+      markTouched('backgroundSourceV311'); markTouched('backgroundModeV158'); rememberAiSharedOverrideV400('backgroundSourceV311',state.draft.backgroundSourceV311); rememberAiSharedOverrideV400('backgroundModeV158',state.draft.backgroundModeV158); renderBackground(); schedulePreview(); return;
     }
-    if (type === 'clear-background-code') { state.draft.interactiveBackgroundCodeV56 = ''; markTouched('interactiveBackgroundCodeV56'); renderBackground(); schedulePreview(); return; }
+    if (type === 'clear-background-code') { state.draft.interactiveBackgroundCodeV56 = ''; markTouched('interactiveBackgroundCodeV56'); rememberAiSharedOverrideV400('interactiveBackgroundCodeV56',''); renderBackground(); schedulePreview(); return; }
     if (type === 'gradient-preset') {
       const preset = gradientPresets()[+action.dataset.gradientIndex]; if (!preset) return;
       state.draft.backgroundSourceV311='gradient'; state.draft.backgroundModeV158='gradient'; state.draft.backgroundGradientV56=preset.css; state.draft.backgroundGradientNameV56=preset.name;
-      ['backgroundSourceV311','backgroundModeV158','backgroundGradientV56','backgroundGradientNameV56'].forEach(markTouched); renderBackground(); schedulePreview(); return;
+      ['backgroundSourceV311','backgroundModeV158','backgroundGradientV56','backgroundGradientNameV56'].forEach(key=>{markTouched(key);rememberAiSharedOverrideV400(key,state.draft[key]);}); renderBackground(); schedulePreview(); return;
     }
     if (type === 'choose-background') { $('[data-file="background"]', state.modal)?.click(); return; }
-    if (type === 'clear-background') { state.draft.backgroundImage=''; state.draft.backgroundImageName=''; markTouched('backgroundImage'); markTouched('backgroundImageName'); renderBackground(); schedulePreview(); return; }
+    if (type === 'clear-background') { state.draft.backgroundImage=''; state.draft.backgroundImageName=''; markTouched('backgroundImage'); markTouched('backgroundImageName'); rememberAiSharedOverrideV400('backgroundImage',''); rememberAiSharedOverrideV400('backgroundImageName',''); renderBackground(); schedulePreview(); return; }
     if (type === 'choose-audio') { $('[data-file="audio"]', state.modal)?.click(); return; }
-    if (type === 'clear-audio') { state.draft.introAudio=''; state.draft.introAudioName=''; state.draft.introAudioProjectPath=''; state.draft.introAudioSourceThemeIdV364=''; ['introAudio','introAudioName','introAudioProjectPath','introAudioSourceThemeIdV364'].forEach(markTouched); renderAudio(); schedulePreview(); return; }
-    if (type === 'play-intro') { playUrl(state.draft.introAudio, state.draft.audioVolume); return; }
-    if (type === 'preview-intro-reactions') {
-      if (!(state.draft.introSvgBounceEnabled || state.draft.introMusicReactionsEnabledV154)) return;
-      if (!state.draft.introAudio) { toast('Choose an intro song first.'); return; }
-      // V371: a preview audition starts exactly like a real apply. First force
-      // the reusable iframe back to the Log preview and re-apply the full draft;
-      // only after that apply reports completion do we start the intro audio.
-      state.previewIntroPendingV371=true;
-      state.previewResetViewV354=true;
-      ensurePreviewFrame();
-      pushPreview();
-      return;
-    }
+    if (type === 'clear-audio') { clearThemeBuilderIntroSourceV414(); setStatus('Intro song removed.'); renderAudio(); schedulePreview(); return; }
+    if (type === 'play-intro') { playThemeBuilderIntroPreviewV413(state.draft); return; }
     if (type === 'choose-hover-sounds') { $('[data-file="hover-sounds"]', state.modal)?.click(); return; }
     if (type === 'play-sound') { const item = normalizeAudioItem(state.draft.svgHoverSounds?.[+action.dataset.soundIndex], 'Hover Sound'); if (item?.url) playUrl(item.url, state.draft.audioVolume); return; }
     if (type === 'remove-sound') {
-      const index = +action.dataset.soundIndex, list = [...(state.draft.svgHoverSounds || [])], removed = normalizeAudioItem(list[index],'Hover Sound'); list.splice(index,1); state.draft.svgHoverSounds=list; markTouched('svgHoverSounds');
+      const index = +action.dataset.soundIndex, list = [...(state.draft.svgHoverSounds || [])], removed = normalizeAudioItem(list[index],'Hover Sound'); list.splice(index,1); state.draft.svgHoverSounds=list; markTouched('svgHoverSounds'); rememberAiSharedOverrideV400('svgHoverSounds',state.draft.svgHoverSounds);
       if (removed?.url) (state.draft.backgroundSvgs || []).forEach(asset => { if (asset?.hoverSoundUrl === removed.url) { asset.hoverSoundUrl=''; asset.hoverSoundName=''; state.decorationsDirty=true; } });
       renderAudio(); renderDecorations(); return;
     }
     if (type === 'choose-decoration') { $('[data-file="decorations"]', state.modal)?.click(); return; }
+    if (type === 'download-decoration-v429') {
+      const index = +action.dataset.index, asset = state.draft.backgroundSvgs?.[index];
+      if (!asset) return;
+      downloadDecorationV429(asset,index).then(()=>setStatus(`Downloaded ${asset?.name || `Decoration ${index+1}`}.`)).catch(error=>{ console.warn(error); setStatus('Could not download that decoration.'); });
+      return;
+    }
+    if (type === 'download-all-decorations-v429') { downloadAllDecorationsV429(); return; }
     if (type === 'remove-decoration') {
       const index = +action.dataset.index, list = [...(state.draft.backgroundSvgs || [])]; if (!Number.isInteger(index) || index<0 || index>=list.length) return;
-      list.splice(index,1); state.draft.backgroundSvgs=list; state.decorationsDirty=true; markTouched('backgroundSvgs'); renderDecorations(); schedulePreview(); return;
+      list.splice(index,1); state.draft.backgroundSvgs=list; state.decorationsDirty=true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400(); renderDecorations(); schedulePreview(); return;
     }
     if (type === 'direction') {
       const index=+action.dataset.index, asset=state.draft.backgroundSvgs?.[index]; if (!asset) return;
-      asset.crossDirectionV139 = action.dataset.direction === 'left' ? 'left' : 'right'; state.decorationsDirty=true; markTouched('backgroundSvgs'); renderDecorations(); openDecorationDetails(index); schedulePreview(); return;
+      asset.crossDirectionV139 = action.dataset.direction === 'left' ? 'left' : 'right'; state.decorationsDirty=true; markTouched('backgroundSvgs'); rememberAiSharedDecorationsV400(); renderDecorations(); openDecorationDetails(index); schedulePreview(); return;
     }
     if (type === 'scale-step') {
       state.draft.svgGlobalScale = clamp((+state.draft.svgGlobalScale || 100) + (+action.dataset.delta || 0), 50, 220, 100); markTouched('svgGlobalScale');
@@ -2756,8 +4833,7 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
   }
 
   function close() {
-    try { audioPreview?.pause?.(); } catch {}
-    state.previewIntroPendingV371=false;
+    stopAllThemeBuilderIntroPlaybackV414();
     if (!state.modal) return; state.modal.hidden=true; document.body.classList.remove('theme-builder-open');
     if (STUDIO) { try { parent.postMessage({ type:'dashboard-theme-studio-close-v43', studioSessionV283:studioSession(), studioActionV283:studioAction() }, location.origin); } catch {} }
   }
@@ -2765,6 +4841,34 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
   async function fetchJson(url, timeout=4500) {
     const ctl = typeof AbortController === 'function' ? new AbortController() : null; const timer=setTimeout(()=>{try{ctl?.abort()}catch{}},timeout);
     try { const response=await fetch(url,{cache:'no-store',...(ctl?{signal:ctl.signal}:{})}); if(!response.ok)return null; return await response.json(); } catch{return null} finally{clearTimeout(timer)}
+  }
+
+  const INTRO_AUDIO_STATE_KEYS_V420 = new Set([
+    'introAudio','introAudioName','introAudioProjectPath','introAudioSourceThemeIdV364',
+    'audioPlayMode','audioStart','audioEnd','audioFade','audioVolume',
+    'introAudioUpdatedAtV420','introAudioAuthorityV418','introAudioRemovedV423'
+  ]);
+  function hasSavedIntroAuthorityV420(themeId, draft = state.draft) {
+    const id = String(themeId || '');
+    if (id) {
+      const authority = readIntroAuthorityMapV420()[id];
+      if (authority && typeof authority === 'object') return true;
+    }
+    return draft?.introAudioRemovedV423 === true ||
+      !!String(draft?.introAudioUpdatedAtV420 || draft?.introAudioAuthorityV418 || draft?.introAudio || '').trim();
+  }
+  function hydrateInheritedIntroV420(themeId, item) {
+    if (!item?.url || state.touched.has('introAudio') || hasSavedIntroAuthorityV420(themeId, state.draft)) return false;
+    state.introSelectionV416 = {
+      url:String(item.url || ''),
+      name:String(item.name || fileName(item.url,'Intro Audio')),
+      projectPath:String(item.projectPath || ''),
+      sourceThemeId:String(themeId || '')
+    };
+    writeIntroSelectionToThemeV416(state.draft, state.introSelectionV416);
+    state.draft.introAudioRemovedV423 = false;
+    try { rememberAiSharedOverrideV400('introAudioRemovedV423', false); } catch {}
+    return true;
   }
 
   async function enrichBuiltIn(themeId, token) {
@@ -2776,7 +4880,12 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     adapterPromise.then(data=>{
       if(token!==state.openToken||state.themeId!==themeId||!data?.builder)return;
       const builder=data.builder||{};
-      for(const [key,value] of Object.entries(builder)){if(key==='backgroundSvgs'||state.touched.has(key))continue;state.draft[key]=clone(value);state.dashboardOverlayKeys.add(key)}
+      const savedIntroAuthority = hasSavedIntroAuthorityV420(themeId, state.draft);
+      for(const [key,value] of Object.entries(builder)){
+        if(key==='backgroundSvgs'||state.touched.has(key))continue;
+        if(savedIntroAuthority&&INTRO_AUDIO_STATE_KEYS_V420.has(key))continue;
+        state.draft[key]=clone(value);state.dashboardOverlayKeys.add(key)
+      }
       const replacing=state.draft.replaceBuiltInDecorationsV30===true||state.draft.authoritativeDecorationsV136===true;
       if(!state.decorationsDirty&&!replacing&&Array.isArray(builder.backgroundSvgs)) state.draft.backgroundSvgs=mergeDecorations(builder.backgroundSvgs.map(item=>({...item,inheritedBuiltInV307:true})),state.draft.backgroundSvgs||[]);
       if(!state.touched.has('name')&&data.name)state.draft.name=data.name;
@@ -2788,14 +4897,14 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
       if(token!==state.openToken||state.themeId!==themeId)return;
       const replacing=state.draft.replaceBuiltInDecorationsV30===true||state.draft.authoritativeDecorationsV136===true;
       if(!state.decorationsDirty&&!replacing){const assets=(Array.isArray(data?.assets)?data.assets:[]).map(item=>normalizeDecoration(item,true)).filter(Boolean);state.draft.backgroundSvgs=mergeDecorations(state.draft.backgroundSvgs||[],assets)}
-      if(!state.touched.has('introAudio')&&!state.draft.introAudio&&Array.isArray(data?.audio)&&data.audio[0]?.url){state.draft.introAudio=data.audio[0].url;state.draft.introAudioName=data.audio[0].name||fileName(data.audio[0].url,'Intro Audio')}
+      if(Array.isArray(data?.audio)&&data.audio[0]?.url) hydrateInheritedIntroV420(themeId, normalizeAudioItem(data.audio[0],'Intro Audio'));
       renderAudio();renderDecorations();schedulePreview();
     });
 
     audioPromise.then(data=>{
       if(token!==state.openToken||state.themeId!==themeId||!data)return;
       const intro=normalizeAudioItem(data.introAudio,'Intro Audio');
-      if(intro?.url&&!state.touched.has('introAudio')){state.draft.introAudio=intro.url;state.draft.introAudioName=intro.name||fileName(intro.url,'Intro Audio')}
+      hydrateInheritedIntroV420(themeId, intro);
       if(!state.touched.has('svgHoverSounds')) state.draft.svgHoverSounds=mergeSounds(state.draft.svgHoverSounds||[],data.hoverSounds||[]);
       renderAudio();renderDecorations();schedulePreview();
     });
@@ -2824,6 +4933,29 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
 
   function begin(draft, meta) {
     state.mode=meta.mode;state.kind=meta.kind;state.themeId=meta.themeId||'';state.sourceThemeId=meta.sourceThemeId||'';state.dashboardOverlayKeys=new Set(meta.dashboardOverlayKeys||[]);state.draft={...blankDraft(),...clone(draft)};state.aiJsonAppliedV325=false;
+    if (state.draft.themeBuilderHeadingBackdropOverrideV496) applyHeadingBackdropAuthorityV496(state.draft);
+    if (state.draft.themeBuilderQuizBackdropOverrideV492) applyQuizBackdropAuthorityV492(state.draft);
+    // V416: opening a new edit session invalidates every pending source request
+    // from the previous one and snapshots the canonical song as save authority.
+    state.introSourceRevisionV416 = Number(state.introSourceRevisionV416 || 0) + 1;
+    // V423 migration: V420 already used an empty intro + saved timestamp to mean
+    // "removed". Persist that meaning as a real tombstone so the source theme's
+    // discovered built-in song can never refill the editor on reopen.
+    if (
+      state.draft.introAudioRemovedV423 === true ||
+      (!String(state.draft.introAudio || '').trim() &&
+       !!String(state.draft.introAudioUpdatedAtV420 || state.draft.introAudioAuthorityV418 || '').trim())
+    ) {
+      state.draft.introAudioRemovedV423 = true;
+      state.draft.introAudio = '';
+      state.draft.introAudioName = '';
+      state.draft.introAudioProjectPath = '';
+      state.draft.introAudioSourceThemeIdV364 = '';
+      LEGACY_INTRO_KEYS_V414.forEach(key => { state.draft[key] = ''; });
+    }
+    state.introSelectionV416 = introSelectionFromThemeV416(state.draft);
+    writeIntroSelectionToThemeV416(state.draft,state.introSelectionV416);
+    stopAllThemeBuilderIntroPlaybackV414();
     state.draft.backgroundSourceV311=inferBackgroundSourceV311(state.draft);
     state.draft.pageBackdropsEnabledV312=inferPageBackdropsEnabledV312(state.draft);
     state.draft.shapeTypeEnabledV312=inferShapeTypeEnabledV312(state.draft);
@@ -2832,20 +4964,54 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     // Legacy `asset.animation` is synchronized before the iframe ever sees the
     // draft; explicit per-decoration overrides remain untouched.
     const openDefaultV371=String(state.draft.svgDefaultAnimation||'float').trim()||'float';
-    state.draft.backgroundSvgs=(state.draft.backgroundSvgs||[]).map(asset=>({...asset,animation:String(asset?.animationOverride||'').trim()||openDefaultV371}));
+    const openingAiV404=state.draft.themeBuilderAiUsedV364===true||String(state.draft.themeBuilderAutoToolV364||'')==='ai'||!!state.draft.themeBuilderAiVariantsV376;
+    state.draft.backgroundSvgs=(state.draft.backgroundSvgs||[]).map(asset=>{
+      const a={...(asset||{})};
+      const raw=String(a.animationOverride||'').trim();
+      const override=openingAiV404&&a.animationOverrideUserSetV404!==true?'':raw;
+      a.animationOverride=override;a.animation=override||openDefaultV371;return a;
+    });
     state.original=clone(state.draft);state.touched=new Set();state.decorationsDirty=false;
+    state.aiSharedOverridesV400=Object.create(null); state.aiSharedDecorationsV400=null;
     state.aiJsonText=String(state.draft.themeBuilderAiJsonV364||'');
     state.smartPaletteSeed=safeHex(state.draft.accent,'#8b6fd8');state.smartPaletteMode=inferAppearanceV323(state.draft);
     state.aiThemeMode=String(state.draft[AI_SELECTED_KEY_V376]||state.draft.themeBuilderAiModeV364||state.smartPaletteMode)==='dark'?'dark':'light';
+    let savedDepthV432=''; let savedBackgroundV479='';
+    try { savedDepthV432=localStorage.getItem('loggy-ai-builder-depth-v432')||''; savedBackgroundV479=localStorage.getItem('loggy-ai-background-focus-v479')||''; } catch {}
+    state.aiBuilderDepthV432=String(state.draft.themeBuilderAiDepthV432||savedDepthV432)==='advanced'?'advanced':'basic';
+    state.aiBackgroundFocusV479=String(state.draft.themeBuilderAiBackgroundFocusV479||savedBackgroundV479)==='enhanced'?'enhanced':'standard';
+    state.aiDecorationModeV432='decorations';
     state.aiVariantsV376=normalizeStoredAiVariantsV376(state.draft);
     const parsedSavedBundleV376=parseAiThemeBundleV376(state.aiJsonText);
     if(!state.aiVariantsV376.light&&parsedSavedBundleV376?.variants?.light)state.aiVariantsV376.light=stripAiVariantMetaV376(parsedSavedBundleV376.variants.light);
     if(!state.aiVariantsV376.dark&&parsedSavedBundleV376?.variants?.dark)state.aiVariantsV376.dark=stripAiVariantMetaV376(parsedSavedBundleV376.variants.dark);
     // Migrate old single-version AI themes into the new persistent variant slot.
     if(state.draft.themeBuilderAiUsedV364===true&&aiVariantCountV376()===0)state.aiVariantsV376[state.aiThemeMode]=stripAiVariantMetaV376(state.draft);
+    if(aiVariantCountV376()>0) {
+      state.aiSharedDecorationsV400=clone(state.draft.backgroundSvgs||[]);
+      // V416 migration: intro audio is one theme-level source. Seed the shared
+      // behavior layer from the canonical top-level selection so switching
+      // Light/Dark can never reveal an older per-variant song.
+      for (const key of INTRO_SOURCE_KEYS_V414) state.aiSharedOverridesV400[key]=clone(state.draft[key]||'');
+      // V491: restore manual theme-level backdrop authority when reopening an
+      // AI theme. Without this, an older variant snapshot (often #ffffff) could
+      // win as soon as Light/Dark was restored even though the top-level theme
+      // had the user's saved Quiz Box Backdrop color.
+      for (const key of [
+        'headingBackgroundEnabledV429','headingBackgroundColorV452','headingBackgroundOpacityV452','headingBackgroundPaddingV429','headingBackgroundRadiusV452','themeBuilderHeadingBackdropOverrideV496',
+        'quizBackdropEnabledV456','quizBackdropColorV456','quizBackdropOpacityV456','quizBackdropRadiusV456','quizBackdropPaddingV459','themeBuilderQuizBackdropOverrideV492'
+      ]) {
+        if (Object.prototype.hasOwnProperty.call(state.draft,key)) state.aiSharedOverridesV400[key]=clone(state.draft[key]);
+      }
+      propagateAiSharedStateToVariantsV400();
+      for (const mode of ['light','dark']) {
+        const variant=state.aiVariantsV376?.[mode];
+        if(variant&&typeof variant==='object'&&!Array.isArray(variant)) writeIntroSelectionToThemeV416(variant,state.introSelectionV416);
+      }
+    }
     state.autoThemeTool=(state.draft.themeBuilderAiUsedV364===true||aiVariantCountV376()>0)?'ai':(String(state.draft.themeBuilderAutoToolV364||'')==='smart'?'smart':'');
     state.aiJsonAppliedV325=aiVariantCountV376()>0;
-    state.previewIntroPendingV371=false;
+    clearDecorationOpacityLockV493();
     state.openToken+=1;
     const modal=openModal();preparePreviewForThemeOpenV354(modal);renderAllControls();selectTab('colors',false);setStatus('');return{modal,token:state.openToken};
   }
@@ -2853,8 +5019,16 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
   function openEdit(themeIdValue,themeName=''){const themeId=String(themeIdValue||'default'),resolved=resolveImmediate(themeId,themeName);const{token}=begin(resolved.draft,{mode:'edit',kind:resolved.kind,themeId,sourceThemeId:resolved.sourceThemeId||'',dashboardOverlayKeys:resolved.dashboardOverlayKeys||[]});if(resolved.kind==='built-in')enrichBuiltIn(themeId,token);return state.modal}
 
   function cleanDraftForSave() {
-    if(aiVariantCountV376()>0)syncActiveAiVariantV376();
+    // V416: the latest explicit intro selection is authoritative over every old
+    // draft/variant/legacy alias before any AI variant snapshot is taken.
+    commitIntroSelectionEverywhereV416();
+    if(aiVariantCountV376()>0){ rememberAiSharedDecorationsV400(); syncActiveAiVariantV376(); propagateAiSharedStateToVariantsV400(); commitIntroSelectionEverywhereV416(); }
     const draft=canonicalThemeDraftV312(state.draft);draft.name=String(draft.name||'Theme').trim()||'Theme';
+    draft.themeBuilderAiDepthV432=state.aiBuilderDepthV432==='advanced'?'advanced':'basic';
+    draft.themeBuilderAiBackgroundFocusV479=state.aiBackgroundFocusV479==='enhanced'?'enhanced':'standard';
+    draft.themeBuilderAiDecorationModeV432='decorations';
+    draft.aiDecorationsModeV432='decorations';
+    writeIntroSelectionToThemeV416(draft,state.introSelectionV416);
     if(aiVariantCountV376()>0){
       draft[AI_VARIANTS_KEY_V376]=clone(state.aiVariantsV376);
       draft[AI_SELECTED_KEY_V376]=state.aiThemeMode==='dark'?'dark':'light';
@@ -2875,9 +5049,11 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
       const ov=String(a?.animationOverride||'').trim();
       return !ov||ov===previousDefault;
     });
+    const savingAiV404=draft.themeBuilderAiUsedV364===true||String(draft.themeBuilderAutoToolV364||'')==='ai'||!!draft.themeBuilderAiVariantsV376;
     draft.backgroundSvgs=rows.map(asset=>{
       const a={...asset};
-      if(mirroredOld&&String(a.animationOverride||'').trim()===previousDefault)a.animationOverride='';
+      if(savingAiV404&&a.animationOverrideUserSetV404!==true)a.animationOverride='';
+      else if(mirroredOld&&String(a.animationOverride||'').trim()===previousDefault)a.animationOverride='';
       a.animation=String(a.animationOverride||'').trim()||currentDefault;
       return a;
     });
@@ -2891,32 +5067,103 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     }else{
       draft.backgroundSvgs=(draft.backgroundSvgs||[]).map(item=>{const out=clone(item);delete out.inheritedBuiltInV307;delete out.inheritedBuiltInV306;delete out.inheritedBuiltInV109;delete out.inheritedBuiltInV30;delete out.inheritedBuiltInV303;return out});
     }
+    // V407: one persisted motion clock + one frozen placement map are shared by
+    // Preview, applied Log pages and Dashboard. Across Screen therefore continues
+    // from the same phase when navigating instead of restarting per page load.
+    draft.decorationMotionEpochV407 = Date.now();
+    stampDecorationLayoutV405(draft);
     // Save the final canonicalized active appearance back into its slot after
     // built-in decoration cleanup, then embed both slots in the theme record.
     if(aiVariantCountV376()>0){
+      state.aiSharedDecorationsV400=clone(draft.backgroundSvgs||[]);
+      state.aiSharedOverridesV400 ||= Object.create(null);
+      state.aiSharedOverridesV400.resolvedDecorationPlacementsV405=clone(draft.resolvedDecorationPlacementsV405||[]);
+      state.aiSharedOverridesV400.decorationPlacementEngineV410='log-v26';
       state.aiVariantsV376[state.aiThemeMode==='dark'?'dark':'light']=stripAiVariantMetaV376(draft);
+      propagateAiSharedStateToVariantsV400();
+      for (const mode of ['light','dark']) {
+        const variant = state.aiVariantsV376?.[mode];
+        if (variant && typeof variant === 'object' && !Array.isArray(variant)) writeIntroSelectionToThemeV416(variant,state.introSelectionV416);
+      }
+      writeIntroSelectionToThemeV416(draft,state.introSelectionV416);
       draft[AI_VARIANTS_KEY_V376]=clone(state.aiVariantsV376);
       draft[AI_SELECTED_KEY_V376]=state.aiThemeMode==='dark'?'dark':'light';
     }
     return draft;
   }
 
-  async function persistBuiltIn(themeId,draft){
-    const map=readJsonStorage(OVERRIDE_KEY,{});map[themeId]={id:themeId,name:draft.name,theme:clone(draft),updatedAt:new Date().toISOString()};writeJsonStorage(OVERRIDE_KEY,map);
+  async function persistBuiltIn(themeId,draft,stamp){
+    const map=readJsonStorage(OVERRIDE_KEY,{});map[themeId]={id:themeId,name:draft.name,theme:clone(draft),updatedAt:String(stamp||new Date().toISOString())};writeJsonStorage(OVERRIDE_KEY,map);
     fetch('/api/built-in-theme-overrides',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({overrides:map})}).catch(()=>{});
-    try{if(db?.settings)db.settings.theme=themeId;await saveDb?.()}catch{}try{await applyTheme?.(themeId,{persist:false})}catch{}try{renderThemePicker?.()}catch{}return themeId;
+    try{if(db?.settings)db.settings.theme=themeId;await saveDb?.()}catch{}try{renderThemePicker?.()}catch{}return themeId;
   }
   function makeThemeId(){return`theme-custom-builder-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`}
-  async function persistShared(id,draft,sourceThemeId=''){
-    const list=readJsonStorage(SHARED_KEY,[]),library=Array.isArray(list)?list:[];const entry={id,name:draft.name,sourceThemeId:sourceThemeId||'',theme:clone(draft),updatedAt:new Date().toISOString()};
-    const index=library.findIndex(item=>String(item?.id||'')===id);if(index>=0)library[index]=entry;else library.push(entry);writeJsonStorage(SHARED_KEY,library);try{publishSharedThemeV40?.(entry)}catch{}return id;
+  async function pushSharedLibraryNowV408(library){
+    try{
+      const response=await fetch('/api/shared-themes',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({themes:Array.isArray(library)?library:[]})});
+      return !!response?.ok;
+    }catch{return false}
   }
-  async function persistCopy(themeId,draft){
-    let copyTheme=null;try{copyTheme=getThemeCopyV30?.(themeId)}catch{}if(!copyTheme)return persistShared(themeId||makeThemeId(),draft,state.sourceThemeId);
+  async function persistShared(id,draft,sourceThemeId='',stamp=''){
+    const list=readJsonStorage(SHARED_KEY,[]),library=Array.isArray(list)?list:[];const selectedVariant=String(draft?.[AI_SELECTED_KEY_V376]||draft?.themeBuilderAiModeV364||'').toLowerCase()==='dark'?'dark':'light';const entry={id,name:draft.name,sourceThemeId:sourceThemeId||'',selectedVariant,activeVariant:selectedVariant,theme:clone(draft),updatedAt:String(stamp||new Date().toISOString())};
+    const index=library.findIndex(item=>String(item?.id||'')===id);if(index>=0)library[index]=entry;else library.push(entry);
+    writeJsonStorage(SHARED_KEY,library);
+    // V408: saving a theme is a committed transaction, not a debounced best-effort
+    // mirror. Wait for the project copy to receive the exact freshly-saved record
+    // before the Builder closes or navigation can start another sync owner.
+    await pushSharedLibraryNowV408(library);
+    return id;
+  }
+  // Save-time intro authority is consolidated in commitSavedAudioAuthorityV420.
+  async function commitSavedAudioAuthorityV420(savedId, draft, saveStamp='') {
+    const id=String(savedId || ''); if (!id || !draft) return;
+    const stamp=String(saveStamp || new Date().toISOString());
+    const authority=audioAuthorityFromThemeV420(draft,stamp);
+    const map=readIntroAuthorityMapV420();
+    map[id]=authority;
+    writeIntroAuthorityMapV420(map);
+    writeAudioAuthorityToThemeV420(draft,authority);
+    draft.introAudioAuthorityV418=stamp;
+
+    // Shared library + both appearances.
+    let library=readJsonStorage(SHARED_KEY,[]);
+    if(Array.isArray(library)){
+      const i=library.findIndex(row=>String(row?.id||'')===id);
+      if(i>=0){
+        const row={...library[i],updatedAt:stamp,theme:clone(library[i]?.theme||{})};
+        writeAudioAuthorityToThemeV420(row.theme,authority);row.theme.introAudioAuthorityV418=stamp;
+        const variants=row.theme?.[AI_VARIANTS_KEY_V376];
+        if(variants&&typeof variants==='object'&&!Array.isArray(variants)){
+          for(const mode of ['light','dark']) if(variants[mode]&&typeof variants[mode]==='object'){writeAudioAuthorityToThemeV420(variants[mode],authority);variants[mode].introAudioAuthorityV418=stamp;}
+        }
+        library[i]=row; writeJsonStorage(SHARED_KEY,library); await pushSharedLibraryNowV408(library);
+      }
+    }
+
+    // Legacy mirrors must carry the same authority, never an older intro.
+    try{
+      const copies=db?.settings?.themeCopiesV30;
+      const copy=Array.isArray(copies)?copies.find(item=>String(item?.id||'')===id):null;
+      if(copy?.theme){writeAudioAuthorityToThemeV420(copy.theme,authority);copy.theme.introAudioAuthorityV418=stamp;copy.updatedAt=stamp;copy.sharedV40=true;}
+      if(id==='theme-custom-builder'&&db?.settings){db.settings.customTheme={...(db.settings.customTheme||{}),...clone(draft)};writeAudioAuthorityToThemeV420(db.settings.customTheme,authority);db.settings.customTheme.introAudioAuthorityV418=stamp;}
+      await saveDb?.();
+    }catch{}
+    try{
+      const overrides=readJsonStorage(OVERRIDE_KEY,{});
+      if(overrides?.[id]){
+        const row=overrides[id]?.theme?overrides[id]:{id,name:draft.name,theme:clone(overrides[id]||{})};
+        writeAudioAuthorityToThemeV420(row.theme,authority);row.theme.introAudioAuthorityV418=stamp;row.updatedAt=stamp;overrides[id]=row;writeJsonStorage(OVERRIDE_KEY,overrides);
+        await fetch('/api/built-in-theme-overrides',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({overrides})}).catch(()=>{});
+      }
+    }catch{}
+  }
+
+  async function persistCopy(themeId,draft,stamp=''){
+    let copyTheme=null;try{copyTheme=getThemeCopyV30?.(themeId)}catch{}if(!copyTheme)return persistShared(themeId||makeThemeId(),draft,state.sourceThemeId,stamp);
     copyTheme.name=draft.name;copyTheme.theme=clone(draft);try{await saveDb?.()}catch{}try{publishSharedThemeV40?.({id:copyTheme.id||themeId,name:copyTheme.name,theme:copyTheme.theme,sourceThemeId:copyTheme.sourceThemeId||state.sourceThemeId||''})}catch{}return copyTheme.id||themeId;
   }
   async function persistCustom(draft){
-    try{if(!db.settings)db.settings={};db.settings.customTheme={...blankDraft(),...clone(draft)};db.settings.customThemeDeleted=false;db.settings.customThemePermanentlyDeletedV31=false;db.settings.theme='theme-custom-builder';await saveDb?.();await applyTheme?.('theme-custom-builder',{persist:false});renderThemePicker?.()}catch{}return'theme-custom-builder';
+    try{if(!db.settings)db.settings={};db.settings.customTheme={...blankDraft(),...clone(draft)};db.settings.customThemeDeleted=false;db.settings.customThemePermanentlyDeletedV31=false;db.settings.theme='theme-custom-builder';await saveDb?.();renderThemePicker?.()}catch{}return'theme-custom-builder';
   }
 
   function ensureSavedThemeVisibleV378(savedId,draft,sourceThemeId=''){
@@ -2945,11 +5192,11 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     try{renderThemePicker?.()}catch{}
   }
 
-  async function syncSavedThemeIdentityV364(savedId,draft){
-    const id=String(savedId||''); if(!id)return; const name=String(draft?.name||'Theme').trim()||'Theme';
+  async function syncSavedThemeIdentityV364(savedId,draft,saveStamp=''){
+    const id=String(savedId||''); if(!id)return; const name=String(draft?.name||'Theme').trim()||'Theme'; const stamp=String(saveStamp||new Date().toISOString());
     try{
       const shared=readJsonStorage(SHARED_KEY,[]);
-      if(Array.isArray(shared)){const i=shared.findIndex(item=>String(item?.id||'')===id);if(i>=0){shared[i]={...shared[i],name,theme:{...(shared[i]?.theme||{}),...clone(draft),name},updatedAt:new Date().toISOString()};writeJsonStorage(SHARED_KEY,shared);}}
+      if(Array.isArray(shared)){const i=shared.findIndex(item=>String(item?.id||'')===id);if(i>=0){const selectedVariant=String(draft?.[AI_SELECTED_KEY_V376]||draft?.themeBuilderAiModeV364||'').toLowerCase()==='dark'?'dark':'light';shared[i]={...shared[i],name,selectedVariant,activeVariant:selectedVariant,theme:{...(shared[i]?.theme||{}),...clone(draft),name},updatedAt:stamp};writeJsonStorage(SHARED_KEY,shared);}}
     }catch{}
     try{
       const copies=db?.settings?.themeCopiesV30;
@@ -2964,12 +5211,135 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
 
   async function saveCurrent(){
     const button=$('.tb307-save',state.modal);if(button?.disabled)return;if(button)button.disabled=true;setStatus('Saving…');
+    stopAllThemeBuilderIntroPlaybackV414();
+    commitIntroSelectionEverywhereV416();
     // The visible control is authoritative. This closes a stale-state path where
     // a prior edit session could be serialized even though the dropdown showed
     // the newly selected animation.
     const liveDefault=$('[data-theme-key="svgDefaultAnimation"]',state.modal);
-    if(liveDefault?.value){state.draft.svgDefaultAnimation=String(liveDefault.value);markTouched('svgDefaultAnimation');}
+    if(liveDefault?.value){
+      const selectedDefault=String(liveDefault.value||'float').trim()||'float';
+      state.draft.svgDefaultAnimation=selectedDefault;
+      markTouched('svgDefaultAnimation');
+      // V408: the visible Default Animation control is the save authority. Persist
+      // it into the AI shared-state layer BEFORE cleanDraftForSave() snapshots the
+      // Light/Dark variants, otherwise an older shared value can win the save.
+      rememberAiSharedOverrideV400('svgDefaultAnimation',selectedDefault);
+      const rows=Array.isArray(state.draft.backgroundSvgs)?state.draft.backgroundSvgs:[];
+      rows.forEach(asset=>{
+        if(!asset||typeof asset!=='object')return;
+        const override=asset.animationOverrideUserSetV404===true?String(asset.animationOverride||'').trim():'';
+        if(asset.animationOverrideUserSetV404!==true)asset.animationOverride='';
+        asset.animation=override||selectedDefault;
+      });
+      rememberAiSharedDecorationsV400();
+      if(aiVariantCountV376()>0){
+        syncActiveAiVariantV376();
+        propagateAiSharedStateToVariantsV400();
+      }
+    }
+    // V427: the visible Audio Volume slider is the save authority. Do not rely
+    // only on an earlier input/change event having updated state.draft; historical
+    // Theme Builder wrappers can repaint the Audio panel while a drag is ending.
+    // Read the live control immediately before serialization so the exact number
+    // the user sees is what every persistence mirror receives.
+    const liveAudioVolumeV427 = $('[data-number-key="audioVolume"]', state.modal);
+    if (liveAudioVolumeV427) {
+      const rawAudioVolumeV427 = Number(liveAudioVolumeV427.value);
+      if (Number.isFinite(rawAudioVolumeV427)) {
+        state.draft.audioVolume = clamp(rawAudioVolumeV427, 0, 100, 35);
+        markTouched('audioVolume');
+        rememberAiSharedOverrideV400('audioVolume', state.draft.audioVolume);
+      }
+    }
+
+    // V431: all visible playback controls are a single save transaction.
+    // This prevents a repainted Audio panel from saving Full/00:20 while the UI
+    // visibly says Segment/00:05.
+    const liveAudioModeV431 = $('[data-theme-key="audioPlayMode"]', state.modal);
+    const liveAudioStartV431 = $('[data-theme-key="audioStart"]', state.modal);
+    const liveAudioEndV431 = $('[data-theme-key="audioEnd"]', state.modal);
+    const liveAudioFadeV431 = $('[data-bool-key="audioFade"]', state.modal);
+    if (liveAudioModeV431) {
+      state.draft.audioPlayMode = String(liveAudioModeV431.value || 'full') === 'segment' ? 'segment' : 'full';
+      markTouched('audioPlayMode'); rememberAiSharedOverrideV400('audioPlayMode', state.draft.audioPlayMode);
+    }
+    if (liveAudioStartV431) {
+      state.draft.audioStart = String(liveAudioStartV431.value || '00:00').trim() || '00:00';
+      markTouched('audioStart'); rememberAiSharedOverrideV400('audioStart', state.draft.audioStart);
+    }
+    if (liveAudioEndV431) {
+      state.draft.audioEnd = String(liveAudioEndV431.value || '00:20').trim() || '00:20';
+      markTouched('audioEnd'); rememberAiSharedOverrideV400('audioEnd', state.draft.audioEnd);
+    }
+    if (liveAudioFadeV431) {
+      state.draft.audioFade = !!liveAudioFadeV431.checked;
+      markTouched('audioFade'); rememberAiSharedOverrideV400('audioFade', state.draft.audioFade);
+    }
+
+    // V495: state.draft is the save authority. Every live duplicate control is
+    // synchronized on input above, so never read a possibly stale first DOM copy
+    // here (that was what reset Heading/Quiz backdrop values back to white).
+    state.draft.headingBackgroundEnabledV429 = state.draft.headingBackgroundEnabledV429 === true;
+    state.draft.headingBackgroundColorV452 = safeHex(state.draft.headingBackgroundColorV452, state.draft.surface || '#ffffff');
+    state.draft.headingBackgroundOpacityV452 = clamp(state.draft.headingBackgroundOpacityV452, 0, 100, 88);
+    state.draft.headingBackgroundPaddingV429 = clamp(state.draft.headingBackgroundPaddingV429, 0, 40, 10);
+    state.draft.headingBackgroundRadiusV452 = clamp(state.draft.headingBackgroundRadiusV452, 0, 40, 10);
+    state.draft.pageBackdropColorV452 = safeHex(state.draft.pageBackdropColorV452, state.draft.surface || '#ffffff');
+    state.draft.pageBackdropOpacityV452 = clamp(state.draft.pageBackdropOpacityV452, 0, 100, 92);
+    state.draft.quizBackdropEnabledV456 = state.draft.quizBackdropEnabledV456 === true;
+    state.draft.quizBackdropColorV456 = safeHex(state.draft.quizBackdropColorV456, state.draft.contentBackdropColor || state.draft.surface || '#ffffff');
+    state.draft.quizBackdropOpacityV456 = clamp(state.draft.quizBackdropOpacityV456, 0, 100, 92);
+    state.draft.quizBackdropRadiusV456 = clamp(state.draft.quizBackdropRadiusV456, 0, 40, 10);
+    state.draft.quizBackdropPaddingV459 = clamp(state.draft.quizBackdropPaddingV459, 0, 40, 16);
+    applyHeadingBackdropAuthorityV496(state.draft, currentHeadingBackdropAuthorityV496(state.draft));
+    markTouched('themeBuilderHeadingBackdropOverrideV496');
+    rememberHeadingBackdropAuthorityV496();
+    applyQuizBackdropAuthorityV492(state.draft, currentQuizBackdropAuthorityV492(state.draft));
+    markTouched('themeBuilderQuizBackdropOverrideV492');
+    rememberQuizBackdropAuthorityV492();
+    // V459: Heading Backdrop manual controls are theme-level overrides. Persist them
+    // into BOTH AI appearances so reopening Edit Theme cannot restore an older
+    // per-variant white value after the user saved another color.
+    ['headingBackgroundEnabledV429','headingBackgroundColorV452','headingBackgroundOpacityV452','headingBackgroundPaddingV429','headingBackgroundRadiusV452'].forEach(key => {
+      rememberAiSharedOverrideV400(key, state.draft[key]);
+    });
+    // V491: Quiz Box Backdrop is also a theme-level manual override. Keep the
+    // exact saved values synchronized into BOTH AI variants so switching or
+    // reopening the theme cannot resurrect an older white per-variant value.
+    ['quizBackdropEnabledV456','quizBackdropColorV456','quizBackdropOpacityV456','quizBackdropRadiusV456','quizBackdropPaddingV459'].forEach(key => {
+      rememberAiSharedOverrideV400(key, state.draft[key]);
+    });
+
+    state.draft.dailyLogBackgroundColor = safeHex(state.draft.pageBackdropColorV452, state.draft.dailyLogBackgroundColor || state.draft.surface || '#ffffff');
+    state.draft.contentBackdropColor = state.draft.dailyLogBackgroundColor;
+    state.draft.dailyLogBackgroundOpacity = clamp(state.draft.pageBackdropOpacityV452,0,100,92);
+    state.draft.contentBackdropOpacity = state.draft.dailyLogBackgroundOpacity;
+
     const draft=cleanDraftForSave();
+    draft.audioVolume=clamp(state.draft.audioVolume,0,100,35);
+    draft.audioPlayMode=String(state.draft.audioPlayMode||draft.audioPlayMode||'full')==='segment'?'segment':'full';
+    draft.audioStart=String(state.draft.audioStart??draft.audioStart??'00:00');
+    draft.audioEnd=String(state.draft.audioEnd??draft.audioEnd??'00:20');
+    draft.audioFade=state.draft.audioFade!==false;
+    draft.headingBackgroundEnabledV429=state.draft.headingBackgroundEnabledV429===true;
+    draft.headingBackgroundPaddingV429=clamp(state.draft.headingBackgroundPaddingV429,0,40,10);
+    draft.headingBackgroundColorV452=safeHex(state.draft.headingBackgroundColorV452,draft.surface||'#ffffff');
+    draft.headingBackgroundOpacityV452=clamp(state.draft.headingBackgroundOpacityV452,0,100,88);
+    draft.headingBackgroundRadiusV452=clamp(state.draft.headingBackgroundRadiusV452,0,40,10);
+    applyHeadingBackdropAuthorityV496(draft, currentHeadingBackdropAuthorityV496(state.draft));
+    draft.pageBackdropColorV452=safeHex(state.draft.pageBackdropColorV452,draft.surface||'#ffffff');
+    draft.pageBackdropOpacityV452=clamp(state.draft.pageBackdropOpacityV452,0,100,92);
+    draft.quizBackdropEnabledV456=state.draft.quizBackdropEnabledV456===true;
+    draft.quizBackdropColorV456=safeHex(state.draft.quizBackdropColorV456,draft.contentBackdropColor||draft.surface||'#ffffff');
+    draft.quizBackdropOpacityV456=clamp(state.draft.quizBackdropOpacityV456,0,100,92);
+    draft.quizBackdropRadiusV456=clamp(state.draft.quizBackdropRadiusV456,0,40,Number(draft.radius)||10);
+    draft.quizBackdropPaddingV459=clamp(state.draft.quizBackdropPaddingV459,0,40,16);
+    applyQuizBackdropAuthorityV492(draft, currentQuizBackdropAuthorityV492(state.draft));
+    draft.dailyLogBackgroundColor=draft.pageBackdropColorV452;
+    draft.contentBackdropColor=draft.pageBackdropColorV452;
+    draft.dailyLogBackgroundOpacity=draft.pageBackdropOpacityV452;
+    draft.contentBackdropOpacity=draft.pageBackdropOpacityV452;
     draft.svgDefaultAnimation=String(state.draft.svgDefaultAnimation||draft.svgDefaultAnimation||'float').trim()||'float';
 
     // V377: AI-generated cursors must be finalized BEFORE persistence. The AI
@@ -2984,31 +5354,61 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
       if(draft.themeCursorStyle&&draft.themeCursorStyle!=='default'&&!hiddenCursorIdsV382.has(String(draft.themeCursorStyle))){draft.useThemeCursor=true;draft.themeCursorTrailEnabledV161=draft.themeCursorTrailEnabledV161!==false}
       else if(hiddenCursorIdsV382.has(String(draft.themeCursorStyle||draft.customCursorModeIdV161||''))){draft.useThemeCursor=false;draft.themeCursorStyle='default';draft.customCursorModeIdV161='';delete draft.customCursorDependencyV161;}
     }
+    // V443: prime the exact finalized intro inside the user's Save click before
+    // any persistence awaits. The final apply adopts this same Audio element,
+    // matching the Dashboard's working gesture-prime -> async apply -> play flow.
+    try { window.__loggyLogIntroAudioV443?.prime?.(draft || {}); } catch {}
+
+    const saveStamp = new Date().toISOString();
+    const pendingAudioAuthority = audioAuthorityFromThemeV420(draft, saveStamp);
+    writeAudioAuthorityToThemeV420(draft, pendingAudioAuthority);
+    draft.introAudioAuthorityV418 = saveStamp;
     let savedId=state.themeId;
     try{
       if(STUDIO){
         const requested=studioThemeId(),action=studioAction(),shared=readJsonStorage(SHARED_KEY,[]),existing=Array.isArray(shared)?shared.find(item=>String(item?.id||'')===requested):null;
         const builtIn=action==='edit'&&requested&&!existing&&requested!=='theme-custom-builder'&&!requested.startsWith('theme-custom-builder-');
-        if(builtIn)savedId=await persistBuiltIn(requested,draft);else{savedId=existing?.id||(action==='edit'&&requested.startsWith('theme-custom-builder')?requested:makeThemeId());await persistShared(savedId,draft,existing?.sourceThemeId||state.sourceThemeId)}
-        await syncSavedThemeIdentityV364(savedId,draft);
+        if(builtIn)savedId=await persistBuiltIn(requested,draft,saveStamp);else{savedId=existing?.id||(action==='edit'&&requested.startsWith('theme-custom-builder')?requested:makeThemeId());await persistShared(savedId,draft,existing?.sourceThemeId||state.sourceThemeId,saveStamp)}
+        await syncSavedThemeIdentityV364(savedId,draft,saveStamp);
+        await commitSavedAudioAuthorityV420(savedId,draft,saveStamp);
         try{ensureSavedThemeVisibleV378(savedId,draft,existing?.sourceThemeId||state.sourceThemeId||'')}catch{}
-        try{parent.postMessage({type:'dashboard-theme-studio-saved-v43',studioSessionV283:studioSession(),studioActionV283:studioAction(),themeId:savedId,apply:true,builtInOverrideV102:builtIn,themeName:draft.name,sharedThemeV378:builtIn?null:{id:savedId,name:draft.name,sourceThemeId:existing?.sourceThemeId||state.sourceThemeId||'',theme:clone(draft),updatedAt:new Date().toISOString()}},location.origin)}catch{}
+        try{localStorage.setItem('dashboard-theme',String(savedId||'default'));}catch{}
+        try{parent.postMessage({type:'dashboard-theme-studio-saved-v43',studioSessionV283:studioSession(),studioActionV283:studioAction(),themeId:savedId,apply:true,builtInOverrideV102:builtIn,themeName:draft.name,sharedThemeV378:builtIn?null:{id:savedId,name:draft.name,sourceThemeId:existing?.sourceThemeId||state.sourceThemeId||'',selectedVariant:String(draft?.[AI_SELECTED_KEY_V376]||draft?.themeBuilderAiModeV364||'').toLowerCase()==='dark'?'dark':'light',activeVariant:String(draft?.[AI_SELECTED_KEY_V376]||draft?.themeBuilderAiModeV364||'').toLowerCase()==='dark'?'dark':'light',theme:clone(draft),updatedAt:saveStamp}},location.origin)}catch{}
+        try{state.audioBundleCache?.delete?.(String(savedId||''));}catch{}
         setStatus('Saved');setTimeout(close,80);return;
       }
-      if(state.kind==='built-in')savedId=await persistBuiltIn(state.themeId,draft);
-      else if(state.kind==='copy')savedId=await persistCopy(state.themeId,draft);
+      if(state.kind==='built-in')savedId=await persistBuiltIn(state.themeId,draft,saveStamp);
+      else if(state.kind==='copy')savedId=await persistCopy(state.themeId,draft,saveStamp);
       else if(state.kind==='shared'){
-        savedId=await persistShared(state.themeId||makeThemeId(),draft,state.sourceThemeId);try{syncSharedThemesIntoLogV40?.()}catch{}try{if(db?.settings){db.settings.theme=savedId;await saveDb?.();await applyTheme?.(savedId,{persist:false})}}catch{}
+        savedId=await persistShared(state.themeId||makeThemeId(),draft,state.sourceThemeId,saveStamp);try{syncSharedThemesIntoLogV40?.()}catch{}try{if(db?.settings){db.settings.theme=savedId;await saveDb?.()}}catch{}
       }else if(state.kind==='custom')savedId=await persistCustom(draft);
       else{
-        savedId=makeThemeId();await persistShared(savedId,draft,'');try{syncSharedThemesIntoLogV40?.()}catch{}
-        try{if(!db.settings)db.settings={};const copies=typeof ensureThemeCopiesV30==='function'?ensureThemeCopiesV30():(db.settings.themeCopiesV30||=[]);if(!copies.some(item=>item?.id===savedId))copies.push({id:savedId,name:draft.name,sourceThemeId:'',theme:clone(draft),createdAt:new Date().toISOString()});db.settings.theme=savedId;await saveDb?.();await applyTheme?.(savedId,{persist:false});renderThemePicker?.()}catch{}
+        savedId=makeThemeId();await persistShared(savedId,draft,'',saveStamp);try{syncSharedThemesIntoLogV40?.()}catch{}
+        try{if(!db.settings)db.settings={};const copies=typeof ensureThemeCopiesV30==='function'?ensureThemeCopiesV30():(db.settings.themeCopiesV30||=[]);if(!copies.some(item=>item?.id===savedId))copies.push({id:savedId,name:draft.name,sourceThemeId:'',theme:clone(draft),createdAt:saveStamp});db.settings.theme=savedId;await saveDb?.();renderThemePicker?.()}catch{}
       }
-      await syncSavedThemeIdentityV364(savedId,draft);
+      await syncSavedThemeIdentityV364(savedId,draft,saveStamp);
+      await commitSavedAudioAuthorityV420(savedId,draft,saveStamp);
       try{ensureSavedThemeVisibleV378(savedId,draft,state.sourceThemeId||'')}catch{}
-      // Reapply only the already-active theme; no reload, polling, or delayed
-      // repair loops. This makes the just-saved default motion visible now.
-      try{if(db?.settings?.theme===savedId)await applyTheme?.(savedId,{persist:false})}catch{}
+      // V400: a saved appearance is the active appearance everywhere. Dashboard
+      // uses the same theme id and reads the just-saved selectedVariant metadata.
+      try{localStorage.setItem('dashboard-theme',String(savedId||'default'));}catch{}
+      try{state.audioBundleCache?.delete?.(String(savedId||''));}catch{}
+      // Apply exactly once, after every persistence mirror and the intro-audio
+      // authority cache have committed. This avoids the same-theme dedupe wrappers
+      // swallowing the only apply that has the newly saved song/segment settings.
+      try{
+        if(db?.settings?.theme===savedId){
+          await applyTheme?.(savedId,{persist:false,force:true});
+          // V446: Save Theme primes before persistence. Adopt that exact prime
+          // only after the entire wrapped apply has settled. This preserves the
+          // user gesture and prevents late theme wrappers from silencing it.
+          window.__loggyLogIntroAudioV444?.ensureThemeAudio?.(
+            savedId,
+            draft,
+            'theme-builder-save-final-v446'
+          );
+        }
+      }catch{}
 
       // V377: apply the just-saved theme cursor now instead of waiting for a
       // reload or a later settings render. This only runs when the theme has
@@ -4521,6 +6921,40 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
       templateIdV53:String(templateId),
       components:buildTemplateComponentsV339(templateId)
     };
+
+    // V484: Whiteboard and Notebook are real special tabs, not ordinary
+    // component canvases. Give them their runtime state at creation time so
+    // later wrappers never have to infer/repair a half-created tab.
+    if (String(templateId) === 'whiteboard-v197') {
+      const boardId = makeId('board');
+      tab.whiteboardV198 = {
+        version:198,
+        theme:'light',
+        activeBoardId:boardId,
+        folders:[],
+        boards:[{
+          id:boardId,
+          name:'Board 1',
+          camera:{x:160,y:120,zoom:.72},
+          notes:[],images:[],texts:[],strokes:[],connections:[],
+          folderId:'',tags:[],createdAt:Date.now(),updatedAt:Date.now()
+        }]
+      };
+    } else if (String(templateId) === 'notepad-v249') {
+      const categoryId = makeId('notepad-category');
+      const pageId = makeId('notepad-page');
+      tab.notepadV249 = {
+        version:249,
+        activeCategoryId:categoryId,
+        activePageId:pageId,
+        categories:[{id:categoryId,name:'Notebook 1'}],
+        pages:[{
+          id:pageId,title:'Page 1',categoryId,paper:'lined',html:'',images:[],
+          createdAt:Date.now(),updatedAt:Date.now()
+        }]
+      };
+    }
+
     addOptionalCreateContentV339(tab, modal);
 
     if (!Array.isArray(tab.components) || !tab.components.length) {
@@ -4548,10 +6982,20 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     try { customTabEditMode = false; } catch {}
     try { renderCustomTabView(tab.id); } catch {}
     try {
-      const liveView = document.getElementById(`custom-tab-view-${tab.id}`) || view;
-      if (liveView) switchView(liveView);
-      else openCustomTab?.(tab.id);
-    } catch {}
+      const special = ['whiteboard-v197','notepad-v249'].includes(String(templateId));
+      if (special && typeof openCustomTab === 'function') {
+        // V484: use the dedicated special-tab wrappers. Calling switchView
+        // directly can skip the Whiteboard/Notebook bootstrap/mount path.
+        openCustomTab(tab.id);
+      } else {
+        const liveView = document.getElementById(`custom-tab-view-${tab.id}`) || view;
+        if (liveView) switchView(liveView);
+        else openCustomTab?.(tab.id);
+      }
+    } catch (error) {
+      console.error('V484 could not open newly-created template tab', error);
+      try { openCustomTab?.(tab.id); } catch {}
+    }
     return tab;
   }
 
@@ -5334,7 +7778,8 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
 
   const CROSS='cross-screen';
   const CLONE='themeCrossCloneV350';
-  const EPOCH=performance.now();
+  const FALLBACK_MOTION_EPOCH_V407=Date.UTC(2026,0,1);
+  const motionElapsedV407=theme=>Math.max(0,(Date.now()-(Number(theme?.decorationMotionEpochV407)||FALLBACK_MOTION_EPOCH_V407))/1000);
   const controllers=new WeakMap();
   let lastAppliedTheme=null;
 
@@ -5346,7 +7791,12 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     if(typeof a.visible==='boolean')return a.visible===false;
     return false;
   }
-  function effective(a,t){return String(a?.animationOverride||t?.svgDefaultAnimation||a?.animation||'float').trim()||'float'}
+  function effective(a,t){
+    const ai=t?.themeBuilderAiUsedV364===true||String(t?.themeBuilderAutoToolV364||'')==='ai'||!!t?.themeBuilderAiVariantsV376;
+    const raw=String(a?.animationOverride||'').trim();
+    const override=ai&&a?.animationOverrideUserSetV404!==true?'':raw;
+    return String(override||t?.svgDefaultAnimation||a?.animation||'float').trim()||'float';
+  }
   function alwaysShow(a){return a?.alwaysShowOnScreenV370===true}
   function natural(a){return String(a?.crossDirectionV139||'').toLowerCase()==='left'?'left':'right'}
   function norm(v){
@@ -5360,13 +7810,13 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     return norm(m?.getAttribute?.('src')||m?.getAttribute?.('data')||m?.getAttribute?.('href')||m?.getAttribute?.('xlink:href')||'');
   }
   function assetFor(item,assets,index){
+    const stored=Number(item?.dataset?.svgIndex);
+    if(Number.isFinite(stored)&&stored>=0&&assets[stored])return{asset:assets[stored],index:stored};
     const url=itemUrl(item);
     if(url){
       let f=assets.find(a=>assetUrl(a)===url);if(f)return{asset:f,index:assets.indexOf(f)};
       const base=url.split('/').pop();if(base){f=assets.find(a=>assetUrl(a).split('/').pop()===base);if(f)return{asset:f,index:assets.indexOf(f)}}
     }
-    const stored=Number(item?.dataset?.svgIndex);
-    if(Number.isFinite(stored)&&stored>=0&&assets[stored])return{asset:assets[stored],index:stored};
     const i=index%Math.max(1,assets.length);
     return{asset:assets[index]||assets[i]||null,index:i};
   }
@@ -5382,6 +7832,9 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
   // V374: mirror the placement owner's distribution math for Across Screen
   // clones. Originals read their exact already-resolved parity coordinates.
   function distributionPointV374(theme,index){
+    const saved=Array.isArray(theme?.resolvedDecorationPlacementsV405)?theme.resolvedDecorationPlacementsV405:[];
+    const savedPoint=saved[Math.max(0,Number(index)||0)];
+    if(savedPoint&&Number.isFinite(Number(savedPoint.x))&&Number.isFinite(Number(savedPoint.y)))return{x:Number(savedPoint.x),y:Number(savedPoint.y)};
     const mode=String(theme?.svgDistribution||'random');
     const slots=Array.isArray(theme?.manualPlacementSlotsV40)?theme.manualPlacementSlotsV40:[];
     const hash=(i,a,b)=>((i*a+b)%1000)/1000;
@@ -5444,8 +7897,9 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     if(Number.isFinite(Number(forcedLeft))){
       const x=Math.max(0,Math.min(100,Number(forcedLeft)));
       const p=Math.max(0,Math.min(1,right?((x+16)/132):((116-x)/132)));
-      const elapsed=(performance.now()-EPOCH)/1000;
-      m.phase=((p*m.duration-elapsed)%m.duration+m.duration)%m.duration;
+      // V407: p is the canonical phase at the theme's persisted motion epoch.
+      // Do not subtract a page-local performance clock here.
+      m.phase=p*m.duration;
     }
     item.dataset.v350Across='1';item.dataset.svgIndex=String(assetIndex);item.dataset.themeCrossInstanceV94=String(instance);item.dataset.themeCrossDirectionV94=travel;item.dataset.themeCrossNaturalFacingV350=facing;
     item.classList.add('theme-cross-screen-v94');item.classList.toggle('theme-cross-ltr-v94',right);item.classList.toggle('theme-cross-rtl-v94',!right);item.classList.toggle('theme-cross-face-right-v139',right);item.classList.toggle('theme-cross-face-left-v139',!right);
@@ -5467,9 +7921,11 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
   }
 
   function signature(theme){
-    return JSON.stringify((Array.isArray(theme?.backgroundSvgs)?theme.backgroundSvgs:[]).map((a,i)=>[
+    const rows=(Array.isArray(theme?.backgroundSvgs)?theme.backgroundSvgs:[]).map((a,i)=>[
       assetSeed(a,i),hidden(a),alwaysShow(a),effective(a,theme),natural(a),Number(a?.opacityV109??a?.opacity??100),Number(theme?.decorationAnimationSpeedV369||100),!!theme?.reduceDecorationOverlapV361,!!theme?.preventDecorationOverlapV367,String(theme?.svgDistribution||'random'),JSON.stringify(theme?.manualPlacementSlotsV40||[])
-    ]));
+    ]);
+    rows.push(['layout-v405',JSON.stringify(theme?.resolvedDecorationPlacementsV405||[])]);
+    return JSON.stringify(rows);
   }
 
   function configureStage(stage,theme,itemSelector){
@@ -5492,21 +7948,29 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     const entries=[];
     originals.forEach((item,displayIndex)=>{
       const found=assetFor(item,assets,displayIndex),asset=found.asset;
-      // V374: strict-overlap suppressed art must stay hidden. The old order
-      // removed visibility first and then skipped motion, revealing a frozen item.
-      if(item.dataset.noOverlapSuppressedV370==='1'){
+      const globalCross=String(theme?.svgDefaultAnimation||'').trim()===CROSS;
+      const rawOverride=String(asset?.animationOverride||'').trim();
+      const explicitAway=asset?.animationOverrideUserSetV404===true&&rawOverride&&rawOverride!==CROSS;
+      const shouldCross=globalCross?!explicitAway:!!asset&&effective(asset,theme)===CROSS;
+      // V406: strict-overlap is only meaningful for stationary artwork. Across
+      // Screen movers use their saved X as travel phase, so a stale suppression
+      // flag must never keep them out of the mover list.
+      if(item.dataset.noOverlapSuppressedV370==='1'&&!shouldCross){
         item.style.setProperty('visibility','hidden','important');
         item.style.setProperty('pointer-events','none','important');
         clearItem(item);return;
       }
+      if(shouldCross&&item.dataset.noOverlapSuppressedV370==='1')delete item.dataset.noOverlapSuppressedV370;
       item.style.removeProperty('visibility');item.style.removeProperty('pointer-events');delete item.dataset.loggyAcrossHiddenV336;
-      // V371: strict visibility/placement has one owner: the parity placement
-      // runtime in Extras 4. Across Screen only respects that decision; it does
-      // not independently hide/reposition decorations anymore.
-      if(!asset||hidden(asset)||effective(asset,theme)!==CROSS){clearItem(item);return}
-      // Source-facing label owns the original's travel direction.
-      const travel=natural(asset);
-      entries.push({item,asset,assetIndex:found.index,travel});
+      // V371/V406: parity owns stationary visibility/placement; Across Screen
+      // consumes the same saved Y/phase but is never statically collision-hidden.
+      if(!shouldCross){clearItem(item);return}
+      // When Across Screen is the global default, every rendered decoration is
+      // enrolled even if an old renderer failed to preserve its asset index.
+      const sourceAsset=asset||{id:`rendered-${displayIndex}`,crossDirectionV139:'right'};
+      const sourceIndex=asset?found.index:displayIndex;
+      const travel=natural(sourceAsset);
+      entries.push({item,asset:sourceAsset,assetIndex:sourceIndex,travel});
     });
     if(!entries.length){
       // No Across Screen assets. The V366 atomic decoration gate owns reveal.
@@ -5544,7 +8008,7 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
 
     const positionMover=(mover,now)=>{
       const item=mover.item;if(!item?.isConnected)return;
-      const elapsed=(now-EPOCH)/1000;
+      const elapsed=motionElapsedV407(ctrl.theme);
       const p=((mover.phase+elapsed)%mover.duration)/mover.duration;
       const left=mover.travel==='right'?(-16+132*p):(116-132*p);
       item.style.setProperty('left',`${left.toFixed(4)}%`,'important');item.dataset.v350OwnsLeft='1';
@@ -5603,6 +8067,11 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     if(live)configureStage(live,theme,':scope > .theme-builder-live-art-item');
     if(dash)configureStage(dash,theme,':scope > .theme-builder-dashboard-art-item-v45, :scope > .theme-builder-dashboard-art-item-v40');
   }
+
+  // V404: the final decoration owner can explicitly reassert the one Across
+  // Screen controller after every placement/default-motion pass.
+  window.__loggyConfigureAcrossV404 = theme => configureApplied(theme||lastAppliedTheme||{});
+  window.__loggyConfigureBuilderAcrossV404 = modal => configureBuilder(modal);
 
   function wrap(name,after){
     try{
@@ -6428,7 +8897,12 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     return h>>>0;
   };
   const unit = (seed,salt) => hash32(`${seed}|${salt}`)/4294967296;
-  const effective = (asset, theme) => String(asset?.animationOverride || theme?.svgDefaultAnimation || asset?.animation || 'float').trim() || 'float';
+  const effective = (asset, theme) => {
+    const ai=theme?.themeBuilderAiUsedV364===true||String(theme?.themeBuilderAutoToolV364||'')==='ai'||!!theme?.themeBuilderAiVariantsV376;
+    const raw=String(asset?.animationOverride||'').trim();
+    const override=ai&&asset?.animationOverrideUserSetV404!==true?'':raw;
+    return String(override||theme?.svgDefaultAnimation||asset?.animation||'float').trim()||'float';
+  };
   const hidden = a => !!(a && (a.hiddenOnScreenV63===true || a.hidden===true || a.enabled===false || a.showOnScreen===false || a.visible===false || a.visibleV63===false));
   const norm = v => {
     const raw=String(v||'').trim(); if(!raw)return'';
@@ -7080,6 +9554,15 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     root.setProperty('--custom-theme-theme-settings-plus-hover-icon-v322',hex(theme.themeSettingsPlusHoverIconColorV322,text));
     root.setProperty('--custom-theme-theme-settings-plus-hover-background-v322',hex(theme.themeSettingsPlusHoverBackgroundColorV322,hover));
     root.setProperty('--custom-theme-theme-settings-plus-hover-border-v322',hex(theme.themeSettingsPlusHoverBorderColorV322,border));
+    root.setProperty('--custom-theme-heading-bg-color-v429',hex(theme.headingBackgroundColorV452||theme.contentBackdropColor,surface));
+    root.setProperty('--custom-theme-heading-bg-opacity-v429',theme.headingBackgroundEnabledV429===true?`${Math.max(0,Math.min(100,Number(theme.headingBackgroundOpacityV452??theme.contentBackdropOpacity)||0))}%`:'0%');
+    root.setProperty('--custom-theme-heading-bg-padding-v429',theme.headingBackgroundEnabledV429===true?`${Math.max(0,Math.min(40,Number(theme.headingBackgroundPaddingV429)||0))}px`:'0px');
+    root.setProperty('--custom-theme-heading-bg-radius-v452',theme.headingBackgroundEnabledV429===true?`${Math.max(0,Math.min(40,Number(theme.headingBackgroundRadiusV452??theme.radius)||0))}px`:'0px');
+    const quizOnV456=theme.quizBackdropEnabledV456===true;
+    root.setProperty('--custom-theme-quiz-backdrop-color-v456',hex(quizOnV456?theme.quizBackdropColorV456:theme.contentBackdropColor,surface));
+    root.setProperty('--custom-theme-quiz-backdrop-opacity-v456',`${Math.max(0,Math.min(100,Number(quizOnV456?theme.quizBackdropOpacityV456:(theme.contentBackdropEnabled?theme.contentBackdropOpacity:0))||0))}%`);
+    root.setProperty('--custom-theme-quiz-backdrop-radius-v456',`${Math.max(0,Math.min(40,Number(quizOnV456?theme.quizBackdropRadiusV456:theme.radius)||0))}px`);
+    root.setProperty('--custom-theme-quiz-backdrop-padding-v459',`${Math.max(0,Math.min(40,Number(quizOnV456?theme.quizBackdropPaddingV459:0)||0))}px`);
   }
 
   // Theme Builder iframe: update Settings + colors straight from the live draft,
@@ -7127,9 +9610,14 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
 
   function finalizeDecorationsV366(theme){
     const resolved=theme&&typeof theme==='object'?theme:appliedThemeObjectV366();
+    // Placement/default-motion runtimes may rewrite animation classes after V350.
+    // Reassert Across Screen last so EVERY decoration inheriting the global
+    // default is enrolled before the atomic gate reveals the scene.
     try { window.__loggyApplyDefaultMotionsV363?.(resolved); } catch {}
+    try { window.__loggyConfigureAcrossV404?.(resolved); } catch {}
     requestAnimationFrame(()=>{
       try { window.__loggyApplyDefaultMotionsV363?.(resolved); } catch {}
+      try { window.__loggyConfigureAcrossV404?.(resolved); } catch {}
       gate()?.end?.();
     });
   }
@@ -7188,6 +9676,7 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     const hint=qa('.modal-section .progress-hint',modal).find(el=>/search or click a theme to apply/i.test(el.textContent||''))||q('.progress-hint',modal);
     if(hint)modal.style.setProperty('--settings-subtitle-color-v366',getComputedStyle(hint).color);
   }
+  const settings = q('#daily-settings-modal');
   if(settings){
     new MutationObserver(()=>{if(!settings.classList.contains('hidden'))requestAnimationFrame(syncSettingsVisualParityV366)}).observe(settings,{attributes:true,attributeFilter:['class']});
   }
@@ -7384,12 +9873,14 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     if (!source || typeof source !== 'object') return {};
     const defaultAnimation = String(source.svgDefaultAnimation || 'float').trim() || 'float';
     const assets = Array.isArray(source.backgroundSvgs) ? source.backgroundSvgs : [];
+    const aiTheme = source.themeBuilderAiUsedV364===true || String(source.themeBuilderAutoToolV364||'')==='ai' || !!source.themeBuilderAiVariantsV376;
     return {
       ...source,
       svgDefaultAnimation: defaultAnimation,
       backgroundSvgs: assets.map(asset => {
         if (!asset || typeof asset !== 'object') return asset;
-        const override = String(asset.animationOverride || '').trim();
+        const rawOverride = String(asset.animationOverride || '').trim();
+        const override = aiTheme && asset.animationOverrideUserSetV404 !== true ? '' : rawOverride;
         return { ...asset, animationOverride: override, animation: override || defaultAnimation };
       })
     };
@@ -7436,6 +9927,7 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     // loading. Remounting was itself a late write and could restart an older
     // renderer. Rebinding motion in place is sufficient and preserves nodes.
     try { window.__loggyApplyDefaultMotionsV363?.(theme); } catch {}
+    try { window.__loggyConfigureAcrossV404?.(theme); } catch {}
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(repairCurrentV372), { once:true });
   else requestAnimationFrame(repairCurrentV372);
@@ -7443,74 +9935,7 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
 
 
 
-// ============================================================================
-// V375 — THEME INTRO AUDIO SINGLE OWNER
-// Every real theme application destroys the outgoing intro Audio object before
-// the incoming theme starts. Clearing `src` is required because old play()
-// promises / retry callbacks can otherwise revive a paused song after a switch.
-// ============================================================================
-(() => {
-  'use strict';
-  if (window.__loggyThemeAudioSingleOwnerV375) return;
-  window.__loggyThemeAudioSingleOwnerV375 = true;
-
-  const disposeV375 = audio => {
-    if (!audio) return;
-    try { audio.pause(); } catch {}
-    try { audio.currentTime = 0; } catch {}
-    try { audio.removeAttribute?.('src'); } catch {}
-    try { audio.src = ''; } catch {}
-    try { audio.load?.(); } catch {}
-  };
-
-  function stopOutgoingIntroV375() {
-    let outgoing = null;
-    try { outgoing = customThemeIntroAudioV2 || null; } catch {}
-    try {
-      if (customThemeIntroStopTimerV2) clearTimeout(customThemeIntroStopTimerV2);
-      if (customThemeIntroFadeTimerV2) clearInterval(customThemeIntroFadeTimerV2);
-      if (typeof customThemeIntroFadeStartTimerV3 !== 'undefined' && customThemeIntroFadeStartTimerV3) clearTimeout(customThemeIntroFadeStartTimerV3);
-      customThemeIntroStopTimerV2 = null;
-      customThemeIntroFadeTimerV2 = null;
-      if (typeof customThemeIntroFadeStartTimerV3 !== 'undefined') customThemeIntroFadeStartTimerV3 = null;
-    } catch {}
-    disposeV375(outgoing);
-    try { if (customThemeIntroAudioV2 === outgoing) customThemeIntroAudioV2 = null; } catch {}
-  }
-
-  // Harden every historical clear call as well as the final theme-apply path.
-  try {
-    const clearBeforeV375 = window.clearCustomThemeRuntimeMediaV2 || (typeof clearCustomThemeRuntimeMediaV2 === 'function' ? clearCustomThemeRuntimeMediaV2 : null);
-    if (typeof clearBeforeV375 === 'function' && !clearBeforeV375.__themeAudioSingleV375) {
-      const fn = function () {
-        let outgoing = null;
-        try { outgoing = customThemeIntroAudioV2 || null; } catch {}
-        const result = clearBeforeV375.apply(this, arguments);
-        disposeV375(outgoing);
-        return result;
-      };
-      fn.__themeAudioSingleV375 = true;
-      window.clearCustomThemeRuntimeMediaV2 = fn;
-      try { clearCustomThemeRuntimeMediaV2 = fn; } catch {}
-    }
-  } catch {}
-
-  try {
-    const applyBeforeV375 = window.applyCustomBuiltTheme || (typeof applyCustomBuiltTheme === 'function' ? applyCustomBuiltTheme : null);
-    if (typeof applyBeforeV375 === 'function' && !applyBeforeV375.__themeAudioSingleV375) {
-      const fn = function () {
-        stopOutgoingIntroV375();
-        return applyBeforeV375.apply(this, arguments);
-      };
-      fn.__themeAudioSingleV375 = true;
-      window.applyCustomBuiltTheme = fn;
-      try { applyCustomBuiltTheme = fn; } catch {}
-    }
-  } catch {}
-
-  window.addEventListener('pagehide', stopOutgoingIntroV375);
-})();
-
+// Intro-audio single ownership is handled by the canonical V420 player in template-extras-2.js.
 
 /* V380 — THEME-CONTROLLED LOG SETTINGS MODAL COLORS */
 (()=>{
@@ -7519,12 +9944,17 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
  const q=(s,r=document)=>r?.querySelector?.(s)||null;
  const valid=v=>/^#[0-9a-f]{6}$/i.test(String(v||'').trim());
  const hex=(v,f)=>valid(v)?String(v).trim():f;
+ const rgb=v=>{const m=String(v||'').match(/^#([0-9a-f]{6})$/i);if(!m)return null;const n=parseInt(m[1],16);return[(n>>16)&255,(n>>8)&255,n&255]},lum=v=>{const a=rgb(v);if(!a)return 1;const c=a.map(x=>{x/=255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4});return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+ const darkSurface=(v,candidates=[])=>{const pool=[v,...candidates].filter(valid);for(const c of pool)if(lum(c)<=.22)return c;const base=rgb(pool[0]||'#1b1b1b')||[27,27,27];let f=.72,out='#1b1b1b';for(let i=0;i<8;i++){const a=base.map(x=>Math.max(0,Math.min(255,Math.round(x*f))));out='#'+a.map(x=>x.toString(16).padStart(2,'0')).join('');if(lum(out)<=.22)return out;f*=.72}return out};
+ const readable=(bg,v)=>{v=hex(v,lum(bg)<.35?'#f7f7f7':'#111111');const r=(Math.max(lum(bg),lum(v))+.05)/(Math.min(lum(bg),lum(v))+.05);return r>=4.5?v:(lum(bg)<.35?'#f7f7f7':'#111111')};
  function apply(theme={}){
    const root=document.documentElement.style;
-   const surface=hex(theme.surface,'#ffffff'),text=hex(theme.text,'#111111'),border=hex(theme.border,text),hover=hex(theme.hoverColor,hex(theme.accent,'#eeeeee'));
+   const surface=hex(theme.surface,'#ffffff'),page=hex(theme.background,surface),mode=String(theme.themeBuilderAiSelectedVariantV376||theme.themeBuilderAiModeV364||'').toLowerCase(),darkMode=mode==='dark'||lum(page)<=.22;
+   const settingsBg=darkMode?darkSurface(hex(theme.settingsModalBackgroundColorV380,surface),[surface,page]):hex(theme.settingsModalBackgroundColorV380,surface);
+   const text=readable(settingsBg,hex(theme.settingsModalTextColorV380,hex(theme.text,'#111111'))),border=hex(theme.border,text),hover=hex(theme.hoverColor,hex(theme.accent,'#eeeeee'));
    const set=(k,v)=>root.setProperty(k,v);
-   set('--settings-modal-bg-v380',hex(theme.settingsModalBackgroundColorV380,surface));
-   set('--settings-modal-text-v380',hex(theme.settingsModalTextColorV380,text));
+   set('--settings-modal-bg-v380',settingsBg);
+   set('--settings-modal-text-v380',text);
    set('--settings-modal-border-v380',hex(theme.settingsModalBorderColorV380,border));
    set('--settings-overlay-v381',hex(theme.settingsModalOverlayColorV381,theme.background||'#000000'));
    set('--settings-section-border-v381',hex(theme.settingsModalSectionBorderColorV381,border));
@@ -7547,6 +9977,10 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
    set('--settings-widget-bg-v380',hex(theme.settingsWidgetBackgroundColorV380,surface));
    set('--settings-widget-text-v380',hex(theme.settingsWidgetTextColorV380,text));
    set('--settings-widget-border-v380',hex(theme.settingsWidgetBorderColorV380,border));
+   set('--settings-cursor-name-v394',hex(theme.settingsCursorNameTextColorV394,hex(theme.settingsWidgetTextColorV380,text)));
+   set('--settings-companion-name-v394',hex(theme.settingsCompanionNameTextColorV394,hex(theme.settingsWidgetTextColorV380,text)));
+   set('--settings-theme-name-v394',hex(theme.settingsThemeNameTextColorV394,hex(theme.settingsModalCardTextColorV380,text)));
+   set('--settings-theme-name-hover-v394',hex(theme.settingsThemeNameHoverTextColorV394,hex(theme.settingsModalHoverTextColorV380,text)));
  }
  try{
    const old=window.applyCustomBuiltTheme;
@@ -7573,9 +10007,20 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
  #daily-settings-modal #cursor-picker .icon-option,#daily-settings-modal #companion-picker .icon-option{background:transparent!important;background-color:transparent!important;background-image:none!important;color:var(--settings-widget-text-v380,var(--settings-card-text-v380,currentColor))!important;border-color:var(--settings-widget-border-v380,var(--settings-card-border-v380,currentColor))!important}
  #daily-settings-modal #cursor-picker .icon-option:hover,#daily-settings-modal #companion-picker .icon-option:hover{background:transparent!important;color:var(--settings-hover-text-v380,currentColor)!important;border-color:var(--settings-selected-border-v380,var(--settings-widget-border-v380,currentColor))!important}
  #daily-settings-modal #cursor-picker .icon-option.selected,#daily-settings-modal #companion-picker .icon-option.selected{background:var(--settings-selected-bg-v380,var(--black,#111))!important;color:var(--settings-selected-text-v380,var(--white,#fff))!important;border-color:var(--settings-selected-border-v380,currentColor)!important}
- #daily-settings-modal #cursor-picker .icon-option small,#daily-settings-modal #companion-picker .icon-option small{color:inherit!important}
+ #daily-settings-modal #cursor-picker .icon-option:not(:hover):not(.selected) small{color:var(--settings-cursor-name-v394,var(--settings-widget-text-v380,currentColor))!important}
+ #daily-settings-modal #companion-picker .icon-option:not(:hover):not(.selected) small{color:var(--settings-companion-name-v394,var(--settings-widget-text-v380,currentColor))!important}
+ #daily-settings-modal #cursor-picker .icon-option:hover small,#daily-settings-modal #companion-picker .icon-option:hover small{color:var(--settings-hover-text-v380,currentColor)!important}
+ #daily-settings-modal #cursor-picker .icon-option.selected small,#daily-settings-modal #companion-picker .icon-option.selected small{color:var(--settings-selected-text-v380,currentColor)!important}
+ #daily-settings-modal .theme-picker-card .theme-picker-info{background:var(--settings-card-bg-v380,var(--settings-modal-bg-v380,#fff))!important}
+ #daily-settings-modal .theme-picker-card .theme-picker-name{color:var(--settings-theme-name-v394,var(--settings-card-text-v380,currentColor))!important}
+ #daily-settings-modal .theme-picker-card:hover .theme-picker-info{background:var(--settings-hover-bg-v380,var(--settings-card-bg-v380,#fff))!important}
+ #daily-settings-modal .theme-picker-card:hover .theme-picker-name{color:var(--settings-theme-name-hover-v394,var(--settings-hover-text-v380,currentColor))!important}
  #daily-settings-modal button:not(.icon-option):not(.theme-picker-card){background:var(--settings-button-bg-v380,transparent)!important;color:var(--settings-button-text-v380,currentColor)!important;border-color:var(--settings-button-border-v380,currentColor)!important}
  #daily-settings-modal button:not(.icon-option):not(.theme-picker-card):hover{background:var(--settings-hover-bg-v380,var(--settings-button-bg-v380,transparent))!important;color:var(--settings-hover-text-v380,var(--settings-button-text-v380,currentColor))!important}
+ #daily-settings-modal .log-settings-trash-card-v327,#daily-settings-modal .log-settings-trash-card-v327:hover,#daily-settings-modal .log-settings-trash-card-v327:focus,#daily-settings-modal .log-settings-trash-card-v327:focus-visible,#daily-settings-modal .log-settings-trash-card-v327:active{background:transparent!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important;color:var(--settings-modal-text-v380,var(--black,#111))!important;border-color:var(--settings-modal-border-v380,currentColor)!important}
+ #daily-settings-modal .log-settings-trash-card-v327>i,#daily-settings-modal .log-settings-trash-card-v327>strong,#daily-settings-modal .log-settings-trash-card-v327>span{color:var(--settings-modal-text-v380,var(--black,#111))!important}
+ #daily-settings-modal #daily-settings-close,#daily-settings-modal #daily-settings-close:hover,#daily-settings-modal #daily-settings-close:focus,#daily-settings-modal #daily-settings-close:active{background:transparent!important;background-color:transparent!important;background-image:none!important;color:var(--settings-modal-text-v380,var(--black,#111))!important;border-color:var(--settings-modal-border-v380,currentColor)!important;box-shadow:none!important}
+ #daily-settings-modal #daily-settings-close i,#daily-settings-modal #daily-settings-close svg{color:var(--settings-modal-text-v380,var(--black,#111))!important;fill:currentColor;stroke:currentColor}
  `;document.head.appendChild(st);
 })();
 
@@ -7662,4 +10107,787 @@ I will paste this ONE raw bundle into Loggy. Loggy will store both variants toge
     if(![HC,HP,CUR,COMP,AI,SHARED].includes(event.key))return;
     refresh();
   });
+})();
+
+// V397 — Settings close X is permanently transparent on Log pages.
+(()=>{
+  'use strict';
+  if(window.__loggySettingsCloseXAuthorityV397)return;window.__loggySettingsCloseXAuthorityV397=true;
+  const st=document.createElement('style');st.id='loggy-settings-close-x-authority-v397';st.textContent=`
+  #daily-settings-modal #daily-settings-close,#daily-settings-modal #daily-settings-close:hover,#daily-settings-modal #daily-settings-close:focus,#daily-settings-modal #daily-settings-close:focus-visible,#daily-settings-modal #daily-settings-close:active,
+  #settings-modal #settings-close,#settings-modal #settings-close:hover,#settings-modal #settings-close:focus,#settings-modal #settings-close:focus-visible,#settings-modal #settings-close:active{
+    background:transparent!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important;
+  }
+  #daily-settings-modal #daily-settings-close{color:var(--settings-modal-text-v380,var(--black,#111))!important;}
+  #settings-modal #settings-close{color:var(--settings-modal-text-v380,var(--black,#111))!important;}
+  #daily-settings-modal #daily-settings-close i,#daily-settings-modal #daily-settings-close svg,#settings-modal #settings-close i,#settings-modal #settings-close svg{color:inherit!important;fill:currentColor!important;stroke:currentColor!important;}
+  `;document.head.appendChild(st);
+  const force=()=>['#daily-settings-close','#settings-close'].forEach(sel=>{const b=document.querySelector(sel);if(!b)return;b.style.setProperty('background','transparent','important');b.style.setProperty('background-color','transparent','important');b.style.setProperty('background-image','none','important');b.style.setProperty('box-shadow','none','important');b.style.setProperty('color','var(--settings-modal-text-v380,var(--black,#111))','important')});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',force,{once:true});else force();
+  document.addEventListener('click',e=>{if(e.target.closest?.('#open-daily-settings-btn,#daily-settings-modal,#settings-modal,#open-settings-btn'))requestAnimationFrame(force)},true);
+  window.addEventListener('message',e=>{if(e.origin===location.origin&&e.data?.type==='loggy-theme-preview-apply-v307')requestAnimationFrame(force)});
+})();
+
+
+// ============================================================================
+// V407 — FINAL SINGLE-SCENE PLACEMENT + APPLIED LOG ACROSS OWNER
+// Saved themes own one immutable placement map. Runtime rendering is not allowed
+// to re-stamp/reindex it from a filtered or page-specific asset list. The real
+// applied Log page also resolves the actually-selected saved theme before it
+// hands control to V350, so a partial/legacy mount object cannot downgrade the
+// global Across Screen setting.
+// ============================================================================
+(() => {
+  'use strict';
+  if(window.__loggySingleSceneV407)return;
+  window.__loggySingleSceneV407=true;
+
+  const hidden=a=>!!(a&&(a.hiddenOnScreenV63===true||a.hidden===true||a.enabled===false||a.showOnScreen===false||a.visible===false||a.visibleV63===false));
+  const validPoint=p=>!!(p&&Number.isFinite(Number(p.x))&&Number.isFinite(Number(p.y)));
+  const isPreview=()=>{try{return new URLSearchParams(location.search).get('theme-builder-preview-v307')==='1'}catch{return false}};
+  const clone=value=>{try{return structuredClone(value)}catch{}try{return JSON.parse(JSON.stringify(value))}catch{return value}};
+
+  function flattenVariantV407(theme){
+    if(!theme||typeof theme!=='object')return{};
+    const mode=String(theme.themeBuilderAiSelectedVariantV376||theme.themeBuilderAiModeV364||theme.selectedVariant||theme.activeVariant||'').toLowerCase()==='dark'?'dark':'light';
+    const variants=(theme.themeBuilderAiVariantsV376&&typeof theme.themeBuilderAiVariantsV376==='object')?theme.themeBuilderAiVariantsV376:((theme.variants&&typeof theme.variants==='object')?theme.variants:null);
+    const variant=variants?.[mode];
+    return variant&&typeof variant==='object'&&!Array.isArray(variant)?{...theme,...variant,themeBuilderAiSelectedVariantV376:mode,themeBuilderAiModeV364:mode}:theme;
+  }
+
+  function selectedAppliedThemeV407(){
+    let resolved={};
+    try{resolved=window.__loggyResolveAppliedThemeV372?.()||{}}catch{}
+    resolved=flattenVariantV407(resolved);
+    return resolved&&typeof resolved==='object'?resolved:{};
+  }
+
+  function ensureLegacyLayoutV407(theme){
+    if(!theme||typeof theme!=='object')return theme;
+    const assets=Array.isArray(theme.backgroundSvgs)?theme.backgroundSvgs:[];
+    const pts=Array.isArray(theme.resolvedDecorationPlacementsV405)?theme.resolvedDecorationPlacementsV405:[];
+    const indexed=assets.every((a,i)=>!a||typeof a!=='object'||Number.isFinite(Number(a.placementIndexV405)));
+    if(pts.length>=assets.length&&pts.slice(0,assets.length).every(validPoint)&&indexed)return theme;
+    // Compatibility only for themes saved before V405/V407. Once created, this
+    // map is preserved; ordinary runtime renders never recompute a saved map.
+    try{return window.__loggyStampDecorationLayoutV405?.(theme)||theme}catch{return theme}
+  }
+
+  function pointV407(theme,row,index){
+    const pts=Array.isArray(theme?.resolvedDecorationPlacementsV405)?theme.resolvedDecorationPlacementsV405:[];
+    const raw=Number(row?.svg?.placementIndexV405 ?? row?.placementIndexV405 ?? row?.originalIndex ?? index);
+    const idx=Number.isFinite(raw)?raw:index;
+    const p=pts[idx];
+    return validPoint(p)?{x:Number(p.x),y:Number(p.y),index:idx}:null;
+  }
+
+  // Assignment readers consume the saved map but do not mutate it.
+  try{
+    const before=getPreviewSvgAssignmentsV10;
+    getPreviewSvgAssignmentsV10=function(modal,draft={}){
+      ensureLegacyLayoutV407(draft);
+      const rows=before.apply(this,arguments)||[];
+      return rows.map((row,i)=>{const p=pointV407(draft,row,i);return p?{...row,left:p.x,top:p.y}:row});
+    };
+  }catch{}
+  try{
+    const before=getRuntimeSvgAssignmentsV10;
+    getRuntimeSvgAssignmentsV10=function(theme={}){
+      ensureLegacyLayoutV407(theme);
+      const rows=before.apply(this,arguments)||[];
+      return rows.map((row,i)=>{const p=pointV407(theme,row,i);return p?{...row,left:p.x,top:p.y}:row});
+    };
+  }catch{}
+
+  function appliedSceneThemeV407(explicit){
+    if(isPreview())return ensureLegacyLayoutV407(flattenVariantV407(explicit&&typeof explicit==='object'?explicit:{}));
+    const selected=selectedAppliedThemeV407();
+    const hasSelected=selected&&Object.keys(selected).length;
+    const source=hasSelected?selected:(explicit&&typeof explicit==='object'?flattenVariantV407(explicit):{});
+    return ensureLegacyLayoutV407(source);
+  }
+
+  function tagAndPlaceV407(explicit={}){
+    const theme=appliedSceneThemeV407(explicit);
+    const stage=document.getElementById('custom-theme-background-stage');if(!stage)return;
+    const all=Array.isArray(theme?.backgroundSvgs)?theme.backgroundSvgs:[];
+    const visible=all.filter(a=>!hidden(a));
+    const pts=Array.isArray(theme?.resolvedDecorationPlacementsV405)?theme.resolvedDecorationPlacementsV405:[];
+    const items=Array.from(stage.querySelectorAll(':scope > .custom-theme-background-svg')).filter(n=>n.dataset.themeCrossCloneV350!=='true'&&n.dataset.themeCrossCloneV149!=='true'&&n.dataset.themeCrossCloneV94!=='true');
+    items.forEach((item,i)=>{
+      // Prefer URL/old dataset mapping when available, otherwise the visible list.
+      let asset=visible[i]||all[i]||{};
+      const existing=Number(item.dataset.svgIndex);
+      if(Number.isFinite(existing)){
+        const byPlacement=all.find(a=>Number(a?.placementIndexV405)===existing);
+        if(byPlacement)asset=byPlacement;
+      }
+      const raw=Number(asset?.placementIndexV405);const idx=Number.isFinite(raw)?raw:i;
+      item.dataset.svgIndex=String(idx);
+      const p=pts[idx];if(!validPoint(p))return;
+      item.style.setProperty('top',`${Math.max(2,Math.min(98,Number(p.y)))}%`,'important');
+      if(item.dataset.v350Across!=='1')item.style.setProperty('left',`${Math.max(2,Math.min(98,Number(p.x)))}%`,'important');
+    });
+    // Always hand V350 the authoritative selected saved theme on the real Log
+    // page. This closes the path where a filtered/legacy mount object had the
+    // right images but an old default animation.
+    try{window.__loggyConfigureAcrossV404BaseV407?.(theme)}catch{}
+  }
+
+  // Route every future V404 call through the actual selected saved theme.
+  try{
+    const base=window.__loggyConfigureAcrossV404;
+    if(typeof base==='function'){
+      window.__loggyConfigureAcrossV404BaseV407=base;
+      window.__loggyConfigureAcrossV404=function(explicit){
+        const theme=appliedSceneThemeV407(explicit);
+        return base(theme);
+      };
+    }
+  }catch{}
+
+  // Outermost mount owner. No re-stamping after an inner renderer has filtered
+  // hidden assets; just tag from the already-saved canonical indices/points.
+  try{
+    const before=window.mountCustomThemeBackgroundSvgsV2;
+    if(typeof before==='function'){
+      const fn=function(theme={}){
+        const scene=appliedSceneThemeV407(theme);
+        const r=before.call(this,scene);
+        tagAndPlaceV407(scene);
+        requestAnimationFrame(()=>tagAndPlaceV407(scene));
+        return r;
+      };
+      fn.__v407SingleScene=true;
+      window.mountCustomThemeBackgroundSvgsV2=fn;try{mountCustomThemeBackgroundSvgsV2=fn}catch{}
+    }
+  }catch{}
+
+  // Event-driven repair for a stage mounted before the lazy V407 bundle, or a
+  // stage replaced by a later legitimate theme application. No polling.
+  let queued=0;
+  const reassert=()=>{
+    if(queued)return;
+    queued=requestAnimationFrame(()=>{queued=0;const t=appliedSceneThemeV407();tagAndPlaceV407(t);try{window.__loggyApplyDefaultMotionsV363?.(t)}catch{}try{window.__loggyConfigureAcrossV404?.(t)}catch{}});
+  };
+  const rootObserver=new MutationObserver(records=>{
+    if(records.some(r=>[...r.addedNodes,...r.removedNodes].some(n=>n?.nodeType===1&&(n.id==='custom-theme-background-stage'||n.querySelector?.('#custom-theme-background-stage')))))reassert();
+  });
+  try{rootObserver.observe(document.documentElement,{childList:true,subtree:true})}catch{}
+  window.addEventListener('pageshow',reassert);
+  window.addEventListener('loggy-features-ready',reassert);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',reassert,{once:true});else reassert();
+  window.__loggyApplyCanonicalPlacementV405=tagAndPlaceV407;
+  window.__loggyApplySingleSceneV407=reassert;
+})();
+
+
+
+// Intro segment/fade enforcement is handled by the canonical V420 player in template-extras-2.js.
+
+// ============================================================================
+// V415 — LOG SETTINGS THEME-GALLERY-ONLY SCROLL OWNER
+// Keep Settings title/search visible. Opening Settings centers the applied theme
+// only inside #theme-picker; it never scrolls the outer .modal-box.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__logSettingsThemeGalleryScrollV415) return;
+  window.__logSettingsThemeGalleryScrollV415 = true;
+
+  function appliedIdV415(){
+    try { return String((typeof db !== 'undefined' ? db : window.db)?.settings?.theme || 'default'); }
+    catch { return 'default'; }
+  }
+  function snapV415(){
+    const modal=document.getElementById('daily-settings-modal');
+    if(!modal||modal.classList.contains('hidden'))return;
+    const box=modal.querySelector(':scope > .modal-box');
+    const picker=document.getElementById('theme-picker');
+    if(box)box.scrollTop=0;
+    if(!picker)return;
+    const id=appliedIdV415();
+    const card=Array.from(picker.querySelectorAll('.theme-picker-card[data-theme]')).find(c=>String(c.dataset.theme||'')===id)||picker.querySelector('.theme-picker-card.selected');
+    if(card){
+      const pr=picker.getBoundingClientRect(),cr=card.getBoundingClientRect();
+      const delta=cr.top-pr.top-Math.max(0,(picker.clientHeight-card.offsetHeight)/2);
+      picker.scrollTop=Math.max(0,picker.scrollTop+delta);
+    }
+    if(box)box.scrollTop=0;
+  }
+  try{
+    const old=window.openGlobalThemeSettings || (typeof openGlobalThemeSettings==='function'?openGlobalThemeSettings:null);
+    if(typeof old==='function'&&!old.__v415GalleryOnly){
+      const fn=function(){const r=old.apply(this,arguments);snapV415();requestAnimationFrame(()=>requestAnimationFrame(snapV415));return r};
+      fn.__v415GalleryOnly=true;
+      window.openGlobalThemeSettings=fn;
+      try{openGlobalThemeSettings=fn}catch{}
+    }
+  }catch{}
+  const modal=document.getElementById('daily-settings-modal');
+  if(modal)new MutationObserver(()=>{if(!modal.classList.contains('hidden'))requestAnimationFrame(()=>requestAnimationFrame(snapV415))}).observe(modal,{attributes:true,attributeFilter:['class']});
+})();
+
+// ============================================================================
+// V444 — LOG INTRO LIFECYCLE IS CORE-OWNED
+// template.js now stops outgoing audio at the start of the real applyTheme(),
+// and starts/adopts the incoming intro at the end. Do not wrap applyTheme here;
+// a late wrapper was the reason first-apply behavior depended on extras timing.
+// ============================================================================
+(() => {
+  'use strict';
+  window.__loggyFinalIntroLifecycleV443 = true;
+  window.__loggyFinalIntroLifecycleV444 = 'core-owned';
+})();
+
+
+/* V429 — decoration downloads + heading-background controls. */
+
+
+// ============================================================================
+// V505 — Heading Backdrop bridge to the single core renderer in template.js.
+// No duplicate selector/state implementation lives in this late bundle anymore.
+// ============================================================================
+(() => {
+  'use strict';
+  const apply = theme => {
+    try { window.__loggyApplyCoreHeadingBackdropV505?.(theme || window.__loggyResolveAppliedThemeV372?.() || getCustomThemeSettings?.() || {}); } catch (_) {}
+  };
+  window.__loggyApplyHeadingBackgroundV431 = apply;
+
+  window.addEventListener('message', event => {
+    if (event.origin !== location.origin || event.data?.type !== 'loggy-theme-preview-apply-v307') return;
+    apply(event.data?.draft || {});
+  });
+
+  document.addEventListener('input', event => {
+    if (!event.target?.closest?.('#theme-builder-v307-modal,#theme-builder-modal')) return;
+    try {
+      const draft = window.__loggyThemeBuilderV307?.state?.draft || window.__loggyActivePreviewThemeV372 || null;
+      if (draft) requestAnimationFrame(() => apply(draft));
+    } catch (_) {}
+  }, true);
+  document.addEventListener('change', event => {
+    if (!event.target?.closest?.('#theme-builder-v307-modal,#theme-builder-modal')) return;
+    try {
+      const draft = window.__loggyThemeBuilderV307?.state?.draft || window.__loggyActivePreviewThemeV372 || null;
+      if (draft) requestAnimationFrame(() => apply(draft));
+    } catch (_) {}
+  }, true);
+
+  try {
+    const before = window.applyCustomBuiltTheme || applyCustomBuiltTheme;
+    if (typeof before === 'function' && !before.__headingBackdropCoreV505) {
+      const wrapped = function(theme) {
+        const result = before.apply(this, arguments);
+        apply(theme || window.__loggyResolveAppliedThemeV372?.() || {});
+        return result;
+      };
+      wrapped.__headingBackdropCoreV505 = true;
+      window.applyCustomBuiltTheme = wrapped;
+      try { applyCustomBuiltTheme = wrapped; } catch (_) {}
+    }
+  } catch (_) {}
+
+  try {
+    const previousSwitch = window.switchView || (typeof switchView === 'function' ? switchView : null);
+    if (typeof previousSwitch === 'function' && !previousSwitch.__headingBackdropCoreV505) {
+      const wrappedSwitch = function() {
+        const result = previousSwitch.apply(this, arguments);
+        requestAnimationFrame(() => window.__loggySyncCoreHeadingBackdropV505?.());
+        return result;
+      };
+      wrappedSwitch.__headingBackdropCoreV505 = true;
+      window.switchView = wrappedSwitch;
+      try { switchView = wrappedSwitch; } catch (_) {}
+    }
+  } catch (_) {}
+
+  try { apply(window.__loggyResolveAppliedThemeV372?.() || getCustomThemeSettings?.() || {}); } catch (_) {}
+})();
+
+
+// ============================================================================
+// V432 — ADVANCED AI UI MATERIAL LANGUAGE
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyAdvancedUiV432) return;
+  window.__loggyAdvancedUiV432 = true;
+  const STYLE_ID='loggy-advanced-ui-style-v432';
+  const allowed = value => ['solid','dashed','dotted','double'].includes(String(value)) ? String(value) : 'solid';
+  const num = (value,min,max,fallback) => { const n=Number(value); return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback; };
+  const flatten = theme => {
+    if (!theme || typeof theme !== 'object') return {};
+    const variants=theme.themeBuilderAiVariantsV376, mode=String(theme.themeBuilderAiSelectedVariantV376||theme.themeBuilderAiModeV364||'').toLowerCase();
+    return variants&&typeof variants==='object'&&variants[mode]&&typeof variants[mode]==='object'?{...theme,...variants[mode]}:theme;
+  };
+  function apply(raw){
+    const theme=flatten(raw||{}), enabled=theme.advancedUiEnabledV432===true;
+    let style=document.getElementById(STYLE_ID);
+    if(!style){style=document.createElement('style');style.id=STYLE_ID;document.head.appendChild(style);}
+    if(!enabled){style.textContent='';document.documentElement.dataset.loggyAdvancedUiV432='0';return;}
+    const card=allowed(theme.advancedBorderStyleV432), input=allowed(theme.advancedInputBorderStyleV432), button=allowed(theme.advancedButtonBorderStyleV432);
+    const width=num(theme.advancedBorderWidthV432,1,4,1), inputRadius=num(theme.advancedInputRadiusV432,0,28,10), cardRadius=num(theme.advancedCardRadiusV432,0,28,10), buttonRadius=num(theme.advancedButtonRadiusV432,0,28,10);
+    document.documentElement.dataset.loggyAdvancedUiV432='1';
+    style.textContent=`
+      body.theme-custom-builder input:not([type="range"]):not([type="color"]):not([type="checkbox"]):not([type="radio"]),
+      body.theme-custom-builder textarea,body.theme-custom-builder select,body.theme-custom-builder .theme-search-wrap,
+      body.theme-custom-builder .notes-editable,body.theme-custom-builder .input-group input{
+        border-style:${input}!important;border-width:${width}px!important;border-radius:${inputRadius}px!important;
+      }
+      body.theme-custom-builder .day-box,body.theme-custom-builder .day-picker-box,body.theme-custom-builder .phrase-card,
+      body.theme-custom-builder .toolbox-item,body.theme-custom-builder .resource-card,body.theme-custom-builder .polaroid-card,
+      body.theme-custom-builder .custom-user-card,body.theme-custom-builder .custom-user-polaroid,body.theme-custom-builder .custom-tab-component,
+      body.theme-custom-builder .note-audio-row,body.theme-custom-builder .modal-box,body.theme-custom-builder .flashcard,
+      body.theme-custom-builder .day-target-box,body.theme-custom-builder #anki-summary-box{
+        border-style:${card}!important;border-width:${width}px!important;border-radius:${cardRadius}px!important;
+      }
+      body.theme-custom-builder .icon-btn:not(.side-nav .icon-btn),body.theme-custom-builder .small-icon-btn:not(.side-nav .small-icon-btn),
+      body.theme-custom-builder .filter-tab,body.theme-custom-builder .chip,body.theme-custom-builder .save-btn,
+      body.theme-custom-builder button.custom-component-action,body.theme-custom-builder .header-back-btn{
+        border-style:${button}!important;border-width:${width}px!important;border-radius:${buttonRadius}px!important;
+      }`;
+  }
+  window.__loggyApplyAdvancedUiV432=apply;
+  try{apply(window.__loggyResolveAppliedThemeV372?.()||getCustomThemeSettings?.()||{});}catch{}
+  try{
+    const before=window.applyCustomBuiltTheme||applyCustomBuiltTheme;
+    if(typeof before==='function'&&!before.__advancedUiV432){
+      const wrapped=function(theme){const result=before.apply(this,arguments);try{apply(theme||window.__loggyResolveAppliedThemeV372?.()||{});}catch{}return result;};
+      wrapped.__advancedUiV432=true;window.applyCustomBuiltTheme=wrapped;try{applyCustomBuiltTheme=wrapped;}catch{}
+    }
+  }catch{}
+  window.addEventListener('message',event=>{if(event.origin!==location.origin||event.data?.type!=='loggy-theme-preview-apply-v307')return;apply(event.data?.draft||{});});
+})();
+
+
+// ============================================================================
+// V456 — INDEPENDENT QUIZ BACKDROP
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyQuizBackdropV456) return;
+  window.__loggyQuizBackdropV456 = true;
+  const root=document.documentElement.style;
+  const validHex=v=>/^#[0-9a-f]{6}$/i.test(String(v||'').trim());
+  const apply=raw=>{
+    const theme=(raw&&typeof raw==='object')?raw:{};
+    const on=theme.quizBackdropEnabledV456===true;
+    document.documentElement.dataset.loggyQuizBoxBackdropV458=on?'1':'0';
+    const color=validHex(on?theme.quizBackdropColorV456:theme.contentBackdropColor)?String(on?theme.quizBackdropColorV456:theme.contentBackdropColor):(validHex(theme.surface)?theme.surface:'#ffffff');
+    const opacity=Math.max(0,Math.min(100,Number(on?theme.quizBackdropOpacityV456:(theme.contentBackdropEnabled?theme.contentBackdropOpacity:0))||0));
+    const radius=Math.max(0,Math.min(40,Number(on?theme.quizBackdropRadiusV456:theme.radius)||0));
+    const padding=Math.max(0,Math.min(40,Number(on?theme.quizBackdropPaddingV459:0)||0));
+    root.setProperty('--custom-theme-quiz-backdrop-color-v456',color);
+    root.setProperty('--custom-theme-quiz-backdrop-opacity-v456',`${opacity}%`);
+    root.setProperty('--custom-theme-quiz-backdrop-radius-v456',`${radius}px`);
+    root.setProperty('--custom-theme-quiz-backdrop-padding-v459',`${padding}px`);
+  };
+  window.__loggyApplyQuizBackdropV456=apply;
+  try{apply(window.__loggyResolveAppliedThemeV372?.()||getCustomThemeSettings?.()||{});}catch{}
+  window.addEventListener('message',event=>{if(event.origin!==location.origin||event.data?.type!=='loggy-theme-preview-apply-v307')return;apply(event.data?.draft||{});});
+})();
+
+
+// ============================================================================
+// V452 — THEME GALLERY KEYBOARD + APPLIED-THEME SCROLL AUTHORITY
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyThemeGalleryNavV452) return;
+  window.__loggyThemeGalleryNavV452 = true;
+  let hovered = false;
+  const modal = document.getElementById('daily-settings-modal');
+  const picker = () => document.getElementById('theme-picker');
+  const appliedId = () => {
+    try { return String((typeof db !== 'undefined' ? db : window.db)?.settings?.theme || 'default'); } catch { return 'default'; }
+  };
+  const scrollApplied = () => {
+    const m = document.getElementById('daily-settings-modal'), p = picker();
+    if (!m || m.classList.contains('hidden') || !p) return;
+    const id = appliedId();
+    const card = Array.from(p.querySelectorAll('.theme-picker-card[data-theme]')).find(c => String(c.dataset.theme || '') === id) || p.querySelector('.theme-picker-card.selected');
+    if (!card) return;
+    const top = Math.max(0, card.offsetTop - Math.max(0, (p.clientHeight - card.offsetHeight) / 2));
+    p.scrollTop = top;
+  };
+  document.addEventListener('pointerover', e => { if (e.target?.closest?.('#theme-picker')) hovered = true; }, true);
+  document.addEventListener('pointerout', e => {
+    const p = picker();
+    if (p && !p.contains(e.relatedTarget)) hovered = false;
+  }, true);
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowDown' || !hovered) return;
+    const p = picker();
+    if (!p || modal?.classList.contains('hidden')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    p.scrollTop = p.scrollHeight;
+  }, true);
+  if (modal) new MutationObserver(() => {
+    if (!modal.classList.contains('hidden')) { scrollApplied(); requestAnimationFrame(scrollApplied); }
+  }).observe(modal,{attributes:true,attributeFilter:['class']});
+  document.addEventListener('click', e => {
+    if (e.target?.closest?.('#open-daily-settings-btn,#open-settings-btn')) { scrollApplied(); requestAnimationFrame(scrollApplied); }
+  }, true);
+})();
+
+
+// ============================================================================
+// V454 — LOG SETTINGS THEME DISPLAY CONTAINER AUTHORITY
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyThemeDisplayAuthorityV454) return;
+  window.__loggyThemeDisplayAuthorityV454 = true;
+  let hoveredV454 = false;
+  const modalV454 = () => document.getElementById('daily-settings-modal');
+  const pickerV454 = () => document.getElementById('theme-picker');
+  const appliedV454 = () => {
+    try { return String(db?.settings?.theme || document.getElementById('daily-theme-select')?.value || 'default'); }
+    catch { return 'default'; }
+  };
+  const scrollAppliedV454 = () => {
+    const modal = modalV454(), picker = pickerV454();
+    if (!modal || modal.classList.contains('hidden') || !picker) return;
+    const id = appliedV454();
+    const cards = Array.from(picker.querySelectorAll('.theme-picker-card[data-theme]'));
+    const card = cards.find(el => String(el.dataset.theme || '') === id) || picker.querySelector('.theme-picker-card.selected');
+    if (!card) return;
+    picker.scrollTop = Math.max(0, card.offsetTop - Math.max(0, (picker.clientHeight - card.offsetHeight) / 2));
+  };
+  const burstV454 = () => {
+    scrollAppliedV454();
+    requestAnimationFrame(scrollAppliedV454);
+    setTimeout(scrollAppliedV454, 40);
+    setTimeout(scrollAppliedV454, 120);
+    setTimeout(scrollAppliedV454, 260);
+  };
+  document.addEventListener('pointerover', e => { if (e.target?.closest?.('#theme-picker')) hoveredV454 = true; }, true);
+  document.addEventListener('pointerout', e => { const p=pickerV454(); if (p && !p.contains(e.relatedTarget)) hoveredV454=false; }, true);
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowDown' || !hoveredV454) return;
+    const p=pickerV454(), m=modalV454();
+    if (!p || !m || m.classList.contains('hidden')) return;
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    p.scrollTop = p.scrollHeight;
+  }, true);
+  const modal = modalV454();
+  if (modal) new MutationObserver(() => { if (!modal.classList.contains('hidden')) burstV454(); }).observe(modal,{attributes:true,attributeFilter:['class']});
+  const bindPickerObserverV454 = () => {
+    const p=pickerV454();
+    if (!p || p.dataset.appliedScrollObserverV454) return;
+    p.dataset.appliedScrollObserverV454='1';
+    new MutationObserver(() => { if (!modalV454()?.classList.contains('hidden')) scrollAppliedV454(); }).observe(p,{childList:true,subtree:true});
+  };
+  bindPickerObserverV454();
+  document.addEventListener('click', e => {
+    if (e.target?.closest?.('#open-settings-btn')) { bindPickerObserverV454(); burstV454(); }
+  }, true);
+})();
+
+
+/* ============================================================
+   V465 — KB bulk count + field-delete confirmation authority
+   ============================================================ */
+(() => {
+  'use strict';
+  if (window.__loggyV465KbPolish) return;
+  window.__loggyV465KbPolish = true;
+
+  // Always use Loggy's styled confirmation modal for deleting KB fields.
+  // This late override wins over legacy definitions that still call confirm().
+  window.deleteKnowledgeField = async function(categoryName, fieldId) {
+    const config = typeof getCategoryConfig === 'function' ? getCategoryConfig(categoryName) : null;
+    const field = config?.fields?.find(entry => String(entry.id) === String(fieldId));
+    if (!field) return;
+    const ok = typeof showAppConfirm === 'function'
+      ? await showAppConfirm({
+          title: 'Delete Field',
+          message: `Delete “${field.name}”? Existing saved values for this field will also be removed.`,
+          confirmLabel: 'Delete Field'
+        })
+      : false;
+    if (!ok) return;
+    config.fields = config.fields.filter(entry => String(entry.id) !== String(fieldId));
+    Object.values(window.db?.phrase_meta || {}).forEach(meta => {
+      if (meta?.type === categoryName && meta.custom_fields && Object.prototype.hasOwnProperty.call(meta.custom_fields, field.name)) {
+        delete meta.custom_fields[field.name];
+      }
+    });
+    try { saveDb(); } catch {}
+    try { renderSettings(); } catch {}
+  };
+
+  // If a legacy script rebuilds the edit modal after initial load, make sure
+  // Enable Parts is converted to the same switch treatment as Hide from quizzes.
+  const syncEditPartsV465 = () => {
+    const input = document.getElementById('edit-item-enable-parts');
+    if (!input || input.dataset.v250Toggle) return;
+    const row = input.closest('.kb-edit-enable-parts-row');
+    if (!row) return;
+    row.classList.add('v250-toggle-row','kb-enable-parts-row');
+    let label = row.querySelector('.field-label');
+    if (label) label.textContent = 'Enable Parts';
+    const copy = document.createElement('div'); copy.className='v250-toggle-copy';
+    if (label) { label.before(copy); copy.append(label); }
+    const control = document.createElement('label'); control.className='v250-switch'; control.setAttribute('aria-label','Enable Parts');
+    input.before(control); control.append(input);
+    const track=document.createElement('span'); track.className='v250-switch-track'; control.append(track);
+    input.dataset.v250Toggle='1';
+  };
+  document.addEventListener('click', e => {
+    if (e.target.closest?.('#phrase-modal,.phrase-card,.polaroid-card')) requestAnimationFrame(syncEditPartsV465);
+  }, true);
+  new MutationObserver(syncEditPartsV465).observe(document.documentElement,{subtree:true,childList:true});
+  setTimeout(syncEditPartsV465,0);
+})();
+
+// ============================================================================
+// V473 — QUIZ DAY SHORTCUTS ARE AUTHORITATIVE IN template.js
+// The former V470 observer override is intentionally retired to avoid competing
+// with the base Today / This Week / All state.
+// ============================================================================
+window.__loggyQuizShortcutExclusiveV470 = true;
+
+// ============================================================================
+// V473 — FLASHCARD CLICK-TO-FLIP AUTHORITY
+// Clicking the face or back toggles the card. Slide arrows/dots/media/audio keep
+// their own interaction and never accidentally flip the card.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyFlashcardFlipAuthorityV473) return;
+  window.__loggyFlashcardFlipAuthorityV473 = true;
+  document.addEventListener('click', event => {
+    const card = event.target?.closest?.('#quiz-learn-view #quiz-flip-front[data-flippable-card-v473="true"]');
+    if (!card) return;
+    if (event.target.closest('.card-slide-arrow, .card-dot, .audio-play-btn, video, iframe, a, input, select, textarea')) return;
+    if (typeof quizMode !== 'undefined' && quizMode !== 'flashcards') return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    quizCardFlipped = !quizCardFlipped;
+    currentSlideIndex = 0;
+    showQuizCard();
+  }, true);
+})();
+
+/* ============================================================================
+   V494 — DECORATION IMAGE SOURCE / VISIBILITY AUTHORITY
+   Keep the artwork inside a decoration shell alive across preview/runtime
+   remounts. Placement/overlap/animation code may replace wrappers, but it must
+   never leave a surviving wrapper with a blank/broken/hidden <img>.
+   ============================================================================ */
+(() => {
+  'use strict';
+  if (window.__loggyDecorationImageAuthorityV494) return;
+  window.__loggyDecorationImageAuthorityV494 = true;
+
+  const STAGE_ID = 'custom-theme-background-stage';
+  const boundImages = new WeakSet();
+  let repairQueued = 0;
+
+  function publicUrlV494(projectPath) {
+    let p = String(projectPath || '').trim().replace(/\\/g, '/').replace(/^\.\//, '');
+    if (!p) return '';
+    const marker = '/public/';
+    const lower = p.toLowerCase();
+    const i = lower.lastIndexOf(marker);
+    if (i >= 0) p = p.slice(i + marker.length);
+    else if (lower.startsWith('public/')) p = p.slice(7);
+    if (!p) return '';
+    return '/' + p.split('/').filter(Boolean).map(part => {
+      try { return encodeURIComponent(decodeURIComponent(part)); }
+      catch { return encodeURIComponent(part); }
+    }).join('/');
+  }
+
+  function currentThemeV494(explicit) {
+    if (explicit && typeof explicit === 'object' && Array.isArray(explicit.backgroundSvgs)) return explicit;
+    try {
+      const preview = window.__loggyActivePreviewThemeV372;
+      const isPreview = new URLSearchParams(location.search).get('theme-builder-preview-v307') === '1';
+      if (isPreview && preview && Array.isArray(preview.backgroundSvgs)) return preview;
+    } catch {}
+    try {
+      const applied = window.__loggyResolveAppliedThemeV372?.();
+      if (applied && Array.isArray(applied.backgroundSvgs)) return applied;
+    } catch {}
+    return {};
+  }
+
+  function hiddenV494(asset) {
+    return asset?.hiddenOnScreenV63 === true || asset?.hidden === true || asset?.enabled === false;
+  }
+
+  function candidatesV494(asset) {
+    const out = [];
+    const push = value => {
+      const v = String(value || '').trim();
+      if (v && !out.includes(v)) out.push(v);
+    };
+    // A source that has already loaded successfully is the safest first choice.
+    // Then try the durable project URL and the remaining persisted fallbacks.
+    push(asset?._stableUrlV164);
+    push(publicUrlV494(asset?.projectPath || asset?.path));
+    push(asset?.url);
+    push(asset?.src);
+    push(asset?.dataUrlBackupV494 || asset?.dataUrl);
+    return out;
+  }
+
+  function assetForWrapperV494(wrapper, theme, displayIndex) {
+    const all = Array.isArray(theme?.backgroundSvgs) ? theme.backgroundSvgs : [];
+    const visible = all.filter(asset => asset && !hiddenV494(asset));
+    const raw = Number(wrapper?.dataset?.svgIndex);
+    if (Number.isFinite(raw)) {
+      const byPlacement = all.find(asset => Number(asset?.placementIndexV405) === raw);
+      if (byPlacement) return byPlacement;
+      if (all[raw]) return all[raw];
+    }
+    return visible[displayIndex] || all[displayIndex] || null;
+  }
+
+  function forceImageVisibleV494(img) {
+    if (!img) return;
+    // Opacity belongs to the decoration WRAPPER. The image itself must remain
+    // fully painted or a later renderer can leave only an empty shell/frame.
+    img.style.setProperty('display', 'block', 'important');
+    img.style.setProperty('visibility', 'visible', 'important');
+    img.style.setProperty('opacity', '1', 'important');
+    img.style.setProperty('max-width', '100%', 'important');
+    img.style.setProperty('max-height', '100%', 'important');
+    img.style.setProperty('width', '100%', 'important');
+    img.style.setProperty('height', '100%', 'important');
+    img.style.setProperty('object-fit', 'contain', 'important');
+  }
+
+  function bindImageV494(img, asset) {
+    if (!img || !asset) return;
+    const sources = candidatesV494(asset);
+    if (!sources.length) return;
+
+    forceImageVisibleV494(img);
+
+    // Never force a fallback that already replaced a broken project URL back to
+    // the broken URL. The old repair observer did exactly that on every src
+    // mutation, causing an endless broken-source/fallback loop and blank artwork.
+    const tried = new Set(String(img.dataset.loggyDecorationTriedV494 || '').split('\n').filter(Boolean));
+    const current = String(img.getAttribute('src') || '').trim();
+    // Keep whatever source is currently painting successfully, including a
+    // blob/data URL. Only move to another candidate after the current source is
+    // absent or has actually emitted an error. This avoids replacing a live
+    // preview image with an unverified derived project path.
+    const currentIsUsableCandidate = current && !tried.has(current);
+    if (!currentIsUsableCandidate) {
+      const next = sources.find(src => !tried.has(src) && !/^blob:/i.test(src)) || sources.find(src => !tried.has(src));
+      if (next && next !== current) img.setAttribute('src', next);
+    }
+
+    img.dataset.loggyDecorationAssetV494 = String(asset?.projectPath || asset?.url || asset?.name || 'asset');
+    if (boundImages.has(img)) return;
+    boundImages.add(img);
+
+    img.addEventListener('load', () => {
+      forceImageVisibleV494(img);
+      const loaded = String(img.getAttribute('src') || img.currentSrc || '').trim();
+      if (loaded && !/^blob:/i.test(loaded)) {
+        asset._stableUrlV164 = loaded;
+        // A successful source is authoritative for this mounted image. Remove it
+        // from the failed-source ledger in case an older attempt marked it.
+        const tried = new Set(String(img.dataset.loggyDecorationTriedV494 || '').split('\n').filter(Boolean));
+        tried.delete(loaded);
+        img.dataset.loggyDecorationTriedV494 = Array.from(tried).join('\n');
+      }
+    });
+
+    img.addEventListener('error', () => {
+      const tried = new Set(String(img.dataset.loggyDecorationTriedV494 || '').split('\n').filter(Boolean));
+      const currentSrc = String(img.getAttribute('src') || '').trim();
+      if (currentSrc) tried.add(currentSrc);
+      img.dataset.loggyDecorationTriedV494 = Array.from(tried).join('\n');
+      const next = candidatesV494(asset).find(src => !tried.has(src));
+      if (next) {
+        img.setAttribute('src', next);
+        forceImageVisibleV494(img);
+      }
+    });
+  }
+
+  function repairStageV494(explicitTheme) {
+    const stage = document.getElementById(STAGE_ID);
+    if (!stage) return;
+    const theme = currentThemeV494(explicitTheme);
+    const wrappers = Array.from(stage.querySelectorAll(':scope > .custom-theme-background-svg'))
+      .filter(node => node.dataset.themeCrossCloneV350 !== 'true' && node.dataset.themeCrossCloneV149 !== 'true' && node.dataset.themeCrossCloneV94 !== 'true');
+
+    wrappers.forEach((wrapper, index) => {
+      const asset = assetForWrapperV494(wrapper, theme, index);
+      if (!asset || hiddenV494(asset)) return;
+      const sources = candidatesV494(asset);
+      if (!sources.length) return;
+
+      let img = wrapper.querySelector('img');
+      // URL-backed assets must always have an image node. If an older remount
+      // left only the shell, reconstruct just the artwork without touching the
+      // wrapper's position/animation/opacity.
+      if (!img && !String(asset?.markup || '').trim()) {
+        const shell = wrapper.querySelector('.theme-svg-motion-shell,.theme-image-motion-shell-v36') || wrapper;
+        img = document.createElement('img');
+        img.className = 'theme-decoration-image-v36 theme-decoration-image-health-v494';
+        img.alt = '';
+        img.draggable = false;
+        img.decoding = 'async';
+        img.src = sources[0];
+        shell.replaceChildren(img);
+      }
+      bindImageV494(img, asset);
+    });
+  }
+
+  function scheduleRepairV494(theme) {
+    if (repairQueued) cancelAnimationFrame(repairQueued);
+    repairQueued = requestAnimationFrame(() => {
+      repairQueued = 0;
+      repairStageV494(theme);
+    });
+  }
+
+  // Final mount wrapper: repair after all older overlap/placement/animation
+  // owners have finished creating their nodes.
+  try {
+    const before = window.mountCustomThemeBackgroundSvgsV2;
+    if (typeof before === 'function' && !before.__decorationImageAuthorityV494) {
+      const fn = function(theme = {}) {
+        const result = before.apply(this, arguments);
+        repairStageV494(theme);
+        scheduleRepairV494(theme);
+        return result;
+      };
+      fn.__decorationImageAuthorityV494 = true;
+      window.mountCustomThemeBackgroundSvgsV2 = fn;
+      try { mountCustomThemeBackgroundSvgsV2 = fn; } catch {}
+    }
+  } catch {}
+
+  // Repair legitimate later stage replacements without polling.
+  try {
+    new MutationObserver(records => {
+      let relevant = false;
+      for (const record of records) {
+        if (record.type === 'attributes' && record.target?.tagName === 'IMG') { relevant = true; break; }
+        for (const node of record.addedNodes || []) {
+          if (node?.nodeType === 1 && (node.id === STAGE_ID || node.matches?.(`#${STAGE_ID} img`) || node.querySelector?.(`#${STAGE_ID} img`))) { relevant = true; break; }
+        }
+        if (relevant) break;
+      }
+      if (relevant) scheduleRepairV494();
+    }).observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['src','style','class'] });
+  } catch {}
+
+  window.__loggyRepairDecorationImagesV494 = repairStageV494;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => scheduleRepairV494(), { once:true });
+  else scheduleRepairV494();
 })();

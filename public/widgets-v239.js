@@ -43,7 +43,7 @@ function injectStyle() {
   style.id = 'loggy-widgets-v239-style';
   style.textContent = `
   :root{--loggy-widget-surface:var(--white,#fff);--loggy-widget-text:var(--black,#111);--loggy-widget-muted:var(--muted-text,#666);--loggy-widget-border:var(--custom-theme-border-color,#111);--loggy-widget-accent:var(--custom-theme-accent,var(--black,#111));--loggy-widget-track:var(--track-bg,#ececec);--loggy-widget-radius:var(--border-radius,14px)}
-  #loggy-widget-stage-v239{position:fixed;inset:0;z-index:2147483450;pointer-events:none;overflow:visible}
+  #loggy-widget-stage-v239{position:fixed;inset:0;z-index:2147483647!important;pointer-events:none;overflow:visible}
   .loggy-floating-widget-v239{position:fixed;width:min(360px,calc(100vw - 20px));max-height:min(560px,calc(100vh - 20px));display:flex;flex-direction:column;background:var(--loggy-widget-surface);color:var(--loggy-widget-text);border:var(--thick-border,2px solid var(--loggy-widget-border));border-radius:var(--loggy-widget-radius);box-shadow:var(--custom-theme-shadow,8px 8px 0 rgba(0,0,0,.16));overflow:hidden;pointer-events:auto;isolation:isolate}
   .loggy-floating-widget-v239.is-dragging{user-select:none;cursor:grabbing}
   .loggy-widget-header-v239{min-height:48px;display:flex;align-items:center;gap:9px;padding:8px 10px 8px 12px;border-bottom:var(--thin-border,1px solid rgba(0,0,0,.18));cursor:grab;flex:0 0 auto;background:var(--loggy-widget-surface);color:inherit}
@@ -60,7 +60,7 @@ function injectStyle() {
   .loggy-widget-progress-v239{height:9px;border-radius:999px;background:var(--loggy-widget-track);overflow:hidden}.loggy-widget-progress-v239>i{display:block;height:100%;width:0;background:var(--loggy-widget-accent);transition:width .2s linear}
   .loggy-pomodoro-time-v239{font-size:3.1rem;font-weight:900;text-align:center;letter-spacing:.02em;margin:8px 0}.loggy-pomodoro-mode-v239{text-align:center;font-weight:700;margin-bottom:8px}
   .loggy-counter-v239{display:grid;grid-template-columns:1fr 1.4fr 1fr;align-items:stretch;gap:10px;user-select:none;-webkit-user-select:none}.loggy-counter-v239 button{font-size:2rem;min-height:74px}.loggy-counter-v239 output{display:grid;place-items:center;font-size:2.4rem;font-weight:900;border:var(--thin-border,1px solid #aaa);border-radius:var(--loggy-widget-radius)}
-  .loggy-keyboard-rows-v239{display:flex;flex-direction:column;gap:6px;margin-top:9px}.loggy-keyboard-row-v239{display:flex;justify-content:center;gap:5px}.loggy-keyboard-row-v239 button{min-width:28px;padding:6px 7px;flex:1}.loggy-keyboard-controls-v239 button{font-size:.78rem}
+  .loggy-keyboard-rows-v239{display:flex;flex-direction:column;gap:6px;margin-top:9px;padding-left:10px!important;padding-right:10px!important;box-sizing:border-box}.loggy-keyboard-row-v239{display:flex;justify-content:center;gap:5px}.loggy-keyboard-row-v239 button{min-width:28px;padding:6px 0!important;flex:1;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;line-height:1!important;text-indent:0!important}.loggy-keyboard-controls-v239 button{font-size:.78rem}
   .loggy-webcam-v239{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:calc(var(--loggy-widget-radius) * .75);background:var(--loggy-widget-track);transform:scaleX(-1);border:var(--thin-border,1px solid #aaa)}
   .loggy-tuner-note-v239{text-align:center;font-size:3rem;font-weight:900}.loggy-tuner-detail-v239{text-align:center}.loggy-beat-v239{height:14px;border-radius:999px;background:var(--loggy-widget-track);transition:transform .08s,background .08s}.loggy-beat-v239.hit{transform:scaleY(1.7);background:var(--loggy-widget-accent)}
   .loggy-latex-preview-v239{min-height:72px;padding:14px;border:var(--thin-border,1px solid #aaa);border-radius:var(--loggy-widget-radius);overflow:auto;font-size:1.25rem;text-align:center;background:var(--white,#fff);color:var(--black,#111)}
@@ -327,15 +327,44 @@ function latexToMathML(input) {
 }
 
 function compileGraph(expr) {
-  let s = String(expr||'').trim().toLowerCase();
-  if (s.includes('=')) s = s.split('=').slice(1).join('=');
-  if (!s || !/^[0-9a-z+\-*/^().,\s]+$/.test(s)) throw new Error('Use numbers, x, operators, and common math functions.');
-  const words = s.match(/[a-z]+/g) || [];
-  const allowed = new Set(['x','sin','cos','tan','sqrt','abs','log','ln','exp','pi','e','floor','ceil']);
-  if (words.some(w=>!allowed.has(w))) throw new Error('Unsupported function.');
-  s=s.replace(/\^/g,'**').replace(/\bpi\b/g,'Math.PI').replace(/\be\b/g,'Math.E').replace(/\bln\b/g,'Math.log');
-  ['sin','cos','tan','sqrt','abs','log','exp','floor','ceil'].forEach(fn=>{s=s.replace(new RegExp(`\\b${fn}\\b`,'g'),`Math.${fn}`)});
-  return Function('x',`"use strict"; return (${s});`);
+  let source = String(expr||'').trim().toLowerCase();
+  if (source.includes('=')) source = source.split('=').slice(1).join('=');
+  if (!source || !/^[0-9a-z+\-*/^().,\s]+$/.test(source)) throw new Error('Use numbers, x, operators, and common math functions.');
+
+  const tokens=[];
+  const tokenRe=/\s*(\d+(?:\.\d*)?|\.\d+|[a-z]+|[()+\-*/^,])/y;
+  let tokenPos=0;
+  while(tokenPos<source.length){
+    tokenRe.lastIndex=tokenPos;
+    const match=tokenRe.exec(source);
+    if(!match) throw new Error('Unsupported expression.');
+    tokens.push(match[1]);
+    tokenPos=tokenRe.lastIndex;
+  }
+
+  const functions = new Set(['sin','cos','tan','sqrt','abs','log','ln','exp','floor','ceil']);
+  const constants = new Set(['pi','e']);
+  const allowedWords = new Set(['x', ...functions, ...constants]);
+  if (tokens.some(t => /^[a-z]+$/.test(t) && !allowedWords.has(t))) throw new Error('Unsupported function.');
+
+  const endsValue = t => !!t && (/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(t) || t==='x' || constants.has(t) || t===')');
+  const startsValue = t => !!t && (/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(t) || t==='x' || constants.has(t) || functions.has(t) || t==='(');
+  const expanded=[];
+  tokens.forEach((token,index)=>{
+    const prev=tokens[index-1];
+    if(index>0 && endsValue(prev) && startsValue(token)) expanded.push('*');
+    expanded.push(token);
+  });
+
+  const js = expanded.map(token=>{
+    if(token==='^') return '**';
+    if(token==='pi') return 'Math.PI';
+    if(token==='e') return 'Math.E';
+    if(token==='ln') return 'Math.log';
+    if(functions.has(token)) return `Math.${token}`;
+    return token;
+  }).join('');
+  return Function('x',`"use strict"; return (${js});`);
 }
 
 function parseAngle(input) {
@@ -359,7 +388,7 @@ const EXACT_TRIG = {
 
 const BUILTINS = [
   {id:'pomodoro',title:'Pomodoro Timer',icon:'ph-timer',group:'Focus & Input',desc:'A draggable focus timer with work/break modes and saved progress.',preview:'<strong>25:00</strong><small> Focus</small>',mount:mountPomodoro},
-  {id:'keyboard',title:'Keyboard',icon:'ph-keyboard',group:'Focus & Input',desc:'A floating multilingual keyboard that types into the last field you used.',preview:'<span>Q W E R T Y</span>',mount:mountKeyboard},
+  {id:'keyboard',title:'Keyboard',icon:'ph-keyboard',group:'Focus & Input',desc:'A floating multilingual keyboard that types into the text field you activate after opening it.',preview:'<span>Q W E R T Y</span>',mount:mountKeyboard},
   {id:'webcam',title:'Live Webcam Mirror',icon:'ph-video-camera',group:'Practice & Capture',desc:'A mirrored front-camera feed for checking movement, posture, and signing.',preview:'<i class="ph ph-video-camera" style="font-size:1.8rem"></i>',mount:mountWebcam},
   {id:'tuner',title:'Tuner & Metronome',icon:'ph-metronome',group:'Practice & Capture',desc:'Microphone pitch detection plus BPM, tap-tempo, and visual beat accents.',preview:'<strong>A4</strong><span> · 120 BPM</span>',mount:mountTuner},
   {id:'row-counter',title:'Digital Row Counter',icon:'ph-plus-minus',group:'Practice & Capture',desc:'A simple autosaving minus / count / plus counter.',preview:'<strong>− &nbsp; 42 &nbsp; +</strong>',mount:mountRowCounter},
@@ -381,8 +410,21 @@ function defById(id) { return allDefinitions().find(d=>d.id===id); }
 function ensureStage() {
   let stage=document.getElementById('loggy-widget-stage-v239');
   if(!stage){stage=document.createElement('div');stage.id='loggy-widget-stage-v239';document.body.appendChild(stage)}
+  stage.style.setProperty('z-index','2147483647','important');
   return stage;
 }
+function keepWidgetStageTopmostV450(){
+  const stage=document.getElementById('loggy-widget-stage-v239');
+  if(!stage||!document.body)return;
+  stage.style.setProperty('z-index','2147483647','important');
+  if(document.body.lastElementChild!==stage) document.body.appendChild(stage);
+}
+let widgetStageTopmostQueuedV450=false;
+new MutationObserver(()=>{
+  if(widgetStageTopmostQueuedV450)return;
+  widgetStageTopmostQueuedV450=true;
+  queueMicrotask(()=>{widgetStageTopmostQueuedV450=false;keepWidgetStageTopmostV450()});
+}).observe(document.body,{childList:true});
 function defaultPosition(index=0){return {x:Math.max(10,window.innerWidth-380-(index%3)*28),y:70+(index%5)*34};}
 function savePosition(id, shell) {
   const p=prefs(); const r=shell.getBoundingClientRect(); p.positions[id]={x:Math.round(r.left),y:Math.round(r.top)}; setPrefs(p);
@@ -436,11 +478,36 @@ const KEY_LAYOUTS={
  Spanish:[['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l','ñ'],['z','x','c','v','b','n','m'],['á','é','í','ó','ú','ü','¿','¡']],
  Korean:[['ㅂ','ㅈ','ㄷ','ㄱ','ㅅ','ㅛ','ㅕ','ㅑ','ㅐ','ㅔ'],['ㅁ','ㄴ','ㅇ','ㄹ','ㅎ','ㅗ','ㅓ','ㅏ','ㅣ'],['ㅋ','ㅌ','ㅊ','ㅍ','ㅠ','ㅜ','ㅡ']]
 };
-function insertAtTarget(text){const t=lastTextTarget;if(!t||!document.contains(t)){toast('Click a text field first.');return}if(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement){const a=t.selectionStart??t.value.length,b=t.selectionEnd??a;t.setRangeText(text,a,b,'end');t.dispatchEvent(new Event('input',{bubbles:true}));t.focus()}else if(t.isContentEditable){t.focus();document.execCommand('insertText',false,text);t.dispatchEvent(new Event('input',{bubbles:true}))}}
-function backspaceTarget(){const t=lastTextTarget;if(!t||!document.contains(t))return;if(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement){let a=t.selectionStart??t.value.length,b=t.selectionEnd??a;if(a===b&&a>0)a--;t.setRangeText('',a,b,'end');t.dispatchEvent(new Event('input',{bubbles:true}));t.focus()}else if(t.isContentEditable){t.focus();document.execCommand('delete',false)}}
+const KOREAN_SHIFT_MAP_V449={'ㅂ':'ㅃ','ㅈ':'ㅉ','ㄷ':'ㄸ','ㄱ':'ㄲ','ㅅ':'ㅆ','ㅐ':'ㅒ','ㅔ':'ㅖ'};
+const HANGUL_INITIALS_V449=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const HANGUL_VOWELS_V449=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const HANGUL_FINALS_V449=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const HANGUL_COMPOUND_VOWELS_V449={'ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ','ㅜㅓ':'ㅝ','ㅜㅔ':'ㅞ','ㅜㅣ':'ㅟ','ㅡㅣ':'ㅢ'};
+const HANGUL_SPLIT_VOWELS_V449=Object.fromEntries(Object.entries(HANGUL_COMPOUND_VOWELS_V449).map(([pair,value])=>[value,[pair[0],pair[1]]]));
+const HANGUL_COMPOUND_FINALS_V449={'ㄱㅅ':'ㄳ','ㄴㅈ':'ㄵ','ㄴㅎ':'ㄶ','ㄹㄱ':'ㄺ','ㄹㅁ':'ㄻ','ㄹㅂ':'ㄼ','ㄹㅅ':'ㄽ','ㄹㅌ':'ㄾ','ㄹㅍ':'ㄿ','ㄹㅎ':'ㅀ','ㅂㅅ':'ㅄ'};
+const HANGUL_SPLIT_FINALS_V449=Object.fromEntries(Object.entries(HANGUL_COMPOUND_FINALS_V449).map(([pair,value])=>[value,[pair[0],pair[1]]]));
+const HANGUL_DOUBLE_INITIALS_V449={'ㄱㄱ':'ㄲ','ㄷㄷ':'ㄸ','ㅂㅂ':'ㅃ','ㅅㅅ':'ㅆ','ㅈㅈ':'ㅉ'};
+const HANGUL_SPLIT_INITIALS_V449=Object.fromEntries(Object.entries(HANGUL_DOUBLE_INITIALS_V449).map(([pair,value])=>[value,pair[0]]));
+function isKeyboardTextTargetV449(t){if(t instanceof HTMLTextAreaElement)return true;if(t instanceof HTMLInputElement)return !['button','checkbox','color','date','datetime-local','file','hidden','image','month','number','radio','range','reset','submit','time','week'].includes(String(t.type||'text').toLowerCase());return !!t?.isContentEditable}
+function focusKeyboardTargetV449(t){try{t?.focus?.({preventScroll:true})}catch{try{t?.focus?.()}catch{}}}
+function dispatchKeyboardInputV449(t){try{t.dispatchEvent(new Event('input',{bubbles:true}))}catch{}}
+function composeHangulSyllableV449(L,V,T=''){const li=HANGUL_INITIALS_V449.indexOf(L),vi=HANGUL_VOWELS_V449.indexOf(V),ti=HANGUL_FINALS_V449.indexOf(T);return li<0||vi<0||ti<0?`${L||''}${V||''}${T||''}`:String.fromCharCode(0xAC00+((li*21)+vi)*28+ti)}
+function decomposeHangulSyllableV449(char){const source=String(char||'');if(!source)return null;const code=source.charCodeAt(0);if(code>=0xAC00&&code<=0xD7A3){const offset=code-0xAC00,li=Math.floor(offset/(21*28)),vi=Math.floor((offset%(21*28))/28),ti=offset%28;return{kind:'syllable',L:HANGUL_INITIALS_V449[li]||'',V:HANGUL_VOWELS_V449[vi]||'',T:HANGUL_FINALS_V449[ti]||''}}if(HANGUL_INITIALS_V449.includes(source))return{kind:'initial',L:source,V:'',T:''};if(HANGUL_VOWELS_V449.includes(source))return{kind:'vowel',L:'',V:source,T:''};if(source&&HANGUL_FINALS_V449.includes(source))return{kind:'final',L:'',V:'',T:source};return null}
+function hangulComposeStepV449(previousChar,jamo){const next=String(jamo||''),parts=decomposeHangulSyllableV449(previousChar),isVowel=HANGUL_VOWELS_V449.includes(next);if(!parts)return{replacePrevious:false,text:next};if(isVowel){if(parts.kind==='initial'&&parts.L)return{replacePrevious:true,text:composeHangulSyllableV449(parts.L,next,'')};if(parts.kind==='vowel'&&parts.V){const combined=HANGUL_COMPOUND_VOWELS_V449[`${parts.V}${next}`];return combined?{replacePrevious:true,text:combined}:{replacePrevious:false,text:next}}if(parts.kind==='syllable'&&parts.L&&parts.V){if(!parts.T){const combined=HANGUL_COMPOUND_VOWELS_V449[`${parts.V}${next}`];return combined?{replacePrevious:true,text:composeHangulSyllableV449(parts.L,combined,'')}:{replacePrevious:false,text:next}}const split=HANGUL_SPLIT_FINALS_V449[parts.T],stay=split?split[0]:'',move=split?split[1]:parts.T,first=composeHangulSyllableV449(parts.L,parts.V,stay);return HANGUL_INITIALS_V449.includes(move)?{replacePrevious:true,text:first+composeHangulSyllableV449(move,next,'')}:{replacePrevious:true,text:first+move+next}}if(parts.kind==='final'&&parts.T){const split=HANGUL_SPLIT_FINALS_V449[parts.T];if(split&&HANGUL_INITIALS_V449.includes(split[1]))return{replacePrevious:true,text:split[0]+composeHangulSyllableV449(split[1],next,'')}}return{replacePrevious:false,text:next}}if(parts.kind==='initial'&&parts.L){const doubled=HANGUL_DOUBLE_INITIALS_V449[`${parts.L}${next}`];return doubled?{replacePrevious:true,text:doubled}:{replacePrevious:false,text:next}}if(parts.kind==='syllable'&&parts.L&&parts.V){if(!parts.T)return HANGUL_FINALS_V449.includes(next)?{replacePrevious:true,text:composeHangulSyllableV449(parts.L,parts.V,next)}:{replacePrevious:false,text:next};const combined=HANGUL_COMPOUND_FINALS_V449[`${parts.T}${next}`];return combined?{replacePrevious:true,text:composeHangulSyllableV449(parts.L,parts.V,combined)}:{replacePrevious:false,text:next}}return{replacePrevious:false,text:next}}
+function contentEditableRangeV449(target){const sel=window.getSelection();if(sel?.rangeCount){const range=sel.getRangeAt(0);if(target.contains(range.commonAncestorContainer))return range.cloneRange()}const range=document.createRange();range.selectNodeContents(target);range.collapse(false);sel?.removeAllRanges();sel?.addRange(range);return range}
+function previousContentEditableTextPositionV449(target,range){if(!target||!range?.collapsed)return null;const deepest=node=>{if(!node)return null;if(node.nodeType===Node.TEXT_NODE){const length=node.nodeValue?.length||0;return length?{node,offset:length}:null}for(let i=node.childNodes.length-1;i>=0;i--){const found=deepest(node.childNodes[i]);if(found)return found}return null};let container=range.startContainer,offset=range.startOffset;if(container.nodeType===Node.TEXT_NODE&&offset>0)return{node:container,offset};if(container.nodeType===Node.ELEMENT_NODE&&offset>0){const found=deepest(container.childNodes[offset-1]);if(found)return found}let node=container;while(node&&node!==target){let sibling=node.previousSibling;while(sibling){const found=deepest(sibling);if(found)return found;sibling=sibling.previousSibling}node=node.parentNode}return null}
+function setContentEditableCaretV449(node,offset){if(!node?.parentNode)return;const range=document.createRange();range.setStart(node,Math.max(0,Math.min(offset,node.nodeValue?.length||0)));range.collapse(true);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range)}
+function insertAtTarget(text){const t=lastTextTarget;if(!isKeyboardTextTargetV449(t)||!document.contains(t)){toast('Click a text field first.');return}focusKeyboardTargetV449(t);if(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement){const a=t.selectionStart??t.value.length,b=t.selectionEnd??a;t.setRangeText(text,a,b,'end');dispatchKeyboardInputV449(t)}else if(t.isContentEditable){document.execCommand('insertText',false,text);dispatchKeyboardInputV449(t)}}
+function inputHangulAtTargetV449(jamo){const t=lastTextTarget;if(!isKeyboardTextTargetV449(t)||!document.contains(t)){toast('Click a text field first.');return}const next=String(jamo||'');if(!next)return;focusKeyboardTargetV449(t);if(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement){let start=t.selectionStart??t.value.length,end=t.selectionEnd??start;if(start!==end){t.setRangeText('',start,end,'end');end=start}const previous=start>0?t.value.slice(start-1,start):'',step=hangulComposeStepV449(previous,next);if(step.replacePrevious&&start>0)t.setRangeText(step.text,start-1,start,'end');else t.setRangeText(step.text,start,start,'end');dispatchKeyboardInputV449(t);return}if(t.isContentEditable){let range=contentEditableRangeV449(t);if(!range.collapsed){range.deleteContents();range.collapse(true);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range)}const pos=previousContentEditableTextPositionV449(t,range),previous=pos?(pos.node.nodeValue||'').slice(pos.offset-1,pos.offset):'',step=hangulComposeStepV449(previous,next);if(step.replacePrevious&&pos){const node=pos.node,value=node.nodeValue||'',index=pos.offset-1;node.nodeValue=value.slice(0,index)+step.text+value.slice(pos.offset);setContentEditableCaretV449(node,index+step.text.length)}else{range=contentEditableRangeV449(t);const node=document.createTextNode(step.text);range.insertNode(node);setContentEditableCaretV449(node,step.text.length)}dispatchKeyboardInputV449(t)}}
+function reduceHangulCharV449(char){const parts=decomposeHangulSyllableV449(char);if(!parts)return null;if(parts.kind==='syllable'&&parts.L&&parts.V){if(parts.T){const split=HANGUL_SPLIT_FINALS_V449[parts.T];return composeHangulSyllableV449(parts.L,parts.V,split?split[0]:'')}const splitVowel=HANGUL_SPLIT_VOWELS_V449[parts.V];if(splitVowel)return composeHangulSyllableV449(parts.L,splitVowel[0],'');return parts.L}if(parts.kind==='initial'&&parts.L)return HANGUL_SPLIT_INITIALS_V449[parts.L]||'';if(parts.kind==='vowel'&&parts.V){const split=HANGUL_SPLIT_VOWELS_V449[parts.V];return split?split[0]:''}if(parts.kind==='final'&&parts.T){const split=HANGUL_SPLIT_FINALS_V449[parts.T];return split?split[0]:''}return''}
+function backspaceHangulAtTargetV449(){const t=lastTextTarget;if(!isKeyboardTextTargetV449(t)||!document.contains(t))return false;focusKeyboardTargetV449(t);if(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement){const start=t.selectionStart??t.value.length,end=t.selectionEnd??start;if(start!==end||start<=0)return false;const replacement=reduceHangulCharV449(t.value.slice(start-1,start));if(replacement===null)return false;t.setRangeText(replacement,start-1,start,'end');dispatchKeyboardInputV449(t);return true}if(t.isContentEditable){const range=contentEditableRangeV449(t);if(!range.collapsed)return false;const pos=previousContentEditableTextPositionV449(t,range);if(!pos)return false;const node=pos.node,value=node.nodeValue||'',index=pos.offset-1,replacement=reduceHangulCharV449(value.slice(index,pos.offset));if(replacement===null)return false;node.nodeValue=value.slice(0,index)+replacement+value.slice(pos.offset);setContentEditableCaretV449(node,index+replacement.length);dispatchKeyboardInputV449(t);return true}return false}
+function backspaceTarget(){const t=lastTextTarget;if(!isKeyboardTextTargetV449(t)||!document.contains(t))return;focusKeyboardTargetV449(t);if(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement){let a=t.selectionStart??t.value.length,b=t.selectionEnd??a;if(a===b&&a>0)a--;t.setRangeText('',a,b,'end');dispatchKeyboardInputV449(t)}else if(t.isContentEditable){document.execCommand('delete',false);dispatchKeyboardInputV449(t)}}
 function mountKeyboard(body){
-  body.innerHTML=`<div class="loggy-widget-row-v239"><select class="kb-lang"><option>English</option><option>Korean</option><option>Spanish</option></select><span class="loggy-widget-muted-v239">Types into your last active field</span></div><div class="loggy-keyboard-rows-v239"></div>`;let shift=false;const host=body.querySelector('.loggy-keyboard-rows-v239');const lang=body.querySelector('.kb-lang');
-  const render=()=>{host.innerHTML='';KEY_LAYOUTS[lang.value].forEach(row=>{const r=document.createElement('div');r.className='loggy-keyboard-row-v239';row.forEach(ch=>{const b=document.createElement('button');b.className='filter-tab';b.textContent=shift?ch.toLocaleUpperCase():ch;b.onpointerdown=e=>e.preventDefault();b.onclick=()=>insertAtTarget(b.textContent);r.appendChild(b)});host.appendChild(r)});const c=document.createElement('div');c.className='loggy-keyboard-row-v239 loggy-keyboard-controls-v239';[['Shift',()=>{shift=!shift;render()}],['Space',()=>insertAtTarget(' ')],['⌫',backspaceTarget],['Enter',()=>insertAtTarget('\n')]].forEach(([label,fn])=>{const b=document.createElement('button');b.className='filter-tab';b.textContent=label;b.onpointerdown=e=>e.preventDefault();b.onclick=fn;c.appendChild(b)});host.appendChild(c)};lang.onchange=render;render();
+  // V451: never inherit a field that happened to be focused before the Keyboard opened.
+  // The user must activate the destination field after opening this widget.
+  lastTextTarget=null;
+  body.innerHTML=`<div class="loggy-widget-row-v239"><select class="kb-lang" aria-label="Keyboard language"><option>English</option><option selected>Korean</option><option>Spanish</option></select></div><div class="loggy-keyboard-rows-v239"></div>`;let shift=false;const host=body.querySelector('.loggy-keyboard-rows-v239');const lang=body.querySelector('.kb-lang');
+  const render=()=>{host.innerHTML='';KEY_LAYOUTS[lang.value].forEach(row=>{const r=document.createElement('div');r.className='loggy-keyboard-row-v239';row.forEach(ch=>{const b=document.createElement('button');b.className='filter-tab';const shown=lang.value==='Korean'&&shift?(KOREAN_SHIFT_MAP_V449[ch]||ch):(shift?ch.toLocaleUpperCase():ch);b.textContent=shown;b.onpointerdown=e=>e.preventDefault();b.onclick=()=>lang.value==='Korean'?inputHangulAtTargetV449(shown):insertAtTarget(shown);r.appendChild(b)});host.appendChild(r)});const c=document.createElement('div');c.className='loggy-keyboard-row-v239 loggy-keyboard-controls-v239';[['Shift',()=>{shift=!shift;render()}],['Space',()=>insertAtTarget(' ')],['⌫',()=>{if(lang.value!=='Korean'||!backspaceHangulAtTargetV449())backspaceTarget()}],['Enter',()=>insertAtTarget('\n')]].forEach(([label,fn])=>{const b=document.createElement('button');b.className='filter-tab';b.textContent=label;b.onpointerdown=e=>e.preventDefault();b.onclick=fn;c.appendChild(b)});host.appendChild(c)};lang.onchange=()=>{shift=false;render()};render();
 }
 function mountWebcam(body){
   body.innerHTML=`<video class="loggy-webcam-v239" autoplay muted playsinline></video><div class="loggy-widget-actions-v239" style="margin-top:10px"><button class="filter-tab webcam-start"><i class="ph ph-camera"></i> Start Camera</button><button class="filter-tab webcam-stop"><i class="ph ph-stop"></i> Stop</button></div><p class="loggy-widget-muted-v239">Camera access only starts when you press Start Camera.</p>`;let stream=null;const video=body.querySelector('video');
@@ -1021,7 +1088,7 @@ function restoreOpenWidgetsV241(){
     else setTimeout(()=>step(null),120);
   }
 }
-function trackTextTargets(){document.addEventListener('focusin',e=>{const t=e.target;if(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement||t?.isContentEditable)lastTextTarget=t},true)}
+function trackTextTargets(){document.addEventListener('focusin',e=>{const t=e.target;if(isKeyboardTextTargetV449(t))lastTextTarget=t},true)}
 function scheduleDeferredEnhancementsV241(){
   if(deferredEnhancementsScheduledV241)return;
   deferredEnhancementsScheduledV241=true;
