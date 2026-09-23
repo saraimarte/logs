@@ -25128,3 +25128,31 @@ html body #rename-modal #edit-icon-picker {
   }catch{}
 })();
 </script>
+
+<style id="dashboard-edit-info-category-focus-v663">
+/* V663 — Edit Info category states use border emphasis only.
+   Keep the normal background/text so hover/focus/selected never make labels unreadable. */
+#rename-modal #edit-item-category-filter > button[data-category],
+#rename-modal #edit-item-category-filter > button[data-category]:hover,
+#rename-modal #edit-item-category-filter > button[data-category]:focus,
+#rename-modal #edit-item-category-filter > button[data-category]:focus-visible,
+#rename-modal #edit-item-category-filter > button[data-category].active,
+#rename-modal #edit-item-category-filter > button[data-category].active:hover,
+#rename-modal #edit-item-category-filter > button[data-category].active:focus-visible {
+    background: var(--dashboard-create-log-category-bg-v321, var(--dashboard-shared-card, #fff)) !important;
+    background-color: var(--dashboard-create-log-category-bg-v321, var(--dashboard-shared-card, #fff)) !important;
+    color: var(--dashboard-create-log-category-text-v321, var(--dashboard-shared-text, #171717)) !important;
+    border-color: var(--dashboard-create-log-category-border-v321, var(--dashboard-shared-text, #171717)) !important;
+    box-shadow: none !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+#rename-modal #edit-item-category-filter > button[data-category]:hover,
+#rename-modal #edit-item-category-filter > button[data-category]:focus,
+#rename-modal #edit-item-category-filter > button[data-category]:focus-visible,
+#rename-modal #edit-item-category-filter > button[data-category].active,
+#rename-modal #edit-item-category-filter > button[data-category].active:hover,
+#rename-modal #edit-item-category-filter > button[data-category].active:focus-visible {
+    border-width: 3px !important;
+}
+</style>
