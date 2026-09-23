@@ -198,10 +198,119 @@
       let timer=0,revealRaf=0,generation=0;
       const forceEnd=token=>{if(token!==generation)return;cancelAnimationFrame(revealRaf);revealRaf=0;clearTimeout(timer);timer=0;document.documentElement.classList.remove('dashboard-decoration-settling-v366')};
       const end=()=>{const token=generation;clearTimeout(timer);timer=0;cancelAnimationFrame(revealRaf);revealRaf=requestAnimationFrame(()=>forceEnd(token))};
-      const begin=()=>{generation+=1;cancelAnimationFrame(revealRaf);revealRaf=0;clearTimeout(timer);document.documentElement.classList.add('dashboard-decoration-settling-v366');const token=generation;timer=setTimeout(()=>forceEnd(token),1400);return token};
-      window.__dashboardDecorationGateV366={begin,end};begin();
+      const begin=()=>{generation+=1;cancelAnimationFrame(revealRaf);revealRaf=0;clearTimeout(timer);document.documentElement.classList.add('dashboard-decoration-settling-v366');const token=generation;timer=setTimeout(()=>forceEnd(token),240);return token};
+      // V562: do not hide decorations on ordinary startup. The previous unconditional
+      // begin() imposed a guaranteed 1.4s blank decoration delay on every launch.
+      window.__dashboardDecorationGateV366={begin,end};
     })();
     </script>
+<script id="dashboard-audio-registry-v621">
+(()=>{
+  'use strict';
+  if(window.__dashboardAudioRegistryV621)return;
+  window.__dashboardAudioRegistryV621=true;
+  const tracked=new Set();
+  const proto=window.HTMLMediaElement?.prototype;
+  if(proto&&typeof proto.play==='function'){
+    const nativePlay=proto.play;
+    proto.play=function(...args){
+      try{if(this?.tagName==='AUDIO')tracked.add(this)}catch{}
+      return nativePlay.apply(this,args);
+    };
+  }
+  document.addEventListener('play',event=>{
+    try{if(event.target?.tagName==='AUDIO')tracked.add(event.target)}catch{}
+  },true);
+  window.__dashboardPlayedAudioV621=tracked;
+})();
+</script>
+<style id="dashboard-shared-handoff-v622-style">
+html[data-dashboard-shared-handoff-v622="1"] body{
+  background-color:var(--dashboard-v471-bg,#f5f5f5)!important;
+  color:var(--dashboard-v471-text,#171717)!important;
+}
+html[data-dashboard-shared-handoff-v622="1"] #dashboard-shared-theme-art-v40{visibility:hidden!important;}
+</style>
+<script id="dashboard-navigation-audio-stop-v622">
+(()=>{
+  'use strict';
+  if(window.__dashboardNavigationAudioStopV622)return;
+  window.__dashboardNavigationAudioStopV622=true;
+  const dispose=audio=>{
+    if(!audio)return;
+    try{audio.pause()}catch{}
+    try{audio.currentTime=0}catch{}
+    try{audio.removeAttribute?.('src')}catch{}
+    try{audio.src=''}catch{}
+    try{audio.load?.()}catch{}
+  };
+  const nativeMediaPlayV647=HTMLMediaElement?.prototype?.play;
+  let internalNavigationAudioLockV647=false;
+  let navigationUnlockTimerV647=0;
+  const releaseNavigationAudioLockV647=()=>{
+    internalNavigationAudioLockV647=false;
+    if(navigationUnlockTimerV647){clearTimeout(navigationUnlockTimerV647);navigationUnlockTimerV647=0;}
+  };
+  if(nativeMediaPlayV647&&!HTMLMediaElement.prototype.__dashboardNavAudioLockV647){
+    const lockedPlay=function(...args){
+      if(internalNavigationAudioLockV647){
+        try{this.pause?.()}catch{}
+        try{this.currentTime=0}catch{}
+        return Promise.resolve();
+      }
+      return nativeMediaPlayV647.apply(this,args);
+    };
+    try{Object.defineProperty(lockedPlay,'__dashboardNavAudioLockV647',{value:true})}catch{}
+    HTMLMediaElement.prototype.play=lockedPlay;
+    try{Object.defineProperty(HTMLMediaElement.prototype,'__dashboardNavAudioLockV647',{value:true})}catch{}
+  }
+  // V647: the handoff lock is TEMPORARY. V641 left it true forever. When the
+  // Dashboard came back from the browser back/forward cache, that stale flag
+  // survived and silently swallowed every later intro .play() until Ctrl+R.
+  // A restored/visible Dashboard is interactive again, so audio must be allowed.
+  window.addEventListener('pageshow',releaseNavigationAudioLockV647,true);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')releaseNavigationAudioLockV647()},true);
+  window.__dashboardReleaseNavigationAudioLockV647=releaseNavigationAudioLockV647;
+  const stopAll=()=>{
+    try{window.__loggyStopDashboardThemeIntroV416?.()}catch{}
+    try{clearDashboardSharedAudioV41?.()}catch{}
+    try{dispose(dashboardSharedAudioV41)}catch{}
+    try{dispose(dashboardPrimedAudioV41)}catch{}
+    try{window.__dashboardPlayedAudioV621?.forEach?.(dispose)}catch{}
+    try{document.querySelectorAll('audio').forEach(dispose)}catch{}
+  };
+  const lockAndStopV647=()=>{
+    internalNavigationAudioLockV647=true;
+    if(navigationUnlockTimerV647)clearTimeout(navigationUnlockTimerV647);
+    stopAll();
+    // A legacy/source-theme click listener can run later in the SAME click
+    // dispatch. Keep media locked through that dispatch/microtask, but never
+    // carry the lock into a restored Dashboard document.
+    queueMicrotask(stopAll);
+    setTimeout(stopAll,0);
+    // If navigation is cancelled or prevented, do not strand this Dashboard
+    // with audio disabled. A committed navigation will pagehide before this is
+    // useful; BFCache restoration is handled by pageshow above.
+    navigationUnlockTimerV647=setTimeout(()=>{
+      navigationUnlockTimerV647=0;
+      if(document.visibilityState==='visible')releaseNavigationAudioLockV647();
+    },900);
+  };
+  window.__dashboardStopAllAudioBeforeNavigateV622=stopAll;
+  const stopForInternalNavigation=event=>{
+    const link=event.target?.closest?.('a[href]');
+    if(!link)return;
+    let url;try{url=new URL(link.href,location.href)}catch{return}
+    if(url.origin!==location.origin)return;
+    if(url.pathname.startsWith('/app/')||url.pathname==='/theme-studio-host')lockAndStopV647();
+  };
+  // V639: kill Dashboard audio on pointerdown, before navigation starts.
+  document.addEventListener('pointerdown',stopForInternalNavigation,true);
+  document.addEventListener('click',stopForInternalNavigation,true);
+  window.addEventListener('pagehide',stopAll,{capture:true});
+})();
+</script>
+
 <script id="dashboard-theme-preview-bootstrap-v307">
 (() => {
     const params = new URLSearchParams(location.search);
@@ -327,9 +436,11 @@
     html[data-dashboard-palette-probe-v264="true"] *,html[data-dashboard-palette-probe-v264="true"] *::before,html[data-dashboard-palette-probe-v264="true"] *::after{animation:none!important;transition:none!important}
     </style>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="//unpkg.com">
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preload" href="https://unpkg.com/@phosphor-icons/web" as="script" crossorigin="anonymous" fetchpriority="high">
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-    <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script defer crossorigin="anonymous" fetchpriority="high" src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         :root { --black: #000; --white: #fff; --thick-border: 3px solid #000; --thin-border: 2px solid #000; }
         body { font-family: 'Patrick Hand', cursive, sans-serif; background-color: var(--white); color: var(--black); display: flex; flex-direction: column; align-items: center; padding-top: 80px; height: 100vh; margin: 0; box-sizing: border-box; overflow-y: auto;}
@@ -2047,6 +2158,98 @@ try {
 })();
 </script>
 
+<script id="dashboard-v625-earliest-theme-audio-preload">
+// Warm the selected theme's intro media while HTML is still parsing. This is
+// fetch/decode preparation only: it never calls play(), so it cannot create a
+// tab audio indicator or compete with the canonical Dashboard audio owner.
+(()=>{
+  try{
+    const id=String(localStorage.getItem('dashboard-theme')||'default');
+    const rows=JSON.parse(localStorage.getItem('loggy-shared-themes-v40')||'[]');
+    const authority=JSON.parse(localStorage.getItem('loggy-theme-intro-audio-v420')||'{}');
+    const row=Array.isArray(rows)?rows.find(x=>String(x?.id||'')===id):null;
+    const a=authority&&typeof authority==='object'?authority[id]:null;
+    const src=String(a?.introAudio||row?.theme?.introAudio||'').trim();
+    if(!src)return;
+    const link=document.createElement('link');
+    link.rel='preload';link.as='audio';link.href=src;link.fetchPriority='high';
+    document.head.appendChild(link);
+  }catch{}
+})();
+</script>
+<style id="dashboard-v625-first-paint-performance">
+/* Keep Dashboard layout/paint work local while theme art starts animating. */
+#dashboard-grid{contain:layout style paint;}
+#dashboard-shared-theme-art-v40{contain:layout style paint;}
+#dashboard-shared-theme-art-v40 .dashboard-bop-shell-v369,
+#dashboard-shared-theme-art-v40 .dashboard-shared-motion-v41,
+#dashboard-shared-theme-art-v40 .theme-svg-motion-shell{
+  will-change:transform;
+  backface-visibility:hidden;
+}
+</style>
+<script id="dashboard-v552-early-theme-runtime-preload">
+// V552: Returning from a log should not make the selected theme wait until
+// DOMContentLoaded before its CSS/module even START downloading. Resolve the
+// persisted built-in source while the dashboard is still parsing and warm both
+// files immediately. The stylesheet remains selector-gated by body.theme-*; this
+// only warms the cache. modulepreload also lets dynamic import() reuse the parsed
+// module when applyDashboardTheme runs later.
+(() => {
+    try {
+        const selected = String(localStorage.getItem('dashboard-theme') || 'default');
+        const shared = JSON.parse(localStorage.getItem('loggy-shared-themes-v40') || '[]');
+        const row = Array.isArray(shared)
+            ? shared.find(item => String(item?.id || '') === selected)
+            : null;
+        const aliases = {
+            'theme-seahorse': 'theme-seahorses',
+            'theme-artscrafts': 'theme-arts'
+        };
+        let source = String(row?.sourceThemeId || (selected.startsWith('theme-') ? selected : '') || '').trim();
+        source = aliases[source] || source;
+        if (!source || source === 'default' || source === 'theme-arcade') return;
+
+        const name = source.replace(/^theme-/, '');
+        const css = `/themes/${name}/theme-${name}.css`;
+        const js = `/themes/${name}/theme-${name}.js`;
+
+        if (!document.querySelector(`link[data-dashboard-v552-css="${name}"]`)) {
+            const styleWarm = document.createElement('link');
+            styleWarm.rel = 'preload';
+            styleWarm.as = 'style';
+            styleWarm.href = css;
+            styleWarm.dataset.dashboardV552Css = name;
+            document.head.appendChild(styleWarm);
+        }
+        if (!document.querySelector(`link[data-dashboard-v552-js="${name}"]`)) {
+            const moduleWarm = document.createElement('link');
+            moduleWarm.rel = 'modulepreload';
+            moduleWarm.href = js;
+            moduleWarm.dataset.dashboardV552Js = name;
+            document.head.appendChild(moduleWarm);
+        }
+
+        // V562: custom/saved decorations were previously requested only after
+        // Dashboard theme mounting. Warm them while HTML is still parsing so
+        // the decoration stage can paint from cache as soon as it is created.
+        const builtIn = JSON.parse(localStorage.getItem('loggy-built-in-theme-overrides-v102') || '{}');
+        let effective = row?.theme && typeof row.theme === 'object' ? row.theme : (builtIn?.[selected]?.theme || {});
+        const mode = String(effective?.themeBuilderAiSelectedVariantV376 || effective?.themeBuilderAiModeV364 || 'light').toLowerCase()==='dark'?'dark':'light';
+        const variants = effective?.themeBuilderAiVariantsV376 && typeof effective.themeBuilderAiVariantsV376 === 'object' ? effective.themeBuilderAiVariantsV376 : effective?.variants;
+        if (variants?.[mode] && typeof variants[mode] === 'object') effective = {...effective, ...variants[mode]};
+        (Array.isArray(effective?.backgroundSvgs) ? effective.backgroundSvgs : []).filter(asset => asset && asset.hidden !== true).slice(0,20).forEach((asset,index) => {
+            const href = String(asset.url || asset.src || asset.projectPath || '').trim();
+            if (!href || document.querySelector(`link[data-dashboard-v562-deco="${index}"]`)) return;
+            const decoWarm = document.createElement('link');
+            decoWarm.rel='preload'; decoWarm.as='image'; decoWarm.href=href; decoWarm.fetchPriority='high';
+            decoWarm.dataset.dashboardV562Deco=String(index);
+            document.head.appendChild(decoWarm);
+        });
+    } catch {}
+})();
+</script>
+
 
 <style id="dashboard-trash-v155-style">
 /* V155 — fast trash bulk selection / modal stacking */
@@ -2221,6 +2424,58 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
 #rename-modal #edit-item-category-filter>button[data-category]:hover,#rename-modal #edit-item-category-filter>button[data-category]:focus-visible{background-color:var(--dashboard-create-log-category-hover-bg-v321,#eee)!important;color:var(--dashboard-create-log-category-hover-text-v321,var(--dashboard-shared-text,#171717))!important;border-color:var(--dashboard-create-log-category-hover-border-v321,var(--dashboard-shared-text,#171717))!important;}
 #rename-modal #edit-item-category-filter>button[data-category].active{background:var(--dashboard-shared-accent,var(--dashboard-create-log-icon-selected-bg-v396,#111))!important;color:var(--dashboard-create-log-icon-selected-color-v396,#fff)!important;}
 </style>
+
+<style id="dashboard-v566-site-dialog-authority">
+/* V566: site/duplicate-name dialogs must sit ABOVE Create New Log, and use
+   the active theme's Settings palette with readable fallbacks. */
+#dashboard-site-dialog-v43{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483646!important;
+  isolation:isolate!important;
+}
+#dashboard-site-dialog-v43 > .modal-box,
+#dashboard-site-dialog-v43 > .app-confirm-box{
+  position:relative!important;
+  z-index:2147483647!important;
+  background:var(--dashboard-settings-bg-v380,var(--dashboard-create-log-modal-bg-v396,var(--dashboard-surface,#fff)))!important;
+  color:var(--dashboard-settings-text-v380,var(--dashboard-create-log-modal-text-v396,var(--dashboard-ink,#111)))!important;
+  border-color:var(--dashboard-settings-border-v380,var(--dashboard-create-log-modal-border-v396,var(--dashboard-ink,#111)))!important;
+}
+#dashboard-site-dialog-v43 h2,
+#dashboard-site-dialog-v43 p,
+#dashboard-site-dialog-v43 .dashboard-site-dialog-title-v45,
+#dashboard-site-dialog-v43 .dashboard-site-dialog-message-v45{
+  color:var(--dashboard-settings-text-v380,var(--dashboard-create-log-modal-text-v396,var(--dashboard-ink,#111)))!important;
+  opacity:1!important;
+}
+#dashboard-site-dialog-v43 .app-confirm-icon{
+  background:var(--dashboard-settings-card-bg-v380,var(--dashboard-create-log-input-bg-v396,var(--dashboard-surface,#fff)))!important;
+  color:var(--dashboard-settings-card-text-v380,var(--dashboard-create-log-modal-text-v396,var(--dashboard-ink,#111)))!important;
+  border-color:var(--dashboard-settings-card-border-v380,var(--dashboard-create-log-modal-border-v396,var(--dashboard-ink,#111)))!important;
+}
+#dashboard-site-dialog-v43 .app-confirm-cancel,
+#dashboard-site-dialog-v43 .dashboard-site-dialog-cancel-v43{
+  background:var(--dashboard-settings-card-bg-v380,var(--dashboard-create-log-modal-bg-v396,var(--dashboard-surface,#fff)))!important;
+  color:var(--dashboard-settings-card-text-v380,var(--dashboard-create-log-modal-text-v396,var(--dashboard-ink,#111)))!important;
+  border-color:var(--dashboard-settings-card-border-v380,var(--dashboard-create-log-modal-border-v396,var(--dashboard-ink,#111)))!important;
+}
+#dashboard-site-dialog-v43 .app-confirm-delete,
+#dashboard-site-dialog-v43 .dashboard-site-dialog-confirm-v43{
+  background:var(--dashboard-settings-button-bg-v380,var(--dashboard-create-log-button-bg-v396,var(--dashboard-surface,#fff)))!important;
+  color:var(--dashboard-settings-button-text-v380,var(--dashboard-create-log-button-text-v396,var(--dashboard-ink,#111)))!important;
+  border-color:var(--dashboard-settings-button-border-v380,var(--dashboard-create-log-button-border-v396,var(--dashboard-ink,#111)))!important;
+}
+#dashboard-site-dialog-v43 .app-confirm-cancel:hover,
+#dashboard-site-dialog-v43 .dashboard-site-dialog-cancel-v43:hover,
+#dashboard-site-dialog-v43 .app-confirm-delete:hover,
+#dashboard-site-dialog-v43 .dashboard-site-dialog-confirm-v43:hover{
+  background:var(--dashboard-settings-hover-bg-v380,var(--dashboard-hover,#ececec))!important;
+  color:var(--dashboard-settings-hover-text-v380,var(--dashboard-settings-text-v380,var(--dashboard-ink,#111)))!important;
+  border-color:var(--dashboard-settings-selected-border-v380,var(--dashboard-settings-border-v380,var(--dashboard-ink,#111)))!important;
+}
+</style>
+
 </head>
 <body>
     <!-- Hidden settings trigger retained only for existing dashboard-settings wiring.
@@ -2589,11 +2844,12 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
             <div class="dashboard-icon-search-box dashboard-theme-search-box">
                 <i class="ph ph-magnifying-glass"></i>
                 <input
-                    type="search"
+                    type="text"
                     id="dashboard-theme-search"
                     placeholder="Search themes…"
                     autocomplete="off"
                 >
+                <button type="button" id="dashboard-theme-search-clear" class="dashboard-theme-search-clear hidden" aria-label="Clear theme search" title="Clear search"><i class="ph ph-x"></i></button>
             </div>
 
             <div
@@ -2828,14 +3084,17 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
             return normalized;
         }
 
-        async function unmountDashboardThemeModule() {
+        function unmountDashboardThemeModule() {
             const moduleToUnmount = dashboardThemeModule;
             dashboardThemeModule = null;
             dashboardThemeModuleValue = 'default';
 
             if (moduleToUnmount && typeof moduleToUnmount.unmount === 'function') {
                 try {
-                    await moduleToUnmount.unmount();
+                    const cleanup = moduleToUnmount.unmount();
+                    if (cleanup && typeof cleanup.then === 'function') {
+                        cleanup.catch(error => console.warn('Dashboard theme cleanup failed:', error));
+                    }
                 } catch (error) {
                     console.warn('Dashboard theme cleanup failed:', error);
                 }
@@ -3419,120 +3678,96 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
             const value = normalizeDashboardThemeValue(themeValue);
             const token = ++dashboardThemeLoadToken;
 
-            // Stop music, hover audio, timers, event listeners and SVG layers
-            // from the previously mounted theme before applying the next one.
-            await unmountDashboardThemeModule();
+            // V647: applying a theme is a same-page user action. Never let a
+            // stale navigation handoff lock swallow this theme's intro audio.
+            try { window.__dashboardReleaseNavigationAudioLockV647?.(); } catch {}
 
-            if (token !== dashboardThemeLoadToken) return;
+            // V639: incoming theme paint is never blocked by async cleanup.
+            unmountDashboardThemeModule();
 
             Array.from(document.body.classList)
                 .filter(name => name.startsWith('theme-'))
                 .forEach(name => document.body.classList.remove(name));
 
             const oldLink = document.getElementById('dashboard-theme-link');
-
             if (value === 'default') {
                 oldLink?.remove();
             } else {
                 document.body.classList.add(value);
-
                 const themeName = value.replace(/^theme-/, '');
                 let link = oldLink;
-
                 if (!link) {
                     link = document.createElement('link');
                     link.id = 'dashboard-theme-link';
                     link.rel = 'stylesheet';
                     document.head.appendChild(link);
                 }
-
-                // Always load the correctly nested stylesheet. Wait until it is
-                // available before measuring its colors for dashboard contrast.
-                await waitForDashboardThemeStylesheet(
-                    link,
-                    `/themes/${themeName}/theme-${themeName}.css`
-                );
+                await waitForDashboardThemeStylesheet(link, `/themes/${themeName}/theme-${themeName}.css`);
             }
 
             if (token !== dashboardThemeLoadToken) return;
-
-            // Several themes intentionally reuse the same --black/--white value.
-            // Choose a readable dashboard foreground automatically without
-            // changing the theme's own app-page palette.
+            localStorage.setItem('dashboard-theme', value);
             syncDashboardThemeContrast();
             forceDashboardGlobalActionsPosition();
             syncDashboardGlobalActionContrast();
             syncDashboardModalContrast();
 
-            localStorage.setItem('dashboard-theme', value);
-
-            // Mount the exact same JS module used by the theme itself.
-            await mountDashboardThemeModule(value, token);
-
-            if (token === dashboardThemeLoadToken) {
-                // Some theme modules alter decorations/variables after mount,
-                // so check the real button backgrounds one more time.
+            // JS decorations/animation/audio hydrate in the background. Saved
+            // source behavior is preserved; the Dashboard no longer waits on it.
+            Promise.resolve(mountDashboardThemeModule(value, token)).then(() => {
+                if (token !== dashboardThemeLoadToken) return;
                 requestAnimationFrame(() => {
                     syncDashboardThemeContrast();
                     forceDashboardGlobalActionsPosition();
-            syncDashboardGlobalActionContrast();
+                    syncDashboardGlobalActionContrast();
                     syncDashboardModalContrast();
                 });
+            }).catch(() => {});
 
-                renderDashboardThemePicker();
-            }
+            const grid = document.getElementById('dashboard-theme-grid');
+            grid?.querySelectorAll('.dashboard-theme-card[data-theme]').forEach(card => {
+                card.classList.toggle('selected', normalizeDashboardThemeValue(card.dataset.theme || '') === value);
+            });
         }
 
         async function getDashboardThemeValues() {
-            const removed = new Set([
-                'theme-candy',
-                'theme-forest',
-                'theme-blossom',
-                'theme-80s',
-                'theme-rainforest',
-                'theme-arcade'
-            ]);
-
-            const values =
-                new Set(
-                    Object.keys(
-                        DASHBOARD_THEME_PREVIEWS
-                    )
-                );
-
+            const removed = new Set(['theme-candy','theme-forest','theme-blossom','theme-80s','theme-rainforest']);
+            const logOrder = [
+                'default','theme-coquette','theme-pastel','theme-mint','theme-lavender','theme-sunset','theme-honey',
+                'theme-water','theme-midnight','theme-charcoal','theme-noir','theme-whimsical','theme-cloud',
+                'theme-retro','theme-matrix','theme-notebook','theme-terminal','theme-stars','theme-music','theme-scrapbook','theme-fancynancy'
+            ];
+            const discovered = new Set(Object.keys(DASHBOARD_THEME_PREVIEWS || {}));
             try {
-                const response =
-                    await fetch(
-                        '/themes/themes.json',
-                        {
-                            cache: 'no-store'
-                        }
-                    );
-
-                if (response.ok) {
-                    const manifest =
-                        await response.json();
-
-                    if (Array.isArray(manifest)) {
-                        manifest.forEach(theme => {
-                            if (!theme?.id) return;
-
-                            const value = normalizeDashboardThemeValue(
-                                theme.id.startsWith('theme-')
-                                    ? theme.id
-                                    : `theme-${theme.id}`
-                            );
-
-                            if (!removed.has(value)) {
-                                values.add(value);
-                            }
-                        });
-                    }
-                }
+                const shared = JSON.parse(localStorage.getItem('loggy-shared-themes-v40') || '[]');
+                if (Array.isArray(shared)) shared.forEach(row => {
+                    const id = String(row?.id || row?.theme?.id || '').trim();
+                    if (id) discovered.add(normalizeDashboardThemeValue(id));
+                });
             } catch {}
-
-            return Array.from(values)
-                .filter(value => !removed.has(value));
+            // Manifest discovery is background-only and never blocks opening Settings.
+            if (!window.__dashboardThemeManifestWarmV633) {
+                window.__dashboardThemeManifestWarmV633 = true;
+                fetch('/themes/themes.json', {cache:'force-cache'}).then(r=>r.ok?r.json():[]).then(rows=>{
+                    if (!Array.isArray(rows)) return;
+                    rows.forEach(row=>{
+                        if (!row?.id) return;
+                        const id=normalizeDashboardThemeValue(String(row.id).startsWith('theme-')?row.id:`theme-${row.id}`);
+                        if (!removed.has(id)) discovered.add(id);
+                    });
+                    window.__dashboardThemeManifestValuesV633=[...discovered];
+                }).catch(()=>{});
+            }
+            (window.__dashboardThemeManifestValuesV633 || []).forEach(id=>discovered.add(id));
+            const out=[];
+            logOrder.forEach(id=>{ if(discovered.has(id) && !removed.has(id)){out.push(id);discovered.delete(id)} });
+            // Custom/saved themes follow in their saved-library order, exactly like Log options appended after built-ins.
+            try {
+                const shared=JSON.parse(localStorage.getItem('loggy-shared-themes-v40')||'[]');
+                if(Array.isArray(shared)) shared.forEach(row=>{const id=normalizeDashboardThemeValue(String(row?.id||row?.theme?.id||''));if(id&&!removed.has(id)&&discovered.has(id)){out.push(id);discovered.delete(id)}});
+            } catch {}
+            [...discovered].filter(id=>!removed.has(id)).forEach(id=>out.push(id));
+            return out;
         }
 
         function scrollCurrentDashboardThemeIntoView() {
@@ -3578,6 +3813,7 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
             const search = document.getElementById('dashboard-theme-search');
             const grid = document.getElementById('dashboard-theme-grid');
             if (!grid) return;
+            if (grid.dataset.themeGalleryLoadingV636 === '1') return;
 
             const query = String(search?.value || '')
                 .trim()
@@ -3607,78 +3843,77 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
             }
         }
 
+        // V635 — single atomic Dashboard Settings gallery renderer.
+        // Build off-DOM and swap once so overlapping historical refresh calls
+        // can never interleave cards or create duplicate search results.
+        let dashboardThemeRenderGenerationV635 = 0;
+        function showDashboardThemeLoaderV636(grid) {
+            if (!grid) return;
+            grid.dataset.themeGalleryLoadingV636 = '1';
+            const loader = document.createElement('div');
+            loader.className = 'dashboard-theme-loader-v636';
+            loader.setAttribute('role', 'status');
+            loader.setAttribute('aria-live', 'polite');
+            loader.innerHTML = '<span class="dashboard-theme-loader-spinner-v636" aria-hidden="true"></span><span>Loading themes…</span>';
+            grid.replaceChildren(loader);
+        }
         async function renderDashboardThemePicker() {
-            const grid =
-                document.getElementById(
-                    'dashboard-theme-grid'
-                );
-
+            const grid = document.getElementById('dashboard-theme-grid');
             if (!grid) return;
 
-            const values =
-                await getDashboardThemeValues();
+            // V638: once the Dashboard gallery has been built, switching the
+            // active theme must NEVER replace it with the Loading themes UI.
+            // Theme application has several historical callers that ask this
+            // renderer to run again only so the selected card can update. If
+            // the actual theme library has not changed, reuse the existing DOM
+            // immediately. Outer gallery decorators still run after this return,
+            // so favorites continue to move to the top normally.
+            const existingCards = grid.querySelectorAll('.dashboard-theme-card[data-theme]');
+            if (existingCards.length &&
+                dashboardThemeLibrarySignatureRenderedV637 &&
+                dashboardThemeLibrarySignatureV637() === dashboardThemeLibrarySignatureRenderedV637) {
+                const current = normalizeDashboardThemeValue(localStorage.getItem('dashboard-theme') || 'default');
+                existingCards.forEach(card => card.classList.toggle(
+                    'selected',
+                    normalizeDashboardThemeValue(card.dataset.theme || '') === current
+                ));
+                delete grid.dataset.themeGalleryLoadingV636;
+                try { filterDashboardThemeCards(); } catch {}
+                return;
+            }
 
-            const current = normalizeDashboardThemeValue(
-                localStorage.getItem('dashboard-theme') || 'default'
-            );
-
-            grid.innerHTML = '';
-
-            values.forEach(value => {
-                const [a, b] =
-                    dashboardThemePreview(value);
-
-                const button =
-                    document.createElement('button');
-
-                const displayName =
-                    dashboardThemeDisplayName(value);
-
+            const generation = ++dashboardThemeRenderGenerationV635;
+            if (!existingCards.length) showDashboardThemeLoaderV636(grid);
+            // Theme values are local; no extra frame delay is needed here.
+            if (generation !== dashboardThemeRenderGenerationV635) return;
+            let rawValues = [];
+            try { rawValues = await getDashboardThemeValues(); } catch {}
+            if (generation !== dashboardThemeRenderGenerationV635) return;
+            const seen = new Set(), values = [];
+            for (const raw of (Array.isArray(rawValues) ? rawValues : [])) {
+                const value = normalizeDashboardThemeValue(raw);
+                if (!value || seen.has(value)) continue;
+                seen.add(value); values.push(value);
+            }
+            const current = normalizeDashboardThemeValue(localStorage.getItem('dashboard-theme') || 'default');
+            const fragment = document.createDocumentFragment();
+            for (const value of values) {
+                const [a,b] = dashboardThemePreview(value);
+                const displayName = dashboardThemeDisplayName(value);
+                const button = document.createElement('button');
                 button.type = 'button';
-                button.className =
-                    'dashboard-theme-card' +
-                    (
-                        current === value
-                            ? ' selected'
-                            : ''
-                    );
-
-                button.dataset.theme =
-                    value;
-
-                button.dataset.themeSearch =
-                    `${displayName} ${value.replace(/^theme-/, '').replace(/[-_]+/g, ' ')}`;
-
-                button.innerHTML = `
-                    <div
-                        class="dashboard-theme-preview"
-                        style="background:linear-gradient(135deg,${a},${b})"
-                    ></div>
-                    <span class="dashboard-theme-name">
-                        ${displayName}
-                    </span>
-                `;
-
-                button.addEventListener(
-                    'click',
-                    () => applyDashboardTheme(value)
-                );
-
-                grid.appendChild(button);
-            });
-
+                button.className = 'dashboard-theme-card' + (current === value ? ' selected' : '');
+                button.dataset.theme = value;
+                button.dataset.themeSearch = `${displayName} ${value.replace(/^theme-/, '').replace(/[-_]+/g, ' ')}`;
+                button.innerHTML = `<div class="dashboard-theme-preview" style="background:linear-gradient(135deg,${a},${b})"></div><span class="dashboard-theme-name">${displayName}</span>`;
+                button.addEventListener('click', () => applyDashboardTheme(value));
+                fragment.appendChild(button);
+            }
+            if (generation !== dashboardThemeRenderGenerationV635) return;
+            delete grid.dataset.themeGalleryLoadingV636;
+            grid.replaceChildren(fragment);
+            dashboardThemeLibrarySignatureRenderedV637 = dashboardThemeLibrarySignatureV637();
             filterDashboardThemeCards();
-
-            requestAnimationFrame(() => {
-                const selectedCard = grid.querySelector(
-                    '.dashboard-theme-card.selected:not(.dashboard-theme-search-hidden)'
-                );
-                if (!selectedCard) return;
-                const gr = grid.getBoundingClientRect();
-                const cr = selectedCard.getBoundingClientRect();
-                const delta = cr.top - gr.top - Math.max(0, (grid.clientHeight - selectedCard.offsetHeight) / 2);
-                grid.scrollTop = Math.max(0, grid.scrollTop + delta);
-            });
         }
 
         function populateEditIconPicker(selectedValue) {
@@ -4528,6 +4763,27 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
             }
 
             saveDashboardTrash([]);
+
+            // V625: make restored logs visible immediately from the backup we
+            // already have in memory. Do not wait for a second /api/apps roundtrip
+            // before their names/icons can paint.
+            try {
+                const restoredApps = parsed.logs
+                    .map(entry => entry?.app)
+                    .filter(app => app?.id)
+                    .map(app => ({
+                        id: app.id,
+                        name: app.name || app.id,
+                        icon: app.icon || 'ph-books',
+                        category: app.category || 'School'
+                    }));
+                if (restoredApps.length) {
+                    localStorage.setItem('loggy-dashboard-apps-cache-v175', JSON.stringify(restoredApps));
+                    allApps = restoredApps;
+                    renderGrid();
+                }
+            } catch {}
+
             await loadApps();
             document.getElementById('dashboard-backup-modal')?.classList.add('hidden');
         }
@@ -4537,7 +4793,87 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
                 'dashboard-theme-modal'
             );
 
+        function purgeBoutiqueThemeV589() {
+            try {
+                const list = JSON.parse(localStorage.getItem('loggy-shared-themes-v40') || '[]');
+                if (Array.isArray(list)) {
+                    const next = list.filter(row => {
+                        const id = String(row?.id || '');
+                        const name = String(row?.name || row?.theme?.name || '').trim().toLowerCase();
+                        return id !== 'theme-boutique' && name !== 'boutique';
+                    });
+                    if (next.length !== list.length) {
+                        localStorage.setItem('loggy-shared-themes-v40', JSON.stringify(next));
+                    }
+                }
+            } catch {}
+            try {
+                const map = JSON.parse(localStorage.getItem('loggy-built-in-theme-overrides-v102') || '{}');
+                if (map && typeof map === 'object' && !Array.isArray(map) && map['theme-boutique']) {
+                    delete map['theme-boutique'];
+                    localStorage.setItem('loggy-built-in-theme-overrides-v102', JSON.stringify(map));
+                }
+            } catch {}
+            document.querySelectorAll('#dashboard-theme-grid .dashboard-theme-card[data-theme="theme-boutique"]').forEach(card=>card.remove());
+            try {
+                if (String(localStorage.getItem('dashboard-theme') || '') === 'theme-boutique') {
+                    localStorage.setItem('dashboard-theme','default');
+                }
+            } catch {}
+        }
+
+        // V637 — Dashboard Settings keeps its already-built theme gallery in memory.
+        // Opening Settings/Shift+W must not re-read and rebuild the whole library.
+        // Only the storage that can actually add/remove/edit theme definitions
+        // invalidates the cached gallery. Favorites are deliberately excluded:
+        // starring a theme only reorders the existing cards.
+        function dashboardThemeLibrarySignatureV637() {
+            try {
+                return [
+                    localStorage.getItem('loggy-shared-themes-v40') || '',
+                    localStorage.getItem('loggy-built-in-theme-overrides-v102') || '',
+                    JSON.stringify(window.__dashboardThemeManifestValuesV633 || []),
+                    [...readDashboardHiddenThemesV42()].sort().join('|')
+                ].join('\u241e');
+            } catch { return ''; }
+        }
+        let dashboardThemeLibrarySignatureRenderedV637 = '';
+
+        async function refreshDashboardThemeLibraryV589() {
+            const grid = document.getElementById('dashboard-theme-grid');
+            if (!grid || dashboardThemeModal?.classList.contains('hidden')) return;
+            purgeBoutiqueThemeV589();
+
+            // Normal reopen: reuse the exact cards that are already there. This
+            // is the same fast behavior the Log Settings modal has.
+            const signature = dashboardThemeLibrarySignatureV637();
+            if (grid.querySelector('.dashboard-theme-card[data-theme]') &&
+                signature === dashboardThemeLibrarySignatureRenderedV637) {
+                try { filterDashboardThemeCards(); } catch {}
+                return;
+            }
+
+            // Theme definitions really changed (new/edited/deleted theme), so
+            // refresh once. Compare membership, not DOM order, because favorites
+            // intentionally move cards to the top and must not look like a stale gallery.
+            let values = [];
+            try { values = await getDashboardThemeValues(); } catch {}
+            values = (Array.isArray(values) ? values : []).filter(value => String(value) !== 'theme-boutique');
+            const expected = new Set(values.map(normalizeDashboardThemeValue).filter(Boolean));
+            const current = new Set(Array.from(grid.querySelectorAll('.dashboard-theme-card[data-theme]'))
+                .map(card => normalizeDashboardThemeValue(card.dataset.theme || ''))
+                .filter(value => value && value !== 'theme-boutique'));
+            const same = expected.size === current.size && [...expected].every(value => current.has(value));
+            if (!same || signature !== dashboardThemeLibrarySignatureRenderedV637) {
+                await renderDashboardThemePicker();
+            } else {
+                dashboardThemeLibrarySignatureRenderedV637 = signature;
+                try { filterDashboardThemeCards(); } catch {}
+            }
+        }
+
         async function openDashboardThemeModal() {
+            purgeBoutiqueThemeV589();
             // Show the shell immediately. Rebuilding every theme card before
             // removing .hidden made the Palette button and Shift+W feel slow.
             dashboardThemeModal?.classList.remove('hidden');
@@ -4563,6 +4899,9 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
             } else {
                 requestAnimationFrame(() => {
                     try { filterDashboardThemeCards(); } catch {}
+                    // V589: existing gallery DOM is reused for speed, but its
+                    // source library may have changed since the last open.
+                    setTimeout(() => { refreshDashboardThemeLibraryV589().catch(()=>{}); }, 0);
                 });
             }
         }
@@ -5029,7 +5368,17 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
             if (btn.disabled) return;
 
             const name = document.getElementById('new-log-name').value.trim();
-            if (!name) return alert('Please enter a name.');
+            if (!name) {
+                await showDashboardSiteDialogV43({
+                    title: 'Name Required',
+                    message: 'Please enter a name for your log.',
+                    confirmLabel: 'OK',
+                    cancelLabel: '',
+                    icon: 'ph-pencil-simple'
+                });
+                document.getElementById('new-log-name')?.focus();
+                return;
+            }
 
             const id = name
                 .toLowerCase()
@@ -5037,7 +5386,15 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
                 .replace(/^-+|-+$/g, '');
 
             if (!id) {
-                return alert('Please use at least one letter or number in the log name.');
+                await showDashboardSiteDialogV43({
+                    title: 'Name Required',
+                    message: 'Please use at least one letter or number in the log name.',
+                    confirmLabel: 'OK',
+                    cancelLabel: '',
+                    icon: 'ph-pencil-simple'
+                });
+                document.getElementById('new-log-name')?.focus();
+                return;
             }
 
             const createdApp = {
@@ -5508,29 +5865,69 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
         const SHARED_THEME_LIBRARY_KEY_V40 =
             'loggy-shared-themes-v40';
 
+        // V647: reuse parsed theme libraries within one event-loop task.
+        // Raw-value checks retain same-tab edits; clearing releases large assets.
+        var dashboardThemeJsonCacheV647;
+        function readDashboardThemeJsonV647(key, fallback) {
+            if (!dashboardThemeJsonCacheV647) {
+                dashboardThemeJsonCacheV647 = new Map();
+                setTimeout(() => { dashboardThemeJsonCacheV647 = null; }, 0);
+            }
+            const raw = localStorage.getItem(key) || fallback;
+            const cached = dashboardThemeJsonCacheV647.get(key);
+            if (cached && cached.raw === raw) return cached.value;
+            const value = JSON.parse(raw);
+            dashboardThemeJsonCacheV647.set(key, {raw, value});
+            return value;
+        }
         function readDashboardSharedThemesV40() {
             try {
-                const parsed =
-                    JSON.parse(
-                        localStorage.getItem(
-                            SHARED_THEME_LIBRARY_KEY_V40
-                        ) ||
-                        '[]'
-                    );
-
-                return Array.isArray(parsed)
-                    ? parsed
-                    : [];
-            } catch {
-                return [];
-            }
+                const parsed = readDashboardThemeJsonV647(SHARED_THEME_LIBRARY_KEY_V40, '[]');
+                return Array.isArray(parsed) ? parsed : [];
+            } catch { return []; }
         }
 
         function getDashboardSharedThemeV40(id) {
+            const themeId = String(id || '');
+
+            // V555 — ONE canonical Dashboard resolver for edited built-ins.
+            // An edited built-in keeps its physical sourceThemeId so the source
+            // CSS/module can provide native artwork/behavior, but EVERY later
+            // Dashboard subsystem must see the saved Builder override as the
+            // active theme data. Previously only one applyDashboardTheme wrapper
+            // knew about loggy-built-in-theme-overrides-v102; later title/color/
+            // icon/decoration passes called this function, got null, and fell
+            // back to the raw built-in after the override had already painted.
+            try {
+                const overrides = readDashboardThemeJsonV647('loggy-built-in-theme-overrides-v102', '{}');
+                const row = overrides && typeof overrides === 'object' && !Array.isArray(overrides)
+                    ? overrides[themeId]
+                    : null;
+                if (row?.theme && typeof row.theme === 'object' && !Array.isArray(row.theme)) {
+                    const selectedVariant = String(
+                        row.selectedVariant ||
+                        row.activeVariant ||
+                        row.theme?.themeBuilderAiSelectedVariantV376 ||
+                        row.theme?.themeBuilderAiModeV364 ||
+                        'light'
+                    ).toLowerCase() === 'dark' ? 'dark' : 'light';
+                    return {
+                        id: themeId,
+                        name: row.name || row.theme?.name || dashboardThemeDisplayNameBeforeSharedV40?.(themeId) || themeId,
+                        sourceThemeId: themeId,
+                        selectedVariant,
+                        activeVariant: selectedVariant,
+                        theme: row.theme,
+                        updatedAt: row.updatedAt || row.theme?.updatedAt || '',
+                        __builtInOverrideV555: true
+                    };
+                }
+            } catch (_) {}
+
             return readDashboardSharedThemesV40()
                 .find(
                     item =>
-                        item.id === id
+                        String(item?.id || '') === themeId
                 ) ||
                 null;
         }
@@ -5601,16 +5998,10 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
                 readDashboardSharedThemesV40()
                     .forEach(
                         theme => {
-                            if (
-                                theme?.id &&
-                                !values.includes(
-                                    theme.id
-                                )
-                            ) {
-                                values.push(
-                                    theme.id
-                                );
-                            }
+                            const id = String(theme?.id || '');
+                            const name = String(theme?.name || theme?.theme?.name || '').trim().toLowerCase();
+                            if (id === 'theme-boutique' || name === 'boutique') return;
+                            if (id && !values.includes(id)) values.push(id);
                         }
                     );
 
@@ -6282,14 +6673,15 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
             dashboardPrimedAudioSrcV41 =
                 src;
 
-            dashboardPrimedAudioV41.volume =
-                .001;
-
-            dashboardPrimedAudioV41
-                .play()
-                .catch(
-                    () => {}
-                );
+            // V622: priming means NETWORK PRELOAD only. The old .001-volume
+            // play() still counted as active media, lit the browser tab's audio
+            // icon, and could survive into Log-page navigation. Loading the file
+            // here keeps final playback fast without starting any sound/media state.
+            try {
+                dashboardPrimedAudioV41.preload = 'auto';
+                dashboardPrimedAudioV41.volume = 1;
+                dashboardPrimedAudioV41.load?.();
+            } catch {}
         }
 
         function playDashboardSharedAudioV41(
@@ -6694,129 +7086,43 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
         async function applySharedDashboardThemeV41(
             shared
         ) {
-            const theme =
-                resolveDashboardContentThemeV388(
-                    shared?.theme || {},
-                    shared || null
-                );
-
+            const theme = resolveDashboardContentThemeV388(shared?.theme || {}, shared || null);
             ++dashboardThemeLoadToken;
+            unmountDashboardThemeModule();
 
-            await unmountDashboardThemeModule();
+            Array.from(document.body.classList)
+                .filter(name => name.startsWith('theme-'))
+                .forEach(name => document.body.classList.remove(name));
+            document.getElementById('dashboard-theme-link')?.remove();
 
-            Array.from(
-                document.body.classList
-            )
-                .filter(
-                    name =>
-                        name.startsWith(
-                            'theme-'
-                        )
-                )
-                .forEach(
-                    name =>
-                        document.body
-                            .classList.remove(
-                                name
-                            )
-                );
-
-            document
-                .getElementById(
-                    'dashboard-theme-link'
-                )
-                ?.remove();
-
-            // V388: preserve only the content backdrop through shared-theme
-            // runtime cleanup. Art/audio/classes still clean up normally.
             const previousBackdropPreserveV388 = !!window.__dashboardPreserveContentBackdropV387;
             window.__dashboardPreserveContentBackdropV387 = true;
-            try {
-                clearSharedDashboardRuntimeV40();
-            } finally {
-                window.__dashboardPreserveContentBackdropV387 = previousBackdropPreserveV388;
-            }
+            try { clearSharedDashboardRuntimeV40(); }
+            finally { window.__dashboardPreserveContentBackdropV387 = previousBackdropPreserveV388; }
 
-            document.body.classList.add(
-                'theme-shared-dashboard-v40'
-            );
+            document.body.classList.add('theme-shared-dashboard-v40');
+            document.body.style.setProperty('--dashboard-shared-bg', theme.dashboardBackgroundV40 || theme.background || '#f5f5f5');
+            document.body.style.setProperty('--dashboard-shared-card', theme.dashboardCardV40 || theme.surface || '#ffffff');
+            document.body.style.setProperty('--dashboard-shared-text', theme.dashboardTextV40 || theme.text || '#000000');
+            document.body.style.setProperty('--dashboard-shared-accent', theme.dashboardAccentV40 || theme.accent || '#777777');
+            document.body.style.setProperty('--dashboard-shared-image-scale', String(Math.max(.5, Math.min(2.2, (Number(theme.svgGlobalScale) || 100) / 100))));
 
-            document.body.style.setProperty(
-                '--dashboard-shared-bg',
-                theme.dashboardBackgroundV40 ||
-                    theme.background ||
-                    '#f5f5f5'
-            );
-
-            document.body.style.setProperty(
-                '--dashboard-shared-card',
-                theme.dashboardCardV40 ||
-                    theme.surface ||
-                    '#ffffff'
-            );
-
-            document.body.style.setProperty(
-                '--dashboard-shared-text',
-                theme.dashboardTextV40 ||
-                    theme.text ||
-                    '#000000'
-            );
-
-            document.body.style.setProperty(
-                '--dashboard-shared-accent',
-                theme.dashboardAccentV40 ||
-                    theme.accent ||
-                    '#777777'
-            );
-
-            document.body.style.setProperty(
-                '--dashboard-shared-image-scale',
-                String(
-                    Math.max(
-                        .5,
-                        Math.min(
-                            2.2,
-                            (
-                                Number(
-                                    theme.svgGlobalScale
-                                ) ||
-                                100
-                            ) /
-                            100
-                        )
-                    )
-                )
-            );
-
+            // Exact saved theme object remains the authority.
             applyDashboardContentSurfaceV386(theme, shared);
-
-            mountSharedDashboardArtV41(
-                theme
-            );
-
-            // V430: publish the incoming theme id BEFORE the audio authority
-            // wrapper runs. V420 previously read the outgoing Dashboard id here,
-            // causing an in-progress old intro to be selected again while the new
-            // theme's intro never started.
-            localStorage.setItem(
-                'dashboard-theme',
-                shared.id
-            );
+            mountSharedDashboardArtV41(theme);
+            localStorage.setItem('dashboard-theme', shared.id);
             theme.__loggyDashboardThemeIdV430 = String(shared.id || '');
-
-            playDashboardSharedAudioV41(
-                theme
-            );
+            playDashboardSharedAudioV41(theme);
 
             syncDashboardThemeContrast();
-
             forceDashboardGlobalActionsPosition();
-
             syncDashboardGlobalActionContrast();
-
             syncDashboardModalContrast();
 
-            await renderDashboardThemePicker();
+            const wanted = normalizeDashboardThemeValue(shared.id);
+            document.querySelectorAll('#dashboard-theme-grid .dashboard-theme-card[data-theme]').forEach(card => {
+                card.classList.toggle('selected', normalizeDashboardThemeValue(card.dataset.theme || '') === wanted);
+            });
         }
 
         const applyDashboardThemeBeforeFullSharedV41 =
@@ -6865,6 +7171,7 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
                     );
 
                 if (shared?.theme) {
+                    try { window.__dashboardReleaseNavigationAudioLockV647?.(); } catch {}
                     primeDashboardSharedAudioV41(
                         shared.theme
                     );
@@ -8880,6 +9187,17 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
             window.__dashboardPreserveContentBackdropV387 = true;
             applyDashboardContentSurfaceV386(theme, shared);
 
+            // V622: lock the already-known final Builder palette during the
+            // source-module handoff. The source theme may still initialize its
+            // interactions, but its temporary background/art positions never paint.
+            try { window.__dashboardAtomicThemePaintV471?.(shared.id); } catch {}
+            document.documentElement.setAttribute('data-dashboard-shared-handoff-v622','1');
+
+            // Start loading the final intro in parallel with source-theme JS/CSS.
+            // primeDashboardSharedAudioV41 is preload-only in V622, so this does
+            // not create a tab audio icon or audible duplicate.
+            try { if(theme?.introAudio) primeDashboardSharedAudioV41(theme); } catch {}
+
             // V376: stop the outgoing shared-theme song before the source
             // dashboard theme mounts. This is deliberately inside the real
             // switch path so audio cleanup cannot alter animation wrapper order.
@@ -8987,6 +9305,12 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
             } else {
                 clearDashboardSharedAudioV41();
             }
+
+            // Final shared art/colors are now mounted. Reveal them on the next
+            // paint instead of showing the source theme first and correcting it later.
+            requestAnimationFrame(() => {
+                document.documentElement.removeAttribute('data-dashboard-shared-handoff-v622');
+            });
 
             syncDashboardThemeContrast();
             forceDashboardGlobalActionsPosition();
@@ -9763,6 +10087,26 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
                                 background:transparent;
                             }
                         </style>
+
+<!-- V525 — Log Name typed-text/placeholder parity in every interaction state.
+     The Log Name field is autofocus, so hover/focus palettes must not make
+     user-entered text diverge from the placeholder color. -->
+<style id="dashboard-create-log-name-text-parity-v525">
+body #add-modal #new-log-name,
+body #add-modal #new-log-name:hover,
+body #add-modal #new-log-name:focus,
+body #add-modal #new-log-name:focus-visible,
+body #add-modal #new-log-name::placeholder {
+  color: var(
+    --dashboard-create-log-input-text-v396,
+    var(--dashboard-create-log-field-text-v400,
+      var(--dashboard-settings-input-text-v380,
+        var(--dashboard-settings-text-v380, var(--dashboard-ink, #111111))))
+  ) !important;
+}
+body #add-modal #new-log-name::placeholder { opacity:1 !important; }
+body #add-modal #new-log-name { caret-color:currentColor !important; }
+</style>
 </head>
                     <body>${raw}
 
@@ -9828,6 +10172,38 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
 
 
 
+
+
+<style id="dashboard-settings-main-background-v573">
+/* V573: Dashboard Settings shell AND sticky title/X strip use the theme's
+   exact main Settings background. No white glow/frosted header. */
+#dashboard-theme-modal > .modal-box,
+#dashboard-theme-modal > .modal-box.log-settings-parity-v364{
+  background:var(--dashboard-settings-bg-v380,var(--dashboard-settings-surface-v364,var(--dashboard-surface,#fff)))!important;
+  background-color:var(--dashboard-settings-bg-v380,var(--dashboard-settings-surface-v364,var(--dashboard-surface,#fff)))!important;
+  background-image:none!important;
+}
+#dashboard-theme-modal .modal-header,
+#dashboard-theme-modal > .modal-box > .modal-header,
+#dashboard-theme-modal > .modal-box.log-settings-parity-v364 > .modal-header{
+  background:var(--dashboard-settings-bg-v380,var(--dashboard-settings-surface-v364,var(--dashboard-surface,#fff)))!important;
+  background-color:var(--dashboard-settings-bg-v380,var(--dashboard-settings-surface-v364,var(--dashboard-surface,#fff)))!important;
+  background-image:none!important;
+  color:var(--dashboard-settings-text-v380,var(--dashboard-settings-text-v364,var(--dashboard-ink,#111)))!important;
+  box-shadow:none!important;
+  filter:none!important;
+}
+#dashboard-theme-modal .modal-header h2{
+  color:var(--dashboard-settings-text-v380,var(--dashboard-settings-text-v364,var(--dashboard-ink,#111)))!important;
+}
+#dashboard-theme-modal .modal-header .close-btn,
+#dashboard-theme-modal .modal-header .small-icon-btn.close-btn{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+</style>
 
 </body>
                 </html>
@@ -10513,6 +10889,14 @@ html body.theme-shared-dashboard-v40 #add-modal #dashboard-create-category-selec
     background-color: var(--dashboard-create-log-category-hover-bg-v321, #eeeeee) !important;
     color: var(--dashboard-create-log-category-hover-text-v321, var(--dashboard-shared-text, #171717)) !important;
     border-color: var(--dashboard-create-log-category-hover-border-v321, var(--dashboard-shared-text, #171717)) !important;
+}
+/* V562 — selected Create New Log category is visually distinct from both normal and hover. */
+#add-modal #add-item-category-filter > button[data-category].active,
+html body.theme-shared-dashboard-v40 #add-modal #add-item-category-filter > button[data-category].active {
+    background-color:var(--dashboard-category-selected-bg-v98,var(--dashboard-shared-category-selected-v85,var(--dashboard-shared-accent,var(--black,#111)))) !important;
+    color:var(--dashboard-category-selected-text-v98,var(--dashboard-shared-category-selected-text-v85,var(--white,#fff))) !important;
+    border-color:var(--dashboard-category-selected-border-v98,var(--dashboard-shared-text,var(--black,#171717))) !important;
+    box-shadow:inset 0 0 0 1px currentColor !important;
 }
 </style>
 
@@ -11346,7 +11730,7 @@ html body.theme-shared-dashboard-v40 #add-modal #dashboard-create-category-selec
 
     function readBuiltIn() {
         try {
-            const parsed = JSON.parse(localStorage.getItem(BUILT_IN_KEY) || '{}');
+            const parsed = readDashboardThemeJsonV647(BUILT_IN_KEY, '{}');
             return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
                 ? parsed
                 : {};
@@ -11479,6 +11863,37 @@ html body.theme-shared-dashboard-v40 #add-modal #dashboard-create-category-selec
         };
     } catch {}
 
+    // V554: merge project/local built-in overrides per entry instead of letting
+    // an asynchronously fetched server snapshot replace the whole local map.
+    // The Theme Builder writes localStorage first, so local may legitimately be
+    // newer for a short window immediately after Save Theme.
+    const overrideStampV554 = row => {
+        const value = row?.updatedAt || row?.theme?.updatedAt || '';
+        const time = Date.parse(String(value || ''));
+        return Number.isFinite(time) ? time : 0;
+    };
+
+    function mergeBuiltInOverridesV554(local, remote) {
+        const merged = {};
+        const ids = new Set([
+            ...Object.keys(local || {}),
+            ...Object.keys(remote || {})
+        ]);
+        ids.forEach(id => {
+            const localRow = local?.[id];
+            const remoteRow = remote?.[id];
+            if (!localRow) { if (remoteRow) merged[id] = remoteRow; return; }
+            if (!remoteRow) { merged[id] = localRow; return; }
+            const localStamp = overrideStampV554(localRow);
+            const remoteStamp = overrideStampV554(remoteRow);
+            // Equal/unknown timestamps intentionally favor local: it is the copy
+            // the user just interacted with in this browser and prevents a stale
+            // server response from causing a visible theme rollback.
+            merged[id] = remoteStamp > localStamp ? remoteRow : localRow;
+        });
+        return merged;
+    }
+
     async function hydrateBuiltIn() {
         if (new URLSearchParams(location.search).has('theme-palette-probe-v264')) return;
         const local = readBuiltIn();
@@ -11498,12 +11913,40 @@ html body.theme-shared-dashboard-v40 #add-modal #dashboard-create-category-selec
             }
         } catch {}
 
-        const chosen = initialized ? remote : local;
-        const changed = JSON.stringify(local) !== JSON.stringify(chosen);
-        writeBuiltIn(chosen, !initialized);
+        const chosen = initialized
+            ? mergeBuiltInOverridesV554(local, remote)
+            : local;
+        const localChanged = JSON.stringify(local) !== JSON.stringify(chosen);
+        const remoteChanged = JSON.stringify(remote) !== JSON.stringify(chosen);
+
+        // Update local state first so every late Dashboard wrapper resolves the
+        // same canonical edited built-in. Never transiently install stale remote.
+        writeBuiltIn(chosen, false);
+
+        // If local contained a newer/missing record, repair the project mirror.
+        // This is awaited inside hydration but does not block first paint.
+        if (!initialized || remoteChanged) {
+            try {
+                await fetch('/api/built-in-theme-overrides', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ overrides: chosen })
+                });
+            } catch {}
+        }
+
         prewarmLibrary();
-        if (changed) {
+        if (localChanged) {
             try { await renderDashboardThemePicker(); } catch {}
+            // Only a genuinely newer remote record is allowed to alter the
+            // currently selected theme after startup. Reapply that canonical row
+            // once; ordinary local-newer saves do not trigger a second apply.
+            const selected = String(localStorage.getItem('dashboard-theme') || 'default');
+            const localStamp = overrideStampV554(local?.[selected]);
+            const chosenStamp = overrideStampV554(chosen?.[selected]);
+            if (chosenStamp > localStamp && chosen?.[selected]) {
+                try { await applyDashboardTheme(selected); } catch {}
+            }
         }
     }
 
@@ -11667,7 +12110,7 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
     }
     function sharedThemeObjectV145(id){
         try {
-            const list = JSON.parse(localStorage.getItem('loggy-shared-themes-v40') || '[]');
+            const list = readDashboardThemeJsonV647('loggy-shared-themes-v40', '[]');
             const entry = Array.isArray(list) ? list.find(item => String(item?.id || '') === String(id || '')) : null;
             return entry?.theme || null;
         } catch { return null; }
@@ -11861,7 +12304,30 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
  const FAVORITE_KEY='loggy-favorite-themes-v158';
  function favs(){try{const a=JSON.parse(localStorage.getItem(FAVORITE_KEY)||'[]');return new Set(Array.isArray(a)?a.map(String):[])}catch{return new Set()}}
  function save(set){try{localStorage.setItem(FAVORITE_KEY,JSON.stringify([...set]))}catch{}}
- function decorate(){const grid=document.getElementById('dashboard-theme-grid');if(!grid)return;const f=favs(),cards=Array.from(grid.querySelectorAll('.dashboard-theme-card[data-theme]'));cards.forEach(card=>{const id=String(card.dataset.theme||'');let star=card.querySelector(':scope > .dashboard-theme-favorite-v158');if(!star){star=document.createElement('span');star.className='dashboard-theme-favorite-v158';star.setAttribute('role','button');star.tabIndex=0;star.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});const toggle=e=>{e.preventDefault();e.stopPropagation();const s=favs();s.has(id)?s.delete(id):s.add(id);save(s);decorate()};star.addEventListener('click',toggle);star.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){toggle(e)}});card.appendChild(star)}const on=f.has(id);star.classList.toggle('is-favorite-v158',on);star.innerHTML=`<i class="${on?'ph-fill':'ph'} ph-star"></i>`;star.title=on?'Remove from favorites':'Favorite theme'});cards.sort((a,b)=>(f.has(String(b.dataset.theme))-f.has(String(a.dataset.theme)))).forEach(c=>grid.appendChild(c))}
+ function decorate(){
+  const grid=document.getElementById('dashboard-theme-grid');if(!grid)return;
+  const f=favs(),cards=Array.from(grid.querySelectorAll('.dashboard-theme-card[data-theme]'));
+  // V634: keep the Log Settings gallery's authoritative order INSIDE each group,
+  // but favorites belong at the top. Remember the untouched render order once
+  // per card so toggling a star never scrambles the non-favorite order.
+  cards.forEach((card,index)=>{
+    if(!card.dataset.dashboardThemeBaseOrderV634)card.dataset.dashboardThemeBaseOrderV634=String(index+1);
+    const id=String(card.dataset.theme||'');
+    let star=card.querySelector(':scope > .dashboard-theme-favorite-v158');
+    if(!star){
+      star=document.createElement('span');star.className='dashboard-theme-favorite-v158';star.setAttribute('role','button');star.tabIndex=0;
+      star.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});
+      const toggle=e=>{e.preventDefault();e.stopPropagation();const s=favs();s.has(id)?s.delete(id):s.add(id);save(s);decorate()};
+      star.addEventListener('click',toggle);star.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')toggle(e)});card.appendChild(star);
+    }
+    const on=f.has(id);star.classList.toggle('is-favorite-v158',on);star.innerHTML=`<i class="${on?'ph-fill':'ph'} ph-star"></i>`;star.title=on?'Remove from favorites':'Favorite theme';
+  });
+  cards.sort((a,b)=>{
+    const af=f.has(String(a.dataset.theme||''))?0:1,bf=f.has(String(b.dataset.theme||''))?0:1;
+    if(af!==bf)return af-bf;
+    return Number(a.dataset.dashboardThemeBaseOrderV634||0)-Number(b.dataset.dashboardThemeBaseOrderV634||0);
+  }).forEach(card=>grid.appendChild(card));
+}
  try{const before=renderDashboardThemePicker;renderDashboardThemePicker=async function(){const r=await before.apply(this,arguments);decorate();return r}}catch{}
  requestAnimationFrame(decorate);
 
@@ -12055,6 +12521,7 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
                 {icon:'ph-folder-plus',label:'Add Category',run:addCategory},
                 {icon:'ph-text-aa',label:'Rename Dashboard Title',run:renameTitle},
                 {icon:ts.hidden?'ph-eye':'ph-eye-slash',label:ts.hidden?'Show Dashboard Title':'Hide Dashboard Title',run:()=>saveTitle({...ts,hidden:!ts.hidden})},
+                {icon:'ph-paint-brush',label:'Edit Theme',run:()=>{const id=String(localStorage.getItem('dashboard-theme')||'default');try{openDashboardThemeStudioV43('edit',id)}catch{try{openDashboardThemeBuilderActionV42?.('edit',id)}catch{}}}},
                 {icon:'ph-gear-six',label:'Settings',run:openSettings}
             ];
         menu.innerHTML=actions.map((a,i)=>`<button type="button" data-i="${i}"><i class="ph ${a.icon}"></i><span>${esc(a.label)}</span></button>`).join('');
@@ -12110,16 +12577,12 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
         const renderBeforeV185 = renderDashboardThemePicker;
         renderDashboardThemePicker = async function() {
             const m = modal();
-            // Theme application/hydration runs during Dashboard startup and many
-            // old layers ask to rebuild the hidden gallery afterward. Skip that
-            // expensive DOM work until Theme Settings is actually visible.
-            if (m?.classList.contains('hidden')) {
-                m.dataset.themePickerDirtyV185 = '1';
-                return;
-            }
-            const result = await renderBeforeV185.apply(this, arguments);
-            if (m) delete m.dataset.themePickerDirtyV185;
-            return result;
+            // V637: theme application/hydration asks for gallery renders even
+            // while Settings is closed. Ignore those requests completely. They
+            // do NOT make the cached gallery dirty; actual theme-library changes
+            // are detected by the lightweight library signature on next open.
+            if (m?.classList.contains('hidden')) return;
+            return await renderBeforeV185.apply(this, arguments);
         };
     } catch {}
 
@@ -12127,12 +12590,9 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
         const m = modal();
         const g = grid();
         if (!m || !g) return;
-        // If data changed while the picker was hidden, make the existing opener
-        // take its normal first-render path instead of showing stale cards.
-        if (m.dataset.themePickerDirtyV185 === '1') {
-            g.replaceChildren();
-            delete m.dataset.themePickerDirtyV185;
-        }
+        // V637: never throw away the already-rendered theme cards merely because
+        // the modal was closed. Reopening should be instant; the normal opener
+        // performs a cheap signature check for real library changes.
         // Reveal the shell in capture phase so a click/shortcut can paint it
         // before any legacy polish/render wrappers do their work.
         m.classList.remove('hidden');
@@ -12923,9 +13383,11 @@ body > #dashboard-title-v69,body > #category-filter,body > #dashboard-grid{posit
    const surface=hex(theme.dashboardCardV40,hex(theme.surface,'#ffffff'));
    const rawText=hex(theme.dashboardTextV40,hex(theme.text,'#111111'));
    const page=hex(theme.dashboardBackgroundV40,hex(theme.background,'#ffffff'));
+   const mainThemeBg=hex(theme.background,page);
    const mode=String(theme.themeBuilderAiSelectedVariantV376||theme.themeBuilderAiModeV364||'').toLowerCase();
-   const darkMode=mode==='dark'||lum(page)<=.22;
-   const settingsBg=darkMode?darkSurface(hex(theme.settingsModalBackgroundColorV380,surface),[surface,page,theme.background]):hex(theme.settingsModalBackgroundColorV380,surface);
+   const darkMode=mode==='dark'||lum(mainThemeBg)<=.22;
+   // V573: Dashboard Settings uses the SAME main theme background as Log Settings.
+   const settingsBg=mainThemeBg;
    const text=readable(settingsBg,hex(theme.settingsModalTextColorV380,rawText));
    const border=hex(theme.border,text),hover=hex(theme.hoverColor,hex(theme.dashboardAccentV40,hex(theme.accent,'#eeeeee'))),muted=hex(theme.muted,text);
    const set=(k,v)=>root.setProperty(k,v);
@@ -13497,7 +13959,7 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
  function point(r,rect){let x=parseFloat(r.item?.style?.left||''),y=parseFloat(r.item?.style?.top||'');if(!Number.isFinite(x)||!Number.isFinite(y)){const b=r.item?.getBoundingClientRect?.();if(b&&rect&&rect.width&&rect.height){x=((b.left+b.width/2-rect.left)/rect.width)*100;y=((b.top+b.height/2-rect.top)/rect.height)*100}}if(!Number.isFinite(x))x=8+((r.index*37+13)%84);if(!Number.isFinite(y))y=8+((r.index*53+17)%84);return{...r,x,y}}
  function selection(list,theme){const records=list.map((item,index)=>({item,index,asset:assetFor(item,index,theme)})).filter(r=>!hidden(r.asset)&&pref(r.asset)!=='never'),want=target(records.length,theme?.introSvgBopMode||'some');if(!want)return new Set();const rect=list[0]?.parentElement?.getBoundingClientRect?.()||null,remaining=records.map(r=>point(r,rect)),chosen=[];while(chosen.length<want&&remaining.length){let bi=0,bs=-Infinity;for(let i=0;i<remaining.length;i++){const p=remaining[i];let d=chosen.length?Infinity:0;for(const c of chosen){const dx=(p.x-c.x)/100,dy=(p.y-c.y)/100;d=Math.min(d,dx*dx+dy*dy)}const q=(p.x>=50?1:0)+(p.y>=50?2:0),qc=chosen.reduce((sum,c)=>sum+((((c.x>=50?1:0)+(c.y>=50?2:0))===q)?1:0),0),priority=pref(p.asset)==='always'?.35:0,score=priority+(chosen.length?d:Math.hypot(p.x-8,p.y-8)/100)-qc*.025;if(score>bs){bs=score;bi=i}}chosen.push(remaining.splice(bi,1)[0])}return new Set(chosen.map(r=>r.index))}
  function ensure(item){const motion=item?.querySelector(':scope > .dashboard-shared-motion-v41');if(!motion)return null;const host=motion.querySelector(':scope > .dashboard-default-motion-layer-v362')||motion;let shell=host.querySelector(':scope > .dashboard-bop-shell-v369');if(shell)return shell;shell=document.createElement('div');shell.className='dashboard-bop-shell-v369';shell.style.cssText='display:block;width:100%;height:100%;transform-origin:center center;will-change:transform;';Array.from(host.childNodes).forEach(n=>shell.appendChild(n));host.appendChild(shell);return shell}
- function stopShell(shell){if(!shell)return;try{shell._dashboardBopV369?.cancel?.()}catch{}shell._dashboardBopV369=null;shell.style.removeProperty('transform')}
+ function stopShell(shell){if(!shell)return;let from='none';try{from=getComputedStyle(shell).transform||'none'}catch{}try{shell._dashboardBopV369?.cancel?.()}catch{}shell._dashboardBopV369=null;shell.style.setProperty('animation','none','important');shell.style.setProperty('transition','none','important');shell.style.setProperty('transform',from,'important');void shell.offsetWidth;requestAnimationFrame(()=>{shell.style.setProperty('transition','transform .65s cubic-bezier(.22,.8,.25,1)','important');shell.style.setProperty('transform','none','important');setTimeout(()=>{shell.style.removeProperty('transition');shell.style.removeProperty('transform');shell.style.removeProperty('animation')},700)})}
  function clear(){const stage=document.getElementById('dashboard-shared-theme-art-v40');items().forEach(item=>{item.classList.remove('dashboard-bop-selected-v369','theme-svg-intro-bop-selected');stopShell(item.querySelector('.dashboard-bop-shell-v369'))});stage?.classList.remove('dashboard-bop-active-v369','theme-svg-intro-active','theme-svg-intro-bop-enabled','theme-svg-intro-bop-all')}
  function apply(theme){theme=unwrap(theme);const stage=document.getElementById('dashboard-shared-theme-art-v40');if(!stage)return;clear();if(theme?.introSvgBounceEnabled!==true)return;const list=items(),chosen=selection(list,theme),amp=intensity(theme)/100;stage.classList.add('dashboard-bop-active-v369');list.forEach((item,index)=>{if(!chosen.has(index))return;item.classList.add('dashboard-bop-selected-v369');const shell=ensure(item);if(!shell)return;const source=Number(item.dataset.svgIndex),phase=Number.isFinite(source)?source:index,y=15*amp,scale=1+.075*amp,rot=.6*amp,duration=400+((phase%4)*28);try{const a=shell.animate([{transform:`translate3d(0,0,0) scale(1) rotate(${-0.4*amp}deg)`},{transform:`translate3d(0,${-y}px,0) scale(${scale}) rotate(${rot}deg)`}],{duration,easing:'cubic-bezier(.36,.07,.19,.97)',iterations:Infinity,direction:'alternate',fill:'both'});a.currentTime=(phase%9)*55;shell._dashboardBopV369=a}catch{}})}
  function bind(audio,getTheme){if(!audio)return;let state=bound.get(audio);if(!state){state={getTheme};bound.set(audio,state);const sync=()=>{let currentAudio=null;try{currentAudio=dashboardSharedAudioV41}catch{};if(currentAudio!==audio){clear();return}if(!audio.paused&&!audio.ended)apply(state.getTheme?.()||current());else clear()};audio.addEventListener('play',sync);audio.addEventListener('playing',sync);audio.addEventListener('pause',sync);audio.addEventListener('ended',sync);audio.addEventListener('error',sync);audio.addEventListener('abort',sync);state.sync=sync}else state.getTheme=getTheme;state.sync?.()}
@@ -13547,13 +14009,21 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
         return false;
     }
 
+    function dashboardReplacementStageReadyV550(){
+        const stage = document.getElementById('dashboard-shared-theme-art-v40');
+        if (!stage || !stage.isConnected) return false;
+        return Array.from(stage.querySelectorAll(':scope > .dashboard-shared-theme-art-item-v40')).some(item =>
+            !!item.querySelector('img[src], svg, object[data], image[href]') || !!String(item.textContent || '').trim()
+        );
+    }
+
     try {
         const beforeV135 = applySharedDashboardThemeWithSourceV46;
         applySharedDashboardThemeWithSourceV46 = async function(shared){
             const beforeChildren = new Set(Array.from(document.body.children));
             const result = await beforeV135.apply(this, arguments);
             const theme = shared?.theme || {};
-            if (theme?.replaceBuiltInDecorationsV30 === true) {
+            if (theme?.replaceBuiltInDecorationsV30 === true && dashboardReplacementStageReadyV550()) {
                 const source = String(shared?.sourceThemeId || '');
                 Array.from(document.body.children).forEach(node => {
                     if (node.id === 'dashboard-shared-theme-art-v40') return;
@@ -13735,8 +14205,16 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
         try { root.remove(); } catch {}
     }
 
+    function replacementStageReadyV550(){
+        const stage = document.getElementById('dashboard-shared-theme-art-v40');
+        if (!stage || !stage.isConnected) return false;
+        return Array.from(stage.querySelectorAll(':scope > .dashboard-shared-theme-art-item-v40')).some(item =>
+            !!item.querySelector('img[src], svg, object[data], image[href]') || !!String(item.textContent || '').trim()
+        );
+    }
+
     function cleanup(){
-        if (!state.active) return;
+        if (!state.active || !replacementStageReadyV550()) return;
         try { Array.from(document.body.children).forEach(removeNative); } catch {}
     }
 
@@ -13754,9 +14232,14 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
     try {
         const beforeSourceV136 = applySharedDashboardThemeWithSourceV46;
         applySharedDashboardThemeWithSourceV46 = async function(shared){
-            state.active = replacementActive(shared);
-            state.source = state.active ? String(shared?.sourceThemeId || '') : '';
+            const wantsReplacement = replacementActive(shared);
+            // Keep native-art deletion disabled while the source built-in mounts.
+            // Activate it only after the replacement dashboard stage is real.
+            state.active = false;
+            state.source = '';
             const result = await beforeSourceV136.apply(this, arguments);
+            state.active = wantsReplacement && replacementStageReadyV550();
+            state.source = state.active ? String(shared?.sourceThemeId || '') : '';
             if (state.active) {
                 cleanup();
                 requestAnimationFrame(cleanup);
@@ -13797,7 +14280,7 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
         return !!(
             theme.replaceBuiltInDecorationsV30 === true ||
             theme.authoritativeDecorationsV136 === true ||
-            Array.isArray(theme.backgroundSvgs)
+            (Array.isArray(theme.backgroundSvgs) && theme.backgroundSvgs.length > 0)
         );
     }
 
@@ -13810,6 +14293,18 @@ html body.theme-shared-dashboard-v40 #dashboard-grid .add-new-btn {
         const entry = readOverrideV137(selected);
         if (!entry || !isEditedDecorationThemeV137(entry)) return;
         if (typeof applyDashboardTheme !== 'function') return;
+
+        // V555: edited built-ins are now resolved centrally by
+        // getDashboardSharedThemeV40() before the initial DOMContentLoaded apply.
+        // Do not perform the old one-frame second apply for that canonical path;
+        // it only remounts the physical source theme and can create a visible
+        // source-theme flash after the saved override has already settled.
+        try {
+            if (getDashboardSharedThemeV40(selected)?.__builtInOverrideV555 === true) {
+                finishedV137 = true;
+                return;
+            }
+        } catch (_) {}
 
         runningV137 = true;
         try {
@@ -20235,7 +20730,7 @@ body > #dashboard-title-v69, body > #category-filter, body > #dashboard-grid, bo
  const q=(s,r=document)=>r?.querySelector?.(s)||null,qa=(s,r=document)=>Array.from(r?.querySelectorAll?.(s)||[]);
  const hex=(v,f='')=>/^#[0-9a-f]{6}$/i.test(String(v||''))?String(v):f;
  function theme(){const id=String(localStorage.getItem('dashboard-theme')||'default');try{const t=getDashboardSharedThemeV40?.(id)?.theme;if(t)return t}catch{}try{return JSON.parse(localStorage.getItem('loggy-shared-themes-v40')||'[]').find(x=>String(x?.id||'')===id)?.theme||{}}catch{return{}}}
- function applyThemeVars(){const t=theme(),root=document.documentElement,surface=hex(t.dashboardCardV40,hex(t.surface,'#fff')),rawText=hex(t.dashboardTextV40,hex(t.text,'#111'));const rgb=v=>{const m=String(v||'').match(/^#([0-9a-f]{6})$/i);if(!m)return null;const n=parseInt(m[1],16);return[(n>>16)&255,(n>>8)&255,n&255]},lum=v=>{const a=rgb(v);if(!a)return 1;const c=a.map(x=>{x/=255;return x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4)});return .2126*c[0]+.7152*c[1]+.0722*c[2]},text=lum(surface)<.32?'#f7f7f7':(lum(rawText)>.72?'#171717':rawText),border=hex(t.border,text),hover=hex(t.hoverColor,hex(t.dashboardAccentV40,hex(t.accent,'#eee')));const set=(k,v)=>root.style.setProperty(k,v);set('--dashboard-settings-surface-v364',surface);set('--dashboard-settings-text-v364',text);set('--dashboard-settings-border-v364',border);set('--dashboard-settings-search-bg-v364',surface);set('--dashboard-settings-search-ink-v364',text);set('--dashboard-settings-search-border-v364',border);set('--dashboard-settings-close-bg-v364',surface);set('--dashboard-settings-close-ink-v364',text);set('--dashboard-settings-close-border-v364',border);set('--dashboard-settings-plus-bg-v364',hex(t.themeSettingsPlusBackgroundColorV322,surface));set('--dashboard-settings-plus-ink-v364',hex(t.themeSettingsPlusIconColorV322,text));set('--dashboard-settings-plus-border-v364',hex(t.themeSettingsPlusBorderColorV322,border));set('--dashboard-settings-plus-hover-bg-v364',hex(t.themeSettingsPlusHoverBackgroundColorV322,hover));set('--dashboard-settings-plus-hover-ink-v364',hex(t.themeSettingsPlusHoverIconColorV322,text));set('--dashboard-settings-plus-hover-border-v364',hex(t.themeSettingsPlusHoverBorderColorV322,border))}
+ function applyThemeVars(){const t=theme(),root=document.documentElement,surface=hex(t.background,hex(t.dashboardBackgroundV40,hex(t.surface,'#fff'))),rawText=hex(t.dashboardTextV40,hex(t.text,'#111'));const rgb=v=>{const m=String(v||'').match(/^#([0-9a-f]{6})$/i);if(!m)return null;const n=parseInt(m[1],16);return[(n>>16)&255,(n>>8)&255,n&255]},lum=v=>{const a=rgb(v);if(!a)return 1;const c=a.map(x=>{x/=255;return x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4)});return .2126*c[0]+.7152*c[1]+.0722*c[2]},text=lum(surface)<.32?'#f7f7f7':(lum(rawText)>.72?'#171717':rawText),border=hex(t.border,text),hover=hex(t.hoverColor,hex(t.dashboardAccentV40,hex(t.accent,'#eee')));const set=(k,v)=>root.style.setProperty(k,v);set('--dashboard-settings-surface-v364',surface);set('--dashboard-settings-text-v364',text);set('--dashboard-settings-border-v364',border);set('--dashboard-settings-search-bg-v364',surface);set('--dashboard-settings-search-ink-v364',text);set('--dashboard-settings-search-border-v364',border);set('--dashboard-settings-close-bg-v364',surface);set('--dashboard-settings-close-ink-v364',text);set('--dashboard-settings-close-border-v364',border);set('--dashboard-settings-plus-bg-v364',hex(t.themeSettingsPlusBackgroundColorV322,surface));set('--dashboard-settings-plus-ink-v364',hex(t.themeSettingsPlusIconColorV322,text));set('--dashboard-settings-plus-border-v364',hex(t.themeSettingsPlusBorderColorV322,border));set('--dashboard-settings-plus-hover-bg-v364',hex(t.themeSettingsPlusHoverBackgroundColorV322,hover));set('--dashboard-settings-plus-hover-ink-v364',hex(t.themeSettingsPlusHoverIconColorV322,text));set('--dashboard-settings-plus-hover-border-v364',hex(t.themeSettingsPlusHoverBorderColorV322,border))}
  function parity(){const modal=q('#dashboard-theme-modal'),box=q(':scope>.modal-box',modal);if(!modal||!box)return;box.classList.add('log-settings-parity-v364');q('.modal-header .close-btn',box)?.classList.add('small-icon-btn');q('.dashboard-theme-search-box',box)?.classList.add('theme-search-wrap');q('#dashboard-theme-search',box)?.classList.add('theme-search-input');q('#dashboard-theme-grid',box)?.classList.add('theme-picker-grid');q('.dashboard-theme-create-search-v161',box)?.classList.add('theme-search-create-v161');qa('#dashboard-theme-grid .dashboard-theme-card',box).forEach(card=>{card.classList.add('theme-picker-card');card.querySelector('.dashboard-theme-name')?.classList.add('theme-picker-name')});applyThemeVars()}
  function snap(){parity();const modal=q('#dashboard-theme-modal');if(!modal||modal.classList.contains('hidden'))return;const input=q('#dashboard-theme-search',modal);if(input){input.value='';input.dataset.previousThemeSearchValue=''}try{filterDashboardThemeCards?.()}catch{}const current=String(localStorage.getItem('dashboard-theme')||'default'),cards=qa('#dashboard-theme-grid .dashboard-theme-card[data-theme]',modal);let selected=null;cards.forEach(card=>{const on=String(card.dataset.theme||'')===current;card.classList.toggle('selected',on);card.classList.toggle('dashboard-theme-key-selected-v255',on);if(on)selected=card});requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!selected)return;const grid=q('#dashboard-theme-grid',modal);if(!grid)return;const gr=grid.getBoundingClientRect(),cr=selected.getBoundingClientRect(),delta=cr.top-gr.top-Math.max(0,(grid.clientHeight-selected.offsetHeight)/2);grid.scrollTop=Math.max(0,grid.scrollTop+delta);const box=q(':scope>.modal-box',modal);if(box)box.scrollTop=0}))}
  try{const old=window.openDashboardThemeModal;if(typeof old==='function'){window.openDashboardThemeModal=async function(){const r=await old.apply(this,arguments);snap();setTimeout(snap,70);return r};try{openDashboardThemeModal=window.openDashboardThemeModal}catch{}}}catch{}
@@ -20301,7 +20796,7 @@ body > #dashboard-title-v69, body > #category-filter, body > #dashboard-grid, bo
  }
  function setVars(theme){
    theme=theme||{};const root=document.documentElement.style;
-   const surface=hex(theme.dashboardCardV40,hex(theme.surface,'#ffffff'));
+   const surface=hex(theme.background,hex(theme.dashboardBackgroundV40,hex(theme.surface,'#ffffff')));
    const requested=hex(theme.dashboardTextV40,hex(theme.text,'#111111'));
    const dark=lum(surface)<.32;
    const text=dark?'#f7f7f7':(lum(requested)>.72?'#171717':requested);
@@ -24232,6 +24727,297 @@ html body #dashboard-grid .dashboard-icon.add-new-btn {
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>schedule(),{once:true});else schedule();
 })();
 </script>
+
+<script>
+/* V535 — FAST DASHBOARD THEME SWITCHING
+   Paint the incoming theme immediately, then let the existing full runtime
+   finish cleanup/module/audio work without blocking visual feedback.
+   Reuse the theme picker DOM when the available theme list is unchanged. */
+(() => {
+  'use strict';
+  if (window.__loggyDashboardFastThemeV535) return;
+  window.__loggyDashboardFastThemeV535 = true;
+
+  const css = (name, value) => {
+    if (value !== undefined && value !== null && value !== '') document.body.style.setProperty(name, String(value));
+  };
+  function sharedForV535(value){
+    try { return typeof getDashboardSharedThemeV40 === 'function' ? getDashboardSharedThemeV40(value) : null; } catch { return null; }
+  }
+  function overrideForV535(value){
+    try {
+      if (typeof readBuiltIn === 'function') return readBuiltIn()?.[String(value || '')] || null;
+    } catch {}
+    return null;
+  }
+  function themeForV535(value){
+    const shared = sharedForV535(value);
+    if (shared?.theme) return {theme: shared.theme, shared};
+    const ov = overrideForV535(value);
+    if (ov?.theme) return {theme: ov.theme, shared:{id:value,theme:ov.theme}};
+    return null;
+  }
+  function selectCardV535(value){
+    const grid=document.getElementById('dashboard-theme-grid');
+    if(!grid) return;
+    grid.querySelectorAll('.dashboard-theme-card[data-theme]').forEach(card=>{
+      card.classList.toggle('selected', String(card.dataset.theme||'')===String(value||''));
+    });
+  }
+  function optimisticPaintV535(value){
+    const resolved=themeForV535(value);
+    selectCardV535(value);
+    if(!resolved?.theme) return;
+    let theme=resolved.theme;
+    try {
+      if(typeof resolveDashboardContentThemeV388==='function') theme=resolveDashboardContentThemeV388(theme,resolved.shared)||theme;
+    } catch {}
+    document.body.classList.add('theme-shared-dashboard-v40');
+    const bg=String(theme.backgroundSourceV311||'')==='theme-color'
+      ? (theme.background||theme.dashboardBackgroundV40||'#f5f5f5')
+      : (theme.dashboardBackgroundV40||theme.background||'#f5f5f5');
+    css('--dashboard-shared-bg', bg);
+    css('--dashboard-shared-card', theme.dashboardCardV40||theme.surface||'#fff');
+    css('--dashboard-shared-text', theme.dashboardTextV40||theme.text||'#000');
+    css('--dashboard-shared-accent', theme.dashboardAccentV40||theme.accent||'#777');
+    try { if(typeof applyDashboardContentSurfaceV386==='function') applyDashboardContentSurfaceV386(theme,resolved.shared); } catch {}
+    try {
+      const img=theme.backgroundImage;
+      if(img){ const pre=new Image(); pre.decoding='async'; pre.src=img; }
+    } catch {}
+  }
+
+  // Prepaint on pointerdown so feedback starts before the click handler's async work.
+  document.addEventListener('pointerdown', e=>{
+    const card=e.target?.closest?.('.dashboard-theme-card[data-theme]');
+    if(!card) return;
+    optimisticPaintV535(card.dataset.theme);
+  }, true);
+
+  // Also prepaint for programmatic switches.
+  try {
+    const before=applyDashboardTheme;
+    if(typeof before==='function' && !before.__v535Fast){
+      const wrapped=async function(themeValue){
+        optimisticPaintV535(themeValue);
+        return before.apply(this, arguments);
+      };
+      wrapped.__v535Fast=true;
+      applyDashboardTheme=wrapped;
+      window.applyDashboardTheme=wrapped;
+    }
+  } catch {}
+
+})();
+</script>
+
+<!-- V553: removed V552 reload re-apply. The existing V102 built-in override path is authoritative; a second apply here reverted edited built-ins back to their physical source theme on Dashboard reload. -->
+
+<script id="dashboard-settings-instant-backdrop-close-v578">
+(() => {
+  'use strict';
+  if (window.__dashboardSettingsInstantCloseV578) return;
+  window.__dashboardSettingsInstantCloseV578 = true;
+  const modal = document.getElementById('dashboard-theme-modal');
+  if (!modal) return;
+
+  modal.addEventListener('pointerdown', event => {
+    if (event.target !== modal || modal.classList.contains('hidden')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    modal.classList.add('hidden');
+    try { document.getElementById('dashboard-theme-search')?.blur(); } catch {}
+  }, true);
+})();
+</script>
+
+
+<style id="dashboard-duplicate-dialog-top-v583">
+/* Duplicate-name dialog is a true modal ABOVE Create New Log. */
+body.dashboard-site-dialog-over-create-v583 #add-modal:not(.hidden){
+  z-index:3000!important;
+  pointer-events:none!important;
+}
+body.dashboard-site-dialog-over-create-v583 #dashboard-site-dialog-v43:not(.hidden){
+  position:fixed!important;
+  inset:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  z-index:2147483647!important;
+  pointer-events:auto!important;
+  isolation:isolate!important;
+}
+body.dashboard-site-dialog-over-create-v583 #dashboard-site-dialog-v43:not(.hidden) > .modal-box,
+body.dashboard-site-dialog-over-create-v583 #dashboard-site-dialog-v43:not(.hidden) > .app-confirm-box{
+  position:relative!important;
+  z-index:1!important;
+  pointer-events:auto!important;
+}
+</style>
+<script id="dashboard-duplicate-dialog-top-v583-runtime">
+(() => {
+  'use strict';
+  if(window.__dashboardDuplicateDialogTopV583)return;
+  window.__dashboardDuplicateDialogTopV583=true;
+
+  try{
+    const before=showDashboardSiteDialogV43;
+    showDashboardSiteDialogV43=function(options={}){
+      const duplicateName =
+        String(options?.title||'').trim().toLowerCase()==='that log name is already in use';
+      const promise=before(options);
+
+      if(!duplicateName)return promise;
+
+      const modal=document.getElementById('dashboard-site-dialog-v43');
+      const create=document.getElementById('add-modal');
+
+      if(modal){
+        // Reappend last so no later Dashboard modal sibling can paint above it.
+        document.body.appendChild(modal);
+        modal.style.setProperty('z-index','2147483647','important');
+        modal.style.setProperty('position','fixed','important');
+        modal.style.setProperty('pointer-events','auto','important');
+      }
+      document.body.classList.add('dashboard-site-dialog-over-create-v583');
+      if(create){
+        create.style.setProperty('z-index','3000','important');
+        create.setAttribute('aria-hidden','true');
+      }
+
+      Promise.resolve(promise).finally(()=>{
+        document.body.classList.remove('dashboard-site-dialog-over-create-v583');
+        if(create){
+          create.style.removeProperty('z-index');
+          create.removeAttribute('aria-hidden');
+        }
+      });
+
+      return promise;
+    };
+  }catch{}
+})();
+</script>
+
+
+
+<script id="dashboard-decoration-size-authority-v611">
+(()=>{
+  'use strict';
+  if(window.__dashboardDecorationSizeAuthorityV611)return;
+  window.__dashboardDecorationSizeAuthorityV611=true;
+  const stageId='dashboard-shared-theme-art-v40';
+  function hidden(a){return !!(a&&(a.hiddenOnScreenV63===true||a.hidden===true||a.enabled===false||a.showOnScreen===false||a.visible===false));}
+  function theme(){
+    try{if(window.__dashboardCanonicalThemeV411?.backgroundSvgs)return window.__dashboardCanonicalThemeV411}catch{}
+    try{const id=localStorage.getItem('dashboard-theme')||'';const rows=JSON.parse(localStorage.getItem('loggy-shared-themes-v40')||'[]');const row=Array.isArray(rows)?rows.find(x=>String(x?.id||'')===String(id)):null;if(row?.theme)return row.theme}catch{}
+    return{};
+  }
+  function assetFor(item,t,i){
+    const all=Array.isArray(t?.backgroundSvgs)?t.backgroundSvgs:[];
+    const raw=Number(item?.dataset?.svgIndex);
+    if(Number.isFinite(raw)){const by=all.find(a=>Number(a?.placementIndexV405)===raw);if(by)return by;if(all[raw])return all[raw];}
+    return all.filter(a=>a&&!hidden(a))[i]||all[i]||null;
+  }
+  function apply(explicit){
+    const stage=document.getElementById(stageId);if(!stage)return;
+    const t=explicit&&Array.isArray(explicit.backgroundSvgs)?explicit:theme();
+    const global=Math.max(.5,Math.min(2.2,Number(t?.svgGlobalScale??100)/100));
+    const items=Array.from(stage.querySelectorAll(':scope > .dashboard-shared-theme-art-item-v40')).filter(n=>!n.dataset.dashboardCrossCloneV350&&!n.dataset.dashboardCrossCloneV149&&!n.dataset.dashboardCrossCloneV94);
+    items.forEach((item,i)=>{
+      const a=assetFor(item,t,i);if(!a||hidden(a))return;
+      const local=a?.sizeOverrideV528===true?Math.max(.25,Math.min(3,Number(a?.sizePercentV528??100)/100)):1;
+      item.style.setProperty('--dashboard-shared-image-scale',String(global*local),'important');
+    });
+  }
+  let raf=0;const schedule=t=>{if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{raf=0;apply(t)});};
+  try{const old=window.mountSharedDashboardArtV41;if(typeof old==='function'&&!old.__sizeV611){const fn=function(t={}){const r=old.apply(this,arguments);apply(t);schedule(t);return r};fn.__sizeV611=true;window.mountSharedDashboardArtV41=fn;try{mountSharedDashboardArtV41=fn}catch{}}}catch{}
+  try{new MutationObserver(rs=>{if(rs.some(r=>[...r.addedNodes].some(n=>n?.nodeType===1&&(n.id===stageId||n.querySelector?.('#'+stageId)))))schedule();}).observe(document.body,{childList:true,subtree:true})}catch{}
+  window.__dashboardApplyDecorationSizesV611=apply;
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>schedule(),{once:true});else schedule();
+})();
+</script>
+
+
+
+<style id="dashboard-theme-loader-v636-style">
+#dashboard-theme-modal #dashboard-theme-grid[data-theme-gallery-loading-v636="1"]{
+  display:grid!important;grid-template-columns:1fr!important;place-items:center!important;align-content:center!important;min-height:180px!important;
+}
+#dashboard-theme-modal .dashboard-theme-loader-v636{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;min-height:150px;width:100%;
+  color:var(--dashboard-settings-search-ink-v364,var(--dashboard-settings-text-v364,var(--dashboard-ink,#111)));font-weight:700;
+}
+#dashboard-theme-modal .dashboard-theme-loader-spinner-v636{
+  width:22px;height:22px;box-sizing:border-box;border:3px solid color-mix(in srgb,currentColor 22%,transparent);border-top-color:currentColor;border-radius:50%;
+  animation:dashboard-theme-loader-spin-v636 .7s linear infinite;
+}
+@keyframes dashboard-theme-loader-spin-v636{to{transform:rotate(360deg)}}
+</style>
+<style id="dashboard-settings-gallery-v633-style">
+#dashboard-theme-modal .dashboard-theme-search-box{position:relative}
+#dashboard-theme-modal #dashboard-theme-search{padding-right:38px!important}
+#dashboard-theme-modal #dashboard-theme-search-clear{
+  position:absolute!important;right:6px!important;top:50%!important;transform:translateY(-50%)!important;
+  width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;padding:0!important;
+  display:grid!important;place-items:center!important;border:0!important;border-radius:0!important;
+  background:transparent!important;background-color:transparent!important;background-image:none!important;
+  box-shadow:none!important;outline:0!important;color:var(--dashboard-settings-search-ink-v364,var(--dashboard-settings-input-text-v380,currentColor))!important;
+}
+#dashboard-theme-modal #dashboard-theme-search-clear.hidden{display:none!important}
+#dashboard-theme-modal #dashboard-theme-search-clear:hover,#dashboard-theme-modal #dashboard-theme-search-clear:focus,#dashboard-theme-modal #dashboard-theme-search-clear:focus-visible,#dashboard-theme-modal #dashboard-theme-search-clear:active{
+  border:0!important;border-radius:0!important;background:transparent!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important;outline:0!important;color:var(--dashboard-settings-search-ink-v364,var(--dashboard-settings-input-text-v380,currentColor))!important;
+}
+#dashboard-theme-modal #dashboard-theme-search-clear i{color:inherit!important}
+</style>
+<script id="dashboard-settings-gallery-v633-runtime">
+(()=>{
+ 'use strict';
+ if(window.__dashboardSettingsGalleryV633)return;window.__dashboardSettingsGalleryV633=true;
+ const input=document.getElementById('dashboard-theme-search');
+ const clear=document.getElementById('dashboard-theme-search-clear');
+ const grid=document.getElementById('dashboard-theme-grid');
+ const normalize=v=>String(v||'').toLowerCase().replace(/^theme-/,'').replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim();
+ function filter(){
+   if(!grid)return;
+   if(grid.dataset.themeGalleryLoadingV636==='1'){clear?.classList.toggle('hidden',!String(input?.value||'').trim());return;}
+   const q=normalize(input?.value);let shown=0;
+   grid.querySelectorAll('.dashboard-theme-card[data-theme]').forEach(card=>{
+     const match=!q||normalize(card.dataset.theme).includes(q)||normalize(card.querySelector('.dashboard-theme-name')?.textContent).includes(q);
+     card.classList.toggle('dashboard-theme-search-hidden',!match);if(match)shown++;
+   });
+   clear?.classList.toggle('hidden',!String(input?.value||'').trim());
+   let empty=grid.querySelector('.dashboard-theme-empty');
+   if(!shown){if(!empty){empty=document.createElement('p');empty.className='dashboard-theme-empty';empty.textContent='No themes found.';grid.appendChild(empty)}}else empty?.remove();
+ }
+ input?.addEventListener('input',filter);
+ clear?.addEventListener('click',()=>{input.value='';filter();input.focus();try{scrollCurrentDashboardThemeIntoView()}catch{}});
+ // Re-filter after an authoritative gallery render without rebuilding it again.
+ if(grid)new MutationObserver(()=>queueMicrotask(filter)).observe(grid,{childList:true});
+ filter();
+})();
+</script>
+
+<script id="dashboard-gallery-v647">
+(() => {
+    const render = renderDashboardThemePicker;
+    let pending = null;
+    renderDashboardThemePicker = function(...args) {
+        if (pending) return pending;
+        pending = Promise.resolve().then(() => render.apply(this,args)).finally(() => { pending = null; });
+        return pending;
+    };
+    const warm = () => {
+        const run = () => renderDashboardThemePicker().catch(() => {});
+        if (window.requestIdleCallback) requestIdleCallback(run,{timeout:1200});
+        else setTimeout(run,100);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',warm,{once:true});
+    else warm();
+})();
+</script>
 </body>
 </html>
 <style id="dashboard-edit-create-shell-parity-v473">
@@ -24246,3 +25032,99 @@ html body #rename-modal #edit-icon-picker {
   background: var(--dashboard-create-log-modal-bg-v396, var(--dashboard-settings-bg-v380, var(--dashboard-surface, #fff))) !important;
 }
 </style>
+
+
+
+
+
+<style id="dashboard-v604-complete-theme-gallery-style">
+#dashboard-theme-modal > .modal-box{
+  max-height:calc(100dvh - 32px) !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+#dashboard-theme-modal #dashboard-theme-grid{
+  max-height:min(58dvh,620px) !important;
+  min-height:120px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain !important;
+  padding-bottom:18px !important;
+  align-content:start !important;
+}
+#dashboard-theme-modal #dashboard-theme-grid::after{
+  content:'';
+  display:block;
+  height:8px;
+  grid-column:1 / -1;
+}
+</style>
+<script id="dashboard-v604-smooth-intro-bop-return">
+(()=>{
+  'use strict';
+  if(window.__dashboardSmoothIntroBopReturnV604)return;
+  window.__dashboardSmoothIntroBopReturnV604=true;
+  const bound=new WeakSet();
+  function easeBack(){
+    const stage=document.getElementById('dashboard-shared-theme-art-v40');
+    if(!stage)return;
+    stage.querySelectorAll('.dashboard-bop-shell-v369,.dashboard-shared-motion-v41,.theme-svg-motion-shell').forEach(shell=>{
+      let from='none';try{from=getComputedStyle(shell).transform||'none'}catch{}
+      if(!from||from==='none')return;
+      try{
+        const a=shell.animate([{transform:from},{transform:'translate3d(0,0,0) scale(1) rotate(0deg)'}],{duration:520,easing:'cubic-bezier(.22,.8,.25,1)',fill:'both'});
+        a.addEventListener('finish',()=>{try{a.cancel()}catch{}},{once:true});
+      }catch{}
+    });
+  }
+  function bind(audio){
+    if(!audio||bound.has(audio))return;
+    bound.add(audio);
+    audio.addEventListener('ended',easeBack,{capture:true});
+    audio.addEventListener('pause',()=>{if(audio.ended)easeBack()},{capture:true});
+  }
+  try{
+    const before=playDashboardSharedAudioV41;
+    playDashboardSharedAudioV41=function(){
+      const r=before.apply(this,arguments);
+      let audio=null;try{audio=dashboardSharedAudioV41}catch{}
+      bind(audio);
+      return r;
+    };
+  }catch{}
+  try{bind(dashboardSharedAudioV41)}catch{}
+})();
+</script>
+
+
+<!-- V635 removed obsolete V605 triple theme-gallery rebuild authority. -->
+
+<!-- V648: theme apply must never inherit a stale navigation-audio lock.
+     V622's lockAndStopV647 mutes HTMLMediaElement.play() for up to 900ms (or
+     until pageshow/visibilitychange) after certain in-app link clicks. If a
+     theme is applied while that lock is still on (e.g. picking a theme right
+     after returning from the theme studio, with no real page navigation to
+     trigger pageshow), the intro .play() call is silently swallowed and stays
+     swallowed until a hard reload fires pageshow. Applying a theme is always
+     a legitimate, user-initiated, in-page action, so release the lock right
+     before applyDashboardTheme runs, regardless of which wrapper in the chain
+     actually calls play(). -->
+<script id="dashboard-theme-apply-audio-unlock-v648">
+(()=>{
+  'use strict';
+  if(window.__dashboardThemeApplyAudioUnlockV648)return;
+  window.__dashboardThemeApplyAudioUnlockV648=true;
+  try{
+    const before=window.applyDashboardTheme;
+    if(typeof before==='function'&&!before.__audioUnlockV648){
+      const wrapped=async function(...args){
+        try{window.__dashboardReleaseNavigationAudioLockV647?.()}catch{}
+        return before.apply(this,args);
+      };
+      wrapped.__audioUnlockV648=true;
+      window.applyDashboardTheme=wrapped;
+      try{applyDashboardTheme=wrapped}catch{}
+    }
+  }catch{}
+})();
+</script>

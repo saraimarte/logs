@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "id": "world-history",
+    "name": "World History",
+    "icon": "ph-globe-hemisphere-west",
+    "category": "School"
+  }
+]

@@ -1777,6 +1777,24 @@ function makeThemeCopyIdV30() {
 function getThemeCopyV30(
     themeId
 ) {
+    const id = String(themeId || '');
+
+    // V555 — edited built-ins keep their physical built-in ID. Historical save
+    // paths could leave a themeCopiesV30 row under that SAME ID on some logs.
+    // If a canonical V102 override exists, that row is legacy debris and must
+    // not hijack Dashboard -> Log navigation.
+    try {
+        const overrides = JSON.parse(localStorage.getItem('loggy-built-in-theme-overrides-v102') || '{}');
+        if (
+            overrides?.[id] &&
+            id &&
+            id !== 'theme-custom-builder' &&
+            !id.startsWith('theme-custom-builder-')
+        ) {
+            return null;
+        }
+    } catch (_) {}
+
     return ensureThemeCopiesV30()
         .find(
             copy =>
@@ -22230,17 +22248,28 @@ function normalizeKnowledgeTagsV55(
                 /[\s,]+/
             );
 
-    return Array.from(
-        new Set(
-            values
-                .map(
-                    normalizeKnowledgeTagV55
-                )
-                .filter(
-                    Boolean
-                )
-        )
-    );
+    const normalized =
+        Array.from(
+            new Set(
+                values
+                    .map(
+                        normalizeKnowledgeTagV55
+                    )
+                    .filter(
+                        Boolean
+                    )
+            )
+        );
+
+    // V597: every Lazy Day item is hidden from the ordinary Knowledge Base.
+    if (
+        normalized.includes('lazy') &&
+        !normalized.includes('hide')
+    ) {
+        normalized.push('hide');
+    }
+
+    return normalized;
 }
 
 function tagAliasesV55(

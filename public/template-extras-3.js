@@ -226,7 +226,7 @@ function ensureKnowledgePlaceholderSettingsUiV56() {
         section.innerHTML = `
             <div class="kb-placeholder-settings-heading-v56 kb-placeholder-heading-row-v451">
                 <div class="kb-daily-recommend-copy-v173 kb-placeholder-copy-v451">
-                    <span class="field-label">Placeholders</span>
+                    <strong class="field-label">Placeholders</strong>
                     <small>
                         Type \\ in a Knowledge Base item title to insert one.
                     </small>
@@ -623,7 +623,7 @@ renderKnowledgeEditFields = function(itemId, categoryName) {
         'modal-section mt-10 kb-edit-item-name-v56';
 
     section.innerHTML = `
-        <span class="field-label">Item Name</span>
+        <span class="field-label">Title</span>
 
         <div class="kb-edit-item-name-row-v56">
             <input
@@ -2384,7 +2384,7 @@ function getTransformationFieldOptionsV58(categoryName) {
         .filter(field => !['image', 'video', 'svg'].includes(field.kind));
 
     return [
-        { value: '__title__', label: 'Item Name' },
+        { value: '__title__', label: 'Title' },
         ...fields.map(field => ({
             value: field.name,
             label: field.name
@@ -2580,7 +2580,6 @@ function ensureQuizSettingsModalV58() {
                     <input type="checkbox" class="quiz-smart-placeholder-toggle-v58">
                     <span>
                         <strong>Smart Placeholder Practice</strong>
-                        <small>In Quizlet Learn, placeholder patterns become drag-and-drop exercises using learned Knowledge Base items.</small>
                     </span>
                 </label>
             </section>
@@ -2590,7 +2589,6 @@ function ensureQuizSettingsModalV58() {
                     <input type="checkbox" class="quiz-transformation-toggle-v58">
                     <span>
                         <strong>Conjugation / Form Transformations</strong>
-                        <small>In Quizlet Learn, ask for one saved field from another. Works for languages or any log with paired forms.</small>
                     </span>
                 </label>
 
@@ -3079,7 +3077,7 @@ function acceptedTransformationAnswersV58(answer) {
 function renderTransformationPracticeV58(area, itemId, practice) {
     const label =
         practice.rule.label ||
-        `${practice.rule.fromField === '__title__' ? 'Item Name' : practice.rule.fromField} → ${practice.rule.toField === '__title__' ? 'Item Name' : practice.rule.toField}`;
+        `${practice.rule.fromField === '__title__' ? 'Title' : practice.rule.fromField} → ${practice.rule.toField === '__title__' ? 'Title' : practice.rule.toField}`;
 
     document.getElementById('quiz-set-label').innerText =
         `${activeQuizIndex + 1} / ${activeQuizDeck.length} · Transformation practice`;
@@ -3092,12 +3090,12 @@ function renderTransformationPracticeV58(area, itemId, practice) {
             </div>
 
             <div class="quiz-transformation-prompt-v58">
-                <span>${escapeKnowledgeHtml(practice.rule.fromField === '__title__' ? 'Item Name' : practice.rule.fromField)}</span>
+                <span>${escapeKnowledgeHtml(practice.rule.fromField === '__title__' ? 'Title' : practice.rule.fromField)}</span>
                 <strong>${escapeKnowledgeHtml(practice.prompt)}</strong>
             </div>
 
             <label class="quiz-transformation-answer-v58">
-                <span>${escapeKnowledgeHtml(practice.rule.toField === '__title__' ? 'Item Name' : practice.rule.toField)}</span>
+                <span>${escapeKnowledgeHtml(practice.rule.toField === '__title__' ? 'Title' : practice.rule.toField)}</span>
                 <input
                     type="text"
                     class="quiz-transformation-answer-input-v58"
@@ -3718,12 +3716,12 @@ function openTransformationPracticeV59() {
     let current = exercises[Math.floor(Math.random() * exercises.length)];
     const render = () => {
         const rule = current.rule;
-        const label = rule.label || `${rule.fromField === '__title__' ? 'Item Name' : rule.fromField} → ${rule.toField === '__title__' ? 'Item Name' : rule.toField}`;
+        const label = rule.label || `${rule.fromField === '__title__' ? 'Title' : rule.fromField} → ${rule.toField === '__title__' ? 'Title' : rule.toField}`;
         body.innerHTML = `
             <div class="quiz-generated-practice-v58 quiz-transformation-practice-v58 standalone-v59">
                 <div class="quiz-generated-heading-v58"><span>${escapeKnowledgeHtml(label)}</span><small>${escapeKnowledgeHtml(db.phrase_meta?.[current.itemId]?.type || '')}</small></div>
-                <div class="quiz-transformation-prompt-v58"><span>${escapeKnowledgeHtml(rule.fromField === '__title__' ? 'Item Name' : rule.fromField)}</span><strong>${escapeKnowledgeHtml(current.prompt)}</strong></div>
-                <label class="quiz-transformation-answer-v58"><span>${escapeKnowledgeHtml(rule.toField === '__title__' ? 'Item Name' : rule.toField)}</span><input type="text" class="transform-standalone-input-v59" placeholder="Type your answer…"></label>
+                <div class="quiz-transformation-prompt-v58"><span>${escapeKnowledgeHtml(rule.fromField === '__title__' ? 'Title' : rule.fromField)}</span><strong>${escapeKnowledgeHtml(current.prompt)}</strong></div>
+                <label class="quiz-transformation-answer-v58"><span>${escapeKnowledgeHtml(rule.toField === '__title__' ? 'Title' : rule.toField)}</span><input type="text" class="transform-standalone-input-v59" placeholder="Type your answer…"></label>
                 <div class="transform-standalone-feedback-v59"></div>
                 <div class="quiz-generated-actions-v58"><button class="icon-btn transform-standalone-check-v59">Check</button><button class="small-icon-btn transform-standalone-next-v59" title="Next"><i class="ph ph-arrow-right"></i></button></div>
             </div>`;
@@ -4170,8 +4168,7 @@ function polishQuizSettingsV60(modal = document.getElementById('quiz-settings-mo
         '.quiz-transformation-toggle-v58'
     )?.closest('label')?.querySelector('small');
     if (optionSmall) {
-        optionSmall.textContent =
-            'Practice one saved Knowledge Base field from another. This is separate from Flashcards, Quizlet Learn, and Anki.';
+        optionSmall.remove();
     }
 
     const heading = modal.querySelector('.quiz-settings-section-heading-v58 > div');
@@ -4765,9 +4762,7 @@ function syncPageActionButtonsV61(
             [
                 '#open-quiz-settings-v58',
                 '#open-daily-settings-btn',
-                '#open-settings-btn',
-                '.custom-tab-edit-btn',
-                '.custom-tab-settings-btn'
+                '#open-settings-btn'
             ].join(',')
         )
         .forEach(
@@ -5222,53 +5217,93 @@ function fakeKnowledgeItemTitleV247(
     }
 }
 
-function appendDeveloperKnowledgeItemsV247(
-    filterText = ''
-) {
-    if (!developerPreviewKnowledge500V247) return;
-
-    const grid = document.getElementById('phrases-library-grid');
+let developerKbPreviewEpochV620=0;
+function setDeveloperKnowledgeFastLayoutV643(grid, enabled) {
     if (!grid) return;
-
-    grid
-        .querySelectorAll('[data-developer-kb-preview-v247], [data-developer-kb-preview-v61]')
-        .forEach(node => node.remove());
-
-    const query = String(filterText || '').trim().toLowerCase();
-    const categories = (db.settings.categories || []).filter(
-        category => libraryFilter === 'all' || libraryFilter === category
-    );
-    const isPolaroid = db.settings.libraryView === 'polaroid';
-
-    categories.forEach(category => {
-        for (let index = 0; index < DEVELOPER_KB_PREVIEW_COUNT_V247; index++) {
-            const title = fakeKnowledgeItemTitleV247(category, index);
-            if (query && !title.toLowerCase().includes(query)) continue;
-
-            const card = document.createElement('div');
-            card.dataset.developerKbPreviewV247 = 'true';
-
-            if (isPolaroid) {
-                card.className = 'polaroid-card developer-kb-preview-card-v61 developer-kb-preview-card-v247';
-                card.innerHTML = `
-                    <div class="polaroid-video developer-kb-preview-media-v61">
-                        <i class="ph ph-test-tube"></i>
-                    </div>
-                    <div class="polaroid-label">
-                        <span class="chip-text">${escapeKnowledgeHtml(title)}</span>
-                    </div>
-                `;
-            } else {
-                card.className = 'phrase-card developer-kb-preview-card-v61 developer-kb-preview-card-v247';
-                card.innerHTML = `
-                    <span class="chip-text">${escapeKnowledgeHtml(title)}</span>
-                `;
+    grid.classList.toggle('kb-developer-fast-grid-v643', !!enabled);
+    if (!enabled) {
+        grid.style.removeProperty('height');
+        grid.querySelectorAll(':scope > .phrase-card, :scope > .polaroid-card').forEach(card => {
+            for (const prop of ['position','left','top','width','max-width','min-width','visibility']) {
+                card.style.removeProperty(prop);
             }
+        });
+    }
+}
 
-            card.title = `Developer preview · ${category}`;
-            grid.appendChild(card);
+function appendDeveloperKnowledgeItemsV247(filterText = '') {
+    const epoch=++developerKbPreviewEpochV620;
+    const grid=document.getElementById('phrases-library-grid');
+    if(!grid)return;
+
+    grid.querySelectorAll('[data-developer-kb-preview-v247], [data-developer-kb-preview-v61]').forEach(node=>node.remove());
+
+    const isPolaroid=db.settings.libraryView==='polaroid';
+    const isAll=String(typeof libraryFilter!=='undefined' ? libraryFilter : 'all')==='all';
+    const useFastAllLayout=developerPreviewKnowledge500V247 && isAll && !isPolaroid;
+    setDeveloperKnowledgeFastLayoutV643(grid,useFastAllLayout);
+
+    if(!developerPreviewKnowledge500V247){
+        document.dispatchEvent(new Event('kb-preview-complete-v643'));
+        return;
+    }
+
+    const query=String(filterText||'').trim().toLowerCase();
+    const categories=(db.settings.categories||[]).filter(category=>isAll||libraryFilter===category);
+    let categoryIndex=0,itemIndex=0;
+
+    const schedule = callback => {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(callback,{timeout:45});
+        } else {
+            setTimeout(() => callback({timeRemaining:()=>8,didTimeout:true}),0);
         }
-    });
+    };
+
+    function appendBatch(deadline){
+        if(epoch!==developerKbPreviewEpochV620 || !grid.isConnected || !developerPreviewKnowledge500V247)return;
+        const fragment=document.createDocumentFragment();
+        const started=performance.now();
+        let count=0;
+
+        while(categoryIndex<categories.length && count<90){
+            // Keep each task short enough that scrolling/tab clicks can run.
+            if(count>0 && performance.now()-started>7 && !deadline?.didTimeout) break;
+            if(count>0 && typeof deadline?.timeRemaining==='function' && deadline.timeRemaining()<2) break;
+
+            const category=categories[categoryIndex];
+            const title=fakeKnowledgeItemTitleV247(category,itemIndex++);
+            if(itemIndex>=DEVELOPER_KB_PREVIEW_COUNT_V247){itemIndex=0;categoryIndex++;}
+            if(query && !title.toLowerCase().includes(query))continue;
+
+            const card=document.createElement('div');
+            card.dataset.developerKbPreviewV247='true';
+            card.className=(isPolaroid?'polaroid-card':'phrase-card')+' developer-kb-preview-card-v61 developer-kb-preview-card-v247';
+            card.innerHTML=isPolaroid
+                ? `<div class="polaroid-video developer-kb-preview-media-v61"><i class="ph ph-test-tube"></i></div><div class="polaroid-label"><span class="chip-text">${escapeKnowledgeHtml(title)}</span></div>`
+                : `<span class="chip-text">${escapeKnowledgeHtml(title)}</span>`;
+            card.title=`Developer preview · ${category}`;
+            fragment.appendChild(card);
+            count++;
+        }
+
+        if(fragment.childNodes.length) grid.appendChild(fragment);
+
+        if(categoryIndex<categories.length){
+            schedule(appendBatch);
+            return;
+        }
+
+        // One completion signal only. Older code repacked the entire growing
+        // collection after every 100 cards, which caused repeated freezes and
+        // the disappear/reappear flash. Developer All view now stays on the
+        // browser's fast CSS grid for the whole stress preview.
+        document.dispatchEvent(new Event('kb-preview-complete-v643'));
+        requestAnimationFrame(syncKnowledgeLibraryViewportV61);
+    }
+
+    // Allow the real KB page and toggle state to paint first.
+    schedule(appendBatch);
 }
 
 const renderPhrasesLibraryBeforeDevLoadV247 = renderPhrasesLibrary;
@@ -5935,9 +5970,7 @@ function syncPageActionIconSizeV62(
             [
                 '#open-quiz-settings-v58 i',
                 '#open-daily-settings-btn i',
-                '#open-settings-btn i',
-                '.custom-tab-edit-btn i',
-                '.custom-tab-settings-btn i'
+                '#open-settings-btn i'
             ].join(',')
         )
         .forEach(
@@ -8293,8 +8326,7 @@ function polishQuizSettingsV64(
             );
 
     if (smartCopy) {
-        smartCopy.textContent =
-            'When enabled, a separate Smart Placeholder Practice section appears below Start Quiz. Drag learned Knowledge Base items into your custom placeholder patterns.';
+        smartCopy.remove();
     }
 
     // Keep the Field to Field Practice wording from V60.

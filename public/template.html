@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="loading-log-page">
+<html lang="en" class="loading-log-page kb-hide-item-tags-v557">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -64,9 +64,29 @@
             try { media.currentTime = 0; } catch (_) {}
         };
 
+        const isUserFacingAudio = media => {
+            try {
+                if (!isAudio(media) || !media.isConnected) return false;
+                if (media.controls) return true;
+                return !!media.closest?.(
+                    '.daily-collection-card,[data-daily-kind="audio"],.note-audio-row,' +
+                    '.kb-audio-field,.kb-display-audio,.custom-audio-player,[data-loggy-user-audio]'
+                );
+            } catch (_) {
+                return false;
+            }
+        };
+
         const shouldBlock = media => {
             if (!isAudio(media) || allowed.has(media)) return false;
             if (blocked.has(media)) return true;
+
+            // V640: detached/hidden/programmatic audio is NEVER allowed to become
+            // an accidental second theme player. Real Log intro/TTS/Builder audio
+            // is explicitly allow()'d by its owner. User-facing <audio controls>
+            // remains playable.
+            if (!isUserFacingAudio(media)) return true;
+
             return applyDepth > 0 || introActive || performance.now() < holdUntil;
         };
 
@@ -107,6 +127,13 @@
             if (!shouldBlock(media)) return;
             blocked.add(media);
             queueMicrotask(() => stop(media));
+        }, true);
+
+        document.addEventListener('pointerdown', event => {
+            const media = event.target?.closest?.('audio');
+            if (!media || !isUserFacingAudio(media)) return;
+            allowed.add(media);
+            blocked.delete(media);
         }, true);
 
         const api = {
@@ -334,8 +361,65 @@
             pointer-events: auto !important;
         }
     </style>
-<link rel="stylesheet" href="/template.css?v=517">
-    <link rel="preload" href="/template.js?v=506" as="script">
+<link rel="stylesheet" href="/template.css?v=662">
+
+    <script id="loggy-early-theme-warm-v578">
+    (() => {
+        'use strict';
+        try {
+            const params = new URLSearchParams(location.search || '');
+            if (
+                document.documentElement.dataset.themeBuilderPreviewV307 === 'true' ||
+                location.pathname === '/theme-studio-host' ||
+                params.has('theme-builder-preview-v307')
+            ) return;
+
+            const parts = location.pathname.split('/').filter(Boolean);
+            const hobby = parts[0] === 'app'
+                ? (parts[1] || '')
+                : (parts[parts.length - 1] || '');
+            if (!hobby) return;
+
+            const themeId = String(localStorage.getItem(`loggy-log-theme:${hobby}`) || '').trim();
+            const builtIns = new Set([
+                'theme-coquette','theme-pastel','theme-mint','theme-lavender',
+                'theme-sunset','theme-honey','theme-midnight','theme-charcoal',
+                'theme-noir','theme-retro','theme-candy','theme-forest',
+                'theme-cloud','theme-blossom','theme-matrix','theme-notebook',
+                'theme-terminal','theme-water','theme-stars','theme-music',
+                'theme-scrapbook','theme-80s','theme-fancynancy','theme-whimsical'
+            ]);
+            if (!builtIns.has(themeId)) return;
+
+            const name = themeId.slice('theme-'.length);
+            const cssHref = `/themes/${name}/theme-${name}.css`;
+            const moduleHref = `/themes/${name}/theme-${name}.js`;
+
+            let css = document.getElementById('dynamic-theme-css');
+            if (!css) {
+                css = document.createElement('link');
+                css.id = 'dynamic-theme-css';
+                css.rel = 'stylesheet';
+                css.dataset.loggyEarlyThemeV578 = themeId;
+                document.head.appendChild(css);
+            }
+            const absoluteCss = new URL(cssHref, location.href).href;
+            if (css.href !== absoluteCss) css.href = cssHref;
+
+            if (!document.querySelector(`link[data-loggy-early-theme-module-v578="${CSS.escape(themeId)}"]`)) {
+                const preload = document.createElement('link');
+                preload.rel = 'modulepreload';
+                preload.href = moduleHref;
+                preload.dataset.loggyEarlyThemeModuleV578 = themeId;
+                document.head.appendChild(preload);
+            }
+
+            window.__loggyEarlyThemeWarmV578 = { hobby, themeId, cssHref, moduleHref };
+        } catch (_) {}
+    })();
+    </script>
+
+    <link rel="preload" href="/template.js?v=662" as="script">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -353,6 +437,20 @@
                 window.__loggyInitialDataPromiseV187 = fetch(`/api/data/${encodeURIComponent(hobby)}`)
                     .then(response => response.ok ? response : null)
                     .catch(() => null);
+                // V630: Hide Tags is the template default, so start in the hidden
+                // state before the first KB card can paint. Reconcile an existing
+                // log's explicit OFF setting from a cloned response without
+                // consuming the response loadData() is waiting for.
+                window.__loggyInitialDataPromiseV187.then(response => {
+                    if (!response) return;
+                    response.clone().json().then(data => {
+                        const saved = data?.settings?.knowledgeHideTagsV557;
+                        document.documentElement.classList.toggle(
+                            'kb-hide-item-tags-v557',
+                            saved === undefined ? true : !!saved
+                        );
+                    }).catch(() => {});
+                }).catch(() => {});
             }
 
             // If a full-screen special tab was active, keep its restore mask in
@@ -373,12 +471,17 @@
         } catch (_) {}
     })();
 
-    // V194 safety watchdog: a slow local data request must never leave the whole
-    // app permanently invisible or pointer-locked. Core startup normally clears
-    // these classes much earlier; this is only a fallback.
+    // V559: NEVER reveal the Log shell just because 1.2s elapsed. On edited
+    // built-in themes that exposed the raw source theme while its saved Builder
+    // override was still being layered. Core startup now owns the reveal and
+    // releases the mask only after the initial saved-theme visual pass is ready.
     setTimeout(() => {
-        document.documentElement.classList.remove('loading-log-page');
-        document.documentElement.classList.remove('restoring-log-view');
+        if (
+            document.documentElement.classList.contains('loading-log-page') &&
+            document.documentElement.dataset.loggyInitialThemeReadyV559 !== '1'
+        ) {
+            document.documentElement.dataset.loggyStartupStillLoadingV559 = '1';
+        }
     }, 1200);
     </script>
     <style>
@@ -388,8 +491,11 @@
            (search/settings first, title/grid later) from leaking through. */
         html.loading-log-page body,
         html.restoring-log-view body {
-            opacity: 0 !important;
-            pointer-events: none !important;
+            opacity: 1 !important;
+            /* V620: startup/theme settling must never create a visible-but-dead page.
+               Opacity still prevents partial paint; pointer input is no longer globally
+               disabled by this guard. */
+            pointer-events: auto !important;
         }
         /* V207: on a whiteboard reload, cover the hidden log shell with the
            whiteboard canvas itself until the lazy board runtime mounts. */
@@ -426,6 +532,20 @@
            sliders-horizontal settings glyph as Knowledge Base Settings. The
            only gear icon is the global Settings button in the side navbar. */
     </style>
+
+    <style id="loggy-theme-search-clear-first-frame-v580">
+        html body #daily-settings-modal #theme-search-clear.theme-search-clear {
+            border:0 !important;
+            outline:0 !important;
+            background:transparent !important;
+            background-color:transparent !important;
+            background-image:none !important;
+            box-shadow:none !important;
+            text-shadow:none !important;
+            filter:none !important;
+        }
+    </style>
+
 </head>
 <body>
     <!-- New Vertical Side Navigation -->
@@ -462,7 +582,23 @@
                     <div class="section-header">
                         <h2>Items Learned</h2>
                         <div style="display:flex; gap:8px;">
+                            <button id="lazy-day-recommendation-btn-v596" class="small-icon-btn" title="Lazy Day Recommendation" aria-label="Lazy Day Recommendation"><i class="ph ph-moon-stars"></i></button>
                             <button id="add-phrase-btn" class="small-icon-btn"><i class="ph ph-plus"></i></button>
+                        </div>
+                    </div>
+                    <div id="lazy-day-recommendation-v596" class="lazy-day-recommendation-v596 hidden" aria-live="polite">
+                        <button type="button" class="lazy-day-recommendation-main-v596">
+                            <span class="lazy-day-recommendation-icon-v596"><i class="ph ph-lightning"></i></span>
+                            <span class="lazy-day-recommendation-copy-v596">
+                                <small>Lazy Day Recommendation</small>
+                                <span class="lazy-day-recommendation-value-v596"></span>
+                                <em class="lazy-day-recommendation-meta-v596"></em>
+                            </span>
+                        </button>
+                        <div class="lazy-day-recommendation-actions-v597">
+                            <button type="button" class="small-icon-btn lazy-day-recommendation-skip-v597" title="Skip and show another" aria-label="Skip recommendation"><i class="ph ph-skip-forward"></i></button>
+                            <button type="button" class="small-icon-btn lazy-day-recommendation-learned-v597" title="Add to Items Learned" aria-label="Add recommendation to Items Learned"><i class="ph ph-check"></i></button>
+                            <button type="button" class="small-icon-btn lazy-day-recommendation-close-v596" title="Hide recommendation" aria-label="Hide recommendation"><i class="ph ph-x"></i></button>
                         </div>
                     </div>
                     <div class="input-group hidden" id="phrase-input-group">
@@ -555,8 +691,10 @@
             </div>
         </div>
         <input type="text" id="phrases-search-bar" placeholder="Search..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" name="loggy-kb-search-v497" data-lpignore="true" data-1p-ignore="true">
-        <div class="filter-tabs" id="library-filter-tabs"></div>
-        <div class="phrases-grid" id="phrases-library-grid"></div>
+        <div id="kb-backdrop-group-v583">
+            <div class="filter-tabs" id="library-filter-tabs"></div>
+            <div class="phrases-grid" id="phrases-library-grid"></div>
+        </div>
     </div>
 
     <!-- Quizzes View -->
@@ -573,35 +711,37 @@
             <button class="filter-tab quiz-mode-btn" data-mode="learn">Quizlet Learn</button>
         </div>
 
-        <div id="quiz-day-picker-section" class="hidden">
-            <p class="ai-video-instructions mt-10">Pick the specific days you want to be quizzed on.</p>
-            <div class="day-picker-grid" id="quiz-day-grid"></div>
-        </div>
-
-        <div id="anki-summary-box" class="set-complete-box" style="margin-top: 15px;">
-            <h2 id="anki-summary-title"><i class="ph ph-brain"></i> Ready to Review</h2>
-            <p id="anki-summary-detail"></p>
-        </div>
-
-        <div id="quiz-category-picker-section-v473">
-            <div class="set-size-picker" style="margin-top: 20px;">
-                <span class="modal-label">Quiz me on:</span>
+        <div id="quiz-backdrop-group-v582">
+            <div id="quiz-day-picker-section" class="hidden">
+                <p class="ai-video-instructions mt-10">Pick the specific days you want to be quizzed on.</p>
+                <div class="day-picker-grid" id="quiz-day-grid"></div>
             </div>
-            <div class="filter-tabs" id="quiz-type-filters"></div>
 
-            <div id="quizlet-learning-mode-section-v476" class="quizlet-learning-mode-section-v476 hidden">
-                <span class="modal-label">Choose Learning mode:</span>
-                <div class="quizlet-learning-mode-options-v476">
-                    <label class="quizlet-learning-mode-option-v476">
-                        <input type="checkbox" id="quizlet-mode-mc-v476" checked>
-                        <span>Multiple Choice</span>
-                    </label>
-                    <label class="quizlet-learning-mode-option-v476">
-                        <input type="checkbox" id="quizlet-mode-written-v476">
-                        <span>Written</span>
-                    </label>
+            <div id="anki-summary-box" class="set-complete-box" style="margin-top: 15px;">
+                <h2 id="anki-summary-title"><i class="ph ph-brain"></i> Ready to Review</h2>
+                <p id="anki-summary-detail"></p>
+            </div>
+
+            <div id="quiz-category-picker-section-v473">
+                <div class="set-size-picker" style="margin-top: 20px;">
+                    <span class="modal-label">Quiz me on:</span>
                 </div>
-                <p class="progress-hint quizlet-learning-mode-hint-v476">Written answers use the starred quiz field from that item's category.</p>
+                <div class="filter-tabs" id="quiz-type-filters"></div>
+
+                <div id="quizlet-learning-mode-section-v476" class="quizlet-learning-mode-section-v476 hidden">
+                    <span class="modal-label">Choose Learning mode:</span>
+                    <div class="quizlet-learning-mode-options-v476">
+                        <label class="quizlet-learning-mode-option-v476">
+                            <input type="checkbox" id="quizlet-mode-mc-v476" checked>
+                            <span>Multiple Choice</span>
+                        </label>
+                        <label class="quizlet-learning-mode-option-v476">
+                            <input type="checkbox" id="quizlet-mode-written-v476">
+                            <span>Written</span>
+                        </label>
+                    </div>
+                    <p class="progress-hint quizlet-learning-mode-hint-v476">Written answers use the starred quiz field from that item's category.</p>
+                </div>
             </div>
         </div>
 
@@ -667,11 +807,11 @@
             
             <div class="modal-section">
                 <span class="field-label">Name (Unique ID)</span>
-                <input type="text" id="add-item-name" placeholder="e.g. New Item">
+                <input type="text" id="add-item-name" name="kb-new-item-title" placeholder="e.g. New Item" autocomplete="off" aria-autocomplete="none" data-form-type="other" data-lpignore="true" data-1p-ignore="true">
             </div>
 
             <div class="modal-section mt-10" style="display:flex; align-items:center; gap: 8px;">
-                <input type="checkbox" id="add-item-enable-parts" style="width:18px; height:18px; cursor:pointer;" checked>
+                <input type="checkbox" id="add-item-enable-parts" style="width:18px; height:18px; cursor:pointer;">
                 <label for="add-item-enable-parts" style="font-size:1.1rem; cursor:pointer;">Enable Parts Checklist</label>
             </div>
 
@@ -695,9 +835,8 @@
                     <button class="filter-tab kb-view-btn" data-view="list">List</button>
                     <button class="filter-tab kb-view-btn" data-view="polaroid">Polaroid Grid</button>
                 </div>
-                <div id="settings-hide-categories-row" class="hidden" style="display:flex; align-items:center; gap:8px; margin-top:12px;">
-                    <input type="checkbox" id="settings-hide-categories" style="width:18px; height:18px; cursor:pointer;">
-                    <label for="settings-hide-categories" style="font-size:1.1rem; cursor:pointer;">Hide category tabs in this view</label>
+                <div id="settings-hide-categories-row" class="hidden" style="display:none;">
+                    <input type="checkbox" id="settings-hide-categories">
                 </div>
             </div>
 
@@ -925,7 +1064,57 @@
         }, true);
     })();
     </script>
-    <script src="/template.js?v=506"></script>
+    <script id="loggy-v627-items-learned-keyboard-early">
+    (()=>{
+      'use strict';
+      if(window.__loggyItemsLearnedKeyboardEarlyV627)return;
+      window.__loggyItemsLearnedKeyboardEarlyV627=true;
+
+      // Register on WINDOW before template.js and every deferred extras bundle.
+      // This gives the Items Learned combobox first refusal on its navigation keys,
+      // so global Loggy shortcuts cannot steal ArrowUp/ArrowDown/Enter first.
+      window.addEventListener('keydown',event=>{
+        const input=event.target?.closest?.('#new-phrase-input');
+        if(!input || !['ArrowDown','ArrowUp','Enter'].includes(event.key))return;
+
+        // These core functions/variables are defined by template.js by the time a
+        // user can focus this input. Keep the handler inert during startup only.
+        if(typeof phraseMatchesV450!=='function' || typeof renderPhraseSuggestionsV450!=='function')return;
+        const matches=phraseMatchesV450(input.value);
+
+        if(event.key==='ArrowDown' || event.key==='ArrowUp'){
+          // Arrow keys belong to this combobox even if there are currently no
+          // matches. Prevent page/global shortcut movement either way.
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          if(!matches.length)return;
+
+          if(event.key==='ArrowDown'){
+            phraseSuggestionIndexV450 = phraseSuggestionIndexV450 < 0
+              ? 0
+              : (phraseSuggestionIndexV450 + 1) % matches.length;
+          }else{
+            phraseSuggestionIndexV450 = phraseSuggestionIndexV450 < 0
+              ? matches.length - 1
+              : (phraseSuggestionIndexV450 - 1 + matches.length) % matches.length;
+          }
+          renderPhraseSuggestionsV450();
+          return;
+        }
+
+        if(event.key==='Enter'){
+          const chosen=phraseSuggestionIndexV450>=0 ? matches[phraseSuggestionIndexV450] : null;
+          if(!chosen)return;
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          commitPhraseFromInputV450(chosen);
+        }
+      },true);
+    })();
+    </script>
+    <script src="/template.js?v=662"></script>
     <script>
 /* V389 - left-facing directional cursor parity for Log Settings + live cursor. */
 (()=>{
@@ -959,40 +1148,97 @@
   window.addEventListener('loggy-extras-ready',patchV389,{once:true});
 })();
 </script>
-    <script src="/template-hotfix-v221.js?v=518"></script>
+    <script src="/template-hotfix-v221.js?v=662"></script>
     <script>
-    /* V194 — full feature pack, split into small ordered chunks.
-       The Daily Logs shell becomes clickable first. The old 2.9 MB enhancement
-       bundle is then executed in five smaller tasks, yielding between them so
-       clicks/hover/scroll are never held hostage by one giant JS task. */
+    /* V645 — RESPONSIVE FEATURE HYDRATION.
+       The six enhancement bundles are still all loaded; none of Loggy's features
+       are removed. The old startup path began executing ~3.3 MB of extras only
+       2.2s after paint. Each file executes as one main-thread task, so those six
+       tasks were the reason clicks could visibly hover yet wait several seconds
+       before Back/KB/Quizzes/Toolbox handlers actually ran.
+
+       New model:
+       1. Prefetch bundle bytes early without executing them.
+       2. Never auto-execute the heavy extras during the first 12 seconds.
+       3. Background hydration only advances while the user is actually idle.
+       4. Yield between EVERY bundle, and pause background hydration again as soon
+          as the user clicks/types/scrolls.
+       5. Explicit advanced actions can still request the complete feature pack
+          immediately, but even urgent loading yields a paint between chunks.
+    */
     (() => {
-        const EXTRA_PARTS_V194 = [
-            '/template-extras-1.js?v=505',
-            '/template-extras-2.js?v=504',
-            '/template-extras-3.js?v=518',
-            '/template-extras-4.js?v=513',
-            '/template-extras-5.js?v=522',
-            '/template-extras-6.js?v=519'
+        const EXTRA_PARTS_V645 = [
+            '/template-extras-1.js?v=662',
+            '/template-extras-2.js?v=662',
+            '/template-extras-3.js?v=662',
+            '/template-extras-4.js?v=662',
+            '/template-extras-5.js?v=662',
+            '/template-extras-6.js?v=662'
         ];
 
         let extrasPromise = null;
-        let extrasUrgent = false;
+        let urgentRequestedV645 = false;
+        let lastUserInputV645 = performance.now();
+        const pageStartedV645 = performance.now();
+        const AUTO_EARLIEST_MS_V645 = 12000;
+        const BACKGROUND_QUIET_MS_V645 = 850;
 
-        const yieldForUi = () => new Promise(resolve => {
-            // Even in urgent mode, yield one task so an already queued click or
-            // paint can finish before the next feature chunk executes.
-            if (extrasUrgent) {
-                setTimeout(resolve, 0);
-                return;
-            }
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(() => resolve(), { timeout: 180 });
-            } else {
-                setTimeout(resolve, 16);
-            }
+        const noteUserInputV645 = () => { lastUserInputV645 = performance.now(); };
+        window.addEventListener('pointerdown', noteUserInputV645, { capture:true, passive:true });
+        window.addEventListener('keydown', noteUserInputV645, { capture:true, passive:true });
+        window.addEventListener('wheel', noteUserInputV645, { capture:true, passive:true });
+        window.addEventListener('touchstart', noteUserInputV645, { capture:true, passive:true });
+
+        function prefetchExtrasV645() {
+            EXTRA_PARTS_V645.forEach((src, index) => {
+                if (document.querySelector(`link[data-loggy-extra-prefetch-v645="${index + 1}"]`)) return;
+                const link = document.createElement('link');
+                link.rel = 'prefetch';
+                link.as = 'script';
+                link.href = src;
+                link.fetchPriority = 'low';
+                link.dataset.loggyExtraPrefetchV645 = String(index + 1);
+                document.head.appendChild(link);
+            });
+        }
+
+        const waitForPaintV645 = () => new Promise(resolve => {
+            requestAnimationFrame(() => setTimeout(resolve, 0));
         });
 
-        const loadPart = (src, index) => new Promise((resolve, reject) => {
+        const waitForBackgroundSlotV645 = () => new Promise(resolve => {
+            const probe = () => {
+                // An explicit advanced action can accelerate the remaining pack,
+                // but it still gets a paint between files.
+                if (urgentRequestedV645) {
+                    waitForPaintV645().then(resolve);
+                    return;
+                }
+
+                const quietFor = performance.now() - lastUserInputV645;
+                if (quietFor < BACKGROUND_QUIET_MS_V645) {
+                    setTimeout(probe, Math.max(40, BACKGROUND_QUIET_MS_V645 - quietFor));
+                    return;
+                }
+
+                if ('requestIdleCallback' in window) {
+                    requestIdleCallback(() => {
+                        // Re-check because input may have happened while the idle
+                        // callback was waiting in the queue.
+                        if (!urgentRequestedV645 && performance.now() - lastUserInputV645 < BACKGROUND_QUIET_MS_V645) {
+                            probe();
+                            return;
+                        }
+                        resolve();
+                    }, { timeout: 1200 });
+                } else {
+                    setTimeout(resolve, 32);
+                }
+            };
+            probe();
+        });
+
+        const loadPartV645 = (src, index) => new Promise((resolve, reject) => {
             const selector = `script[data-loggy-extra-part-v194="${index + 1}"]`;
             const existing = document.querySelector(selector);
             if (existing?.dataset.loadedV194 === '1') {
@@ -1000,8 +1246,8 @@
                 return;
             }
             if (existing) {
-                existing.addEventListener('load', resolve, { once: true });
-                existing.addEventListener('error', reject, { once: true });
+                existing.addEventListener('load', resolve, { once:true });
+                existing.addEventListener('error', reject, { once:true });
                 return;
             }
 
@@ -1012,19 +1258,20 @@
             script.addEventListener('load', () => {
                 script.dataset.loadedV194 = '1';
                 resolve();
-            }, { once: true });
-            script.addEventListener('error', reject, { once: true });
+            }, { once:true });
+            script.addEventListener('error', reject, { once:true });
             document.head.appendChild(script);
         });
 
         window.ensureLoggyExtras = ({ urgent = false } = {}) => {
-            if (urgent) extrasUrgent = true;
+            if (urgent) urgentRequestedV645 = true;
             if (extrasPromise) return extrasPromise;
 
             extrasPromise = (async () => {
-                for (let index = 0; index < EXTRA_PARTS_V194.length; index += 1) {
-                    await loadPart(EXTRA_PARTS_V194[index], index);
-                    if (index < EXTRA_PARTS_V194.length - 1) await yieldForUi();
+                for (let index = 0; index < EXTRA_PARTS_V645.length; index += 1) {
+                    // The first file also waits for a genuine scheduling slot.
+                    await (urgentRequestedV645 ? waitForPaintV645() : waitForBackgroundSlotV645());
+                    await loadPartV645(EXTRA_PARTS_V645[index], index);
                 }
                 document.documentElement.dataset.loggyFeaturesReady = '1';
                 window.dispatchEvent(new Event('loggy-features-ready'));
@@ -1034,50 +1281,53 @@
             return extrasPromise;
         };
 
-        // Advanced interactions can accelerate the remaining chunks, but normal
-        // Daily Log opening never waits for them.
-        const requestUrgentFeatures = event => {
-            // V290: a Theme Builder live preview is a sandbox, not a second full
-            // Loggy app. Loading all six enhancement bundles inside every edit
-            // preview duplicates observers/builders/theme runtimes and was the
-            // main reason Edit Theme became unclickable. Core template.js owns
-            // the normal tab/view shell; preview-only modals are bridged by the
-            // parent Theme Builder instead.
-            if (document.documentElement.dataset.themeBuilderPreviewV300 === 'true' || document.documentElement.dataset.themeBuilderLogPreviewV268 === 'true') return;
+        // Only actions that actually depend on the advanced bundles accelerate
+        // them. Ordinary Back/KB/Quizzes/Toolbox/day navigation is deliberately
+        // absent: core template.js owns those immediately.
+        const requestUrgentFeaturesV645 = event => {
+            if (document.documentElement.dataset.themeBuilderPreviewV300 === 'true' ||
+                document.documentElement.dataset.themeBuilderLogPreviewV268 === 'true') return;
+
             if (event.type === 'keydown') {
                 if (!(event.shiftKey && String(event.key || '').toLowerCase() === 'w')) return;
             } else {
                 const target = event.target;
                 if (!target?.closest?.(
-                    '#open-daily-settings-btn, #open-global-daily-settings-nav-btn, #open-phrases-btn, #open-tools-btn, #open-quizzes-btn, #add-custom-tab-btn, ' +
-                    '.custom-tab-nav-btn, .theme-search-create-v161, .theme-picker-create-card, ' +
+                    '#open-global-daily-settings-nav-btn, #add-custom-tab-btn, ' +
+                    '.theme-search-create-v161, .theme-picker-create-card, ' +
                     '[data-open-theme-builder], #open-theme-builder-btn, #theme-builder-v307-modal'
                 ) && event.type !== 'contextmenu') return;
             }
-            window.ensureLoggyExtras({ urgent: true }).catch(() => {});
+            window.ensureLoggyExtras({ urgent:true }).catch(() => {});
         };
 
-        // V300 FIX (bug 5): when this document is the Dashboard Theme Studio
-        // host (opened via openDashboardThemeStudioV43 in dashboard.html), no
-        // user gesture will ever fire inside this iframe to trigger
-        // requestUrgentFeatures above -- boot() in template-extras-6.js needs to
-        // run as soon as possible on its own. dashboardThemeStudio.html marks
-        // this navigation with studioUrgentV300=1 for exactly this case; honor
-        // it immediately rather than waiting on the normal idle-callback load.
+        // Dashboard Theme Studio host genuinely needs the full Builder immediately.
         try {
             if (new URLSearchParams(location.search).get('studioUrgentV300') === '1') {
-                window.ensureLoggyExtras({ urgent: true }).catch(() => {});
+                window.ensureLoggyExtras({ urgent:true }).catch(() => {});
             }
         } catch (_) {}
 
-        document.addEventListener('pointerdown', requestUrgentFeatures, true);
-        document.addEventListener('contextmenu', requestUrgentFeatures, true);
-        document.addEventListener('keydown', requestUrgentFeatures, true);
+        // V647: let the core local-settings modal paint before enhancing it.
+        document.addEventListener('click', event => {
+            if (!event.target?.closest?.('#open-daily-settings-btn')) return;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                window.ensureLoggyExtras({ urgent:true }).then(() => {
+                    // The first click may precede the settings enhancer wrappers.
+                    // Refresh their controls without reopening a dismissed modal.
+                    const modal = document.getElementById('daily-logs-local-settings-modal');
+                    if (modal && !modal.classList.contains('hidden')) {
+                        try { ensureDailyLogsSettingsModal(); } catch {}
+                    }
+                }).catch(() => {});
+            }));
+        }, true);
 
-        /* V257: the very first right-click on a theme card must not race the
-           late Theme Builder coordinator. If advanced features are still loading,
-           consume that one contextmenu event, finish the urgent bundle, then replay
-           the same right-click against the exact theme card. */
+        document.addEventListener('pointerdown', requestUrgentFeaturesV645, true);
+        document.addEventListener('contextmenu', requestUrgentFeaturesV645, true);
+        document.addEventListener('keydown', requestUrgentFeaturesV645, true);
+
+        // Preserve first-right-click Theme Builder behavior.
         document.addEventListener('contextmenu', event => {
             const card = event.target?.closest?.('#theme-picker .theme-picker-card[data-theme]');
             if (!card || event.__loggyThemeReplayV257 || document.documentElement.dataset.loggyFeaturesReady === '1') return;
@@ -1086,58 +1336,74 @@
             const y = event.clientY;
             event.preventDefault();
             event.stopImmediatePropagation();
-            window.ensureLoggyExtras({ urgent: true }).then(() => {
+            window.ensureLoggyExtras({ urgent:true }).then(() => {
                 const selector = `#theme-picker .theme-picker-card[data-theme="${CSS.escape(themeId)}"]`;
                 const target = document.querySelector(selector) || card;
-                const replay = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: x, clientY: y, view: window });
-                try { Object.defineProperty(replay, '__loggyThemeReplayV257', { value: true }); } catch {}
+                const replay = new MouseEvent('contextmenu', { bubbles:true, cancelable:true, clientX:x, clientY:y, view:window });
+                try { Object.defineProperty(replay, '__loggyThemeReplayV257', { value:true }); } catch {}
                 target.dispatchEvent(replay);
             }).catch(() => {});
         }, true);
 
-        /* V307: the first Create Theme click belongs to the clean builder owner.
-           If the final bundle is not ready yet, consume the click, finish loading
-           it, and call the V307 entry point directly. No historical opener runs. */
+        // Preserve first Create Theme behavior.
         document.addEventListener('click', event => {
-            const create = event.target?.closest?.(
-                '.theme-search-create-v161, .theme-picker-create-card, [data-create-theme-v171]'
-            );
+            const create = event.target?.closest?.('.theme-search-create-v161, .theme-picker-create-card, [data-create-theme-v171]');
             if (!create || event.__loggyCreateReplayV290 || document.documentElement.dataset.loggyFeaturesReady === '1') return;
             event.preventDefault();
             event.stopImmediatePropagation();
-            window.ensureLoggyExtras({ urgent: true }).then(() => {
+            window.ensureLoggyExtras({ urgent:true }).then(() => {
                 try { window.__loggyThemeBuilderV307OpenCreate?.(); } catch {}
             }).catch(() => {});
         }, true);
 
-        // Start automatically only after the critical shell has painted. This
-        // restores every feature without making the Daily Logs page wait for it.
-        const scheduleAllFeatures = () => {
-            // V290: never auto-boot the heavyweight extras inside a Theme Builder
-            // preview iframe. The parent already has them; running them twice
-            // causes duplicate MutationObservers, preview fitters, and theme JS.
-            if (document.documentElement.dataset.themeBuilderPreviewV300 === 'true' || document.documentElement.dataset.themeBuilderLogPreviewV268 === 'true') return;
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-                setTimeout(() => {
-                    if ('requestIdleCallback' in window) {
-                        requestIdleCallback(
-                            () => window.ensureLoggyExtras().catch(() => {}),
-                            { timeout: 900 }
-                        );
-                    } else {
-                        window.ensureLoggyExtras().catch(() => {});
-                    }
-                }, 120);
-            }));
-        };
+        function scheduleBackgroundHydrationV645() {
+            if (document.documentElement.dataset.themeBuilderPreviewV300 === 'true' ||
+                document.documentElement.dataset.themeBuilderLogPreviewV268 === 'true') return;
+
+            prefetchExtrasV645();
+            const wait = Math.max(0, AUTO_EARLIEST_MS_V645 - (performance.now() - pageStartedV645));
+            setTimeout(() => {
+                // ensureLoggyExtras(false) itself waits for an idle/quiet slot before
+                // every file, so a click at 12s postpones hydration rather than racing it.
+                window.ensureLoggyExtras().catch(() => {});
+            }, wait);
+        }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', scheduleAllFeatures, { once: true });
+            document.addEventListener('DOMContentLoaded', scheduleBackgroundHydrationV645, { once:true });
         } else {
-            scheduleAllFeatures();
+            scheduleBackgroundHydrationV645();
         }
     })();
     </script>
     <script defer src="/widgets-loader-v241.js?v=453"></script>
+<script id="loggy-v624-items-learned-keyboard">
+(()=>{
+  'use strict';
+  if(window.__loggyItemsLearnedKeyboardV624)return;window.__loggyItemsLearnedKeyboardV624=true;
+  window.addEventListener('keydown',event=>{
+    const input=event.target?.closest?.('#new-phrase-input');
+    if(!input||!['ArrowDown','ArrowUp','Enter'].includes(event.key))return;
+    const matches=typeof phraseMatchesV450==='function'?phraseMatchesV450(input.value):[];
+    if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+      if(!matches.length)return;
+      event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+      phraseSuggestionIndexV450=event.key==='ArrowDown'
+        ?(phraseSuggestionIndexV450<0?0:(phraseSuggestionIndexV450+1)%matches.length)
+        :(phraseSuggestionIndexV450<0?matches.length-1:(phraseSuggestionIndexV450-1+matches.length)%matches.length);
+      renderPhraseSuggestionsV450();
+      return;
+    }
+    if(event.key==='Enter'&&matches.length){
+      const chosen=phraseSuggestionIndexV450>=0&&matches[phraseSuggestionIndexV450]
+        ?matches[phraseSuggestionIndexV450]
+        :null;
+      if(!chosen)return;
+      event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+      commitPhraseFromInputV450(chosen);
+    }
+  },true);
+})();
+</script>
 </body>
 </html>

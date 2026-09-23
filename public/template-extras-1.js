@@ -1,3 +1,16 @@
+// V550 FIX: openNewCustomThemeFromPickerV7 / openExistingCustomThemeFromPickerV7
+// are only ever *defined* by template-extras-6.js (the documented "single V300
+// owner" -- see the comment near THEME PICKER V7 below), but extras-1/2/3 all
+// contain top-level code that reads these names immediately as they load, and
+// extras files load in order 1->2->3->4->5->6. Reading an undeclared global
+// throws ReferenceError, which aborts the REST of that script file -- this was
+// silently truncating extras-1.js, extras-2.js (right before its
+// CUSTOM_TAB_TEMPLATES_V53 declaration), and extras-3.js on every page load.
+// Pre-declaring safe no-op defaults here means every later `x = realFn` in any
+// extras file still just overwrites these normally; nothing else changes.
+var openNewCustomThemeFromPickerV7 = openNewCustomThemeFromPickerV7 || function(){};
+var openExistingCustomThemeFromPickerV7 = openExistingCustomThemeFromPickerV7 || function(){};
+
 // V443: applied Log intro audio is owned only by template.js.
 // Historical theme-rendering wrappers may still call this name for visual
 // reactions, but it never creates, starts, seeks, fades, or stops media.
@@ -1288,13 +1301,9 @@ async function confirmDeleteThemeBuilderSvg(
     try { polishThemeImageUploadUiV36?.(modal); } catch {}
     try { updateThemeBuilderPreview(modal); } catch {}
 
-    try {
-        if (asset.projectPath && typeof deleteThemeBuilderAssetFromProject === 'function') {
-            await deleteThemeBuilderAssetFromProject(asset.projectPath);
-        } else if (typeof deleteThemeBuilderProjectAsset === 'function') {
-            await deleteThemeBuilderProjectAsset(asset.url);
-        }
-    } catch {}
+    // V529: removing a decoration unlinks it from this theme only.
+    // Do NOT delete the uploaded project asset here: another saved theme or
+    // Light/Dark variant may still reference the same durable projectPath.
 }
 
 function renderThemeBuilderSvgListV2(
@@ -18853,13 +18862,9 @@ function renderThemeBuilderDailyGridPreviewV20(
             button.textContent =
                 String(day);
 
-            const hasData =
-                !!(
-                    dayData.notes ||
-                    dayData.video ||
-                    dayData.phrases
-                        ?.length
-                );
+            const hasData = typeof window.__loggyDayHasUserContentV532 === 'function'
+                ? window.__loggyDayHasUserContentV532(dayData)
+                : !!(dayData.notes || dayData.video || dayData.phrases?.length);
 
             if (hasData) {
                 button.classList.add(
@@ -20999,7 +21004,20 @@ applyTheme =
             return;
         }
 
+        // V558: on a hard reload this late V25 wrapper runs inside the fully
+        // wrapped applyTheme() chain. Older logs can still have a stale
+        // db.settings.themeOverrides[id] snapshot. Never let that stale per-log
+        // copy overwrite the canonical project-wide V102 built-in override.
+        let canonicalBuiltInOverrideV558 = null;
+        try {
+            canonicalBuiltInOverrideV558 =
+                typeof resolveBuiltInThemeOverrideV550 === 'function'
+                    ? resolveBuiltInThemeOverrideV550(themeValue || 'default')
+                    : null;
+        } catch (_) {}
+
         const override =
+            canonicalBuiltInOverrideV558 ||
             getThemeOverrideV25(
                 themeValue ||
                 'default'
@@ -21010,10 +21028,14 @@ applyTheme =
         }
 
         // Keep the original theme CSS/JS mounted, then layer the Builder
-        // variables/components on top of it.
-        document.body.classList.add(
-            'theme-custom-builder'
-        );
+        // variables/components on top of it. For canonical edited built-ins,
+        // preserve the physical source theme class; the generic custom class is
+        // only needed by the historical per-log V25 fallback.
+        if (!canonicalBuiltInOverrideV558) {
+            document.body.classList.add(
+                'theme-custom-builder'
+            );
+        }
 
         applyCustomBuiltTheme(
             override

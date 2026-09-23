@@ -71,10 +71,42 @@
             }
         } catch {}
 
-        // Same rule as the shared custom-theme library: after migration the
-        // project copy is authoritative so an old browser cannot resurrect data.
-        const chosen = initialized ? remote : local;
-        writeBuiltInThemeOverridesV102(chosen, !initialized);
+        // V555 — Dashboard Theme Studio writes the new override locally before
+        // navigation. Merge by updatedAt so a Log-page startup GET can never
+        // replace that fresh save with an older server snapshot.
+        const stamp = row => {
+            const raw = row?.updatedAt || row?.theme?.updatedAt || '';
+            const value = Date.parse(String(raw || ''));
+            return Number.isFinite(value) ? value : 0;
+        };
+        const chosen = {};
+        const ids = new Set([
+            ...Object.keys(remote || {}),
+            ...Object.keys(local || {})
+        ]);
+
+        ids.forEach(id => {
+            const remoteRow = remote?.[id];
+            const localRow = local?.[id];
+            if (!remoteRow) {
+                if (localRow) chosen[id] = localRow;
+                return;
+            }
+            if (!localRow) {
+                chosen[id] = remoteRow;
+                return;
+            }
+            chosen[id] = stamp(localRow) >= stamp(remoteRow)
+                ? localRow
+                : remoteRow;
+        });
+
+        const differsFromRemote =
+            JSON.stringify(chosen) !== JSON.stringify(remote || {});
+        writeBuiltInThemeOverridesV102(
+            chosen,
+            !initialized || differsFromRemote
+        );
 
         if (!isDashboardStudioV102) {
             requestAnimationFrame(() => {
@@ -85,16 +117,18 @@
         return chosen;
     }
 
+
     // A global built-in override keeps the ORIGINAL built-in ID. That means a
     // rename/edit changes the existing card rather than creating a custom copy.
     try {
         const getThemeOverrideBeforeV102 = getThemeOverrideV25;
         getThemeOverrideV25 = function (themeId) {
-            const localOverride = getThemeOverrideBeforeV102(themeId);
-            if (localOverride) return localOverride;
-
+            // V555 — V102 is project-wide and authoritative. V25 is per-log
+            // legacy state, so it is only a fallback when no V102 record exists.
             const globalEntry = readBuiltInThemeOverridesV102()[String(themeId || '')];
-            return globalEntry?.theme || null;
+            if (globalEntry?.theme) return globalEntry.theme;
+
+            return getThemeOverrideBeforeV102(themeId);
         };
     } catch {}
 
@@ -4594,8 +4628,25 @@
         }
     }
 
+    // V550: never tear down a built-in's native scene until the Theme Builder
+    // replacement stage is actually populated with renderable artwork. Built-in
+    // behavior edits (Default Animation / Distribution) can mark an override as
+    // authoritative before its inherited assets are hydrated; older V135/V136
+    // cleanup used to remove the source scene anyway, causing a one-frame flash
+    // followed by an empty background (notably Retro Arcade).
+    function customReplacementStageReadyV550(){
+        const stage = document.getElementById('custom-theme-background-stage');
+        if (!stage || !stage.isConnected) return false;
+        const items = Array.from(stage.querySelectorAll(':scope > .custom-theme-background-svg'));
+        return items.some(item => {
+            if (!item || item.hidden) return false;
+            if (item.querySelector('img[src], svg, object[data], image[href]')) return true;
+            return !!String(item.textContent || '').trim();
+        });
+    }
+
     function removeNativeBuiltInArtV135(themeId){
-        if (!builtInReplacementActiveV135(themeId)) return;
+        if (!builtInReplacementActiveV135(themeId) || !customReplacementStageReadyV550()) return;
         let roots = [];
         try { roots = getBuiltInThemeRootsV30(themeId) || []; } catch {}
         roots.forEach(root => {
@@ -5185,8 +5236,18 @@ Requirements:
         try { root.remove(); } catch {}
     }
 
+    function replacementStageReadyV550(){
+        const stage = document.getElementById('custom-theme-background-stage');
+        if (!stage || !stage.isConnected) return false;
+        const items = Array.from(stage.querySelectorAll(':scope > .custom-theme-background-svg'));
+        return items.some(item => {
+            if (!item || item.hidden) return false;
+            return !!item.querySelector('img[src], svg, object[data], image[href]') || !!String(item.textContent || '').trim();
+        });
+    }
+
     function cleanupNativeArtV136(themeId){
-        if (!replacementActiveV136(themeId)) return;
+        if (!replacementActiveV136(themeId) || !replacementStageReadyV550()) return;
         try {
             (getBuiltInThemeRootsV30(themeId) || []).forEach(root => {
                 if (root && root.id !== 'custom-theme-background-stage' && !root.closest?.('#theme-builder-modal')) {
@@ -5214,11 +5275,18 @@ Requirements:
         const beforeApplyV136 = applyTheme;
         applyTheme = async function(themeValue, opts = {}){
             const themeId = String(themeValue || 'default');
-            const active = replacementActiveV136(themeId);
-            nativeArtStateV136.active = active;
-            nativeArtStateV136.themeId = active ? themeId : '';
+            const wantsReplacement = replacementActiveV136(themeId);
+
+            // Keep the observer OFF while the physical built-in module mounts.
+            // Otherwise its scene root can be deleted before the replacement
+            // renderer has even had a chance to create/populate its stage.
+            nativeArtStateV136.active = false;
+            nativeArtStateV136.themeId = '';
 
             const result = await beforeApplyV136.apply(this, arguments);
+            const active = wantsReplacement && replacementStageReadyV550();
+            nativeArtStateV136.active = active;
+            nativeArtStateV136.themeId = active ? themeId : '';
             if (active) {
                 cleanupNativeArtV136(themeId);
                 requestAnimationFrame(() => cleanupNativeArtV136(themeId));
@@ -6788,34 +6856,56 @@ window.__themeCrossNaturalFacingV147 = true;
         }
         stopMusicReactionV154(audio, stage);
         const analyserState = getAnalyserV154(audio);
-        if (!analyserState) return;
-        try { analyserState.context.resume?.(); } catch {}
 
         const accent = safeText(theme.accent || theme.dashboardAccentV40 || theme.border || '#ffffff');
         stage.style.setProperty('--theme-music-react-accent-v154', accent);
         stage.classList.add('theme-music-react-active-v154');
         ensureReactionOverlayV154(stage);
 
-        const active = { stage, raf:0, lastBeat:0, lastBurst:0 };
+        const active = { stage, raf:0, lastBeat:0, lastBurst:0, lastFrame:0, overlayNode:ensureReactionOverlayV154(stage) };
         activeReactions.set(audio, active);
+        try { analyserState?.context?.resume?.(); } catch {}
+
         const tick = time => {
             if (!stage.isConnected || audio.paused || audio.ended || activeReactions.get(audio) !== active) {
                 stopMusicReactionV154(audio, stage);
                 return;
             }
-            const state = analyserState;
-            state.analyser.getByteFrequencyData(state.data);
-            let total = 0;
-            let low = 0;
-            const lowCount = Math.min(10, state.data.length);
-            for (let i = 0; i < state.data.length; i++) {
-                total += state.data[i];
-                if (i < lowCount) low += state.data[i];
+
+            // V640: cap analyser/DOM work to ~12fps. Audio playback itself does
+            // not need a 60fps JS loop, and clicks must always win main-thread time.
+            if (time - active.lastFrame < 80) {
+                active.raf = requestAnimationFrame(tick);
+                return;
             }
-            const avg = state.data.length ? total / state.data.length / 255 : 0;
-            const bass = lowCount ? low / lowCount / 255 : 0;
+            active.lastFrame = time;
+
+            let avg = 0;
+            let bass = 0;
+
+            if (analyserState) {
+                analyserState.analyser.getByteFrequencyData(analyserState.data);
+                let total = 0;
+                let low = 0;
+                const lowCount = Math.min(10, analyserState.data.length);
+                for (let i = 0; i < analyserState.data.length; i++) {
+                    total += analyserState.data[i];
+                    if (i < lowCount) low += analyserState.data[i];
+                }
+                avg = analyserState.data.length ? total / analyserState.data.length / 255 : 0;
+                bass = lowCount ? low / lowCount / 255 : 0;
+            } else {
+                // V592 fallback: some browser/source combinations cannot create a
+                // MediaElementSource. The toggle must still visibly work rather
+                // than silently doing nothing. Use a gentle time/volume pulse.
+                const t = Number(audio.currentTime || 0);
+                const pulse = .22 + ((Math.sin(t * Math.PI * 3.2) + 1) * .11);
+                avg = pulse;
+                bass = .28 + ((Math.sin(t * Math.PI * 2.2) + 1) * .12);
+            }
+
             const volumeFactor = Number.isFinite(Number(audio.volume)) ? Number(audio.volume) : 1;
-            const energy = clamp(((avg * .58 + bass * .72) * volumeFactor - .035) * 1.42);
+            const energy = clamp(((avg * .58 + bass * .72) * Math.max(.35, volumeFactor) - .035) * 1.42);
             const scale = 1 + energy * .052;
             const glow = energy * .88;
             const overlay = energy * .16;
@@ -6823,8 +6913,7 @@ window.__themeCrossNaturalFacingV147 = true;
             stage.style.setProperty('--theme-music-react-glow-v154', glow.toFixed(4));
             stage.style.setProperty('--theme-music-react-lift-v154', `${(-energy * 5.5).toFixed(2)}px`);
             stage.style.setProperty('--theme-music-react-overlay-v154', overlay.toFixed(4));
-            const overlayNode = stage.querySelector(':scope > .theme-music-react-overlay-v154');
-            if (overlayNode) overlayNode.style.opacity = String(overlay);
+            if (active.overlayNode) active.overlayNode.style.opacity = String(overlay);
 
             const beatLift = bass - active.lastBeat;
             if (bass > .38 && beatLift > .035 && time - active.lastBurst > 210) {
@@ -8871,20 +8960,6 @@ window.__themeCrossNaturalFacingV147 = true;
         setTimeout(()=>{if(btn.isConnected)btn.innerHTML=old},1300);
     },true);
 
-    // Main Theme Settings entry: no need to create a dummy theme first.
-    function ensureThemeAiEntryV161(){
-        const search=document.querySelector('#theme-search-input')?.closest('.theme-search-wrap');
-        const parent=search?.parentElement;if(!search||!parent)return;
-        if(document.getElementById('theme-ai-entry-v161'))return;
-        const panel=document.createElement('div');panel.id='theme-ai-entry-v161';panel.className='theme-ai-entry-v161';
-        panel.innerHTML=`<div class="theme-ai-entry-copy-v161"><strong><i class="ph ph-sparkle"></i> Create Theme with AI</strong><small>Choose light or dark, copy the prompt, attach your 4 reference images, then upload the returned JSON. It opens in Theme Builder fully editable before you save it.</small></div><div class="theme-ai-entry-actions-v161"><select class="theme-ai-entry-mode-v161" aria-label="AI theme appearance"><option value="light">Light Theme</option><option value="dark">Dark Theme</option></select><button type="button" class="theme-ai-copy-v161"><i class="ph ph-copy"></i> Copy JSON Prompt</button><button type="button" class="theme-ai-upload-v161"><i class="ph ph-upload-simple"></i> Upload Theme JSON</button><input type="file" class="theme-ai-file-v161 hidden" accept=".json,application/json"></div>`;
-        const anchor=search.closest('.theme-search-row-v161')||search; anchor.insertAdjacentElement('afterend',panel);
-        const copy=panel.querySelector('.theme-ai-copy-v161'),upload=panel.querySelector('.theme-ai-upload-v161'),file=panel.querySelector('.theme-ai-file-v161');
-        copy.onclick=async()=>{const old=copy.innerHTML,mode=panel.querySelector('.theme-ai-entry-mode-v161')?.value||'light';const ok=await copyTextV161(aiPromptV161(mode));copy.innerHTML=ok?'<i class="ph ph-check"></i> Copied':'<i class="ph ph-warning"></i> Copy failed';if(ok)try{showFeatureToast(`Copied ${mode} AI Theme JSON prompt. Attach your 4 reference images.`)}catch{}setTimeout(()=>{if(copy.isConnected)copy.innerHTML=old},1300)};
-        upload.onclick=()=>file.click();
-        file.onchange=async()=>{const f=file.files?.[0];file.value='';if(f)await importIntoEditorV161(f,upload,true)};
-    }
-
     // Old Theme Pack JSON import button now routes into the editor instead of
     // instantly publishing/applying, matching the new review-before-save flow.
     document.addEventListener('click',event=>{
@@ -9090,7 +9165,7 @@ window.__themeCrossNaturalFacingV147 = true;
     }catch{}
     try{
         const renderBeforeV161=renderThemePicker;
-        renderThemePicker=function(){const result=renderBeforeV161.apply(this,arguments);ensureThemeSearchPlusV161();ensureThemeAiEntryV161();return result};
+        renderThemePicker=function(){const result=renderBeforeV161.apply(this,arguments);ensureThemeSearchPlusV161();return result};
     }catch{}
     try{
         const shortcutsBeforeV161=ensureGlobalShortcutsSection;
@@ -9098,7 +9173,7 @@ window.__themeCrossNaturalFacingV147 = true;
     }catch{}
     try{
         const settingsBeforeV161=openGlobalThemeSettings;
-        openGlobalThemeSettings=function(){const result=settingsBeforeV161.apply(this,arguments);requestAnimationFrame(()=>{ensureThemeSearchPlusV161();ensureThemeAiEntryV161();fixShortcutV161()});return result};
+        openGlobalThemeSettings=function(){const result=settingsBeforeV161.apply(this,arguments);requestAnimationFrame(()=>{ensureThemeSearchPlusV161();fixShortcutV161()});return result};
     }catch{}
 
     // Stop audition + restore actual app cursor when leaving the editor.
@@ -9108,9 +9183,9 @@ window.__themeCrossNaturalFacingV147 = true;
     },true);
 
     requestAnimationFrame(()=>{
+        document.getElementById('theme-ai-entry-v161')?.remove();
         recoverCursorsV161();
         ensureThemeSearchPlusV161();
-        ensureThemeAiEntryV161();
         fixShortcutV161();
         const modal=document.getElementById('theme-builder-modal');if(modal){installFontsV161(modal);ensureBuilderAiControlsV161(modal)}
     });
@@ -9229,7 +9304,32 @@ window.__themeCrossNaturalFacingV147 = true;
         if(on){item.style.setProperty('visibility','hidden','important');item.style.setProperty('pointer-events','none','important');item.dataset.noOverlapSuppressedV370='1'}
         else if(item.dataset.noOverlapSuppressedV370==='1'){item.style.removeProperty('visibility');item.style.removeProperty('pointer-events');delete item.dataset.noOverlapSuppressedV370}
     }
+    function activePlacementThemeV586(theme){
+        // Preview iframe must obey the explicit Builder draft.
+        let preview=false;
+        try{preview=new URLSearchParams(location.search).get('theme-builder-preview-v307')==='1'}catch{}
+        if(preview)return theme||{};
+
+        // V588: delayed V326 placement always resolves the same canonical
+        // snapshot the real Log is displaying, never a stale save-time closure.
+        try{
+            const id=String(db?.settings?.theme||'');
+            const canonical=window.__loggyReadCanonicalThemeSnapshotV588?.(id);
+            if(canonical?.theme&&typeof canonical.theme==='object'){
+                return canonical.theme;
+            }
+        }catch{}
+
+        try{
+            const resolved=window.__loggyResolveAppliedThemeV372?.();
+            if(resolved&&typeof resolved==='object'&&Object.keys(resolved).length)return resolved;
+        }catch{}
+
+        return theme||{};
+    }
+
     function applyParity(theme){
+        theme=activePlacementThemeV586(theme);
         const stage=document.getElementById('custom-theme-background-stage');if(!stage)return;
         const list=assets(theme),items=Array.from(stage.querySelectorAll(':scope > .custom-theme-background-svg')).filter(x=>!x.dataset.themeCrossCloneV149&&!x.dataset.themeCrossCloneV94&&!x.dataset.themeCrossCloneV350);
         const count=Math.max(list.length,items.length),pts=points(theme,count),plan=strictPlanV371(stage,list,theme,pts);
@@ -9245,7 +9345,12 @@ window.__themeCrossNaturalFacingV147 = true;
             item.style.removeProperty('right');item.style.removeProperty('bottom');item.style.setProperty('opacity',String(effectiveOpacity(theme,a)),'important');return;
         }item.style.setProperty('left',`${Math.max(2,Math.min(98,p.x))}%`,'important');item.style.setProperty('top',`${Math.max(2,Math.min(98,y))}%`,'important');item.style.removeProperty('right');item.style.removeProperty('bottom');item.style.setProperty('opacity',String(effectiveOpacity(theme,a)),'important')});
     }
-    function schedule(theme){applyParity(theme||{});requestAnimationFrame(()=>applyParity(theme||{}))}
+    function schedule(theme){
+        // Resolve again inside the deferred callback. Never let a stale theme
+        // object captured before Save win the next animation frame.
+        applyParity(activePlacementThemeV586(theme||{}));
+        requestAnimationFrame(()=>applyParity(activePlacementThemeV586(theme||{})));
+    }
     // V513: Theme Builder iframe uses the exact same parity implementation as
     // applied themes instead of trying to approximate Prevent/Reduce Overlap.
     window.__loggyApplyDecorationParityV513 = function(theme={}){ applyParity(theme||{}); };

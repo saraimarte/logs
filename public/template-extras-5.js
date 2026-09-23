@@ -382,6 +382,273 @@
     window.kbItemMatchesV162 = kbItemMatchesV162;
 
     // ------------------------------------------------------------
+    // V596 — Lazy Day Recommendation
+    // Uses the existing KB tags and the same global "learned" definition as
+    // Daily Recommendation: an item is learned only if it exists in a day's
+    // Items Learned / phrases array. Merely opening a recommendation does NOT
+    // mark it learned.
+    // ------------------------------------------------------------
+    let lastLazyRecommendationV596 = '';
+    let currentLazyRecommendationV597 = '';
+
+    function lazyDayCandidatesV596() {
+        const learned = learnedItemSetV162();
+        return (db.phrases || []).filter(id => {
+            const key = String(id);
+            if (learned.has(key)) return false;
+            return tagsForItemV162(key)
+                .map(tag => String(tag || '').replace(/^#/, '').trim().toLowerCase())
+                .includes('lazy');
+        });
+    }
+
+    function ensureLazyDayUiV596() {
+        const section = document.getElementById('phrases-container')?.closest?.('section');
+        if (!section) return null;
+
+        const actions = section.querySelector('.section-header > div:last-child');
+        let trigger = document.getElementById('lazy-day-recommendation-btn-v596');
+
+        // Historical saved templates may not yet contain the V596 button.
+        if (!trigger && actions) {
+            trigger = document.createElement('button');
+            trigger.id = 'lazy-day-recommendation-btn-v596';
+            trigger.type = 'button';
+            trigger.className = 'small-icon-btn';
+            trigger.title = 'Lazy Day Recommendation';
+            trigger.setAttribute('aria-label', 'Lazy Day Recommendation');
+            trigger.innerHTML = '<i class="ph ph-moon-stars"></i>';
+            actions.prepend(trigger);
+        }
+
+        let panel = document.getElementById('lazy-day-recommendation-v596');
+        if (!panel) {
+            panel = document.createElement('div');
+            panel.id = 'lazy-day-recommendation-v596';
+            panel.className = 'lazy-day-recommendation-v596 hidden';
+            panel.setAttribute('aria-live', 'polite');
+            panel.innerHTML = `
+                <button type="button" class="lazy-day-recommendation-main-v596">
+                    <span class="lazy-day-recommendation-icon-v596"><i class="ph ph-lightning"></i></span>
+                    <span class="lazy-day-recommendation-copy-v596">
+                        <small>Lazy Day Recommendation</small>
+                        <span class="lazy-day-recommendation-value-v596"></span>
+                        <em class="lazy-day-recommendation-meta-v596"></em>
+                    </span>
+                </button>
+                <div class="lazy-day-recommendation-actions-v597">
+                    <button type="button" class="small-icon-btn lazy-day-recommendation-skip-v597" title="Skip and show another" aria-label="Skip recommendation"><i class="ph ph-skip-forward"></i></button>
+                    <button type="button" class="small-icon-btn lazy-day-recommendation-learned-v597" title="Add to Items Learned" aria-label="Add recommendation to Items Learned"><i class="ph ph-check"></i></button>
+                </div>
+            `;
+            const input = section.querySelector('#phrase-input-group');
+            if (input) input.insertAdjacentElement('beforebegin', panel);
+            else section.querySelector('.section-header')?.insertAdjacentElement('afterend', panel);
+        }
+
+        if (trigger && trigger.dataset.lazyDayBoundV596 !== '1') {
+            trigger.dataset.lazyDayBoundV596 = '1';
+            trigger.addEventListener('click', event => {
+                event.preventDefault();
+
+                // V598: the moon button is a pure show/hide toggle.
+                // It must NOT cycle recommendations; Skip owns that behavior.
+                if (!panel.classList.contains('hidden')) {
+                    panel.classList.add('hidden');
+                    return;
+                }
+
+                if (currentLazyRecommendationV597) {
+                    panel.classList.remove('hidden');
+                    return;
+                }
+
+                showLazyDayRecommendationV596();
+            });
+        }
+
+        const skip = panel.querySelector('.lazy-day-recommendation-skip-v597');
+        if (skip && skip.dataset.lazyDayBoundV597 !== '1') {
+            skip.dataset.lazyDayBoundV597 = '1';
+            skip.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                showLazyDayRecommendationV596();
+            });
+        }
+
+        const learned = panel.querySelector('.lazy-day-recommendation-learned-v597');
+        if (learned && learned.dataset.lazyDayBoundV597 !== '1') {
+            learned.dataset.lazyDayBoundV597 = '1';
+            learned.addEventListener('click', async event => {
+                event.preventDefault();
+                event.stopPropagation();
+                await acceptLazyDayRecommendationV597();
+            });
+        }
+
+        return panel;
+    }
+
+    async function acceptLazyDayRecommendationV597() {
+        const id = String(currentLazyRecommendationV597 || '');
+        if (!id || !currentDay) return;
+
+        db.days ||= {};
+        db.days[currentDay] ||= {
+            notes:'',
+            phrases:[],
+            tools:[],
+            video:'',
+            checkedParts:{}
+        };
+        db.days[currentDay].phrases ||= [];
+
+        if (!db.days[currentDay].phrases.includes(id)) {
+            db.days[currentDay].phrases.push(id);
+        }
+
+        if (db.phrase_meta?.[id]) {
+            const cleaned = (db.phrase_meta[id].tags || []).filter(tag => {
+                const normalized = String(tag || '')
+                    .replace(/^#/, '')
+                    .trim()
+                    .toLowerCase();
+
+                return normalized !== 'lazy' && normalized !== 'hide';
+            });
+
+            db.phrase_meta[id].tags =
+                typeof normalizeKnowledgeTagsV55 === 'function'
+                    ? normalizeKnowledgeTagsV55(cleaned)
+                    : cleaned;
+        }
+
+        try { renderPhrases(db.days[currentDay].phrases); } catch {}
+        try { populatePhrasesDatalist(); } catch {}
+        try {
+            renderPhrasesLibrary(
+                document.getElementById('phrases-search-bar')?.value || ''
+            );
+        } catch {}
+
+        try { await saveDb(); } catch {}
+        try {
+            showFeatureToast?.(`Added “${id}” to Items Learned.`);
+        } catch {}
+
+        currentLazyRecommendationV597 = '';
+        showLazyDayRecommendationV596();
+    }
+
+    function showLazyDayRecommendationV596() {
+        const panel = ensureLazyDayUiV596();
+        if (!panel) return;
+
+        const candidates = lazyDayCandidatesV596();
+        const value = panel.querySelector('.lazy-day-recommendation-value-v596');
+        const meta = panel.querySelector('.lazy-day-recommendation-meta-v596');
+        const main = panel.querySelector('.lazy-day-recommendation-main-v596');
+        const actions = panel.querySelector('.lazy-day-recommendation-actions-v597');
+
+        if (main) main.onclick = null;
+        panel.classList.remove('hidden');
+
+        // V642: own the empty state here, inside the same scope as the Lazy Day
+        // implementation. The old V623 tail block tried to reference these
+        // scoped functions from outside their IIFE and threw a ReferenceError
+        // whenever extras-5 loaded.
+        if (!candidates.length) {
+            lastLazyRecommendationV596 = '';
+            currentLazyRecommendationV597 = '';
+            panel.classList.add('lazy-day-empty-v623');
+            if (value) value.textContent = 'To add a lazy day recommendation, add to the KB an item with the tag #lazy.';
+            if (meta) meta.textContent = '';
+            if (actions) actions.hidden = true;
+            return;
+        }
+
+        panel.classList.remove('lazy-day-empty-v623');
+        if (actions) actions.hidden = false;
+
+        let pool = candidates;
+        if (candidates.length > 1 && lastLazyRecommendationV596) {
+            const withoutLast = candidates.filter(id => String(id) !== lastLazyRecommendationV596);
+            if (withoutLast.length) pool = withoutLast;
+        }
+
+        const id = String(pool[Math.floor(Math.random() * pool.length)]);
+        lastLazyRecommendationV596 = id;
+        currentLazyRecommendationV597 = id;
+
+        const display = getKnowledgeDisplayLabelV162(id, 'everywhere');
+        const rawPattern = String(display) === id && id.includes('\\');
+
+        if (value) {
+            if (rawPattern && typeof placeholderTokenHtmlV56 === 'function') {
+                value.innerHTML = placeholderTokenHtmlV56(id);
+            } else {
+                value.textContent = display;
+            }
+        }
+
+        if (meta) {
+            meta.textContent = `#lazy · ${candidates.length} unlearned item${candidates.length === 1 ? '' : 's'} available`;
+        }
+
+        main.onclick = () => openKbDetailV162(id);
+    }
+
+    // Reuse direct element listeners. No document-wide click listener is needed.
+    const bootLazyDayV596 = () => ensureLazyDayUiV596();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootLazyDayV596, { once:true });
+    } else {
+        bootLazyDayV596();
+    }
+
+    try {
+        const beforeOpenDayV596 = openDayLog;
+        if (typeof beforeOpenDayV596 === 'function' && !beforeOpenDayV596.__lazyDayV596) {
+            const wrappedOpenDayV596 = function() {
+                const result = beforeOpenDayV596.apply(this, arguments);
+                requestAnimationFrame(ensureLazyDayUiV596);
+                return result;
+            };
+            wrappedOpenDayV596.__lazyDayV596 = true;
+            openDayLog = wrappedOpenDayV596;
+        }
+    } catch {}
+
+    window.__loggyLazyDayV596 = {
+        candidates: lazyDayCandidatesV596,
+        recommend: showLazyDayRecommendationV596,
+        accept: acceptLazyDayRecommendationV597
+    };
+
+    if (typeof window.__loggyShowHiddenKbItemsV597 !== 'boolean') {
+        window.__loggyShowHiddenKbItemsV597 = false;
+    }
+
+    function setShowHiddenKbItemsV597(show) {
+        window.__loggyShowHiddenKbItemsV597 = show === true;
+
+        try {
+            renderPhrasesLibrary(
+                document.getElementById('phrases-search-bar')?.value || ''
+            );
+        } catch {}
+
+        try {
+            showFeatureToast?.(
+                window.__loggyShowHiddenKbItemsV597
+                    ? 'Showing #hide Knowledge Base items.'
+                    : 'Hiding #hide Knowledge Base items.'
+            );
+        } catch {}
+    }
+
+    // ------------------------------------------------------------
     // Add component types.
     // ------------------------------------------------------------
     function addComponentDefV162(type, label, icon, after = null) {
@@ -973,7 +1240,7 @@
         <div class="modal-section"><span class="field-label">Bulk Add Mode</span><select class="kb-bulk-mode-v464"><option value="items">Items Only</option><option value="fields">Items + Fields</option></select></div>
         <div class="modal-section"><span class="field-label">Category</span><select class="kb-bulk-category-v162"></select></div>
         <div class="modal-section kb-bulk-fields-wrap-v464 hidden"><span class="field-label">Fields to Include</span><div class="kb-bulk-field-choices-v464"></div><small class="kb-bulk-field-order-note-v464">The checked fields are imported in the order shown here.</small></div>
-        <div class="modal-section"><span class="field-label">Shared Tags</span><input type="text" class="kb-bulk-tags-v162" placeholder="noun, beginner"></div>
+        <div class="modal-section"><span class="field-label">Shared Tags <small>(applied to every imported item)</small></span><input type="text" class="kb-bulk-tags-v162" placeholder="#lazy, noun, beginner"></div>
         <div class="modal-section kb-bulk-delimiter-wrap-v464"><span class="field-label">Delimiter</span><select class="kb-bulk-delimiter-v162"><option value="auto">Auto detect</option><option value="newline">One item per line</option><option value="comma">Comma</option><option value="semicolon">Semicolon</option><option value="tab">Tab</option></select></div>
         <div class="kb-bulk-format-hint-v464"></div>
         <button type="button" class="icon-btn kb-bulk-copy-prompt-v466"><i class="ph ph-copy"></i> Copy AI Prompt</button>
@@ -1081,7 +1348,7 @@
         const values=parseBulkV162(modal.querySelector('.kb-bulk-text-v162').value,modal.querySelector('.kb-bulk-delimiter-v162').value);const seen=new Set();const rows=values.map(value=>{let status='ready';if(db.phrases.includes(value))status='already exists';else if(seen.has(value))status='duplicate in paste';else if(malformedBulkV162(value))status='check formatting';seen.add(value);return{value,status}});bulkPreviewV162={mode:'items',signature:modal.querySelector('.kb-bulk-text-v162').value,category,tags,rows};const ready=rows.filter(r=>r.status==='ready');const warning=rows.filter(r=>r.status!=='ready');updateBulkCountV465(modal,ready.length);modal.querySelector('.kb-bulk-preview-v162').innerHTML=`<div class="kb-bulk-summary-v162"><strong>${ready.length} ready</strong><span>${warning.length} skipped / needs review</span></div><div class="kb-bulk-preview-list-v162">${rows.slice(0,250).map(r=>`<div class="${r.status==='ready'?'ready':'warning'}"><span>${esc(r.value)}</span><small>${esc(r.status)}</small></div>`).join('')}${rows.length>250?`<div><small>+ ${rows.length-250} more</small></div>`:''}</div>`;modal.querySelector('.kb-bulk-commit-v162').disabled=!ready.length||warning.some(r=>r.status==='check formatting');
     }
     function commitBulkV162(){
-        const modal=document.getElementById('kb-bulk-modal-v162');if(!bulkPreviewV162||bulkPreviewV162.signature!==modal.querySelector('.kb-bulk-text-v162').value)return previewBulkV162();const category=bulkPreviewV162.category||db.settings.categories?.[0]||'Category';const tags=bulkPreviewV162.tags.map(v=>v.replace(/^#/,''));let added=0;bulkPreviewV162.rows.filter(r=>r.status==='ready').forEach(row=>{if(db.phrases.includes(row.value))return;db.phrases.push(row.value);const cfg=getCategoryConfig(category);const custom={};(cfg.fields||[]).forEach((raw,i)=>{const f=normalizeKnowledgeField(raw,i,cfg);custom[f.name]=''});if(bulkPreviewV162.mode==='fields')Object.entries(row.custom||{}).forEach(([name,value])=>{if(Object.prototype.hasOwnProperty.call(custom,name))custom[name]=value});db.phrase_meta[row.value]={...(db.phrase_meta[row.value]||{}),type:category,tags:[...tags],custom_fields:custom,enableParts:false,parts:[]};added++});saveDb();try{populatePhrasesDatalist();renderLibraryTabs();renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value||'')}catch{}modal.classList.add('hidden');bulkPreviewV162=null;try{showFeatureToast(`Added ${added} Knowledge Base item${added===1?'':'s'}.`)}catch{}
+        const modal=document.getElementById('kb-bulk-modal-v162');if(!bulkPreviewV162||bulkPreviewV162.signature!==modal.querySelector('.kb-bulk-text-v162').value)return previewBulkV162();const category=bulkPreviewV162.category||db.settings.categories?.[0]||'Category';const tags=(typeof normalizeKnowledgeTagsV55==='function'?normalizeKnowledgeTagsV55(bulkPreviewV162.tags):bulkPreviewV162.tags.map(v=>v.replace(/^#/,'')));let added=0;bulkPreviewV162.rows.filter(r=>r.status==='ready').forEach(row=>{if(db.phrases.includes(row.value))return;db.phrases.push(row.value);const cfg=getCategoryConfig(category);const custom={};(cfg.fields||[]).forEach((raw,i)=>{const f=normalizeKnowledgeField(raw,i,cfg);custom[f.name]=''});if(bulkPreviewV162.mode==='fields')Object.entries(row.custom||{}).forEach(([name,value])=>{if(Object.prototype.hasOwnProperty.call(custom,name))custom[name]=value});db.phrase_meta[row.value]={...(db.phrase_meta[row.value]||{}),type:category,tags:[...tags],custom_fields:custom,enableParts:false,parts:[]};added++});saveDb();try{populatePhrasesDatalist();renderLibraryTabs();renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value||'')}catch{}modal.classList.add('hidden');bulkPreviewV162=null;try{showFeatureToast(`Added ${added} Knowledge Base item${added===1?'':'s'}.`)}catch{}
     }
     function ensureBulkButtonV162(){
         const header=document.querySelector('#phrases-library-view .log-header-container > div:last-child');if(!header||document.getElementById('kb-bulk-add-btn-v162'))return;const btn=document.createElement('button');btn.id='kb-bulk-add-btn-v162';btn.className='icon-btn';btn.title='Bulk add items';btn.innerHTML='<i class="ph ph-stack-plus"></i>';btn.onclick=()=>{ensureBulkImportV162();const modal=document.getElementById('kb-bulk-modal-v162');const select=modal.querySelector('.kb-bulk-category-v162');select.innerHTML=(db.settings.categories||[]).map(c=>`<option value="${attr(c)}">${esc(c)}</option>`).join('');select.value=libraryFilter&&libraryFilter!=='all'?libraryFilter:(db.settings.categories?.[0]||'');modal.querySelector('.kb-bulk-text-v162').value='';modal.querySelector('.kb-bulk-preview-v162').innerHTML='';modal.querySelector('.kb-bulk-commit-v162').disabled=true;bulkPreviewV162=null;renderBulkFieldChoicesV464();updateBulkCountV465(modal);modal.classList.remove('hidden')};header.insertBefore(btn,document.getElementById('add-phrase-library-btn'));
@@ -1415,7 +1682,9 @@
     // V467 — Knowledge Base shortcuts + in-modal shortcut reference.
     function kbViewVisibleV467(){
         const view=document.getElementById('phrases-library-view');
-        return !!view && !view.classList.contains('hidden') && getComputedStyle(view).display!=='none';
+        // V598: "active" is the actual top-level view authority. Older checks
+        // based only on hidden/display could disagree with the tab router.
+        return !!view && view.classList.contains('active');
     }
     function ensureKbShortcutDefaultsV467(){
         db.settings||={};
@@ -1432,7 +1701,7 @@
             section=document.createElement('div');
             section.id='kb-shortcuts-v467';
             section.className='modal-section kb-shortcuts-v467';
-            section.innerHTML=`<span class="field-label">Knowledge Base Shortcuts</span><div class="global-shortcuts-list"><div class="global-shortcut-row"><kbd>Shift</kbd><span>+</span><kbd>=</kbd><p>Open Bulk Add Knowledge Base Items.</p></div><div class="global-shortcut-row"><kbd>Shift</kbd><span>+</span><kbd>Delete</kbd><p>Delete the currently selected Knowledge Base items. If none are selected yet, enter bulk-select mode.</p></div></div>`;
+            section.innerHTML=`<span class="field-label">Knowledge Base Shortcuts</span><div class="global-shortcuts-list"><div class="global-shortcut-row"><kbd>Shift</kbd><span>+</span><kbd>=</kbd><p>Open Bulk Add Knowledge Base Items.</p></div><div class="global-shortcut-row"><kbd>Shift</kbd><span>+</span><kbd>H</kbd><p>Show or hide Knowledge Base items tagged #hide.</p></div><div class="global-shortcut-row"><kbd>Shift</kbd><span>+</span><kbd>Delete</kbd><p>Delete the currently selected Knowledge Base items. If none are selected yet, enter bulk-select mode.</p></div></div>`;
             box.appendChild(section);
         } else if(section.parentElement!==box){
             box.appendChild(section);
@@ -1440,9 +1709,30 @@
     }
     ensureKbShortcutDefaultsV467();
     document.addEventListener('keydown',event=>{
+        if(!kbViewVisibleV467())return;
+
+        // V598: Shift+H is a KB-view command, not a typing command.
+        // It must still work while the KB search box or an Add/Edit input has
+        // focus. Handle it BEFORE the generic typing guard.
+        if(
+            !event.repeat &&
+            event.shiftKey &&
+            !event.ctrlKey &&
+            !event.altKey &&
+            !event.metaKey &&
+            (event.code === 'KeyH' || String(event.key || '').toLowerCase() === 'h')
+        ){
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            setShowHiddenKbItemsV597(!window.__loggyShowHiddenKbItemsV597);
+            return;
+        }
+
         const target=event.target;
-        const typing=target?.matches?.('input,textarea,select,[contenteditable="true"]');
-        if(typing||!kbViewVisibleV467())return;
+        const typing=target?.matches?.('input,textarea,select,[contenteditable="true"],[role="textbox"]');
+        if(typing)return;
+
         if(event.shiftKey&&!event.ctrlKey&&!event.altKey&&!event.metaKey&&event.code==='Equal'){
             event.preventDefault();event.stopPropagation();
             const button=document.getElementById('kb-bulk-add-btn-v162');
@@ -1459,14 +1749,18 @@
             try{showFeatureToast('Bulk delete mode: select Knowledge Base items, then press Shift+Delete again.')}catch{}
         }
     },true);
-    const kbSettingsObserverV467=new MutationObserver(()=>{
-        const modal=document.getElementById('settings-modal');
-        if(modal&&!modal.classList.contains('hidden'))ensureKbShortcutsSectionV467();
-    });
-    kbSettingsObserverV467.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    // V596: do not watch the entire document just to detect one Settings modal.
+    // Observe that modal's own visibility class only.
+    const kbSettingsModalV596=document.getElementById('settings-modal');
+    if(kbSettingsModalV596){
+        const kbSettingsObserverV596=new MutationObserver(()=>{
+            if(!kbSettingsModalV596.classList.contains('hidden')) ensureKbShortcutsSectionV467();
+        });
+        kbSettingsObserverV596.observe(kbSettingsModalV596,{attributes:true,attributeFilter:['class']});
+    }
     document.addEventListener('click',event=>{if(event.target.closest?.('#open-settings-btn,#knowledge-settings-btn,#open-kb-settings-btn'))setTimeout(ensureKbShortcutsSectionV467,0)},true);
     function toggleKbSelectionV164(id,shiftKey,cards){const ordered=cards.map(card=>card.dataset.kbItemIdV163).filter(Boolean);if(shiftKey&&kbLastSelectedIdV164&&ordered.includes(kbLastSelectedIdV164)&&ordered.includes(id)){const a=ordered.indexOf(kbLastSelectedIdV164),b=ordered.indexOf(id);ordered.slice(Math.min(a,b),Math.max(a,b)+1).forEach(itemId=>kbSelectionV163.add(itemId))}else{kbSelectionV163.has(id)?kbSelectionV163.delete(id):kbSelectionV163.add(id)}kbLastSelectedIdV164=id}
-    function decorateKbCardsV163(){ensureKbSelectionToolbarV163();const grid=$('#phrases-library-grid');if(!grid)return;const cards=$$('.phrase-card,.polaroid-card',grid);const filterText=$('#phrases-search-bar')?.value||'';const visibleIds=(db.phrases||[]).filter(id=>libraryFilter==='all'||db.phrase_meta?.[id]?.type===libraryFilter).filter(id=>String(id).toLowerCase().includes(String(filterText).toLowerCase())).sort();cards.forEach((card,cardIndex)=>{let id=card.dataset.kbItemIdV162||card.dataset.itemId||card.dataset.phrase||card.dataset.id||visibleIds[cardIndex];if(!id){const txt=(card.querySelector('strong,.phrase-card-title,.polaroid-caption,.chip-text')?.textContent||card.textContent||'').trim();id=(db.phrases||[]).find(x=>{try{return window.__loggyV162?.getKnowledgeDisplayLabel?.(x,'kb')===txt||x===txt}catch{return x===txt}})}if(id)card.dataset.kbItemIdV163=id});cards.forEach(card=>{const id=card.dataset.kbItemIdV163;if(!id)return;card.classList.toggle('kb-selected-v163',kbSelectionV163.has(id));if(kbSelectModeV163){let c=$('.kb-select-check-v163',card);if(!c){c=document.createElement('span');c.className='kb-select-check-v163';c.innerHTML='<i class="ph ph-check"></i>';card.appendChild(c)}c.classList.toggle('selected',kbSelectionV163.has(id));if(!card.dataset.kbSelectBoundV164){card.dataset.kbSelectBoundV164='1';card.addEventListener('click',e=>{if(!kbSelectModeV163)return;e.preventDefault();e.stopImmediatePropagation();const itemId=card.dataset.kbItemIdV163;if(!itemId)return;toggleKbSelectionV164(itemId,!!e.shiftKey,cards);decorateKbCardsV163()},true)}}else $('.kb-select-check-v163',card)?.remove();card.oncontextmenu=e=>{e.preventDefault();if(kbSelectModeV163){if(!kbSelectionV163.has(id)){kbSelectionV163.add(id);kbLastSelectedIdV164=id;decorateKbCardsV163()}const ids=[...kbSelectionV163];showCustomItemContextMenu(e.clientX,e.clientY,[{label:`Delete ${ids.length} selected`,icon:'ph-trash',danger:true,action:()=>deleteKbIdsV163(ids)}]);return}showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Open item',icon:'ph-eye',action:()=>openItemModal(id,true)},{label:'Delete item',icon:'ph-trash',danger:true,action:()=>deleteKbIdsV163([id])}])}});const view=db.settings?.libraryView||'list';if(view==='polaroid'){const active=(libraryFilter&&libraryFilter!=='all'?libraryFilter:null);const cfg=active?db.settings?.categorySettings?.[active]:null;const count=Math.max(1,Math.min(8,Number(cfg?.polaroidsPerRowV163||db.settings.polaroidsPerRowV163||4)));grid.style.setProperty('--kb-polaroids-per-row-v163',String(count));grid.classList.toggle('kb-polaroid-horizontal-v163',(cfg?.polaroidOrientationV163||db.settings.polaroidOrientationV163)==='horizontal');cards.forEach(card=>{if(cfg?.hideTagsInPolaroidV163||db.settings.hideTagsInPolaroidV163){$('.kb-tags-v163',card)?.remove();return}const id=card.dataset.kbItemIdV163;let tags=[];try{tags=getKnowledgeItemTagsV55(id)||[]}catch{tags=db.phrase_meta?.[id]?.tags||[]}if(tags.length&&!$('.kb-tags-v163',card)){const t=document.createElement('div');t.className='kb-tags-v163';t.innerHTML=tags.map(x=>`<span>#${esc(String(x).replace(/^#/,''))}</span>`).join('');card.appendChild(t)}})}}
+    function decorateKbCardsV163(){ensureKbSelectionToolbarV163();const grid=$('#phrases-library-grid');if(!grid)return;const cards=$$('.phrase-card,.polaroid-card',grid);const filterText=$('#phrases-search-bar')?.value||'';const visibleIds=(db.phrases||[]).filter(id=>window.__loggyShowHiddenKbItemsV597===true||!((db.phrase_meta?.[id]?.tags||[]).map(t=>String(t||'').replace(/^#/,'').toLowerCase()).some(t=>t==='hide'||t==='lazy'))).filter(id=>libraryFilter==='all'||db.phrase_meta?.[id]?.type===libraryFilter).filter(id=>String(id).toLowerCase().includes(String(filterText).toLowerCase())).sort();cards.forEach((card,cardIndex)=>{let id=card.dataset.kbItemIdV162||card.dataset.itemId||card.dataset.phrase||card.dataset.id||visibleIds[cardIndex];if(!id){const txt=(card.querySelector('strong,.phrase-card-title,.polaroid-caption,.chip-text')?.textContent||card.textContent||'').trim();id=(db.phrases||[]).find(x=>{try{return window.__loggyV162?.getKnowledgeDisplayLabel?.(x,'kb')===txt||x===txt}catch{return x===txt}})}if(id)card.dataset.kbItemIdV163=id});cards.forEach(card=>{const id=card.dataset.kbItemIdV163;if(!id)return;card.classList.toggle('kb-selected-v163',kbSelectionV163.has(id));if(kbSelectModeV163){let c=$('.kb-select-check-v163',card);if(!c){c=document.createElement('span');c.className='kb-select-check-v163';c.innerHTML='<i class="ph ph-check"></i>';card.appendChild(c)}c.classList.toggle('selected',kbSelectionV163.has(id));if(!card.dataset.kbSelectBoundV164){card.dataset.kbSelectBoundV164='1';card.addEventListener('click',e=>{if(!kbSelectModeV163)return;e.preventDefault();e.stopImmediatePropagation();const itemId=card.dataset.kbItemIdV163;if(!itemId)return;toggleKbSelectionV164(itemId,!!e.shiftKey,cards);decorateKbCardsV163()},true)}}else $('.kb-select-check-v163',card)?.remove();card.oncontextmenu=e=>{e.preventDefault();if(kbSelectModeV163){if(!kbSelectionV163.has(id)){kbSelectionV163.add(id);kbLastSelectedIdV164=id;decorateKbCardsV163()}const ids=[...kbSelectionV163];showCustomItemContextMenu(e.clientX,e.clientY,[{label:`Delete ${ids.length} selected`,icon:'ph-trash',danger:true,action:()=>deleteKbIdsV163(ids)}]);return}showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Open item',icon:'ph-eye',action:()=>openItemModal(id,true)},{label:'Delete item',icon:'ph-trash',danger:true,action:()=>deleteKbIdsV163([id])}])}});const view=db.settings?.libraryView||'list';if(view==='polaroid'){const active=(libraryFilter&&libraryFilter!=='all'?libraryFilter:null);const cfg=active?db.settings?.categorySettings?.[active]:null;const count=Math.max(1,Math.min(8,Number(cfg?.polaroidsPerRowV163||db.settings.polaroidsPerRowV163||4)));grid.style.setProperty('--kb-polaroids-per-row-v163',String(count));grid.classList.toggle('kb-polaroid-horizontal-v163',(cfg?.polaroidOrientationV163||db.settings.polaroidOrientationV163)==='horizontal');cards.forEach(card=>{if(cfg?.hideTagsInPolaroidV163||db.settings.hideTagsInPolaroidV163){$('.kb-tags-v163',card)?.remove();return}const id=card.dataset.kbItemIdV163;let tags=[];try{tags=getKnowledgeItemTagsV55(id)||[]}catch{tags=db.phrase_meta?.[id]?.tags||[]}if(tags.length&&!$('.kb-tags-v163',card)){const t=document.createElement('div');t.className='kb-tags-v163';t.innerHTML=tags.map(x=>`<span>#${esc(String(x).replace(/^#/,''))}</span>`).join('');card.appendChild(t)}})}}
     try{const beforeLibrary=renderPhrasesLibrary;renderPhrasesLibrary=function(){const r=beforeLibrary.apply(this,arguments);requestAnimationFrame(decorateKbCardsV163);return r}}catch{}
 
     function ensureKbPolaroidSettingsV163(){const modal=$('#settings-modal');if(!modal)return;const row=$('#settings-hide-categories-row');if(!row||$('#kb-polaroid-options-v163'))return;const box=document.createElement('div');box.id='kb-polaroid-options-v163';box.className='kb-polaroid-options-v163';box.innerHTML=`<label><input type="checkbox" class="kb-hide-tags-v163"> <span>Hide tags in this view</span></label><label><span class="field-label">Polaroid orientation</span><select class="kb-polaroid-orientation-v163"><option value="vertical">Vertical</option><option value="horizontal">Horizontal</option></select></label><label><span class="field-label">Polaroids per row</span><select class="kb-polaroids-row-v163">${[1,2,3,4,5,6,7,8].map(n=>`<option value="${n}">${n}</option>`).join('')}</select></label>`;row.insertAdjacentElement('afterend',box);const cfg=()=>{const cat=typeof activeCategorySettingTab!=='undefined'?activeCategorySettingTab:null;return cat?(db.settings.categorySettings[cat]||={}):db.settings};const sync=()=>{const c=cfg();$('.kb-hide-tags-v163',box).checked=!!c.hideTagsInPolaroidV163;$('.kb-polaroid-orientation-v163',box).value=c.polaroidOrientationV163||'vertical';$('.kb-polaroids-row-v163',box).value=String(c.polaroidsPerRowV163||4)};box.onchange=()=>{const c=cfg();c.hideTagsInPolaroidV163=$('.kb-hide-tags-v163',box).checked;c.polaroidOrientationV163=$('.kb-polaroid-orientation-v163',box).value;c.polaroidsPerRowV163=Number($('.kb-polaroids-row-v163',box).value)||4;saveDb();try{renderPhrasesLibrary($('#phrases-search-bar')?.value||'')}catch{}};sync();modal.addEventListener('click',e=>{if(e.target.closest('#settings-category-tabs'))setTimeout(sync,0)})}
@@ -1646,7 +1940,7 @@
         try{if(db.settings.knowledgePlaceholdersEnabledV56===undefined)db.settings.knowledgePlaceholdersEnabledV56=true}catch{}
         const toggle=$('.kb-placeholders-enabled-v56',section);if(!toggle)return;
         toggle.setAttribute('role','switch');toggle.setAttribute('aria-label','Enable placeholders');
-        const label=toggle.closest('label');if(label){label.classList.add('kb-placeholder-switch-label-v164');if(!$('.kb-toggle-track-v164',label)){const track=document.createElement('span');track.className='kb-toggle-track-v164';track.innerHTML='<span class="kb-toggle-knob-v164"></span>';label.appendChild(track)}}
+        const label=toggle.closest('label');if(label){label.classList.add('kb-placeholder-switch-label-v164');if(!$('.kb-switch-track-v173',label)&&!$('.kb-toggle-track-v164',label)){const track=document.createElement('span');track.className='kb-toggle-track-v164';track.innerHTML='<span class="kb-toggle-knob-v164"></span>';label.appendChild(track)}}
         const heading=$('.kb-placeholder-settings-heading-v56 > div',section);const field=$('.field-label',heading||section);let help=$('.placeholder-help-v163',section);
         if(field){let row=$('.kb-placeholder-title-row-v164',heading);if(!row){row=document.createElement('div');row.className='kb-placeholder-title-row-v164';field.insertAdjacentElement('beforebegin',row);row.appendChild(field)}if(help&&!row.contains(help))row.appendChild(help)}
         const sync=()=>{toggle.checked=!!db.settings.knowledgePlaceholdersEnabledV56;toggle.setAttribute('aria-checked',toggle.checked?'true':'false');$$('.kb-placeholder-chips-v56,.kb-placeholder-add-v56',section).forEach(el=>el.classList.toggle('hidden',!toggle.checked))};
@@ -1904,7 +2198,7 @@
                 id: String(pin?.id || `pin-${index + 1}`),
                 x: Math.max(0, Math.min(100, Number(pin?.x) || 0)),
                 y: Math.max(0, Math.min(100, Number(pin?.y) || 0)),
-                label: String(pin?.label || ''),
+                label: String(pin?.label ?? pin?.name ?? pin?.title ?? pin?.text ?? pin?.answer ?? ''),
                 color: normalizeColorV169(pin?.color || copy.pinColor),
                 size: Math.max(0.55, Math.min(2.2, Number(pin?.size) || 1)),
                 direction: ['up','right','down','left'].includes(String(pin?.direction || '')) ? String(pin.direction) : 'down',
@@ -2110,19 +2404,28 @@
     // ------------------------------------------------------------
     // Knowledge Base item editor.
     // ------------------------------------------------------------
+    // V590: one canonical renderer for every NON-QUIZ pinned map surface.
+    // Add/Edit preview, KB cards, Items Learned and read-only item fields all
+    // use the same saved pin/label coordinates. Quiz renderers stay separate
+    // because they intentionally hide/reveal answers.
     function pinnedStageHtmlV169(data, options = {}) {
         const labeled = !!options.labeled;
         const interactive = !!options.interactive;
+        const readonly = !!options.readonly;
         const answers = options.answers || {};
         const selectedId = options.selectedId || '';
-        const pins = data.pins || [];
+        const stageClass = String(options.stageClass || '').trim();
+        const labelClass = String(options.labelClass || '').trim();
+        const pins = Array.isArray(data?.pins) ? data.pins : [];
 
-        if (!data.image) {
+        if (!data?.image) {
             return '<div class="kb-pinned-empty-v169"><i class="ph ph-image"></i><span>Upload an image to start placing pins.</span></div>';
         }
 
+        const clampPct = value => Math.max(0, Math.min(100, Number(value) || 0));
+
         return `
-            <div class="kb-pinned-stage-v169 ${interactive ? 'is-interactive' : ''}" data-pinned-stage-v169="1">
+            <div class="kb-pinned-stage-v169 ${stageClass} ${interactive ? 'is-interactive' : ''}" data-pinned-stage-v169="1" data-static-labels-v590="${readonly ? '1' : '0'}">
                 <img src="${attrV169(data.image)}" alt="">
                 <div class="kb-pinned-overlay-v169">
                     ${pins.map((pin, index) => {
@@ -2132,30 +2435,41 @@
                         const color = isCorrect ? CORRECT_PIN_COLOR_V169 : isWrong ? WRONG_PIN_COLOR_V169 : normalizeColorV169(pin.color || data.pinColor);
                         const label = String(pin.label || '').trim();
                         const showLabel = labeled || state.status === 'correct';
+                        const x = clampPct(pin.x);
+                        const y = clampPct(pin.y);
+                        const dx = Number.isFinite(Number(pin.labelDx)) ? Number(pin.labelDx) : 0;
+                        const dy = Number.isFinite(Number(pin.labelDy)) ? Number(pin.labelDy) : 0;
+                        const manual = !!pin.labelManual;
+                        const labelX = manual ? clampPct(x + dx) : x;
+                        const labelY = manual ? clampPct(y + dy) : y;
+                        const transform = manual ? 'translate(-50%,-50%)' : 'translate(18px,-50%)';
+                        const pinTag = readonly ? 'span' : 'button';
+                        const typeAttr = readonly ? '' : ' type="button"';
                         return `
-                            <button type="button"
+                            <${pinTag}${typeAttr}
                                 class="kb-map-pin-v169 pin-dir-${attrV169(pin.direction || 'down')} ${selectedId === pin.id ? 'selected' : ''} ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''}"
                                 data-pin-id-v169="${attrV169(pin.id)}"
                                 data-pin-index-v169="${index}"
-                                style="left:${pin.x}%;top:${pin.y}%;--pin-color-v169:${color};--pin-scale-v171:${Math.max(.55,Math.min(2.2,Number(pin.size)||1))};"
+                                style="left:${x}%;top:${y}%;--pin-color-v169:${color};--pin-scale-v171:${Math.max(.55,Math.min(2.2,Number(pin.size)||1))};"
                                 aria-label="${showLabel && label ? attrV169(label) : `Pin ${index + 1}`}"
                                 title="${showLabel && label ? attrV169(label) : `Pin ${index + 1}`}"
-                            ><span class="kb-map-pin-dot-v169"></span></button>
-                            ${showLabel && label ? `<span class="kb-map-pin-label-v169 ${pin.labelManual ? 'is-manual-v170' : 'is-auto-v170'}"
+                            ><span class="kb-map-pin-glyph-v615"><span class="kb-map-pin-dot-v169"></span></span></${pinTag}>
+                            ${showLabel && label ? `<span class="kb-map-pin-label-v169 ${labelClass} ${manual ? 'is-manual-v170' : 'is-auto-v170'}"
                                 data-pin-label-for-v170="${attrV169(pin.id)}"
-                                data-pin-x-v170="${pin.x}"
-                                data-pin-y-v170="${pin.y}"
-                                data-label-dx-v170="${Number(pin.labelDx)||0}"
-                                data-label-dy-v170="${Number(pin.labelDy)||0}"
-                                data-label-manual-v170="${pin.labelManual ? '1' : '0'}"
-                                style="left:${Math.max(0,Math.min(100,Number(pin.x)||0))}%;top:${Math.max(0,Math.min(100,Number(pin.y)||0))}%;transform:translate(16px,-50%);"
-                                title="${pin.labelManual ? 'Drag to reposition label' : 'Label is automatically positioned; drag to place it manually'}">${escV169(label)}</span>` : ''}
+                                data-pin-x-v170="${x}"
+                                data-pin-y-v170="${y}"
+                                data-label-dx-v170="${dx}"
+                                data-label-dy-v170="${dy}"
+                                data-label-manual-v170="${manual ? '1' : '0'}"
+                                style="left:${labelX}%;top:${labelY}%;transform:${transform};display:block!important;visibility:visible!important;opacity:1!important;z-index:30!important;"
+                                title="${manual ? 'Drag to reposition label' : attrV169(label)}">${escV169(label)}</span>` : ''}
                         `;
                     }).join('')}
                 </div>
             </div>
         `;
     }
+
 
     function pinnedInputHtmlV169(field, value = '', mode = 'add') {
         const data = parsePinnedValueV169(value, field);
@@ -2203,7 +2517,6 @@
                         <button type="button" class="small-icon-btn kb-pinned-label-save-v169" title="Save label"><i class="ph ph-check"></i></button>
                         <button type="button" class="small-icon-btn kb-pinned-delete-pin-v169" title="Delete pin"><i class="ph ph-trash"></i></button>
                     </div>
-                    <p class="progress-hint kb-pinned-hint-v169">Upload an image, then click <strong>Place Pins</strong> to work on it full screen. Click a pin to label it; press Enter to save. Drag pins or labels whenever you want to reposition them.</p>
                 </div>
             </div>
         `;
@@ -2286,6 +2599,7 @@
             // The label algorithm stores pixel positions, so force a fresh
             // layout after the reparent instead of waiting for a browser resize.
             const relayoutV213 = () => {
+                if (!placementMode) return;
                 try { window.__layoutPinnedLabelsV170?.(host); } catch {}
             };
             requestAnimationFrame(() => {
@@ -2301,7 +2615,7 @@
 
         const syncSelectedEditor = () => {
             const pin = selectedPin();
-            selectedEditor?.classList.toggle('hidden', !pin);
+            selectedEditor?.classList.toggle('hidden', !pin && !placementMode);
             if (!pin) return;
             if (labelInput && document.activeElement !== labelInput) labelInput.value = pin.label || '';
             if (pinColor) pinColor.value = normalizeColorV169(pin.color || data.pinColor);
@@ -2311,6 +2625,13 @@
 
         const render = () => {
             host.innerHTML = pinnedStageHtmlV169(data, { labeled: true, selectedId });
+            host.classList.add('kb-pinned-editor-preview-v566');
+            host.querySelectorAll('.kb-map-pin-label-v169').forEach(label => {
+                label.style.setProperty('display','block','important');
+                label.style.setProperty('visibility','visible','important');
+                label.style.setProperty('opacity','1','important');
+                label.style.setProperty('z-index','20','important');
+            });
             upload.querySelector('span').textContent = data.image ? 'Replace image' : 'Upload image';
             removeImage?.classList.toggle('hidden', !data.image);
             placePins?.classList.toggle('hidden', !data.image);
@@ -2318,7 +2639,16 @@
             if (testModeSelect) testModeSelect.value = data.testMode === 'parts' ? 'parts' : 'whole';
             bindStage();
             bindLabelDraggingV170();
-            requestAnimationFrame(() => window.__layoutPinnedLabelsV170?.(host));
+            // V600: labels are permanent map content, so lay them out in the
+            // normal Add/Edit preview too, not only in full-screen placement.
+            requestAnimationFrame(() => {
+                try { window.__alignPinnedOverlayToImageV612?.(host.querySelector('.kb-pinned-stage-v169')); } catch {}
+                try { window.__layoutPinnedLabelsV170?.(host); } catch {}
+                requestAnimationFrame(() => {
+                    try { window.__alignPinnedOverlayToImageV612?.(host.querySelector('.kb-pinned-stage-v169')); } catch {}
+                    try { window.__layoutPinnedLabelsV170?.(host); } catch {}
+                });
+            });
             syncSelectedEditor();
             setPlacementMode(placementMode);
         };
@@ -2333,6 +2663,22 @@
         upload.addEventListener('click', chooseImage);
         placePins?.addEventListener('click', () => {
             if (!data.image) return;
+
+            // V600: never lose the label that is currently typed into the
+            // selected-pin field when Done Placing is clicked. The previous
+            // flow rebuilt the preview before that draft was committed, which
+            // left the normal map showing pins with no visible labels.
+            if (placementMode && selectedId) {
+                const pin = selectedPin();
+                if (pin) {
+                    pin.label = String(labelInput?.value || pin.label || '').trim();
+                    pin.color = normalizeColorV169(pinColor?.value || pin.color || data.pinColor);
+                    pin.direction = ['up','right','down','left'].includes(pinDirection?.value) ? pinDirection.value : (pin.direction || 'down');
+                    pin.size = clampSize(pin.size);
+                    save();
+                }
+            }
+
             const nextPlacementMode = !placementMode;
             setPlacementMode(nextPlacementMode);
             if (nextPlacementMode) selectedId = '';
@@ -2383,10 +2729,44 @@
             render();
         };
 
-        labelInput?.addEventListener('keydown', event => {
-            if (event.key !== 'Enter') return;
-            event.preventDefault();
+        // V600: keep the selected pin's label synchronized while typing so
+        // leaving the field or closing Place Pins cannot silently discard it.
+        labelInput?.addEventListener('input', () => {
+            const pin = selectedPin();
+            if (!pin) return;
+            pin.label = String(labelInput.value || '');
+        });
+        labelInput?.addEventListener('change', () => {
+            const pin = selectedPin();
+            if (!pin) return;
+            pin.label = String(labelInput.value || '').trim();
+            save();
+            render();
+        });
+        // Enter completes this pin, then detaches the blank field from it.
+        // Otherwise a later change/blur can erase the label just saved.
+        const finishPinLabelV649 = () => {
+            if (!selectedPin()) return;
             commitSelected();
+            if (!placementMode) return;
+            selectedId = '';
+            if (labelInput) labelInput.value = '';
+            render();
+        };
+        if (labelInput) labelInput.__commitPinnedLabelV616 = finishPinLabelV649;
+        labelInput?.addEventListener('keydown', event => {
+            if (event.key !== 'Enter' || event.isComposing || event.keyCode === 229) return;
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            finishPinLabelV649();
+            // Enter means save/show this label only. Place Pins stays open.
+            requestAnimationFrame(() => {
+                if (placementMode) {
+                    labelInput?.focus?.({ preventScroll:true });
+                    try { labelInput?.select?.(); } catch {}
+                }
+            });
         });
         saveLabel?.addEventListener('click', commitSelected);
 
@@ -2427,6 +2807,7 @@
 
         function selectPin(pinId, focusLabel = true) {
             selectedId = pinId;
+            if (labelInput) labelInput.value = selectedPin()?.label || '';
             render();
             if (focusLabel) requestAnimationFrame(() => {
                 labelInput?.focus();
@@ -2443,8 +2824,10 @@
             stage.addEventListener('click', event => {
                 if (event.target.closest('.kb-map-pin-v169')) return;
                 if (!placementMode) return;
-                const rect = stage.getBoundingClientRect();
+                const rect = window.__pinnedCoordinateRectV612?.(stage) || stage.getBoundingClientRect();
                 if (!rect.width || !rect.height) return;
+                // Ignore clicks in any stage padding/letterbox outside the image.
+                if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return;
                 const x = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
                 const y = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100));
                 const pin = {
@@ -2512,7 +2895,7 @@
                     const dy = Math.abs(event.clientY - dragState.startY);
                     if (dx + dy < 3 && !dragState.moved) return;
                     dragState.moved = true;
-                    const rect = stage.getBoundingClientRect();
+                    const rect = window.__pinnedCoordinateRectV612?.(stage) || stage.getBoundingClientRect();
                     const pin = data.pins.find(entry => entry.id === pinId);
                     if (!pin || !rect.width || !rect.height) return;
                     pin.x = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
@@ -2548,7 +2931,7 @@
                     event.stopPropagation();
                     const pin = data.pins.find(entry => entry.id === pinId);
                     if (!pin) return;
-                    const rect = stage.getBoundingClientRect();
+                    const rect = window.__pinnedCoordinateRectV612?.(stage) || stage.getBoundingClientRect();
                     state = { pointerId:event.pointerId, rect };
                     label.setPointerCapture?.(event.pointerId);
                     label.style.cursor = 'grabbing';
@@ -3006,7 +3389,8 @@
         isPinnedValue: isPinnedValueV495,
         answersMatch: answersMatchV169,
         fieldForItem: pinnedFieldForItemV169,
-        defaultPinColor: DEFAULT_PIN_COLOR_V169
+        defaultPinColor: DEFAULT_PIN_COLOR_V169,
+        renderStage: pinnedStageHtmlV169
     };
 })();
 
@@ -3020,13 +3404,144 @@
     const overlapAreaV170 = (a,b) => Math.max(0, Math.min(a.right,b.right)-Math.max(a.left,b.left)) * Math.max(0, Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
     const clampV170 = (v,min,max) => Math.max(min,Math.min(max,v));
 
+    // V612 — the image rectangle is the ONLY coordinate system for pins.
+    // The stage can become wider/narrower when Place Pins is opened/closed,
+    // but the overlay is always snapped to the rendered image itself.
+    const watchedPinnedStagesV612 = new WeakSet();
+
+    function objectPositionFractionV616(value, axis='x') {
+        const text=String(value||'50% 50%').trim().toLowerCase();
+        const parts=text.split(/\s+/).filter(Boolean);
+        let token=axis==='x' ? (parts[0]||'50%') : (parts[1]||parts[0]||'50%');
+        if(axis==='x') {
+            if(token==='left') return 0;
+            if(token==='center') return .5;
+            if(token==='right') return 1;
+        } else {
+            if(token==='top') return 0;
+            if(token==='center') return .5;
+            if(token==='bottom') return 1;
+        }
+        const pct=parseFloat(token);
+        return Number.isFinite(pct) ? Math.max(0,Math.min(1,pct/100)) : .5;
+    }
+
+    // V616: return the rectangle occupied by the IMAGE CONTENT, not merely the
+    // <img> element box. This matters when object-fit:contain letterboxes the
+    // source image inside a wider/taller element.
+    function renderedImageContentRectV616(stage) {
+        if (!stage?.isConnected) return null;
+        const img=stage.querySelector(':scope > img');
+        if (!img) return null;
+        const box=img.getBoundingClientRect();
+        if (!box.width || !box.height) return null;
+        const nw=Number(img.naturalWidth)||0, nh=Number(img.naturalHeight)||0;
+        if (!nw || !nh) return box;
+        const cs=getComputedStyle(img);
+        const fit=String(cs.objectFit||'fill').toLowerCase();
+        let w=box.width,h=box.height;
+        if (fit==='contain' || fit==='scale-down') {
+            let scale=Math.min(box.width/nw,box.height/nh);
+            if(fit==='scale-down') scale=Math.min(1,scale);
+            w=nw*scale; h=nh*scale;
+        } else if (fit==='cover') {
+            const scale=Math.max(box.width/nw,box.height/nh);
+            w=nw*scale; h=nh*scale;
+        } else if (fit==='none') {
+            w=nw; h=nh;
+        }
+        const fx=objectPositionFractionV616(cs.objectPosition,'x');
+        const fy=objectPositionFractionV616(cs.objectPosition,'y');
+        return {
+            left:box.left+(box.width-w)*fx,
+            top:box.top+(box.height-h)*fy,
+            right:box.left+(box.width-w)*fx+w,
+            bottom:box.top+(box.height-h)*fy+h,
+            width:w,height:h,x:box.left+(box.width-w)*fx,y:box.top+(box.height-h)*fy
+        };
+    }
+
+    function alignPinnedOverlayToImageV612(stage) {
+        if (!stage || !stage.isConnected) return false;
+        const img = stage.querySelector(':scope > img');
+        const overlay = stage.querySelector(':scope > .kb-pinned-overlay-v169');
+        if (!img || !overlay) return false;
+        const stageRect = stage.getBoundingClientRect();
+        const imageRect = renderedImageContentRectV616(stage);
+        if (!stageRect.width || !stageRect.height || !imageRect?.width || !imageRect?.height) {
+            if (!watchedPinnedStagesV612.has(stage)) {
+                watchedPinnedStagesV612.add(stage);
+                img.addEventListener('load', () => requestAnimationFrame(() => layoutPinnedStageV170(stage)), { passive:true });
+            }
+            return false;
+        }
+        // One authoritative overlay: exact source-image content rectangle.
+        overlay.style.setProperty('inset', 'auto', 'important');
+        overlay.style.setProperty('right', 'auto', 'important');
+        overlay.style.setProperty('bottom', 'auto', 'important');
+        overlay.style.setProperty('left', `${imageRect.left - stageRect.left}px`, 'important');
+        overlay.style.setProperty('top', `${imageRect.top - stageRect.top}px`, 'important');
+        overlay.style.setProperty('width', `${imageRect.width}px`, 'important');
+        overlay.style.setProperty('height', `${imageRect.height}px`, 'important');
+
+        if (!watchedPinnedStagesV612.has(stage)) {
+            watchedPinnedStagesV612.add(stage);
+            const relayout = () => requestAnimationFrame(() => layoutPinnedStageV170(stage));
+            img.addEventListener('load', relayout, { passive:true });
+            try {
+                const ro = new ResizeObserver(relayout);
+                ro.observe(img); ro.observe(stage);
+                stage.__kbPinnedResizeObserverV616 = ro;
+            } catch {}
+        }
+        return true;
+    }
+
+    function pinnedCoordinateRectV612(stage) {
+        if (!stage) return null;
+        const rect=renderedImageContentRectV616(stage);
+        if (rect?.width && rect?.height) {
+            alignPinnedOverlayToImageV612(stage);
+            return rect;
+        }
+        const fallback=stage.getBoundingClientRect?.();
+        return fallback?.width && fallback?.height ? fallback : null;
+    }
+
+    window.__renderedPinnedImageRectV616 = renderedImageContentRectV616;
+    window.__alignPinnedOverlayToImageV612 = alignPinnedOverlayToImageV612;
+    window.__pinnedCoordinateRectV612 = pinnedCoordinateRectV612;
+
     function layoutPinnedStageV170(stage) {
         if (!stage || !stage.isConnected) return;
+        alignPinnedOverlayToImageV612(stage);
         const overlay = stage.querySelector('.kb-pinned-overlay-v169');
         if (!overlay) return;
         const rect = overlay.getBoundingClientRect();
         if (!rect.width || !rect.height) return;
         const labels = [...overlay.querySelectorAll('.kb-map-pin-label-v169')];
+
+        // V615: labels use saved image-relative coordinates only. The old smart
+        // collision algorithm recalculated pixel positions at every map size,
+        // which made labels appear to move after Done Placing. Auto labels stay
+        // attached to their pin; manually dragged labels keep their saved dx/dy.
+        if (stage.dataset.pinnedStageV169 === '1') {
+            labels.forEach(label => {
+                const px = clampV170(parseFloat(label.dataset.pinXV170) || 0, 0, 100);
+                const py = clampV170(parseFloat(label.dataset.pinYV170) || 0, 0, 100);
+                const manual = label.dataset.labelManualV170 === '1';
+                const dx = Number.isFinite(parseFloat(label.dataset.labelDxV170)) ? parseFloat(label.dataset.labelDxV170) : 0;
+                const dy = Number.isFinite(parseFloat(label.dataset.labelDyV170)) ? parseFloat(label.dataset.labelDyV170) : 0;
+                label.style.left = `${clampV170(px + (manual ? dx : 0), 0, 100)}%`;
+                label.style.top = `${clampV170(py + (manual ? dy : 0), 0, 100)}%`;
+                label.style.transform = manual ? 'translate(-50%, -50%)' : 'translate(18px, -50%)';
+                label.style.display = 'block';
+                label.style.visibility = 'visible';
+                label.style.opacity = '1';
+            });
+            return;
+        }
+
         const pins = [...overlay.querySelectorAll('.kb-map-pin-v169')].map(node => ({
             id: node.dataset.pinIdV169 || '',
             x: (parseFloat(node.style.left)||0) / 100 * rect.width,
@@ -3393,13 +3908,12 @@
         } catch { return null; }
     }
     function primaryMapHtmlV171(data) {
-        const pins = Array.isArray(data?.pins) ? data.pins : [];
-        return `<div class="kb-primary-map-stage-v171 kb-pinned-stage-v169"><img src="${attrV171(data.image)}" alt=""><div class="kb-pinned-overlay-v169">${pins.map((pin, index) => {
-            const size = Math.max(.55, Math.min(2.2, Number(pin.size) || 1));
-            const dir = ['up','right','down','left'].includes(pin.direction) ? pin.direction : 'down';
-            const label = String(pin.label || '').trim();
-            return `<span class="kb-map-pin-v169 kb-primary-map-pin-v171 pin-dir-${dir}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;--pin-color-v169:${attrV171(pin.color || data.pinColor || '#e53935')};--pin-scale-v171:${size};"><span class="kb-map-pin-dot-v169"></span></span>${label ? `<span class="kb-map-pin-label-v169 kb-primary-map-label-v171" data-pin-label-for-v170="${attrV171(pin.id || `p${index}`)}" data-pin-x-v170="${Number(pin.x)||0}" data-pin-y-v170="${Number(pin.y)||0}" data-label-dx-v170="${Number(pin.labelDx)||0}" data-label-dy-v170="${Number(pin.labelDy)||0}" data-label-manual-v170="${pin.labelManual ? '1':'0'}">${escV171(label)}</span>` : ''}`;
-        }).join('')}</div></div>`;
+        return window.__loggyPinnedImageV169?.renderStage?.(data, {
+            labeled:true,
+            readonly:true,
+            stageClass:'kb-primary-map-stage-v171',
+            labelClass:'kb-primary-map-label-v171'
+        }) || '';
     }
     function decoratePrimaryMapsV171() {
         const grid = document.getElementById('phrases-library-grid');
@@ -3414,7 +3928,12 @@
             wrap.className = 'kb-primary-map-v171';
             wrap.innerHTML = primaryMapHtmlV171(pinned.data);
             card.insertBefore(wrap, card.firstChild);
-            requestAnimationFrame(() => window.__layoutPinnedLabelsV170?.(wrap));
+            // V621: a map polaroid uses the map itself as its one media panel.
+            // The generic polaroid media slot used to remain underneath it,
+            // which produced the duplicate second image/placeholder.
+            if (card.classList.contains('polaroid-card')) {
+                qV171(':scope > .polaroid-video', card)?.remove();
+            }
         });
     }
     try {
@@ -3852,7 +4371,7 @@
         q('#phrase-modal-delete')?.classList.add('hidden');
 
         const mapCards = cards.filter(card => q('.kb-primary-map-v171', card));
-        grid.classList.toggle('kb-primary-map-flow-v172', mapCards.length > 0 && String(db.settings?.libraryView || 'list') !== 'polaroid');
+        grid.classList.remove('kb-primary-map-flow-v172');
         cards.forEach(card => card.classList.toggle('has-primary-map-v172', !!q('.kb-primary-map-v171', card)));
     }
     try {
@@ -4107,7 +4626,6 @@
         try{new MutationObserver(ms=>{for(const m of ms){if(m.attributeName==='class'&&modal.classList.contains('hidden')){queueBlankPrepV175(180);break}}}).observe(modal,{attributes:true,attributeFilter:['class']})}catch{}
     }
     document.addEventListener('click',event=>{if(event.target?.closest?.('#theme-builder-modal,.theme-search-create-v161,.theme-picker-create-card,#open-daily-settings-btn,#open-global-daily-settings-nav-btn'))bindBlankThemeObserverV187()},true);
-    document.addEventListener('keydown',event=>{if(event.shiftKey&&String(event.key||'').toLowerCase()==='w')bindBlankThemeObserverV187()},true);
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>requestAnimationFrame(bindBlankThemeObserverV187),{once:true});else requestAnimationFrame(bindBlankThemeObserverV187);
     try{openNewThemeBuilderCleanV34=openBlankThemeV172}catch{}try{openNewCustomThemeFromPickerV7=openBlankThemeV172}catch{}
     // V260 owns the single Create Theme click/message entry point.
@@ -4185,6 +4703,9 @@
     }, true);
     document.addEventListener('keydown', event => {
         if (event.key !== 'Enter' || !event.target?.matches?.('.kb-pinned-label-input-v169')) return;
+        // V615: Enter in Place Pins saves the label; it is NOT Done Placing and
+        // must not collapse the selected-pin editor or close placement mode.
+        if (event.target.closest?.('.kb-pinned-editor-v169.is-pin-placement-v171')) return;
         const target = event.target;
         queueMicrotask(() => hidePinnedSelectionEditorV173(target));
         requestAnimationFrame(() => hidePinnedSelectionEditorV173(target));
@@ -4241,14 +4762,12 @@
         } catch { return null; }
     }
     function dailyMapHtmlV173(data) {
-        const pins = Array.isArray(data?.pins) ? data.pins : [];
-        return `<div class="kb-day-primary-map-stage-v173 kb-pinned-stage-v169"><img src="${attr(data.image)}" alt=""><div class="kb-pinned-overlay-v169">${pins.map((pin,index) => {
-            const size = Math.max(.55, Math.min(2.2, Number(pin.size)||1));
-            const dir = ['up','right','down','left'].includes(pin.direction) ? pin.direction : 'down';
-            const label = String(pin.label || '').trim();
-            const pid = pin.id || `p${index}`;
-            return `<span class="kb-map-pin-v169 pin-dir-${dir}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;--pin-color-v169:${attr(pin.color || data.pinColor || '#e53935')};--pin-scale-v171:${size};"><span class="kb-map-pin-dot-v169"></span></span>${label ? `<span class="kb-map-pin-label-v169" data-pin-label-for-v170="${attr(pid)}" data-pin-x-v170="${Number(pin.x)||0}" data-pin-y-v170="${Number(pin.y)||0}" data-label-dx-v170="${Number(pin.labelDx)||0}" data-label-dy-v170="${Number(pin.labelDy)||0}" data-label-manual-v170="${pin.labelManual?'1':'0'}">${esc(label)}</span>`:''}`;
-        }).join('')}</div></div>`;
+        return window.__loggyPinnedImageV169?.renderStage?.(data, {
+            labeled:true,
+            readonly:true,
+            stageClass:'kb-day-primary-map-stage-v173',
+            labelClass:'kb-day-primary-map-label-v590'
+        }) || '';
     }
     function decorateDailyPrimaryMapsV173() {
         qa('#phrases-container .chip').forEach(chip => {
@@ -4262,7 +4781,6 @@
             wrap.innerHTML = dailyMapHtmlV173(data);
             chip.prepend(wrap);
             chip.classList.add('kb-day-map-card-v173');
-            requestAnimationFrame(() => window.__layoutPinnedLabelsV170?.(wrap));
         });
     }
     try {
@@ -4589,7 +5107,7 @@ DASHBOARD TITLE NOTE:
     document.addEventListener('pointerdown', promoteVisibleModalsV187, true);
     document.addEventListener('click', promoteVisibleModalsV187, true);
     document.addEventListener('keydown', event => {
-        if (event.key === 'Enter' || event.key === 'Escape' || (event.shiftKey && String(event.key || '').toLowerCase() === 'w')) {
+        if (event.key === 'Enter' || event.key === 'Escape') {
             promoteVisibleModalsV187();
         }
     }, true);
@@ -4709,32 +5227,16 @@ DASHBOARD TITLE NOTE:
         const grid = qV175('#phrases-library-grid');
         if (!grid) return;
         const cards = qaV175(':scope > .phrase-card,:scope > .polaroid-card', grid);
-        const hasMaps = cards.some(card => !!qV175('.kb-primary-map-v171', card));
-        const enabled = hasMaps && String(db?.settings?.libraryView || 'list') !== 'polaroid';
-        grid.classList.toggle('kb-masonry-v175', enabled);
-        if (!enabled) {
-            cards.forEach(card => { card.style.removeProperty('grid-row-end'); card.style.removeProperty('grid-column-end'); });
-            return;
-        }
-        const wideEnough = grid.clientWidth >= 520;
+        // V615: All uses the exact same natural flex-card layout as category
+        // views. No masonry/grid classes or row-span math are allowed here.
+        grid.classList.remove('kb-all-grid-v614', 'kb-masonry-v175', 'kb-primary-map-flow-v172');
         cards.forEach(card => {
-            const map = !!qV175('.kb-primary-map-v171', card);
-            card.style.gridColumnEnd = map && wideEnough ? 'span 2' : 'span 1';
-            card.style.gridRowEnd = 'auto';
-        });
-        // Measure after column spans are established, then assign dense row spans.
-        requestAnimationFrame(() => {
-            const row = 8, gap = 12;
-            cards.forEach(card => {
-                const h = Math.max(1, card.getBoundingClientRect().height);
-                card.style.gridRowEnd = `span ${Math.max(1, Math.ceil((h + gap) / (row + gap)))}`;
-                qaV175('img', card).forEach(img => {
-                    if (!img.complete && !img.dataset.masonryLoadV175) {
-                        img.dataset.masonryLoadV175 = '1';
-                        img.addEventListener('load', queueKbMasonryV175, { once:true });
-                    }
-                });
-            });
+            card.style.removeProperty('grid-row-end');
+            card.style.removeProperty('grid-column-end');
+            card.style.removeProperty('grid-row');
+            card.style.removeProperty('grid-column');
+            card.style.removeProperty('width');
+            card.style.removeProperty('max-width');
         });
     }
     function queueKbMasonryV175() {
@@ -5283,13 +5785,8 @@ DASHBOARD TITLE NOTE:
         try { updateThemeBuilderPreview(modal); } catch {}
         enforceThemeDecorationCopyV180(modal);
 
-        // Project-file cleanup happens after the UI is already updated.
-        const projectPath = asset?.projectPath || '';
-        if (projectPath && !asset?.inheritedBuiltInV30) {
-            try { await deleteThemeBuilderAssetFromProject(projectPath); } catch {}
-        } else {
-            try { await deleteThemeBuilderProjectAsset?.(asset?.url || ''); } catch {}
-        }
+        // V529: unlink from this theme only. Keep the uploaded decoration file
+        // durable because other themes/variants may still reference it.
     }
 
     // Right-click deletion: bypass stale multi-selection state and delete the
@@ -5343,16 +5840,8 @@ DASHBOARD TITLE NOTE:
                     if (count) count.textContent = `${list.length} decoration${list.length === 1 ? '' : 's'}`;
                 } catch {}
                 enforceThemeDecorationCopyV180(modal);
-                // Delete the project copy after the live draft is already gone.
-                queueMicrotask(() => {
-                    try {
-                        if (live?.projectPath && !live?.inheritedBuiltInV30 && typeof deleteThemeBuilderAssetFromProject === 'function') {
-                            Promise.resolve(deleteThemeBuilderAssetFromProject(live.projectPath)).catch(() => {});
-                        } else if (typeof deleteThemeBuilderProjectAsset === 'function') {
-                            Promise.resolve(deleteThemeBuilderProjectAsset(live?.url || '')).catch(() => {});
-                        }
-                    } catch {}
-                });
+                // V529: unlink only. Never physically delete a decoration asset
+                // from the shared project store when one theme removes it.
             }
         }]);
     }, true);
@@ -5848,12 +6337,7 @@ DASHBOARD TITLE NOTE:
         try { updateThemeBuilderPreview(modal); } catch {}
         enforceDecorationCopyV182(modal);
 
-        const projectPath=asset?.projectPath || asset?.path || '';
-        if(projectPath && !asset?.inheritedBuiltInV30){
-            try { await deleteThemeBuilderAssetFromProject?.(projectPath); } catch {}
-        } else {
-            try { await deleteThemeBuilderProjectAsset?.(asset?.url || ''); } catch {}
-        }
+        // V529: unlink only; keep the durable uploaded project asset.
     }
 
     // If a late compatibility populate fires immediately after deletion, preserve
@@ -6450,9 +6934,18 @@ DASHBOARD TITLE NOTE:
             switchView(view);
             const stale = config.always || view?.dataset?.renderVersionV184 !== String(dataVersionV184);
             if (!stale) return;
-            requestAnimationFrame(() => {
+            const runRenderV643 = () => {
                 try { config.render(); } finally { if (view) view.dataset.renderVersionV184 = String(dataVersionV184); }
-            });
+            };
+            // V643: KB can contain hundreds/thousands of cards. Let the newly
+            // selected KB view paint and become scrollable/clickable BEFORE any
+            // stale card rebuild starts. Reopening an unchanged KB uses the
+            // existing DOM immediately and does no render work at all.
+            if (button.id === 'open-phrases-btn') {
+                requestAnimationFrame(() => setTimeout(runRenderV643, 0));
+            } else {
+                requestAnimationFrame(runRenderV643);
+            }
         }, true);
     } catch {}
 
@@ -7370,7 +7863,7 @@ DASHBOARD TITLE NOTE:
             document.querySelector('link[data-loggy-whiteboard-css-v197]')?.remove();
             link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = '/template-whiteboard.css?v=522';
+            link.href = '/template-whiteboard.css?v=523';
             link.dataset.loggyWhiteboardCssV198 = '1';
             document.head.appendChild(link);
         }
@@ -7385,7 +7878,7 @@ DASHBOARD TITLE NOTE:
                 return;
             }
             const script = document.createElement('script');
-            script.src = '/template-whiteboard.js?v=522';
+            script.src = '/template-whiteboard.js?v=523';
             script.async = true;
             script.dataset.loggyWhiteboardJsV198 = '1';
             script.addEventListener('load', () => resolve(window.LoggyWhiteboardV198), { once: true });
@@ -7530,6 +8023,11 @@ DASHBOARD TITLE NOTE:
         activeWhiteboardQuizPortalV507 = null;
         document.body.classList.remove('whiteboard-quiz-portal-active-v507');
         try { state.quizView?.removeEventListener('click', state.closeCapture, true); } catch {}
+        try {
+            if (state.settingsButtonRecordV523?.el && state.syncQuizSettingsThemeV578) {
+                state.settingsButtonRecordV523.el.removeEventListener('click', state.syncQuizSettingsThemeV578, true);
+            }
+        } catch {}
         try { state.whiteboardRoot?.removeEventListener('loggy-whiteboard-toolchange-v509', state.syncTool); } catch {}
         try { state.whiteboardRoot?.removeEventListener('loggy-whiteboard-camera-v516', state.syncZoomV516); } catch {}
         try { state.toolObserver?.disconnect(); } catch {}
@@ -7537,6 +8035,15 @@ DASHBOARD TITLE NOTE:
         try { state.resizeObserverV521?.disconnect(); } catch {}
         try { if (state.syncResponsiveV521) window.removeEventListener('resize', state.syncResponsiveV521); } catch {}
         try { state.content?.removeEventListener('click', state.practiceLaunchCaptureV514, true); } catch {}
+        try { state.quizLayerMenuV523?.remove(); } catch {}
+        if (state.settingsButtonRecordV523?.el) {
+            const rec = state.settingsButtonRecordV523;
+            rec.el.classList.remove('wb-quiz-settings-head-v523');
+            if (rec.parent) {
+                try { rec.parent.insertBefore(rec.el, rec.next && rec.next.parentNode === rec.parent ? rec.next : null); }
+                catch { try { rec.parent.appendChild(rec.el); } catch {} }
+            }
+        }
         if (window.__loggyWhiteboardQuizPracticeRouterV518 === state.practiceRouterV518) delete window.__loggyWhiteboardQuizPracticeRouterV518;
         // V514: restore any real practice modal to the exact place it came from.
         // Never remove it: newer Smart/Field-to-Field runtimes may reuse that node.
@@ -7589,14 +8096,70 @@ DASHBOARD TITLE NOTE:
             <svg class="wb-quiz-annotation-v507" data-role="wb-quiz-annotation-v507"></svg>
           </div>`;
         whiteboardRoot.appendChild(panel);
+        panel.dataset.wbQuizLayerV523 = 'middle';
+        const quizLayerMenuV523 = document.createElement('div');
+        quizLayerMenuV523.className = 'wb-quiz-layer-menu-v523';
+        quizLayerMenuV523.hidden = true;
+        quizLayerMenuV523.innerHTML = '<button type="button" data-wb-quiz-layer-v523="front"><i class="ph ph-arrow-up"></i> Bring to front</button><button type="button" data-wb-quiz-layer-v523="back"><i class="ph ph-arrow-down"></i> Send to back</button>';
+        whiteboardRoot.appendChild(quizLayerMenuV523);
         const content = panel.querySelector('[data-role="wb-quiz-content-v507"]');
         const svg = panel.querySelector('[data-role="wb-quiz-annotation-v507"]');
         const records = [quizzesView, quizLearnView].map(el => ({el,parent:el.parentNode,next:el.nextSibling,wasActive:el.classList.contains('active')}));
         records.forEach(({el}) => { el.classList.remove('active'); el.classList.add('wb-quiz-portaled-v507'); content.appendChild(el); });
 
-        const state = {panel,content,svg,records,quizView:quizzesView,currentView:quizzesView,drawing:null,paths:[],whiteboardRoot,baseZoomV516:Math.max(.05,Number(whiteboardRoot.dataset.cameraZoomV516)||.72)};
+        const state = {panel,content,svg,records,quizView:quizzesView,currentView:quizzesView,drawing:null,paths:[],whiteboardRoot,quizLayerMenuV523,baseZoomV516:Math.max(.05,Number(whiteboardRoot.dataset.cameraZoomV516)||.72)};
         activeWhiteboardQuizPortalV507 = state;
         document.body.classList.add('whiteboard-quiz-portal-active-v507');
+
+        // V523: keep Quiz Settings in the unscaled title bar so it remains visible
+        // and clickable no matter how small the resizable quiz body becomes.
+        const quizSettingsButtonV523 = document.getElementById('open-quiz-settings-v58');
+        const quizWindowActionsV523 = panel.querySelector('.wb-quiz-window-actions-v507');
+        if (quizSettingsButtonV523 && quizWindowActionsV523) {
+            state.settingsButtonRecordV523 = {el:quizSettingsButtonV523,parent:quizSettingsButtonV523.parentNode,next:quizSettingsButtonV523.nextSibling};
+            quizSettingsButtonV523.classList.add('wb-quiz-settings-head-v523');
+
+            state.syncQuizSettingsThemeV578 = () => {
+                try {
+                    const modal = typeof ensureQuizSettingsModalV58 === 'function'
+                        ? ensureQuizSettingsModalV58()
+                        : document.getElementById('quiz-settings-modal-v58');
+                    if (modal) {
+                        modal.dataset.wbThemeV511 =
+                            whiteboardRoot.dataset.theme === 'dark' ? 'dark' : 'light';
+                    }
+                } catch {}
+            };
+            quizSettingsButtonV523.addEventListener('click', state.syncQuizSettingsThemeV578, true);
+
+            quizWindowActionsV523.insertBefore(quizSettingsButtonV523, quizWindowActionsV523.firstChild);
+        }
+
+        // V523: right-clicking the quiz window controls the window's own layer
+        // relative to board objects. The menu always closes after one choice.
+        panel.addEventListener('contextmenu', event => {
+            if (event.target.closest?.('.wb-quiz-layer-menu-v523')) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const rootRect = whiteboardRoot.getBoundingClientRect();
+            quizLayerMenuV523.hidden = false;
+            const maxX = Math.max(8, rootRect.width - 170);
+            const maxY = Math.max(8, rootRect.height - 88);
+            quizLayerMenuV523.style.left = `${Math.max(8, Math.min(maxX, event.clientX - rootRect.left))}px`;
+            quizLayerMenuV523.style.top = `${Math.max(8, Math.min(maxY, event.clientY - rootRect.top))}px`;
+        });
+        quizLayerMenuV523.addEventListener('click', event => {
+            const button = event.target.closest?.('[data-wb-quiz-layer-v523]');
+            if (!button) return;
+            event.preventDefault();
+            event.stopPropagation();
+            panel.dataset.wbQuizLayerV523 = button.dataset.wbQuizLayerV523 === 'back' ? 'back' : 'front';
+            quizLayerMenuV523.hidden = true;
+        });
+        whiteboardRoot.addEventListener('pointerdown', event => {
+            if (!quizLayerMenuV523.hidden && !event.target.closest?.('.wb-quiz-layer-menu-v523')) quizLayerMenuV523.hidden = true;
+        });
+
         showWhiteboardQuizPortalViewV507(quizzesView);
         // V518: match the real Quizzes tab: rebuild optional practice cards after
         // the view is portaled, and treat the portaled Quizzes view as visible.
@@ -7672,6 +8235,13 @@ DASHBOARD TITLE NOTE:
             panel.dataset.quizDrawing = drawingTools.has(tool) ? '1' : '0';
             panel.dataset.wbThemeV511 = whiteboardRoot.dataset.theme === 'dark' ? 'dark' : 'light';
             syncPracticeThemeV514();
+            try {
+                const settingsModalV578 = document.getElementById('quiz-settings-modal-v58');
+                if (settingsModalV578 && !settingsModalV578.classList.contains('hidden')) {
+                    settingsModalV578.dataset.wbThemeV511 =
+                        whiteboardRoot.dataset.theme === 'dark' ? 'dark' : 'light';
+                }
+            } catch {}
         };
         whiteboardRoot.addEventListener('loggy-whiteboard-toolchange-v509', state.syncTool);
         state.toolObserver = new MutationObserver(state.syncTool);
@@ -9801,24 +10371,118 @@ DASHBOARD TITLE NOTE:
     } catch {}
 })();
 
-/* V245 — preview/runtime decoration placement uses the same stable theme seed. */
+/* V589 — FINAL DECORATION ASSIGNMENT OWNER.
+   This replaces the old V245 override that discarded Manual Fixed coordinates
+   and bypassed hidden-decoration filtering because it ran after the V136 guard.
+   Runtime + preview now consume the same canonical saved scene directly. */
 (() => {
     'use strict';
-    function seedV245(theme){
-        const text=[theme?.name||'',theme?.svgDistribution||'',...(theme?.backgroundSvgs||[]).map(a=>a?.id||a?.name||a?.projectPath||a?.url||'')].join('|');
-        let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return Math.abs(h>>>0)%100000;
+
+    function seedV589(theme){
+        const text=[
+            theme?.name||'',
+            theme?.svgDistribution||'',
+            ...(theme?.backgroundSvgs||[]).map(a=>
+                a?.id||a?.name||a?.projectPath||a?.url||''
+            )
+        ].join('|');
+        let h=2166136261;
+        for(let i=0;i<text.length;i++){
+            h^=text.charCodeAt(i);
+            h=Math.imul(h,16777619);
+        }
+        return Math.abs(h>>>0)%100000;
     }
-    try {
-        getPreviewSvgAssignmentsV10 = function(modal,draft){
-            const entries=makePlacementEntriesV26(draft);const seed=seedV245(draft);modal._themePreviewDistributionSeedV10=seed;
-            const points=buildThemePlacementPointsV26(draft.svgDistribution,entries.length,{seed,allowOverlap:!!draft.svgAllowOverlap,svgGlobalScale:draft.svgGlobalScale});
-            return entries.map((entry,index)=>({...entry,left:points[index]?.x??50,top:points[index]?.y??50}));
+
+    function hiddenV589(asset){
+        if(!asset||typeof asset!=='object')return false;
+        if(typeof asset.hiddenOnScreenV63==='boolean')return asset.hiddenOnScreenV63;
+        if(typeof asset.showOnScreen==='boolean')return asset.showOnScreen===false;
+        if(typeof asset.visibleV63==='boolean')return asset.visibleV63===false;
+        if(typeof asset.visible==='boolean')return asset.visible===false;
+        if(typeof asset.enabled==='boolean')return asset.enabled===false;
+        return false;
+    }
+
+    function pointV589(theme, sourceIndex){
+        const valid=p=>p&&Number.isFinite(Number(p.x))&&Number.isFinite(Number(p.y));
+        const resolved=Array.isArray(theme?.resolvedDecorationPlacementsV405)
+            ? theme.resolvedDecorationPlacementsV405 : [];
+        if(valid(resolved[sourceIndex])){
+            return {x:Number(resolved[sourceIndex].x),y:Number(resolved[sourceIndex].y)};
+        }
+        if(String(theme?.svgDistribution||'')==='manual-fixed'){
+            const slots=Array.isArray(theme?.manualPlacementSlotsV40)
+                ? theme.manualPlacementSlotsV40 : [];
+            if(valid(slots[sourceIndex])){
+                return {x:Number(slots[sourceIndex].x),y:Number(slots[sourceIndex].y)};
+            }
+        }
+        return null;
+    }
+
+    function canonicalEntriesV589(theme={}){
+        const all=Array.isArray(theme?.backgroundSvgs)?theme.backgroundSvgs:[];
+        const rows=[];
+        all.forEach((asset,sourceIndex)=>{
+            if(!asset||hiddenV589(asset))return;
+            const canonicalIndex=Number.isFinite(Number(asset?.placementIndexV405))
+                ? Math.max(0,Math.floor(Number(asset.placementIndexV405)))
+                : sourceIndex;
+            rows.push({
+                asset:{...asset,placementIndexV405:canonicalIndex},
+                sourceIndex:canonicalIndex
+            });
+        });
+        return rows;
+    }
+
+    function assignmentsV589(theme={}, seed=null){
+        const rows=canonicalEntriesV589(theme);
+        const safeTheme={
+            ...(theme||{}),
+            backgroundSvgs:rows.map(row=>row.asset)
         };
-        getRuntimeSvgAssignmentsV10 = function(theme){
-            const entries=makePlacementEntriesV26(theme);const seed=seedV245(theme);const points=buildThemePlacementPointsV26(theme.svgDistribution,entries.length,{seed,allowOverlap:!!theme.svgAllowOverlap,svgGlobalScale:theme.svgGlobalScale});
-            return entries.map((entry,index)=>({...entry,left:points[index]?.x??50,top:points[index]?.y??50}));
-        };
-    } catch {}
+        const entries=makePlacementEntriesV26(safeTheme);
+
+        // Generate only fallback points. A saved canonical/manual point always wins.
+        const generated=String(theme?.svgDistribution||'')==='manual-fixed'
+            ? []
+            : buildThemePlacementPointsV26(
+                theme.svgDistribution,
+                entries.length,
+                {
+                    seed,
+                    allowOverlap:!!theme.svgAllowOverlap,
+                    svgGlobalScale:theme.svgGlobalScale
+                }
+            );
+
+        return entries.map((entry,index)=>{
+            const sourceIndex=rows[index]?.sourceIndex ?? index;
+            const saved=pointV589(theme,sourceIndex);
+            const fallback=generated[index]||{x:50,y:50};
+            return {
+                ...entry,
+                originalIndex:sourceIndex,
+                svg:{...(entry.svg||{}),placementIndexV405:sourceIndex},
+                left:saved?.x ?? fallback.x,
+                top:saved?.y ?? fallback.y
+            };
+        });
+    }
+
+    getPreviewSvgAssignmentsV10=function(modal,draft={}){
+        const seed=seedV589(draft);
+        if(modal)modal._themePreviewDistributionSeedV10=seed;
+        return assignmentsV589(draft,seed);
+    };
+
+    getRuntimeSvgAssignmentsV10=function(theme={}){
+        return assignmentsV589(theme,seedV589(theme));
+    };
+
+    window.__loggyDecorationAssignmentsV589=assignmentsV589;
 })();
 
 /* V245.1 — keep every Theme Builder edit path coherent with the theme being edited.
@@ -11348,7 +12012,7 @@ DASHBOARD TITLE NOTE:
     setCounter();
     const meta=db.phrase_meta?.[itemId] || {custom_fields:{}};
     const content=quizCardFlipped ? renderCardBackContent(meta) : `<span style="font-size:2.8rem">${esc(itemId)}</span>`;
-    area.innerHTML=`<div class="flashcard-mode-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" id="quiz-flip-front-v480" style="padding:${quizCardFlipped?'0':'20px'}">${content}</div><div class="flashcard-hint-text">Tap the card to flip it</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-prev-v480 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-next-v480><i class="ph ph-arrow-right"></i></button></div></div>`;
+    area.innerHTML=`<div class="flashcard-mode-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" id="quiz-flip-front-v480" style="padding:${quizCardFlipped?'0':'20px'}">${content}</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-prev-v480 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-next-v480><i class="ph ph-arrow-right"></i></button></div></div>`;
     area.querySelector('#quiz-flip-front-v480')?.addEventListener('click', e=>{
       if(e.target.closest('button,.card-dot,.card-slide-arrow,a,input,video,iframe,audio')) return;
       quizCardFlipped=!quizCardFlipped; currentSlideIndex=0; showQuizCard();
@@ -11363,7 +12027,7 @@ DASHBOARD TITLE NOTE:
     setCounter();
     const meta=db.phrase_meta?.[itemId] || {custom_fields:{}};
     if(!quizCardFlipped){
-      area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" data-anki-flip-v480><span style="font-size:2.8rem">${esc(itemId)}</span></div><div class="flashcard-hint-text">Tap the card to flip it</div></div>`;
+      area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" data-anki-flip-v480><span style="font-size:2.8rem">${esc(itemId)}</span></div></div>`;
       area.querySelector('[data-anki-flip-v480]')?.addEventListener('click',()=>{quizCardFlipped=true;currentSlideIndex=0;showQuizCard();});
     } else {
       area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" style="padding:0">${renderCardBackContent(meta)}</div><div class="quiz-pinned-anki-actions-v169"><button class="icon-btn still-learning-btn" data-anki-again-v480><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button><button class="icon-btn got-it-btn" data-anki-good-v480><i class="ph ph-check"></i> Got It!</button></div></div>`;
@@ -11515,11 +12179,14 @@ DASHBOARD TITLE NOTE:
   function stageV482(data,{active='',showLabels=false,revealed=null}={}) {
     const pins=(data?.pins || []).filter(pin=>String(pin?.label||'').trim());
     const shown = revealed instanceof Set ? revealed : new Set();
-    return `<div class="map-study-stage-v172 map-stage-final-v482"><img src="${attr(data?.image||'')}" alt="Pinned study image"><div class="kb-pinned-overlay-v169">${pins.map((pin,index)=>{
+    const clamp=v=>Math.max(0,Math.min(100,Number(v)||0));
+    return `<div class="kb-pinned-stage-v169 map-study-stage-v172 map-stage-final-v482" data-pinned-stage-v169="1"><img src="${attr(data?.image||'')}" alt="Pinned study image"><div class="kb-pinned-overlay-v169">${pins.map((pin,index)=>{
       const id=String(pin.id||index), dir=['up','right','down','left'].includes(pin.direction)?pin.direction:'down';
       const scale=Math.max(.55,Math.min(2.2,Number(pin.size)||1));
-      const reveal=showLabels || shown.has(id);
-      return `<button type="button" class="kb-map-pin-v169 pin-dir-${dir} ${active===id?'map-study-active-v172':''}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;--pin-color-v169:${attr(pin.color||data.pinColor||'#e53935')};--pin-scale-v171:${scale};" tabindex="-1"><span class="kb-map-pin-dot-v169"></span></button>${reveal?`<span class="kb-map-pin-label-v169 map-label-final-v482" data-pin-label-for-v170="${attr(id)}" data-pin-x-v170="${Number(pin.x)||0}" data-pin-y-v170="${Number(pin.y)||0}" data-label-dx-v170="${Number(pin.labelDx)||0}" data-label-dy-v170="${Number(pin.labelDy)||0}" data-label-manual-v170="${pin.labelManual?'1':'0'}">${esc(labelV482(pin))}</span>`:''}`;
+      const reveal=showLabels || shown.has(id), x=clamp(pin.x), y=clamp(pin.y);
+      const dx=Number.isFinite(Number(pin.labelDx))?Number(pin.labelDx):0, dy=Number.isFinite(Number(pin.labelDy))?Number(pin.labelDy):0, manual=!!pin.labelManual;
+      const lx=clamp(x+(manual?dx:0)), ly=clamp(y+(manual?dy:0));
+      return `<button type="button" class="kb-map-pin-v169 pin-dir-${dir} ${active===id?'map-study-active-v172':''}" data-pin-id-v169="${attr(id)}" style="left:${x}%;top:${y}%;--pin-color-v169:${attr(pin.color||data.pinColor||'#e53935')};--pin-scale-v171:${scale};" tabindex="-1"><span class="kb-map-pin-glyph-v615"><span class="kb-map-pin-dot-v169"></span></span></button>${reveal?`<span class="kb-map-pin-label-v169 map-label-final-v482 ${manual?'is-manual-v170':'is-auto-v170'}" data-pin-label-for-v170="${attr(id)}" data-pin-x-v170="${x}" data-pin-y-v170="${y}" data-label-dx-v170="${dx}" data-label-dy-v170="${dy}" data-label-manual-v170="${manual?'1':'0'}" style="left:${lx}%;top:${ly}%;transform:${manual?'translate(-50%,-50%)':'translate(18px,-50%)'};display:block!important;visibility:visible!important;opacity:1!important;z-index:30!important">${esc(labelV482(pin))}</span>`:''}`;
     }).join('')}</div></div>`;
   }
   function layoutV482(root) {
@@ -11542,7 +12209,7 @@ DASHBOARD TITLE NOTE:
   }
   function renderStudyFrontV482(area,id,anki=false) {
     setCountV482();
-    area.innerHTML=`<div class="flashcard-wrap pinned-card-final-v482"><div class="flashcard-mode-card pinned-map-front-v482" data-map-flip-v482><span style="font-size:2.8rem">${esc(id)}</span></div><div class="flashcard-hint-text">Tap the card to flip it</div>${anki?'':`<div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-map-prev-v482 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-map-next-v482><i class="ph ph-arrow-right"></i></button></div>`}</div>`;
+    area.innerHTML=`<div class="flashcard-wrap pinned-card-final-v482"><div class="flashcard-mode-card pinned-map-front-v482" data-map-flip-v482><span style="font-size:2.8rem">${esc(id)}</span></div>${anki?'':`<div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-map-prev-v482 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-map-next-v482><i class="ph ph-arrow-right"></i></button></div>`}</div>`;
     area.querySelector('[data-map-flip-v482]')?.addEventListener('click',()=>{quizCardFlipped=true;currentSlideIndex=0;showQuizCard();});
     if(!anki){
       area.querySelector('[data-map-prev-v482]')?.addEventListener('click',()=>{if(activeQuizIndex>0){activeQuizIndex--;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();}});
@@ -11612,17 +12279,7 @@ DASHBOARD TITLE NOTE:
     finalShow.__pinnedFinalV482=true;window.showQuizCard=finalShow;try{showQuizCard=finalShow}catch{}
   } catch {}
 
-  // Keep labels visible in every non-testing map presentation after pin placement.
-  function revealStaticLabelsV482(root=document){
-    root.querySelectorAll?.('.kb-pinned-stage-v169').forEach(stage=>{
-      if(stage.closest('#quiz-flashcard-area .map-learn-final-v482'))return;
-      stage.querySelectorAll('.kb-map-pin-label-v169').forEach(label=>{label.style.setProperty('display','block','important');label.style.setProperty('visibility','visible','important');label.style.setProperty('opacity','1','important')});
-      layoutV482(stage);
-    });
-  }
-  const labelObs=new MutationObserver(records=>{for(const rec of records)for(const node of rec.addedNodes||[])if(node.nodeType===1){if(node.matches?.('.kb-pinned-stage-v169')||node.querySelector?.('.kb-pinned-stage-v169'))revealStaticLabelsV482(node.matches?.('.kb-pinned-stage-v169')?node.parentElement||node:node)}});
-  if(document.body)labelObs.observe(document.body,{childList:true,subtree:true});
-  document.addEventListener('click',e=>{if(e.target.closest?.('.kb-pinned-place-v171,.kb-pinned-place-done-v171,.kb-pinned-editor-done-v171,[data-done-pins]'))setTimeout(()=>revealStaticLabelsV482(document),0)},true);
+  // V590: non-quiz label visibility is owned by the canonical V169 renderer.
 
   // Whiteboard / Notebook: make the real runtime controls interactive, not only
   // the outer shell. This also clears stale hidden/inert state inherited from
@@ -11741,13 +12398,15 @@ DASHBOARD TITLE NOTE:
   }
 
   function stage(data,s,activeId,{revealActive=false,showAll=false}={}){
-    const whole=data?.testMode!=='parts';
-    return `<div class="map-study-stage-v172 map-stage-v483"><img src="${attr(data?.image||'')}" alt="Pinned study image"><div class="kb-pinned-overlay-v169">${(data?.pins||[]).filter(p=>String(p?.label||'').trim()).map((pin,i)=>{
+    const clamp=v=>Math.max(0,Math.min(100,Number(v)||0));
+    return `<div class="kb-pinned-stage-v169 map-study-stage-v172 map-stage-v483" data-pinned-stage-v169="1"><img src="${attr(data?.image||'')}" alt="Pinned study image"><div class="kb-pinned-overlay-v169">${(data?.pins||[]).filter(p=>String(p?.label||'').trim()).map((pin,i)=>{
       const id=String(pin.id||i), status=s?.results?.get(id)||'', dir=['up','right','down','left'].includes(pin.direction)?pin.direction:'down';
       const scale=Math.max(.55,Math.min(2.2,Number(pin.size)||1));
       const color=status==='correct'?'#22a06b':status==='wrong'?'#d92d20':(pin.color||data.pinColor||'#e53935');
-      const reveal=showAll || s?.revealed?.has(id) || (revealActive && id===activeId);
-      return `<button type="button" class="kb-map-pin-v169 pin-dir-${dir} ${id===activeId?'map-study-active-v172':''} ${status?`map-result-${status}-v483`:''}" data-v483-pin="${attr(id)}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;--pin-color-v169:${attr(color)};--pin-scale-v171:${scale};" tabindex="-1"><span class="kb-map-pin-dot-v169"></span></button>${reveal?`<span class="kb-map-pin-label-v169 map-label-final-v483" style="left:calc(${Number(pin.x)||0}% + 15px);top:${Number(pin.y)||0}%;transform:translateY(-50%);display:block!important;visibility:visible!important;opacity:1!important;z-index:10" title="${attr(label(pin))}">${esc(label(pin))}</span>`:''}`;
+      const reveal=showAll || s?.revealed?.has(id) || (revealActive && id===activeId), x=clamp(pin.x), y=clamp(pin.y);
+      const dx=Number.isFinite(Number(pin.labelDx))?Number(pin.labelDx):0, dy=Number.isFinite(Number(pin.labelDy))?Number(pin.labelDy):0, manual=!!pin.labelManual;
+      const lx=clamp(x+(manual?dx:0)), ly=clamp(y+(manual?dy:0));
+      return `<button type="button" class="kb-map-pin-v169 pin-dir-${dir} ${id===activeId?'map-study-active-v172':''} ${status?`map-result-${status}-v483`:''}" data-v483-pin="${attr(id)}" data-pin-id-v169="${attr(id)}" style="left:${x}%;top:${y}%;--pin-color-v169:${attr(color)};--pin-scale-v171:${scale};" tabindex="-1"><span class="kb-map-pin-glyph-v615"><span class="kb-map-pin-dot-v169"></span></span></button>${reveal?`<span class="kb-map-pin-label-v169 map-label-final-v483 ${manual?'is-manual-v170':'is-auto-v170'}" data-pin-label-for-v170="${attr(id)}" data-pin-x-v170="${x}" data-pin-y-v170="${y}" data-label-dx-v170="${dx}" data-label-dy-v170="${dy}" data-label-manual-v170="${manual?'1':'0'}" style="left:${lx}%;top:${ly}%;transform:${manual?'translate(-50%,-50%)':'translate(18px,-50%)'};display:block!important;visibility:visible!important;opacity:1!important;z-index:30!important" title="${attr(label(pin))}">${esc(label(pin))}</span>`:''}`;
     }).join('')}</div></div>`;
   }
 
@@ -11863,14 +12522,15 @@ DASHBOARD TITLE NOTE:
   // It does not depend on the placement editor's label lifecycle; labels are part
   // of the map markup and are positioned directly next to their saved pins.
   function readonlyMap(field,value){
-    const data=window.__loggyPinnedImageV169?.parse?.(value,field); if(!data?.image)return '<div class="kb-display-empty">Not added</div>';
-    const html=(data.pins||[]).map((pin,i)=>{
-      const txt=String(pin?.label||'').trim(), id=String(pin?.id||i), dir=['up','right','down','left'].includes(pin.direction)?pin.direction:'down';
-      const scale=Math.max(.55,Math.min(2.2,Number(pin.size)||1));
-      const dx=Number(pin.labelDx)||0,dy=Number(pin.labelDy)||0;
-      return `<span class="kb-map-pin-v169 pin-dir-${dir}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;--pin-color-v169:${attr(pin.color||data.pinColor||'#e53935')};--pin-scale-v171:${scale};"><span class="kb-map-pin-dot-v169"></span></span>${txt?`<span class="kb-map-pin-label-v169 kb-readonly-map-label-v483" data-pin-label-for-v170="${attr(id)}" data-pin-x-v170="${Number(pin.x)||0}" data-pin-y-v170="${Number(pin.y)||0}" data-label-dx-v170="${dx}" data-label-dy-v170="${dy}" data-label-manual-v170="${pin.labelManual?'1':'0'}" style="left:${Number(pin.x)||0}%;top:${Number(pin.y)||0}%;transform:translate(calc(16px + ${dx}px),calc(-50% + ${dy}px));display:block!important;visibility:visible!important;opacity:1!important;z-index:20;max-width:220px;white-space:normal">${esc(txt)}</span>`:''}`;
-    }).join('');
-    return `<div class="kb-pinned-readonly-v169 kb-readonly-map-v483"><div class="kb-pinned-stage-v169"><img src="${attr(data.image)}" alt=""><div class="kb-pinned-overlay-v169">${html}</div></div></div>`;
+    const data=window.__loggyPinnedImageV169?.parse?.(value,field);
+    if(!data?.image)return '<div class="kb-display-empty">Not added</div>';
+    const stage=window.__loggyPinnedImageV169?.renderStage?.(data,{
+      labeled:true,
+      readonly:true,
+      stageClass:'kb-readonly-map-stage-v590',
+      labelClass:'kb-readonly-map-label-v483'
+    })||'';
+    return `<div class="kb-pinned-readonly-v169 kb-readonly-map-v483">${stage}</div>`;
   }
   try{
     const before=buildKnowledgeFieldDisplayHtml;
@@ -11883,3 +12543,1486 @@ DASHBOARD TITLE NOTE:
     window.buildKnowledgeFieldDisplayHtml=buildKnowledgeFieldDisplayHtml;
   }catch{}
 })();
+
+
+// ============================================================
+// V557 — Knowledge Base: global "Hide tags" setting
+// Hides tag chips/rows on KB item cards without removing tag data,
+// so tag search/filtering and editing continue to work.
+// ============================================================
+(function(){
+    'use strict';
+
+    const SETTING_KEY = 'knowledgeHideTagsV557';
+
+    function cfgV557(){
+        try {
+            db.settings ||= {};
+
+            // V630: Hide Tags is ON by default for the KB template.
+            // Existing logs with an explicit saved OFF value keep that choice.
+            if (db.settings[SETTING_KEY] === undefined) {
+                db.settings[SETTING_KEY] = true;
+            }
+
+            return db.settings;
+        } catch {
+            return {};
+        }
+    }
+
+    function hideTagsEnabledV557(){
+        return !!cfgV557()[SETTING_KEY];
+    }
+
+    function applyKbTagVisibilityV557(){
+        const hide = hideTagsEnabledV557();
+        document.documentElement.classList.toggle('kb-hide-item-tags-v557', hide);
+
+        // Existing KB card tag renderers across list/grid/polaroid versions.
+        document.querySelectorAll(
+            '#phrases-library-grid .kb-library-tag-row-v55,' +
+            '#phrases-library-grid .kb-library-tag-row-v57,' +
+            '#phrases-library-grid .kb-library-tags,' +
+            '#phrases-library-grid .kb-item-tags,' +
+            '#phrases-library-grid .phrase-tags,' +
+            '#phrases-library-grid [class*="kb-library-tag-row"],' +
+            '#phrases-library-grid [class*="kb-item-tag-row"]'
+        ).forEach(node => {
+            node.style.setProperty('display', hide ? 'none' : '', hide ? 'important' : '');
+            if (!hide) node.style.removeProperty('display');
+        });
+    }
+
+    function ensureHideTagsSettingV557(){
+        const modal = document.querySelector('#settings-modal');
+        const box = modal?.querySelector(':scope > .modal-box') || modal?.querySelector('.modal-box');
+        if (!box) return;
+
+        let row = box.querySelector('.kb-hide-tags-setting-v557');
+        if (!row) {
+            row = document.createElement('div');
+            row.className = 'modal-section mt-20 kb-hide-tags-setting-v557';
+            row.innerHTML = `
+                <div class="kb-hide-tags-copy-v557"><strong>Hide Tags</strong></div>
+                <label class="kb-switch-v173 kb-hide-tags-switch-v557" title="Hide tags">
+                    <input type="checkbox" class="kb-hide-tags-toggle-v557">
+                    <span class="kb-switch-track-v173"></span>
+                </label>
+            `;
+
+            const toggle = row.querySelector('.kb-hide-tags-toggle-v557');
+            toggle?.addEventListener('change', () => {
+                cfgV557()[SETTING_KEY] = !!toggle.checked;
+                try { saveDb(); } catch {}
+                applyKbTagVisibilityV557();
+                try {
+                    const search = document.querySelector('#phrases-search-bar')?.value || '';
+                    renderPhrasesLibrary(search);
+                } catch {}
+                requestAnimationFrame(applyKbTagVisibilityV557);
+            });
+        }
+
+        // V560: Hide Tags belongs directly BELOW the Placeholders section.
+        // Reposition on every render too, so an already-created row from an
+        // older build cannot remain above Placeholders.
+        const placeholderAnchorV560 =
+            box.querySelector('.kb-placeholder-settings-v56,#kb-placeholder-settings-v56');
+        const fallbackAnchorV560 =
+            box.querySelector('#settings-hide-categories-row') ||
+            box.querySelector('#kb-polaroid-options-v163');
+        const anchorV560 = placeholderAnchorV560 || fallbackAnchorV560;
+        if (anchorV560) {
+            if (anchorV560.nextElementSibling !== row) {
+                anchorV560.insertAdjacentElement('afterend', row);
+            }
+        } else if (!row.parentElement) {
+            box.appendChild(row);
+        }
+
+        const toggle = row.querySelector('.kb-hide-tags-toggle-v557');
+        if (toggle) {
+            toggle.checked = hideTagsEnabledV557();
+            toggle.setAttribute('role','switch');
+            toggle.setAttribute('aria-checked', toggle.checked ? 'true' : 'false');
+        }
+
+        ensureHideCategoryTabsSettingV558(box, row);
+    }
+
+    // V558 — "Hide category tabs" toggle, styled identically to and placed
+    // directly below the "Hide Tags" switch above. Applies in every KB view
+    // (list, polaroid, etc.), not just polaroid.
+    function ensureHideCategoryTabsSettingV558(box, hideTagsRow){
+        let catRow = box.querySelector('.kb-hide-cat-tabs-setting-v558');
+        if (!catRow) {
+            catRow = document.createElement('div');
+            catRow.className = 'modal-section mt-10 kb-hide-cat-tabs-setting-v558';
+            catRow.innerHTML = `
+                <div class="kb-hide-tags-copy-v557"><strong>Hide category tabs</strong></div>
+                <label class="kb-switch-v173 kb-hide-tags-switch-v557" title="Hide category tabs">
+                    <input type="checkbox" class="kb-hide-cat-tabs-toggle-v558">
+                    <span class="kb-switch-track-v173"></span>
+                </label>
+            `;
+            const toggle = catRow.querySelector('.kb-hide-cat-tabs-toggle-v558');
+            toggle.addEventListener('change', () => {
+                db.settings.hideCategoriesInPolaroid = !!toggle.checked;
+                const oldCheckbox = document.getElementById('settings-hide-categories');
+                if (oldCheckbox) oldCheckbox.checked = toggle.checked;
+                try { saveDb(); } catch {}
+                try { applyLibraryViewVisuals(); } catch {}
+            });
+        }
+        if (hideTagsRow && hideTagsRow.nextElementSibling !== catRow) {
+            hideTagsRow.insertAdjacentElement('afterend', catRow);
+        }
+        const toggle = catRow.querySelector('.kb-hide-cat-tabs-toggle-v558');
+        if (toggle) {
+            toggle.checked = !!db.settings.hideCategoriesInPolaroid;
+            toggle.setAttribute('role','switch');
+            toggle.setAttribute('aria-checked', toggle.checked ? 'true' : 'false');
+        }
+        window.__loggySyncHideCategoryTabsSwitchV558 = () => {
+            const t = document.querySelector('.kb-hide-cat-tabs-toggle-v558');
+            if (t) t.checked = !!db.settings.hideCategoriesInPolaroid;
+        };
+    }
+
+    // Add a stylesheet guard too, so tags never flash back during rerenders.
+    if (!document.getElementById('kb-hide-tags-style-v557')) {
+        const style = document.createElement('style');
+        style.id = 'kb-hide-tags-style-v557';
+        style.textContent = `
+            html.kb-hide-item-tags-v557 #phrases-library-grid .kb-library-tag-row-v55,
+            html.kb-hide-item-tags-v557 #phrases-library-grid .kb-library-tag-row-v57,
+            html.kb-hide-item-tags-v557 #phrases-library-grid .kb-library-tags,
+            html.kb-hide-item-tags-v557 #phrases-library-grid .kb-item-tags,
+            html.kb-hide-item-tags-v557 #phrases-library-grid .phrase-tags,
+            html.kb-hide-item-tags-v557 #phrases-library-grid [class*="kb-library-tag-row"],
+            html.kb-hide-item-tags-v557 #phrases-library-grid [class*="kb-item-tag-row"] {
+                display: none !important;
+            }
+            .kb-hide-tags-setting-v557 {
+                display:inline-flex !important;
+                flex-direction:row !important;
+                align-items:center !important;
+                justify-content:flex-start !important;
+                align-self:flex-start !important;
+                gap:8px !important;
+                width:auto !important;
+                max-width:100% !important;
+                text-align:left !important;
+                margin-left:0 !important;
+                margin-right:auto !important;
+                padding-left:0 !important;
+            }
+            .kb-hide-tags-copy-v557 {
+                display:flex !important;
+                align-items:center !important;
+                flex:0 0 auto !important;
+                min-width:0;
+                text-align:left !important;
+            }
+            .kb-hide-tags-copy-v557 strong {
+                margin:0 !important;
+                text-align:left !important;
+            }
+            .kb-hide-tags-switch-v557 {
+                margin:0 !important;
+                flex:0 0 auto !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // KB settings renderer.
+    try {
+        const beforeV557 = renderSettings;
+        renderSettings = function(){
+            const result = beforeV557.apply(this, arguments);
+            requestAnimationFrame(() => {
+                ensureHideTagsSettingV557();
+                applyKbTagVisibilityV557();
+            });
+            return result;
+        };
+    } catch {}
+
+    // KB library renderer. Apply after every item/card rerender.
+    try {
+        const beforeLibraryV557 = renderPhrasesLibrary;
+        renderPhrasesLibrary = function(){
+            const result = beforeLibraryV557.apply(this, arguments);
+            requestAnimationFrame(applyKbTagVisibilityV557);
+            return result;
+        };
+    } catch {}
+
+    // Keep the toggle synced when the KB settings modal is opened/re-rendered.
+    document.addEventListener('click', event => {
+        if (
+            event.target.closest?.('[data-view="phrases"],[data-tab="phrases"],#settings-btn,.settings-btn') ||
+            event.target.closest?.('#settings-category-tabs')
+        ) {
+            requestAnimationFrame(() => {
+                ensureHideTagsSettingV557();
+                applyKbTagVisibilityV557();
+            });
+        }
+    }, true);
+
+    requestAnimationFrame(() => {
+        applyKbTagVisibilityV557();
+        ensureHideTagsSettingV557();
+    });
+
+    window.__loggyKbHideTagsV557 = {
+        apply: applyKbTagVisibilityV557,
+        ensureSetting: ensureHideTagsSettingV557
+    };
+})();
+
+
+
+// ============================================================
+// V598 — Ctrl+K field-owned bridge for the floating Keyboard widget
+// ============================================================
+(() => {
+    'use strict';
+    if (window.__loggyKeyboardTextTargetBridgeV598) return;
+    window.__loggyKeyboardTextTargetBridgeV598 = true;
+
+    let lastKeyboardTextTargetV598 = null;
+    const redispatchedCtrlKEventsV598 = new WeakSet();
+
+    function validKeyboardTextTargetV598(node) {
+        if (!(node instanceof HTMLElement) || !node.isConnected) return false;
+        if (node.matches('textarea')) return !node.disabled && !node.readOnly;
+
+        if (node.matches('input')) {
+            const type = String(node.type || 'text').toLowerCase();
+            return (
+                !node.disabled &&
+                !node.readOnly &&
+                ![
+                    'button','checkbox','radio','range','file','submit',
+                    'reset','color','date','datetime-local','time','number',
+                    'month','week'
+                ].includes(type)
+            );
+        }
+
+        return node.isContentEditable || node.getAttribute('role') === 'textbox';
+    }
+
+    function rememberKeyboardTextTargetV598(node) {
+        if (!validKeyboardTextTargetV598(node)) return false;
+
+        if (
+            lastKeyboardTextTargetV598 &&
+            lastKeyboardTextTargetV598 !== node
+        ) {
+            try { delete lastKeyboardTextTargetV598.dataset.loggyKeyboardTargetV598; } catch {}
+        }
+
+        lastKeyboardTextTargetV598 = node;
+        window.__loggyKeyboardTextTargetV598 = node;
+        // Also keep the V597 name populated for any historical runtime that
+        // learned that property during the previous release.
+        window.__loggyKeyboardTextTargetV597 = node;
+
+        node.dataset.loggyKeyboardTargetV598 = '1';
+        return true;
+    }
+
+    function closestTextTargetV598(node) {
+        if (validKeyboardTextTargetV598(node)) return node;
+
+        if (!(node instanceof Element)) return null;
+        const field = node.closest?.(
+            'input,textarea,[contenteditable="true"],[role="textbox"]'
+        );
+        return validKeyboardTextTargetV598(field) ? field : null;
+    }
+
+    function activeTextTargetV598(event) {
+        const eventTarget = closestTextTargetV598(event?.target);
+        if (eventTarget) return eventTarget;
+
+        const active = validKeyboardTextTargetV598(document.activeElement)
+            ? document.activeElement
+            : null;
+        if (active) return active;
+
+        return validKeyboardTextTargetV598(lastKeyboardTextTargetV598)
+            ? lastKeyboardTextTargetV598
+            : null;
+    }
+
+    function reassertTextTargetV598(target) {
+        if (!validKeyboardTextTargetV598(target)) return false;
+        rememberKeyboardTextTargetV598(target);
+
+        try {
+            target.focus({ preventScroll:true });
+        } catch {
+            try { target.focus(); } catch {}
+        }
+
+        // The floating widget runtime may keep its own focusin-based target
+        // tracker. If the field was already focused, .focus() does not emit a
+        // new focusin, so explicitly send one from the real field.
+        try {
+            target.dispatchEvent(new FocusEvent('focusin', {
+                bubbles:true,
+                composed:true,
+                relatedTarget:null
+            }));
+        } catch {}
+
+        return document.activeElement === target || validKeyboardTextTargetV598(target);
+    }
+
+    // Track every dynamically-created KB/modal text field from the moment the
+    // user actually interacts with it.
+    document.addEventListener('focusin', event => {
+        const target = closestTextTargetV598(event.target);
+        if (target) rememberKeyboardTextTargetV598(target);
+    }, true);
+
+    document.addEventListener('pointerdown', event => {
+        const target = closestTextTargetV598(event.target);
+        if (target) {
+            rememberKeyboardTextTargetV598(target);
+            return;
+        }
+
+        // Clicking the floating Keyboard must not destroy the field it types
+        // into. Prevent pointer focus from moving away from the remembered field.
+        if (
+            event.target?.closest?.('#virtual-keyboard') &&
+            validKeyboardTextTargetV598(lastKeyboardTextTargetV598)
+        ) {
+            event.preventDefault();
+            reassertTextTargetV598(lastKeyboardTextTargetV598);
+        }
+    }, true);
+
+    // Run before the widget runtime's ordinary shortcut handler. The original
+    // Ctrl+K is consumed and then re-fired FROM THE INPUT ITSELF, so the widget
+    // sees both event.target === field and document.activeElement === field.
+    window.addEventListener('keydown', event => {
+        if (redispatchedCtrlKEventsV598.has(event)) return;
+
+        if (
+            event.repeat ||
+            !event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey ||
+            event.metaKey ||
+            !(event.code === 'KeyK' || String(event.key || '').toLowerCase() === 'k')
+        ) return;
+
+        const target = activeTextTargetV598(event);
+        if (!target) return; // Let the widget show its normal no-field message.
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        reassertTextTargetV598(target);
+
+        const forwarded = new KeyboardEvent('keydown', {
+            key:'k',
+            code:'KeyK',
+            ctrlKey:true,
+            shiftKey:false,
+            altKey:false,
+            metaKey:false,
+            bubbles:true,
+            cancelable:true,
+            composed:true
+        });
+
+        redispatchedCtrlKEventsV598.add(forwarded);
+        target.dispatchEvent(forwarded);
+    }, true);
+
+    window.__loggyKeyboardTextTargetV598Api = {
+        current: () => (
+            validKeyboardTextTargetV598(document.activeElement)
+                ? document.activeElement
+                : (
+                    validKeyboardTextTargetV598(lastKeyboardTextTargetV598)
+                        ? lastKeyboardTextTargetV598
+                        : null
+                )
+        ),
+        remember: rememberKeyboardTextTargetV598,
+        focus: target => reassertTextTargetV598(
+            target || lastKeyboardTextTargetV598
+        )
+    };
+})();
+
+
+
+// ============================================================================
+// V611 — FAST LOG INTERACTION AUTHORITY
+// Navigation clicks run before the large compatibility listener stack. Only
+// concrete navigation/day targets are captured; ordinary controls are untouched.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyFastInteractionV611) return;
+  window.__loggyFastInteractionV611 = true;
+
+  window.addEventListener('click', event => {
+    if (event.defaultPrevented) return;
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const dayCard = target.closest('#days-grid .polaroid-card[data-day], #days-grid [data-day] > .day-box, #days-grid .day-box[data-day]');
+    if (dayCard) {
+      const owner = dayCard.matches('[data-day]') ? dayCard : dayCard.closest('[data-day]');
+      const day = Number(dayCard.dataset.day || owner?.dataset?.day || 0);
+      if (Number.isInteger(day) && day > 0) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        try { window.__openDayFastV182?.(day); } catch { try { openDayLog?.(day); } catch {} }
+        return;
+      }
+    }
+
+    const custom = target.closest('.custom-tab-nav-btn[data-custom-tab-id]');
+    if (custom) {
+      const id = String(custom.dataset.customTabId || '');
+      if (id) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        try { openCustomTab?.(id); } catch {}
+        return;
+      }
+    }
+
+    const built = target.closest('#open-phrases-btn,#open-quizzes-btn,#open-tools-btn');
+    if (!built) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    try {
+      if (built.id === 'open-phrases-btn') {
+        const view=phrasesLibraryView;
+        switchView?.(view);
+        const stale=view?.dataset?.renderVersionV184!==String(typeof dataVersionV184!=='undefined'?dataVersionV184:'');
+        if(stale) requestAnimationFrame(()=>setTimeout(()=>{
+          try{renderPhrasesLibrary?.(); if(view&&typeof dataVersionV184!=='undefined')view.dataset.renderVersionV184=String(dataVersionV184);}catch{}
+        },0));
+      }
+      else if (built.id === 'open-quizzes-btn') { switchView?.(quizzesView); requestAnimationFrame(()=>updateQuizUI?.()); }
+      else if (built.id === 'open-tools-btn') { switchView?.(toolboxView); requestAnimationFrame(()=>renderToolbox?.()); }
+    } catch {}
+  }, true);
+})();
+
+
+// ============================================================================
+// V616 — AUTHORITATIVE PIN INPUT + IMAGE ALIGNMENT + KB ALL PACKING
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyV616Authority) return;
+  window.__loggyV616Authority = true;
+
+  // ENTER IN A PIN LABEL IS OWNED HERE AT WINDOW CAPTURE, BEFORE document/modal
+  // capture handlers can interpret it as another action. It commits only.
+  const swallowPinLabelEnterV616 = event => {
+    if (event.key !== 'Enter' || event.isComposing || event.keyCode === 229) return;
+    const input = event.target;
+    if (!input?.matches?.('.kb-pinned-label-input-v169')) return;
+    const editor=input.closest?.('.kb-pinned-editor-v169');
+    if (!editor?.classList?.contains('is-pin-placement-v171')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    try { input.__commitPinnedLabelV616?.(); } catch {}
+    requestAnimationFrame(() => {
+      if (!editor.isConnected || !editor.classList.contains('is-pin-placement-v171')) return;
+      try { input.focus({preventScroll:true}); } catch { input.focus?.(); }
+    });
+  };
+  window.addEventListener('keydown', swallowPinLabelEnterV616, true);
+  window.addEventListener('keypress', event => {
+    if (event.key==='Enter' && event.target?.matches?.('.kb-pinned-label-input-v169') && event.target.closest?.('.is-pin-placement-v171')) {
+      event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation();
+    }
+  }, true);
+
+  // Align EVERY live map surface, not only the full-screen editor.
+  const layoutMapRootV616 = root => {
+    const stages = root?.matches?.('.kb-pinned-stage-v169') ? [root] : [...(root?.querySelectorAll?.('.kb-pinned-stage-v169') || [])];
+    stages.forEach(stage => {
+      try { window.__alignPinnedOverlayToImageV612?.(stage); } catch {}
+      try { window.__layoutPinnedLabelsV170?.(stage); } catch {}
+    });
+  };
+  const queueMapRootV616 = root => requestAnimationFrame(() => requestAnimationFrame(() => layoutMapRootV616(root)));
+  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>queueMapRootV616(document),{once:true}); else queueMapRootV616(document);
+  try {
+    new MutationObserver(records => {
+      for (const record of records) for (const node of record.addedNodes || []) {
+        if (!(node instanceof Element)) continue;
+        if (node.matches?.('.kb-pinned-stage-v169') || node.querySelector?.('.kb-pinned-stage-v169')) queueMapRootV616(node);
+      }
+    }).observe(document.body,{childList:true,subtree:true});
+  } catch {}
+
+  // KB ALL: variable-width rectangle packing. Unlike flex rows, a tall map card
+  // does not reserve an empty row; later small cards can occupy the open area
+  // beside it. Individual categories are left alone.
+  let packRafV616=0;
+  let largePackEpochV644=0;
+  let largeImageRepackTimerV644=0;
+  const LARGE_KB_THRESHOLD_V644=160;
+  const LARGE_KB_CHUNK_V644=42;
+  const cardsV616 = grid => [...grid.querySelectorAll(':scope > .phrase-card,:scope > .polaroid-card')];
+  function clearPackV616(grid){
+    if(!grid)return;
+    largePackEpochV644++;
+    grid.classList.remove('kb-packed-all-v616','kb-packed-all-v620','kb-pack-pending-v620','kb-large-pack-v644');
+    grid.style.removeProperty('height');
+    cardsV616(grid).forEach(card=>{
+      delete card.dataset.kbPackedV644;
+      for(const prop of ['position','left','top','width','max-width','min-width','grid-row','grid-column','transform','visibility']) card.style.removeProperty(prop);
+    });
+  }
+  function horizontalOverlapV616(a,b,gap){ return a.x < b.x+b.w+gap && a.x+a.w+gap > b.x; }
+
+  // V644 — large REAL libraries keep the packed/map-aware appearance, but the
+  // packing work is streamed in short chunks. A fixed-lane skyline makes the
+  // large-library path O(cards * lanes), instead of repeatedly comparing each
+  // card against every previously placed rectangle. This keeps the UI usable
+  // while hundreds of real cards are being positioned.
+  function packLargeKbAllV644(grid,cards,width){
+    const epoch=++largePackEpochV644;
+    const gap=12;
+    const lanes=Math.max(3,Math.min(8,Math.floor((width+gap)/155)));
+    const laneWidth=(width-gap*(lanes-1))/lanes;
+    const bottoms=new Array(lanes).fill(0);
+    let index=0;
+    let maxBottom=0;
+
+    grid.classList.remove('kb-masonry-v175','kb-primary-map-flow-v172','kb-all-grid-v614','kb-layout-pending-v215');
+    grid.classList.add('kb-packed-all-v616','kb-packed-all-v620','kb-large-pack-v644','kb-large-library-v644');
+    grid.classList.remove('kb-pack-pending-v620');
+
+    // CSS hides only cards that have not received coordinates yet. The first
+    // chunk appears immediately; later chunks become visible as they are packed.
+    cards.forEach(card=>{ delete card.dataset.kbPackedV644; });
+
+    const schedule=fn=>{
+      if('requestIdleCallback' in window){
+        requestIdleCallback(fn,{timeout:45});
+      }else{
+        setTimeout(()=>fn({timeRemaining:()=>7,didTimeout:true}),0);
+      }
+    };
+
+    const bestLane=(span)=>{
+      let bestStart=0,bestY=Infinity;
+      for(let start=0;start<=lanes-span;start++){
+        let y=0;
+        for(let i=start;i<start+span;i++) y=Math.max(y,bottoms[i]);
+        if(y<bestY-.5){bestY=y;bestStart=start;}
+      }
+      return {start:bestStart,y:bestY};
+    };
+
+    const run=deadline=>{
+      if(epoch!==largePackEpochV644 || !grid.isConnected)return;
+      const started=performance.now();
+      let processed=0;
+      while(index<cards.length && processed<LARGE_KB_CHUNK_V644){
+        if(processed>0 && performance.now()-started>7 && !deadline?.didTimeout)break;
+        if(processed>0 && typeof deadline?.timeRemaining==='function' && deadline.timeRemaining()<1.5)break;
+
+        const card=cards[index++];
+        const isMap=card.classList.contains('has-primary-map-v172');
+
+        // Measure only this small chunk. Ordinary cards may use one or two lanes;
+        // map cards intentionally stay wider so small cards still flow beside them.
+        card.style.setProperty('position','absolute','important');
+        card.style.setProperty('left','-10000px','important');
+        card.style.setProperty('top','0','important');
+        card.style.setProperty('height','auto','important');
+        if(isMap){
+          const mapSpan=Math.max(2,Math.min(lanes,Math.ceil(lanes*.34)));
+          const mapW=laneWidth*mapSpan+gap*(mapSpan-1);
+          card.style.setProperty('width',`${mapW}px`,'important');
+          card.style.setProperty('max-width',`${mapW}px`,'important');
+          card.style.setProperty('min-width','0','important');
+        }else{
+          card.style.setProperty('width','max-content','important');
+          card.style.setProperty('max-width',`${Math.min(width,laneWidth*2+gap)}px`,'important');
+          card.style.setProperty('min-width','0','important');
+        }
+        const measured=card.getBoundingClientRect();
+        let span=isMap
+          ? Math.max(2,Math.min(lanes,Math.ceil(lanes*.34)))
+          : Math.max(1,Math.min(2,Math.ceil((Math.max(laneWidth,measured.width)+gap)/(laneWidth+gap))));
+        if(span>lanes)span=lanes;
+        const slot=bestLane(span);
+        const w=laneWidth*span+gap*(span-1);
+        card.style.setProperty('left',`${Math.round(slot.start*(laneWidth+gap))}px`,'important');
+        card.style.setProperty('top',`${Math.round(slot.y)}px`,'important');
+        card.style.setProperty('width',`${Math.floor(w)}px`,'important');
+        card.style.setProperty('max-width',`${Math.floor(w)}px`,'important');
+        card.dataset.kbPackedV644='1';
+        // Width is final now; read the resulting height once.
+        const h=Math.ceil(card.getBoundingClientRect().height);
+        const bottom=slot.y+h+gap;
+        for(let i=slot.start;i<slot.start+span;i++)bottoms[i]=bottom;
+        maxBottom=Math.max(maxBottom,bottom-gap);
+        processed++;
+      }
+
+      grid.style.setProperty('height',`${Math.ceil(maxBottom)}px`,'important');
+      if(index<cards.length){
+        schedule(run);
+        return;
+      }
+
+      // Real images can change map-card height after decode. Coalesce all image
+      // completions into one later progressive reflow rather than repacking once
+      // per image.
+      cards.forEach(card=>card.querySelectorAll('img').forEach(img=>{
+        if(img.dataset.kbPackLoadV644==='1')return;
+        img.dataset.kbPackLoadV644='1';
+        img.addEventListener('load',()=>{
+          clearTimeout(largeImageRepackTimerV644);
+          largeImageRepackTimerV644=setTimeout(queuePackV616,90);
+        },{passive:true});
+      }));
+      grid.classList.remove('kb-pack-pending-v620');
+    };
+
+    // Pack the first chunk in the next paint, then yield between later chunks.
+    requestAnimationFrame(()=>run({timeRemaining:()=>8,didTimeout:true}));
+  }
+
+  function packKbAllV616(){
+    packRafV616=0;
+    const grid=document.getElementById('phrases-library-grid');
+    if(!grid)return;
+    const isPolaroid = grid.classList.contains('polaroid-grid-container') || db?.settings?.libraryView === 'polaroid';
+    const isAll = typeof libraryFilter === 'undefined' || String(libraryFilter || 'all') === 'all';
+    // V643: developer stress data uses its own fast CSS grid.
+    if(grid.classList.contains('kb-developer-fast-grid-v643')){
+      clearPackV616(grid);
+      grid.classList.add('kb-developer-fast-grid-v643');
+      return;
+    }
+    const cards=cardsV616(grid).filter(c=>!c.classList.contains('hidden'));
+    grid.classList.toggle('kb-large-library-v644',cards.length>=LARGE_KB_THRESHOLD_V644);
+    if(isPolaroid || !isAll){
+      grid.classList.remove('kb-pack-pending-v620','kb-packed-all-v620','kb-large-pack-v644');
+      // Polaroid/category layouts already use native CSS layout. Keep the
+      // large-library marker so content-visibility can skip offscreen paint.
+      const keepLarge=cards.length>=LARGE_KB_THRESHOLD_V644;
+      clearPackV616(grid);
+      if(keepLarge)grid.classList.add('kb-large-library-v644');
+      return;
+    }
+    if(!cards.length){ clearPackV616(grid); return; }
+    const width=Math.max(0,grid.clientWidth);
+    if(!width)return;
+
+    if(cards.length>=LARGE_KB_THRESHOLD_V644){
+      packLargeKbAllV644(grid,cards,width);
+      return;
+    }
+
+    largePackEpochV644++;
+    grid.classList.remove('kb-large-pack-v644','kb-large-library-v644');
+    if(!grid.classList.contains('kb-packed-all-v620')) grid.classList.add('kb-pack-pending-v620');
+    grid.classList.remove('kb-masonry-v175','kb-primary-map-flow-v172','kb-all-grid-v614','kb-layout-pending-v215');
+    grid.classList.add('kb-packed-all-v616','kb-packed-all-v620');
+    const gap=12;
+    const sizes=[];
+    cards.forEach(card=>{
+      delete card.dataset.kbPackedV644;
+      card.style.setProperty('position','absolute','important');
+      card.style.setProperty('left','-10000px','important');
+      card.style.setProperty('top','0','important');
+      card.style.setProperty('height','auto','important');
+      if(card.classList.contains('has-primary-map-v172')){
+        card.style.setProperty('width',`${Math.min(Math.max(360, width * .34), 500, width)}px`,'important');
+        card.style.setProperty('max-width','100%','important');
+      }else{
+        card.style.setProperty('width','max-content','important');
+        card.style.setProperty('max-width',`${width}px`,'important');
+        card.style.setProperty('min-width','0','important');
+      }
+      const r=card.getBoundingClientRect();
+      sizes.push({card,w:Math.min(width,Math.ceil(r.width)),h:Math.ceil(r.height)});
+    });
+    const placed=[];
+    for(const item of sizes){
+      const w=Math.min(item.w,width);
+      const xs=[0];
+      placed.forEach(p=>{ xs.push(p.x); xs.push(p.x+p.w+gap); });
+      const candidates=[...new Set(xs.map(x=>Math.max(0,Math.min(width-w,Math.round(x)))))]
+        .filter(x=>x+w<=width+.5).sort((a,b)=>a-b);
+      let best={x:0,y:Number.POSITIVE_INFINITY};
+      for(const x of candidates){
+        let y=0, changed=true;
+        while(changed){
+          changed=false;
+          for(const p of placed){
+            const probe={x,y,w,h:item.h};
+            if(horizontalOverlapV616(probe,p,gap) && y < p.y+p.h+gap && y+item.h+gap > p.y){
+              const ny=p.y+p.h+gap;
+              if(ny>y+.5){ y=ny; changed=true; }
+            }
+          }
+        }
+        if(y<best.y-.5 || (Math.abs(y-best.y)<.5 && x<best.x)) best={x,y};
+      }
+      item.card.style.setProperty('left',`${best.x}px`,'important');
+      item.card.style.setProperty('top',`${best.y}px`,'important');
+      item.card.style.setProperty('width',`${w}px`,'important');
+      item.card.style.setProperty('max-width',`${w}px`,'important');
+      placed.push({x:best.x,y:best.y,w,h:item.h,card:item.card});
+    }
+    const bottom=placed.reduce((m,p)=>Math.max(m,p.y+p.h),0);
+    grid.style.setProperty('height',`${Math.ceil(bottom)}px`,'important');
+    grid.classList.remove('kb-pack-pending-v620');
+    cards.forEach(card=>card.style.removeProperty('visibility'));
+    cards.forEach(card=>card.querySelectorAll('img').forEach(img=>{
+      if(img.dataset.kbPackLoadV616==='1')return; img.dataset.kbPackLoadV616='1';
+      img.addEventListener('load',queuePackV616,{passive:true});
+    }));
+  }
+  function queuePackV616(){
+    if(packRafV616)cancelAnimationFrame(packRafV616);
+    packRafV616=requestAnimationFrame(()=>requestAnimationFrame(packKbAllV616));
+  }
+  try{
+    const before=renderPhrasesLibrary;
+    renderPhrasesLibrary=function(){
+      // V624: hide the existing All-view grid BEFORE render mutates/reinserts cards.
+      // This removes the one-frame top-left pile-up entirely, rather than hiding it after render.
+      const grid=document.getElementById('phrases-library-grid');
+      const isAll=typeof libraryFilter==='undefined'||String(libraryFilter||'all')==='all';
+      const isPolaroid=grid?.classList.contains('polaroid-grid-container')||db?.settings?.libraryView==='polaroid';
+      if(grid&&isAll&&!isPolaroid)grid.classList.add('kb-pack-pending-v620');
+      const result=before.apply(this,arguments);
+      queuePackV616();
+      return result;
+    };
+    window.renderPhrasesLibrary=renderPhrasesLibrary;
+  }catch{}
+  window.addEventListener('resize',queuePackV616,{passive:true});
+  // V621: the 500-item developer preview is streamed after the initial render.
+  // Hide each new batch for one packing frame, then reveal it at its packed
+  // position. This removes the stray “Preview … 500” / long-card strip.
+  // V643: old preview batches no longer trigger a full repack. If an older
+  // cached producer emits this event, ignore it while fast stress layout is on.
+  document.addEventListener('kb-preview-batch-v620',()=>{
+    const grid=document.getElementById('phrases-library-grid');
+    if(grid?.classList?.contains('kb-developer-fast-grid-v643'))return;
+    queuePackV616();
+  });
+  document.addEventListener('kb-preview-complete-v643',()=>{
+    const grid=document.getElementById('phrases-library-grid');
+    if(!grid?.classList?.contains('kb-developer-fast-grid-v643')) queuePackV616();
+  });
+  document.addEventListener('click',e=>{ if(e.target?.closest?.('#library-filter-tabs,.filter-tabs')) queuePackV616(); },true);
+  try{
+    const grid=document.getElementById('phrases-library-grid');
+    if(grid)new ResizeObserver(queuePackV616).observe(grid);
+  }catch{}
+  queuePackV616();
+})();
+
+// ============================================================================
+// V617 — AUTHORITATIVE PINNED-MAP QUIZZES + ZERO-FLASH KB TAG VISIBILITY
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyPinnedQuizV617) return;
+  window.__loggyPinnedQuizV617 = true;
+
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const norm = v => String(v ?? '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+  const sessions = new Map();
+
+  function syncHideTagsV617(){
+    let hide=false;
+    try { hide=!!db?.settings?.knowledgeHideTagsV557; } catch {}
+    document.documentElement.classList.toggle('kb-hide-item-tags-v557',hide);
+  }
+  syncHideTagsV617();
+  try {
+    const beforeRender=renderPhrasesLibrary;
+    renderPhrasesLibrary=function(){ syncHideTagsV617(); return beforeRender.apply(this,arguments); };
+    window.renderPhrasesLibrary=renderPhrasesLibrary;
+  } catch {}
+
+  function currentId(){
+    try { return quizMode==='learn' ? String(learnQueue?.[0]?.id||'') : String(activeQuizDeck?.[activeQuizIndex]||''); }
+    catch { return ''; }
+  }
+  function pinned(id){ try { return window.__loggyPinnedImageV169?.fieldForItem?.(id)||null; } catch { return null; } }
+  function pins(p){ return (p?.data?.pins||[]).filter(x=>String(x?.label||'').trim()); }
+  function label(pin){ return String(pin?.label||'').trim(); }
+  function pinId(pin,index){ return String(pin?.id||index); }
+  function setCount(){
+    try {
+      const total=activeQuizDeck?.length||0;
+      const n=quizMode==='learn'?Math.max(1,total-(learnQueue?.length||0)+1):Math.min((activeQuizIndex||0)+1,total);
+      const el=document.getElementById('quiz-set-label'); if(el&&total)el.textContent=`${Math.min(n,total)} / ${total}`;
+    } catch {}
+  }
+  function canonicalStage(data,{showAll=false,revealed=null,active='',results=null}={}){
+    // V619 fix: previously this always passed labeled:true to the stage
+    // renderer, baking EVERY pin's label into the HTML regardless of the
+    // reveal state, and relying on a later JS pass to hide the ones that
+    // shouldn't be visible yet. That created a "labels already visible on
+    // the front" bug. Instead, only bake in the label text for pins that
+    // are actually supposed to be shown right now; everything else is
+    // truly blank until it's revealed.
+    const shown = revealed instanceof Set ? revealed : new Set();
+    const rawPins = Array.isArray(data?.pins) ? data.pins : [];
+    const filteredData = { ...(data||{}), pins: rawPins.map((pin,index)=>{
+      const id = pinId(pin,index);
+      const isActive = String(active || '') === id;
+      const isShown = showAll || (!isActive && shown.has(id)) || (!isActive && results && results.get?.(id)==='correct');
+      return isShown ? pin : { ...pin, label:'' };
+    }) };
+    return window.__loggyPinnedImageV169?.renderStage?.(filteredData,{
+      labeled:true, readonly:true, stageClass:'map-stage-v617', labelClass:'map-label-v617'
+    }) || '';
+  }
+  function decorateStage(root,{showAll=false,revealed=null,active='',results=null}={}){
+    const shown=revealed instanceof Set?revealed:new Set();
+    root.querySelectorAll('.map-stage-v617').forEach(stage=>{
+      stage.querySelectorAll('.kb-map-pin-label-v169').forEach(lbl=>{
+        const id=String(lbl.dataset.pinLabelForV170||'');
+        const visible=showAll||shown.has(id);
+        lbl.style.setProperty('display',visible?'block':'none','important');
+        lbl.style.setProperty('visibility',visible?'visible':'hidden','important');
+      });
+      stage.querySelectorAll('.kb-map-pin-v169').forEach((pin,index)=>{
+        const id=String(pin.dataset.pinIdV169||index);
+        pin.classList.toggle('map-study-active-v172',id===String(active));
+        pin.classList.remove('map-result-correct-v617','map-result-wrong-v617');
+        const status=results?.get?.(id);
+        if(status==='correct')pin.classList.add('map-result-correct-v617');
+        if(status==='wrong')pin.classList.add('map-result-wrong-v617');
+      });
+      try { window.__alignPinnedOverlayToImageV612?.(stage); } catch {}
+      try { window.__layoutPinnedLabelsV170?.(stage); } catch {}
+    });
+  }
+  function queueDecorate(root,opts){
+    const run=()=>decorateStage(root,opts);
+    run(); requestAnimationFrame(run); setTimeout(run,60);
+  }
+  function nav(area){
+    area.querySelector('[data-map-prev-v617]')?.addEventListener('click',()=>{if(activeQuizIndex>0){activeQuizIndex--;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();}});
+    area.querySelector('[data-map-next-v617]')?.addEventListener('click',()=>{activeQuizIndex++;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();});
+  }
+
+  function renderFlashcard(area,id,p){
+    setCount();
+    const ps=pins(p); const whole=p?.data?.testMode!=='parts';
+    if(whole){
+      if(quizCardFlipped){
+        area.innerHTML=`<div class="flashcard-wrap pinned-card-v617"><div class="pinned-map-answer-shell-v617" data-map-flip-back-v617>${canonicalStage(p.data,{showAll:true})}</div><button type="button" class="icon-btn map-reveal-toggle-v619" data-map-flip-back-v617>Hide pin labels</button><div class="flashcard-hint-text">Tap the map or button to hide labels</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-map-prev-v617 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-map-next-v617><i class="ph ph-arrow-right"></i></button></div></div>`;
+        queueDecorate(area,{showAll:true});
+        area.querySelectorAll('[data-map-flip-back-v617]').forEach(el=>el.addEventListener('click',e=>{if(e.target.closest('.flashcard-nav-btn'))return;quizCardFlipped=false;showQuizCard();}));
+      }else{
+        area.innerHTML=`<div class="flashcard-wrap pinned-card-v617"><div class="pinned-map-answer-shell-v617" data-map-flip-v617>${canonicalStage(p.data,{})}</div><button type="button" class="icon-btn map-reveal-toggle-v619" data-map-flip-v617>Reveal pin labels</button><div class="flashcard-hint-text">Tap the map or button to reveal the pin labels</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-map-prev-v617 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-map-next-v617><i class="ph ph-arrow-right"></i></button></div></div>`;
+        queueDecorate(area,{});
+        area.querySelectorAll('[data-map-flip-v617]').forEach(el=>el.addEventListener('click',e=>{if(e.target.closest('.flashcard-nav-btn'))return;quizCardFlipped=true;showQuizCard();}));
+      }
+      nav(area); return;
+    }
+    // Part-by-part testing: cycle one pin at a time so map items with
+    // "test by parts" enabled are actually testable pin-by-pin here too,
+    // not just in Learn mode.
+    if(!ps.length)return renderFlashcardNoPinsV619(area);
+    const s=session(id,p);
+    s.index=Math.max(0,Math.min(s.index,ps.length-1));
+    const pin=ps[s.index]; const pid=pinId(pin,s.index);
+    if(quizCardFlipped){
+      area.innerHTML=`<div class="flashcard-wrap pinned-card-v617"><div class="pinned-map-answer-shell-v617" data-map-flip-back-v617>${canonicalStage(p.data,{active:pid,revealed:new Set([pid])})}</div><button type="button" class="icon-btn map-reveal-toggle-v619" data-map-flip-back-v617>Hide this label</button><div class="flashcard-hint-text">Part ${s.index+1} / ${ps.length} · Tap the map or button to hide</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-map-part-prev-v619 ${s.index===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-map-part-next-v619 ${s.index>=ps.length-1?'disabled':''}><i class="ph ph-arrow-right"></i></button></div><div class="flashcard-hint-text">Card ${activeQuizIndex+1} / ${activeQuizDeck.length}</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-map-prev-v617 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-caret-left"></i></button><button class="flashcard-nav-btn" data-map-next-v617><i class="ph ph-caret-right"></i></button></div></div>`;
+      queueDecorate(area,{active:pid,revealed:new Set([pid])});
+      area.querySelectorAll('[data-map-flip-back-v617]').forEach(el=>el.addEventListener('click',e=>{if(e.target.closest('.flashcard-nav-btn'))return;quizCardFlipped=false;showQuizCard();}));
+    }else{
+      area.innerHTML=`<div class="flashcard-wrap pinned-card-v617"><div class="pinned-map-answer-shell-v617" data-map-flip-v617>${canonicalStage(p.data,{active:pid})}</div><button type="button" class="icon-btn map-reveal-toggle-v619" data-map-flip-v617>Reveal this label</button><div class="flashcard-hint-text">Part ${s.index+1} / ${ps.length} · Tap the highlighted pin's map or button to reveal</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-map-part-prev-v619 ${s.index===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-map-part-next-v619 ${s.index>=ps.length-1?'disabled':''}><i class="ph ph-arrow-right"></i></button></div><div class="flashcard-hint-text">Card ${activeQuizIndex+1} / ${activeQuizDeck.length}</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-map-prev-v617 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-caret-left"></i></button><button class="flashcard-nav-btn" data-map-next-v617><i class="ph ph-caret-right"></i></button></div></div>`;
+      queueDecorate(area,{active:pid});
+      area.querySelectorAll('[data-map-flip-v617]').forEach(el=>el.addEventListener('click',e=>{if(e.target.closest('.flashcard-nav-btn'))return;quizCardFlipped=true;showQuizCard();}));
+    }
+    area.querySelector('[data-map-part-prev-v619]')?.addEventListener('click',()=>{if(s.index>0){s.index--;quizCardFlipped=false;showQuizCard();}});
+    area.querySelector('[data-map-part-next-v619]')?.addEventListener('click',()=>{if(s.index<ps.length-1){s.index++;quizCardFlipped=false;showQuizCard();}});
+    nav(area);
+  }
+  function renderFlashcardNoPinsV619(area){
+    area.innerHTML=`<div class="flashcard-wrap pinned-card-v617"><div class="pinned-map-answer-shell-v617"><div class="kb-pinned-empty-v169"><i class="ph ph-map-pin"></i><span>This map has no labeled pins yet.</span></div></div></div>`;
+  }
+
+  function renderAnki(area,id,p){
+    setCount();
+    const ps=pins(p); const whole=p?.data?.testMode!=='parts';
+    if(whole){
+      if(!quizCardFlipped){
+        area.innerHTML=`<div class="flashcard-wrap pinned-card-v617"><div class="pinned-map-answer-shell-v617" data-map-flip-v617>${canonicalStage(p.data,{})}</div><button type="button" class="icon-btn map-reveal-toggle-v619" data-map-flip-v617>Reveal pin labels</button><div class="flashcard-hint-text">Tap the map or button to reveal the pin labels</div></div>`;
+        queueDecorate(area,{});
+        area.querySelectorAll('[data-map-flip-v617]').forEach(el=>el.addEventListener('click',()=>{quizCardFlipped=true;showQuizCard();}));
+        return;
+      }
+      area.innerHTML=`<div class="flashcard-wrap pinned-card-v617"><div class="pinned-map-answer-shell-v617">${canonicalStage(p.data,{showAll:true})}</div><div class="quiz-pinned-anki-actions-v169"><button class="icon-btn still-learning-btn" data-map-again-v617><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button><button class="icon-btn got-it-btn" data-map-good-v617><i class="ph ph-check"></i> Got It!</button></div></div>`;
+      queueDecorate(area,{showAll:true});
+      area.querySelector('[data-map-again-v617]')?.addEventListener('click',()=>processAnkiAnswer('Again'));
+      area.querySelector('[data-map-good-v617]')?.addEventListener('click',()=>processAnkiAnswer('Good'));
+      return;
+    }
+    if(!ps.length)return renderFlashcardNoPinsV619(area);
+    const s=session(id,p);
+    s.index=Math.max(0,Math.min(s.index,ps.length-1));
+    const pin=ps[s.index]; const pid=pinId(pin,s.index);
+    if(!quizCardFlipped){
+      area.innerHTML=`<div class="flashcard-wrap pinned-card-v617"><div class="pinned-map-answer-shell-v617" data-map-flip-v617>${canonicalStage(p.data,{active:pid})}</div><button type="button" class="icon-btn map-reveal-toggle-v619" data-map-flip-v617>Reveal this label</button><div class="flashcard-hint-text">Part ${s.index+1} / ${ps.length} · Tap the map or button to reveal</div></div>`;
+      queueDecorate(area,{active:pid});
+      area.querySelectorAll('[data-map-flip-v617]').forEach(el=>el.addEventListener('click',()=>{quizCardFlipped=true;showQuizCard();}));
+      return;
+    }
+    area.innerHTML=`<div class="flashcard-wrap pinned-card-v617"><div class="pinned-map-answer-shell-v617">${canonicalStage(p.data,{active:pid,revealed:new Set([pid])})}</div><div class="flashcard-hint-text">Part ${s.index+1} / ${ps.length}</div><div class="quiz-pinned-anki-actions-v169"><button class="icon-btn still-learning-btn" data-map-again-v617><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button><button class="icon-btn got-it-btn" data-map-good-v617><i class="ph ph-check"></i> Got It!</button></div></div>`;
+    queueDecorate(area,{active:pid,revealed:new Set([pid])});
+    area.querySelector('[data-map-again-v617]')?.addEventListener('click',()=>processAnkiAnswerForPin(id,'Again'));
+    area.querySelector('[data-map-good-v617]')?.addEventListener('click',()=>processAnkiAnswerForPin(id,'Good'));
+  }
+  // Cycle through each pin before scoring the card in Anki mode; only once
+  // every part has been rated does the underlying SRS card advance. Any
+  // "Still Learning" rating on any part marks the whole card for review.
+  function processAnkiAnswerForPin(id,rating){
+    try {
+      if(rating==='Again') window.__loggyMapAnkiHadWrongV619 = true;
+      const p=pinned(id); const ps=pins(p); const s=session(id,p);
+      if(s.index<ps.length-1){
+        s.index++; quizCardFlipped=false; showQuizCard(); return;
+      }
+      const finalRating = window.__loggyMapAnkiHadWrongV619 ? 'Again' : rating;
+      window.__loggyMapAnkiHadWrongV619 = false;
+      sessions.delete(s.key);
+      processAnkiAnswer(finalRating);
+    } catch { processAnkiAnswer(rating); }
+  }
+
+  function otherLabels(itemId,p){
+    const cat=String(db?.phrase_meta?.[itemId]?.type||''); const out=[];
+    for(const candidate of Object.keys(db?.phrase_meta||{})){
+      if(candidate===itemId||String(db.phrase_meta?.[candidate]?.type||'')!==cat)continue;
+      const cp=pinned(candidate); if(!cp)continue; pins(cp).forEach(x=>out.push(label(x)));
+    }
+    pins(p).forEach(x=>out.push(label(x)));
+    return [...new Set(out.filter(Boolean))];
+  }
+  function questionType(id){
+    try { const t=chooseQuizletLearnQuestionTypeV476?.(db?.phrase_meta?.[id]||{}); return t==='written'?'written':'mc'; }
+    catch { return 'mc'; }
+  }
+  function session(id,p){
+    const key=`v617:${id}:${p?.field?.id||p?.field?.name||'map'}`;
+    let s=sessions.get(key);
+    if(!s){s={key,type:questionType(id),index:0,active:'',revealed:new Set(),results:new Map(),hadWrong:false,ready:false};sessions.set(key,s)}
+    return s;
+  }
+  function finishLearn(s,correct=!s.hadWrong){ sessions.delete(s.key); processLearnAnswer(correct); }
+  function activePin(p,s){
+    const ps=pins(p); const whole=p?.data?.testMode!=='parts';
+    if(whole){ return ps.find((x,i)=>pinId(x,i)===s.active)||null; }
+    s.index=Math.max(0,Math.min(s.index,ps.length-1)); return ps[s.index]||null;
+  }
+  function advanceLearn(area,id,p,s,renderer){
+    const ps=pins(p),whole=p?.data?.testMode!=='parts'; s.ready=false;
+    if(whole){ s.active=''; if(s.results.size>=ps.length)return finishLearn(s); renderer(area,id,p,s); return; }
+    if(s.index>=ps.length-1)return finishLearn(s); s.index++; renderer(area,id,p,s);
+  }
+  function chooseWholePin(area,id,p,s,renderer){
+    area.querySelectorAll('.map-stage-v617 .kb-map-pin-v169').forEach((btn,index)=>btn.addEventListener('click',()=>{
+      const pid=String(btn.dataset.pinIdV169||index); if(s.results.has(pid))return; s.active=pid; renderer(area,id,p,s);
+    }));
+  }
+  function baseLearnShell(area,p,s,inner,opts){
+    const topCounter=document.getElementById('quiz-set-label');
+    if(topCounter) topCounter.textContent='';
+    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-v617"><div class="map-study-card-v172">${inner}</div></div>`;
+    queueDecorate(area,opts);
+  }
+  function renderLearnMc(area,id,p,s){
+    setCount(); const ps=pins(p); if(!ps.length)return finishLearn(s,true); const whole=p.data.testMode!=='parts';
+    if(whole&&!s.active){
+      if(s.results.size>=ps.length)return finishLearn(s);
+      baseLearnShell(area,p,s,`<div class="map-study-prompt-v172"><strong>Multiple Choice · Whole image</strong><span>${s.results.size} / ${ps.length}</span></div>${canonicalStage(p.data,{revealed:s.revealed,results:s.results})}<div class="map-learn-feedback-v617"><strong>Click any unanswered pin to test it.</strong></div>`,{revealed:s.revealed,results:s.results});
+      chooseWholePin(area,id,p,s,renderLearnMc); return;
+    }
+    const pin=activePin(p,s); if(!pin){s.active='';return renderLearnMc(area,id,p,s)}
+    const index=ps.indexOf(pin),pid=pinId(pin,index),answer=label(pin);
+    const pool=otherLabels(id,p).filter(x=>norm(x)!==norm(answer)).sort(()=>Math.random()-.5); const choices=[answer];
+    for(const x of pool){if(choices.length>=4)break;if(!choices.some(y=>norm(y)===norm(x)))choices.push(x)} choices.sort(()=>Math.random()-.5);
+    baseLearnShell(area,p,s,`<div class="map-study-prompt-v172"><strong>Which label fits the highlighted pin?</strong><span>${whole?s.results.size+1:s.index+1} / ${ps.length}</span></div>${canonicalStage(p.data,{active:pid,revealed:s.revealed,results:s.results})}<div class="quiz-learn-options-v38 map-learn-options-v617">${choices.map(c=>`<button class="icon-btn" data-choice-v617="${esc(c)}">${esc(c)}</button>`).join('')}</div><div class="map-learn-feedback-v617" aria-live="polite"></div>`,{active:pid,revealed:s.revealed,results:s.results});
+    area.querySelectorAll('[data-choice-v617]').forEach(btn=>btn.addEventListener('click',()=>{
+      if(s.ready)return;
+      const ok=norm(btn.dataset.choiceV617)===norm(answer);
+      if(!ok)s.hadWrong=true;
+      s.results.set(pid,ok?'correct':'wrong');
+      s.revealed.add(pid);
+      s.ready=true;
+      area.querySelectorAll('[data-choice-v617]').forEach(choice=>{ choice.disabled=true; choice.setAttribute('aria-disabled','true'); });
+      const fb=area.querySelector('.map-learn-feedback-v617');
+      if(fb)fb.innerHTML=`<strong>${ok?'Correct':'Incorrect'}</strong><button type="button" class="icon-btn" data-next-v617>${(whole?s.results.size>=ps.length:s.index>=ps.length-1)?'Finish Round':'Next'}</button>`;
+      queueDecorate(area,{active:pid,revealed:s.revealed,results:s.results});
+      area.querySelector('[data-next-v617]')?.addEventListener('click',()=>advanceLearn(area,id,p,s,renderLearnMc),{once:true});
+    }));
+  }
+  function renderLearnWritten(area,id,p,s){
+    setCount(); const ps=pins(p); if(!ps.length)return finishLearn(s,true); const whole=p.data.testMode!=='parts';
+    if(whole&&!s.active){
+      if(s.results.size>=ps.length)return finishLearn(s);
+      baseLearnShell(area,p,s,`<div class="map-study-prompt-v172"><strong>Written · Whole image</strong><span>${s.results.size} / ${ps.length}</span></div>${canonicalStage(p.data,{revealed:s.revealed,results:s.results})}<div class="map-learn-feedback-v617"><strong>Click any unanswered pin to test it.</strong></div>`,{revealed:s.revealed,results:s.results});
+      chooseWholePin(area,id,p,s,renderLearnWritten); return;
+    }
+    const pin=activePin(p,s); if(!pin){s.active='';return renderLearnWritten(area,id,p,s)}
+    const index=ps.indexOf(pin),pid=pinId(pin,index),answer=label(pin);
+    baseLearnShell(area,p,s,`<div class="map-study-prompt-v172"><strong>Type the label for the highlighted pin</strong><span>${whole?s.results.size+1:s.index+1} / ${ps.length}</span></div>${canonicalStage(p.data,{active:pid,revealed:s.revealed,results:s.results})}<form class="map-study-answer-v172 map-written-v617"><div><input type="text" autocomplete="off" spellcheck="false" placeholder="Type the pin label…"><button type="submit" class="icon-btn">Check Answer</button></div><small aria-live="polite">Capitalization does not matter.</small></form>`,{active:pid,revealed:s.revealed,results:s.results});
+    const form=area.querySelector('.map-written-v617'),input=form?.querySelector('input'),small=form?.querySelector('small');
+    form?.addEventListener('submit',e=>{
+      e.preventDefault(); if(s.ready)return advanceLearn(area,id,p,s,renderLearnWritten); if(!input?.value.trim())return;
+      const ok=norm(input.value)===norm(answer); if(!ok){s.hadWrong=true;s.results.set(pid,'wrong');s.revealed.add(pid);if(small)small.innerHTML='<strong>Incorrect</strong> · Type the correct label to continue.';input.value='';queueDecorate(area,{active:pid,revealed:s.revealed,results:s.results});input.focus();return;}
+      if(!s.results.has(pid)||s.results.get(pid)!=='wrong')s.results.set(pid,'correct'); s.revealed.add(pid); s.ready=true; input.disabled=true;
+      const button=form.querySelector('button'); if(button)button.textContent=(whole?s.results.size>=ps.length:s.index>=ps.length-1)?'Finish Round':'Next'; if(small)small.innerHTML='<strong>Correct</strong>'; queueDecorate(area,{active:pid,revealed:s.revealed,results:s.results});
+    }); requestAnimationFrame(()=>input?.focus({preventScroll:true}));
+  }
+
+  try {
+    const previous=window.showQuizCard||showQuizCard;
+    const owner=function(){
+      const area=document.getElementById('quiz-flashcard-area'),id=currentId(),p=id?pinned(id):null;
+      if(!area||!p?.data?.image||!pins(p).length||!['flashcards','anki','learn'].includes(String(quizMode)))return previous.apply(this,arguments);
+      if(quizMode==='flashcards')return renderFlashcard(area,id,p);
+      if(quizMode==='anki')return renderAnki(area,id,p);
+      const s=session(id,p); return s.type==='written'?renderLearnWritten(area,id,p,s):renderLearnMc(area,id,p,s);
+    };
+    owner.__pinnedMapV617=true; window.showQuizCard=owner; try{showQuizCard=owner}catch{}
+  } catch {}
+})();
+
+// ============================================================================
+// V621 — MAP QUIZ MODEL: WHOLE CONTEXT vs ONE-PIN PARTS
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyPinnedQuizV621) return;
+  window.__loggyPinnedQuizV621 = true;
+
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[char]));
+  const norm = value => String(value ?? '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+  const stateByKey = new Map();
+  let runSerial = 1;
+  let learnRoundSerial = 0;
+
+  document.addEventListener('click', event => {
+    if (!event.target?.closest?.('#start-quiz-btn')) return;
+    runSerial += 1;
+    learnRoundSerial = 0;
+    stateByKey.clear();
+  }, true);
+
+  function currentIdV621() {
+    try {
+      return String(quizMode === 'learn' ? (learnQueue?.[0]?.id || '') : (activeQuizDeck?.[activeQuizIndex] || ''));
+    } catch { return ''; }
+  }
+  function pinnedV621(id) {
+    try { return window.__loggyPinnedImageV169?.fieldForItem?.(id) || null; }
+    catch { return null; }
+  }
+  function labeledPinsV621(pinned) {
+    return (Array.isArray(pinned?.data?.pins) ? pinned.data.pins : []).filter(pin => String(pin?.label || '').trim());
+  }
+  function pinIdV621(pin, index) {
+    const raw = String(pin?.id ?? '').trim();
+    return raw || String(index);
+  }
+  function pinLabelV621(pin) { return String(pin?.label || '').trim(); }
+  function isPartsV621(pinned) { return String(pinned?.data?.testMode || '').toLowerCase() === 'parts'; }
+  function fieldKeyV621(pinned) { return String(pinned?.field?.id || pinned?.field?.name || 'map'); }
+
+  function stateV621(mode, id, pinned) {
+    const key = `${runSerial}:${mode}:${id}:${fieldKeyV621(pinned)}`;
+    let state = stateByKey.get(key);
+    if (!state) {
+      state = {
+        key,
+        index:0,
+        revealed:false,
+        hadWrong:false,
+        ready:false,
+        completed:new Set(),
+        learnRound:++learnRoundSerial
+      };
+      stateByKey.set(key, state);
+    }
+    return state;
+  }
+  function dropStateV621(state) { if (state?.key) stateByKey.delete(state.key); }
+
+  function visibleStageDataV621(pinned, { partIndex = null, revealed = null } = {}) {
+    const sourcePins = labeledPinsV621(pinned);
+    const reveal = revealed instanceof Set ? revealed : new Set();
+    const indexed = sourcePins.map((pin, index) => ({ pin, index, id:pinIdV621(pin,index) }));
+    const chosen = Number.isInteger(partIndex) ? indexed.filter(row => row.index === partIndex) : indexed;
+    return {
+      ...(pinned?.data || {}),
+      pins: chosen.map(row => ({
+        ...row.pin,
+        id: row.id,
+        label: reveal.has(row.id) ? pinLabelV621(row.pin) : ''
+      }))
+    };
+  }
+
+  function stageHtmlV621(pinned, options = {}) {
+    const data = visibleStageDataV621(pinned, options);
+    return window.__loggyPinnedImageV169?.renderStage?.(data, {
+      labeled:true,
+      readonly:true,
+      stageClass:'map-stage-v621',
+      labelClass:'map-label-v621'
+    }) || '';
+  }
+
+  function decorateStagesV621(root, { active = '', status = '' } = {}) {
+    root?.querySelectorAll?.('.map-stage-v621').forEach(stage => {
+      stage.querySelectorAll('.kb-map-pin-v169').forEach((node, index) => {
+        const id = String(node.dataset.pinIdV169 || index);
+        node.classList.toggle('map-target-v621', !!active && id === String(active));
+        node.classList.toggle('map-answer-correct-v621', !!status && status === 'correct' && id === String(active));
+        node.classList.toggle('map-answer-wrong-v621', !!status && status === 'wrong' && id === String(active));
+      });
+      try { window.__alignPinnedOverlayToImageV612?.(stage); } catch {}
+      try { window.__layoutPinnedLabelsV170?.(stage); } catch {}
+    });
+  }
+  function queueDecorateV621(root, options = {}) {
+    const run = () => decorateStagesV621(root, options);
+    run();
+    requestAnimationFrame(run);
+    setTimeout(run, 60);
+  }
+
+  function allPinIdsV621(pinned) {
+    return new Set(labeledPinsV621(pinned).map((pin,index) => pinIdV621(pin,index)));
+  }
+  function revealForV621(pinned, state, includeCurrent = false) {
+    const reveal = new Set(state?.completed || []);
+    const pins = labeledPinsV621(pinned);
+    if (includeCurrent && pins[state.index]) reveal.add(pinIdV621(pins[state.index],state.index));
+    return reveal;
+  }
+
+  function setNormalCounterV621() {
+    try {
+      const total = activeQuizDeck?.length || 0;
+      const el = document.getElementById('quiz-set-label');
+      if (el && total) el.textContent = `${Math.min((activeQuizIndex || 0) + 1,total)} / ${total}`;
+    } catch {}
+  }
+  function hideLearnTopCounterV621() {
+    const el = document.getElementById('quiz-set-label');
+    if (el) el.textContent = '';
+  }
+  function goCardV621(delta) {
+    activeQuizIndex = Math.max(0, (activeQuizIndex || 0) + delta);
+    quizCardFlipped = false;
+    currentSlideIndex = 0;
+    showQuizCard();
+  }
+
+  // ------------------------------------------------------------------------
+  // FLASHCARDS
+  // Whole image: all pins, tap image to reveal/hide every label.
+  // Parts: same source image, exactly one pin at a time, tap to reveal it.
+  // ------------------------------------------------------------------------
+  function renderFlashcardsV621(area, id, pinned) {
+    setNormalCounterV621();
+    const quizLearnViewV655=document.getElementById('quiz-learn-view');
+    if(quizLearnViewV655)quizLearnViewV655.dataset.quizModeV655='flashcards';
+    const pins = labeledPinsV621(pinned);
+    if (!pins.length) return;
+    const parts = isPartsV621(pinned);
+    const state = stateV621('flashcards',id,pinned);
+    state.index = Math.max(0, Math.min(state.index,pins.length-1));
+    const current = pins[state.index];
+    const pid = pinIdV621(current,state.index);
+    const reveal = state.revealed
+      ? (parts ? new Set([pid]) : allPinIdsV621(pinned))
+      : new Set();
+    const partIndex = parts ? state.index : null;
+    const partLine = parts ? `<div class="map-v621-subline">Part ${state.index+1} / ${pins.length}</div>` : '';
+    area.innerHTML = `
+      <div class="flashcard-wrap map-card-v621">
+        <div class="quiz-inline-counter-v655">${Math.min((activeQuizIndex||0)+1, activeQuizDeck?.length||0)} / ${activeQuizDeck?.length||0}</div>
+        <div class="map-v621-stage-shell" data-map-toggle-v621>
+          ${stageHtmlV621(pinned,{partIndex,revealed:reveal})}
+        </div>
+        <div class="flashcard-hint-text">${state.revealed ? 'Tap the image to hide the label' + (parts?'':'s') : 'Tap the image to reveal the label' + (parts?'':'s')}</div>
+        ${partLine}
+        ${parts ? `<div class="flashcard-nav-container map-v621-part-nav">
+          <button class="flashcard-nav-btn" data-part-prev-v621 ${state.index===0?'disabled':''}><i class="ph ph-arrow-left"></i></button>
+          <button class="flashcard-nav-btn" data-part-next-v621 ${state.index>=pins.length-1?'disabled':''}><i class="ph ph-arrow-right"></i></button>
+        </div>` : ''}
+        <div class="flashcard-nav-container">
+          <button class="flashcard-nav-btn" data-card-prev-v621 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-caret-left"></i></button>
+          <button class="flashcard-nav-btn" data-card-next-v621><i class="ph ph-caret-right"></i></button>
+        </div>
+      </div>`;
+    queueDecorateV621(area,{});
+    area.querySelector('[data-map-toggle-v621]')?.addEventListener('click',()=>{ state.revealed=!state.revealed; renderFlashcardsV621(area,id,pinned); });
+    area.querySelector('[data-part-prev-v621]')?.addEventListener('click',()=>{ if(state.index>0){state.index--;state.revealed=false;renderFlashcardsV621(area,id,pinned);} });
+    area.querySelector('[data-part-next-v621]')?.addEventListener('click',()=>{ if(state.index<pins.length-1){state.index++;state.revealed=false;renderFlashcardsV621(area,id,pinned);} });
+    area.querySelector('[data-card-prev-v621]')?.addEventListener('click',()=>goCardV621(-1));
+    area.querySelector('[data-card-next-v621]')?.addEventListener('click',()=>goCardV621(1));
+  }
+
+  // ------------------------------------------------------------------------
+  // ANKI
+  // Whole image: tap image to reveal all labels, then rate the map.
+  // Parts: one pin per image. No Reveal button; tapping the image flips it.
+  // Every part is rated before the underlying SRS card advances.
+  // ------------------------------------------------------------------------
+  function renderAnkiV621(area,id,pinned) {
+    setNormalCounterV621();
+    const pins=labeledPinsV621(pinned);
+    if(!pins.length)return;
+    const parts=isPartsV621(pinned);
+    const state=stateV621('anki',id,pinned);
+    state.index=Math.max(0,Math.min(state.index,pins.length-1));
+    const current=pins[state.index];
+    const pid=pinIdV621(current,state.index);
+    const reveal = state.revealed ? (parts?new Set([pid]):allPinIdsV621(pinned)) : new Set();
+    const partIndex=parts?state.index:null;
+    area.innerHTML=`
+      <div class="flashcard-wrap map-card-v621 map-anki-v621">
+        <div class="map-v621-stage-shell ${state.revealed?'is-revealed-v621':''}" ${state.revealed?'':'data-map-anki-reveal-v621'}>
+          ${stageHtmlV621(pinned,{partIndex,revealed:reveal})}
+        </div>
+        <div class="flashcard-hint-text">${state.revealed ? (parts?`Part ${state.index+1} / ${pins.length}`:'Labels revealed') : (parts?`Part ${state.index+1} / ${pins.length} · Tap the image to reveal`:'Tap the image to reveal all labels')}</div>
+        ${state.revealed ? `<div class="quiz-pinned-anki-actions-v169 map-anki-actions-v621">
+          <button class="icon-btn still-learning-btn" data-anki-again-v621><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button>
+          <button class="icon-btn got-it-btn" data-anki-good-v621><i class="ph ph-check"></i> Got It!</button>
+        </div>` : ''}
+      </div>`;
+    queueDecorateV621(area,{});
+    area.querySelector('[data-map-anki-reveal-v621]')?.addEventListener('click',()=>{state.revealed=true;renderAnkiV621(area,id,pinned);});
+    const rate = rating => {
+      if(!parts){ dropStateV621(state); processAnkiAnswer(rating); return; }
+      if(rating==='Again') state.hadWrong=true;
+      if(state.index<pins.length-1){ state.index++; state.revealed=false; renderAnkiV621(area,id,pinned); return; }
+      const finalRating=state.hadWrong?'Again':'Good';
+      dropStateV621(state);
+      processAnkiAnswer(finalRating);
+    };
+    area.querySelector('[data-anki-again-v621]')?.addEventListener('click',()=>rate('Again'));
+    area.querySelector('[data-anki-good-v621]')?.addEventListener('click',()=>rate('Good'));
+  }
+
+  function choicePoolV621(itemId,pinned,answer) {
+    const category=String(db?.phrase_meta?.[itemId]?.type||'');
+    const values=[];
+    const add=value=>{const clean=String(value||'').trim();if(clean&&norm(clean)!==norm(answer)&&!values.some(v=>norm(v)===norm(clean)))values.push(clean);};
+    labeledPinsV621(pinned).forEach(pin=>add(pinLabelV621(pin)));
+    for(const candidate of Object.keys(db?.phrase_meta||{})){
+      if(candidate===itemId)continue;
+      if(category&&String(db.phrase_meta?.[candidate]?.type||'')!==category)continue;
+      const other=pinnedV621(candidate); if(!other)continue;
+      labeledPinsV621(other).forEach(pin=>add(pinLabelV621(pin)));
+    }
+    for(let i=values.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[values[i],values[j]]=[values[j],values[i]];}
+    return values;
+  }
+  function learnQuestionTypeV621(state) {
+    try { syncQuizletLearnModesV476?.(); } catch {}
+    let wantsMc=true,wantsWritten=false;
+    try {
+      wantsMc=quizletLearnModesV476.has('mc');
+      wantsWritten=quizletLearnModesV476.has('written');
+    } catch {}
+    if(wantsWritten&&!wantsMc)return 'written';
+    if(wantsMc&&!wantsWritten)return 'mc';
+    if(wantsWritten&&wantsMc)return ((state.learnRound+state.index)%2===0)?'mc':'written';
+    return 'mc';
+  }
+  function learnProgressV621(state,pins) {
+    let learned=0,total=0;
+    try { learned=Math.min(activeQuizIndex||0,activeQuizDeck?.length||0);total=activeQuizDeck?.length||0; } catch {}
+    return `<span class="map-v621-progress">Pin ${state.index+1} / ${pins.length}${total?` · Learned ${learned} / ${total}`:''}</span>`;
+  }
+  function finishLearnRoundV621(state) {
+    const correctRound=!state.hadWrong;
+    dropStateV621(state);
+    processLearnAnswer(correctRound);
+  }
+  function continueLearnV621(area,id,pinned,state) {
+    const pins=labeledPinsV621(pinned);
+    state.ready=false;
+    if(state.index>=pins.length-1){ finishLearnRoundV621(state); return; }
+    state.index++;
+    renderLearnV621(area,id,pinned,state);
+  }
+  function learnStageOptionsV621(pinned,state,revealCurrent=false) {
+    const pins=labeledPinsV621(pinned);
+    const current=pins[state.index];
+    const pid=pinIdV621(current,state.index);
+    const parts=isPartsV621(pinned);
+    const revealed=revealForV621(pinned,state,revealCurrent);
+    return {pid,parts,revealed,partIndex:parts?state.index:null};
+  }
+  function learnShellV621(area,html,stageOptions={}) {
+    hideLearnTopCounterV621();
+    area.innerHTML=`<div class="map-learn-v621"><div class="map-study-card-v172 map-learn-card-v621">${html}</div></div>`;
+    queueDecorateV621(area,stageOptions);
+  }
+
+  function renderLearnMcV621(area,id,pinned,state) {
+    const pins=labeledPinsV621(pinned);
+    if(!pins.length){dropStateV621(state);processLearnAnswer(true);return;}
+    state.index=Math.max(0,Math.min(state.index,pins.length-1));
+    const pin=pins[state.index];
+    const answer=pinLabelV621(pin);
+    const {pid,parts,revealed,partIndex}=learnStageOptionsV621(pinned,state,false);
+    const prompt=parts?'Which label belongs to this pin?':'Which label fits the highlighted pin?';
+    const pool=choicePoolV621(id,pinned,answer);
+    const choices=[answer];
+    for(const value of pool){if(choices.length>=4)break;if(!choices.some(c=>norm(c)===norm(value)))choices.push(value);}
+    for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}
+    learnShellV621(area,`
+      <div class="map-study-prompt-v172 map-v621-prompt"><strong>${prompt}</strong>${learnProgressV621(state,pins)}</div>
+      <div class="map-v621-stage-shell">${stageHtmlV621(pinned,{partIndex,revealed})}</div>
+      <div class="quiz-learn-options-v38 map-learn-options-v621">
+        ${choices.map(choice=>`<button type="button" class="icon-btn" data-map-choice-v621="${esc(choice)}">${esc(choice)}</button>`).join('')}
+      </div>
+      <div class="map-learn-feedback-v621" aria-live="polite"></div>`,{active:parts?'':pid});
+
+    area.querySelectorAll('[data-map-choice-v621]').forEach(button=>button.addEventListener('click',()=>{
+      if(state.ready)return;
+      const picked=String(button.dataset.mapChoiceV621||'');
+      const correct=norm(picked)===norm(answer);
+      if(!correct)state.hadWrong=true;
+      state.completed.add(pid);
+      state.ready=true;
+      area.querySelectorAll('[data-map-choice-v621]').forEach(choice=>{
+        choice.disabled=true;
+        const value=String(choice.dataset.mapChoiceV621||'');
+        choice.classList.toggle('map-choice-correct-v621',norm(value)===norm(answer));
+        choice.classList.toggle('map-choice-wrong-v621',choice===button&&!correct);
+      });
+      // Reveal this pin only AFTER an answer. In parts mode it is still the only
+      // pin on the image; in whole mode the target was visibly highlighted first.
+      const shell=area.querySelector('.map-v621-stage-shell');
+      if(shell) shell.innerHTML=stageHtmlV621(pinned,{partIndex,revealed:revealForV621(pinned,state,true)});
+      queueDecorateV621(area,{active:parts?'':pid,status:correct?'correct':'wrong'});
+      const feedback=area.querySelector('.map-learn-feedback-v621');
+      if(feedback)feedback.innerHTML=`<strong>${correct?'Correct':'Incorrect'}</strong><button type="button" class="icon-btn" data-map-learn-next-v621>Continue Learning</button>`;
+      area.querySelector('[data-map-learn-next-v621]')?.addEventListener('click',()=>continueLearnV621(area,id,pinned,state),{once:true});
+    }));
+  }
+
+  function renderLearnWrittenV621(area,id,pinned,state) {
+    const pins=labeledPinsV621(pinned);
+    if(!pins.length){dropStateV621(state);processLearnAnswer(true);return;}
+    state.index=Math.max(0,Math.min(state.index,pins.length-1));
+    const pin=pins[state.index];
+    const answer=pinLabelV621(pin);
+    const {pid,parts,revealed,partIndex}=learnStageOptionsV621(pinned,state,false);
+    const prompt=parts?'Type the label for this pin':'Type the label for the highlighted pin';
+    learnShellV621(area,`
+      <div class="map-study-prompt-v172 map-v621-prompt"><strong>${prompt}</strong>${learnProgressV621(state,pins)}</div>
+      <div class="map-v621-stage-shell">${stageHtmlV621(pinned,{partIndex,revealed})}</div>
+      <form class="map-written-v621">
+        <div class="map-written-row-v621"><input type="text" autocomplete="off" spellcheck="false" placeholder="Type the pin label…"><button type="button" class="icon-btn map-written-idk-v654" data-map-written-idk-v654>Idk</button><button type="submit" class="icon-btn" data-map-written-submit-v654>Check Answer</button></div>
+        <small aria-live="polite">Capitalization does not matter.</small>
+      </form>`,{active:parts?'':pid});
+    const form=area.querySelector('.map-written-v621');
+    const input=form?.querySelector('input');
+    const note=form?.querySelector('small');
+    const button=form?.querySelector('[data-map-written-submit-v654]');
+    const idk=form?.querySelector('[data-map-written-idk-v654]');
+    const revealCorrection=(fromIdk=false)=>{
+      state.hadWrong=true;
+      if(note)note.innerHTML=`<strong>${fromIdk?'Answer revealed':'Incorrect'}</strong> · Correct answer: <strong>${esc(answer)}</strong>. Type it to continue.`;
+      const shell=area.querySelector('.map-v621-stage-shell');
+      if(shell)shell.innerHTML=stageHtmlV621(pinned,{partIndex,revealed:revealForV621(pinned,state,true)});
+      queueDecorateV621(area,{active:parts?'':pid,status:'wrong'});
+      if(button)button.textContent='Check Again';
+      if(idk)idk.disabled=true;
+      input.disabled=false;
+      input.value='';
+      requestAnimationFrame(()=>input?.focus({preventScroll:true}));
+    };
+    idk?.addEventListener('click',()=>{ if(!state.ready)revealCorrection(true); });
+    form?.addEventListener('submit',event=>{
+      event.preventDefault();
+      if(state.ready){continueLearnV621(area,id,pinned,state);return;}
+      if(!input?.value.trim())return;
+      const correct=norm(input.value)===norm(answer);
+      if(!correct){ revealCorrection(false); return; }
+      state.completed.add(pid);
+      state.ready=true;
+      input.disabled=true;
+      if(idk)idk.disabled=true;
+      if(button)button.textContent='Continue Learning';
+      if(note)note.innerHTML='<strong>Correct</strong>';
+      const shell=area.querySelector('.map-v621-stage-shell');
+      if(shell)shell.innerHTML=stageHtmlV621(pinned,{partIndex,revealed:revealForV621(pinned,state,true)});
+      queueDecorateV621(area,{active:parts?'':pid,status:'correct'});
+    });
+    requestAnimationFrame(()=>input?.focus({preventScroll:true}));
+  }
+
+  function renderLearnV621(area,id,pinned,state) {
+    hideLearnTopCounterV621();
+    const quizLearnViewV655=document.getElementById('quiz-learn-view');
+    if(quizLearnViewV655)quizLearnViewV655.dataset.quizModeV655='learn';
+    const type=learnQuestionTypeV621(state);
+    if(type==='written')renderLearnWrittenV621(area,id,pinned,state);
+    else renderLearnMcV621(area,id,pinned,state);
+  }
+
+  try {
+    const previous=window.showQuizCard || showQuizCard;
+    const owner=function(){
+      const area=document.getElementById('quiz-flashcard-area');
+      const id=currentIdV621();
+      const pinned=id?pinnedV621(id):null;
+      const pins=pinned?labeledPinsV621(pinned):[];
+      const mode=String(typeof quizMode!=='undefined'?quizMode:'');
+      if(!area||!pinned?.data?.image||!pins.length||!['flashcards','anki','learn'].includes(mode))return previous.apply(this,arguments);
+      if(mode==='flashcards')return renderFlashcardsV621(area,id,pinned);
+      if(mode==='anki')return renderAnkiV621(area,id,pinned);
+      const state=stateV621('learn',id,pinned);
+      return renderLearnV621(area,id,pinned,state);
+    };
+    owner.__pinnedMapV621=true;
+    window.showQuizCard=owner;
+    try { showQuizCard=owner; } catch {}
+  } catch {}
+})();
+
+// V642: obsolete out-of-scope V623 Lazy Day wrapper removed.

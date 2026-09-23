@@ -617,3 +617,203 @@ body.whiteboard-tab-active-v198.whiteboard-quiz-portal-active-v507>.modal-overla
 .loggy-whiteboard-v198 .wb-note-toolbar-v198 .wb-note-layer-menu-v522{
   top:46px!important;right:4px!important;
 }
+
+/* ============================================================
+   V523 — quiz window responsive header + quiz/window layer menu
+   ============================================================ */
+/* Board objects and the quiz window now have explicit relative bands:
+   quiz-back < board-back < quiz-default < board-front < quiz-front. */
+.loggy-whiteboard-v198 .wb-quiz-window-v507{z-index:3!important;}
+.loggy-whiteboard-v198 .wb-world-back-v522{z-index:2!important;}
+.loggy-whiteboard-v198 .wb-world-front-v522{z-index:4!important;}
+.loggy-whiteboard-v198 .wb-quiz-window-v507[data-wb-quiz-layer-v523="back"]{z-index:1!important;}
+.loggy-whiteboard-v198 .wb-quiz-window-v507[data-wb-quiz-layer-v523="front"]{z-index:5!important;}
+
+/* Quiz Settings belongs to the unscaled title bar while the quiz is portaled.
+   This keeps it visible when the inner quiz content is shrunk responsively. */
+.loggy-whiteboard-v198 .wb-quiz-window-actions-v507 #open-quiz-settings-v58.wb-quiz-settings-head-v523{
+  position:static!important;
+  inset:auto!important;
+  margin:0!important;
+  width:34px!important;
+  min-width:34px!important;
+  height:34px!important;
+  padding:0!important;
+  flex:0 0 34px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid var(--wb-border,#ddd)!important;
+  border-radius:9px!important;
+  background:var(--wb-panel-2,#f7f7f8)!important;
+  color:inherit!important;
+  z-index:auto!important;
+}
+.loggy-whiteboard-v198 .wb-quiz-window-actions-v507 #open-quiz-settings-v58.wb-quiz-settings-head-v523:hover{
+  filter:brightness(.96)!important;
+}
+
+/* Right-click layer menu for the Quizzes window itself. */
+.loggy-whiteboard-v198 .wb-quiz-layer-menu-v523{
+  position:absolute!important;
+  width:160px!important;
+  padding:5px!important;
+  display:grid!important;
+  gap:2px!important;
+  background:var(--wb-panel,#fff)!important;
+  color:var(--wb-text,#1a1a1a)!important;
+  border:1px solid var(--wb-border,#ddd)!important;
+  border-radius:10px!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.18)!important;
+  z-index:2147482405!important;
+  pointer-events:auto!important;
+}
+.loggy-whiteboard-v198 .wb-quiz-layer-menu-v523[hidden]{display:none!important;}
+.loggy-whiteboard-v198 .wb-quiz-layer-menu-v523 button{
+  border:0!important;
+  background:transparent!important;
+  color:inherit!important;
+  border-radius:7px!important;
+  padding:8px 9px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+  font:600 12px/1.2 Inter,ui-sans-serif,system-ui,sans-serif!important;
+}
+.loggy-whiteboard-v198 .wb-quiz-layer-menu-v523 button:hover{background:var(--wb-panel-2,#f7f7f8)!important;}
+
+/* ============================================================
+   V542 — Whiteboard is its own visual system, independent of the applied theme
+   ============================================================ */
+/* Reassert Whiteboard-owned tokens after every custom-theme stylesheet. */
+.loggy-whiteboard-v198{
+  --wb-bg:#f9f9f9!important;
+  --wb-grid:#e0e0e0!important;
+  --wb-panel:#fff!important;
+  --wb-panel-2:#f7f7f8!important;
+  --wb-text:#1a1a1a!important;
+  --wb-muted:#6b7280!important;
+  --wb-border:#e5e7eb!important;
+  --wb-shadow:0 10px 28px rgba(0,0,0,.10)!important;
+  --wb-blue:#4262ff!important;
+  --wb-line:#333!important;
+  background:#f9f9f9!important;
+  color:#1a1a1a!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"]{
+  --wb-bg:#121212!important;
+  --wb-grid:#262626!important;
+  --wb-panel:#1e1e1e!important;
+  --wb-panel-2:#262626!important;
+  --wb-text:#e8e8e8!important;
+  --wb-muted:#a1a1aa!important;
+  --wb-border:#2d2d2d!important;
+  --wb-shadow:0 10px 30px rgba(0,0,0,.45)!important;
+  --wb-line:#d8d8d8!important;
+  background:#121212!important;
+  color:#e8e8e8!important;
+}
+
+/* Whiteboard buttons/icons never inherit a custom Loggy theme. Hover uses the
+   Whiteboard's own selected-tool treatment, not custom-theme hover colors. */
+.loggy-whiteboard-v198 :is(.wb-panel-v198,.wb-note-toolbar-v198,.wb-board-gallery-v198,.wb-sticky-palette-v198,.wb-object-menu-v251,.wb-layer-menu-v518,.wb-quiz-layer-menu-v523) button{
+  color:var(--wb-text)!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  filter:none!important;
+}
+.loggy-whiteboard-v198 .wb-panel-v198 button:hover,
+.loggy-whiteboard-v198 .wb-note-toolbar-v198 button:hover,
+.loggy-whiteboard-v198 .wb-object-menu-v251 button:hover,
+.loggy-whiteboard-v198 .wb-layer-menu-v518 button:hover,
+.loggy-whiteboard-v198 .wb-quiz-layer-menu-v523 button:hover{
+  background:#e9edff!important;
+  color:#334bd3!important;
+  filter:none!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-panel-v198 button:hover,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-note-toolbar-v198 button:hover,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-object-menu-v251 button:hover,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-layer-menu-v518 button:hover,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-layer-menu-v523 button:hover{
+  background:#28345f!important;
+  color:#b9c5ff!important;
+}
+.loggy-whiteboard-v198 .wb-panel-v198 button.is-active{
+  background:#e9edff!important;color:#334bd3!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-panel-v198 button.is-active{
+  background:#28345f!important;color:#b9c5ff!important;
+}
+
+/* Quizzes inside Whiteboard always use the built-in default palette. Reset the
+   custom-theme variables on the window and the real portaled quiz views so ID-
+   based theme rules cannot leak the currently applied Loggy theme into them. */
+.loggy-whiteboard-v198 .wb-quiz-default-theme-v509,
+.loggy-whiteboard-v198 .wb-quiz-default-theme-v509 #quizzes-view,
+.loggy-whiteboard-v198 .wb-quiz-default-theme-v509 #quiz-learn-view{
+  --black:#000!important;
+  --white:#fff!important;
+  --background:#fff!important;
+  --surface:#fff!important;
+  --text:#000!important;
+  --accent:#000!important;
+  --border:#000!important;
+  --muted-text:#666!important;
+  --track-bg:#eee!important;
+  --thin-border:2px solid #000!important;
+  --thick-border:3px solid #000!important;
+  --dashed-border:2px dashed #000!important;
+  --custom-theme-background:#fff!important;
+  --custom-theme-surface:#fff!important;
+  --custom-theme-text:#000!important;
+  --custom-theme-accent:#000!important;
+  --custom-theme-border:#000!important;
+  background:#fff!important;
+  color:#000!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 #quizzes-view,
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 #quiz-learn-view{
+  --black:#f3f3f3!important;
+  --white:#171719!important;
+  --background:#171719!important;
+  --surface:#171719!important;
+  --text:#f3f3f3!important;
+  --accent:#f3f3f3!important;
+  --border:#f3f3f3!important;
+  --muted-text:#a7a7ad!important;
+  --track-bg:#2a2a2e!important;
+  --thin-border:2px solid #f3f3f3!important;
+  --thick-border:3px solid #f3f3f3!important;
+  --dashed-border:2px dashed #f3f3f3!important;
+  --custom-theme-background:#171719!important;
+  --custom-theme-surface:#171719!important;
+  --custom-theme-text:#f3f3f3!important;
+  --custom-theme-accent:#f3f3f3!important;
+  --custom-theme-border:#f3f3f3!important;
+  background:#171719!important;
+  color:#f3f3f3!important;
+}
+.loggy-whiteboard-v198 .wb-quiz-default-theme-v509 :is(button,.icon-btn,.small-icon-btn,.filter-tab){
+  box-shadow:none!important;text-shadow:none!important;filter:none!important;
+}
+.loggy-whiteboard-v198 .wb-quiz-default-theme-v509 :is(button,.icon-btn,.small-icon-btn,.filter-tab):hover{
+  background:#000!important;color:#fff!important;filter:none!important;transform:none!important;box-shadow:none!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-default-theme-v509 :is(button,.icon-btn,.small-icon-btn,.filter-tab):hover{
+  background:#f3f3f3!important;color:#171719!important;
+}
+/* Whiteboard title-bar close/settings controls also remain Whiteboard-owned. */
+.loggy-whiteboard-v198 .wb-quiz-window-actions-v507 button{
+  background:var(--wb-panel-2)!important;color:var(--wb-text)!important;border-color:var(--wb-border)!important;box-shadow:none!important;
+}
+.loggy-whiteboard-v198 .wb-quiz-window-actions-v507 button:hover{
+  background:#e9edff!important;color:#334bd3!important;filter:none!important;transform:none!important;
+}
+.loggy-whiteboard-v198[data-theme="dark"] .wb-quiz-window-actions-v507 button:hover{
+  background:#28345f!important;color:#b9c5ff!important;
+}

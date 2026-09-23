@@ -14,6 +14,13 @@ app.use(express.static(path.join(__dirname, 'public'), {
             res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
             return;
         }
+        // V562: built-in theme CSS/JS/artwork is reused constantly across Dashboard
+        // and Logs. A short cache avoids re-reading/re-downloading it on every
+        // navigation while still allowing normal development refreshes.
+        if (/\/themes\/[^/]+\/theme-[^/]+\.(?:css|js|svg|png|jpe?g|webp)$/i.test(normalized)) {
+            res.setHeader('Cache-Control', 'public, max-age=3600');
+            return;
+        }
         // V222: existing log HTML keeps the enhancement bundle query string it
         // had when the log was created. Always revalidate shared enhancement
         // bundles so an old cached template-extras-5.js cannot keep a fixed log
@@ -36,6 +43,16 @@ if (!fs.existsSync(LOG_TRASH_DIR)) fs.mkdirSync(LOG_TRASH_DIR, { recursive: true
 const APPS_DB_PATH = path.join(DATA_DIR, 'apps.json');
 
 const publicDir = path.join(__dirname, 'public');
+const DASHBOARD_HTML_PATH_V562 = path.join(publicDir, 'dashboard.html');
+let DASHBOARD_HTML_RAW_V562 = null;
+let DASHBOARD_HTML_GZIP_V562 = null;
+try {
+    DASHBOARD_HTML_RAW_V562 = fs.readFileSync(DASHBOARD_HTML_PATH_V562);
+    DASHBOARD_HTML_GZIP_V562 = zlib.gzipSync(DASHBOARD_HTML_RAW_V562, { level: 6 });
+} catch (error) {
+    console.warn('[Loggy V562] Could not prewarm Dashboard HTML:', error?.message || error);
+}
+
 const DASHBOARD_CUSTOM_ICONS_PATH = path.join(DATA_DIR, 'dashboard-custom-icons.json');
 
 function readDashboardCustomIconsV428() {
@@ -2103,9 +2120,36 @@ app.put('/api/built-in-theme-overrides', (req, res) => {
 
 // --- Routing ---
 app.get('/', (req, res) => {
-    // V240: revalidate the Dashboard shell so removed log-only widget code cannot linger.
+    // V566: let the browser begin connecting/fetching the icon runtime before
+    // the Dashboard HTML body arrives. This helps the very first server launch.
+    try {
+        if (typeof res.writeEarlyHints === 'function') {
+            res.writeEarlyHints({
+                link: [
+                    '<https://unpkg.com>; rel=preconnect; crossorigin',
+                    '<https://unpkg.com/@phosphor-icons/web>; rel=preload; as=script; crossorigin'
+                ]
+            });
+        }
+    } catch (_) {}
+
+    // V562: dashboard.html is large. Keep its bytes (and a gzip copy) in memory
+    // from server startup so the first browser request does not wait on disk I/O
+    // plus compression before parsing can begin.
     res.setHeader('Cache-Control', 'no-cache, must-revalidate');
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+    res.setHeader('Vary', 'Accept-Encoding');
+    res.type('html');
+    const acceptsGzip = /(?:^|,)\s*gzip\s*(?:,|$)/i.test(String(req.headers['accept-encoding'] || '').replace(/;q=[0-9.]+/g,''));
+    if (acceptsGzip && DASHBOARD_HTML_GZIP_V562) {
+        res.setHeader('Content-Encoding', 'gzip');
+        res.setHeader('Content-Length', String(DASHBOARD_HTML_GZIP_V562.length));
+        return res.end(DASHBOARD_HTML_GZIP_V562);
+    }
+    if (DASHBOARD_HTML_RAW_V562) {
+        res.setHeader('Content-Length', String(DASHBOARD_HTML_RAW_V562.length));
+        return res.end(DASHBOARD_HTML_RAW_V562);
+    }
+    res.sendFile(DASHBOARD_HTML_PATH_V562);
 });
 
 // Internal Theme Builder runtime host.
@@ -2139,6 +2183,42 @@ app.get('/app/:hobby', (req, res) => {
         // current Add/Edit Field implementation without replacing their own JS/CSS.
         res.setHeader('Cache-Control', 'no-cache, must-revalidate');
         let html = fs.readFileSync(filePath, 'utf8');
+
+        // V578/V581: inject live first-frame shell fixes into historical saved
+        // Log HTML before it reaches the browser.
+        try {
+            const liveTemplatePathV578 = path.join(__dirname, 'public', 'template.html');
+            const liveTemplateV578 = fs.readFileSync(liveTemplatePathV578, 'utf8');
+
+            const warmMatchV578 = liveTemplateV578.match(
+                /<script\s+id=["']loggy-early-theme-warm-v578["'][^>]*>[\s\S]*?<\/script>/i
+            );
+            const searchClearStyleV581 = liveTemplateV578.match(
+                /<style\s+id=["']loggy-theme-search-clear-first-frame-v580["'][^>]*>[\s\S]*?<\/style>/i
+            );
+
+            html = html
+                .replace(
+                    /\s*<script\s+id=["']loggy-early-theme-warm-v578["'][^>]*>[\s\S]*?<\/script>\s*/gi,
+                    '\n'
+                )
+                .replace(
+                    /\s*<style\s+id=["']loggy-theme-search-clear-first-frame-v580["'][^>]*>[\s\S]*?<\/style>\s*/gi,
+                    '\n'
+                );
+
+            const shellBitsV581 = [
+                searchClearStyleV581?.[0] || '',
+                warmMatchV578?.[0] || ''
+            ].filter(Boolean).join('\n');
+
+            if (shellBitsV581) {
+                html = /<\/head>/i.test(html)
+                    ? html.replace(/<\/head>/i, `${shellBitsV581}\n</head>`)
+                    : `${shellBitsV581}\n${html}`;
+            }
+        } catch (_) {}
+
         // V245: preserve the actual tab/day BEFORE an older copied core can run its
         // historical "always Daily Logs" startup code. The shared hotfix restores
         // these values after the copied app has initialized.
@@ -3245,6 +3325,54 @@ app.get('/api/export-data/:hobby', (req, res) => {
 // Dynamic Data Endpoints
 app.get('/api/data/:hobby', (req, res) => res.json(getDb(req.params.hobby)));
 app.post('/api/save/:hobby', (req, res) => { saveDb(req.params.hobby, req.body); res.json({ status: 'success' }); });
+
+// V591: interactive theme switching persists only the tiny theme/accessory
+// settings payload. The browser no longer JSON.stringify()s the entire Log DB.
+app.post('/api/save_theme/:hobby', (req, res) => {
+    try {
+        const hobby = req.params.hobby;
+        const body = req.body && typeof req.body === 'object' ? req.body : {};
+        const db = getDb(hobby);
+
+        if (!db.settings || typeof db.settings !== 'object') {
+            db.settings = {};
+        }
+
+        if (typeof body.theme === 'string' && body.theme.trim()) {
+            db.settings.theme = body.theme.trim();
+        }
+
+        if (typeof body.cursorStyle === 'string' && body.cursorStyle.trim()) {
+            db.settings.cursorStyle = body.cursorStyle.trim();
+        }
+
+        if (typeof body.companion === 'string' && body.companion.trim()) {
+            db.settings.companion = body.companion.trim();
+        }
+
+        if (
+            body.cursorTrail &&
+            typeof body.cursorTrail === 'object' &&
+            typeof body.cursorTrail.id === 'string'
+        ) {
+            db.settings.cursorTrails =
+                db.settings.cursorTrails &&
+                typeof db.settings.cursorTrails === 'object'
+                    ? db.settings.cursorTrails
+                    : {};
+
+            db.settings.cursorTrails[body.cursorTrail.id] =
+                body.cursorTrail.enabled === true;
+        }
+
+        saveDb(hobby, db);
+        res.json({ status: 'success' });
+    } catch (error) {
+        console.error('[V591] Failed to save theme selection:', error);
+        res.status(500).json({ status: 'error' });
+    }
+});
+
 app.post('/api/save_day/:hobby', (req, res) => {
     let db = getDb(req.params.hobby);
     db.days[req.body.day] = req.body.data;

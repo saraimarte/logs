@@ -744,14 +744,9 @@
         bodyObserver.observe(document.body, { childList: true });
     }
 
-    // Generic modal promotion runs around clicks/pointer actions. Reassert the
-    // Primary Label editor after those actions but before the next paint.
-    const schedulePrimaryFrontV224 = () => requestAnimationFrame(() => {
-        bindPrimaryFrontGuardV224();
-        forcePrimaryFrontV224();
-    });
-    document.addEventListener('pointerdown', schedulePrimaryFrontV224, true);
-    document.addEventListener('click', schedulePrimaryFrontV224, true);
+    // V596: the modal already has its own class/style observer above.
+    // Running this repair after EVERY pointerdown and click across the entire
+    // Log page was redundant and added work to the critical interaction path.
 
     const style = document.createElement('style');
     style.id = 'loggy-ui-hotfix-style-v224';
@@ -941,7 +936,8 @@
                 const label = display(id);
                 const cat = category(id);
                 const secondary = label !== id ? `<span class="daily-kb-suggestion-cat-v224">${escapeHtmlV224(id)}</span>` : (cat ? `<span class="daily-kb-suggestion-cat-v224">${escapeHtmlV224(cat)}</span>` : '');
-                return `<button type="button" class="daily-kb-suggestion-v224" role="option" data-kb-id-v224="${escapeHtmlV224(id)}"><span class="daily-kb-suggestion-main-v224">${escapeHtmlV224(label)}</span>${secondary}</button>`;
+                const labelHtml = (typeof window.knowledgeVisibleTitleHtmlV212 === 'function') ? window.knowledgeVisibleTitleHtmlV212(label) : escapeHtmlV224(label);
+                return `<button type="button" class="daily-kb-suggestion-v224" role="option" data-kb-id-v224="${escapeHtmlV224(id)}"><span class="daily-kb-suggestion-main-v224">${labelHtml}</span>${secondary}</button>`;
             }).join('');
             menu.classList.remove('hidden');
         };
@@ -1097,7 +1093,7 @@
             selectedQuizDays.clear(); anchor=null; activeShortcutV474=null;
             const grid=document.getElementById('quiz-day-grid'); if(!grid)return;
             grid.innerHTML='';
-            const maxDay=Math.max(typeof TOTAL_CURRICULUM_DAYS==='number'?TOTAL_CURRICULUM_DAYS:0,...Object.keys(db.days||{}).map(Number).filter(Number.isFinite),0);
+            const maxDay=getQuizDayCountV648();
             ensureShortcuts(maxDay);
             for(let i=1;i<=maxDay;i++){
                 const hasData=dayHasQuizItems(i), box=document.createElement('button');
@@ -2932,12 +2928,9 @@
         if (event.target.closest?.('#open-global-daily-settings-nav-btn')) setTimeout(ensureShortcutRowV232, 0);
     }, true);
 
-    const observer = new MutationObserver(() => {
-        cleanDailyLayoutPickerV232();
-        ensureShortcutRowV232();
-    });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
-
+    // V596: both jobs are driven by their actual Settings-open buttons above.
+    // Watching every DOM mutation in the Log page caused unnecessary work on
+    // ordinary clicks, chip renders, notes, theme updates, and modal changes.
     requestAnimationFrame(() => {
         cleanDailyLayoutPickerV232();
         ensureShortcutRowV232();
@@ -3313,6 +3306,64 @@
         event.stopPropagation();
     }, true);
 
+
+    // V590: mouse wheel paging mirrors the keyboard on discrete horizontal
+    // Daily Logs layouts. Scroll UP = ArrowRight/next view. Scroll DOWN =
+    // ArrowLeft/previous view. Never intercept a layout that actually needs
+    // vertical scrolling.
+    let wheelAccumV590 = 0;
+    let wheelLastV590 = 0;
+    let wheelLockV590 = false;
+
+    function verticallyScrollableV590(node) {
+        if (!node) return false;
+        const style = getComputedStyle(node);
+        const allows = /^(auto|scroll)$/i.test(style.overflowY || '');
+        return allows && node.scrollHeight > node.clientHeight + 3;
+    }
+
+    function wheelPagingEligibleV590(event) {
+        if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return false;
+        if (typingTargetV237(event.target) || blockingOverlayV237()) return false;
+        const view = document.getElementById('grid-view');
+        const grid = document.getElementById('days-grid');
+        if (!view?.classList.contains('active') || !grid) return false;
+        if (!(event.target instanceof Element) || !event.target.closest('#grid-view')) return false;
+        const layout = currentLayoutV237();
+        if (!PAGED_LAYOUTS_V237.has(layout) || !grid.classList.contains('daily-paged-layout-v231')) return false;
+        try { if ((db?.settings?.dailyViewType || 'default') === 'polaroid') return false; } catch {}
+        if (typeof window.__setDailyPageV231 !== 'function') return false;
+        if (verticallyScrollableV590(grid) || verticallyScrollableV590(view)) return false;
+        return Math.abs(Number(event.deltaY) || 0) > Math.abs(Number(event.deltaX) || 0);
+    }
+
+    document.addEventListener('wheel', event => {
+        if (!wheelPagingEligibleV590(event) || wheelLockV590) return;
+
+        const now = performance.now();
+        if (now - wheelLastV590 > 180) wheelAccumV590 = 0;
+        wheelLastV590 = now;
+        wheelAccumV590 += Number(event.deltaY) || 0;
+        if (Math.abs(wheelAccumV590) < 28) return;
+
+        const step = wheelAccumV590 < 0 ? 1 : -1;
+        wheelAccumV590 = 0;
+
+        const selector = `#daily-day-pager-v231 [data-page-step-v231="${step}"]`;
+        const button = document.querySelector(selector);
+        if (button?.disabled) return;
+
+        const current = Number.isFinite(Number(window.__dailyPageIndexV231))
+            ? Number(window.__dailyPageIndexV231)
+            : 0;
+
+        event.preventDefault();
+        event.stopPropagation();
+        wheelLockV590 = true;
+        window.__setDailyPageV231(current + step, false);
+        setTimeout(() => { wheelLockV590 = false; }, 150);
+    }, {capture:true, passive:false});
+
     // Older V231 code may re-add its "visible" class while changing pages.
     // Keep the pager semantically out of the visible interface as well.
     const hidePagerV237 = () => {
@@ -3658,9 +3709,9 @@
       #daily-logs-local-settings-modal .complete-log-color-row-v244{display:flex;align-items:center;gap:12px;margin-top:12px}
       #daily-logs-local-settings-modal .complete-log-color-row-v244.hidden{display:none!important}
       #daily-logs-local-settings-modal #complete-log-color-v244{width:54px;height:38px;padding:2px;border:var(--thin-border);border-radius:8px;background:var(--white)}
-      html[data-complete-log-style-v244="background"] #grid-view.view.active #days-grid .day-box.has-data{background:var(--complete-log-color-v244,#d9f99d)!important}
+      html[data-complete-log-style-v244="background"] #grid-view.view.active #days-grid .day-box.has-data{background:var(--complete-log-color-v244,#d9f99d)!important;border:var(--thin-border)!important}
       html[data-complete-log-style-v244="rainbow"] #grid-view.view.active #days-grid .day-box.has-data,
-      html[data-complete-log-style-v244="random"] #grid-view.view.active #days-grid .day-box.has-data{background:var(--complete-log-dynamic-color-v362,var(--white))!important}
+      html[data-complete-log-style-v244="random"] #grid-view.view.active #days-grid .day-box.has-data{background:var(--complete-log-dynamic-color-v362,var(--white))!important;border:var(--thin-border)!important}
     `;
     document.head.appendChild(style);
 
@@ -3787,7 +3838,13 @@
         }
         if(Number.isFinite(target)&&target>=1){event.preventDefault();event.stopImmediatePropagation();try{playClickSound()}catch{};try{openDayLog(Math.round(target))}catch{};return}
       }
-      if(event.target.closest?.('#open-daily-settings-btn'))setTimeout(()=>{cleanRemovedLayoutsV244();ensureNewDayDateSettingV244();ensureCompleteLogStyleSettingV244()},0);
+      // V244 previously duplicated this work: it ran again here via
+      // setTimeout(...,0) on the very same click that already runs it
+      // synchronously through the wrapped openDailyLogsLocalSettings/
+      // ensureDailyLogsSettingsModal below. That doubled the DOM queries
+      // and rebuild work on every "Daily Log Settings" open, adding a
+      // visible delay before the modal appeared. Removed — the wrapped
+      // open/ensure calls already cover it.
       if(event.target.closest?.('#open-daily-logs-nav-btn'))requestAnimationFrame(()=>requestAnimationFrame(()=>{ensureSinglePlusV244();latestPlusPageV244()}));
     },true);
 
@@ -3795,9 +3852,16 @@
       const oldEnsure=ensureDailyLogsSettingsModal;
       ensureDailyLogsSettingsModal=function(...args){const modal=oldEnsure.apply(this,args);cleanRemovedLayoutsV244();ensureNewDayDateSettingV244();ensureCompleteLogStyleSettingV244();return modal};
     }catch{}
+    // V244 used to re-run cleanRemovedLayoutsV244/ensureNewDayDateSettingV244/
+    // ensureCompleteLogStyleSettingV244 a second time here. openDailyLogsLocalSettings
+    // always calls ensureDailyLogsSettingsModal() first (see template.js), and the
+    // wrapper on ensureDailyLogsSettingsModal just above already runs all three on
+    // that same call — so this second pass was pure duplicate work on every open.
+    // Left as a no-op wrapper so any code that reassigns openDailyLogsLocalSettings
+    // still chains through this reference correctly.
     try{
       const oldOpen=openDailyLogsLocalSettings;
-      openDailyLogsLocalSettings=function(...args){const result=oldOpen.apply(this,args);cleanRemovedLayoutsV244();ensureNewDayDateSettingV244();ensureCompleteLogStyleSettingV244();return result};
+      openDailyLogsLocalSettings=function(...args){return oldOpen.apply(this,args)};
     }catch{}
     try{
       const oldInit=initGrid;
