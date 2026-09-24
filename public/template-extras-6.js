@@ -16398,3 +16398,811 @@ document.addEventListener('keydown',event=>{
  }
 },true);
 })();
+
+// ============================================================
+// V665 — Anki progress belongs inside the outer card container
+// ============================================================
+(() => {
+  'use strict';
+  function syncAnkiInlineProgressV665(){
+    const view=document.getElementById('quiz-learn-view');
+    const area=document.getElementById('quiz-flashcard-area');
+    let mode='';
+    try { mode=String(typeof quizMode!=='undefined'?quizMode:(window.quizMode||'')); }
+    catch { mode=String(window.quizMode||''); }
+    if(!view||!area||mode!=='anki') return;
+    const label=document.getElementById('quiz-set-label');
+    if(!label) return;
+    const shell=area.querySelector('.standard-study-shell-v650, .quiz-pinned-card-wrap-v169, .pinned-standard-flashcard-v480, .pinned-card-final-v482, .map-card-v621, .map-learn-card-v621');
+    if(!shell) return;
+    let inline=shell.querySelector(':scope > .anki-inline-progress-v665');
+    if(!inline){
+      inline=document.createElement('div');
+      inline.className='anki-inline-progress-v665';
+      shell.prepend(inline);
+    }
+    inline.textContent=label.textContent||'';
+  }
+
+  try{
+    const before=window.showQuizCard;
+    if(typeof before==='function'){
+      window.showQuizCard=function(){
+        const result=before.apply(this,arguments);
+        syncAnkiInlineProgressV665();
+        requestAnimationFrame(syncAnkiInlineProgressV665);
+        return result;
+      };
+    }
+  }catch{}
+
+  const observer=new MutationObserver(()=>syncAnkiInlineProgressV665());
+  const area=document.getElementById('quiz-flashcard-area');
+  if(area) observer.observe(area,{childList:true,subtree:true,characterData:true});
+  document.addEventListener('DOMContentLoaded',syncAnkiInlineProgressV665,{once:true});
+})();
+
+// ============================================================
+// V668 — Quiz cards can always be flipped back to the front
+// Applies to Flashcards, Anki, Quizlet Learn MC/Written, and map Learn cards.
+// ============================================================
+(() => {
+  'use strict';
+  if (window.__loggyQuizRefFlipV668) return;
+  window.__loggyQuizRefFlipV668 = true;
+
+  const interactiveSelector = [
+    'button','input','textarea','select','option','a','video','audio','iframe',
+    '.card-slide-arrow','.card-dot','.audio-play-btn','.flashcard-nav-btn'
+  ].join(',');
+
+  function currentQuizItemIdV668(){
+    try {
+      if (String(quizMode || '') === 'learn') return String(learnQueue?.[0]?.id || '');
+      return String(activeQuizDeck?.[activeQuizIndex] || '');
+    } catch { return ''; }
+  }
+
+  function frontHtmlV668(){
+    const id = currentQuizItemIdV668();
+    if (!id) return '';
+    try {
+      if (typeof knowledgeVisibleTitleHtmlV212 === 'function') return knowledgeVisibleTitleHtmlV212(id);
+    } catch {}
+    return String(id).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // Normal Anki: both front and answer side are clickable. The base renderer only
+  // bound the front side, so this captures either face and owns the toggle.
+  document.addEventListener('click', event => {
+    if (String(window.quizMode || (typeof quizMode !== 'undefined' ? quizMode : '')) !== 'anki') return;
+    const card = event.target?.closest?.('#quiz-learn-view .standard-study-shell-v650 > .flashcard-mode-card');
+    if (!card || event.target.closest(interactiveSelector)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    try {
+      quizCardFlipped = !quizCardFlipped;
+      currentSlideIndex = 0;
+      showQuizCard();
+    } catch {}
+  }, true);
+
+  // Normal Quizlet Learn MC/Written: clicking the displayed card toggles between
+  // whatever side is currently visible (question/revealed answer) and the item's
+  // original front. Quiz answer state and controls are left untouched.
+  document.addEventListener('click', event => {
+    if (String(window.quizMode || (typeof quizMode !== 'undefined' ? quizMode : '')) !== 'learn') return;
+    const card = event.target?.closest?.('#quiz-learn-view .quiz-learn-prompt-card-v38');
+    if (!card || event.target.closest(interactiveSelector)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (card.dataset.quizFrontShownV668 === '1') {
+      if (typeof card.__loggyBackHtmlV668 === 'string') card.innerHTML = card.__loggyBackHtmlV668;
+      card.dataset.quizFrontShownV668 = '0';
+      card.classList.remove('quiz-front-reference-v668');
+      return;
+    }
+
+    card.__loggyBackHtmlV668 = card.innerHTML;
+    const front = frontHtmlV668();
+    if (!front) return;
+    card.innerHTML = front;
+    card.dataset.quizFrontShownV668 = '1';
+    card.classList.add('quiz-front-reference-v668');
+  }, true);
+
+  // Map Learn MC/Written: after a label has been revealed, clicking the map can
+  // temporarily return it to the unrevealed/front view; clicking again restores it.
+  // This does not alter whether the answer was correct or whether Continue is ready.
+  document.addEventListener('click', event => {
+    if (String(window.quizMode || (typeof quizMode !== 'undefined' ? quizMode : '')) !== 'learn') return;
+    const stage = event.target?.closest?.('#quiz-learn-view .map-learn-card-v621 .map-v621-stage-shell');
+    if (!stage || event.target.closest(interactiveSelector)) return;
+    if (!stage.querySelector('.kb-map-pin-label-v169')) return;
+    stage.classList.toggle('quiz-map-front-reference-v668');
+  }, true);
+})();
+
+
+// ============================================================
+// V669 — Anki bidirectional flip authority
+// Directly supports the rendered normal Anki front/back and map Anki surfaces.
+// ============================================================
+(() => {
+  'use strict';
+  if (window.__loggyAnkiBidirectionalV669) return;
+  window.__loggyAnkiBidirectionalV669 = true;
+  document.addEventListener('click', event => {
+    let mode='';
+    try { mode=String(typeof quizMode!=='undefined'?quizMode:(window.quizMode||'')); } catch { mode=String(window.quizMode||''); }
+    if(mode!=='anki') return;
+    const card=event.target?.closest?.('#quiz-learn-view #quiz-flashcard-area .standard-study-shell-v650 > .flashcard-mode-card');
+    if(!card) return;
+    if(event.target.closest('button,input,textarea,select,a,video,audio,iframe,.card-dot,.card-slide-arrow,.audio-play-btn')) return;
+    // Base front already flips forward. Own only the answer-side fallback here.
+    try {
+      if(!quizCardFlipped) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      quizCardFlipped=false;
+      currentSlideIndex=0;
+      showQuizCard();
+    } catch {}
+  }, true);
+})();
+
+
+
+// ============================================================================
+// V675 — HARD-RELOAD THEME ART RESTORE
+// Keep the saved background pattern/gradient and decoration stage alive after a
+// Log page reload. Core theme state is available before the lazy extras finish,
+// so the first startup paint can happen before the enhanced artwork renderers
+// exist. Re-assert only the visual background/art layer once those renderers are
+// ready; never replay applyTheme() and never touch intro-audio ownership.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyV675ReloadThemeArtRestore) return;
+  window.__loggyV675ReloadThemeArtRestore = true;
+
+  const isPreview = () => {
+    try {
+      const p = new URLSearchParams(location.search || '');
+      return document.documentElement.dataset.themeBuilderPreviewV300 === 'true' ||
+        document.documentElement.dataset.themeBuilderPreviewV307 === 'true' ||
+        location.pathname === '/theme-studio-host' ||
+        p.has('theme-builder-preview-v307') ||
+        p.has('theme-builder-preview-v306') ||
+        p.has('theme-builder-preview-v300');
+    } catch (_) { return false; }
+  };
+
+  function activeThemeV675() {
+    if (isPreview()) return null;
+    const id = String(db?.settings?.theme || 'default');
+    if (!id || id === 'default') return null;
+
+    try {
+      const snap = window.__loggyReadCanonicalThemeSnapshotV588?.(id);
+      if (snap?.theme && typeof snap.theme === 'object') return snap.theme;
+    } catch (_) {}
+
+    try {
+      const built = typeof resolveBuiltInThemeOverrideV550 === 'function'
+        ? resolveBuiltInThemeOverrideV550(id)
+        : null;
+      if (built && typeof built === 'object') return built;
+    } catch (_) {}
+
+    try {
+      const custom = typeof resolveAppliedCustomThemeV445 === 'function'
+        ? resolveAppliedCustomThemeV445(id)
+        : null;
+      if (custom && typeof custom === 'object') return custom;
+    } catch (_) {}
+
+    try {
+      if (id === 'theme-custom-builder') {
+        const own = getCustomThemeSettings?.();
+        if (own && typeof own === 'object') return own;
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
+  function visibleDecorationCountV675(theme) {
+    const list = Array.isArray(theme?.backgroundSvgs) ? theme.backgroundSvgs : [];
+    return list.filter(asset =>
+      asset &&
+      asset.hidden !== true &&
+      asset.visible !== false &&
+      asset.showOnScreen !== false &&
+      asset.show !== false
+    ).length;
+  }
+
+  let repairing = false;
+  let queued = false;
+
+  function repairV675() {
+    if (repairing || isPreview()) return;
+    const theme = activeThemeV675();
+    if (!theme) return;
+
+    repairing = true;
+    try {
+      try { window.__loggyHealDecorationSourcesV529?.(theme); } catch (_) {}
+
+      // Restore gradient / texture / custom-code background (the saved pattern).
+      try {
+        if (typeof mountThemeCreativeBackgroundV56 === 'function') {
+          mountThemeCreativeBackgroundV56(theme);
+        } else {
+          const gradient = String(theme?.backgroundGradientV56 || '').trim();
+          const mode = String(theme?.backgroundModeV158 || '').trim();
+          if (gradient && (mode === 'gradient' || !String(theme?.backgroundImage || '').trim())) {
+            document.body.style.setProperty('background-image', gradient, 'important');
+            document.body.style.setProperty('background-size', 'cover', 'important');
+            document.body.style.setProperty('background-attachment', 'fixed', 'important');
+          }
+        }
+      } catch (_) {}
+
+      // Restore saved decorations if a late startup layer removed/failed to mount them.
+      const expected = visibleDecorationCountV675(theme);
+      if (expected > 0) {
+        const stage = document.getElementById('custom-theme-background-stage');
+        const count = stage?.children?.length || 0;
+        if (!stage || count === 0) {
+          try { mountCustomThemeBackgroundSvgsV2?.(theme); } catch (_) {}
+        }
+        try { window.__loggyApplyCanonicalPlacementV405?.(theme); } catch (_) {}
+        try { window.__loggyApplySingleSceneNowV586?.(theme); } catch (_) {}
+        try { window.__loggyApplyDefaultMotionsV363?.(theme); } catch (_) {}
+        try { window.__loggyConfigureAcrossV404?.(theme); } catch (_) {}
+        try { window.__loggyRepairDecorationImagesV494?.(theme); } catch (_) {}
+      }
+    } finally {
+      repairing = false;
+    }
+  }
+
+  function scheduleV675() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      queued = false;
+      repairV675();
+      setTimeout(repairV675, 120);
+      setTimeout(repairV675, 500);
+    }));
+  }
+
+  window.addEventListener('loggy-features-ready', scheduleV675);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleV675, { once:true });
+  } else {
+    scheduleV675();
+  }
+  window.addEventListener('pageshow', scheduleV675);
+
+  try {
+    const observer = new MutationObserver(records => {
+      const removedStage = records.some(record =>
+        Array.from(record.removedNodes || []).some(node =>
+          node?.nodeType === 1 &&
+          (node.id === 'custom-theme-background-stage' ||
+           node.querySelector?.('#custom-theme-background-stage'))
+        )
+      );
+      if (removedStage) scheduleV675();
+    });
+    if (document.body) observer.observe(document.body, { childList:true });
+  } catch (_) {}
+
+  window.__loggyRepairReloadThemeArtV675 = scheduleV675;
+})();
+
+// ============================================================================
+// V678 — LIVE LOG SETTINGS PALETTE SYNC DURING SAME-PAGE THEME SWITCH
+// Dashboard already refreshes its Settings palette immediately. The Log page
+// must do the same instead of keeping the previous theme's inline modal vars
+// until Settings is closed and reopened.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyLiveSettingsPaletteV678) return;
+  window.__loggyLiveSettingsPaletteV678 = true;
+
+  const VARS = [
+    '--settings-modal-bg-v380','--settings-modal-text-v380','--settings-modal-border-v380',
+    '--settings-overlay-v381','--settings-section-border-v381','--settings-muted-text-v381',
+    '--settings-icon-v381','--settings-input-bg-v380','--settings-input-text-v380',
+    '--settings-input-border-v380','--settings-card-bg-v380','--settings-card-text-v380',
+    '--settings-card-border-v380','--settings-hover-bg-v380','--settings-hover-text-v380',
+    '--settings-selected-bg-v380','--settings-selected-text-v380','--settings-selected-border-v380',
+    '--settings-button-bg-v380','--settings-button-text-v380','--settings-button-border-v380',
+    '--settings-widget-bg-v380','--settings-widget-text-v380','--settings-widget-border-v380',
+    '--settings-cursor-name-v394','--settings-companion-name-v394',
+    '--settings-theme-name-v394','--settings-theme-name-hover-v394'
+  ];
+
+  function themeForV678(value) {
+    if (value && typeof value === 'object') return value.theme && typeof value.theme === 'object' ? value.theme : value;
+    const id = String(value || db?.settings?.theme || 'default');
+    try { const snap = window.__loggyReadCanonicalThemeSnapshotV588?.(id); if (snap?.theme && typeof snap.theme === 'object') return snap.theme; if (snap && typeof snap === 'object' && Object.keys(snap).length) return snap; } catch {}
+    try { const built = resolveBuiltInThemeOverrideV550?.(id); if (built && typeof built === 'object' && Object.keys(built).length) return built; } catch {}
+    try { const custom = resolveAppliedCustomThemeV445?.(id); if (custom && typeof custom === 'object' && Object.keys(custom).length) return custom; } catch {}
+    try { const row = JSON.parse(localStorage.getItem('loggy-shared-themes-v40') || '[]').find(entry => String(entry?.id || entry?.theme?.id || '') === id); if (row?.theme && typeof row.theme === 'object') return row.theme; } catch {}
+    try { const current = window.__loggyResolveAppliedThemeV372?.(); if (current && typeof current === 'object' && Object.keys(current).length) return current; } catch {}
+    try { if (id === 'theme-custom-builder') { const current = getCustomThemeSettings?.(); if (current && typeof current === 'object') return current; } } catch {}
+    return {};
+  }
+
+  function syncV678(value) {
+    const theme = themeForV678(value);
+    try { window.__loggyApplySettingsThemeColorsV380?.(theme); } catch {}
+    const cs = getComputedStyle(document.documentElement);
+    ['daily-settings-modal', 'settings-modal'].forEach(id => {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      VARS.forEach(name => {
+        const next = cs.getPropertyValue(name).trim();
+        if (next) modal.style.setProperty(name, next);
+        else modal.style.removeProperty(name);
+      });
+    });
+  }
+
+  try {
+    const core = window.__loggyCoreApplyThemeV589;
+    if (typeof core === 'function' && !core.__liveSettingsPaletteV678) {
+      const wrapped = function(themeValue, ...rest) {
+        const result = core.call(this, themeValue, ...rest);
+        return Promise.resolve(result).then(value => {
+          syncV678(themeValue);
+          requestAnimationFrame(() => syncV678(themeValue));
+          setTimeout(() => syncV678(themeValue), 80);
+          return value;
+        });
+      };
+      wrapped.__liveSettingsPaletteV678 = true;
+      window.__loggyCoreApplyThemeV589 = wrapped;
+    }
+  } catch {}
+
+  try {
+    const before = window.applyTheme || (typeof applyTheme === 'function' ? applyTheme : null);
+    if (typeof before === 'function' && !before.__liveSettingsPaletteV678) {
+      const wrapped = function(themeValue, ...rest) {
+        const result = before.call(this, themeValue, ...rest);
+        return Promise.resolve(result).then(value => {
+          syncV678(themeValue);
+          requestAnimationFrame(() => syncV678(themeValue));
+          setTimeout(() => syncV678(themeValue), 80);
+          return value;
+        });
+      };
+      wrapped.__liveSettingsPaletteV678 = true;
+      window.applyTheme = wrapped;
+      try { applyTheme = wrapped; } catch {}
+    }
+  } catch {}
+
+  window.__loggySyncOpenSettingsPaletteV678 = syncV678;
+})();
+
+// ============================================================================
+// V679 — CLEAR STALE AI PATTERN WHEN SWITCHING TO A SOLID BUILT-IN THEME
+// AI themes can leave backgroundGradientV56 on body as an inline background-image.
+// A solid built-in theme (for example Noir) intentionally has no gradient/image,
+// so clear that old inline creative background immediately instead of waiting for
+// a page reload. Removing the inline value lets the built-in theme's own CSS/base
+// background color show through without touching image-based themes.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyClearStaleSolidBackgroundV679) return;
+  window.__loggyClearStaleSolidBackgroundV679 = true;
+
+  try {
+    const before = mountThemeCreativeBackgroundV56;
+    mountThemeCreativeBackgroundV56 = function(theme = {}) {
+      const gradient = String(theme?.backgroundGradientV56 || '').trim();
+      const image = String(theme?.backgroundImage || '').trim();
+      const mode = String(theme?.backgroundModeV158 || '').trim().toLowerCase();
+      const source = String(theme?.backgroundSourceV311 || '').trim().toLowerCase();
+
+      const isSolid = !gradient && !image &&
+        (!mode || mode === 'solid' || source === 'theme-color' || source === 'solid');
+
+      if (isSolid) {
+        document.body.style.removeProperty('background-image');
+        document.body.style.removeProperty('background-size');
+        document.body.style.removeProperty('background-attachment');
+        document.body.style.removeProperty('--custom-theme-gradient-v56');
+        document.getElementById('custom-theme-code-background-v56')?.remove();
+        document.body.classList.remove('custom-code-background-active-v56');
+        document.documentElement.classList.remove(
+          'custom-code-background-viewport-v61',
+          'custom-code-needs-y-scroll-v61'
+        );
+      }
+
+      return before.apply(this, arguments);
+    };
+  } catch (_) {}
+
+  // Also clear immediately on the core theme-apply path before any late repair
+  // can repaint the previous theme's gradient.
+  try {
+    const core = window.__loggyCoreApplyThemeV589;
+    if (typeof core === 'function' && !core.__clearStaleSolidBackgroundV679) {
+      const wrapped = function(themeValue, ...rest) {
+        let theme = themeValue;
+        if (!theme || typeof theme !== 'object') {
+          const id = String(themeValue || '');
+          try {
+            const snap = window.__loggyReadCanonicalThemeSnapshotV588?.(id);
+            if (snap?.theme) theme = snap.theme;
+          } catch (_) {}
+          if (!theme || typeof theme !== 'object') {
+            try { theme = resolveBuiltInThemeOverrideV550?.(id) || theme; } catch (_) {}
+          }
+          if (!theme || typeof theme !== 'object') {
+            try { theme = resolveAppliedCustomThemeV445?.(id) || theme; } catch (_) {}
+          }
+        }
+
+        const gradient = String(theme?.backgroundGradientV56 || '').trim();
+        const image = String(theme?.backgroundImage || '').trim();
+        const mode = String(theme?.backgroundModeV158 || '').trim().toLowerCase();
+        const source = String(theme?.backgroundSourceV311 || '').trim().toLowerCase();
+        const isSolid = theme && typeof theme === 'object' && !gradient && !image &&
+          (!mode || mode === 'solid' || source === 'theme-color' || source === 'solid');
+
+        if (isSolid) {
+          document.body.style.removeProperty('background-image');
+          document.body.style.removeProperty('background-size');
+          document.body.style.removeProperty('background-attachment');
+          document.body.style.removeProperty('--custom-theme-gradient-v56');
+          document.getElementById('custom-theme-code-background-v56')?.remove();
+          document.body.classList.remove('custom-code-background-active-v56');
+          document.documentElement.classList.remove(
+            'custom-code-background-viewport-v61',
+            'custom-code-needs-y-scroll-v61'
+          );
+        }
+
+        return core.call(this, themeValue, ...rest);
+      };
+      wrapped.__clearStaleSolidBackgroundV679 = true;
+      window.__loggyCoreApplyThemeV589 = wrapped;
+    }
+  } catch (_) {}
+})();
+
+// ============================================================================
+// V680 — RESTORE AI / BUILT-IN THEME CURSORS IN LOG SETTINGS
+// Dashboard already rebuilds the theme-cursor registry from saved AI themes.
+// Log Settings must do the same before rendering Mouse Pointer options instead
+// of depending on a cursor having been registered during a previous theme-apply.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyAiThemeCursorLibraryRecoveryV680) return;
+  window.__loggyAiThemeCursorLibraryRecoveryV680 = true;
+
+  const AI='loggy-ai-theme-cursors-v161';
+  const HIDDEN='loggy-hidden-cursors-v163';
+  const SHARED='loggy-shared-themes-v40';
+  const OVERRIDES='loggy-built-in-theme-overrides-v102';
+  const PREFIX='theme-cursor-v161-';
+  const MOTIFS=new Set(['sparkle','heart','flower','leaf','wave','gem','moon','sun','bow','butterfly','star','ribbon','music','berry','cloud']);
+  const TRAILS=new Set(['sparkle','heart','petal','leaf','bubble','star','gem','music','dot','moon','wave']);
+
+  const read=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'null');return v??fallback}catch{return fallback}};
+  const write=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value))}catch{}};
+  const hex=(v,f)=>/^#[0-9a-f]{6}$/i.test(String(v||''))?String(v):f;
+  const slug=v=>String(v||'theme-cursor').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,54)||'theme-cursor';
+
+  function specFrom(theme){
+    if(!theme||typeof theme!=='object')return null;
+    const raw=(theme.customCursorV161&&typeof theme.customCursorV161==='object')
+      ? theme.customCursorV161
+      : (theme.customCursorDependencyV161?.spec&&typeof theme.customCursorDependencyV161.spec==='object'
+          ? theme.customCursorDependencyV161.spec:null);
+    if(!raw)return null;
+    return {
+      primary:hex(raw.primary,hex(theme.accent,'#7c3aed')),
+      secondary:hex(raw.secondary,hex(theme.surface,'#f9a8d4')),
+      accent:hex(raw.accent,hex(theme.text,'#111111')),
+      motif:MOTIFS.has(String(raw.motif||''))?String(raw.motif):'sparkle',
+      trail:TRAILS.has(String(raw.trail||''))?String(raw.trail):'sparkle'
+    };
+  }
+
+  function variantsOf(theme){
+    const out=[];
+    if(!theme||typeof theme!=='object')return out;
+    out.push(theme);
+    const vars=theme.themeBuilderAiVariantsV376||theme.variants;
+    if(vars&&typeof vars==='object'){
+      if(vars.light&&typeof vars.light==='object')out.push(vars.light);
+      if(vars.dark&&typeof vars.dark==='object')out.push(vars.dark);
+    }
+    return out;
+  }
+
+  function recoverOne(theme,labelHint,idHint,variantHint){
+    const spec=specFrom(theme); if(!spec)return null;
+    let id=String(
+      theme.customCursorModeIdV161 ||
+      theme.themeCursorStyle ||
+      theme.customCursorDependencyV161?.id || ''
+    ).trim();
+    const label=String(theme.customCursorLabelV161||theme.name||labelHint||'Theme Cursor').trim().slice(0,80)||'Theme Cursor';
+    if(!id || id==='default' || !id.startsWith(PREFIX)){
+      const seed=[idHint||label,variantHint||''].filter(Boolean).join('-');
+      id=`${PREFIX}${slug(seed||label)}`;
+    }
+    if(new Set((read(HIDDEN,[])||[]).map(String)).has(id))return null;
+    return {id,label,spec};
+  }
+
+  function collect(){
+    const entries=[];
+    const seenThemes=new Set();
+    const addTheme=(theme,label,idHint)=>{
+      if(!theme||typeof theme!=='object')return;
+      variantsOf(theme).forEach((variant,index)=>{
+        const variantName=index===1?'light':index===2?'dark':'';
+        const key=[idHint||'',variantName,String(variant?.themeCursorStyle||variant?.customCursorModeIdV161||''),JSON.stringify(variant?.customCursorV161||variant?.customCursorDependencyV161?.spec||null)].join('|');
+        if(seenThemes.has(key))return;seenThemes.add(key);
+        const entry=recoverOne(variant,label,idHint,variantName);
+        if(entry)entries.push(entry);
+      });
+    };
+
+    const shared=read(SHARED,[]);
+    if(Array.isArray(shared))shared.forEach(row=>addTheme(row?.theme,row?.name||row?.theme?.name,row?.id));
+
+    const overrides=read(OVERRIDES,{});
+    if(overrides&&typeof overrides==='object'&&!Array.isArray(overrides)){
+      Object.entries(overrides).forEach(([id,row])=>addTheme(row?.theme||row,row?.name||row?.theme?.name,id));
+    }
+
+    // Also recover the currently selected Log-page theme even when it is a
+    // runtime built-in/override that is not represented by a library card yet.
+    try{
+      const active=window.__loggyResolveAppliedThemeV372?.();
+      addTheme(active,active?.name,String(db?.settings?.theme||'active-theme'));
+    }catch{}
+    try{
+      const id=String(db?.settings?.theme||'');
+      const built=resolveBuiltInThemeOverrideV550?.(id);
+      addTheme(built,built?.name,id);
+    }catch{}
+    try{
+      const id=String(db?.settings?.theme||'');
+      const custom=resolveAppliedCustomThemeV445?.(id);
+      addTheme(custom,custom?.name,id);
+    }catch{}
+
+    return entries;
+  }
+
+  function installEntry(entry){
+    if(!entry?.id)return;
+    // Prefer the V161 installer because it creates exactly the same pointer SVG
+    // and trail metadata that Theme Builder uses.
+    try{
+      const api=window.__loggyThemeAiV161;
+      if(api?.registerCursor){
+        const fake={
+          name:entry.label,
+          customCursorModeIdV161:entry.id,
+          themeCursorStyle:entry.id,
+          customCursorLabelV161:entry.label,
+          customCursorV161:{...entry.spec},
+          customCursorDependencyV161:{id:entry.id,label:entry.label,spec:{...entry.spec}},
+          useThemeCursor:true
+        };
+        api.registerCursor(fake,entry.label);
+        return;
+      }
+    }catch{}
+  }
+
+  function recoverRegistry(){
+    const hidden=new Set((read(HIDDEN,[])||[]).map(String));
+    const current=Array.isArray(read(AI,[]))?read(AI,[]):[];
+    const byId=new Map(current.filter(row=>row?.id&&!hidden.has(String(row.id))).map(row=>[String(row.id),row]));
+    collect().forEach(entry=>{if(entry?.id&&!hidden.has(String(entry.id)))byId.set(String(entry.id),entry)});
+    const next=[...byId.values()].slice(-120);
+    if(JSON.stringify(current)!==JSON.stringify(next))write(AI,next);
+
+    // Rehydrate CURSOR_OPTIONS right now, not only on the next page load.
+    next.forEach(installEntry);
+    return next;
+  }
+
+  let inside=false;
+  function refresh(){
+    if(inside)return;
+    inside=true;
+    try{ recoverRegistry(); }
+    finally{ inside=false; }
+  }
+
+  // The Log Settings picker itself is the authoritative refresh point.
+  try{
+    const before=renderCursorPicker;
+    if(typeof before==='function'&&!before.__aiCursorRecoveryV680){
+      const wrapped=function(){refresh();return before.apply(this,arguments)};
+      wrapped.__aiCursorRecoveryV680=true;
+      renderCursorPicker=wrapped;
+      window.renderCursorPicker=wrapped;
+    }
+  }catch{}
+
+  // Also recover before Settings opens, so the first render already includes
+  // every AI/built-in theme cursor and there is no close/reopen requirement.
+  try{
+    const before=openGlobalThemeSettings;
+    if(typeof before==='function'&&!before.__aiCursorRecoveryV680){
+      const wrapped=function(){refresh();const result=before.apply(this,arguments);requestAnimationFrame(()=>{refresh();try{renderCursorPicker?.()}catch{}});return result};
+      wrapped.__aiCursorRecoveryV680=true;
+      openGlobalThemeSettings=wrapped;
+      window.openGlobalThemeSettings=wrapped;
+    }
+  }catch{}
+
+  const openRefresh=()=>requestAnimationFrame(()=>{
+    refresh();
+    try{renderCursorPicker?.()}catch{}
+  });
+
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('#open-settings-btn,#open-daily-settings-btn,#daily-settings-modal'))openRefresh();
+  },true);
+  document.addEventListener('keydown',event=>{
+    if(event.shiftKey&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&String(event.key||'').toLowerCase()==='w')openRefresh();
+  },true);
+  window.addEventListener('storage',event=>{
+    if([SHARED,OVERRIDES,AI,HIDDEN].includes(event.key))openRefresh();
+  });
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',openRefresh,{once:true});
+  else openRefresh();
+})();
+
+// ============================================================================
+// V681 — INSTANT LOG THEME SEARCH CATALOG
+// New/shared AI themes already cached in localStorage must be searchable the
+// instant Settings opens. Do not wait for the later server-library merge or a
+// deferred gallery rebuild before making those cards/options available.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyInstantThemeSearchCatalogV681) return;
+  window.__loggyInstantThemeSearchCatalogV681 = true;
+
+  const SHARED = 'loggy-shared-themes-v40';
+  let preparing = false;
+  let lastSignature = '';
+
+  function readSharedV681() {
+    try {
+      const rows = JSON.parse(localStorage.getItem(SHARED) || '[]');
+      return Array.isArray(rows) ? rows : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function catalogSignatureV681() {
+    const shared = readSharedV681();
+    const copies = Array.isArray(db?.settings?.themeCopiesV30) ? db.settings.themeCopiesV30 : [];
+    return [
+      shared.map(row => `${row?.id || ''}\u0000${row?.name || row?.theme?.name || ''}\u0000${row?.updatedAt || ''}`).join('\u0001'),
+      copies.map(row => `${row?.id || ''}\u0000${row?.name || row?.theme?.name || ''}`).join('\u0001')
+    ].join('\u0002');
+  }
+
+  function ensureOptionV681(id, name) {
+    const select = document.getElementById('daily-theme-select');
+    if (!select || !id) return false;
+    let option = Array.from(select.options || []).find(row => String(row.value) === String(id));
+    if (option) {
+      if (name && option.textContent !== name) option.textContent = name;
+      return false;
+    }
+    option = document.createElement('option');
+    option.value = String(id);
+    option.textContent = String(name || id).trim() || String(id);
+    select.appendChild(option);
+    return true;
+  }
+
+  function hydrateCatalogV681(force = false) {
+    if (preparing) return false;
+    preparing = true;
+    try {
+      // First make the existing V40/V30 mirrors current. These are synchronous
+      // because the shared-theme library is already a localStorage cache.
+      try { syncSharedThemesIntoLogV40?.(); } catch (_) {}
+      try { syncThemeCopyOptionsV30?.(); } catch (_) {}
+
+      let changed = false;
+      const shared = readSharedV681();
+      shared.forEach(row => {
+        if (!row?.id || !row?.theme) return;
+        changed = ensureOptionV681(
+          String(row.id),
+          String(row.name || row.theme?.name || 'Custom Theme')
+        ) || changed;
+      });
+
+      const copies = Array.isArray(db?.settings?.themeCopiesV30) ? db.settings.themeCopiesV30 : [];
+      copies.forEach(row => {
+        if (!row?.id) return;
+        changed = ensureOptionV681(
+          String(row.id),
+          String(row.name || row.theme?.name || 'Custom Theme')
+        ) || changed;
+      });
+
+      const signature = catalogSignatureV681();
+      const picker = document.getElementById('theme-picker');
+      const cardIds = new Set(Array.from(picker?.querySelectorAll?.('.theme-picker-card[data-theme]') || []).map(card => String(card.dataset.theme || '')));
+      const missingCached = shared.some(row => row?.id && !cardIds.has(String(row.id))) ||
+        copies.some(row => row?.id && !cardIds.has(String(row.id)));
+
+      if (force || changed || missingCached || signature !== lastSignature) {
+        lastSignature = signature;
+        try { renderThemePicker?.(); } catch (_) {}
+        try { putNewThemesAtBottomV565?.(); } catch (_) {}
+        return true;
+      }
+      return false;
+    } finally {
+      preparing = false;
+    }
+  }
+
+  // Prepare on pointerdown, before the Settings opener's click work. This makes
+  // opening/searching immediate instead of displaying a temporary "No themes found".
+  document.addEventListener('pointerdown', event => {
+    if (event.target?.closest?.('#open-settings-btn,#open-daily-settings-btn')) {
+      hydrateCatalogV681(false);
+    }
+  }, true);
+
+  // Capture phase runs before the older bubbling search handler. If a newly
+  // cached theme has not been mirrored into the picker yet, add it first, then
+  // the existing filter sees it in this SAME keystroke.
+  document.addEventListener('input', event => {
+    if (event.target?.id !== 'theme-search-input') return;
+    hydrateCatalogV681(false);
+  }, true);
+
+  // When Dashboard/Theme Builder updates the library in another context, make
+  // the next search/open instantly reflect it without requiring a reload.
+  window.addEventListener('storage', event => {
+    if (event.key !== SHARED) return;
+    lastSignature = '';
+    hydrateCatalogV681(true);
+  });
+
+  // Seed from local cache as soon as the full feature bundle is available.
+  const seed = () => hydrateCatalogV681(false);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', seed, { once:true });
+  else seed();
+
+  window.__loggyHydrateThemeSearchCatalogV681 = hydrateCatalogV681;
+})();

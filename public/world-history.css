@@ -32148,3 +32148,149 @@ body > .kb-pinned-editor-v169.is-pin-placement-v171 ~ .custom-item-context-menu 
     z-index: 2147483647 !important;
     pointer-events: auto !important;
 }
+
+
+/* ============================================================================
+   V664 — KB multi-select geometry + bulk day modal + Anki progress alignment
+   ============================================================================ */
+/* Selection changes ONLY the border color. Never thicken the border, outline,
+   scale, bold, or otherwise change a card's dimensions. */
+#phrases-library-grid .phrase-card.kb-selected-v163,
+#phrases-library-grid .polaroid-card.kb-selected-v163 {
+    outline:none !important;
+    box-shadow:none !important;
+    border-color:#2f6fed !important;
+    border-width:2px !important;
+    border-style:solid !important;
+    transform:none !important;
+}
+#phrases-library-grid .phrase-card.kb-selected-v163:hover,
+#phrases-library-grid .polaroid-card.kb-selected-v163:hover {
+    border-color:#2f6fed !important;
+    border-width:2px !important;
+    transform:none !important;
+}
+
+/* Add-selected-to-day modal must always appear above the log page and its
+   context menus/decorations. */
+#kb-add-selected-day-modal-v664 {
+    position:fixed !important;
+    inset:0 !important;
+    z-index:2147483646 !important;
+    align-items:center !important;
+    justify-content:center !important;
+}
+#kb-add-selected-day-modal-v664:not(.hidden) { display:flex !important; }
+#kb-add-selected-day-modal-v664 .kb-add-selected-day-box-v664 {
+    width:min(440px,calc(100vw - 28px)) !important;
+    position:relative !important;
+    z-index:2147483647 !important;
+}
+#kb-add-selected-day-modal-v664 .kb-add-selected-day-submit-v664 { width:100% !important; }
+
+/* Bulk import day choices live directly below Delimiter. */
+#kb-bulk-modal-v162 .kb-bulk-day-choices-v664 {
+    display:flex !important;
+    flex-wrap:wrap !important;
+    gap:8px !important;
+}
+#kb-bulk-modal-v162 .kb-bulk-day-choices-v664 label {
+    display:inline-flex !important;
+    align-items:center !important;
+    gap:6px !important;
+    padding:7px 10px !important;
+    border:var(--thin-border) !important;
+    border-radius:var(--border-radius,8px) !important;
+    cursor:pointer !important;
+}
+
+/* Anki's “1/x · today · overdue” line belongs at the TOP LEFT of the same card
+   width, not centered inside the old 540px progress column. */
+html body #quiz-learn-view[data-quiz-mode-v655="anki"] > .set-progress-header {
+    width:calc(100% - 36px) !important;
+    max-width:none !important;
+    margin:0 auto 22px !important;
+    padding:0 20px !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    text-align:left !important;
+}
+html body #quiz-learn-view[data-quiz-mode-v655="anki"] > .set-progress-header #quiz-set-label {
+    margin:0 !important;
+    padding:0 !important;
+    text-align:left !important;
+    width:auto !important;
+}
+
+/* ============================================================
+   V665 — Anki progress is inside the card container, like Flashcards mode
+   ============================================================ */
+html body #quiz-learn-view[data-quiz-mode-v655="anki"] > .set-progress-header {
+    display:none !important;
+}
+html body #quiz-learn-view[data-quiz-mode-v655="anki"] #quiz-flashcard-area > :is(.standard-study-shell-v650,.quiz-pinned-card-wrap-v169,.pinned-standard-flashcard-v480,.pinned-card-final-v482,.map-card-v621,.map-learn-card-v621) {
+    position:relative !important;
+    padding-top:68px !important;
+}
+html body #quiz-learn-view[data-quiz-mode-v655="anki"] #quiz-flashcard-area .anki-inline-progress-v665 {
+    position:absolute !important;
+    top:20px !important;
+    left:24px !important;
+    right:auto !important;
+    z-index:4 !important;
+    margin:0 !important;
+    padding:0 !important;
+    width:auto !important;
+    max-width:calc(100% - 48px) !important;
+    text-align:left !important;
+    font:inherit !important;
+    color:inherit !important;
+    opacity:.78 !important;
+    pointer-events:none !important;
+}
+
+/* V667 — editable Knowledge Base page shortcuts. */
+#settings-modal #kb-shortcuts-v467 .kb-shortcut-editor-list-v667{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+#settings-modal #kb-shortcuts-v467 .kb-shortcut-editor-row-v667{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid color-mix(in srgb,var(--black) 14%,transparent)}
+#settings-modal #kb-shortcuts-v467 .kb-shortcut-editor-row-v667:last-child{border-bottom:0}
+#settings-modal #kb-shortcuts-v467 .kb-shortcut-editor-row-v667>span{min-width:0;font-size:.82rem;line-height:1.25}
+#settings-modal #kb-shortcuts-v467 .kb-shortcut-capture-v667{flex:0 0 auto;min-width:108px;min-height:34px;padding:7px 10px;border:1px solid color-mix(in srgb,var(--black) 45%,transparent);border-bottom-width:2px;border-radius:7px;background:var(--white);color:var(--black);font:700 .76rem/1 system-ui;cursor:pointer}
+#settings-modal #kb-shortcuts-v467 .kb-shortcut-capture-v667:hover,#settings-modal #kb-shortcuts-v467 .kb-shortcut-capture-v667:focus-visible{border-width:2px;outline:none}
+#settings-modal #kb-shortcuts-v467 .kb-shortcut-capture-v667.capturing{border-width:2px}
+
+/* V668 — temporary front/reference view for Quizlet Learn cards. */
+#quiz-learn-view .quiz-learn-prompt-card-v38.quiz-front-reference-v668 {
+    cursor: pointer;
+}
+#quiz-learn-view .map-learn-card-v621 .map-v621-stage-shell {
+    cursor: pointer;
+}
+#quiz-learn-view .map-learn-card-v621 .map-v621-stage-shell.quiz-map-front-reference-v668 .kb-map-pin-label-v169 {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+
+/* V670 — KB multi-select shortcut + Add-to-Items-Learned day input polish. */
+#kb-add-selected-day-modal-v664 .kb-add-selected-day-input-v666 {
+    width:100% !important;
+    box-sizing:border-box !important;
+    padding:10px 12px !important;
+    min-height:42px !important;
+}
+
+/* ============================================================
+   V671 — Anki inline counter is visible inside the card at top-right
+   ============================================================ */
+html body #quiz-learn-view[data-quiz-mode-v655="anki"] #quiz-flashcard-area .anki-inline-progress-v665 {
+    top:20px !important;
+    right:24px !important;
+    left:auto !important;
+    text-align:right !important;
+    color:var(--muted-text,currentColor) !important;
+    opacity:.82 !important;
+    z-index:6 !important;
+}

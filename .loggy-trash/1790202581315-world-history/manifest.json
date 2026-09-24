@@ -1,0 +1,16 @@
+{
+  "trashId": "1790202581315-world-history",
+  "deletedAt": "2026-09-23T22:29:41.323Z",
+  "app": {
+    "id": "world-history",
+    "name": "World History",
+    "icon": "ph-globe-hemisphere-west",
+    "category": "School"
+  },
+  "moved": [
+    "html",
+    "css",
+    "js",
+    "db"
+  ]
+}

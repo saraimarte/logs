@@ -2544,6 +2544,7 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
                     <div class="icon-option" data-icon="ph-barbell"><i class="ph ph-barbell"></i></div>
                     <div class="icon-option" data-icon="ph-music-notes"><i class="ph ph-music-notes"></i></div>
                     <div class="icon-option" data-icon="ph-paint-brush"><i class="ph ph-paint-brush"></i></div>
+                    <div class="icon-option" data-icon="ph-pen-nib"><i class="ph ph-pen-nib"></i></div>
                     <div class="icon-option" data-icon="ph-plant"><i class="ph ph-plant"></i></div>
                     <div class="icon-option" data-icon="ph-camera"><i class="ph ph-camera"></i></div>
                     <div class="icon-option" data-icon="ph-bicycle"><i class="ph ph-bicycle"></i></div>
@@ -25156,3 +25157,356 @@ html body #rename-modal #edit-icon-picker {
     border-width: 3px !important;
 }
 </style>
+
+<!-- V673 — keep Dashboard Settings palette synchronized during same-page theme apply -->
+<style id="dashboard-settings-live-theme-sync-v673">
+/* The late V364 parity layer is intentionally kept, but its variables must follow
+   the authoritative V380 Settings palette immediately while the modal stays open. */
+#dashboard-theme-modal > .modal-box.log-settings-parity-v364,
+#dashboard-theme-modal > .modal-box.log-settings-parity-v364 > .modal-header {
+  transition: background-color .12s ease, color .12s ease, border-color .12s ease !important;
+}
+</style>
+<script id="dashboard-settings-live-theme-sync-v673-runtime">
+(() => {
+  'use strict';
+  if (window.__dashboardSettingsLiveThemeSyncV673) return;
+  window.__dashboardSettingsLiveThemeSyncV673 = true;
+
+  const validHex = value => /^#[0-9a-f]{6}$/i.test(String(value || '').trim());
+  const readRoot = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const resolveRowTheme = value => {
+    if (value && typeof value === 'object') return value.theme && typeof value.theme === 'object' ? value.theme : value;
+    const id = String(value || localStorage.getItem('dashboard-theme') || 'default');
+    try {
+      const row = window.getDashboardSharedThemeV40?.(id);
+      if (row?.theme && typeof row.theme === 'object') return row.theme;
+      if (row && typeof row === 'object') return row;
+    } catch {}
+    try {
+      const row = JSON.parse(localStorage.getItem('loggy-shared-themes-v40') || '[]')
+        .find(entry => String(entry?.id || entry?.theme?.id || '') === id);
+      if (row?.theme && typeof row.theme === 'object') return row.theme;
+    } catch {}
+    try {
+      const applied = window._dashboardAppliedSharedThemeV46 || window._dashboardSharedThemeV41;
+      if (applied?.theme && typeof applied.theme === 'object') return applied.theme;
+      if (applied && typeof applied === 'object') return applied;
+    } catch {}
+    return {};
+  };
+
+  function luminance(hex) {
+    if (!validHex(hex)) return 1;
+    const n = parseInt(hex.slice(1), 16);
+    const channels = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(v => {
+      v /= 255;
+      return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4);
+    });
+    return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
+  }
+
+  function mirrorAuthoritativeSettingsPalette(themeValue) {
+    const theme = resolveRowTheme(themeValue);
+
+    // V380/V381 is the authoritative Dashboard Settings palette owner. Run it
+    // first with the newly selected theme instead of waiting for the next modal open.
+    try { window.__dashboardApplySettingsBackdropV382?.(theme); } catch {}
+
+    // V364 is later in source order and therefore can visually override V380.
+    // Mirror the freshly-computed V380 values into V364 immediately so there is
+    // never one frame (or one whole open modal) showing the previous theme.
+    const root = document.documentElement.style;
+    const bg = readRoot('--dashboard-settings-bg-v380');
+    const text = readRoot('--dashboard-settings-text-v380');
+    const border = readRoot('--dashboard-settings-border-v380');
+    const inputBg = readRoot('--dashboard-settings-input-bg-v380');
+    const inputText = readRoot('--dashboard-settings-input-text-v380');
+    const inputBorder = readRoot('--dashboard-settings-input-border-v380');
+    const buttonBg = readRoot('--dashboard-settings-button-bg-v380');
+    const buttonText = readRoot('--dashboard-settings-button-text-v380');
+    const buttonBorder = readRoot('--dashboard-settings-button-border-v380');
+    const hoverBg = readRoot('--dashboard-settings-hover-bg-v380');
+    const hoverText = readRoot('--dashboard-settings-hover-text-v380');
+
+    if (bg) {
+      root.setProperty('--dashboard-settings-surface-v364', bg);
+      root.setProperty('--dashboard-settings-search-bg-v364', inputBg || bg);
+      root.setProperty('--dashboard-settings-close-bg-v364', bg);
+    }
+    if (text) {
+      root.setProperty('--dashboard-settings-text-v364', text);
+      root.setProperty('--dashboard-settings-search-ink-v364', inputText || text);
+      root.setProperty('--dashboard-settings-close-ink-v364', text);
+    }
+    if (border) {
+      root.setProperty('--dashboard-settings-border-v364', border);
+      root.setProperty('--dashboard-settings-search-border-v364', inputBorder || border);
+      root.setProperty('--dashboard-settings-close-border-v364', border);
+    }
+
+    // Keep the + control on the theme's current button palette too.
+    if (buttonBg || bg) root.setProperty('--dashboard-settings-plus-bg-v364', buttonBg || bg);
+    if (buttonText || text) root.setProperty('--dashboard-settings-plus-ink-v364', buttonText || text);
+    if (buttonBorder || border) root.setProperty('--dashboard-settings-plus-border-v364', buttonBorder || border);
+    if (hoverBg) root.setProperty('--dashboard-settings-plus-hover-bg-v364', hoverBg);
+    if (hoverText || text) root.setProperty('--dashboard-settings-plus-hover-ink-v364', hoverText || text);
+    if (buttonBorder || border) root.setProperty('--dashboard-settings-plus-hover-border-v364', buttonBorder || border);
+
+    const modal = document.getElementById('dashboard-theme-modal');
+    if (modal && validHex(bg)) modal.classList.toggle('dashboard-settings-dark-v365', luminance(bg) < .32);
+  }
+
+  // Wrap the FINAL applyDashboardTheme in the chain. The awaited apply has already
+  // changed localStorage/body/theme assets, so palette sync now sees the new theme.
+  try {
+    const before = window.applyDashboardTheme;
+    if (typeof before === 'function' && !before.__settingsLiveSyncV673) {
+      const wrapped = async function(...args) {
+        const result = await before.apply(this, args);
+        const selected = args[0];
+        mirrorAuthoritativeSettingsPalette(selected);
+        requestAnimationFrame(() => mirrorAuthoritativeSettingsPalette(selected));
+        setTimeout(() => mirrorAuthoritativeSettingsPalette(selected), 80);
+        return result;
+      };
+      wrapped.__settingsLiveSyncV673 = true;
+      window.applyDashboardTheme = wrapped;
+    }
+  } catch {}
+
+  // Card clicks are captured by several historical layers. A late bubble pass makes
+  // the visible modal follow the clicked card even if another wrapper replaces the
+  // apply function later in the event turn.
+  document.addEventListener('click', event => {
+    const card = event.target?.closest?.('#dashboard-theme-modal .dashboard-theme-card[data-theme]');
+    if (!card) return;
+    const id = String(card.dataset.theme || '');
+    queueMicrotask(() => mirrorAuthoritativeSettingsPalette(id));
+    requestAnimationFrame(() => mirrorAuthoritativeSettingsPalette(id));
+    setTimeout(() => mirrorAuthoritativeSettingsPalette(id), 120);
+  }, false);
+
+  const modal = document.getElementById('dashboard-theme-modal');
+  if (modal) {
+    new MutationObserver(() => {
+      if (!modal.classList.contains('hidden')) mirrorAuthoritativeSettingsPalette();
+    }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+  }
+})();
+</script>
+
+<!-- V676 — restore AI/built-in theme cursors to Dashboard Settings picker. -->
+<script id="dashboard-ai-theme-cursor-library-recovery-v676">
+(()=>{
+  'use strict';
+  if(window.__dashboardAiThemeCursorLibraryRecoveryV676)return;
+  window.__dashboardAiThemeCursorLibraryRecoveryV676=true;
+
+  const AI='loggy-ai-theme-cursors-v161';
+  const HIDDEN='loggy-hidden-cursors-v163';
+  const SHARED='loggy-shared-themes-v40';
+  const OVERRIDES='loggy-built-in-theme-overrides-v102';
+  const PREFIX='theme-cursor-v161-';
+  const MOTIFS=new Set(['sparkle','heart','flower','leaf','wave','gem','moon','sun','bow','butterfly','star','ribbon','music','berry','cloud']);
+  const TRAILS=new Set(['sparkle','heart','petal','leaf','bubble','star','gem','music','dot','moon','wave']);
+
+  const read=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'null');return v??fallback}catch{return fallback}};
+  const write=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value))}catch{}};
+  const hex=(v,f)=>/^#[0-9a-f]{6}$/i.test(String(v||''))?String(v):f;
+  const slug=v=>String(v||'theme-cursor').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,54)||'theme-cursor';
+
+  function specFrom(theme){
+    if(!theme||typeof theme!=='object')return null;
+    const raw=(theme.customCursorV161&&typeof theme.customCursorV161==='object')
+      ? theme.customCursorV161
+      : (theme.customCursorDependencyV161?.spec&&typeof theme.customCursorDependencyV161.spec==='object'
+          ? theme.customCursorDependencyV161.spec:null);
+    if(!raw)return null;
+    return {
+      primary:hex(raw.primary,hex(theme.accent,'#7c3aed')),
+      secondary:hex(raw.secondary,hex(theme.surface,'#f9a8d4')),
+      accent:hex(raw.accent,hex(theme.text,'#111111')),
+      motif:MOTIFS.has(String(raw.motif||''))?String(raw.motif):'sparkle',
+      trail:TRAILS.has(String(raw.trail||''))?String(raw.trail):'sparkle'
+    };
+  }
+
+  function variantsOf(theme){
+    const out=[];
+    if(!theme||typeof theme!=='object')return out;
+    out.push(theme);
+    const vars=theme.themeBuilderAiVariantsV376||theme.variants;
+    if(vars&&typeof vars==='object'){
+      if(vars.light&&typeof vars.light==='object')out.push(vars.light);
+      if(vars.dark&&typeof vars.dark==='object')out.push(vars.dark);
+    }
+    return out;
+  }
+
+  function recoverOne(theme,labelHint,idHint,variantHint){
+    const spec=specFrom(theme); if(!spec)return null;
+    let id=String(
+      theme.customCursorModeIdV161 ||
+      theme.themeCursorStyle ||
+      theme.customCursorDependencyV161?.id || ''
+    ).trim();
+    const label=String(theme.customCursorLabelV161||theme.name||labelHint||'Theme Cursor').trim().slice(0,80)||'Theme Cursor';
+    if(!id || id==='default' || !id.startsWith(PREFIX)){
+      const seed=[idHint||label,variantHint||''].filter(Boolean).join('-');
+      id=`${PREFIX}${slug(seed||label)}`;
+    }
+    if(new Set((read(HIDDEN,[])||[]).map(String)).has(id))return null;
+    return {id,label,spec};
+  }
+
+  function collect(){
+    const entries=[];
+    const seenThemes=new Set();
+    const addTheme=(theme,label,idHint)=>{
+      if(!theme||typeof theme!=='object')return;
+      variantsOf(theme).forEach((variant,index)=>{
+        const variantName=index===1?'light':index===2?'dark':'';
+        const key=[idHint||'',variantName,String(variant?.themeCursorStyle||variant?.customCursorModeIdV161||''),JSON.stringify(variant?.customCursorV161||variant?.customCursorDependencyV161?.spec||null)].join('|');
+        if(seenThemes.has(key))return;seenThemes.add(key);
+        const entry=recoverOne(variant,label,idHint,variantName);
+        if(entry)entries.push(entry);
+      });
+    };
+
+    const shared=read(SHARED,[]);
+    if(Array.isArray(shared))shared.forEach(row=>addTheme(row?.theme,row?.name||row?.theme?.name,row?.id));
+
+    const overrides=read(OVERRIDES,{});
+    if(overrides&&typeof overrides==='object'&&!Array.isArray(overrides)){
+      Object.entries(overrides).forEach(([id,row])=>addTheme(row?.theme||row,row?.name||row?.theme?.name,id));
+    }
+
+    // Include every currently rendered Dashboard theme, including built-ins that
+    // are supplied by the runtime rather than persisted in the shared library.
+    document.querySelectorAll('#dashboard-theme-grid .dashboard-theme-card[data-theme]').forEach(card=>{
+      const id=String(card.dataset.theme||'');
+      if(!id)return;
+      try{
+        const row=getDashboardSharedThemeV40?.(id);
+        addTheme(row?.theme||row,row?.name||card.textContent?.trim(),id);
+      }catch{}
+    });
+
+    // The selected runtime theme may exist before/without a gallery card.
+    try{
+      const active=window._dashboardAppliedSharedThemeV46?.theme||window._dashboardAppliedSharedThemeV46||window._dashboardSharedThemeV41?.theme||window._dashboardSharedThemeV41;
+      addTheme(active,active?.name,localStorage.getItem('dashboard-theme')||'active-theme');
+    }catch{}
+
+    return entries;
+  }
+
+  function recoverRegistry(){
+    const hidden=new Set((read(HIDDEN,[])||[]).map(String));
+    const current=Array.isArray(read(AI,[]))?read(AI,[]):[];
+    const byId=new Map(current.filter(row=>row?.id&&!hidden.has(String(row.id))).map(row=>[String(row.id),row]));
+    collect().forEach(entry=>{if(entry?.id&&!hidden.has(String(entry.id)))byId.set(String(entry.id),entry)});
+    const next=[...byId.values()].slice(-120);
+    const before=JSON.stringify(current);
+    const after=JSON.stringify(next);
+    if(before!==after)write(AI,next);
+    return next;
+  }
+
+  let inside=false;
+  function refresh(){
+    if(inside)return;
+    inside=true;
+    try{
+      recoverRegistry();
+      try{cachedCursorIdV184='';cachedCursorV184=null}catch{}
+    }finally{inside=false}
+  }
+
+  // Rebuild the library immediately before the picker renders. This is the key
+  // fix: AI cursors are theme dependencies, so the picker must not depend on a
+  // previous theme-apply action having happened in this browser session.
+  try{
+    const before=renderAccessories;
+    renderAccessories=function(){refresh();return before.apply(this,arguments)};
+  }catch{}
+
+  const openRefresh=()=>requestAnimationFrame(()=>{
+    refresh();
+    try{renderAccessories?.()}catch{}
+  });
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('#dashboard-theme-button,.dashboard-theme-button,#dashboard-theme-modal'))openRefresh();
+  },true);
+  document.addEventListener('keydown',event=>{
+    if(event.shiftKey&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&String(event.key||'').toLowerCase()==='w')openRefresh();
+  },true);
+  window.addEventListener('storage',event=>{
+    if([SHARED,OVERRIDES,AI,HIDDEN].includes(event.key))openRefresh();
+  });
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',openRefresh,{once:true});
+  else openRefresh();
+})();
+</script>
+
+<!-- V677 — built-in Dashboard themes must immediately own their page background. -->
+<script id="dashboard-built-in-background-handoff-v677">
+(()=>{
+  'use strict';
+  if(window.__dashboardBuiltInBackgroundHandoffV677)return;
+  window.__dashboardBuiltInBackgroundHandoffV677=true;
+
+  const hasSharedTheme=id=>{
+    try{return !!getDashboardSharedThemeV40?.(id)?.theme}catch{return false}
+  };
+  const hasBuiltInOverride=id=>{
+    try{
+      const raw=JSON.parse(localStorage.getItem('loggy-built-in-theme-overrides-v102')||'{}');
+      return !!raw?.[String(id||'')];
+    }catch{return false}
+  };
+  const isPhysicalBuiltIn=id=>{
+    id=String(id||'default');
+    return id==='default'||(!hasSharedTheme(id)&&!hasBuiltInOverride(id));
+  };
+
+  function releaseStaleInlineBackgroundV677(id){
+    if(!isPhysicalBuiltIn(id))return;
+    const body=document.body,root=document.documentElement;
+
+    // V431/custom-theme layers can leave these inline after switching away from
+    // an AI/custom theme. Inline !important wins over the newly loaded built-in
+    // stylesheet, which is why Noir/etc. only looked right after Ctrl+R.
+    body.style.removeProperty('background-color');
+    body.style.removeProperty('--dashboard-shared-bg');
+    root.style.removeProperty('--dashboard-shared-bg');
+
+    // Old custom creative-background ownership must not survive the handoff.
+    if(body.dataset.dashboardBackgroundOwnedV158==='true'){
+      body.style.removeProperty('background-image');
+      delete body.dataset.dashboardBackgroundOwnedV158;
+    }
+  }
+
+  try{
+    const before=window.applyDashboardTheme;
+    if(typeof before==='function'&&!before.__builtInBackgroundHandoffV677){
+      const wrapped=async function(themeValue,...rest){
+        const id=String(themeValue||'default');
+        releaseStaleInlineBackgroundV677(id);
+        const result=await before.call(this,themeValue,...rest);
+        if(isPhysicalBuiltIn(id)){
+          releaseStaleInlineBackgroundV677(id);
+          requestAnimationFrame(()=>releaseStaleInlineBackgroundV677(id));
+        }
+        return result;
+      };
+      wrapped.__builtInBackgroundHandoffV677=true;
+      window.applyDashboardTheme=wrapped;
+      try{applyDashboardTheme=wrapped}catch{}
+    }
+  }catch{}
+})();
+</script>

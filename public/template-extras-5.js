@@ -1677,51 +1677,113 @@
     // ---------------- KB: direct delete + range multi-select + right-click delete ----------------
     const kbSelectionV163=new Set(); let kbSelectModeV163=false; let kbLastSelectedIdV164=null;
     async function deleteKbIdsV163(ids){ids=[...new Set(ids)].filter(id=>(db.phrases||[]).includes(id));if(!ids.length)return;const ok=await showAppConfirm({title:ids.length===1?'Delete Knowledge Base Item':'Delete Selected Items',message:ids.length===1?`Move “${ids[0]}” to Trash?`:`Move ${ids.length} selected Knowledge Base items to Trash?`,confirmLabel:ids.length===1?'Delete':'Delete Selected'});if(!ok)return;ids.forEach(id=>{try{moveKnowledgeItemToTrash(id)}catch{}});kbSelectionV163.clear();kbLastSelectedIdV164=null;kbSelectModeV163=false;try{renderPhrasesLibrary($('#phrases-search-bar')?.value||'')}catch{}}
-    function ensureKbSelectionToolbarV163(){const header=$('#phrases-library-view .log-header-container > div:last-child');if(!header)return;let select=$('#kb-select-toggle-v163');if(!select){select=document.createElement('button');select.id='kb-select-toggle-v163';select.className='icon-btn';select.title='Select multiple items';select.innerHTML='<i class="ph ph-check-square-offset"></i>';select.onclick=()=>{kbSelectModeV163=!kbSelectModeV163;if(!kbSelectModeV163){kbSelectionV163.clear();kbLastSelectedIdV164=null}renderPhrasesLibrary($('#phrases-search-bar')?.value||'')};header.insertBefore(select,$('#add-phrase-library-btn'))}let bar=$('#kb-selection-bar-v163');if(!bar){bar=document.createElement('div');bar.id='kb-selection-bar-v163';bar.className='kb-selection-bar-v163 hidden';bar.innerHTML='<span class="kb-selection-count-v163">0 selected</span><span class="progress-hint kb-selection-hint-v164">Shift-click to select a range · right-click a selected item to delete</span>';$('#phrases-search-bar')?.insertAdjacentElement('afterend',bar)}bar.classList.toggle('hidden',!kbSelectModeV163);$('.kb-selection-count-v163',bar).textContent=`${kbSelectionV163.size} selected`;select.classList.toggle('selected',kbSelectModeV163)}
+    function ensureKbSelectionToolbarV163(){const header=$('#phrases-library-view .log-header-container > div:last-child');if(!header)return;let select=$('#kb-select-toggle-v163');if(!select){select=document.createElement('button');select.id='kb-select-toggle-v163';select.className='icon-btn';select.title='Select multiple items';select.innerHTML='<i class="ph ph-check-square-offset"></i>';select.onclick=()=>{kbSelectModeV163=!kbSelectModeV163;if(!kbSelectModeV163){kbSelectionV163.clear();kbLastSelectedIdV164=null}renderPhrasesLibrary($('#phrases-search-bar')?.value||'')};header.insertBefore(select,$('#add-phrase-library-btn'))}let bar=$('#kb-selection-bar-v163');if(!bar){bar=document.createElement('div');bar.id='kb-selection-bar-v163';bar.className='kb-selection-bar-v163 hidden';bar.innerHTML='<span class="kb-selection-count-v163">0 selected</span><span class="progress-hint kb-selection-hint-v164">Shift-click to select a range · right-click a selected item for bulk actions</span>';$('#phrases-search-bar')?.insertAdjacentElement('afterend',bar)}bar.classList.toggle('hidden',!kbSelectModeV163);$('.kb-selection-count-v163',bar).textContent=`${kbSelectionV163.size} selected`;select.classList.toggle('selected',kbSelectModeV163)}
 
     // V467 — Knowledge Base shortcuts + in-modal shortcut reference.
     function kbViewVisibleV467(){
         const view=document.getElementById('phrases-library-view');
         // V598: "active" is the actual top-level view authority. Older checks
         // based only on hidden/display could disagree with the tab router.
-        return !!view && view.classList.contains('active');
+        return !!view && (view.classList.contains('active') || (!view.classList.contains('hidden') && view.getClientRects().length > 0));
     }
     function ensureKbShortcutDefaultsV467(){
         db.settings||={};
-        db.settings.kbShortcutsV467||={bulkAdd:'Shift+=',bulkDelete:'Shift+Delete'};
+        db.settings.kbShortcutsV467||={};
         if(!db.settings.kbShortcutsV467.bulkAdd)db.settings.kbShortcutsV467.bulkAdd='Shift+=';
-        if(!db.settings.kbShortcutsV467.bulkDelete)db.settings.kbShortcutsV467.bulkDelete='Shift+Delete';
+        if(!db.settings.kbShortcutsV467.bulkHidden)db.settings.kbShortcutsV467.bulkHidden='Shift+H';
+        const legacySelect=String(db.settings.kbShortcutsV467.bulkSelect||'').replace(/\s+/g,'').toLowerCase();
+        if(!db.settings.kbShortcutsV467.bulkSelect || legacySelect==='shift+delete' || legacySelect==='shift+del') db.settings.kbShortcutsV467.bulkSelect='Shift+S';
+        if('bulkDelete' in db.settings.kbShortcutsV467) delete db.settings.kbShortcutsV467.bulkDelete;
+    }
+    function kbShortcutMainKeyV667(event){
+        const code=String(event.code||'');
+        if(/^Key[A-Z]$/.test(code))return code.slice(3);
+        if(/^Digit[0-9]$/.test(code))return code.slice(5);
+        const byCode={Equal:'=',Minus:'-',Period:'.',Comma:',',Slash:'/',Backslash:'\\',Semicolon:';',Quote:"'",BracketLeft:'[',BracketRight:']',Backquote:'`'};
+        if(byCode[code])return byCode[code];
+        const key=String(event.key||'').trim();
+        if(!key||['Shift','Control','Alt','Meta'].includes(key))return '';
+        if(key===' ')return 'Space';
+        if(key.length===1)return key.toUpperCase();
+        return key;
+    }
+    function kbShortcutFromEventV667(event){
+        const main=kbShortcutMainKeyV667(event); if(!main)return '';
+        const parts=[];
+        if(event.ctrlKey)parts.push('Ctrl');
+        if(event.altKey)parts.push('Alt');
+        if(event.shiftKey)parts.push('Shift');
+        if(event.metaKey)parts.push('Meta');
+        parts.push(main);
+        return parts.join('+');
+    }
+    function kbShortcutMatchesV667(event,shortcut){
+        const wanted=String(shortcut||'').split('+').map(x=>x.trim()).filter(Boolean);
+        if(!wanted.length)return false;
+        const has=name=>wanted.some(x=>x.toLowerCase()===name.toLowerCase());
+        if(!!event.ctrlKey!==has('Ctrl')||!!event.altKey!==has('Alt')||!!event.shiftKey!==has('Shift')||!!event.metaKey!==has('Meta'))return false;
+        const main=wanted.find(x=>!['ctrl','alt','shift','meta'].includes(x.toLowerCase()))||'';
+        return kbShortcutMainKeyV667(event).toLowerCase()===main.toLowerCase();
+    }
+    function kbShortcutButtonLabelV667(value){return String(value||'').replace(/\+/g,' + ')}
+    function bindKbShortcutCaptureV667(section){
+        section.querySelectorAll('[data-kb-shortcut-v667]').forEach(button=>{
+            const key=button.dataset.kbShortcutV667;
+            button.textContent=kbShortcutButtonLabelV667(db.settings.kbShortcutsV467?.[key]);
+            if(button.dataset.boundV667==='1')return;
+            button.dataset.boundV667='1';
+            button.addEventListener('click',()=>{
+                button.classList.add('capturing');
+                const before=button.textContent;
+                button.textContent='Press shortcut…';
+                const capture=event=>{
+                    event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation();
+                    if(event.key==='Escape'){
+                        document.removeEventListener('keydown',capture,true);
+                        button.classList.remove('capturing'); button.textContent=before; return;
+                    }
+                    const next=kbShortcutFromEventV667(event); if(!next)return;
+                    db.settings.kbShortcutsV467[key]=next;
+                    try{saveDb()}catch{}
+                    document.removeEventListener('keydown',capture,true);
+                    button.classList.remove('capturing'); button.textContent=kbShortcutButtonLabelV667(next);
+                };
+                setTimeout(()=>document.addEventListener('keydown',capture,true),0);
+            });
+        });
     }
     function ensureKbShortcutsSectionV467(){
+        ensureKbShortcutDefaultsV467();
         const modal=document.getElementById('settings-modal');
         const box=modal?.querySelector('.modal-box');
         if(!box)return;
         let section=document.getElementById('kb-shortcuts-v467');
-        if(!section){
-            section=document.createElement('div');
-            section.id='kb-shortcuts-v467';
-            section.className='modal-section kb-shortcuts-v467';
-            section.innerHTML=`<span class="field-label">Knowledge Base Shortcuts</span><div class="global-shortcuts-list"><div class="global-shortcut-row"><kbd>Shift</kbd><span>+</span><kbd>=</kbd><p>Open Bulk Add Knowledge Base Items.</p></div><div class="global-shortcut-row"><kbd>Shift</kbd><span>+</span><kbd>H</kbd><p>Show or hide Knowledge Base items tagged #hide.</p></div><div class="global-shortcut-row"><kbd>Shift</kbd><span>+</span><kbd>Delete</kbd><p>Delete the currently selected Knowledge Base items. If none are selected yet, enter bulk-select mode.</p></div></div>`;
-            box.appendChild(section);
-        } else if(section.parentElement!==box){
-            box.appendChild(section);
-        }
+        if(!section){section=document.createElement('div');section.id='kb-shortcuts-v467';section.className='modal-section kb-shortcuts-v467';box.appendChild(section)}
+        else if(section.parentElement!==box)box.appendChild(section);
+        section.innerHTML=`<span class="field-label">Knowledge Base Page Shortcuts</span><div class="kb-shortcut-editor-list-v667"><div class="kb-shortcut-editor-row-v667"><span>Bulk Add Knowledge Base Items</span><button type="button" class="kb-shortcut-capture-v667" data-kb-shortcut-v667="bulkAdd"></button></div><div class="kb-shortcut-editor-row-v667"><span>Show or hide #hide items</span><button type="button" class="kb-shortcut-capture-v667" data-kb-shortcut-v667="bulkHidden"></button></div><div class="kb-shortcut-editor-row-v667"><span>Multi Select</span><button type="button" class="kb-shortcut-capture-v667" data-kb-shortcut-v667="bulkSelect"></button></div></div>`;
+        bindKbShortcutCaptureV667(section);
     }
     ensureKbShortcutDefaultsV467();
     document.addEventListener('keydown',event=>{
         if(!kbViewVisibleV467())return;
 
+        // V671: Escape always exits Knowledge Base multi-select mode.
+        // This works even if a KB search/input currently has focus.
+        if(event.key==='Escape'){
+            const selectButton=document.getElementById('kb-select-toggle-v163');
+            if(selectButton?.classList.contains('selected')){
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                selectButton.click();
+                return;
+            }
+        }
+
         // V598: Shift+H is a KB-view command, not a typing command.
         // It must still work while the KB search box or an Add/Edit input has
         // focus. Handle it BEFORE the generic typing guard.
-        if(
-            !event.repeat &&
-            event.shiftKey &&
-            !event.ctrlKey &&
-            !event.altKey &&
-            !event.metaKey &&
-            (event.code === 'KeyH' || String(event.key || '').toLowerCase() === 'h')
-        ){
+        if(!event.repeat && kbShortcutMatchesV667(event,db.settings?.kbShortcutsV467?.bulkHidden)){
             event.preventDefault();
             event.stopPropagation();
             event.stopImmediatePropagation();
@@ -1733,7 +1795,7 @@
         const typing=target?.matches?.('input,textarea,select,[contenteditable="true"],[role="textbox"]');
         if(typing)return;
 
-        if(event.shiftKey&&!event.ctrlKey&&!event.altKey&&!event.metaKey&&event.code==='Equal'){
+        if(kbShortcutMatchesV667(event,db.settings?.kbShortcutsV467?.bulkAdd)){
             event.preventDefault();event.stopPropagation();
             const button=document.getElementById('kb-bulk-add-btn-v162');
             if(button){button.click();return;}
@@ -1741,12 +1803,13 @@
             requestAnimationFrame(()=>document.getElementById('kb-bulk-add-btn-v162')?.click());
             return;
         }
-        if(event.shiftKey&&!event.ctrlKey&&!event.altKey&&!event.metaKey&&event.code==='Delete'){
-            event.preventDefault();event.stopPropagation();
-            if(kbSelectionV163.size){deleteKbIdsV163([...kbSelectionV163]);return;}
-            kbSelectModeV163=true;kbLastSelectedIdV164=null;
+        if(kbShortcutMatchesV667(event,db.settings?.kbShortcutsV467?.bulkSelect)){
+            event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+            const selectButton=document.getElementById('kb-select-toggle-v163');
+            if(selectButton){selectButton.click();return;}
+            kbSelectModeV163=!kbSelectModeV163;
+            if(!kbSelectModeV163){kbSelectionV163.clear();kbLastSelectedIdV164=null;}
             try{renderPhrasesLibrary($('#phrases-search-bar')?.value||'')}catch{}
-            try{showFeatureToast('Bulk delete mode: select Knowledge Base items, then press Shift+Delete again.')}catch{}
         }
     },true);
     // V596: do not watch the entire document just to detect one Settings modal.
@@ -12030,7 +12093,8 @@ DASHBOARD TITLE NOTE:
       area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" data-anki-flip-v480><span style="font-size:2.8rem">${esc(itemId)}</span></div></div>`;
       area.querySelector('[data-anki-flip-v480]')?.addEventListener('click',()=>{quizCardFlipped=true;currentSlideIndex=0;showQuizCard();});
     } else {
-      area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" style="padding:0">${renderCardBackContent(meta)}</div><div class="quiz-pinned-anki-actions-v169"><button class="icon-btn still-learning-btn" data-anki-again-v480><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button><button class="icon-btn got-it-btn" data-anki-good-v480><i class="ph ph-check"></i> Got It!</button></div></div>`;
+      area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" data-anki-back-flip-v669 style="padding:0">${renderCardBackContent(meta)}</div><div class="quiz-pinned-anki-actions-v169"><button class="icon-btn still-learning-btn" data-anki-again-v480><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button><button class="icon-btn got-it-btn" data-anki-good-v480><i class="ph ph-check"></i> Got It!</button></div></div>`;
+      area.querySelector('[data-anki-back-flip-v669]')?.addEventListener('click',(e)=>{if(e.target.closest('button,input,textarea,select,a,video,audio,iframe,.card-dot,.card-slide-arrow,.audio-play-btn'))return;quizCardFlipped=false;currentSlideIndex=0;showQuizCard();});
       area.querySelector('[data-anki-again-v480]')?.addEventListener('click',()=>processAnkiAnswer('Again'));
       area.querySelector('[data-anki-good-v480]')?.addEventListener('click',()=>processAnkiAnswer('Good'));
     }
@@ -13820,7 +13884,7 @@ DASHBOARD TITLE NOTE:
     const partIndex=parts?state.index:null;
     area.innerHTML=`
       <div class="flashcard-wrap map-card-v621 map-anki-v621">
-        <div class="map-v621-stage-shell ${state.revealed?'is-revealed-v621':''}" ${state.revealed?'':'data-map-anki-reveal-v621'}>
+        <div class="map-v621-stage-shell ${state.revealed?'is-revealed-v621':''}" data-map-anki-toggle-v669>
           ${stageHtmlV621(pinned,{partIndex,revealed:reveal})}
         </div>
         <div class="flashcard-hint-text">${state.revealed ? (parts?`Part ${state.index+1} / ${pins.length}`:'Labels revealed') : (parts?`Part ${state.index+1} / ${pins.length} · Tap the image to reveal`:'Tap the image to reveal all labels')}</div>
@@ -13830,7 +13894,11 @@ DASHBOARD TITLE NOTE:
         </div>` : ''}
       </div>`;
     queueDecorateV621(area,{});
-    area.querySelector('[data-map-anki-reveal-v621]')?.addEventListener('click',()=>{state.revealed=true;renderAnkiV621(area,id,pinned);});
+    area.querySelector('[data-map-anki-toggle-v669]')?.addEventListener('click',(e)=>{
+      if(e.target.closest('button,input,textarea,select,a,video,audio,iframe,.audio-play-btn'))return;
+      state.revealed=!state.revealed;
+      renderAnkiV621(area,id,pinned);
+    });
     const rate = rating => {
       if(!parts){ dropStateV621(state); processAnkiAnswer(rating); return; }
       if(rating==='Again') state.hadWrong=true;
@@ -13917,13 +13985,14 @@ DASHBOARD TITLE NOTE:
       <div class="map-v621-stage-shell">${stageHtmlV621(pinned,{partIndex,revealed})}</div>
       <div class="quiz-learn-options-v38 map-learn-options-v621">
         ${choices.map(choice=>`<button type="button" class="icon-btn" data-map-choice-v621="${esc(choice)}">${esc(choice)}</button>`).join('')}
+        <button type="button" class="icon-btn map-mc-idk-v672" data-map-mc-idk-v672>Idk</button>
       </div>
       <div class="map-learn-feedback-v621" aria-live="polite"></div>`,{active:parts?'':pid});
 
-    area.querySelectorAll('[data-map-choice-v621]').forEach(button=>button.addEventListener('click',()=>{
+    const finishMapMcV672=(button=null,fromIdk=false)=>{
       if(state.ready)return;
-      const picked=String(button.dataset.mapChoiceV621||'');
-      const correct=norm(picked)===norm(answer);
+      const picked=String(button?.dataset?.mapChoiceV621||'');
+      const correct=!fromIdk&&norm(picked)===norm(answer);
       if(!correct)state.hadWrong=true;
       state.completed.add(pid);
       state.ready=true;
@@ -13931,17 +14000,21 @@ DASHBOARD TITLE NOTE:
         choice.disabled=true;
         const value=String(choice.dataset.mapChoiceV621||'');
         choice.classList.toggle('map-choice-correct-v621',norm(value)===norm(answer));
-        choice.classList.toggle('map-choice-wrong-v621',choice===button&&!correct);
+        choice.classList.toggle('map-choice-wrong-v621',!!button&&choice===button&&!correct);
       });
+      const idk=area.querySelector('[data-map-mc-idk-v672]');
+      if(idk)idk.disabled=true;
       // Reveal this pin only AFTER an answer. In parts mode it is still the only
       // pin on the image; in whole mode the target was visibly highlighted first.
       const shell=area.querySelector('.map-v621-stage-shell');
       if(shell) shell.innerHTML=stageHtmlV621(pinned,{partIndex,revealed:revealForV621(pinned,state,true)});
       queueDecorateV621(area,{active:parts?'':pid,status:correct?'correct':'wrong'});
       const feedback=area.querySelector('.map-learn-feedback-v621');
-      if(feedback)feedback.innerHTML=`<strong>${correct?'Correct':'Incorrect'}</strong><button type="button" class="icon-btn" data-map-learn-next-v621>Continue Learning</button>`;
+      if(feedback)feedback.innerHTML=`<strong>${correct?'Correct':fromIdk?`Answer revealed · Correct answer: ${esc(answer)}`:'Incorrect'}</strong><button type="button" class="icon-btn" data-map-learn-next-v621>Continue Learning</button>`;
       area.querySelector('[data-map-learn-next-v621]')?.addEventListener('click',()=>continueLearnV621(area,id,pinned,state),{once:true});
-    }));
+    };
+    area.querySelectorAll('[data-map-choice-v621]').forEach(button=>button.addEventListener('click',()=>finishMapMcV672(button,false)));
+    area.querySelector('[data-map-mc-idk-v672]')?.addEventListener('click',()=>finishMapMcV672(null,true));
   }
 
   function renderLearnWrittenV621(area,id,pinned,state) {
@@ -14026,3 +14099,251 @@ DASHBOARD TITLE NOTE:
 })();
 
 // V642: obsolete out-of-scope V623 Lazy Day wrapper removed.
+
+
+// ============================================================================
+// V664 — KB selection actions, Shift+S, Shift+H reliability, bulk-add days
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyKbBulkActionsV664) return;
+  window.__loggyKbBulkActionsV664 = true;
+
+  const q = (s, r=document) => r.querySelector(s);
+  const qa = (s, r=document) => Array.from(r.querySelectorAll(s));
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function existingDaysV664(){
+    return Object.keys(db?.days || {})
+      .map(Number)
+      .filter(Number.isFinite)
+      .sort((a,b)=>a-b);
+  }
+
+  function selectedKbIdsV664(){
+    return [...new Set(
+      qa('#phrases-library-grid .kb-selected-v163[data-kb-item-id-v163]')
+        .map(card => card.dataset.kbItemIdV163)
+        .filter(id => id && (db.phrases || []).includes(id))
+    )];
+  }
+
+  function addItemsToDaysV664(ids, days){
+    ids=[...new Set(ids)].filter(id => (db.phrases || []).includes(id));
+    days=[...new Set(days.map(Number))].filter(day => Number.isFinite(day) && db.days?.[day]);
+    if(!ids.length || !days.length) return 0;
+    let added=0;
+    days.forEach(dayNum => {
+      const day=db.days[dayNum];
+      if(!Array.isArray(day.phrases)) day.phrases=[];
+      ids.forEach(id => {
+        if(day.phrases.includes(id)) return;
+        day.phrases.push(id);
+        added++;
+      });
+    });
+    try { saveDb(); } catch {}
+    try {
+      if(typeof currentDay !== 'undefined' && days.includes(Number(currentDay)) && db.days?.[currentDay]) {
+        renderPhrases(db.days[currentDay].phrases || []);
+      }
+    } catch {}
+    return added;
+  }
+
+  function ensureAddSelectedToDayModalV664(){
+    let modal=q('#kb-add-selected-day-modal-v664');
+    if(modal) return modal;
+    modal=document.createElement('div');
+    modal.id='kb-add-selected-day-modal-v664';
+    modal.className='modal-overlay hidden kb-add-selected-day-modal-v664';
+    modal.innerHTML=`<div class="modal-box kb-add-selected-day-box-v664">
+      <div class="modal-header"><h2>Add to Items Learned</h2><button type="button" class="small-icon-btn kb-add-selected-day-close-v664" aria-label="Close"><i class="ph ph-x"></i></button></div>
+      <div class="modal-section"><span class="field-label">Day number</span><input class="kb-add-selected-day-input-v666" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter day number" autocomplete="off"></div>
+      <button type="button" class="icon-btn kb-add-selected-day-submit-v664" disabled><i class="ph ph-plus"></i> Add</button>
+    </div>`;
+    document.body.appendChild(modal);
+    const close=()=>modal.classList.add('hidden');
+    q('.kb-add-selected-day-close-v664',modal).onclick=close;
+    modal.addEventListener('pointerdown',event=>{if(event.target===modal)close()});
+    return modal;
+  }
+
+  function openAddSelectedToDayV664(ids){
+    ids=[...new Set(ids)].filter(id => (db.phrases || []).includes(id));
+    if(!ids.length) return;
+    const days=existingDaysV664();
+    if(!days.length){ try{showFeatureToast?.('Create a Daily Log day first.')}catch{} return; }
+    const modal=ensureAddSelectedToDayModalV664();
+    const input=q('.kb-add-selected-day-input-v666',modal);
+    const submit=q('.kb-add-selected-day-submit-v664',modal);
+    const title=q('.modal-header h2',modal);
+    if(title) title.textContent=`Add ${ids.length} selected to Items Learned`;
+    input.value='';
+    modal.dataset.itemIds=JSON.stringify(ids);
+
+    const selectedExistingDay=()=>{
+      const raw=String(input.value||'').trim();
+      if(!/^\d+$/.test(raw)) return null;
+      const day=Number(raw);
+      return Number.isInteger(day) && day>0 && db.days?.[day] ? day : null;
+    };
+    const syncSubmit=()=>{
+      const valid=selectedExistingDay()!=null;
+      submit.disabled=!valid;
+      submit.setAttribute('aria-disabled',valid?'false':'true');
+    };
+    input.oninput=syncSubmit;
+    input.onkeydown=event=>{
+      if(event.key==='Enter' && !submit.disabled){ event.preventDefault(); submit.click(); }
+    };
+    submit.onclick=()=>{
+      const day=selectedExistingDay();
+      if(day==null) return;
+      let itemIds=[]; try{itemIds=JSON.parse(modal.dataset.itemIds||'[]')}catch{}
+      const count=addItemsToDaysV664(itemIds,[day]);
+      modal.classList.add('hidden');
+      try{showFeatureToast?.(count?`Added ${itemIds.length} selected item${itemIds.length===1?'':'s'} to Day ${day}.`:`Those items are already in Day ${day}.`)}catch{}
+    };
+    syncSubmit();
+    modal.classList.remove('hidden');
+    requestAnimationFrame(()=>input.focus());
+  }
+
+  async function deleteSelectedKbV664(ids){
+    ids=[...new Set(ids)].filter(id => (db.phrases || []).includes(id));
+    if(!ids.length)return;
+    const ok=await showAppConfirm({
+      title:ids.length===1?'Delete Knowledge Base Item':'Delete Selected Items',
+      message:ids.length===1?`Move “${ids[0]}” to Trash?`:`Move ${ids.length} selected Knowledge Base items to Trash?`,
+      confirmLabel:ids.length===1?'Delete':'Delete Selected'
+    });
+    if(!ok)return;
+
+    // Prevent starter migrations from ever re-seeding deliberately removed built-ins.
+    db.settings ||= {};
+    db.settings.englishStarterTemplateV451 = db.settings.englishStarterTemplateV451 === true;
+    if(db.settings.englishStarterTemplateV451){
+      db.settings.englishStarterExamplesV453=true;
+      db.settings.englishStarterDay1V462=true;
+      db.settings.englishStarterLazyItemsV597=true;
+      db.settings.englishStarterMapItemV656=true;
+    }
+
+    const trashEntries=[];
+    ids.forEach(itemId=>{
+      const index=(db.phrases||[]).indexOf(itemId);
+      if(index<0)return;
+      const meta=JSON.parse(JSON.stringify(db.phrase_meta?.[itemId]||{}));
+      const loggedDays=[];
+      Object.entries(db.days||{}).forEach(([dayNumber,dayData])=>{
+        if(!Array.isArray(dayData?.phrases))return;
+        const positions=[];
+        dayData.phrases.forEach((value,position)=>{if(String(value)===String(itemId))positions.push(position)});
+        if(!positions.length)return;
+        loggedDays.push({dayNumber,positions});
+        dayData.phrases=dayData.phrases.filter(value=>String(value)!==String(itemId));
+      });
+      const entry={deletedAt:new Date().toISOString(),originalIndex:index,itemId,meta,loggedDays};
+      try{getFeatureTrash().kbItems.unshift(entry)}catch{}
+      trashEntries.push(entry);
+      db.phrases.splice(index,1);
+      delete db.phrase_meta[itemId];
+    });
+    try{saveDb()}catch{}
+    try{renderPhrasesLibrary(q('#phrases-search-bar')?.value||'')}catch{}
+    const toggle=q('#kb-select-toggle-v163.selected');
+    if(toggle) toggle.click();
+    try{
+      showFeatureToast?.(`Moved ${trashEntries.length} item${trashEntries.length===1?'':'s'} to Trash.`,'Undo',()=>{
+        const trash=getFeatureTrash().kbItems;
+        [...trashEntries].reverse().forEach(entry=>{
+          const ti=trash.findIndex(x=>x===entry || (x.itemId===entry.itemId && x.deletedAt===entry.deletedAt));
+          if(ti>=0)trash.splice(ti,1);
+          if(!(db.phrases||[]).includes(entry.itemId)){
+            const at=Math.max(0,Math.min(Number(entry.originalIndex)||0,db.phrases.length));
+            db.phrases.splice(at,0,entry.itemId);
+          }
+          db.phrase_meta[entry.itemId]=entry.meta||{};
+          (entry.loggedDays||[]).forEach(ref=>{
+            const day=db.days?.[ref.dayNumber]; if(!day)return;
+            if(!Array.isArray(day.phrases))day.phrases=[];
+            if(day.phrases.includes(entry.itemId))return;
+            const at=Math.max(0,Math.min(Number(ref.positions?.[0]??day.phrases.length),day.phrases.length));
+            day.phrases.splice(at,0,entry.itemId);
+          });
+        });
+        try{saveDb()}catch{}
+        try{renderPhrasesLibrary(q('#phrases-search-bar')?.value||'')}catch{}
+      });
+    }catch{}
+  }
+
+  // Own selected-card right click at capture time so older one-action menus cannot replace it.
+  document.addEventListener('contextmenu',event=>{
+    const card=event.target?.closest?.('#phrases-library-grid .phrase-card,#phrases-library-grid .polaroid-card');
+    if(!card || !q('#kb-select-toggle-v163.selected'))return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    if(!card.classList.contains('kb-selected-v163')) card.click();
+    requestAnimationFrame(()=>{
+      const ids=selectedKbIdsV664();
+      if(!ids.length)return;
+      showCustomItemContextMenu(event.clientX,event.clientY,[
+        {label:`Add ${ids.length} selected to Items Learned`,icon:'ph-plus-circle',action:()=>openAddSelectedToDayV664(ids)},
+        {label:`Delete ${ids.length} selected`,icon:'ph-trash',danger:true,action:()=>deleteSelectedKbV664(ids)}
+      ]);
+    });
+  },true);
+
+  // Bulk Add: inject day/day(s) choices immediately after Delimiter.
+  function ensureBulkDaysV664(){
+    const modal=q('#kb-bulk-modal-v162'); if(!modal)return;
+    let wrap=q('.kb-bulk-days-v664',modal);
+    if(!wrap){
+      wrap=document.createElement('div');
+      wrap.className='modal-section kb-bulk-days-v664';
+      const delimiter=q('.kb-bulk-delimiter-wrap-v464',modal);
+      if(delimiter)delimiter.insertAdjacentElement('afterend',wrap);
+      else q('.kb-bulk-box-v162',modal)?.appendChild(wrap);
+    }
+    const days=existingDaysV664();
+    const checked=new Set(qa('input:checked',wrap).map(x=>String(x.value)));
+    wrap.innerHTML=`<span class="field-label">Add to Items Learned <small>(optional)</small></span><div class="kb-bulk-day-choices-v664">${days.length?days.map(day=>`<label><input type="checkbox" value="${day}" ${checked.has(String(day))?'checked':''}><span>Day ${day}</span></label>`).join(''):'<span class="progress-hint">No Daily Log days exist yet.</span>'}</div>`;
+  }
+
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('#kb-bulk-add-btn-v162')) setTimeout(ensureBulkDaysV664,0);
+  },true);
+
+  // Snapshot selected days before the original commit handler closes the modal,
+  // then attach ONLY the newly-created KB items to those days.
+  document.addEventListener('click',event=>{
+    const button=event.target?.closest?.('.kb-bulk-commit-v162');
+    if(!button)return;
+    const modal=button.closest('#kb-bulk-modal-v162');
+    if(!modal)return;
+    const days=qa('.kb-bulk-days-v664 input:checked',modal).map(x=>Number(x.value)).filter(Number.isFinite);
+    if(!days.length)return;
+    const before=new Set(db.phrases||[]);
+    setTimeout(()=>{
+      const added=(db.phrases||[]).filter(id=>!before.has(id));
+      if(!added.length)return;
+      addItemsToDaysV664(added,days);
+      try{showFeatureToast?.(`Added ${added.length} imported item${added.length===1?'':'s'} to ${days.length===1?`Day ${days[0]}`:`${days.length} days`}.`)}catch{}
+    },0);
+  },true);
+
+  // Keep the shortcut reference accurate in both Settings surfaces.
+  function patchShortcutTextV664(){
+    qa('#kb-shortcuts-v467 .global-shortcut-row').forEach(row=>{
+      if(/Delete/i.test(row.textContent||'')){
+        row.innerHTML='<kbd>Shift</kbd><span>+</span><kbd>S</kbd><p>Enter or exit Knowledge Base multi-select mode.</p>';
+      }
+    });
+  }
+  const obs=new MutationObserver(patchShortcutTextV664);
+  if(document.body)obs.observe(document.body,{childList:true,subtree:true});
+  patchShortcutTextV664();
+})();
