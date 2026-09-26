@@ -10837,14 +10837,6 @@ document.addEventListener(
         window.__loggyShowHiddenKbItemsV597 =
             window.__loggyShowHiddenKbItemsV597 !== true;
 
-        // Hidden-item visibility is independent of tag visibility. The KB default
-        // remains tags hidden unless the user explicitly changed that setting.
-        try {
-            db.settings ||= {};
-            if (db.settings.knowledgeHideTagsV557 === undefined) db.settings.knowledgeHideTagsV557 = true;
-            document.documentElement.classList.toggle('kb-hide-item-tags-v557', !!db.settings.knowledgeHideTagsV557);
-        } catch (_) {}
-
         const search = document.getElementById('phrases-search-bar')?.value || '';
         try { renderPhrasesLibrary(search); } catch (_) {}
         requestAnimationFrame(() => {
@@ -14694,6 +14686,30 @@ function ensureCustomTabCreateModal() {
                 <div id="custom-tab-icon-picker" class="custom-tab-icon-picker"></div>
             </div>
 
+            <div class="modal-section custom-tab-daily-source-section">
+                <span class="field-label">Start with Daily Log content</span>
+                <p class="custom-tab-create-hint">Optional — automatically collect things you have saved across Daily Logs into this tab.</p>
+                <div class="custom-tab-daily-source-grid">
+                    <label><input type="checkbox" value="resources"> <i class="ph ph-link"></i> Media Resources</label>
+                    <label><input type="checkbox" value="videos"> <i class="ph ph-video"></i> Videos</label>
+                    <label><input type="checkbox" value="images"> <i class="ph ph-image"></i> Images</label>
+                    <label><input type="checkbox" value="pdfs"> <i class="ph ph-file-pdf"></i> PDFs</label>
+                    <label><input type="checkbox" value="notes"> <i class="ph ph-note-pencil"></i> Notes</label>
+                    <label><input type="checkbox" value="textFields"> <i class="ph ph-textbox"></i> Other Text Fields</label>
+                    <label><input type="checkbox" value="audio"> <i class="ph ph-waveform"></i> Audio</label>
+                    <label><input type="checkbox" value="knowledge"> <i class="ph ph-books"></i> Knowledge Items</label>
+                </div>
+            </div>
+
+            <div class="modal-section custom-tab-connections-option-v32">
+                <span class="field-label">Daily Log Connections</span>
+                <p class="custom-tab-create-hint">Optional — add a visual map of how your Daily Logs connect to one another.</p>
+                <label class="custom-tab-connections-toggle-v32">
+                    <input type="checkbox" id="custom-tab-add-connections-map">
+                    <span><i class="ph ph-graph"></i> Add Daily Log Connections Map</span>
+                </label>
+            </div>
+
             <button type="button" id="custom-tab-create-confirm" data-enter-submit="true" class="icon-btn custom-tab-primary-btn">
                 <i class="ph ph-plus"></i>
                 Create Tab
@@ -14769,6 +14785,15 @@ function openCustomTabCreateModal() {
     const choices = modal.querySelectorAll('.custom-tab-icon-choice');
     choices.forEach(choice => choice.classList.remove('selected'));
 
+    modal.querySelectorAll('.custom-tab-daily-source-grid input[type="checkbox"]').forEach(input => {
+        input.checked = false;
+    });
+
+    
+    const connectionMapToggleV32 =
+        modal.querySelector('#custom-tab-add-connections-map');
+    if (connectionMapToggleV32) connectionMapToggleV32.checked = false;
+
     modal.classList.remove('hidden');
     setTimeout(() => input.focus(), 0);
 }
@@ -14785,12 +14810,32 @@ function createCustomTabFromModal() {
     const name = input.value.trim() || 'My Tab';
     const icon = modal.querySelector('.custom-tab-icon-choice.selected')?.dataset.icon || 'ph-squares-four';
 
+    const chosenDailySources = Array.from(
+        modal.querySelectorAll('.custom-tab-daily-source-grid input[type="checkbox"]:checked')
+    ).map(input => input.value);
+
     const tab = {
         id: customId('tab'),
         name,
         icon,
         components: []
     };
+
+    if (chosenDailySources.length) {
+        tab.components.push({
+            ...defaultCustomComponent('dailyLogCollection'),
+            sources: chosenDailySources
+        });
+    }
+
+    if (modal.querySelector('#custom-tab-add-connections-map')?.checked) {
+        tab.components.push({
+            id: customId('component'),
+            type: 'dailyConnectionsGraph',
+            title: 'Daily Log Connections',
+            titleBackground: 'none'
+        });
+    }
 
     getCustomTabs().push(tab);
     saveDb();
@@ -15799,10 +15844,6 @@ function categoryHasStoredFieldData(categoryName, fieldNames = []) {
 
 function migrateKnowledgeBaseSettings() {
     if (!db.settings) db.settings = {};
-
-    // V683: restored backups carry DATA only. Normalize any historical KB view
-    // values so old saved settings cannot resurrect retired layout engines.
-    db.settings.libraryView = db.settings.libraryView === 'polaroid' ? 'polaroid' : 'list';
 
     if (!Array.isArray(db.settings.categories)) {
         db.settings.categories = ['Category'];
@@ -18348,16 +18389,14 @@ function buildKnowledgeFieldDisplayHtml(
             : '';
 
     return `
-        <div class="modal-section mt-10 kb-item-field kb-display-field${audioButton ? ' has-audio-v696' : ''}">
+        <div class="modal-section mt-10 kb-item-field kb-display-field">
             <div class="kb-item-field-label-row">
                 <span class="field-label">
                     ${escapeKnowledgeHtml(field.name)}
                 </span>
-            </div>
-            <div class="kb-display-value-wrap-v696">
-                ${content}
                 ${audioButton}
             </div>
+            ${content}
         </div>
     `;
 }
@@ -18602,12 +18641,9 @@ function openItemModal(
     const audioText =
         getItemAudioText(itemId);
 
-    const itemTitleHtmlV689 = String(itemId).includes('\\') && typeof placeholderTokenHtmlV56 === 'function'
-        ? placeholderTokenHtmlV56(String(itemId))
-        : escapeKnowledgeHtml(itemId);
     titleEl.innerHTML = `
         <span class="phrase-modal-title-main-row">
-            <span>${itemTitleHtmlV689}</span>
+            <span>${escapeKnowledgeHtml(itemId)}</span>
         </span>
         <span class="phrase-modal-category-subtitle">
             ${escapeKnowledgeHtml(categoryName)}
@@ -20455,7 +20491,7 @@ function ensureBackupRestoreModal() {
                 <button type="button" class="backup-action-card backup-export-current">
                     <i class="ph ph-download-simple"></i>
                     <strong>Export Current Log</strong>
-                    <span>Download Daily Logs, Knowledge Base, tabs, themes, settings, and Trash as JSON. App HTML/JS/CSS are not stored; restores always use the current runtime.</span>
+                    <span>Download Daily Logs, Knowledge Base, tabs, themes, settings, and Trash as JSON.</span>
                 </button>
 
                 <button type="button" class="backup-action-card backup-import-current">
@@ -20483,8 +20519,7 @@ function ensureBackupRestoreModal() {
             `${safeBackupFilename(HOBBY)}-backup-${stamp}.json`,
             {
                 format: 'loggy-log-backup',
-                version: 2,
-                runtimeLayout: 'kb-v683',
+                version: 1,
                 hobby: HOBBY,
                 exportedAt: new Date().toISOString(),
                 data: db

@@ -18751,7 +18751,7 @@ body::-webkit-scrollbar,
     font-size:
         var(
             --page-action-icon-size-v62,
-            32px
+            22px
         ) !important;
 
     line-height:
@@ -26000,6 +26000,35 @@ body > .kb-pinned-editor-v169.is-pin-placement-v171 .kb-pinned-selected-editor-v
     overflow: visible !important;
 }
 
+/* Dense collage layout: tall map cards no longer reserve an entire row. */
+#phrases-library-grid.kb-primary-map-flow-v172.kb-masonry-v175 {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)) !important;
+    grid-auto-rows: 8px !important;
+    grid-auto-flow: dense !important;
+    gap: 12px !important;
+    align-items: start !important;
+    align-content: start !important;
+}
+#phrases-library-grid.kb-masonry-v175 > .phrase-card,
+#phrases-library-grid.kb-masonry-v175 > .polaroid-card {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: auto !important;
+    align-self: start !important;
+    margin: 0 !important;
+}
+#phrases-library-grid.kb-masonry-v175 > .has-primary-map-v172 {
+    width: 100% !important;
+    max-width: none !important;
+}
+#phrases-library-grid.kb-masonry-v175 .has-primary-map-v172 .kb-primary-map-stage-v171 > img {
+    width: 100% !important;
+    max-height: 235px !important;
+    object-fit: contain !important;
+}
+
 /* Recipe Tracker V175. */
 .custom-component-recipeTracker,
 .custom-component-recipeTracker .recipe-grid-v175 { width: 100% !important; min-width: 0 !important; transform: none !important; }
@@ -27885,6 +27914,20 @@ body > #kb-field-create-modal:not(.hidden),
     scrollbar-width: none !important;
 }
 #phrases-library-view.view.active > #phrases-library-grid::-webkit-scrollbar { display:none !important; }
+
+/* During a category/bulk-render change, use ordinary auto rows until the
+   existing masonry measurer has assigned final spans. No one-frame pile-up. */
+#phrases-library-grid.kb-layout-pending-v215,
+#phrases-library-grid.kb-layout-pending-v215.kb-masonry-v175 {
+    grid-auto-rows: auto !important;
+    grid-auto-flow: row !important;
+    align-items: start !important;
+}
+#phrases-library-grid.kb-layout-pending-v215 > .phrase-card,
+#phrases-library-grid.kb-layout-pending-v215 > .polaroid-card {
+    grid-row-end: auto !important;
+    grid-column-end: span 1 !important;
+}
 
 /* Multi-select selects cards, not the words/media inside the cards. */
 body:has(#kb-select-toggle-v163.selected) #phrases-library-grid .phrase-card,
@@ -30700,6 +30743,34 @@ body > .kb-pinned-editor-v169.is-pin-placement-v171 .kb-pinned-stage-v169 > img 
 
 
 /* ============================================================
+   V611 — KB ALL VIEW DENSE PUZZLE LAYOUT
+   ============================================================ */
+#phrases-library-grid.kb-masonry-v175 {
+    display:grid !important;
+    grid-template-columns:repeat(auto-fill,minmax(145px,1fr)) !important;
+    grid-auto-rows:8px !important;
+    grid-auto-flow:dense !important;
+    gap:12px !important;
+    align-items:start !important;
+    align-content:start !important;
+}
+#phrases-library-grid.kb-masonry-v175 > .phrase-card,
+#phrases-library-grid.kb-masonry-v175 > .polaroid-card {
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    height:auto !important;
+    align-self:start !important;
+    box-sizing:border-box !important;
+    margin:0 !important;
+}
+#phrases-library-grid.kb-masonry-v175 > .has-primary-map-v172 {
+    width:100% !important;
+    max-width:none !important;
+}
+
+
+/* ============================================================
    V612 — PIN TIP LOCK + KB SETTINGS SPACING
    ============================================================ */
 /* left/top is the saved geographic point. Translation places the original
@@ -30729,6 +30800,181 @@ body > .kb-pinned-editor-v169.is-pin-placement-v171 .kb-pinned-stage-v169 > img 
 /* Give KB View and KB Item Order their own visual breathing room. */
 #settings-modal #kb-item-order-setting-v215 {
     margin-top: 18px !important;
+}
+
+/* ============================================================
+   V613 — KB ALL VIEW: ONE GRID, NO FLEX/GRID CONFLICT
+   ============================================================ */
+#phrases-library-grid.kb-masonry-v175,
+#phrases-library-grid.kb-primary-map-flow-v172.kb-masonry-v175 {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)) !important;
+    grid-auto-rows: 4px !important;
+    grid-auto-flow: dense !important;
+    column-gap: 12px !important;
+    row-gap: 12px !important;
+    align-items: start !important;
+    align-content: start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+#phrases-library-grid.kb-masonry-v175 > .phrase-card,
+#phrases-library-grid.kb-masonry-v175 > .polaroid-card,
+#phrases-library-grid.kb-masonry-v175 > .phrase-card:not(.has-primary-map-v172),
+#phrases-library-grid.kb-masonry-v175 > .phrase-card.has-primary-map-v172 {
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    align-self: start !important;
+    flex: none !important;
+}
+#phrases-library-grid.kb-masonry-v175 > .phrase-card.has-primary-map-v172 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+}
+#phrases-library-grid.kb-masonry-v175 > .phrase-card.has-primary-map-v172 .kb-primary-map-v171,
+#phrases-library-grid.kb-masonry-v175 > .phrase-card.has-primary-map-v172 .kb-primary-map-stage-v171 {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+#phrases-library-grid.kb-masonry-v175 > .phrase-card.has-primary-map-v172 .kb-primary-map-stage-v171 > img {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 260px !important;
+    object-fit: contain !important;
+}
+@media (max-width: 720px) {
+    #phrases-library-grid.kb-masonry-v175,
+    #phrases-library-grid.kb-primary-map-flow-v172.kb-masonry-v175 {
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important;
+    }
+}
+
+
+/* ============================================================
+   V614 — KB ALL: TRUE RESPONSIVE GRID, ZERO CARD OVERLAP
+   ============================================================ */
+#phrases-library-grid.kb-all-grid-v614 {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+    grid-auto-rows: auto !important;
+    grid-auto-flow: row dense !important;
+    gap: 12px !important;
+    align-items: start !important;
+    align-content: start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+#phrases-library-grid.kb-all-grid-v614 > .phrase-card,
+#phrases-library-grid.kb-all-grid-v614 > .polaroid-card {
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    align-self: start !important;
+    box-sizing: border-box !important;
+    grid-row: auto !important;
+    grid-column: auto !important;
+}
+#phrases-library-grid.kb-all-grid-v614 > .phrase-card.has-primary-map-v172 {
+    grid-column: span 2 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+}
+#phrases-library-grid.kb-all-grid-v614 > .phrase-card.has-primary-map-v172 .kb-primary-map-v171,
+#phrases-library-grid.kb-all-grid-v614 > .phrase-card.has-primary-map-v172 .kb-primary-map-stage-v171 {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+#phrases-library-grid.kb-all-grid-v614 > .phrase-card.has-primary-map-v172 .kb-primary-map-stage-v171 > img {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 280px !important;
+    object-fit: contain !important;
+}
+@media (max-width: 760px) {
+    #phrases-library-grid.kb-all-grid-v614 {
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important;
+    }
+    #phrases-library-grid.kb-all-grid-v614 > .phrase-card.has-primary-map-v172 {
+        grid-column: span 1 !important;
+    }
+}
+
+#theme-builder-v307-modal .tb307-deco-card.tb307-deco-selected-v604,
+#theme-builder-v307-modal .tb307-deco-card.tb307-deco-selected-v605 {
+    outline: 3px solid currentColor !important;
+    outline-offset: 2px !important;
+}
+
+/* ============================================================
+   V615 — KB natural card flow + absolute pin-tip authority
+   ============================================================ */
+/* All Categories uses the SAME natural flex-card layout as category views.
+   No fixed grid columns, no masonry row math, no measured spans. */
+#phrases-library-view #phrases-library-grid:not(.polaroid-grid),
+#phrases-library-view #phrases-library-grid.kb-all-grid-v614:not(.polaroid-grid),
+#phrases-library-view #phrases-library-grid.kb-masonry-v175:not(.polaroid-grid),
+#phrases-library-view #phrases-library-grid.kb-primary-map-flow-v172:not(.polaroid-grid) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    align-content: flex-start !important;
+    gap: 12px !important;
+    grid-template-columns: none !important;
+    grid-auto-rows: auto !important;
+    grid-auto-flow: row !important;
+}
+
+#phrases-library-view #phrases-library-grid:not(.polaroid-grid) > .phrase-card:not(.has-primary-map-v172) {
+    flex: 0 1 auto !important;
+    width: max-content !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: auto !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Card text determines its width until the container is reached; then it wraps
+   and the CARD grows downward rather than horizontally overflowing. */
+#phrases-library-view #phrases-library-grid:not(.polaroid-grid) > .phrase-card:not(.has-primary-map-v172) .kb-library-card-main,
+#phrases-library-view #phrases-library-grid:not(.polaroid-grid) > .phrase-card:not(.has-primary-map-v172) .kb-library-title-row,
+#phrases-library-view #phrases-library-grid:not(.polaroid-grid) > .phrase-card:not(.has-primary-map-v172) .kb-library-item-title {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+/* Map-primary items remain compact polaroid-like cards and participate in the
+   same flex flow, so ordinary cards fill the available space beside them. */
+#phrases-library-view #phrases-library-grid:not(.polaroid-grid) > .phrase-card.has-primary-map-v172 {
+    flex: 0 1 290px !important;
+    width: min(290px, 100%) !important;
+    min-width: min(220px, 100%) !important;
+    max-width: 290px !important;
+    height: auto !important;
+    margin: 0 !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    align-self: flex-start !important;
 }
 
 /* V615 pin model: left/top is a ZERO-SIZE anchor at the saved point. The pin
@@ -30825,9 +31071,54 @@ body > .kb-pinned-editor-v169.is-pin-placement-v171 .kb-pinned-stage-v169 > img 
     box-sizing:border-box !important;
 }
 
+/* All view is positioned by the V616 rectangle packer. It intentionally does
+   not use flex rows or equal-width CSS-grid columns. */
+#phrases-library-view #phrases-library-grid.kb-packed-all-v616:not(.polaroid-grid) {
+    position:relative !important;
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    overflow:visible !important;
+    align-content:initial !important;
+}
+#phrases-library-view #phrases-library-grid.kb-packed-all-v616:not(.polaroid-grid) > .phrase-card,
+#phrases-library-view #phrases-library-grid.kb-packed-all-v616:not(.polaroid-grid) > .polaroid-card {
+    position:absolute !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    grid-row:auto !important;
+    grid-column:auto !important;
+    flex:none !important;
+}
+#phrases-library-view #phrases-library-grid.kb-packed-all-v616:not(.polaroid-grid) > .phrase-card:not(.has-primary-map-v172) {
+    min-width:0 !important;
+    white-space:normal !important;
+}
+#phrases-library-view #phrases-library-grid.kb-packed-all-v616:not(.polaroid-grid) > .phrase-card:not(.has-primary-map-v172) :is(.kb-library-card-main,.kb-library-title-row,.kb-library-item-title,.chip-text) {
+    min-width:0 !important;
+    max-width:100% !important;
+    overflow-wrap:anywhere !important;
+    word-break:normal !important;
+    white-space:normal !important;
+}
+#phrases-library-view #phrases-library-grid.kb-packed-all-v616:not(.polaroid-grid) > .phrase-card.has-primary-map-v172 {
+    min-width:220px !important;
+    height:auto !important;
+}
+
 /* ============================================================
    V617 — pinned-map quiz compatibility + instant KB paint + modal buttons
    ============================================================ */
+/* V616 packing changes left/top after measurement. Never animate those geometry
+   changes: cards should simply appear in their final packed location. */
+#phrases-library-grid.kb-packed-all-v616 > .phrase-card,
+#phrases-library-grid.kb-packed-all-v616 > .polaroid-card {
+  transition: none !important;
+  animation: none !important;
+}
+
 /* Hide-tags is a first-paint state, not a post-render cleanup. */
 html.kb-hide-item-tags-v557 #phrases-library-grid .kb-tags-v163,
 html.kb-hide-item-tags-v557 #phrases-library-grid .kb-library-tag-row-v55,
@@ -30891,6 +31182,91 @@ html.kb-hide-item-tags-v557 #phrases-library-grid [class*="kb-item-tag-row"] {
 .map-learn-feedback-v617 { margin-top:10px; display:flex; align-items:center; justify-content:center; gap:10px; }
 
 
+/* ============================================================================
+   V620 — KB ALL WRAP + SIMPLE 3-COLUMN POLAROIDS + MAP LEARN GEOMETRY
+   ============================================================================ */
+/* Polaroid mode is deliberately NOT a masonry/puzzle layout. Exactly three
+   equal columns on desktop, with equal card heights. This selector targets the
+   actual runtime class (polaroid-grid-container), so older flex rules cannot
+   accidentally take ownership again. */
+#phrases-library-view #phrases-library-grid.polaroid-grid-container {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    grid-auto-rows: 300px !important;
+    gap: 18px !important;
+    align-items: stretch !important;
+    align-content: start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    position: static !important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: 300px !important;
+    min-height: 300px !important;
+    max-height: 300px !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    transform: none;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card:hover {
+    transform: translateY(-2px) !important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card .polaroid-video {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    min-height: 0 !important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card .polaroid-label {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+@media (max-width: 900px) {
+    #phrases-library-view #phrases-library-grid.polaroid-grid-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+@media (max-width: 560px) {
+    #phrases-library-view #phrases-library-grid.polaroid-grid-container {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* The KB All packer owns non-polaroid All layout. While it is calculating the
+   first packed frame, keep the grid invisible so there is no puzzle-layout
+   flash, then reveal the already-packed result. */
+#phrases-library-view #phrases-library-grid.kb-pack-pending-v620 {
+    visibility: hidden !important;
+}
+#phrases-library-view #phrases-library-grid.kb-packed-all-v620:not(.polaroid-grid-container) {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+}
+#phrases-library-view #phrases-library-grid.kb-packed-all-v620:not(.polaroid-grid-container) > .phrase-card {
+    position: absolute !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    transition: none !important;
+    animation: none !important;
+}
+
 /* Quizlet Learn map questions: the answer choices line up with the map width,
    never sit in a narrow inner column, and labels cannot steal pointer input. */
 #quiz-flashcard-area .map-learn-v617 .map-study-card-v172 {
@@ -30923,6 +31299,89 @@ html.kb-hide-item-tags-v557 #phrases-library-grid [class*="kb-item-tag-row"] {
     #quiz-flashcard-area .map-learn-v617 .map-learn-options-v617 {
         grid-template-columns: 1fr !important;
     }
+}
+
+/* ============================================================================
+   V621 — SIMPLE SQUARE POLAROIDS + ONE-PIN MAP PARTS + STABLE DEV PACKING
+   ============================================================================ */
+/* Polaroid mode is a plain row/column gallery: three equal cards per desktop
+   row. Every card has a square media area and one fixed-height title footer. */
+#phrases-library-view #phrases-library-grid.polaroid-grid-container {
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    grid-auto-flow:row !important;
+    grid-auto-rows:auto !important;
+    gap:18px !important;
+    height:auto !important;
+    position:static !important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card,
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-polaroid-horizontal-v163 > .polaroid-card {
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    aspect-ratio:auto !important;
+    overflow:hidden !important;
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    margin:0 !important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card > .polaroid-video,
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card > .kb-primary-map-v171 {
+    display:block !important;
+    flex:0 0 auto !important;
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:1 / 1 !important;
+    min-height:0 !important;
+    max-height:none !important;
+    margin:0 !important;
+    overflow:hidden !important;
+    box-sizing:border-box !important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card > .polaroid-video > :is(img,video,iframe,.polaroid-image,.polaroid-image-wrap,.polaroid-video-wrap,.polaroid-video-placeholder),
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card > .polaroid-video :is(img,video,iframe) {
+    width:100% !important;
+    height:100% !important;
+    max-width:100% !important;
+    max-height:100% !important;
+    aspect-ratio:1 / 1 !important;
+    object-fit:contain !important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card > .kb-primary-map-v171 .kb-primary-map-stage-v171 {
+    width:100% !important;
+    height:100% !important;
+    max-width:none !important;
+    max-height:none !important;
+    aspect-ratio:1 / 1 !important;
+    margin:0 !important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card > .kb-primary-map-v171 .kb-primary-map-stage-v171 > img {
+    display:block !important;
+    width:100% !important;
+    height:100% !important;
+    max-width:100% !important;
+    max-height:none !important;
+    object-fit:contain !important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container > .polaroid-card > .polaroid-label {
+    flex:0 0 82px !important;
+    width:100% !important;
+    min-height:82px !important;
+    max-height:82px !important;
+    overflow:hidden !important;
+    box-sizing:border-box !important;
+}
+@media (max-width:900px){
+  #phrases-library-view #phrases-library-grid.polaroid-grid-container{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+}
+@media (max-width:560px){
+  #phrases-library-view #phrases-library-grid.polaroid-grid-container{grid-template-columns:1fr !important;}
 }
 
 /* Map study cards all use one visual width. Multiple-choice answers occupy the
@@ -31108,142 +31567,22 @@ html.kb-hide-item-tags-v557 #phrases-library-grid [class*="kb-item-tag-row"] {
     contain-intrinsic-size: 160px 72px;
 }
 
-
-
-/* ============================================================================
-   V683 — SINGLE AUTHORITATIVE KNOWLEDGE BASE LAYOUT
-   Restored backups contain data, never old layout code. These are the only live
-   KB layout classes: category list, packed All list, or uniform Polaroid grid.
-   ============================================================================ */
-#phrases-library-view #phrases-library-grid.kb-layout-v683-category,
-#phrases-library-view #phrases-library-grid.kb-layout-v683-all,
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid {
-    width:100% !important;
-    min-width:0 !important;
-    align-content:start !important;
-    box-sizing:border-box !important;
+/* The progressive large-library packer exposes each card only after it has a
+   real packed coordinate. This prevents the familiar top-left pile-up while
+   later chunks are still being calculated. */
+#phrases-library-grid.kb-large-pack-v644:not(.polaroid-grid-container) > .phrase-card:not([data-kb-packed-v644="1"]),
+#phrases-library-grid.kb-large-pack-v644:not(.polaroid-grid-container) > .polaroid-card:not([data-kb-packed-v644="1"]) {
+    position: absolute !important;
+    left: -10000px !important;
+    top: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
-/* Category list: predictable natural wrapping; no masonry row math. */
-#phrases-library-view #phrases-library-grid.kb-layout-v683-category {
-    display:flex !important;
-    flex-wrap:wrap !important;
-    align-items:flex-start !important;
-    gap:12px !important;
-    height:auto !important;
-    position:relative !important;
+#phrases-library-grid.kb-large-pack-v644:not(.polaroid-grid-container) > .phrase-card[data-kb-packed-v644="1"],
+#phrases-library-grid.kb-large-pack-v644:not(.polaroid-grid-container) > .polaroid-card[data-kb-packed-v644="1"] {
+    visibility: visible !important;
 }
-#phrases-library-view #phrases-library-grid.kb-layout-v683-category > .phrase-card {
-    position:relative !important;
-    width:max-content !important;
-    min-width:0 !important;
-    max-width:min(100%,420px) !important;
-    height:auto !important;
-    margin:0 !important;
-    flex:0 1 auto !important;
-    align-self:flex-start !important;
-    box-sizing:border-box !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-category > .phrase-card.has-primary-map-v172 {
-    width:min(310px,100%) !important;
-    max-width:310px !important;
-    flex:0 1 310px !important;
-}
-
-/* All list: JS gives every card one deterministic packed coordinate. */
-#phrases-library-view #phrases-library-grid.kb-layout-v683-all {
-    display:block !important;
-    position:relative !important;
-    overflow:visible !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-all > :is(.phrase-card,.polaroid-card) {
-    box-sizing:border-box !important;
-    margin:0 !important;
-    height:auto !important;
-    min-height:0 !important;
-    transition:none !important;
-    animation:none !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-all > .phrase-card :is(.kb-library-card-main,.kb-library-title-row,.kb-library-item-title,.chip-text) {
-    min-width:0 !important;
-    max-width:100% !important;
-    white-space:normal !important;
-    overflow-wrap:anywhere !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-pending {
-    visibility:hidden !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-all:not(.kb-layout-v683-pending) {
-    visibility:visible !important;
-}
-
-/* Polaroid mode: one boring, stable gallery. Three equal columns desktop. */
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid {
-    display:grid !important;
-    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-    grid-auto-flow:row !important;
-    grid-auto-rows:auto !important;
-    gap:18px !important;
-    height:auto !important;
-    position:relative !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid > .polaroid-card {
-    position:relative !important;
-    inset:auto !important;
-    display:flex !important;
-    flex-direction:column !important;
-    width:100% !important;
-    min-width:0 !important;
-    max-width:none !important;
-    height:382px !important;
-    min-height:382px !important;
-    max-height:382px !important;
-    margin:0 !important;
-    overflow:hidden !important;
-    transform:none !important;
-    box-sizing:border-box !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid > .polaroid-card:hover {
-    transform:translateY(-2px) !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171) {
-    flex:0 0 300px !important;
-    width:100% !important;
-    height:300px !important;
-    min-height:300px !important;
-    max-height:300px !important;
-    margin:0 !important;
-    overflow:hidden !important;
-    box-sizing:border-box !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid > .polaroid-card > .polaroid-video > :is(img,video,iframe,.polaroid-video-placeholder),
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid > .polaroid-card > .polaroid-video :is(img,video,iframe),
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid > .polaroid-card > .kb-primary-map-v171 .kb-primary-map-stage-v171,
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid > .polaroid-card > .kb-primary-map-v171 .kb-primary-map-stage-v171 > img {
-    width:100% !important;
-    height:100% !important;
-    max-width:100% !important;
-    max-height:100% !important;
-    object-fit:contain !important;
-    box-sizing:border-box !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid > .polaroid-card:has(> .kb-primary-map-v171) > .polaroid-video {
-    display:none !important;
-}
-#phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid > .polaroid-card > .polaroid-label {
-    flex:1 1 82px !important;
-    min-height:82px !important;
-    max-height:82px !important;
-    overflow:hidden !important;
-    box-sizing:border-box !important;
-}
-@media(max-width:900px){
-    #phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
-}
-@media(max-width:560px){
-    #phrases-library-view #phrases-library-grid.kb-layout-v683-polaroid{grid-template-columns:1fr !important;}
-}
-
 
 /* V647 — first-paint settings sizing, bounded day picker, solid centered study cards. */
 html body #open-daily-settings-btn,
@@ -31849,39 +32188,20 @@ body > .kb-pinned-editor-v169.is-pin-placement-v171 ~ .custom-item-context-menu 
 }
 #kb-add-selected-day-modal-v664 .kb-add-selected-day-submit-v664 { width:100% !important; }
 
-/* Bulk import Items Learned targets use one compact, validated day-number field. */
-#kb-bulk-modal-v162 .kb-bulk-days-v684 {
+/* Bulk import day choices live directly below Delimiter. */
+#kb-bulk-modal-v162 .kb-bulk-day-choices-v664 {
     display:flex !important;
-    flex-direction:column !important;
-    gap:7px !important;
+    flex-wrap:wrap !important;
+    gap:8px !important;
 }
-#kb-bulk-modal-v162 .kb-bulk-days-input-v684 {
-    width:100% !important;
-    min-height:42px !important;
-    box-sizing:border-box !important;
-    padding:10px 12px !important;
+#kb-bulk-modal-v162 .kb-bulk-day-choices-v664 label {
+    display:inline-flex !important;
+    align-items:center !important;
+    gap:6px !important;
+    padding:7px 10px !important;
     border:var(--thin-border) !important;
     border-radius:var(--border-radius,8px) !important;
-    background:var(--white) !important;
-    color:var(--black) !important;
-    font:inherit !important;
-    outline:none !important;
-}
-#kb-bulk-modal-v162 .kb-bulk-days-input-v684:focus {
-    border-width:2px !important;
-}
-#kb-bulk-modal-v162 .kb-bulk-days-input-v684.invalid {
-    border-color:#c0392b !important;
-}
-#kb-bulk-modal-v162 .kb-bulk-days-feedback-v684 {
-    display:block !important;
-    margin:0 !important;
-    color:var(--muted-text) !important;
-    font-size:.78rem !important;
-    line-height:1.35 !important;
-}
-#kb-bulk-modal-v162 .kb-bulk-days-feedback-v684.error {
-    color:#c0392b !important;
+    cursor:pointer !important;
 }
 
 /* Anki's “1/x · today · overdue” line belongs at the TOP LEFT of the same card
@@ -31973,568 +32293,4 @@ html body #quiz-learn-view[data-quiz-mode-v655="anki"] #quiz-flashcard-area .ank
     color:var(--muted-text,currentColor) !important;
     opacity:.82 !important;
     z-index:6 !important;
-}
-
-
-/* ============================================================
-   V685 — Lazy recommendation uses the real KB detail modal + title row parity
-   ============================================================ */
-/* The built-in Title field uses the exact same two-column read-only layout as
-   every other Knowledge Base field. */
-#phrase-modal .kb-title-field-v563{
-    display:grid !important;
-    grid-template-columns:minmax(130px,155px) minmax(0,1fr) !important;
-    align-items:start !important;
-    column-gap:16px !important;
-    row-gap:0 !important;
-    padding:9px 0 !important;
-    margin:0 !important;
-    border-top:0 !important;
-}
-#phrase-modal .kb-title-field-v563 .kb-item-field-label-row{
-    grid-column:1 !important;
-    min-width:0 !important;
-    margin:0 !important;
-}
-#phrase-modal .kb-title-field-v563 .kb-item-field-input-row{
-    grid-column:2 !important;
-    min-width:0 !important;
-    width:100% !important;
-    margin:0 !important;
-}
-#phrase-modal .kb-title-field-v563 .kb-item-field-control,
-#phrase-modal .kb-title-field-v563 .kb-title-field-static-v602,
-#phrase-modal .kb-title-field-v563 .kb-title-field-input-v563{
-    width:100% !important;
-    min-width:0 !important;
-    box-sizing:border-box !important;
-}
-@media(max-width:620px){
-  #phrase-modal .kb-title-field-v563{
-    grid-template-columns:1fr !important;
-    row-gap:3px !important;
-    padding:8px 0 !important;
-  }
-  #phrase-modal .kb-title-field-v563 .kb-item-field-label-row,
-  #phrase-modal .kb-title-field-v563 .kb-item-field-input-row{grid-column:1 !important;}
-}
-
-
-/* ============================================================
-   V693 — Edit mode keeps the SAME compact field/value layout as read-only mode
-   Editing no longer switches to stacked form rows or boxed controls. Labels stay
-   on the left; the live editable value stays on the right, exactly where the
-   read-only value was. Controls are borderless until focus for a clean edit state.
-   ============================================================ */
-#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields,
-#phrase-modal[data-mode="edit"] #kb-edit-item-fields-body{
-    display:grid !important;
-    gap:0 !important;
-    width:100% !important;
-}
-
-/* Category, every custom field, Title, and Enable Parts all share one row system. */
-#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields > .modal-section,
-#phrase-modal[data-mode="edit"] #kb-edit-item-fields-body > .kb-item-field,
-#phrase-modal[data-mode="edit"] .kb-title-field-v563,
-#phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row{
-    display:grid !important;
-    grid-template-columns:minmax(130px,155px) minmax(0,1fr) !important;
-    align-items:start !important;
-    column-gap:16px !important;
-    row-gap:0 !important;
-    width:100% !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-    padding:9px 0 !important;
-    margin:0 !important;
-    border:0 !important;
-    border-radius:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
-}
-
-/* Keep the subtle separators used by the normal read-only field list. */
-#phrase-modal[data-mode="edit"] #kb-edit-item-fields-body > .kb-item-field + .kb-item-field,
-#phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row{
-    border-top:1px solid color-mix(in srgb,var(--black,#111) 10%,transparent) !important;
-}
-
-#phrase-modal[data-mode="edit"] .kb-item-field-label-row,
-#phrase-modal[data-mode="edit"] .kb-title-field-v563 .kb-item-field-label-row,
-#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields > .modal-section > .field-label,
-#phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row > .field-label{
-    grid-column:1 !important;
-    align-self:start !important;
-    margin:0 !important;
-    min-width:0 !important;
-    padding:0 !important;
-}
-
-#phrase-modal[data-mode="edit"] .kb-item-field-input-row,
-#phrase-modal[data-mode="edit"] .kb-title-field-v563 .kb-item-field-input-row{
-    grid-column:2 !important;
-    display:flex !important;
-    align-items:flex-start !important;
-    gap:8px !important;
-    width:100% !important;
-    min-width:0 !important;
-    margin:0 !important;
-    padding:0 !important;
-}
-
-#phrase-modal[data-mode="edit"] .kb-item-field-control,
-#phrase-modal[data-mode="edit"] .kb-title-field-v563 .kb-item-field-control{
-    flex:1 1 auto !important;
-    width:100% !important;
-    min-width:0 !important;
-    margin:0 !important;
-    padding:0 !important;
-    border:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
-}
-
-/* Category is a direct label + select row, so place the select in column 2. */
-#phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields > .modal-section > select,
-#phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row > input[type="checkbox"]{
-    grid-column:2 !important;
-}
-
-/* Editable values visually occupy the same spot as read-only text — no big form boxes. */
-html body #phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
-html body #phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields select,
-html body #phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields textarea,
-html body #phrase-modal[data-mode="edit"] .kb-title-field-v563 .kb-title-field-input-v563{
-    width:100% !important;
-    max-width:none !important;
-    min-width:0 !important;
-    min-height:0 !important;
-    height:auto !important;
-    box-sizing:border-box !important;
-    margin:0 !important;
-    padding:0 2px 3px !important;
-    border:0 !important;
-    border-radius:0 !important;
-    outline:0 !important;
-    background:transparent !important;
-    background-color:transparent !important;
-    background-image:none !important;
-    box-shadow:none !important;
-    color:inherit !important;
-    font:inherit !important;
-    line-height:1.35 !important;
-}
-html body #phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields textarea{
-    min-height:1.5em !important;
-    resize:vertical !important;
-}
-
-/* Only show a quiet editing cue while the control is actually focused. */
-html body #phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields input:not([type="checkbox"]):not([type="radio"]):focus,
-html body #phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields select:focus,
-html body #phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields textarea:focus,
-html body #phrase-modal[data-mode="edit"] .kb-title-field-v563 .kb-title-field-input-v563:focus{
-    box-shadow:inset 0 -2px 0 color-mix(in srgb,currentColor 45%,transparent) !important;
-}
-
-/* The built-in Title is no longer a special stacked edit form. */
-#phrase-modal[data-mode="edit"] .kb-title-field-v563 .kb-title-field-label-row{
-    margin:0 !important;
-}
-
-@media(max-width:620px){
-  #phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields > .modal-section,
-  #phrase-modal[data-mode="edit"] #kb-edit-item-fields-body > .kb-item-field,
-  #phrase-modal[data-mode="edit"] .kb-title-field-v563,
-  #phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row{
-      grid-template-columns:1fr !important;
-      row-gap:4px !important;
-      padding:8px 0 !important;
-  }
-  #phrase-modal[data-mode="edit"] .kb-item-field-label-row,
-  #phrase-modal[data-mode="edit"] .kb-item-field-input-row,
-  #phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields > .modal-section > .field-label,
-  #phrase-modal[data-mode="edit"] #phrase-modal-dynamic-fields > .modal-section > select,
-  #phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row > .field-label,
-  #phrase-modal[data-mode="edit"] .kb-edit-enable-parts-row > input[type="checkbox"],
-  #phrase-modal[data-mode="edit"] .kb-title-field-v563 .kb-item-field-label-row,
-  #phrase-modal[data-mode="edit"] .kb-title-field-v563 .kb-item-field-input-row{
-      grid-column:1 !important;
-  }
-}
-
-/* ============================================================
-   V686 — Custom Recommendation settings
-   ============================================================ */
-.lazy-recommendation-settings-v686{
-    z-index:2147483646!important;
-    padding:20px!important;
-    overflow:auto!important;
-}
-.lazy-recommendation-settings-box-v686{
-    width:min(860px,calc(100vw - 32px))!important;
-    max-height:min(88dvh,900px)!important;
-    overflow:auto!important;
-}
-.lazy-recommendation-settings-box-v686 .modal-section{
-    margin-top:16px;
-}
-.lazy-recommendation-settings-box-v686 input[type="text"],
-.lazy-recommendation-settings-box-v686 input[type="search"],
-.lazy-recommendation-settings-box-v686 select{
-    min-height:42px;
-    border:var(--thin-border);
-    border-radius:var(--border-radius);
-    background:var(--white);
-    color:var(--black);
-    font:inherit;
-    padding:9px 12px;
-    box-sizing:border-box;
-}
-.lazy-recommendation-icon-search-v686{
-    min-height:42px;
-    border:var(--thin-border)!important;
-    border-radius:var(--border-radius);
-    background:var(--white);
-    color:var(--black);
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:0 11px;
-    margin:7px 0 9px;
-}
-.lazy-recommendation-icon-search-v686>i{font-size:19px;flex:0 0 auto;}
-.lazy-recommendation-settings-box-v686 .lazy-recommendation-icon-search-v686 input[type="search"]{
-    flex:1;
-    min-width:0;
-    height:auto!important;
-    min-height:0!important;
-    border:0!important;
-    border-width:0!important;
-    border-color:transparent!important;
-    border-radius:0!important;
-    background:transparent!important;
-    padding:0!important;
-    box-shadow:none!important;
-    outline:0!important;
-}
-.lazy-recommendation-icon-grid-v686{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(44px,1fr));
-    gap:7px;
-    max-height:190px;
-    overflow:auto;
-    padding:8px;
-    border:var(--thin-border);
-    border-radius:var(--border-radius);
-    background:color-mix(in srgb,var(--white) 94%,var(--black) 6%);
-}
-.lazy-recommendation-icon-option-v686{
-    width:44px;
-    height:44px;
-    min-width:44px;
-    justify-self:center;
-    display:grid;
-    place-items:center;
-    border:1px solid color-mix(in srgb,var(--black) 28%,transparent);
-    border-radius:9px;
-    background:var(--white);
-    color:var(--black);
-    cursor:pointer;
-    padding:0;
-    font-size:21px;
-}
-.lazy-recommendation-icon-option-v686:hover{
-    border-width:2px;
-}
-.lazy-recommendation-icon-option-v686.selected{
-    border:3px solid var(--black);
-}
-.lazy-recommendation-category-grid-v686{
-    display:flex;
-    flex-wrap:wrap;
-    gap:7px;
-    margin-top:8px;
-}
-.lazy-recommendation-check-v686{
-    display:inline-flex;
-    align-items:center;
-    gap:7px;
-    min-height:36px;
-    padding:6px 10px;
-    border:1px solid color-mix(in srgb,var(--black) 28%,transparent);
-    border-radius:999px;
-    background:var(--white);
-    color:var(--black);
-    cursor:pointer;
-}
-.lazy-recommendation-check-v686 input{margin:0;accent-color:var(--black);}
-.lazy-recommendation-fields-head-v686{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:14px;
-}
-.lazy-recommendation-fields-head-v686 .progress-hint{margin:4px 0 0;}
-.lazy-recommendation-field-list-v686{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    margin-top:9px;
-}
-.lazy-recommendation-field-row-v686{
-    display:grid;
-    grid-template-columns:minmax(150px,1fr) minmax(150px,1fr) minmax(170px,1.25fr) 38px;
-    gap:7px;
-    align-items:center;
-}
-.lazy-recommendation-field-row-v686 select,
-.lazy-recommendation-field-row-v686 input{
-    width:100%;
-    min-width:0;
-}
-.lazy-recommendation-field-row-v686 .small-icon-btn{
-    width:38px;
-    height:38px;
-    min-width:38px;
-    padding:0;
-}
-.lazy-recommendation-no-fields-v686{
-    padding:10px 0;
-    color:var(--muted-text);
-    font-size:.82rem;
-}
-.lazy-recommendation-match-summary-v686{
-    margin-top:16px;
-    padding:10px 12px;
-    border:1px solid color-mix(in srgb,var(--black) 22%,transparent);
-    border-radius:var(--border-radius);
-    background:color-mix(in srgb,var(--white) 94%,var(--black) 6%);
-    color:var(--black);
-    font-size:.86rem;
-}
-.lazy-recommendation-actions-footer-v686{
-    margin-top:16px;
-    display:flex;
-    justify-content:flex-end;
-}
-.lazy-recommendation-actions-footer-v686 .icon-btn{
-    min-width:120px;
-}
-@media(max-width:700px){
-    .lazy-recommendation-field-row-v686{
-        grid-template-columns:1fr 1fr 38px;
-    }
-    .lazy-recommendation-field-row-v686 .lazy-recommendation-field-contains-v686{
-        grid-column:1/3;
-        grid-row:2;
-    }
-    .lazy-recommendation-field-row-v686 .lazy-recommendation-remove-field-v686{
-        grid-column:3;
-        grid-row:1/3;
-    }
-}
-
-
-/* V689 — recommendation filter controls and Daily Recommendation action parity */
-.lazy-recommendation-icon-search-v686,
-.lazy-recommendation-icon-search-v686 input{
-    box-shadow:none!important;
-    outline:0!important;
-}
-.lazy-recommendation-tag-rule-v689,
-.daily-recommendation-tag-rule-v689{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) 92px;
-    gap:8px;
-    align-items:center;
-    margin-top:7px;
-}
-.lazy-recommendation-tag-rule-v689>input,
-.daily-recommendation-tag-rule-v689>input{width:100%;min-width:0;}
-.lazy-recommendation-tag-rule-v689>select,
-.daily-recommendation-tag-rule-v689>select{width:92px;min-width:92px;}
-.daily-recommendation-learned-v689{flex:0 0 auto;}
-@media(max-width:620px){
-  .lazy-recommendation-tag-rule-v689,
-  .daily-recommendation-tag-rule-v689{grid-template-columns:1fr;}
-  .lazy-recommendation-tag-rule-v689>select,
-  .daily-recommendation-tag-rule-v689>select{width:100%;min-width:0;}
-}
-
-
-/* ============================================================
-   V692 — Recommendation icon search + Items Learned edit control
-   ============================================================ */
-/* Only the OUTER search shell owns the border. Theme-level generic input
-   rules must never recreate a second rounded border inside it. */
-html body #lazy-recommendation-settings-v686 .lazy-recommendation-icon-search-v686{
-    border:var(--thin-border)!important;
-    border-radius:var(--border-radius)!important;
-    box-shadow:none!important;
-    outline:0!important;
-}
-html body #lazy-recommendation-settings-v686 .lazy-recommendation-icon-search-v686 > input[type="search"],
-html body #lazy-recommendation-settings-v686 .lazy-recommendation-icon-search-v686 > input[type="search"]:hover,
-html body #lazy-recommendation-settings-v686 .lazy-recommendation-icon-search-v686 > input[type="search"]:focus,
-html body #lazy-recommendation-settings-v686 .lazy-recommendation-icon-search-v686 > input[type="search"]:focus-visible,
-html body #lazy-recommendation-settings-v686 .lazy-recommendation-icon-search-v686 > input[type="search"]:active{
-    appearance:none!important;
-    -webkit-appearance:none!important;
-    border:0!important;
-    border-width:0!important;
-    border-color:transparent!important;
-    border-radius:0!important;
-    outline:0!important;
-    box-shadow:none!important;
-    background:transparent!important;
-    background-color:transparent!important;
-    background-image:none!important;
-    padding:0!important;
-}
-/* The pencil is available in Items Learned (day mode) as well as KB/library mode. */
-#phrase-modal[data-mode="day"] #phrase-modal-kb-edit-v602,
-#phrase-modal[data-mode="library"] #phrase-modal-kb-edit-v602,
-#phrase-modal[data-mode="edit"] #phrase-modal-kb-edit-v602{
-    display:inline-grid!important;
-    visibility:visible!important;
-    opacity:1!important;
-    pointer-events:auto!important;
-}
-\n\n/* ============================================================
-   V694 — tag-entry cleanup, compact edit audio, centered app switches
-   ============================================================ */
-
-html body #phrase-modal[data-mode="edit"] .kb-field-audio-preview{
-    width:30px !important;min-width:30px !important;height:30px !important;min-height:30px !important;
-    align-self:center !important;padding:0 !important;margin:0 !important;border:0 !important;outline:0 !important;
-    border-radius:0 !important;background:transparent !important;background-color:transparent !important;
-    box-shadow:none !important;color:inherit !important;
-}
-html body #phrase-modal[data-mode="edit"] .kb-field-audio-preview:hover,
-html body #phrase-modal[data-mode="edit"] .kb-field-audio-preview:focus-visible{
-    border:0 !important;background:transparent !important;box-shadow:none !important;
-}
-html body #phrase-modal[data-mode="edit"] .kb-field-audio-preview i{font-size:17px !important;line-height:1 !important;}
-
-.developer-toggle-slider,.kb-toggle-track-v164,.kb-switch-track-v173,.v250-switch-track,
-.tb312-switch-track,.tb561-mini-switch > span,.tb311-bg-switch{box-sizing:border-box !important;}
-.developer-toggle-slider::after,.kb-switch-track-v173::after,.v250-switch-track::after,
-.tb312-switch-track::after,.tb561-mini-switch > span::after,.tb311-bg-switch::after{
-    top:50% !important;bottom:auto !important;margin:0 !important;box-sizing:border-box !important;
-}
-.developer-toggle-slider::after{width:18px !important;height:18px !important;left:4px !important;transform:translateY(-50%) !important;}
-.developer-toggle input:checked + .developer-toggle-slider::after{transform:translate(20px,-50%) !important;}
-.v250-switch-track::after,.tb312-switch-track::after{width:16px !important;height:16px !important;left:3px !important;transform:translateY(-50%) !important;}
-.v250-switch > input:checked + .v250-switch-track::after,.tb312-use-toggle > input:checked + .tb312-switch-track::after{transform:translate(18px,-50%) !important;}
-.kb-switch-track-v173::after{width:16px !important;height:16px !important;left:4px !important;transform:translateY(-50%) !important;}
-.kb-switch-v173 input:checked + .kb-switch-track-v173::after{left:24px !important;transform:translateY(-50%) !important;}
-.kb-toggle-track-v164{padding:0 3px !important;align-items:center !important;}
-.kb-toggle-knob-v164{width:16px !important;height:16px !important;flex:0 0 16px !important;margin:0 !important;align-self:center !important;}
-.kb-placeholder-switch-label-v164 > input:checked ~ .kb-toggle-track-v164 .kb-toggle-knob-v164{transform:translateX(18px) !important;}
-.tb561-mini-switch > span::after{width:15px !important;height:15px !important;left:4px !important;transform:translateY(-50%) !important;}
-.tb561-mini-switch input:checked + span::after{transform:translate(18px,-50%) !important;}
-.tb311-bg-switch::after{width:14px !important;height:14px !important;left:3px !important;transform:translateY(-50%) !important;}
-.tb311-bg-source.active .tb311-bg-switch::after{transform:translate(14px,-50%) !important;}
-
-/* ============================================================
-   V695 — field audio controls are icon-only, never bordered
-   ============================================================ */
-html body #phrase-modal .kb-field-audio-preview,
-html body #phrase-modal .kb-display-audio-btn,
-html body #phrase-modal .kb-field-audio-preview:hover,
-html body #phrase-modal .kb-display-audio-btn:hover,
-html body #phrase-modal .kb-field-audio-preview:focus,
-html body #phrase-modal .kb-display-audio-btn:focus,
-html body #phrase-modal .kb-field-audio-preview:focus-visible,
-html body #phrase-modal .kb-display-audio-btn:focus-visible,
-html body #phrase-modal .kb-field-audio-preview:active,
-html body #phrase-modal .kb-display-audio-btn:active {
-    width: 30px !important;
-    min-width: 30px !important;
-    height: 30px !important;
-    min-height: 30px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: 0 !important;
-    outline: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    background-image: none !important;
-    box-shadow: none !important;
-    filter: none !important;
-    color: inherit !important;
-    display: inline-grid !important;
-    place-items: center !important;
-    align-self: center !important;
-}
-html body #phrase-modal .kb-field-audio-preview::before,
-html body #phrase-modal .kb-field-audio-preview::after,
-html body #phrase-modal .kb-display-audio-btn::before,
-html body #phrase-modal .kb-display-audio-btn::after {
-    content: none !important;
-    display: none !important;
-}
-html body #phrase-modal .kb-field-audio-preview i,
-html body #phrase-modal .kb-display-audio-btn i {
-    font-size: 17px !important;
-    line-height: 1 !important;
-}
-
-
-/* ============================================================
-   V697 — pronunciation icon stays on the SAME field row, at far right
-   ============================================================ */
-#phrase-modal .kb-display-value-wrap-v696{
-    min-width:0!important;
-    width:100%!important;
-    display:flex!important;
-    flex-direction:row!important;
-    align-items:center!important;
-    justify-content:flex-start!important;
-    gap:8px!important;
-}
-#phrase-modal .kb-display-value-wrap-v696 > :not(.kb-display-audio-btn){
-    min-width:0!important;
-    flex:1 1 auto!important;
-}
-#phrase-modal .kb-display-value-wrap-v696 > .kb-display-audio-btn{
-    flex:0 0 28px!important;
-    order:999!important;
-    margin-left:auto!important;
-    align-self:center!important;
-    justify-self:auto!important;
-    display:inline-grid!important;
-    place-items:center!important;
-    visibility:visible!important;
-    opacity:1!important;
-    pointer-events:auto!important;
-    width:28px!important;
-    min-width:28px!important;
-    height:28px!important;
-    min-height:28px!important;
-    padding:0!important;
-    border:0!important;
-    outline:0!important;
-    border-radius:0!important;
-    background:transparent!important;
-    background-color:transparent!important;
-    background-image:none!important;
-    box-shadow:none!important;
-}
-#phrase-modal .kb-display-value-wrap-v696 > .kb-display-audio-btn:hover,
-#phrase-modal .kb-display-value-wrap-v696 > .kb-display-audio-btn:focus,
-#phrase-modal .kb-display-value-wrap-v696 > .kb-display-audio-btn:focus-visible,
-#phrase-modal .kb-display-value-wrap-v696 > .kb-display-audio-btn:active{
-    border:0!important;
-    outline:0!important;
-    background:transparent!important;
-    box-shadow:none!important;
-    transform:none!important;
-}
-#phrase-modal .kb-display-value-wrap-v696 > .kb-display-audio-btn i{
-    font-size:17px!important;
-    line-height:1!important;
 }

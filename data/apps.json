@@ -1,8 +1,14 @@
 [
   {
-    "id": "world-history",
-    "name": "World History",
-    "icon": "ph-globe-hemisphere-west",
-    "category": "School"
+    "id": "korean",
+    "name": "Korean",
+    "icon": "ph-translate",
+    "category": "Non-School"
+  },
+  {
+    "id": "asl",
+    "name": "ASL",
+    "icon": "ph-books",
+    "category": "Non-School"
   }
 ]

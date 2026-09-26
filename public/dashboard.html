@@ -25510,3 +25510,42 @@ html body #rename-modal #edit-icon-picker {
   }catch{}
 })();
 </script>
+
+<script id="dashboard-decoration-source-registry-v682">
+/* V682 — Dashboard mirror of the permanent decoration source registry.
+   Uses the same localStorage registry as Log pages so a decoration source healed
+   in either surface is immediately durable on both surfaces. */
+(() => {
+  'use strict';
+  if (window.__dashboardDecorationSourceRegistryV682) return;
+  window.__dashboardDecorationSourceRegistryV682 = true;
+
+  const REGISTRY_KEY='loggy-decoration-source-registry-v682';
+  const STAGE='dashboard-shared-theme-art-v40';
+  let registry={byId:{},byName:{},bySlot:{}};
+  let raf=0,saveTimer=0;
+  const s=v=>String(v??'').trim();
+
+  function read(){try{const r=JSON.parse(localStorage.getItem(REGISTRY_KEY)||'{}');registry={byId:r?.byId||{},byName:r?.byName||{},bySlot:r?.bySlot||{}}}catch{registry={byId:{},byName:{},bySlot:{}}}}
+  function save(){if(saveTimer)return;saveTimer=setTimeout(()=>{saveTimer=0;try{localStorage.setItem(REGISTRY_KEY,JSON.stringify(registry))}catch{}},0)}
+  function publicUrl(path){let p=s(path).replace(/\\/g,'/').replace(/^\.\//,'');if(!p)return'';const l=p.toLowerCase(),m='/public/',i=l.lastIndexOf(m);if(i>=0)p=p.slice(i+m.length);else if(l.startsWith('public/'))p=p.slice(7);return p?'/'+p.split('/').filter(Boolean).map(x=>{try{return encodeURIComponent(decodeURIComponent(x))}catch{return encodeURIComponent(x)}}).join('/'):''}
+  function themeId(t,id){return s(id||t?.id||t?.themeId||t?.name||localStorage.getItem('dashboard-theme')||'theme')}
+  function sourceId(a,t,i){let id=s(a?.decorationSourceIdV682||a?.assetId||a?.id||a?.uploadId);if(!id){const slot=Number.isFinite(Number(a?.placementIndexV405))?Number(a.placementIndexV405):i;id=`${t}::${s(a?.name).toLowerCase()||'decoration'}::${slot}`;try{a.decorationSourceIdV682=id}catch{}}return id}
+  function record(a){return{projectPath:s(a?.projectPath||a?.originalProjectPathV682||a?.path),path:s(a?.path),url:s(a?.url||a?.originalUrlV682||a?.src),src:s(a?.src),dataUrl:s(a?.dataUrl),dataUrlBackupV494:s(a?.dataUrlBackupV494),stableUrl:s(a?._stableUrlV164),projectUrl:s(a?._projectUrlV495),name:s(a?.name),savedAt:Date.now()}}
+  function merge(old,next){const out={...(old||{})};for(const[k,v]of Object.entries(next||{}))if(k==='savedAt'||s(v))out[k]=v;return out}
+  function remember(a,t,i){if(!a||typeof a!=='object')return;const r=record(a);if(!Object.values(r).some(v=>typeof v==='string'&&v))return;const id=sourceId(a,t,i),name=s(a.name).toLowerCase();if(r.projectPath){a.originalProjectPathV682||=r.projectPath;a.projectPath||=r.projectPath}if(r.url&&!/^blob:/i.test(r.url)){a.originalUrlV682||=r.url;a._stableUrlV164||=r.url}registry.byId[id]=merge(registry.byId[id],r);if(name)registry.byName[name]=merge(registry.byName[name],r);registry.bySlot[`${t}::${i}`]=merge(registry.bySlot[`${t}::${i}`],r);save()}
+  function hydrate(a,t,i){if(!a||typeof a!=='object')return a;const id=sourceId(a,t,i),name=s(a.name).toLowerCase(),r=registry.byId[id]||registry.bySlot[`${t}::${i}`]||(name?registry.byName[name]:null);if(!r){remember(a,t,i);return a}const fill=(k,v)=>{if(!s(a[k])&&s(v))a[k]=v};fill('projectPath',r.projectPath||r.path);fill('path',r.path||r.projectPath);fill('dataUrl',r.dataUrl);fill('dataUrlBackupV494',r.dataUrlBackupV494||r.dataUrl);fill('_stableUrlV164',r.stableUrl||r.url||r.src||r.projectUrl);fill('_projectUrlV495',r.projectUrl||publicUrl(r.projectPath||r.path));fill('originalProjectPathV682',r.projectPath||r.path);fill('originalUrlV682',r.url||r.src||r.stableUrl||r.projectUrl);const u=publicUrl(a.projectPath||a.originalProjectPathV682||a.path);if(u)a.url=u;else if(!s(a.url)||/^blob:/i.test(a.url))a.url=s(r.url||r.src||r.stableUrl||r.projectUrl||r.dataUrlBackupV494||r.dataUrl);remember(a,t,i);return a}
+  function hydrateTheme(t,id){if(!t||typeof t!=='object')return t;const k=themeId(t,id);(Array.isArray(t.backgroundSvgs)?t.backgroundSvgs:[]).forEach((a,i)=>hydrate(a,k,i));return t}
+  function current(){const id=s(localStorage.getItem('dashboard-theme')||'default');try{const x=window.__dashboardResolveCanonicalThemeV410?.(id);if(x?.theme)return hydrateTheme(x.theme,id);if(x?.backgroundSvgs)return hydrateTheme(x,id)}catch{}try{const row=JSON.parse(localStorage.getItem('loggy-shared-themes-v40')||'[]').find(x=>String(x?.id||'')===id);if(row?.theme)return hydrateTheme(row.theme,id)}catch{}return null}
+  function hidden(a){return a?.hidden===true||a?.visible===false||a?.showOnScreen===false||a?.show===false}
+  function sources(a){const out=[];const push=v=>{v=s(v);if(v&&!out.includes(v))out.push(v)};push(publicUrl(a?.projectPath||a?.originalProjectPathV682||a?.path));push(a?.url);push(a?.src);push(a?._projectUrlV495);push(a?._stableUrlV164);push(a?.originalUrlV682);push(a?.dataUrlBackupV494);push(a?.dataUrl);return out}
+  function repair(explicit){const stage=document.getElementById(STAGE);if(!stage)return;const t=hydrateTheme(explicit||current());if(!t)return;const id=themeId(t),all=Array.isArray(t.backgroundSvgs)?t.backgroundSvgs:[],visible=all.map((a,i)=>({a,i})).filter(x=>x.a&&!hidden(x.a));const items=Array.from(stage.querySelectorAll(':scope > .dashboard-shared-theme-art-item-v40')).filter(n=>!n.dataset.dashboardCrossCloneV350&&!n.dataset.dashboardCrossCloneV149&&!n.dataset.dashboardCrossCloneV94&&!n.dataset.themeCrossCloneV149&&!n.dataset.themeCrossCloneV94);items.forEach((item,di)=>{const raw=Number(item.dataset.svgIndex),row=Number.isFinite(raw)&&all[raw]?{a:all[raw],i:raw}:visible[di];if(!row||hidden(row.a)||s(row.a.markup))return;hydrate(row.a,id,row.i);const list=sources(row.a);if(!list.length)return;let img=item.querySelector('img');if(!img){const host=item.querySelector('.dashboard-default-motion-layer-v362,.dashboard-shared-motion-v41')||item;img=document.createElement('img');img.alt='';img.draggable=false;img.decoding='async';host.replaceChildren(img)}if(!s(img.getAttribute('src'))||img.complete&&img.naturalWidth===0)img.src=list[0];img.style.setProperty('display','block','important');img.style.setProperty('visibility','visible','important');img.style.setProperty('opacity','1','important');if(img.dataset.decorationSourceV682Bound!=='1'){img.dataset.decorationSourceV682Bound='1';img.addEventListener('load',()=>{const u=s(img.currentSrc||img.src);if(u&&!/^blob:/i.test(u)){row.a._stableUrlV164=u;row.a.originalUrlV682||=u;remember(row.a,id,row.i)}});img.addEventListener('error',()=>{hydrate(row.a,id,row.i);const tried=new Set(s(img.dataset.decorationSourceV682Tried).split('\n').filter(Boolean)),bad=s(img.getAttribute('src'));if(bad)tried.add(bad);img.dataset.decorationSourceV682Tried=[...tried].join('\n');const next=sources(row.a).find(x=>!tried.has(x));if(next)img.src=next})}})}
+  function schedule(t){if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{raf=0;repair(t)})}
+  function seed(){read();try{const rows=JSON.parse(localStorage.getItem('loggy-shared-themes-v40')||'[]');rows.forEach(row=>{if(row?.theme)hydrateTheme(row.theme,row.id)})}catch{}try{const id=s(localStorage.getItem('dashboard-theme'));if(id)current()}catch{}schedule()}
+  try{const old=window.mountSharedDashboardArtV41;if(typeof old==='function'&&!old.__sourceRegistryV682){const fn=function(t={}){hydrateTheme(t);const r=old.apply(this,arguments);schedule(t);return r};fn.__sourceRegistryV682=true;window.mountSharedDashboardArtV41=fn;try{mountSharedDashboardArtV41=fn}catch{}}}catch{}
+  try{new MutationObserver(rs=>{if(rs.some(r=>r.type==='attributes'||[...r.addedNodes,...r.removedNodes].some(n=>n?.nodeType===1&&(n.id===STAGE||n.matches?.('img')||n.querySelector?.('#'+STAGE)||n.querySelector?.('img')))))schedule()}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['src','class','style']})}catch{}
+  window.addEventListener('storage',e=>{if(e.key===REGISTRY_KEY)read();if(e.key&&/theme/i.test(e.key))setTimeout(seed,0)});
+  window.__dashboardDecorationSourceRegistryV682Api={hydrateTheme,repair,seed};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',seed,{once:true});else seed();
+})();
+</script>

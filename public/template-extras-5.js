@@ -50,6 +50,8 @@
             orderedItems: [],
             endBehavior: 'stop'
         };
+        db.settings.dailyRecommendationV162.tagMode =
+            String(db.settings.dailyRecommendationV162.tagMode || 'and').toLowerCase() === 'or' ? 'or' : 'and';
     }
 
     // ------------------------------------------------------------
@@ -361,7 +363,13 @@
         if (categories.length && !categories.includes(String(meta.type || ''))) return false;
         const desiredTags = uniqueStrings(filter.tags || []).map(v => v.replace(/^#/, '').toLowerCase());
         const itemTags = tagsForItemV162(id).map(v => v.replace(/^#/, '').toLowerCase());
-        if (desiredTags.length && !desiredTags.every(tag => itemTags.includes(tag))) return false;
+        if (desiredTags.length) {
+            const mode = String(filter.tagMode || 'and').toLowerCase() === 'or' ? 'or' : 'and';
+            const tagMatch = mode === 'or'
+                ? desiredTags.some(tag => itemTags.includes(tag))
+                : desiredTags.every(tag => itemTags.includes(tag));
+            if (!tagMatch) return false;
+        }
         if (filter.learnedState === 'learned' && !learnedSet.has(String(id))) return false;
         if (filter.learnedState === 'unlearned' && learnedSet.has(String(id))) return false;
         const hasParts = Array.isArray(meta.parts) && meta.parts.length > 0;
@@ -382,24 +390,364 @@
     window.kbItemMatchesV162 = kbItemMatchesV162;
 
     // ------------------------------------------------------------
-    // V596 — Lazy Day Recommendation
-    // Uses the existing KB tags and the same global "learned" definition as
-    // Daily Recommendation: an item is learned only if it exists in a day's
-    // Items Learned / phrases array. Merely opening a recommendation does NOT
-    // mark it learned.
+    // V686 — Custom Recommendation button
+    // Replaces the old fixed #lazy-only recommendation behavior with one
+    // configurable recommendation engine. Right-click the button to edit:
+    // name, icon, categories, required tags, and per-category field filters.
     // ------------------------------------------------------------
     let lastLazyRecommendationV596 = '';
     let currentLazyRecommendationV597 = '';
 
+    const lazyRecommendationIconsV686 = [
+        'ph-moon-stars','ph-lightning','ph-star','ph-sparkle','ph-fire','ph-target','ph-brain','ph-book-open',
+        'ph-graduation-cap','ph-pencil-simple','ph-note-pencil','ph-calculator','ph-function','ph-sigma','ph-pi',
+        'ph-ruler','ph-flask','ph-atom','ph-globe','ph-map-trifold','ph-translate','ph-chats-circle','ph-question',
+        'ph-question-mark','ph-lightbulb','ph-magnifying-glass','ph-puzzle-piece','ph-cards','ph-stack','ph-list-checks',
+        'ph-check-circle','ph-arrow-clockwise','ph-shuffle','ph-dice-five','ph-magic-wand','ph-rocket','ph-trophy',
+        'ph-medal','ph-heart','ph-smiley','ph-sun','ph-cloud','ph-plant','ph-tree','ph-mountains','ph-compass',
+        'ph-clock','ph-calendar','ph-alarm','ph-coffee','ph-cookie','ph-fork-knife','ph-music-note','ph-headphones',
+        'ph-camera','ph-paint-brush','ph-palette','ph-code','ph-terminal','ph-chart-line','ph-chart-bar','ph-currency-dollar',
+        'ph-briefcase','ph-wrench','ph-hammer','ph-gear','ph-flag','ph-bookmark','ph-tag','ph-hash'
+    ];
+
+    function lazyRecommendationSettingsV686() {
+        db.settings ||= {};
+        const raw = db.settings.lazyRecommendationV686;
+        const base = {
+            title: 'Lazy Day Recommendation',
+            icon: 'ph-moon-stars',
+            categories: [],
+            tags: ['lazy'],
+            tagMode: 'and',
+            removeTagsOnLearn: ['lazy','hide'],
+            fieldFilters: []
+        };
+        if (!raw || typeof raw !== 'object') {
+            db.settings.lazyRecommendationV686 = base;
+            return db.settings.lazyRecommendationV686;
+        }
+        raw.title = String(raw.title || base.title).trim() || base.title;
+        raw.icon = String(raw.icon || base.icon).replace(/^ph\s+/, '').trim() || base.icon;
+        raw.categories = uniqueStrings(raw.categories || []);
+        raw.tags = uniqueStrings(raw.tags || []).map(tag => tag.replace(/^#/, '').trim()).filter(Boolean);
+        raw.tagMode = String(raw.tagMode || 'and').toLowerCase() === 'or' ? 'or' : 'and';
+        raw.removeTagsOnLearn = uniqueStrings(raw.removeTagsOnLearn ?? base.removeTagsOnLearn)
+            .map(tag => String(tag || '').replace(/^#/, '').trim())
+            .filter(Boolean);
+        raw.fieldFilters = Array.isArray(raw.fieldFilters) ? raw.fieldFilters.map(row => ({
+            category: String(row?.category || '').trim(),
+            field: String(row?.field || '').trim(),
+            contains: String(row?.contains || '').trim()
+        })).filter(row => row.category && row.field) : [];
+        return raw;
+    }
+
+    function lazyRecommendationCategoriesV686() {
+        return uniqueStrings([
+            ...(db.settings?.categories || []),
+            ...Object.keys(db.settings?.categorySettings || {}),
+            ...(db.phrases || []).map(id => String(db.phrase_meta?.[id]?.type || ''))
+        ]);
+    }
+
+    function lazyRecommendationFieldsV686(category) {
+        const names = [];
+        try {
+            (getKnowledgeFieldDefs(category) || []).forEach(field => {
+                if (field?.name) names.push(String(field.name));
+            });
+        } catch {}
+        try {
+            const cfg = getCategoryConfig(category);
+            (cfg?.fields || []).forEach((raw, index) => {
+                const field = typeof normalizeKnowledgeField === 'function'
+                    ? normalizeKnowledgeField(raw, index, cfg)
+                    : raw;
+                if (field?.name) names.push(String(field.name));
+            });
+        } catch {}
+        return uniqueStrings(names);
+    }
+
+    function lazyRecommendationFieldValueV686(id, row) {
+        if (row.field === '__title__') return String(id || '');
+        return String(db.phrase_meta?.[id]?.custom_fields?.[row.field] ?? '');
+    }
+
     function lazyDayCandidatesV596() {
+        const settings = lazyRecommendationSettingsV686();
         const learned = learnedItemSetV162();
+        const wantedCategories = new Set(settings.categories.map(String));
+        const wantedTags = settings.tags.map(tag => String(tag).replace(/^#/, '').trim().toLowerCase()).filter(Boolean);
+
         return (db.phrases || []).filter(id => {
             const key = String(id);
             if (learned.has(key)) return false;
-            return tagsForItemV162(key)
+
+            const meta = db.phrase_meta?.[key] || {};
+            const category = String(meta.type || '');
+            if (wantedCategories.size && !wantedCategories.has(category)) return false;
+
+            const itemTags = tagsForItemV162(key)
                 .map(tag => String(tag || '').replace(/^#/, '').trim().toLowerCase())
-                .includes('lazy');
+                .filter(Boolean);
+            if (wantedTags.length) {
+                const tagMatch = settings.tagMode === 'or'
+                    ? wantedTags.some(tag => itemTags.includes(tag))
+                    : wantedTags.every(tag => itemTags.includes(tag));
+                if (!tagMatch) return false;
+            }
+
+            for (const row of settings.fieldFilters) {
+                if (row.category && category !== row.category) return false;
+                const value = lazyRecommendationFieldValueV686(key, row).trim();
+                if (!value) return false;
+                const wanted = String(row.contains || '').trim().toLowerCase();
+                if (wanted && !value.toLowerCase().includes(wanted)) return false;
+            }
+            return true;
         });
+    }
+
+    function applyLazyRecommendationButtonV686(trigger, panel) {
+        const settings = lazyRecommendationSettingsV686();
+        if (trigger) {
+            trigger.title = settings.title;
+            trigger.setAttribute('aria-label', settings.title);
+            trigger.innerHTML = `<i class="ph ${attr(settings.icon)}"></i>`;
+        }
+        if (panel) {
+            const label = panel.querySelector('.lazy-day-recommendation-copy-v596 small');
+            const icon = panel.querySelector('.lazy-day-recommendation-icon-v596 i');
+            if (label) label.textContent = settings.title;
+            if (icon) icon.className = `ph ${settings.icon}`;
+        }
+    }
+
+    function closeLazyRecommendationSettingsV686() {
+        document.getElementById('lazy-recommendation-settings-v686')?.remove();
+    }
+
+    function openLazyRecommendationSettingsV686() {
+        closeLazyRecommendationSettingsV686();
+        const settings = deepClone(lazyRecommendationSettingsV686());
+        const categories = lazyRecommendationCategoriesV686();
+        const modal = document.createElement('div');
+        modal.id = 'lazy-recommendation-settings-v686';
+        modal.className = 'modal-overlay lazy-recommendation-settings-v686';
+        modal.innerHTML = `
+            <div class="modal-box lazy-recommendation-settings-box-v686" role="dialog" aria-modal="true" aria-label="Recommendation Settings">
+                <div class="modal-header">
+                    <h2>Recommendation Settings</h2>
+                    <button type="button" class="small-icon-btn lazy-recommendation-close-v686" title="Close" aria-label="Close"><i class="ph ph-x"></i></button>
+                </div>
+
+                <div class="modal-section">
+                    <span class="field-label">Button name</span>
+                    <input type="text" class="lazy-recommendation-name-v686" value="${attr(settings.title)}" placeholder="Recommendation name">
+                    <p class="progress-hint">This is the name shown when you hover the recommendation button.</p>
+                </div>
+
+                <div class="modal-section">
+                    <span class="field-label">Icon</span>
+                    <div class="lazy-recommendation-icon-search-v686">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="search" class="lazy-recommendation-icon-query-v686" placeholder="Search icons…" autocomplete="off">
+                    </div>
+                    <div class="lazy-recommendation-icon-grid-v686"></div>
+                </div>
+
+                <div class="modal-section">
+                    <span class="field-label">Categories <small>(optional)</small></span>
+                    <p class="progress-hint">Leave all unchecked to allow items from any category.</p>
+                    <div class="lazy-recommendation-category-grid-v686">
+                        ${categories.length ? categories.map(category => `
+                            <label class="lazy-recommendation-check-v686">
+                                <input type="checkbox" value="${attr(category)}" ${settings.categories.includes(category) ? 'checked' : ''}>
+                                <span>${esc(category)}</span>
+                            </label>`).join('') : '<small>No categories exist yet.</small>'}
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <span class="field-label">Required tags <small>(optional)</small></span>
+                    <div class="lazy-recommendation-tag-rule-v689">
+                        <input type="text" class="lazy-recommendation-tags-v686" value="${attr((settings.tags || []).join(', '))}" placeholder="lazy, 2.1">
+                        <select class="lazy-recommendation-tag-mode-v689" aria-label="Tag matching rule">
+                            <option value="and" ${settings.tagMode === 'or' ? '' : 'selected'}>AND</option>
+                            <option value="or" ${settings.tagMode === 'or' ? 'selected' : ''}>OR</option>
+                        </select>
+                    </div>
+                    <p class="progress-hint"><strong>AND</strong> requires every tag. <strong>OR</strong> requires at least one tag.</p>
+                </div>
+
+                <div class="modal-section">
+                    <span class="field-label">Remove tags after adding to Items Learned <small>(optional)</small></span>
+                    <input type="text" class="lazy-recommendation-remove-tags-v688" value="${attr((settings.removeTagsOnLearn || []).join(', '))}" placeholder="lazy, hide">
+                    <p class="progress-hint">Separate tags with commas. Only these tags are removed when you accept a recommendation. Leave blank to keep every tag.</p>
+                </div>
+
+                <div class="modal-section">
+                    <div class="lazy-recommendation-fields-head-v686">
+                        <div>
+                            <span class="field-label">Field filters <small>(optional)</small></span>
+                            <p class="progress-hint">Require a field to contain something, or type text it must contain.</p>
+                        </div>
+                        <button type="button" class="small-icon-btn lazy-recommendation-add-field-v686" title="Add field filter"><i class="ph ph-plus"></i></button>
+                    </div>
+                    <div class="lazy-recommendation-field-list-v686"></div>
+                </div>
+
+                <div class="lazy-recommendation-match-summary-v686"></div>
+
+                <div class="modal-actions lazy-recommendation-actions-footer-v686">
+                    <button type="button" class="icon-btn lazy-recommendation-save-v686"><i class="ph ph-check"></i> Save</button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+
+        const iconGrid = modal.querySelector('.lazy-recommendation-icon-grid-v686');
+        const iconQuery = modal.querySelector('.lazy-recommendation-icon-query-v686');
+        const fieldList = modal.querySelector('.lazy-recommendation-field-list-v686');
+        const summary = modal.querySelector('.lazy-recommendation-match-summary-v686');
+        let selectedIcon = settings.icon;
+        let draftRows = settings.fieldFilters.map(row => ({...row}));
+
+        function renderIcons(query = '') {
+            const q = String(query || '').trim().toLowerCase().replace(/^ph-/, '');
+            const visible = lazyRecommendationIconsV686.filter(icon => !q || icon.replace(/^ph-/, '').includes(q));
+            iconGrid.innerHTML = visible.map(icon => `
+                <button type="button" class="lazy-recommendation-icon-option-v686 ${icon === selectedIcon ? 'selected' : ''}" data-icon="${attr(icon)}" title="${attr(icon.replace(/^ph-/, '').replace(/-/g, ' '))}">
+                    <i class="ph ${attr(icon)}"></i>
+                </button>`).join('') || '<small>No icons found.</small>';
+            iconGrid.querySelectorAll('[data-icon]').forEach(button => button.onclick = () => {
+                selectedIcon = button.dataset.icon;
+                renderIcons(iconQuery.value);
+            });
+        }
+
+        function categoryOptions(selected) {
+            return categories.map(category => `<option value="${attr(category)}" ${category === selected ? 'selected' : ''}>${esc(category)}</option>`).join('');
+        }
+
+        function renderFieldRows() {
+            fieldList.innerHTML = draftRows.map((row, index) => {
+                const fields = lazyRecommendationFieldsV686(row.category);
+                const fieldOptions = [
+                    {name:'__title__', label:'Title'},
+                    ...fields.map(name => ({name, label:name}))
+                ];
+                if (!fieldOptions.some(field => field.name === row.field)) row.field = fieldOptions[0]?.name || '__title__';
+                return `
+                    <div class="lazy-recommendation-field-row-v686" data-index="${index}">
+                        <select class="lazy-recommendation-field-category-v686" aria-label="Category">${categoryOptions(row.category)}</select>
+                        <select class="lazy-recommendation-field-name-v686" aria-label="Field">
+                            ${fieldOptions.map(field => `<option value="${attr(field.name)}" ${field.name === row.field ? 'selected' : ''}>${esc(field.label)}</option>`).join('')}
+                        </select>
+                        <input type="text" class="lazy-recommendation-field-contains-v686" value="${attr(row.contains)}" placeholder="Contains… (optional)">
+                        <button type="button" class="small-icon-btn lazy-recommendation-remove-field-v686" title="Remove filter"><i class="ph ph-x"></i></button>
+                    </div>`;
+            }).join('') || '<div class="lazy-recommendation-no-fields-v686">No field filters. Any field values are allowed.</div>';
+
+            fieldList.querySelectorAll('.lazy-recommendation-field-row-v686').forEach(rowEl => {
+                const index = Number(rowEl.dataset.index);
+                const categorySelect = rowEl.querySelector('.lazy-recommendation-field-category-v686');
+                const fieldSelect = rowEl.querySelector('.lazy-recommendation-field-name-v686');
+                const containsInput = rowEl.querySelector('.lazy-recommendation-field-contains-v686');
+                categorySelect.onchange = () => {
+                    draftRows[index].category = categorySelect.value;
+                    draftRows[index].field = lazyRecommendationFieldsV686(categorySelect.value)[0] || '__title__';
+                    renderFieldRows();
+                    updateSummary();
+                };
+                fieldSelect.onchange = () => { draftRows[index].field = fieldSelect.value; updateSummary(); };
+                containsInput.oninput = () => { draftRows[index].contains = containsInput.value; updateSummary(); };
+                rowEl.querySelector('.lazy-recommendation-remove-field-v686').onclick = () => {
+                    draftRows.splice(index, 1);
+                    renderFieldRows();
+                    updateSummary();
+                };
+            });
+        }
+
+        function draftSettings() {
+            return {
+                title: modal.querySelector('.lazy-recommendation-name-v686').value.trim() || 'Recommendation',
+                icon: selectedIcon || 'ph-moon-stars',
+                categories: [...modal.querySelectorAll('.lazy-recommendation-category-grid-v686 input:checked')].map(input => input.value),
+                tags: splitList(modal.querySelector('.lazy-recommendation-tags-v686').value).map(tag => tag.replace(/^#/, '')),
+                tagMode: modal.querySelector('.lazy-recommendation-tag-mode-v689')?.value === 'or' ? 'or' : 'and',
+                removeTagsOnLearn: splitList(modal.querySelector('.lazy-recommendation-remove-tags-v688').value).map(tag => tag.replace(/^#/, '')),
+                fieldFilters: draftRows.map(row => ({
+                    category: String(row.category || '').trim(),
+                    field: String(row.field || '').trim(),
+                    contains: String(row.contains || '').trim()
+                })).filter(row => row.category && row.field)
+            };
+        }
+
+        function matchingCountForDraftV686(draft) {
+            const learned = learnedItemSetV162();
+            const categoriesSet = new Set(draft.categories);
+            const tags = draft.tags.map(tag => tag.toLowerCase());
+            return (db.phrases || []).filter(id => {
+                const key = String(id);
+                if (learned.has(key)) return false;
+                const meta = db.phrase_meta?.[key] || {};
+                const category = String(meta.type || '');
+                if (categoriesSet.size && !categoriesSet.has(category)) return false;
+                const itemTags = tagsForItemV162(key).map(tag => String(tag).replace(/^#/, '').trim().toLowerCase());
+                if (tags.length) {
+                    const tagMatch = draft.tagMode === 'or'
+                        ? tags.some(tag => itemTags.includes(tag))
+                        : tags.every(tag => itemTags.includes(tag));
+                    if (!tagMatch) return false;
+                }
+                return draft.fieldFilters.every(row => {
+                    if (category !== row.category) return false;
+                    const value = lazyRecommendationFieldValueV686(key, row).trim();
+                    if (!value) return false;
+                    return !row.contains || value.toLowerCase().includes(row.contains.toLowerCase());
+                });
+            }).length;
+        }
+
+        function updateSummary() {
+            const count = matchingCountForDraftV686(draftSettings());
+            summary.innerHTML = `<strong>${count}</strong> unlearned KB item${count === 1 ? '' : 's'} currently match these filters.`;
+        }
+
+        iconQuery.oninput = () => renderIcons(iconQuery.value);
+        modal.querySelector('.lazy-recommendation-name-v686').oninput = updateSummary;
+        modal.querySelector('.lazy-recommendation-tags-v686').oninput = updateSummary;
+        modal.querySelector('.lazy-recommendation-tag-mode-v689').onchange = updateSummary;
+        modal.querySelector('.lazy-recommendation-remove-tags-v688').oninput = updateSummary;
+        modal.querySelectorAll('.lazy-recommendation-category-grid-v686 input').forEach(input => input.onchange = updateSummary);
+        modal.querySelector('.lazy-recommendation-add-field-v686').onclick = () => {
+            const category = categories[0] || '';
+            if (!category) return;
+            draftRows.push({category, field:lazyRecommendationFieldsV686(category)[0] || '__title__', contains:''});
+            renderFieldRows();
+            updateSummary();
+        };
+        modal.querySelector('.lazy-recommendation-close-v686').onclick = closeLazyRecommendationSettingsV686;
+        modal.addEventListener('click', event => { if (event.target === modal) closeLazyRecommendationSettingsV686(); });
+        modal.querySelector('.lazy-recommendation-save-v686').onclick = async () => {
+            db.settings.lazyRecommendationV686 = draftSettings();
+            currentLazyRecommendationV597 = '';
+            lastLazyRecommendationV596 = '';
+            try { await saveDb(); } catch {}
+            const panel = document.getElementById('lazy-day-recommendation-v596');
+            const trigger = document.getElementById('lazy-day-recommendation-btn-v596');
+            applyLazyRecommendationButtonV686(trigger, panel);
+            if (panel && !panel.classList.contains('hidden')) showLazyDayRecommendationV596();
+            closeLazyRecommendationSettingsV686();
+        };
+
+        renderIcons();
+        renderFieldRows();
+        updateSummary();
+        setTimeout(() => modal.querySelector('.lazy-recommendation-name-v686')?.focus(), 0);
     }
 
     function ensureLazyDayUiV596() {
@@ -409,15 +757,11 @@
         const actions = section.querySelector('.section-header > div:last-child');
         let trigger = document.getElementById('lazy-day-recommendation-btn-v596');
 
-        // Historical saved templates may not yet contain the V596 button.
         if (!trigger && actions) {
             trigger = document.createElement('button');
             trigger.id = 'lazy-day-recommendation-btn-v596';
             trigger.type = 'button';
             trigger.className = 'small-icon-btn';
-            trigger.title = 'Lazy Day Recommendation';
-            trigger.setAttribute('aria-label', 'Lazy Day Recommendation');
-            trigger.innerHTML = '<i class="ph ph-moon-stars"></i>';
             actions.prepend(trigger);
         }
 
@@ -429,7 +773,7 @@
             panel.setAttribute('aria-live', 'polite');
             panel.innerHTML = `
                 <button type="button" class="lazy-day-recommendation-main-v596">
-                    <span class="lazy-day-recommendation-icon-v596"><i class="ph ph-lightning"></i></span>
+                    <span class="lazy-day-recommendation-icon-v596"><i class="ph ph-moon-stars"></i></span>
                     <span class="lazy-day-recommendation-copy-v596">
                         <small>Lazy Day Recommendation</small>
                         <span class="lazy-day-recommendation-value-v596"></span>
@@ -439,31 +783,40 @@
                 <div class="lazy-day-recommendation-actions-v597">
                     <button type="button" class="small-icon-btn lazy-day-recommendation-skip-v597" title="Skip and show another" aria-label="Skip recommendation"><i class="ph ph-skip-forward"></i></button>
                     <button type="button" class="small-icon-btn lazy-day-recommendation-learned-v597" title="Add to Items Learned" aria-label="Add recommendation to Items Learned"><i class="ph ph-check"></i></button>
-                </div>
-            `;
+                </div>`;
             const input = section.querySelector('#phrase-input-group');
             if (input) input.insertAdjacentElement('beforebegin', panel);
             else section.querySelector('.section-header')?.insertAdjacentElement('afterend', panel);
         }
 
-        if (trigger && trigger.dataset.lazyDayBoundV596 !== '1') {
-            trigger.dataset.lazyDayBoundV596 = '1';
+        applyLazyRecommendationButtonV686(trigger, panel);
+
+        if (trigger && trigger.dataset.lazyDayBoundV686 !== '1') {
+            trigger.dataset.lazyDayBoundV686 = '1';
             trigger.addEventListener('click', event => {
                 event.preventDefault();
-
-                // V598: the moon button is a pure show/hide toggle.
-                // It must NOT cycle recommendations; Skip owns that behavior.
                 if (!panel.classList.contains('hidden')) {
                     panel.classList.add('hidden');
                     return;
                 }
-
                 if (currentLazyRecommendationV597) {
                     panel.classList.remove('hidden');
                     return;
                 }
-
                 showLazyDayRecommendationV596();
+            });
+            trigger.addEventListener('contextmenu', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (typeof showCustomItemContextMenu === 'function') {
+                    showCustomItemContextMenu(event.clientX, event.clientY, [{
+                        label: 'Edit filters',
+                        icon: 'ph-sliders-horizontal',
+                        action: openLazyRecommendationSettingsV686
+                    }]);
+                } else {
+                    openLazyRecommendationSettingsV686();
+                }
             });
         }
 
@@ -495,47 +848,33 @@
         if (!id || !currentDay) return;
 
         db.days ||= {};
-        db.days[currentDay] ||= {
-            notes:'',
-            phrases:[],
-            tools:[],
-            video:'',
-            checkedParts:{}
-        };
+        db.days[currentDay] ||= { notes:'', phrases:[], tools:[], video:'', checkedParts:{} };
         db.days[currentDay].phrases ||= [];
+        if (!db.days[currentDay].phrases.includes(id)) db.days[currentDay].phrases.push(id);
 
-        if (!db.days[currentDay].phrases.includes(id)) {
-            db.days[currentDay].phrases.push(id);
-        }
-
-        if (db.phrase_meta?.[id]) {
-            const cleaned = (db.phrase_meta[id].tags || []).filter(tag => {
-                const normalized = String(tag || '')
-                    .replace(/^#/, '')
-                    .trim()
-                    .toLowerCase();
-
-                return normalized !== 'lazy' && normalized !== 'hide';
-            });
-
-            db.phrase_meta[id].tags =
-                typeof normalizeKnowledgeTagsV55 === 'function'
-                    ? normalizeKnowledgeTagsV55(cleaned)
-                    : cleaned;
-        }
+        // Recommendation-specific cleanup is fully configurable. Only the tags
+        // chosen in Recommendation Settings are removed when an item is accepted.
+        // All other source tags remain untouched.
+        try {
+            const meta = db.phrase_meta?.[id];
+            const removeTags = new Set(
+                (lazyRecommendationSettingsV686().removeTagsOnLearn || [])
+                    .map(tag => String(tag || '').replace(/^#/, '').trim().toLowerCase())
+                    .filter(Boolean)
+            );
+            if (meta && removeTags.size) {
+                const tags = Array.isArray(meta.tags) ? meta.tags : [];
+                meta.tags = tags.filter(tag => !removeTags.has(
+                    String(tag || '').replace(/^#/, '').trim().toLowerCase()
+                ));
+            }
+        } catch {}
 
         try { renderPhrases(db.days[currentDay].phrases); } catch {}
         try { populatePhrasesDatalist(); } catch {}
-        try {
-            renderPhrasesLibrary(
-                document.getElementById('phrases-search-bar')?.value || ''
-            );
-        } catch {}
-
+        try { renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value || ''); } catch {}
         try { await saveDb(); } catch {}
-        try {
-            showFeatureToast?.(`Added “${id}” to Items Learned.`);
-        } catch {}
+        try { showFeatureToast?.(`Added “${id}” to Items Learned.`); } catch {}
 
         currentLazyRecommendationV597 = '';
         showLazyDayRecommendationV596();
@@ -545,25 +884,23 @@
         const panel = ensureLazyDayUiV596();
         if (!panel) return;
 
+        const settings = lazyRecommendationSettingsV686();
         const candidates = lazyDayCandidatesV596();
         const value = panel.querySelector('.lazy-day-recommendation-value-v596');
         const meta = panel.querySelector('.lazy-day-recommendation-meta-v596');
         const main = panel.querySelector('.lazy-day-recommendation-main-v596');
         const actions = panel.querySelector('.lazy-day-recommendation-actions-v597');
 
+        applyLazyRecommendationButtonV686(document.getElementById('lazy-day-recommendation-btn-v596'), panel);
         if (main) main.onclick = null;
         panel.classList.remove('hidden');
 
-        // V642: own the empty state here, inside the same scope as the Lazy Day
-        // implementation. The old V623 tail block tried to reference these
-        // scoped functions from outside their IIFE and threw a ReferenceError
-        // whenever extras-5 loaded.
         if (!candidates.length) {
             lastLazyRecommendationV596 = '';
             currentLazyRecommendationV597 = '';
             panel.classList.add('lazy-day-empty-v623');
-            if (value) value.textContent = 'To add a lazy day recommendation, add to the KB an item with the tag #lazy.';
-            if (meta) meta.textContent = '';
+            if (value) value.textContent = 'No unlearned Knowledge Base items match your recommendation filters.';
+            if (meta) meta.textContent = 'Right-click the recommendation button to edit filters.';
             if (actions) actions.hidden = true;
             return;
         }
@@ -583,29 +920,21 @@
 
         const display = getKnowledgeDisplayLabelV162(id, 'everywhere');
         const rawPattern = String(display) === id && id.includes('\\');
-
         if (value) {
-            if (rawPattern && typeof placeholderTokenHtmlV56 === 'function') {
-                value.innerHTML = placeholderTokenHtmlV56(id);
-            } else {
-                value.textContent = display;
-            }
+            if (rawPattern && typeof placeholderTokenHtmlV56 === 'function') value.innerHTML = placeholderTokenHtmlV56(id);
+            else value.textContent = display;
         }
 
         if (meta) {
-            meta.textContent = `#lazy · ${candidates.length} unlearned item${candidates.length === 1 ? '' : 's'} available`;
+            const tagText = settings.tags.length ? settings.tags.map(tag => `#${tag}`).join(' + ') : 'custom filters';
+            meta.textContent = `${tagText} · ${candidates.length} unlearned item${candidates.length === 1 ? '' : 's'} available`;
         }
-
-        main.onclick = () => openKbDetailV162(id);
+        main.onclick = () => openItemModal(id, true, false);
     }
 
-    // Reuse direct element listeners. No document-wide click listener is needed.
     const bootLazyDayV596 = () => ensureLazyDayUiV596();
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', bootLazyDayV596, { once:true });
-    } else {
-        bootLazyDayV596();
-    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootLazyDayV596, { once:true });
+    else bootLazyDayV596();
 
     try {
         const beforeOpenDayV596 = openDayLog;
@@ -623,7 +952,8 @@
     window.__loggyLazyDayV596 = {
         candidates: lazyDayCandidatesV596,
         recommend: showLazyDayRecommendationV596,
-        accept: acceptLazyDayRecommendationV597
+        accept: acceptLazyDayRecommendationV597,
+        settings: openLazyRecommendationSettingsV686
     };
 
     if (typeof window.__loggyShowHiddenKbItemsV597 !== 'boolean') {
@@ -632,6 +962,11 @@
 
     function setShowHiddenKbItemsV597(show) {
         window.__loggyShowHiddenKbItemsV597 = show === true;
+        try {
+            db.settings ||= {};
+            if (db.settings.knowledgeHideTagsV557 === undefined) db.settings.knowledgeHideTagsV557 = true;
+            document.documentElement.classList.toggle('kb-hide-item-tags-v557', !!db.settings.knowledgeHideTagsV557);
+        } catch {}
 
         try {
             renderPhrasesLibrary(
@@ -786,7 +1121,7 @@
               <div class="goal-two-col-v162"><label><span class="field-label">Start Date</span><input class="goal-start-v162" type="date"></label><label><span class="field-label">End Date</span><input class="goal-end-v162" type="date"></label></div>
               <label class="goal-auto-row-v162"><input class="goal-auto-v162" type="checkbox"> <span>Automatically count matching items added to Daily Logs</span></label>
               <div class="modal-section"><span class="field-label">Knowledge Base Categories</span><input class="goal-categories-v162" type="text" placeholder="Nouns, Chords"></div>
-              <div class="modal-section"><span class="field-label">Tags</span><input class="goal-tags-v162" type="text" placeholder="practice, #important"></div>
+              <div class="modal-section"><span class="field-label">Tags</span><input class="goal-tags-v162" type="text" placeholder="practice, important"></div>
               <div class="modal-section"><span class="field-label">Other field filters (optional JSON)</span><textarea class="goal-metadata-v162" placeholder='{"Language":"Korean"}'></textarea></div>
               <button type="button" class="icon-btn goal-save-v162"><i class="ph ph-check"></i> Save Goal</button>
             </div>`;
@@ -1157,10 +1492,7 @@
         blueprintsV162().filter(bp=>bp.status==='active').forEach(bp=>{const card=document.createElement('button');card.type='button';card.className='custom-template-card-v162';card.dataset.customBlueprintIdV162=bp.id;card.innerHTML=`<i class="ph ${attr(bp.icon||'ph-tabs')}"></i><span>${esc(bp.name)}</span>`;card.onclick=()=>{modal.dataset.selectedBlueprintV162=bp.id;grid.querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b===card));modal.querySelectorAll('[data-custom-tab-template-v53]').forEach(c=>c.classList.remove('selected'));const name=modal.querySelector('#custom-tab-name-input');if(name&&!name.value.trim())name.value=bp.name};grid.appendChild(card)});
         if(!grid.children.length)grid.innerHTML='<small>Save any tab as a template to reuse its layout.</small>';
     }
-    try {
-        const before=ensureCustomTabCreateModal;
-        ensureCustomTabCreateModal=function(){const result=before.apply(this,arguments);renderBlueprintCardsV162();return result};
-    } catch {}
+    window.renderBlueprintCardsV162 = renderBlueprintCardsV162;
     document.addEventListener('click',event=>{
         const modal=event.target.closest?.('#custom-tab-create-modal');if(!modal)return;
         const builtin=event.target.closest?.('[data-custom-tab-template-v53]');if(builtin)delete modal.dataset.selectedBlueprintV162;
@@ -1234,19 +1566,81 @@
         const out=modal?.querySelector('.kb-bulk-preview-v162'); if(out)out.innerHTML='';
         updateBulkCountV465(modal);
     }
+    function existingBulkDaysV684(){
+        return Object.keys(db.days||{})
+            .map(Number)
+            .filter(day=>Number.isInteger(day)&&day>0)
+            .sort((a,b)=>a-b);
+    }
+    function parseBulkDaysV684(modal){
+        const input=modal?.querySelector('.kb-bulk-days-input-v684');
+        const raw=String(input?.value||'');
+        const compact=raw.replace(/\s+/g,'');
+        if(!compact)return {days:[],invalid:[],malformed:false};
+        const parts=compact.split(',');
+        const malformed=parts.some(part=>!/^\d+$/.test(part));
+        const requested=[...new Set(parts.filter(part=>/^\d+$/.test(part)).map(Number).filter(day=>day>0))];
+        const existing=new Set(existingBulkDaysV684());
+        const invalid=requested.filter(day=>!existing.has(day));
+        return {days:requested.filter(day=>existing.has(day)),invalid,malformed};
+    }
+    function syncBulkDaysV684(modal){
+        if(!modal)return true;
+        const feedback=modal.querySelector('.kb-bulk-days-feedback-v684');
+        const input=modal.querySelector('.kb-bulk-days-input-v684');
+        const commit=modal.querySelector('.kb-bulk-commit-v162');
+        const state=parseBulkDaysV684(modal);
+        const hasValue=!!String(input?.value||'').trim();
+        const valid=!state.malformed&&!state.invalid.length;
+        modal.dataset.kbBulkDaysValidV684=valid?'1':'0';
+        if(input){
+            input.classList.toggle('invalid',!valid);
+            input.setAttribute('aria-invalid',valid?'false':'true');
+        }
+        if(feedback){
+            feedback.classList.toggle('error',!valid);
+            if(!hasValue){
+                feedback.textContent='Optional. Enter existing day numbers separated by commas, for example 1, 2, 3.';
+            }else if(state.malformed){
+                feedback.textContent='Use only day numbers separated by commas.';
+            }else if(state.invalid.length){
+                feedback.textContent=`${state.invalid.length===1?'Day':'Days'} ${state.invalid.join(', ')} ${state.invalid.length===1?'does':'do'} not exist yet.`;
+            }else{
+                feedback.textContent=`Will add the imported items to ${state.days.map(day=>`Day ${day}`).join(', ')}.`;
+            }
+        }
+        if(commit&&!valid)commit.disabled=true;
+        return valid;
+    }
+    function ensureBulkDaysV684(modal){
+        if(!modal)return;
+        let wrap=modal.querySelector('.kb-bulk-days-v684');
+        if(!wrap){
+            wrap=document.createElement('div');
+            wrap.className='modal-section kb-bulk-days-v684';
+            wrap.innerHTML=`<span class="field-label">Add to Items Learned <small>(optional)</small></span><input type="text" class="kb-bulk-days-input-v684" inputmode="numeric" autocomplete="off" placeholder="1, 2, 3"><small class="kb-bulk-days-feedback-v684">Optional. Enter existing day numbers separated by commas, for example 1, 2, 3.</small>`;
+            const delimiter=modal.querySelector('.kb-bulk-delimiter-wrap-v464');
+            if(delimiter)delimiter.insertAdjacentElement('afterend',wrap);
+            else modal.querySelector('.kb-bulk-box-v162')?.appendChild(wrap);
+            const input=wrap.querySelector('.kb-bulk-days-input-v684');
+            input.addEventListener('input',()=>syncBulkDaysV684(modal));
+            input.addEventListener('blur',()=>syncBulkDaysV684(modal));
+        }
+        syncBulkDaysV684(modal);
+    }
     function ensureBulkImportV162() {
         if(document.getElementById('kb-bulk-modal-v162'))return;
         const modal=document.createElement('div');modal.id='kb-bulk-modal-v162';modal.className='modal-overlay hidden';modal.innerHTML=`<div class="modal-box kb-bulk-box-v162"><div class="modal-header"><h2>Bulk Add Knowledge Base Items</h2><button type="button" class="small-icon-btn kb-bulk-close-v162"><i class="ph ph-x"></i></button></div>
         <div class="modal-section"><span class="field-label">Bulk Add Mode</span><select class="kb-bulk-mode-v464"><option value="items">Items Only</option><option value="fields">Items + Fields</option></select></div>
         <div class="modal-section"><span class="field-label">Category</span><select class="kb-bulk-category-v162"></select></div>
         <div class="modal-section kb-bulk-fields-wrap-v464 hidden"><span class="field-label">Fields to Include</span><div class="kb-bulk-field-choices-v464"></div><small class="kb-bulk-field-order-note-v464">The checked fields are imported in the order shown here.</small></div>
-        <div class="modal-section"><span class="field-label">Shared Tags <small>(applied to every imported item)</small></span><input type="text" class="kb-bulk-tags-v162" placeholder="#lazy, noun, beginner"></div>
+        <div class="modal-section"><span class="field-label">Shared Tags <small>(applied to every imported item)</small></span><input type="text" class="kb-bulk-tags-v162" placeholder="lazy, noun, beginner"></div>
         <div class="modal-section kb-bulk-delimiter-wrap-v464"><span class="field-label">Delimiter</span><select class="kb-bulk-delimiter-v162"><option value="auto">Auto detect</option><option value="newline">One item per line</option><option value="comma">Comma</option><option value="semicolon">Semicolon</option><option value="tab">Tab</option></select></div>
         <div class="kb-bulk-format-hint-v464"></div>
         <button type="button" class="icon-btn kb-bulk-copy-prompt-v466"><i class="ph ph-copy"></i> Copy AI Prompt</button>
         <div class="modal-section"><span class="field-label kb-bulk-items-label-v464">Items / Patterns</span><textarea class="kb-bulk-text-v162" rows="10"></textarea><div class="kb-bulk-count-v465"><strong>0</strong> items detected</div></div>
         <button type="button" class="icon-btn kb-bulk-preview-btn-v162">Preview Import</button><div class="kb-bulk-preview-v162"></div><button type="button" class="icon-btn kb-bulk-commit-v162" disabled><i class="ph ph-check"></i> Add Items</button></div>`;
-        document.body.appendChild(modal);modal.querySelector('.kb-bulk-close-v162').onclick=()=>modal.classList.add('hidden');modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.add('hidden')});
+        document.body.appendChild(modal);ensureBulkDaysV684(modal);modal.querySelector('.kb-bulk-close-v162').onclick=()=>modal.classList.add('hidden');modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.add('hidden')});
         modal.querySelector('.kb-bulk-copy-prompt-v466').onclick=()=>copyBulkAiPromptV466(modal);
         modal.querySelector('.kb-bulk-preview-btn-v162').onclick=previewBulkV162;modal.querySelector('.kb-bulk-commit-v162').onclick=commitBulkV162;
         modal.querySelector('.kb-bulk-mode-v464').addEventListener('change',()=>{modal.querySelector('.kb-bulk-delimiter-wrap-v464').classList.toggle('hidden',bulkModeV464(modal)==='fields');renderBulkFieldChoicesV464();updateBulkCountV465(modal)});
@@ -1343,58 +1737,132 @@
             updateBulkCountV465(modal,ready.length);
             modal.querySelector('.kb-bulk-preview-v162').innerHTML=`<div class="kb-bulk-summary-v162"><strong>${ready.length} ready</strong><span>${warning.length} skipped / needs review</span></div><div class="kb-bulk-preview-list-v162">${rows.slice(0,250).map(r=>`<div class="${r.status==='ready'?'ready':'warning'}"><span class="kb-bulk-preview-record-v464"><strong>${esc(r.value||'(no item)')}</strong>${fields.map((f,i)=>`<em>${esc(f)}: ${esc(r.values?.[i]??'')}</em>`).join('')}</span><small>${esc(r.status)}</small></div>`).join('')}${rows.length>250?`<div><small>+ ${rows.length-250} more</small></div>`:''}</div>`;
             modal.querySelector('.kb-bulk-commit-v162').disabled=!ready.length||warning.some(r=>['unclosed quote','missing item name','choose at least one field','check formatting'].includes(r.status));
+            syncBulkDaysV684(modal);
             return;
         }
-        const values=parseBulkV162(modal.querySelector('.kb-bulk-text-v162').value,modal.querySelector('.kb-bulk-delimiter-v162').value);const seen=new Set();const rows=values.map(value=>{let status='ready';if(db.phrases.includes(value))status='already exists';else if(seen.has(value))status='duplicate in paste';else if(malformedBulkV162(value))status='check formatting';seen.add(value);return{value,status}});bulkPreviewV162={mode:'items',signature:modal.querySelector('.kb-bulk-text-v162').value,category,tags,rows};const ready=rows.filter(r=>r.status==='ready');const warning=rows.filter(r=>r.status!=='ready');updateBulkCountV465(modal,ready.length);modal.querySelector('.kb-bulk-preview-v162').innerHTML=`<div class="kb-bulk-summary-v162"><strong>${ready.length} ready</strong><span>${warning.length} skipped / needs review</span></div><div class="kb-bulk-preview-list-v162">${rows.slice(0,250).map(r=>`<div class="${r.status==='ready'?'ready':'warning'}"><span>${esc(r.value)}</span><small>${esc(r.status)}</small></div>`).join('')}${rows.length>250?`<div><small>+ ${rows.length-250} more</small></div>`:''}</div>`;modal.querySelector('.kb-bulk-commit-v162').disabled=!ready.length||warning.some(r=>r.status==='check formatting');
+        const values=parseBulkV162(modal.querySelector('.kb-bulk-text-v162').value,modal.querySelector('.kb-bulk-delimiter-v162').value);const seen=new Set();const rows=values.map(value=>{let status='ready';if(db.phrases.includes(value))status='already exists';else if(seen.has(value))status='duplicate in paste';else if(malformedBulkV162(value))status='check formatting';seen.add(value);return{value,status}});bulkPreviewV162={mode:'items',signature:modal.querySelector('.kb-bulk-text-v162').value,category,tags,rows};const ready=rows.filter(r=>r.status==='ready');const warning=rows.filter(r=>r.status!=='ready');updateBulkCountV465(modal,ready.length);modal.querySelector('.kb-bulk-preview-v162').innerHTML=`<div class="kb-bulk-summary-v162"><strong>${ready.length} ready</strong><span>${warning.length} skipped / needs review</span></div><div class="kb-bulk-preview-list-v162">${rows.slice(0,250).map(r=>`<div class="${r.status==='ready'?'ready':'warning'}"><span>${esc(r.value)}</span><small>${esc(r.status)}</small></div>`).join('')}${rows.length>250?`<div><small>+ ${rows.length-250} more</small></div>`:''}</div>`;modal.querySelector('.kb-bulk-commit-v162').disabled=!ready.length||warning.some(r=>r.status==='check formatting');syncBulkDaysV684(modal);
     }
     function commitBulkV162(){
-        const modal=document.getElementById('kb-bulk-modal-v162');if(!bulkPreviewV162||bulkPreviewV162.signature!==modal.querySelector('.kb-bulk-text-v162').value)return previewBulkV162();const category=bulkPreviewV162.category||db.settings.categories?.[0]||'Category';const tags=(typeof normalizeKnowledgeTagsV55==='function'?normalizeKnowledgeTagsV55(bulkPreviewV162.tags):bulkPreviewV162.tags.map(v=>v.replace(/^#/,'')));let added=0;bulkPreviewV162.rows.filter(r=>r.status==='ready').forEach(row=>{if(db.phrases.includes(row.value))return;db.phrases.push(row.value);const cfg=getCategoryConfig(category);const custom={};(cfg.fields||[]).forEach((raw,i)=>{const f=normalizeKnowledgeField(raw,i,cfg);custom[f.name]=''});if(bulkPreviewV162.mode==='fields')Object.entries(row.custom||{}).forEach(([name,value])=>{if(Object.prototype.hasOwnProperty.call(custom,name))custom[name]=value});db.phrase_meta[row.value]={...(db.phrase_meta[row.value]||{}),type:category,tags:[...tags],custom_fields:custom,enableParts:false,parts:[]};added++});saveDb();try{populatePhrasesDatalist();renderLibraryTabs();renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value||'')}catch{}modal.classList.add('hidden');bulkPreviewV162=null;try{showFeatureToast(`Added ${added} Knowledge Base item${added===1?'':'s'}.`)}catch{}
+        const modal=document.getElementById('kb-bulk-modal-v162');if(!syncBulkDaysV684(modal))return;if(!bulkPreviewV162||bulkPreviewV162.signature!==modal.querySelector('.kb-bulk-text-v162').value)return previewBulkV162();const category=bulkPreviewV162.category||db.settings.categories?.[0]||'Category';const tags=(typeof normalizeKnowledgeTagsV55==='function'?normalizeKnowledgeTagsV55(bulkPreviewV162.tags):bulkPreviewV162.tags.map(v=>v.replace(/^#/,'')));let added=0;bulkPreviewV162.rows.filter(r=>r.status==='ready').forEach(row=>{if(db.phrases.includes(row.value))return;db.phrases.push(row.value);const cfg=getCategoryConfig(category);const custom={};(cfg.fields||[]).forEach((raw,i)=>{const f=normalizeKnowledgeField(raw,i,cfg);custom[f.name]=''});if(bulkPreviewV162.mode==='fields')Object.entries(row.custom||{}).forEach(([name,value])=>{if(Object.prototype.hasOwnProperty.call(custom,name))custom[name]=value});db.phrase_meta[row.value]={...(db.phrase_meta[row.value]||{}),type:category,tags:[...tags],custom_fields:custom,enableParts:false,parts:[]};added++});saveDb();try{populatePhrasesDatalist();renderLibraryTabs();renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value||'')}catch{}modal.classList.add('hidden');bulkPreviewV162=null;try{showFeatureToast(`Added ${added} Knowledge Base item${added===1?'':'s'}.`)}catch{}
     }
     function ensureBulkButtonV162(){
-        const header=document.querySelector('#phrases-library-view .log-header-container > div:last-child');if(!header||document.getElementById('kb-bulk-add-btn-v162'))return;const btn=document.createElement('button');btn.id='kb-bulk-add-btn-v162';btn.className='icon-btn';btn.title='Bulk add items';btn.innerHTML='<i class="ph ph-stack-plus"></i>';btn.onclick=()=>{ensureBulkImportV162();const modal=document.getElementById('kb-bulk-modal-v162');const select=modal.querySelector('.kb-bulk-category-v162');select.innerHTML=(db.settings.categories||[]).map(c=>`<option value="${attr(c)}">${esc(c)}</option>`).join('');select.value=libraryFilter&&libraryFilter!=='all'?libraryFilter:(db.settings.categories?.[0]||'');modal.querySelector('.kb-bulk-text-v162').value='';modal.querySelector('.kb-bulk-preview-v162').innerHTML='';modal.querySelector('.kb-bulk-commit-v162').disabled=true;bulkPreviewV162=null;renderBulkFieldChoicesV464();updateBulkCountV465(modal);modal.classList.remove('hidden')};header.insertBefore(btn,document.getElementById('add-phrase-library-btn'));
+        const header=document.querySelector('#phrases-library-view .log-header-container > div:last-child');if(!header||document.getElementById('kb-bulk-add-btn-v162'))return;const btn=document.createElement('button');btn.id='kb-bulk-add-btn-v162';btn.className='icon-btn';btn.title='Bulk add items';btn.innerHTML='<i class="ph ph-stack-plus"></i>';btn.onclick=()=>{ensureBulkImportV162();const modal=document.getElementById('kb-bulk-modal-v162');const select=modal.querySelector('.kb-bulk-category-v162');select.innerHTML=(db.settings.categories||[]).map(c=>`<option value="${attr(c)}">${esc(c)}</option>`).join('');select.value=libraryFilter&&libraryFilter!=='all'?libraryFilter:(db.settings.categories?.[0]||'');modal.querySelector('.kb-bulk-text-v162').value='';const dayInput=modal.querySelector('.kb-bulk-days-input-v684');if(dayInput)dayInput.value='';modal.querySelector('.kb-bulk-preview-v162').innerHTML='';modal.querySelector('.kb-bulk-commit-v162').disabled=true;bulkPreviewV162=null;renderBulkFieldChoicesV464();updateBulkCountV465(modal);syncBulkDaysV684(modal);modal.classList.remove('hidden')};header.insertBefore(btn,document.getElementById('add-phrase-library-btn'));
     }
 
     // ------------------------------------------------------------
     // Daily Knowledge Base recommendations.
     // ------------------------------------------------------------
     function ensureRecommendationBarV162(){
-        const view=document.getElementById('log-view');if(!view)return null;let bar=document.getElementById('daily-recommendation-v162');if(!bar){bar=document.createElement('section');bar.id='daily-recommendation-v162';bar.className='daily-recommendation-v162 hidden';bar.innerHTML='<button type="button" class="daily-recommendation-main-v162"><span class="daily-recommendation-icon-v162"><i class="ph ph-sparkle"></i></span><span class="daily-recommendation-copy-v162"><small></small><span class="daily-recommendation-value-v217"></span></span></button><button type="button" class="small-icon-btn daily-recommendation-settings-v162" title="Recommendation settings"><i class="ph ph-sliders-horizontal"></i></button>';const header=view.querySelector('.log-header-container');header?.insertAdjacentElement('afterend',bar);bar.querySelector('.daily-recommendation-settings-v162').onclick=openRecommendationSettingsV162;}return bar;
+        const view = document.getElementById('log-view');
+        if (!view) return null;
+        let bar = document.getElementById('daily-recommendation-v162');
+        if (!bar) {
+            bar = document.createElement('section');
+            bar.id = 'daily-recommendation-v162';
+            bar.className = 'daily-recommendation-v162 hidden';
+            const header = view.querySelector('.log-header-container');
+            header?.insertAdjacentElement('afterend', bar);
+        }
+        if (bar.dataset.v689Ready !== '1') {
+            bar.dataset.v689Ready = '1';
+            bar.innerHTML = `
+                <button type="button" class="daily-recommendation-main-v162">
+                    <span class="daily-recommendation-icon-v162"><i class="ph ph-sparkle"></i></span>
+                    <span class="daily-recommendation-copy-v162"><small></small><span class="daily-recommendation-value-v217"></span></span>
+                </button>
+                <button type="button" class="small-icon-btn daily-recommendation-learned-v689" title="Add to Items Learned" aria-label="Add recommendation to Items Learned"><i class="ph ph-check"></i></button>`;
+            bar.addEventListener('contextmenu', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (typeof showCustomItemContextMenu === 'function') {
+                    showCustomItemContextMenu(event.clientX, event.clientY, [{
+                        label:'Edit filters', icon:'ph-sliders-horizontal', action:openRecommendationSettingsV162
+                    }]);
+                } else openRecommendationSettingsV162();
+            });
+            bar.querySelector('.daily-recommendation-learned-v689').addEventListener('click', async event => {
+                event.preventDefault();
+                event.stopPropagation();
+                const id = String(bar.dataset.recommendationIdV689 || '');
+                if (!id || !currentDay) return;
+                db.days ||= {};
+                db.days[currentDay] ||= {notes:'',phrases:[],tools:[],video:'',checkedParts:{}};
+                db.days[currentDay].phrases ||= [];
+                if (!db.days[currentDay].phrases.includes(id)) db.days[currentDay].phrases.push(id);
+                try { renderPhrases(db.days[currentDay].phrases); } catch {}
+                try { await saveDb(); } catch {}
+                try { showFeatureToast?.(`Added “${getKnowledgeDisplayLabelV162(id,'everywhere')}” to Items Learned.`); } catch {}
+                renderRecommendationV162();
+            });
+        }
+        return bar;
     }
     function recommendationForDayV162(day){
-        ensureSettingsV162();const cfg=db.settings.dailyRecommendationV162;if(!cfg.enabled||cfg.paused)return{state:cfg.paused?'paused':'disabled'};const phrases=db.phrases||[];
+        ensureSettingsV162();
+        const cfg=db.settings.dailyRecommendationV162;
+        if(!cfg.enabled||cfg.paused)return{state:cfg.paused?'paused':'disabled'};
+        const phrases=db.phrases||[];
+        const learned=learnedItemSetV162();
         if(cfg.mode==='ordered'){
-            const list=Array.isArray(cfg.orderedItems)?cfg.orderedItems:[];if(!list.length)return{state:'empty'};let index=Math.max(0,Number(day||1)-1);if(index>=list.length){if(cfg.endBehavior==='loop')index=index%list.length;else return{state:'complete'}};for(let offset=0;offset<list.length;offset++){const candidate=String(list[(index+offset)%list.length]||'').trim();if(phrases.includes(candidate))return{state:'item',id:candidate,index:index+offset};if(cfg.endBehavior!=='loop'&&index+offset>=list.length-1)break;}return{state:'missing'};
+            const list=Array.isArray(cfg.orderedItems)?cfg.orderedItems:[];
+            if(!list.length)return{state:'empty'};
+            let index=Math.max(0,Number(day||1)-1);
+            if(index>=list.length){if(cfg.endBehavior==='loop')index=index%list.length;else return{state:'complete'}}
+            for(let offset=0;offset<list.length;offset++){
+                const candidate=String(list[(index+offset)%list.length]||'').trim();
+                if(phrases.includes(candidate) && !learned.has(candidate)) return{state:'item',id:candidate,index:index+offset};
+                if(cfg.endBehavior!=='loop'&&index+offset>=list.length-1)break;
+            }
+            return{state:'missing'};
         }
-        const learned=learnedItemSetV162();const matches=phrases.filter(id=>kbItemMatchesV162(id,cfg,learned));if(!matches.length)return{state:'empty'};const index=(Math.max(1,Number(day||1))-1)%matches.length;return{state:'item',id:matches[index],index};
+        // Recommendations are always for items not yet present in Items Learned.
+        const matches=phrases.filter(id=>!learned.has(String(id)) && kbItemMatchesV162(id,{...cfg,learnedState:'unlearned'},learned));
+        if(!matches.length)return{state:'empty'};
+        const index=(Math.max(1,Number(day||1))-1)%matches.length;
+        return{state:'item',id:matches[index],index};
     }
     function renderRecommendationV162(){
-        const bar=ensureRecommendationBarV162();if(!bar)return;ensureSettingsV162();const cfg=db.settings.dailyRecommendationV162;const rec=recommendationForDayV162(currentDay);bar.classList.toggle('hidden',!cfg.enabled);if(!cfg.enabled)return;const small=bar.querySelector('small'),strong=bar.querySelector('.daily-recommendation-value-v217'),main=bar.querySelector('.daily-recommendation-main-v162');main.onclick=null;
-        if(rec.state==='paused'){small.textContent=cfg.title||'Daily Recommendation';strong.textContent='Paused';return;}if(rec.state==='complete'){small.textContent=cfg.title||'Daily Recommendation';strong.textContent='Ordered list complete';return;}if(rec.state==='empty'||rec.state==='missing'){small.textContent=cfg.title||'Daily Recommendation';strong.textContent='No matching item available';return;}if(rec.state==='item'){
+        const bar=ensureRecommendationBarV162();
+        if(!bar)return;
+        ensureSettingsV162();
+        const cfg=db.settings.dailyRecommendationV162;
+        const rec=recommendationForDayV162(currentDay);
+        bar.classList.toggle('hidden',!cfg.enabled);
+        if(!cfg.enabled)return;
+        const small=bar.querySelector('small');
+        const strong=bar.querySelector('.daily-recommendation-value-v217');
+        const main=bar.querySelector('.daily-recommendation-main-v162');
+        const learnedButton=bar.querySelector('.daily-recommendation-learned-v689');
+        bar.dataset.recommendationIdV689='';
+        if(main)main.onclick=null;
+        if(learnedButton) learnedButton.hidden=true;
+        if(rec.state==='paused'){small.textContent=cfg.title||'Daily Recommendation';strong.textContent='Paused';return;}
+        if(rec.state==='complete'){small.textContent=cfg.title||'Daily Recommendation';strong.textContent='Ordered list complete';return;}
+        if(rec.state==='empty'||rec.state==='missing'){small.textContent=cfg.title||'Daily Recommendation';strong.textContent='No matching item available';return;}
+        if(rec.state==='item'){
+            bar.dataset.recommendationIdV689=String(rec.id);
+            if(learnedButton) learnedButton.hidden=false;
             small.textContent=cfg.title||'Daily Recommendation';
             const rawRecLabel=getKnowledgeDisplayLabelV162(rec.id,'everywhere');
             const isRawPattern=String(rawRecLabel)===String(rec.id)&&String(rec.id).includes('\\');
-            // Preserve normal phrase text weight and bold ONLY placeholder tokens.
-            // Example: "I am \noun" -> I am <strong>NOUN</strong>.
-            if(isRawPattern && typeof placeholderTokenHtmlV56==='function'){
-                strong.innerHTML=placeholderTokenHtmlV56(String(rec.id));
-            }else{
-                strong.textContent=rawRecLabel;
-            }
-            main.onclick=()=>openKbDetailV162(rec.id);
+            if(isRawPattern && typeof placeholderTokenHtmlV56==='function') strong.innerHTML=placeholderTokenHtmlV56(String(rec.id));
+            else strong.textContent=rawRecLabel;
+            // Use the real KB item modal, identical to clicking the item in Knowledge Base.
+            main.onclick=()=>openItemModal(rec.id,true,false);
         }
     }
     function ensureRecommendationModalV162(){
         if(document.getElementById('recommendation-modal-v162'))return;const modal=document.createElement('div');modal.id='recommendation-modal-v162';modal.className='modal-overlay hidden';modal.innerHTML=`<div class="modal-box recommendation-box-v162"><div class="modal-header"><h2>Daily Recommendation</h2><button type="button" class="small-icon-btn rec-close-v162"><i class="ph ph-x"></i></button></div>
         <label class="goal-auto-row-v162"><input type="checkbox" class="rec-enabled-v162"><span>Show recommendation bar on Daily Logs</span></label><label class="goal-auto-row-v162"><input type="checkbox" class="rec-paused-v162"><span>Pause recommendations</span></label>
         <div class="modal-section"><span class="field-label">Bar Label</span><input class="rec-title-v162" type="text"></div><div class="modal-section"><span class="field-label">Mode</span><select class="rec-mode-v162"><option value="filter">Filter-based</option><option value="ordered">Ordered list</option></select></div>
-        <div class="rec-filter-fields-v162"><div class="modal-section"><span class="field-label">Categories</span><input class="rec-categories-v162" type="text"></div><div class="modal-section"><span class="field-label">Tags</span><input class="rec-tags-v162" type="text"></div><div class="goal-two-col-v162"><label><span class="field-label">Learned State</span><select class="rec-learned-v162"><option value="any">Either</option><option value="learned">Previously learned only</option><option value="unlearned">Never learned only</option></select></label><label><span class="field-label">Parts</span><select class="rec-parts-v162"><option value="any">Either</option><option value="with">With parts</option><option value="without">Without parts</option></select></label></div><div class="modal-section"><span class="field-label">Placeholder / Type</span><input class="rec-placeholder-v162" type="text" placeholder="noun, verb..."></div><div class="modal-section"><span class="field-label">Other metadata filters (JSON)</span><textarea class="rec-metadata-v162"></textarea></div></div>
+        <div class="rec-filter-fields-v162"><div class="modal-section"><span class="field-label">Categories</span><input class="rec-categories-v162" type="text"></div><div class="modal-section"><span class="field-label">Tags</span><div class="daily-recommendation-tag-rule-v689"><input class="rec-tags-v162" type="text" placeholder="tag1, tag2"><select class="rec-tag-mode-v689"><option value="and">AND</option><option value="or">OR</option></select></div><p class="progress-hint">AND requires every tag. OR requires at least one tag.</p></div><div class="goal-two-col-v162"><label><span class="field-label">Learned State</span><select class="rec-learned-v162"><option value="any">Either</option><option value="learned">Previously learned only</option><option value="unlearned">Never learned only</option></select></label><label><span class="field-label">Parts</span><select class="rec-parts-v162"><option value="any">Either</option><option value="with">With parts</option><option value="without">Without parts</option></select></label></div><div class="modal-section"><span class="field-label">Placeholder / Type</span><input class="rec-placeholder-v162" type="text" placeholder="noun, verb..."></div><div class="modal-section"><span class="field-label">Other metadata filters (JSON)</span><textarea class="rec-metadata-v162"></textarea></div></div>
         <div class="rec-ordered-fields-v162 hidden"><div class="modal-section"><span class="field-label">Ordered item IDs / JSON list</span><textarea class="rec-ordered-v162" rows="8" placeholder='["item 1", "item 2"]\n—or one item ID per line'></textarea><p class="progress-hint">Duplicates are kept in the exact order you provide. Missing/deleted items are skipped. Recommendations do not count as learned.</p></div><div class="modal-section"><span class="field-label">At end of list</span><select class="rec-end-v162"><option value="stop">Stop and show complete</option><option value="loop">Loop from the beginning</option></select></div></div>
         <button type="button" class="icon-btn rec-save-v162"><i class="ph ph-check"></i> Save Settings</button></div>`;document.body.appendChild(modal);modal.querySelector('.rec-close-v162').onclick=()=>modal.classList.add('hidden');modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.add('hidden')});modal.querySelector('.rec-mode-v162').onchange=syncRecommendationModeV162;modal.querySelector('.rec-save-v162').onclick=saveRecommendationV162;
     }
     function syncRecommendationModeV162(){const modal=document.getElementById('recommendation-modal-v162');if(!modal)return;const ordered=modal.querySelector('.rec-mode-v162').value==='ordered';modal.querySelector('.rec-filter-fields-v162').classList.toggle('hidden',ordered);modal.querySelector('.rec-ordered-fields-v162').classList.toggle('hidden',!ordered)}
-    function openRecommendationSettingsV162(){ensureSettingsV162();ensureRecommendationModalV162();const c=db.settings.dailyRecommendationV162,m=document.getElementById('recommendation-modal-v162');m.querySelector('.rec-enabled-v162').checked=!!c.enabled;m.querySelector('.rec-paused-v162').checked=!!c.paused;m.querySelector('.rec-title-v162').value=c.title||'Daily Recommendation';m.querySelector('.rec-mode-v162').value=c.mode==='ordered'?'ordered':'filter';m.querySelector('.rec-categories-v162').value=(c.categories||[]).join(', ');m.querySelector('.rec-tags-v162').value=(c.tags||[]).join(', ');m.querySelector('.rec-learned-v162').value=c.learnedState||'any';m.querySelector('.rec-parts-v162').value=c.partsState||'any';m.querySelector('.rec-placeholder-v162').value=c.placeholderType||'';m.querySelector('.rec-metadata-v162').value=c.metadataJson||'';m.querySelector('.rec-ordered-v162').value=JSON.stringify(c.orderedItems||[],null,2);m.querySelector('.rec-end-v162').value=c.endBehavior==='loop'?'loop':'stop';syncRecommendationModeV162();m.classList.remove('hidden')}
+    function openRecommendationSettingsV162(){ensureSettingsV162();ensureRecommendationModalV162();const c=db.settings.dailyRecommendationV162,m=document.getElementById('recommendation-modal-v162');m.querySelector('.rec-enabled-v162').checked=!!c.enabled;m.querySelector('.rec-paused-v162').checked=!!c.paused;m.querySelector('.rec-title-v162').value=c.title||'Daily Recommendation';m.querySelector('.rec-mode-v162').value=c.mode==='ordered'?'ordered':'filter';m.querySelector('.rec-categories-v162').value=(c.categories||[]).join(', ');m.querySelector('.rec-tags-v162').value=(c.tags||[]).join(', ');m.querySelector('.rec-tag-mode-v689').value=c.tagMode==='or'?'or':'and';m.querySelector('.rec-learned-v162').value='unlearned';m.querySelector('.rec-learned-v162').disabled=true;m.querySelector('.rec-parts-v162').value=c.partsState||'any';m.querySelector('.rec-placeholder-v162').value=c.placeholderType||'';m.querySelector('.rec-metadata-v162').value=c.metadataJson||'';m.querySelector('.rec-ordered-v162').value=JSON.stringify(c.orderedItems||[],null,2);m.querySelector('.rec-end-v162').value=c.endBehavior==='loop'?'loop':'stop';syncRecommendationModeV162();m.classList.remove('hidden')}
     function parseOrderedV162(raw){const text=String(raw||'').trim();if(!text)return[];if(text.startsWith('[')){const arr=JSON.parse(text);if(!Array.isArray(arr))throw new Error('Ordered JSON must be an array.');return arr.map(v=>String(v).trim()).filter(Boolean);}return text.split(/\r?\n/).map(v=>v.trim()).filter(Boolean)}
-    function saveRecommendationV162(){const m=document.getElementById('recommendation-modal-v162'),c=db.settings.dailyRecommendationV162;let ordered=[];try{ordered=parseOrderedV162(m.querySelector('.rec-ordered-v162').value)}catch(e){try{showFeatureToast(e.message)}catch{}return}const metadata=m.querySelector('.rec-metadata-v162').value.trim();if(metadata){try{JSON.parse(metadata)}catch{try{showFeatureToast('Other metadata filters must be valid JSON.')}catch{}return}}Object.assign(c,{enabled:m.querySelector('.rec-enabled-v162').checked,paused:m.querySelector('.rec-paused-v162').checked,title:m.querySelector('.rec-title-v162').value.trim()||'Daily Recommendation',mode:m.querySelector('.rec-mode-v162').value,categories:splitList(m.querySelector('.rec-categories-v162').value),tags:splitList(m.querySelector('.rec-tags-v162').value).map(v=>v.replace(/^#/,'')),learnedState:m.querySelector('.rec-learned-v162').value,partsState:m.querySelector('.rec-parts-v162').value,placeholderType:m.querySelector('.rec-placeholder-v162').value.trim(),metadataJson:metadata,orderedItems:ordered,endBehavior:m.querySelector('.rec-end-v162').value});saveDb();m.classList.add('hidden');renderRecommendationV162()}
+    function saveRecommendationV162(){const m=document.getElementById('recommendation-modal-v162'),c=db.settings.dailyRecommendationV162;let ordered=[];try{ordered=parseOrderedV162(m.querySelector('.rec-ordered-v162').value)}catch(e){try{showFeatureToast(e.message)}catch{}return}const metadata=m.querySelector('.rec-metadata-v162').value.trim();if(metadata){try{JSON.parse(metadata)}catch{try{showFeatureToast('Other metadata filters must be valid JSON.')}catch{}return}}Object.assign(c,{enabled:m.querySelector('.rec-enabled-v162').checked,paused:m.querySelector('.rec-paused-v162').checked,title:m.querySelector('.rec-title-v162').value.trim()||'Daily Recommendation',mode:m.querySelector('.rec-mode-v162').value,categories:splitList(m.querySelector('.rec-categories-v162').value),tags:splitList(m.querySelector('.rec-tags-v162').value).map(v=>v.replace(/^#/,'')),tagMode:m.querySelector('.rec-tag-mode-v689').value==='or'?'or':'and',learnedState:'unlearned',partsState:m.querySelector('.rec-parts-v162').value,placeholderType:m.querySelector('.rec-placeholder-v162').value.trim(),metadataJson:metadata,orderedItems:ordered,endBehavior:m.querySelector('.rec-end-v162').value});saveDb();m.classList.add('hidden');renderRecommendationV162()}
     try{const before=openDayLog;openDayLog=function(){const r=before.apply(this,arguments);requestAnimationFrame(renderRecommendationV162);return r}}catch{}
 
     // ------------------------------------------------------------
@@ -1671,7 +2139,6 @@
         $$('.custom-tab-daily-source-section,.custom-tab-connections-option-v32,.custom-tab-pin-toggle').forEach(x=>x.remove());
         $$('.tab-save-template-v162,.tab-update-template-v162').forEach(x=>x.classList.add('full-width-v163'));
     }
-    try{const beforeCreate=ensureCustomTabCreateModal;ensureCustomTabCreateModal=function(){const r=beforeCreate.apply(this,arguments);cleanCustomTabUiV163();return r}}catch{}
     try{const beforeSettings=ensureCustomTabSettingsModal;ensureCustomTabSettingsModal=function(){const r=beforeSettings.apply(this,arguments);cleanCustomTabUiV163();return r}}catch{}
 
     // ---------------- KB: direct delete + range multi-select + right-click delete ----------------
@@ -4070,11 +4537,7 @@
         };
     } catch {}
     try {
-        const beforeCreateModalV171 = ensureCustomTabCreateModal;
-        ensureCustomTabCreateModal = function() {
-            mergeGlobalBlueprintsV171();
-            return beforeCreateModalV171.apply(this, arguments);
-        };
+
     } catch {}
     window.addEventListener('storage', event => {
         if (event.key !== GLOBAL_BLUEPRINT_KEY_V171) return;
@@ -5281,51 +5744,10 @@ DASHBOARD TITLE NOTE:
     }, true);
 
     // ------------------------------------------------------------
-    // KB masonry/dense grid. Map-primary cards can span two columns and many
-    // row units while smaller cards fill every available gap beside/below them.
+    // KB layout is owned exclusively by the canonical V683 layout engine.
+    // Historical V175 masonry measurement/ResizeObserver ownership was removed
+    // so restored logs cannot race between multiple layout systems.
     // ------------------------------------------------------------
-    let masonryQueuedV175 = false;
-    function layoutKbMasonryV175() {
-        masonryQueuedV175 = false;
-        const grid = qV175('#phrases-library-grid');
-        if (!grid) return;
-        const cards = qaV175(':scope > .phrase-card,:scope > .polaroid-card', grid);
-        // V615: All uses the exact same natural flex-card layout as category
-        // views. No masonry/grid classes or row-span math are allowed here.
-        grid.classList.remove('kb-all-grid-v614', 'kb-masonry-v175', 'kb-primary-map-flow-v172');
-        cards.forEach(card => {
-            card.style.removeProperty('grid-row-end');
-            card.style.removeProperty('grid-column-end');
-            card.style.removeProperty('grid-row');
-            card.style.removeProperty('grid-column');
-            card.style.removeProperty('width');
-            card.style.removeProperty('max-width');
-        });
-    }
-    function queueKbMasonryV175() {
-        if (masonryQueuedV175) return;
-        masonryQueuedV175 = true;
-        requestAnimationFrame(layoutKbMasonryV175);
-    }
-    try {
-        const beforeLibraryV175 = renderPhrasesLibrary;
-        renderPhrasesLibrary = function() {
-            const result = beforeLibraryV175.apply(this, arguments);
-            queueKbMasonryV175();
-            return result;
-        };
-    } catch {}
-    try {
-        let lastMasonryWidthV175 = -1;
-        const ro = new ResizeObserver(entries => {
-            const width = Math.round(entries?.[0]?.contentRect?.width || 0);
-            if (!width || width === lastMasonryWidthV175) return;
-            lastMasonryWidthV175 = width;
-            queueKbMasonryV175();
-        });
-        const bind = () => { const grid = qV175('#phrases-library-grid'); if (grid && !grid.dataset.masonryObservedV175) { grid.dataset.masonryObservedV175='1'; ro.observe(grid); } };
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true}); else bind();
-    } catch {}
 
     // ------------------------------------------------------------
     // Recipe Tracker V175 — cover images, real drag handles, a worked example
@@ -5484,7 +5906,7 @@ DASHBOARD TITLE NOTE:
         };
     } catch {}
 
-    function initV175(){stripLoggedTodayThemeControlsV175();queueKbMasonryV175();requestAnimationFrame(focusMapStudyInputV175)}
+    function initV175(){stripLoggedTodayThemeControlsV175();requestAnimationFrame(focusMapStudyInputV175)}
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initV175,{once:true});else initV175();
 })();
 
@@ -9513,27 +9935,14 @@ DASHBOARD TITLE NOTE:
     }
 
     // --------------------------------------------------------
-    // Stable category/bulk-add rendering. The masonry class used 8px implicit
-    // rows while fresh cards had not received spans yet, briefly stacking them
-    // on top of one another. Keep a normal grid until the existing two-frame
-    // masonry measurement has completed.
+    // Card order only. Layout is NOT owned here anymore; V683 is the single
+    // Knowledge Base layout owner for fresh, restored, and large libraries.
     // --------------------------------------------------------
-    let kbRenderEpochV215 = 0;
     try {
         const beforeLibraryV215 = renderPhrasesLibrary;
         renderPhrasesLibrary = function() {
-            const grid = qV215('#phrases-library-grid');
-            const epoch = ++kbRenderEpochV215;
-            if (grid) {
-                grid.classList.add('kb-layout-pending-v215');
-                grid.classList.remove('kb-masonry-v175');
-            }
             const result = beforeLibraryV215.apply(this, arguments);
             applyKbOrderV215();
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-                if (epoch !== kbRenderEpochV215) return;
-                qV215('#phrases-library-grid')?.classList.remove('kb-layout-pending-v215');
-            }));
             return result;
         };
         window.renderPhrasesLibrary = renderPhrasesLibrary;
@@ -11325,8 +11734,10 @@ DASHBOARD TITLE NOTE:
         CUSTOM_COMPONENT_LIBRARY.splice(i, 1);
       }
     }
-    const after = CUSTOM_COMPONENT_LIBRARY.findIndex(def => def.type === 'resources');
-    CUSTOM_COMPONENT_LIBRARY.splice(after >= 0 ? after + 1 : CUSTOM_COMPONENT_LIBRARY.length, 0,
+    const after = CUSTOM_COMPONENT_LIBRARY.findIndex(def => def.type === 'globalSearchV163');
+    const fallbackAfter = CUSTOM_COMPONENT_LIBRARY.findIndex(def => def.type === 'search');
+    const anchor = after >= 0 ? after : fallbackAfter;
+    CUSTOM_COMPONENT_LIBRARY.splice(anchor >= 0 ? anchor + 1 : CUSTOM_COMPONENT_LIBRARY.length, 0,
       {type:TYPE,label:'Knowledge Base',icon:'ph-books'});
   } catch {}
 
@@ -13142,272 +13553,214 @@ DASHBOARD TITLE NOTE:
     }).observe(document.body,{childList:true,subtree:true});
   } catch {}
 
-  // KB ALL: variable-width rectangle packing. Unlike flex rows, a tall map card
-  // does not reserve an empty row; later small cards can occupy the open area
-  // beside it. Individual categories are left alone.
-  let packRafV616=0;
-  let largePackEpochV644=0;
-  let largeImageRepackTimerV644=0;
-  const LARGE_KB_THRESHOLD_V644=160;
-  const LARGE_KB_CHUNK_V644=42;
-  const cardsV616 = grid => [...grid.querySelectorAll(':scope > .phrase-card,:scope > .polaroid-card')];
-  function clearPackV616(grid){
-    if(!grid)return;
-    largePackEpochV644++;
-    grid.classList.remove('kb-packed-all-v616','kb-packed-all-v620','kb-pack-pending-v620','kb-large-pack-v644');
-    grid.style.removeProperty('height');
-    cardsV616(grid).forEach(card=>{
-      delete card.dataset.kbPackedV644;
-      for(const prop of ['position','left','top','width','max-width','min-width','grid-row','grid-column','transform','visibility']) card.style.removeProperty(prop);
-    });
-  }
-  function horizontalOverlapV616(a,b,gap){ return a.x < b.x+b.w+gap && a.x+a.w+gap > b.x; }
+  // Knowledge Base layout — V683 single authoritative owner.
+  // All previous masonry/flex/packed-grid owners were removed. Every render,
+  // restore, category change, image load and resize now converges on this one
+  // deterministic layout path.
+  let kbLayoutRafV683 = 0;
+  let kbLayoutEpochV683 = 0;
+  const KB_GAP_V683 = 12;
+  const KB_LARGE_THRESHOLD_V683 = 160;
+  const KB_CHUNK_V683 = 48;
+  const LEGACY_LAYOUT_CLASSES_V683 = [
+    'kb-primary-map-flow-v172','kb-masonry-v175','kb-layout-pending-v215',
+    'kb-all-grid-v614','kb-packed-all-v616','kb-packed-all-v620',
+    'kb-pack-pending-v620','kb-large-pack-v644'
+  ];
 
-  // V644 — large REAL libraries keep the packed/map-aware appearance, but the
-  // packing work is streamed in short chunks. A fixed-lane skyline makes the
-  // large-library path O(cards * lanes), instead of repeatedly comparing each
-  // card against every previously placed rectangle. This keeps the UI usable
-  // while hundreds of real cards are being positioned.
-  function packLargeKbAllV644(grid,cards,width){
-    const epoch=++largePackEpochV644;
-    const gap=12;
-    const lanes=Math.max(3,Math.min(8,Math.floor((width+gap)/155)));
+  function kbCardsV683(grid){
+    return [...grid.querySelectorAll(':scope > .phrase-card,:scope > .polaroid-card')]
+      .filter(card => !card.classList.contains('hidden'));
+  }
+
+  function clearCardGeometryV683(card){
+    delete card.dataset.kbLayoutPlacedV683;
+    delete card.dataset.kbPackedV644;
+    [
+      'position','left','right','top','bottom','inset','width','max-width','min-width',
+      'height','max-height','min-height','grid-row','grid-row-end','grid-column',
+      'grid-column-end','transform','visibility','pointer-events','margin','flex'
+    ].forEach(prop => card.style.removeProperty(prop));
+  }
+
+  function resetLegacyKbLayoutV683(grid){
+    if(!grid) return;
+    LEGACY_LAYOUT_CLASSES_V683.forEach(name => grid.classList.remove(name));
+    grid.classList.remove('kb-layout-v683-all','kb-layout-v683-category','kb-layout-v683-polaroid','kb-layout-v683-pending');
+    grid.style.removeProperty('height');
+    kbCardsV683(grid).forEach(clearCardGeometryV683);
+  }
+
+  function bestLaneV683(bottoms, span){
+    let bestStart=0, bestY=Infinity;
+    for(let start=0; start<=bottoms.length-span; start++){
+      let y=0;
+      for(let i=start;i<start+span;i++) y=Math.max(y,bottoms[i]);
+      if(y<bestY-.5){ bestY=y; bestStart=start; }
+    }
+    return {start:bestStart,y:bestY};
+  }
+
+  function layoutPackedAllV683(grid,cards,width){
+    const epoch=++kbLayoutEpochV683;
+    const gap=KB_GAP_V683;
+    const lanes=Math.max(2,Math.min(9,Math.floor((width+gap)/150)));
     const laneWidth=(width-gap*(lanes-1))/lanes;
     const bottoms=new Array(lanes).fill(0);
     let index=0;
     let maxBottom=0;
 
-    grid.classList.remove('kb-masonry-v175','kb-primary-map-flow-v172','kb-all-grid-v614','kb-layout-pending-v215');
-    grid.classList.add('kb-packed-all-v616','kb-packed-all-v620','kb-large-pack-v644','kb-large-library-v644');
-    grid.classList.remove('kb-pack-pending-v620');
+    grid.classList.add('kb-layout-v683-all','kb-layout-v683-pending');
+    grid.classList.toggle('kb-large-library-v644',cards.length>=KB_LARGE_THRESHOLD_V683);
 
-    // CSS hides only cards that have not received coordinates yet. The first
-    // chunk appears immediately; later chunks become visible as they are packed.
-    cards.forEach(card=>{ delete card.dataset.kbPackedV644; });
+    // Start each pass from a clean geometry state. This is critical for restored
+    // logs because old versions may have left inline absolute/grid measurements.
+    cards.forEach(clearCardGeometryV683);
 
-    const schedule=fn=>{
-      if('requestIdleCallback' in window){
-        requestIdleCallback(fn,{timeout:45});
-      }else{
-        setTimeout(()=>fn({timeRemaining:()=>7,didTimeout:true}),0);
-      }
-    };
-
-    const bestLane=(span)=>{
-      let bestStart=0,bestY=Infinity;
-      for(let start=0;start<=lanes-span;start++){
-        let y=0;
-        for(let i=start;i<start+span;i++) y=Math.max(y,bottoms[i]);
-        if(y<bestY-.5){bestY=y;bestStart=start;}
-      }
-      return {start:bestStart,y:bestY};
-    };
-
-    const run=deadline=>{
-      if(epoch!==largePackEpochV644 || !grid.isConnected)return;
+    const run = deadline => {
+      if(epoch!==kbLayoutEpochV683 || !grid.isConnected) return;
       const started=performance.now();
       let processed=0;
-      while(index<cards.length && processed<LARGE_KB_CHUNK_V644){
-        if(processed>0 && performance.now()-started>7 && !deadline?.didTimeout)break;
-        if(processed>0 && typeof deadline?.timeRemaining==='function' && deadline.timeRemaining()<1.5)break;
+      while(index<cards.length && processed<KB_CHUNK_V683){
+        if(processed && performance.now()-started>8 && !deadline?.didTimeout) break;
+        if(processed && typeof deadline?.timeRemaining==='function' && deadline.timeRemaining()<1.2) break;
 
         const card=cards[index++];
         const isMap=card.classList.contains('has-primary-map-v172');
 
-        // Measure only this small chunk. Ordinary cards may use one or two lanes;
-        // map cards intentionally stay wider so small cards still flow beside them.
         card.style.setProperty('position','absolute','important');
         card.style.setProperty('left','-10000px','important');
         card.style.setProperty('top','0','important');
         card.style.setProperty('height','auto','important');
+        card.style.setProperty('min-width','0','important');
+        card.style.setProperty('visibility','hidden','important');
+
+        let span;
         if(isMap){
-          const mapSpan=Math.max(2,Math.min(lanes,Math.ceil(lanes*.34)));
-          const mapW=laneWidth*mapSpan+gap*(mapSpan-1);
-          card.style.setProperty('width',`${mapW}px`,'important');
-          card.style.setProperty('max-width',`${mapW}px`,'important');
-          card.style.setProperty('min-width','0','important');
+          span=Math.max(2,Math.min(lanes,Math.ceil(lanes*.34)));
         }else{
           card.style.setProperty('width','max-content','important');
           card.style.setProperty('max-width',`${Math.min(width,laneWidth*2+gap)}px`,'important');
-          card.style.setProperty('min-width','0','important');
+          const natural=Math.max(laneWidth,Math.ceil(card.getBoundingClientRect().width));
+          span=Math.max(1,Math.min(2,Math.ceil((natural+gap)/(laneWidth+gap))));
         }
-        const measured=card.getBoundingClientRect();
-        let span=isMap
-          ? Math.max(2,Math.min(lanes,Math.ceil(lanes*.34)))
-          : Math.max(1,Math.min(2,Math.ceil((Math.max(laneWidth,measured.width)+gap)/(laneWidth+gap))));
-        if(span>lanes)span=lanes;
-        const slot=bestLane(span);
-        const w=laneWidth*span+gap*(span-1);
+        span=Math.min(span,lanes);
+        const slot=bestLaneV683(bottoms,span);
+        const finalWidth=laneWidth*span+gap*(span-1);
+
         card.style.setProperty('left',`${Math.round(slot.start*(laneWidth+gap))}px`,'important');
         card.style.setProperty('top',`${Math.round(slot.y)}px`,'important');
-        card.style.setProperty('width',`${Math.floor(w)}px`,'important');
-        card.style.setProperty('max-width',`${Math.floor(w)}px`,'important');
-        card.dataset.kbPackedV644='1';
-        // Width is final now; read the resulting height once.
-        const h=Math.ceil(card.getBoundingClientRect().height);
+        card.style.setProperty('width',`${Math.floor(finalWidth)}px`,'important');
+        card.style.setProperty('max-width',`${Math.floor(finalWidth)}px`,'important');
+        card.style.setProperty('visibility','visible','important');
+        card.dataset.kbLayoutPlacedV683='1';
+
+        const h=Math.max(1,Math.ceil(card.getBoundingClientRect().height));
         const bottom=slot.y+h+gap;
-        for(let i=slot.start;i<slot.start+span;i++)bottoms[i]=bottom;
+        for(let i=slot.start;i<slot.start+span;i++) bottoms[i]=bottom;
         maxBottom=Math.max(maxBottom,bottom-gap);
         processed++;
       }
 
       grid.style.setProperty('height',`${Math.ceil(maxBottom)}px`,'important');
       if(index<cards.length){
-        schedule(run);
+        if('requestIdleCallback' in window) requestIdleCallback(run,{timeout:50});
+        else setTimeout(()=>run({timeRemaining:()=>6,didTimeout:true}),0);
         return;
       }
 
-      // Real images can change map-card height after decode. Coalesce all image
-      // completions into one later progressive reflow rather than repacking once
-      // per image.
+      grid.classList.remove('kb-layout-v683-pending');
       cards.forEach(card=>card.querySelectorAll('img').forEach(img=>{
-        if(img.dataset.kbPackLoadV644==='1')return;
-        img.dataset.kbPackLoadV644='1';
-        img.addEventListener('load',()=>{
-          clearTimeout(largeImageRepackTimerV644);
-          largeImageRepackTimerV644=setTimeout(queuePackV616,90);
-        },{passive:true});
+        if(img.dataset.kbLayoutLoadV683==='1') return;
+        img.dataset.kbLayoutLoadV683='1';
+        img.addEventListener('load',queueKbLayoutV683,{passive:true});
       }));
-      grid.classList.remove('kb-pack-pending-v620');
     };
 
-    // Pack the first chunk in the next paint, then yield between later chunks.
     requestAnimationFrame(()=>run({timeRemaining:()=>8,didTimeout:true}));
   }
 
-  function packKbAllV616(){
-    packRafV616=0;
+  function layoutKbV683(){
+    kbLayoutRafV683=0;
     const grid=document.getElementById('phrases-library-grid');
-    if(!grid)return;
-    const isPolaroid = grid.classList.contains('polaroid-grid-container') || db?.settings?.libraryView === 'polaroid';
-    const isAll = typeof libraryFilter === 'undefined' || String(libraryFilter || 'all') === 'all';
-    // V643: developer stress data uses its own fast CSS grid.
+    if(!grid) return;
+
+    const cards=kbCardsV683(grid);
+    const isPolaroid=(db?.settings?.libraryView==='polaroid') || grid.classList.contains('polaroid-grid-container');
+    const isAll=(typeof libraryFilter==='undefined') || String(libraryFilter||'all')==='all';
+
+    // Developer stress preview deliberately owns its own cheap native grid.
     if(grid.classList.contains('kb-developer-fast-grid-v643')){
-      clearPackV616(grid);
+      resetLegacyKbLayoutV683(grid);
       grid.classList.add('kb-developer-fast-grid-v643');
       return;
     }
-    const cards=cardsV616(grid).filter(c=>!c.classList.contains('hidden'));
-    grid.classList.toggle('kb-large-library-v644',cards.length>=LARGE_KB_THRESHOLD_V644);
-    if(isPolaroid || !isAll){
-      grid.classList.remove('kb-pack-pending-v620','kb-packed-all-v620','kb-large-pack-v644');
-      // Polaroid/category layouts already use native CSS layout. Keep the
-      // large-library marker so content-visibility can skip offscreen paint.
-      const keepLarge=cards.length>=LARGE_KB_THRESHOLD_V644;
-      clearPackV616(grid);
-      if(keepLarge)grid.classList.add('kb-large-library-v644');
+
+    LEGACY_LAYOUT_CLASSES_V683.forEach(name=>grid.classList.remove(name));
+    grid.classList.remove('kb-layout-v683-all','kb-layout-v683-category','kb-layout-v683-polaroid','kb-layout-v683-pending');
+    grid.style.removeProperty('height');
+    cards.forEach(clearCardGeometryV683);
+
+    if(isPolaroid){
+      grid.classList.add('kb-layout-v683-polaroid');
+      grid.classList.toggle('kb-large-library-v644',cards.length>=KB_LARGE_THRESHOLD_V683);
       return;
     }
-    if(!cards.length){ clearPackV616(grid); return; }
+
+    if(!isAll){
+      grid.classList.add('kb-layout-v683-category');
+      grid.classList.toggle('kb-large-library-v644',cards.length>=KB_LARGE_THRESHOLD_V683);
+      return;
+    }
+
+    if(!cards.length){
+      grid.classList.add('kb-layout-v683-all');
+      return;
+    }
+
     const width=Math.max(0,grid.clientWidth);
-    if(!width)return;
-
-    if(cards.length>=LARGE_KB_THRESHOLD_V644){
-      packLargeKbAllV644(grid,cards,width);
-      return;
-    }
-
-    largePackEpochV644++;
-    grid.classList.remove('kb-large-pack-v644','kb-large-library-v644');
-    if(!grid.classList.contains('kb-packed-all-v620')) grid.classList.add('kb-pack-pending-v620');
-    grid.classList.remove('kb-masonry-v175','kb-primary-map-flow-v172','kb-all-grid-v614','kb-layout-pending-v215');
-    grid.classList.add('kb-packed-all-v616','kb-packed-all-v620');
-    const gap=12;
-    const sizes=[];
-    cards.forEach(card=>{
-      delete card.dataset.kbPackedV644;
-      card.style.setProperty('position','absolute','important');
-      card.style.setProperty('left','-10000px','important');
-      card.style.setProperty('top','0','important');
-      card.style.setProperty('height','auto','important');
-      if(card.classList.contains('has-primary-map-v172')){
-        card.style.setProperty('width',`${Math.min(Math.max(360, width * .34), 500, width)}px`,'important');
-        card.style.setProperty('max-width','100%','important');
-      }else{
-        card.style.setProperty('width','max-content','important');
-        card.style.setProperty('max-width',`${width}px`,'important');
-        card.style.setProperty('min-width','0','important');
-      }
-      const r=card.getBoundingClientRect();
-      sizes.push({card,w:Math.min(width,Math.ceil(r.width)),h:Math.ceil(r.height)});
-    });
-    const placed=[];
-    for(const item of sizes){
-      const w=Math.min(item.w,width);
-      const xs=[0];
-      placed.forEach(p=>{ xs.push(p.x); xs.push(p.x+p.w+gap); });
-      const candidates=[...new Set(xs.map(x=>Math.max(0,Math.min(width-w,Math.round(x)))))]
-        .filter(x=>x+w<=width+.5).sort((a,b)=>a-b);
-      let best={x:0,y:Number.POSITIVE_INFINITY};
-      for(const x of candidates){
-        let y=0, changed=true;
-        while(changed){
-          changed=false;
-          for(const p of placed){
-            const probe={x,y,w,h:item.h};
-            if(horizontalOverlapV616(probe,p,gap) && y < p.y+p.h+gap && y+item.h+gap > p.y){
-              const ny=p.y+p.h+gap;
-              if(ny>y+.5){ y=ny; changed=true; }
-            }
-          }
-        }
-        if(y<best.y-.5 || (Math.abs(y-best.y)<.5 && x<best.x)) best={x,y};
-      }
-      item.card.style.setProperty('left',`${best.x}px`,'important');
-      item.card.style.setProperty('top',`${best.y}px`,'important');
-      item.card.style.setProperty('width',`${w}px`,'important');
-      item.card.style.setProperty('max-width',`${w}px`,'important');
-      placed.push({x:best.x,y:best.y,w,h:item.h,card:item.card});
-    }
-    const bottom=placed.reduce((m,p)=>Math.max(m,p.y+p.h),0);
-    grid.style.setProperty('height',`${Math.ceil(bottom)}px`,'important');
-    grid.classList.remove('kb-pack-pending-v620');
-    cards.forEach(card=>card.style.removeProperty('visibility'));
-    cards.forEach(card=>card.querySelectorAll('img').forEach(img=>{
-      if(img.dataset.kbPackLoadV616==='1')return; img.dataset.kbPackLoadV616='1';
-      img.addEventListener('load',queuePackV616,{passive:true});
-    }));
+    if(width<40){ queueKbLayoutV683(); return; }
+    layoutPackedAllV683(grid,cards,width);
   }
-  function queuePackV616(){
-    if(packRafV616)cancelAnimationFrame(packRafV616);
-    packRafV616=requestAnimationFrame(()=>requestAnimationFrame(packKbAllV616));
+
+  function queueKbLayoutV683(){
+    if(kbLayoutRafV683) cancelAnimationFrame(kbLayoutRafV683);
+    kbLayoutRafV683=requestAnimationFrame(()=>requestAnimationFrame(layoutKbV683));
   }
+
   try{
     const before=renderPhrasesLibrary;
     renderPhrasesLibrary=function(){
-      // V624: hide the existing All-view grid BEFORE render mutates/reinserts cards.
-      // This removes the one-frame top-left pile-up entirely, rather than hiding it after render.
       const grid=document.getElementById('phrases-library-grid');
-      const isAll=typeof libraryFilter==='undefined'||String(libraryFilter||'all')==='all';
-      const isPolaroid=grid?.classList.contains('polaroid-grid-container')||db?.settings?.libraryView==='polaroid';
-      if(grid&&isAll&&!isPolaroid)grid.classList.add('kb-pack-pending-v620');
+      if(grid) grid.classList.add('kb-layout-v683-pending');
       const result=before.apply(this,arguments);
-      queuePackV616();
+      queueKbLayoutV683();
       return result;
     };
     window.renderPhrasesLibrary=renderPhrasesLibrary;
   }catch{}
-  window.addEventListener('resize',queuePackV616,{passive:true});
-  // V621: the 500-item developer preview is streamed after the initial render.
-  // Hide each new batch for one packing frame, then reveal it at its packed
-  // position. This removes the stray “Preview … 500” / long-card strip.
-  // V643: old preview batches no longer trigger a full repack. If an older
-  // cached producer emits this event, ignore it while fast stress layout is on.
-  document.addEventListener('kb-preview-batch-v620',()=>{
-    const grid=document.getElementById('phrases-library-grid');
-    if(grid?.classList?.contains('kb-developer-fast-grid-v643'))return;
-    queuePackV616();
-  });
-  document.addEventListener('kb-preview-complete-v643',()=>{
-    const grid=document.getElementById('phrases-library-grid');
-    if(!grid?.classList?.contains('kb-developer-fast-grid-v643')) queuePackV616();
-  });
-  document.addEventListener('click',e=>{ if(e.target?.closest?.('#library-filter-tabs,.filter-tabs')) queuePackV616(); },true);
+
+  window.addEventListener('resize',queueKbLayoutV683,{passive:true});
+  document.addEventListener('kb-preview-batch-v620',queueKbLayoutV683);
+  document.addEventListener('kb-preview-complete-v643',queueKbLayoutV683);
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('#library-filter-tabs,.kb-view-btn')) queueKbLayoutV683();
+  },true);
+
   try{
     const grid=document.getElementById('phrases-library-grid');
-    if(grid)new ResizeObserver(queuePackV616).observe(grid);
+    if(grid){
+      new ResizeObserver(queueKbLayoutV683).observe(grid);
+      new MutationObserver(records=>{
+        if(records.some(r=>r.type==='childList' || (r.type==='attributes' && r.attributeName==='class'))){
+          queueKbLayoutV683();
+        }
+      }).observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+    }
   }catch{}
-  queuePackV616();
+
+  window.__loggyLayoutKnowledgeBaseV683=queueKbLayoutV683;
+  queueKbLayoutV683();
 })();
 
 // ============================================================================
@@ -14297,41 +14650,33 @@ DASHBOARD TITLE NOTE:
     });
   },true);
 
-  // Bulk Add: inject day/day(s) choices immediately after Delimiter.
-  function ensureBulkDaysV664(){
-    const modal=q('#kb-bulk-modal-v162'); if(!modal)return;
-    let wrap=q('.kb-bulk-days-v664',modal);
-    if(!wrap){
-      wrap=document.createElement('div');
-      wrap.className='modal-section kb-bulk-days-v664';
-      const delimiter=q('.kb-bulk-delimiter-wrap-v464',modal);
-      if(delimiter)delimiter.insertAdjacentElement('afterend',wrap);
-      else q('.kb-bulk-box-v162',modal)?.appendChild(wrap);
-    }
-    const days=existingDaysV664();
-    const checked=new Set(qa('input:checked',wrap).map(x=>String(x.value)));
-    wrap.innerHTML=`<span class="field-label">Add to Items Learned <small>(optional)</small></span><div class="kb-bulk-day-choices-v664">${days.length?days.map(day=>`<label><input type="checkbox" value="${day}" ${checked.has(String(day))?'checked':''}><span>Day ${day}</span></label>`).join(''):'<span class="progress-hint">No Daily Log days exist yet.</span>'}</div>`;
-  }
-
+  // Bulk Add Items Learned targets: compact comma-separated day input.
+  // The modal owns one validated text field instead of a growing list of day checkboxes.
   document.addEventListener('click',event=>{
-    if(event.target?.closest?.('#kb-bulk-add-btn-v162')) setTimeout(ensureBulkDaysV664,0);
+    if(event.target?.closest?.('#kb-bulk-add-btn-v162')){
+      setTimeout(()=>{
+        const modal=q('#kb-bulk-modal-v162');
+        if(!modal)return;
+        ensureBulkDaysV684(modal);
+      },0);
+    }
   },true);
 
-  // Snapshot selected days before the original commit handler closes the modal,
-  // then attach ONLY the newly-created KB items to those days.
+  // Snapshot the validated target days before the normal commit closes the modal,
+  // then attach only the newly-created KB items to those existing days.
   document.addEventListener('click',event=>{
     const button=event.target?.closest?.('.kb-bulk-commit-v162');
     if(!button)return;
     const modal=button.closest('#kb-bulk-modal-v162');
-    if(!modal)return;
-    const days=qa('.kb-bulk-days-v664 input:checked',modal).map(x=>Number(x.value)).filter(Number.isFinite);
+    if(!modal||!syncBulkDaysV684(modal))return;
+    const {days}=parseBulkDaysV684(modal);
     if(!days.length)return;
     const before=new Set(db.phrases||[]);
     setTimeout(()=>{
       const added=(db.phrases||[]).filter(id=>!before.has(id));
       if(!added.length)return;
       addItemsToDaysV664(added,days);
-      try{showFeatureToast?.(`Added ${added.length} imported item${added.length===1?'':'s'} to ${days.length===1?`Day ${days[0]}`:`${days.length} days`}.`)}catch{}
+      try{showFeatureToast?.(`Added ${added.length} imported item${added.length===1?'':'s'} to ${days.length===1?`Day ${days[0]}`:`Days ${days.join(', ')}`}.`)}catch{}
     },0);
   },true);
 

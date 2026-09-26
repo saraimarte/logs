@@ -217,7 +217,7 @@
         // V310: Daily View Settings inside a Theme Builder preview is visual-only.
         // The modal may be opened/closed and its theme search may be used to browse,
         // but no setting inside it is allowed to mutate the preview. This guard is
-        // installed in <head> before /world-history.js/extras bind their handlers, so it
+        // installed in <head> before /korean.js/extras bind their handlers, so it
         // wins capture order instead of trying to undo a theme/cursor change later.
         const previewDailySettingsControlV310 = target => {
             const modal = target?.closest?.('#daily-settings-modal');
@@ -304,7 +304,7 @@
             if (!modal) return;
 
             // Typing/filtering stays available, but Enter previously applied the
-            // highlighted/first theme through /world-history.js. In preview it is inert.
+            // highlighted/first theme through /korean.js. In preview it is inert.
             if (event.target?.matches?.('#theme-search-input')) {
                 if (event.key === 'Enter') {
                     event.preventDefault();
@@ -361,7 +361,7 @@
             pointer-events: auto !important;
         }
     </style>
-<link rel="stylesheet" href="/world-history.css?v=668">
+<link rel="stylesheet" href="/korean.css?v=668">
 
     <script id="loggy-early-theme-warm-v578">
     (() => {
@@ -419,7 +419,7 @@
     })();
     </script>
 
-    <link rel="preload" href="/world-history.js?v=669" as="script">
+    <link rel="preload" href="/korean.js?v=669" as="script">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -1070,14 +1070,14 @@
       if(window.__loggyItemsLearnedKeyboardEarlyV627)return;
       window.__loggyItemsLearnedKeyboardEarlyV627=true;
 
-      // Register on WINDOW before /world-history.js and every deferred extras bundle.
+      // Register on WINDOW before /korean.js and every deferred extras bundle.
       // This gives the Items Learned combobox first refusal on its navigation keys,
       // so global Loggy shortcuts cannot steal ArrowUp/ArrowDown/Enter first.
       window.addEventListener('keydown',event=>{
         const input=event.target?.closest?.('#new-phrase-input');
         if(!input || !['ArrowDown','ArrowUp','Enter'].includes(event.key))return;
 
-        // These core functions/variables are defined by /world-history.js by the time a
+        // These core functions/variables are defined by /korean.js by the time a
         // user can focus this input. Keep the handler inert during startup only.
         if(typeof phraseMatchesV450!=='function' || typeof renderPhraseSuggestionsV450!=='function')return;
         const matches=phraseMatchesV450(input.value);
@@ -1114,7 +1114,7 @@
       },true);
     })();
     </script>
-    <script src="/world-history.js?v=669"></script>
+    <script src="/korean.js?v=669"></script>
     <script>
 /* V389 - left-facing directional cursor parity for Log Settings + live cursor. */
 (()=>{
@@ -1283,7 +1283,7 @@
 
         // Only actions that actually depend on the advanced bundles accelerate
         // them. Ordinary Back/KB/Quizzes/Toolbox/day navigation is deliberately
-        // absent: core /world-history.js owns those immediately.
+        // absent: core /korean.js owns those immediately.
         const requestUrgentFeaturesV645 = event => {
             if (document.documentElement.dataset.themeBuilderPreviewV300 === 'true' ||
                 document.documentElement.dataset.themeBuilderLogPreviewV268 === 'true') return;

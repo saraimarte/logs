@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-24T00:20:50.413Z",
+  "updatedAt": "2026-09-25T02:50:28.863Z",
   "themes": [
     {
       "id": "theme-custom-builder-dashboard-mtqv7cw5-ghlcm4",
@@ -95127,9 +95127,9 @@
         "audioFade": true,
         "backgroundSvgs": [
           {
-            "id": "pending-v585-mues76c5-i7h6kg8xz7j",
+            "id": "pending-v585-mugd22sd-4uzi7kyh46g",
             "name": "ChatGPT-Image-Sep-20-2026-09_44_38-PM-4.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_38-PM-4.png",
+            "url": "/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-20-2026-09_44_38-PM-4.png",
             "type": "image/png",
             "placementIndexV405": 0,
             "opacityV109": 100,
@@ -95142,14 +95142,16 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_38-PM-4.png",
+            "projectPath": "public/svg/custom-builder-theme-studio-host/ChatGPT-Image-Sep-20-2026-09_44_38-PM-4.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76cq-8iz8aixsqk9",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_37-PM-3.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_37-PM-3.png",
+            "id": "pending-v585-mugd22tm-qm35dmr68f",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_34 PM (1).png",
+            "url": "blob:http://localhost:3000/2b0b71b9-2c9e-4e53-aeb4-c3cf40ece336",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22tm-qm35dmr68f",
             "placementIndexV405": 1,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95161,14 +95163,15 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_37-PM-3.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76d8-jfc4fpfege",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_34-PM-2.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_34-PM-2.png",
+            "id": "pending-v585-mugd22u3-c2q9f82mm6u",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_27 PM (10).png",
+            "url": "blob:http://localhost:3000/28169c0a-d179-4883-b19c-661b321e48cf",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22u3-c2q9f82mm6u",
             "placementIndexV405": 2,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95180,14 +95183,15 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_34-PM-2.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76dp-66wi0v7jzp4",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_34-PM-1.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_34-PM-1.png",
+            "id": "pending-v585-mugd22uk-99scsk3aiaf",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_25 PM (9).png",
+            "url": "blob:http://localhost:3000/9df90af3-e232-47e2-8381-6f3d14695d11",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22uk-99scsk3aiaf",
             "placementIndexV405": 3,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95199,14 +95203,15 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_34-PM-1.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76e6-ni6neuz9qu",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_27-PM-10.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_27-PM-10.png",
+            "id": "pending-v585-mugd22v2-zvjmjplxvtb",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_22 PM (8).png",
+            "url": "blob:http://localhost:3000/02f706bd-a881-4eae-ad5e-1dc23b4cde6d",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22v2-zvjmjplxvtb",
             "placementIndexV405": 4,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95218,14 +95223,15 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_27-PM-10.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76eo-hg2q2uefzr",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_25-PM-9.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_25-PM-9.png",
+            "id": "pending-v585-mugd22vl-b33feexg4yi",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_21 PM (7).png",
+            "url": "blob:http://localhost:3000/47ff030d-589f-41e3-9cd4-bcf8cfad8bf6",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22vl-b33feexg4yi",
             "placementIndexV405": 5,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95237,14 +95243,15 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_25-PM-9.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76f5-g494xs5q7qw",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_22-PM-8.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_22-PM-8.png",
+            "id": "pending-v585-mugd22w8-id0jt0ww4ol",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_20 PM (6).png",
+            "url": "blob:http://localhost:3000/ca9eb7a2-961e-43c1-bbd5-433a296e4882",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22w8-id0jt0ww4ol",
             "placementIndexV405": 6,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95256,14 +95263,15 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_22-PM-8.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76fm-2fhd7zxjckw",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_21-PM-7.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_21-PM-7.png",
+            "id": "pending-v585-mugd22wv-cyo9mw0dsn",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_19 PM (5).png",
+            "url": "blob:http://localhost:3000/8f612cb4-0678-494a-967e-a3092174eb4a",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22wv-cyo9mw0dsn",
             "placementIndexV405": 7,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95275,14 +95283,15 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_21-PM-7.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76gn-snh6rpztwu",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_20-PM-6.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_20-PM-6.png",
+            "id": "pending-v585-mugd22xk-ov7iuo9pv9",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_18 PM (4).png",
+            "url": "blob:http://localhost:3000/a5b3db8c-94b7-4656-8af4-c0bf2d313978",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22xk-ov7iuo9pv9",
             "placementIndexV405": 8,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95294,14 +95303,15 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_20-PM-6.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76hy-gkbejqyz1zg",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_19-PM-5.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_19-PM-5.png",
+            "id": "pending-v585-mugd22y9-rtht7noo4ds",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_17 PM (3).png",
+            "url": "blob:http://localhost:3000/5c567bc3-6a77-4a4a-8360-9699c8b560ed",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22y9-rtht7noo4ds",
             "placementIndexV405": 9,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95313,14 +95323,15 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_19-PM-5.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76im-l5ksefco07f",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_18-PM-4.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_18-PM-4.png",
+            "id": "pending-v585-mugd22z1-l0i6p1bh84d",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_16 PM (2).png",
+            "url": "blob:http://localhost:3000/db415adb-b999-450a-be97-27b387b47733",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22z1-l0i6p1bh84d",
             "placementIndexV405": 10,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95332,14 +95343,15 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_18-PM-4.png",
             "animation": "playful-wobble"
           },
           {
-            "id": "pending-v585-mues76ja-l75nrzmy0p",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_17-PM-3.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_17-PM-3.png",
+            "id": "pending-v585-mugd22zw-8sge1xr6cd3",
+            "name": "ChatGPT Image Sep 20, 2026, 09_44_16 PM (1).png",
+            "url": "blob:http://localhost:3000/91bcbf87-a676-4c6f-96c6-7715d6fa8f25",
             "type": "image/png",
+            "previewPendingUploadV585": true,
+            "previewUploadTokenV585": "pending-v585-mugd22zw-8sge1xr6cd3",
             "placementIndexV405": 11,
             "opacityV109": 100,
             "opacityOverrideV326": false,
@@ -95351,45 +95363,6 @@
             "crossDirectionV139": "right",
             "hiddenOnScreenV63": false,
             "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_17-PM-3.png",
-            "animation": "playful-wobble"
-          },
-          {
-            "id": "pending-v585-mues76k3-wnl2a9l8uon",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_16-PM-2.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_16-PM-2.png",
-            "type": "image/png",
-            "placementIndexV405": 12,
-            "opacityV109": 100,
-            "opacityOverrideV326": false,
-            "sizePercentV528": 100,
-            "sizeOverrideV528": false,
-            "animationOverride": "",
-            "hoverAnimationOverrideV82": "",
-            "bopModeV60": "auto",
-            "crossDirectionV139": "right",
-            "hiddenOnScreenV63": false,
-            "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_16-PM-2.png",
-            "animation": "playful-wobble"
-          },
-          {
-            "id": "pending-v585-mues76kx-2irtbik0owi",
-            "name": "ChatGPT-Image-Sep-20-2026-09_44_16-PM-1.png",
-            "url": "/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_16-PM-1.png",
-            "type": "image/png",
-            "placementIndexV405": 13,
-            "opacityV109": 100,
-            "opacityOverrideV326": false,
-            "sizePercentV528": 100,
-            "sizeOverrideV528": false,
-            "animationOverride": "",
-            "hoverAnimationOverrideV82": "",
-            "bopModeV60": "auto",
-            "crossDirectionV139": "right",
-            "hiddenOnScreenV63": false,
-            "alwaysShowOnScreenV370": false,
-            "projectPath": "public/svg/custom-builder-hhj/ChatGPT-Image-Sep-20-2026-09_44_16-PM-1.png",
             "animation": "playful-wobble"
           }
         ],
@@ -95405,6 +95378,7 @@
         "svgHoverSoundsEnabled": false,
         "svgHoverSoundMode": "random",
         "svgHoverSounds": [],
+        "svgDistribution": "random",
         "svgDefaultAnimation": "playful-wobble",
         "svgScenePreset": "scatter",
         "tabNavIndividualBackgroundEnabled": false,
@@ -95470,51 +95444,6 @@
         "introMusicReactionsEnabledV154": false,
         "svgHoverAnimationsEnabledV82": false,
         "svgHoverAnimationV82": "lift",
-        "customCursorLabelV161": "Puppy Eyes",
-        "fontId": "rounded",
-        "themeBuilderAiTexturedBackgroundV526": true,
-        "pageBackdropsEnabledV312": false,
-        "customCursorDependencyV161": {
-          "id": "theme-cursor-v161-puppy-eyes",
-          "label": "Puppy Eyes",
-          "spec": {
-            "primary": "#eca9a2",
-            "secondary": "#e4e6f2",
-            "accent": "#ffffff",
-            "motif": "sparkle",
-            "trail": "sparkle"
-          }
-        },
-        "shapeTypeEnabledV312": true,
-        "themeBuilderAiDepthV432": "advanced",
-        "themeBuilderAiBackgroundFocusV479": "enhanced",
-        "themeBuilderAiDecorationModeV432": "decorations",
-        "introAudioUrl": "",
-        "introSong": "",
-        "introMusic": "",
-        "song": "",
-        "music": "",
-        "introSongName": "",
-        "songName": "",
-        "musicName": "",
-        "themeBuilderHeadingBackdropOverrideV496": {
-          "enabled": false,
-          "color": "#F5F4FA",
-          "opacity": 100,
-          "padding": 12,
-          "radius": 16
-        },
-        "themeBuilderQuizBackdropOverrideV492": {
-          "enabled": false,
-          "color": "#FFFFFF",
-          "opacity": 92,
-          "radius": 16,
-          "padding": 16
-        },
-        "introAudioRemovedV423": true,
-        "introAudioUpdatedAtV420": "2026-09-24T00:16:34.063Z",
-        "introAudioAuthorityV418": "2026-09-24T00:16:34.063Z",
-        "svgDistribution": "random",
         "manualPlacementSlotsV40": [
           {
             "x": 82,
@@ -95563,72 +95492,100 @@
           {
             "x": 57.12066988660206,
             "y": 18.802306810181644
-          },
-          {
-            "x": 69.95167365947947,
-            "y": 24.981392561023043
-          },
-          {
-            "x": 78.83100377287741,
-            "y": 36.115720348238135
           }
         ],
+        "customCursorLabelV161": "Puppy Eyes",
+        "fontId": "rounded",
+        "themeBuilderAiTexturedBackgroundV526": true,
+        "pageBackdropsEnabledV312": false,
+        "customCursorDependencyV161": {
+          "id": "theme-cursor-v161-puppy-eyes",
+          "label": "Puppy Eyes",
+          "spec": {
+            "primary": "#eca9a2",
+            "secondary": "#e4e6f2",
+            "accent": "#ffffff",
+            "motif": "sparkle",
+            "trail": "sparkle"
+          }
+        },
+        "shapeTypeEnabledV312": true,
+        "themeBuilderAiDepthV432": "advanced",
+        "themeBuilderAiBackgroundFocusV479": "enhanced",
+        "themeBuilderAiDecorationModeV432": "decorations",
+        "introAudioUrl": "",
+        "introSong": "",
+        "introMusic": "",
+        "song": "",
+        "music": "",
+        "introSongName": "",
+        "songName": "",
+        "musicName": "",
+        "themeBuilderHeadingBackdropOverrideV496": {
+          "enabled": false,
+          "color": "#F5F4FA",
+          "opacity": 100,
+          "padding": 12,
+          "radius": 16
+        },
+        "themeBuilderQuizBackdropOverrideV492": {
+          "enabled": false,
+          "color": "#FFFFFF",
+          "opacity": 92,
+          "radius": 16,
+          "padding": 16
+        },
+        "introAudioRemovedV423": true,
+        "introAudioUpdatedAtV420": "2026-09-25T02:49:58.609Z",
+        "introAudioAuthorityV418": "2026-09-25T02:49:58.609Z",
         "resolvedDecorationPlacementsV405": [
           {
-            "x": 90.699122,
-            "y": 87.144481
+            "x": 90.999985,
+            "y": 15.5813
           },
           {
-            "x": 16.237644,
-            "y": 19.49065
+            "x": 12.442242,
+            "y": 87.393521
           },
           {
-            "x": 13.192054,
-            "y": 85.781211
+            "x": 9.678012,
+            "y": 18.599491
           },
           {
-            "x": 89.967162,
-            "y": 29.195063
+            "x": 82.981097,
+            "y": 79.600046
           },
           {
-            "x": 45.626148,
-            "y": 53.312599
+            "x": 53.771881,
+            "y": 41.994077
           },
           {
-            "x": 51.951079,
-            "y": 88.836958
+            "x": 10.715082,
+            "y": 55.458939
           },
           {
-            "x": 54.872681,
-            "y": 18.257926
+            "x": 47.531205,
+            "y": 74.892358
           },
           {
-            "x": 9.998409,
-            "y": 48.437896
+            "x": 42.172501,
+            "y": 18.505027
           },
           {
-            "x": 74.888038,
-            "y": 65.881599
+            "x": 84.67758,
+            "y": 54.507378
           },
           {
-            "x": 66.974969,
-            "y": 37.983251
+            "x": 68.304099,
+            "y": 25.875325
           },
           {
-            "x": 27.922967,
-            "y": 69.676074
+            "x": 34.928067,
+            "y": 53.11114
           },
           {
-            "x": 30.820731,
-            "y": 34.848632
-          },
-          {
-            "x": 90.919335,
-            "y": 46.867066
-          },
-          {
-            "x": 78.448819,
-            "y": 16.871053
+            "x": 62.312271,
+            "y": 60.506954
           }
         ],
         "decorationPlacementEngineV410": "log-v26",
@@ -96192,14 +96149,14 @@
               "padding": 16
             },
             "introAudioRemovedV423": true,
-            "introAudioUpdatedAtV420": "2026-09-24T00:16:34.063Z",
-            "introAudioAuthorityV418": "2026-09-24T00:16:34.063Z",
-            "decorationMotionEpochV407": 1790208994060
+            "introAudioUpdatedAtV420": "2026-09-25T02:47:55.942Z",
+            "introAudioAuthorityV418": "2026-09-25T02:47:55.942Z",
+            "decorationMotionEpochV407": 1790304598606
           }
         },
-        "decorationMotionEpochV407": 1790208994060
+        "decorationMotionEpochV407": 1790304598606
       },
-      "updatedAt": "2026-09-24T00:16:34.063Z"
+      "updatedAt": "2026-09-25T02:49:58.609Z"
     },
     {
       "id": "theme-custom-builder-mubn6sis-6ltguf",

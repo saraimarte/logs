@@ -8500,24 +8500,36 @@ if (!window.__loggyWrittenEnterV482) {
 }
 
 // Normal Learn MC waits for explicit Continue, just like map MC.
+// V672: MC also has an Idk path that reveals the answer, counts as incorrect,
+// and waits for the learner to press Continue Learning.
 function bindLearnChoiceFeedbackV650(area, answer) {
     const buttons = [...area.querySelectorAll('[data-learn-option-v476]')];
+    const idkButton = area.querySelector('[data-learn-idk-v672]');
     let answered = false;
-    buttons.forEach(button => button.addEventListener('click', () => {
+
+    const finishChoice = (button = null, fromIdk = false) => {
         if (answered) return;
         answered = true;
-        const correct = button.dataset.learnOptionV476 === answer;
+        const correct = !fromIdk && button?.dataset.learnOptionV476 === answer;
+
         buttons.forEach(choice => {
             choice.disabled = true;
             choice.classList.toggle('learn-choice-correct-v650', choice.dataset.learnOptionV476 === answer);
-            choice.classList.toggle('learn-choice-wrong-v650', choice === button && !correct);
+            choice.classList.toggle('learn-choice-wrong-v650', !!button && choice === button && !correct);
         });
+        if (idkButton) idkButton.disabled = true;
+
         const feedback = document.createElement('div');
         feedback.className = 'learn-choice-feedback-v650';
         feedback.setAttribute('role', 'status');
         feedback.setAttribute('aria-live', 'polite');
         const message = document.createElement('strong');
-        message.textContent = correct ? 'Correct' : `Incorrect. Correct answer: ${String(answer).replace(/\\([a-z]+)/gi, (_, word) => word.toUpperCase())}`;
+        const shownAnswer = String(answer).replace(/\\([a-z]+)/gi, (_, word) => word.toUpperCase());
+        message.textContent = correct
+            ? 'Correct'
+            : fromIdk
+                ? `Answer revealed. Correct answer: ${shownAnswer}`
+                : `Incorrect. Correct answer: ${shownAnswer}`;
         const next = document.createElement('button');
         next.type = 'button';
         next.className = 'icon-btn';
@@ -8528,7 +8540,10 @@ function bindLearnChoiceFeedbackV650(area, answer) {
         }, { once:true });
         feedback.append(message, next);
         area.querySelector('.quiz-learn-compact-v38').appendChild(feedback);
-    }));
+    };
+
+    buttons.forEach(button => button.addEventListener('click', () => finishChoice(button, false)));
+    idkButton?.addEventListener('click', () => finishChoice(null, true));
 }
 
 function showQuizCard() {
@@ -8612,6 +8627,7 @@ function showQuizCard() {
                     <div class="flashcard-mode-card quiz-learn-prompt-card-v38">${knowledgeVisibleTitleHtmlV212(promptText)}</div>
                     <div class="quiz-learn-options-v38">
                         ${options.map(opt => `<button class="icon-btn" data-learn-option-v476="${escapeKnowledgeAttr(opt)}">${knowledgeVisibleTitleHtmlV212(opt)}</button>`).join('')}
+                        <button type="button" class="icon-btn quizlet-mc-idk-v672" data-learn-idk-v672>Idk</button>
                     </div>
                 </div>`;
             bindLearnChoiceFeedbackV650(area, id);

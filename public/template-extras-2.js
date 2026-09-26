@@ -18511,70 +18511,58 @@ requestAnimationFrame(
 
 const CUSTOM_TAB_TEMPLATES_V53 = [
     {
-        id: 'weekly-review',
-        name: 'Weekly Review',
-        icon: 'ph-calendar-check',
-        description: 'Your last 7 log days, stats, recent activity, and next-week focus.'
-    },
-    {
-        id: 'goals',
-        name: 'Goals',
-        icon: 'ph-target',
-        description: 'Track a target, action steps, and milestones in one place.'
-    },
-    {
-        id: 'sentence-builder',
-        name: 'Sentence Builder',
-        icon: 'ph-text-aa',
-        description: 'Build and save sentences from items already in your Knowledge Base.'
-    },
-    {
-        id: 'study-hub',
-        name: 'Study Hub',
-        icon: 'ph-books',
-        description: 'Bring together notes, Knowledge Base items, resources, and vocabulary.'
-    },
-    {
-        id: 'practice-tracker',
-        name: 'Practice Tracker',
-        icon: 'ph-timer',
-        description: 'Log practice sessions, measure progress, and rate your skills.'
-    },
-    {
-        id: 'media-library',
-        name: 'Media Library',
-        icon: 'ph-images',
-        description: 'Collect videos, images, PDFs, audio, and saved resources from Daily Logs.'
-    },
-    {
-        id: 'project-planner',
-        name: 'Project Planner',
-        icon: 'ph-kanban',
-        description: 'Organize projects with a gallery, milestones, and next actions.'
-    },
-    {
-        id: 'reflection-journal',
-        name: 'Reflection Journal',
-        icon: 'ph-note-pencil',
-        description: 'Collect Daily Log notes and keep reusable reflection prompts.'
-    },
-    {
-        id: 'alphabet',
-        name: 'Alphabet',
-        icon: 'ph-translate',
-        description: 'Build a character or alphabet reference with audio cards, category practice, and review.'
-    },
-    {
         id: 'whiteboard-v197',
         name: 'Whiteboard',
         icon: 'ph-selection-background',
-        description: 'A full-screen multi-board canvas with sticky notes, movable images, text boxes, drawing, lasso, erasers, connections, and visual board previews.'
+        description: 'A full-screen multi-board canvas for notes, images, drawing, connections, and visual planning.'
     },
     {
         id: 'notepad-v249',
         name: 'Notebook',
         icon: 'ph-notebook',
         description: 'A full-screen multi-page notebook with page categories, paper styles, movable images, drawing tools, and exact-page links from Daily Logs.'
+    },
+    {
+        id: 'personal-dashboard-v328',
+        name: 'Personal Dashboard',
+        icon: 'ph-gauge',
+        description: 'Goals, priorities, quick notes, progress, and recent Daily Log activity in one home base.'
+    },
+    {
+        id: 'study-center-v328',
+        name: 'Study Center',
+        icon: 'ph-graduation-cap',
+        description: 'Searchable study material, a study queue, key terms, questions, and resources.'
+    },
+    {
+        id: 'project-workspace-v328',
+        name: 'Project Workspace',
+        icon: 'ph-kanban',
+        description: 'Goals, next actions, milestones, a project table, references, and visual project work.'
+    },
+    {
+        id: 'habit-practice-v328',
+        name: 'Habit & Practice',
+        icon: 'ph-repeat',
+        description: 'Track a target, practice sessions, skill ratings, routines, and milestone wins.'
+    },
+    {
+        id: 'milestones-goals-v329',
+        name: 'Milestones & Goals',
+        icon: 'ph-target',
+        description: 'Track goals, progress, milestones, next actions, target dates, and status in one focused tracker.'
+    },
+    {
+        id: 'media-board-v328',
+        name: 'Media & Inspiration',
+        icon: 'ph-images-square',
+        description: 'A searchable moodboard with polaroids, project images, saved links, and Daily Log media.'
+    },
+    {
+        id: 'logs-review-v536',
+        name: 'Logs Review',
+        icon: 'ph-chart-bar',
+        description: 'Weekly, Monthly, and Yearly log review sections. Reorder or hide the sections in Edit Mode.'
     }
 ];
 
@@ -18654,6 +18642,22 @@ function buildPrebuiltTabComponentsV53(
     switch (
         templateId
     ) {
+        case 'logs-review-v536':
+            return [
+                {
+                    id: customId('component'),
+                    type: 'logsReviewV536',
+                    title: 'Logs Review',
+                    titleBackground: 'none',
+                    keepBackdropV61: true,
+                    reviewSectionsV536: [
+                        { id: 'weekly', label: 'Weekly Review', hidden: false },
+                        { id: 'monthly', label: 'Monthly Review', hidden: false },
+                        { id: 'yearly', label: 'Yearly Review', hidden: false }
+                    ]
+                }
+            ];
+
         case 'weekly-review':
             return [
                 {
@@ -19841,137 +19845,301 @@ function renderKnowledgeSentenceBuilderV53(
 
 
 // ------------------------------------------------------------
-// Make the two template-only sections behave like normal components.
+// Early custom-tab components needed before the later lazy bundles finish.
+// Keep legacy Weekly Review render support for old saved tabs, but new tabs use
+// Logs Review. Knowledge Base is registered here so it never disappears from
+// the Custom Components palette while extras 5 is still hydrating.
 // ------------------------------------------------------------
 
-if (
-    !CUSTOM_COMPONENT_LIBRARY.some(
-        item =>
-            item.type ===
-            'weeklyReviewV53'
-    )
-) {
-    CUSTOM_COMPONENT_LIBRARY.push(
+// Weekly Review is legacy-only in the palette; existing saved components still
+// render below. Remove stale palette entries so Logs Review is the visible choice.
+for (let index = CUSTOM_COMPONENT_LIBRARY.length - 1; index >= 0; index--) {
+    if (CUSTOM_COMPONENT_LIBRARY[index]?.type === 'weeklyReviewV53') {
+        CUSTOM_COMPONENT_LIBRARY.splice(index, 1);
+    }
+}
+
+if (!CUSTOM_COMPONENT_LIBRARY.some(item => item.type === 'knowledgeSentenceBuilderV53')) {
+    CUSTOM_COMPONENT_LIBRARY.push({
+        type: 'knowledgeSentenceBuilderV53',
+        label: 'Sentence Builder',
+        icon: 'ph-text-aa'
+    });
+}
+
+if (!CUSTOM_COMPONENT_LIBRARY.some(item => item.type === 'logsReviewV536')) {
+    CUSTOM_COMPONENT_LIBRARY.push({
+        type: 'logsReviewV536',
+        label: 'Logs Review',
+        icon: 'ph-chart-bar'
+    });
+}
+
+if (!CUSTOM_COMPONENT_LIBRARY.some(item => item.type === 'customKnowledgeBaseV453')) {
+    const knowledgeAnchorV497 = CUSTOM_COMPONENT_LIBRARY.findIndex(item => item?.type === 'search');
+    CUSTOM_COMPONENT_LIBRARY.splice(
+        knowledgeAnchorV497 >= 0 ? knowledgeAnchorV497 + 1 : CUSTOM_COMPONENT_LIBRARY.length,
+        0,
         {
-            type:
-                'weeklyReviewV53',
-            label:
-                'Weekly Review',
-            icon:
-                'ph-calendar-check'
-        },
-        {
-            type:
-                'knowledgeSentenceBuilderV53',
-            label:
-                'Sentence Builder',
-            icon:
-                'ph-text-aa'
+            type: 'customKnowledgeBaseV453',
+            label: 'Knowledge Base',
+            icon: 'ph-books'
         }
     );
 }
 
-CUSTOM_TITLE_BACKGROUND_TYPES.add(
-    'weeklyReviewV53'
-);
+CUSTOM_TITLE_BACKGROUND_TYPES.add('weeklyReviewV53');
+CUSTOM_TITLE_BACKGROUND_TYPES.add('knowledgeSentenceBuilderV53');
+CUSTOM_TITLE_BACKGROUND_TYPES.add('logsReviewV536');
+CUSTOM_TITLE_BACKGROUND_TYPES.add('customKnowledgeBaseV453');
 
-CUSTOM_TITLE_BACKGROUND_TYPES.add(
-    'knowledgeSentenceBuilderV53'
-);
+const defaultCustomComponentBeforeTemplatesV53 = defaultCustomComponent;
 
-const defaultCustomComponentBeforeTemplatesV53 =
-    defaultCustomComponent;
+defaultCustomComponent = function(type) {
+    if (type === 'weeklyReviewV53') {
+        return {
+            id: customId('component'),
+            type,
+            title: 'Weekly Review',
+            titleBackground: 'none',
+            focusByRange: {}
+        };
+    }
 
-defaultCustomComponent =
-    function(
-        type
-    ) {
-        if (
-            type ===
-            'weeklyReviewV53'
-        ) {
-            return {
-                id:
-                    customId(
-                        'component'
-                    ),
-                type,
-                title:
-                    'Weekly Review',
-                titleBackground:
-                    'none',
-                focusByRange:
-                    {}
-            };
+    if (type === 'knowledgeSentenceBuilderV53') {
+        return {
+            id: customId('component'),
+            type,
+            title: 'Sentence Builder',
+            titleBackground: 'none',
+            tokens: [],
+            savedSentences: []
+        };
+    }
+
+    if (type === 'logsReviewV536') {
+        return {
+            id: customId('component'),
+            type,
+            title: 'Logs Review',
+            titleBackground: 'none',
+            keepBackdropV61: true,
+            reviewSectionsV536: [
+                { id: 'weekly', label: 'Weekly Review', hidden: false },
+                { id: 'monthly', label: 'Monthly Review', hidden: false },
+                { id: 'yearly', label: 'Yearly Review', hidden: false }
+            ]
+        };
+    }
+
+    if (type === 'customKnowledgeBaseV453') {
+        return {
+            id: customId('component'),
+            type,
+            title: 'Knowledge Base',
+            titleBackground: 'none',
+            categories: [],
+            fields: [],
+            items: []
+        };
+    }
+
+    return defaultCustomComponentBeforeTemplatesV53(type);
+};
+
+function logsReviewRangeBaseV497(kind) {
+    let end = 1;
+    try {
+        end = Math.max(1, Number(getTodayCalculatedDayNumber?.()) || 1);
+    } catch {
+        const keys = Object.keys(db?.days || {}).map(Number).filter(Number.isFinite);
+        end = Math.max(1, ...(keys.length ? keys : [1]));
+    }
+
+    if (kind === 'weekly') return { start: Math.max(1, end - 6), end };
+
+    try {
+        const endDate = dateForDay(end);
+        let start = end;
+        for (let day = end; day >= 1; day--) {
+            const date = dateForDay(day);
+            const samePeriod = kind === 'monthly'
+                ? date.getFullYear() === endDate.getFullYear() && date.getMonth() === endDate.getMonth()
+                : date.getFullYear() === endDate.getFullYear();
+            if (!samePeriod) break;
+            start = day;
         }
+        return { start, end };
+    } catch {
+        return {
+            start: Math.max(1, end - (kind === 'monthly' ? 29 : 364)),
+            end
+        };
+    }
+}
 
-        if (
-            type ===
-            'knowledgeSentenceBuilderV53'
-        ) {
-            return {
-                id:
-                    customId(
-                        'component'
-                    ),
-                type,
-                title:
-                    'Sentence Builder',
-                titleBackground:
-                    'none',
-                tokens:
-                    [],
-                savedSentences:
-                    []
-            };
-        }
+function logsReviewSummaryBaseV497(kind) {
+    const { start, end } = logsReviewRangeBaseV497(kind);
+    const dayNumbers = Array.from({ length: end - start + 1 }, (_, index) => start + index);
+    let logged = 0;
+    let noteWords = 0;
+    let media = 0;
+    const learned = new Set();
 
-        return defaultCustomComponentBeforeTemplatesV53(
-            type
-        );
+    dayNumbers.forEach(day => {
+        const data = db?.days?.[day] || {};
+        let hasContent = false;
+        try { hasContent = !!featureDayHasContent(data); } catch { hasContent = !!Object.keys(data).length; }
+        if (hasContent) logged += 1;
+
+        let noteText = String(data.notes || '');
+        try { noteText = featureStripHtml(noteText); } catch { noteText = noteText.replace(/<[^>]+>/g, ' '); }
+        if (noteText.trim()) noteWords += noteText.trim().split(/\s+/).filter(Boolean).length;
+
+        media += (data.resources || []).length + (data.noteImages || []).length + (data.noteAudios || []).length;
+        if (data.video) media += 1;
+        if (data.video2) media += 1;
+        try { media += collectPdfValuesFromDay(data).length; } catch {}
+        (data.phrases || []).forEach(item => learned.add(String(item)));
+    });
+
+    return { start, end, dayNumbers, logged, noteWords, media, learned: learned.size };
+}
+
+function renderLogsReviewBaseV497(tab, component, content) {
+    const defaults = [
+        { id: 'weekly', label: 'Weekly Review', hidden: false },
+        { id: 'monthly', label: 'Monthly Review', hidden: false },
+        { id: 'yearly', label: 'Yearly Review', hidden: false }
+    ];
+    const saved = Array.isArray(component.reviewSectionsV536) ? component.reviewSectionsV536 : [];
+    const savedMap = new Map(saved.map(item => [String(item?.id || ''), item]));
+    component.reviewSectionsV536 = defaults.map(def => ({
+        id: def.id,
+        label: def.label,
+        hidden: savedMap.get(def.id)?.hidden === true
+    }));
+
+    const editing = !!content.closest?.('.custom-tab-canvas')?.classList.contains('is-editing');
+    const formatDay = day => {
+        try { return formatDate(day); } catch { return `Day ${day}`; }
     };
 
-const renderCustomComponentContentBeforeTemplatesV53 =
-    renderCustomComponentContent;
+    content.innerHTML = `
+        <div class="logs-review-root-v536 logs-review-base-v497">
+            ${component.reviewSectionsV536.map(section => {
+                if (section.hidden && !editing) return '';
+                const summary = logsReviewSummaryBaseV497(section.id);
+                const recentDays = summary.dayNumbers
+                    .slice()
+                    .reverse()
+                    .filter(day => {
+                        try { return featureDayHasContent(db?.days?.[day]); } catch { return !!db?.days?.[day]; }
+                    })
+                    .slice(0, section.id === 'weekly' ? 7 : section.id === 'monthly' ? 10 : 12);
 
-renderCustomComponentContent =
-    function(
-        tab,
-        component,
-        content
+                return `
+                    <section class="logs-review-section-v536${section.hidden ? ' is-hidden-v536' : ''}">
+                        <header>
+                            <div>
+                                <span class="logs-review-eyebrow-v536">${escapeCustomHtml(formatDay(summary.start))} — ${escapeCustomHtml(formatDay(summary.end))}</span>
+                                <h2>${escapeCustomHtml(section.label)}</h2>
+                            </div>
+                        </header>
+                        <div class="weekly-review-stats logs-review-stats-v536">
+                            <article><strong>${summary.logged}/${summary.dayNumbers.length}</strong><span>Days logged</span></article>
+                            <article><strong>${summary.noteWords}</strong><span>Note words</span></article>
+                            <article><strong>${summary.media}</strong><span>Media</span></article>
+                            <article><strong>${summary.learned}</strong><span>Learned</span></article>
+                        </div>
+                        <div class="logs-review-days-v536">
+                            ${recentDays.length
+                                ? recentDays.map(day => `<article class="logs-review-day-v536"><strong>${escapeCustomHtml(formatDay(day))}</strong></article>`).join('')
+                                : '<div class="logs-review-empty-v536">No logged days in this period yet.</div>'}
+                        </div>
+                    </section>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+const renderCustomComponentContentBeforeTemplatesV53 = renderCustomComponentContent;
+
+renderCustomComponentContent = function(tab, component, content) {
+    if (component?.type === 'weeklyReviewV53') {
+        renderWeeklyReviewTemplateV53(tab, component, content);
+        return;
+    }
+
+    if (component?.type === 'logsReviewV536') {
+        if (typeof window.renderLogsReviewV536 === 'function') {
+            window.renderLogsReviewV536(tab, component, content);
+        } else {
+            renderLogsReviewBaseV497(tab, component, content);
+            if (typeof window.ensureLoggyExtras === 'function') {
+                window.ensureLoggyExtras({ urgent: true })
+                    .then(() => { try { renderCustomTabView(tab.id); } catch {} })
+                    .catch(error => console.warn('Logs Review runtime failed to load', error));
+            }
+        }
+        return;
+    }
+
+    if (component?.type === 'knowledgeSentenceBuilderV53') {
+        renderKnowledgeSentenceBuilderV53(tab, component, content);
+        return;
+    }
+
+    if (component?.type === 'customKnowledgeBaseV453') {
+        // The full independent Knowledge Base runtime lives in extras 5. The
+        // palette entry is intentionally available earlier, so hydrate it now
+        // instead of ever showing "Unsupported component".
+        content.innerHTML = `
+            <div class="custom-feature-empty-v162 custom-kb-loading-v497">
+                <i class="ph ph-books"></i>
+                <strong>Opening Knowledge Base…</strong>
+            </div>
+        `;
+        if (!window.__loggyCustomKnowledgeComponentV453 && typeof window.ensureLoggyExtras === 'function') {
+            window.ensureLoggyExtras({ urgent: true })
+                .then(() => {
+                    try { renderCustomTabView(tab.id); } catch {}
+                })
+                .catch(error => console.warn('Custom Knowledge Base runtime failed to load', error));
+        }
+        return;
+    }
+
+    renderCustomComponentContentBeforeTemplatesV53(tab, component, content);
+};
+
+// Clicking or dropping the early Knowledge Base palette card waits for extras 5
+// and then delegates to its real addCustomComponent implementation. This keeps
+// the component visible immediately without creating a fake text component.
+const addCustomComponentBeforeKnowledgeBaseV497 = addCustomComponent;
+function addCustomComponentKnowledgeBaseV497(tabId, type, index = null) {
+    if (
+        type === 'customKnowledgeBaseV453' &&
+        !window.__loggyCustomKnowledgeComponentV453 &&
+        typeof window.ensureLoggyExtras === 'function'
     ) {
-        if (
-            component?.type ===
-            'weeklyReviewV53'
-        ) {
-            renderWeeklyReviewTemplateV53(
-                tab,
-                component,
-                content
-            );
-
-            return;
-        }
-
-        if (
-            component?.type ===
-            'knowledgeSentenceBuilderV53'
-        ) {
-            renderKnowledgeSentenceBuilderV53(
-                tab,
-                component,
-                content
-            );
-
-            return;
-        }
-
-        renderCustomComponentContentBeforeTemplatesV53(
-            tab,
-            component,
-            content
-        );
-    };
+        window.ensureLoggyExtras({ urgent: true })
+            .then(() => {
+                const live = window.addCustomComponent;
+                if (typeof live === 'function' && live !== addCustomComponentKnowledgeBaseV497) {
+                    live(tabId, type, index);
+                } else {
+                    addCustomComponentBeforeKnowledgeBaseV497(tabId, type, index);
+                }
+            })
+            .catch(error => console.warn('Could not add Knowledge Base component', error));
+        return;
+    }
+    return addCustomComponentBeforeKnowledgeBaseV497(tabId, type, index);
+}
+addCustomComponent = addCustomComponentKnowledgeBaseV497;
+window.addCustomComponent = addCustomComponentKnowledgeBaseV497;
 
 const editCustomComponentBeforeTemplatesV53 =
     editCustomComponent;
@@ -20170,25 +20338,14 @@ function ensurePrebuiltTabSectionV53() {
             <div class="custom-tab-template-grid-v53"></div>
         `;
 
-        const daily =
-            modal.querySelector(
-                '.custom-tab-daily-source-section'
-            );
+        const iconSection =
+            modal.querySelector('#custom-tab-icon-picker')?.closest('.modal-section');
 
-        if (daily) {
-            daily.insertAdjacentElement(
-                'afterend',
-                section
-            );
+        if (iconSection) {
+            iconSection.insertAdjacentElement('afterend', section);
         } else {
-            modal
-                .querySelector(
-                    '#custom-tab-create-confirm'
-                )
-                ?.insertAdjacentElement(
-                    'beforebegin',
-                    section
-                );
+            modal.querySelector('#custom-tab-create-confirm')
+                ?.insertAdjacentElement('beforebegin', section);
         }
 
         renderPrebuiltTabCardsV53(
@@ -20291,6 +20448,141 @@ function ensurePrebuiltTabSectionV53() {
     return section;
 }
 
+
+// ------------------------------------------------------------
+// EARLY FULL-SCREEN OWNER FOR WHITEBOARD / NOTEBOOK.
+// Extras 5 contains the full runtimes, but it is lazy-loaded. Core template.js
+// must never get a chance to render these two saved tabs as ordinary custom-tab
+// pages while that runtime is still loading.
+// ------------------------------------------------------------
+function isDedicatedWorkspaceTabV497(tab) {
+    return !!tab && (
+        tab.templateIdV53 === 'whiteboard-v197' ||
+        tab.templateIdV53 === 'notepad-v249' ||
+        (Array.isArray(tab.components) && tab.components.some(component =>
+            component?.type === 'miroWhiteboardV197' || component?.type === 'fullNotepadV249'
+        ))
+    );
+}
+
+function dedicatedWorkspaceKindV497(tab) {
+    if (!tab) return '';
+    if (
+        tab.templateIdV53 === 'whiteboard-v197' ||
+        tab.components?.some?.(component => component?.type === 'miroWhiteboardV197')
+    ) return 'whiteboard';
+    if (
+        tab.templateIdV53 === 'notepad-v249' ||
+        tab.components?.some?.(component => component?.type === 'fullNotepadV249')
+    ) return 'notebook';
+    return '';
+}
+
+function forceDedicatedWorkspaceFullscreenV497(element) {
+    if (!element) return;
+    [
+        ['position','fixed'],['inset','0'],['left','0'],['top','0'],['right','0'],['bottom','0'],
+        ['width','100vw'],['height','100dvh'],['min-width','100vw'],['min-height','100dvh'],
+        ['max-width','none'],['max-height','none'],['margin','0'],['padding','0'],
+        ['transform','none'],['border-radius','0'],['overflow','hidden'],
+        ['box-sizing','border-box'],['visibility','visible'],['pointer-events','auto']
+    ].forEach(([property,value]) => element.style.setProperty(property,value,'important'));
+}
+
+function ensureDedicatedWorkspaceViewV497(tab) {
+    if (!isDedicatedWorkspaceTabV497(tab)) return null;
+    const kind = dedicatedWorkspaceKindV497(tab);
+    const id = `custom-tab-view-${tab.id}`;
+    let view = document.getElementById(id);
+    const requiredClass = kind === 'whiteboard' ? 'whiteboard-tab-view-v198' : 'notepad-tab-view-v249';
+
+    if (!view?.classList?.contains(requiredClass)) {
+        view?.remove();
+        view = document.createElement('div');
+        view.id = id;
+        view.dataset.customTabId = String(tab.id);
+        view.className = `view custom-tab-view ${requiredClass}`;
+        const hostClass = kind === 'whiteboard' ? 'whiteboard-runtime-host-v198' : 'notepad-runtime-host-v249';
+        const loadingClass = kind === 'whiteboard' ? 'whiteboard-runtime-loading-v198' : 'notepad-runtime-loading-v249';
+        const loadingText = kind === 'whiteboard' ? 'Opening whiteboard…' : 'Opening notebook…';
+        if (kind === 'whiteboard') view.dataset.whiteboardV198 = '1';
+        else view.dataset.notepadV249 = '1';
+        view.innerHTML = `<div class="${hostClass}"><div class="${loadingClass}">${loadingText}</div></div>`;
+        document.body.insertBefore(view, document.getElementById('companion-stage') || null);
+    }
+
+    forceDedicatedWorkspaceFullscreenV497(view);
+    const host = view.firstElementChild;
+    forceDedicatedWorkspaceFullscreenV497(host);
+    host?.style?.setProperty('z-index','auto','important');
+    view.style.setProperty('z-index','2147480000','important');
+    return view;
+}
+
+function syncDedicatedWorkspaceClassesV497(tab) {
+    const kind = dedicatedWorkspaceKindV497(tab);
+    const whiteboard = kind === 'whiteboard';
+    const notebook = kind === 'notebook';
+    document.body.classList.toggle('whiteboard-tab-active-v198', whiteboard);
+    document.documentElement.classList.toggle('whiteboard-tab-active-v198', whiteboard);
+    document.body.classList.toggle('notepad-tab-active-v249', notebook);
+    document.documentElement.classList.toggle('notepad-tab-active-v249', notebook);
+}
+
+const buildCustomTabViewBeforeDedicatedWorkspaceV497 = buildCustomTabView;
+buildCustomTabView = function(tab) {
+    if (isDedicatedWorkspaceTabV497(tab)) return ensureDedicatedWorkspaceViewV497(tab);
+    return buildCustomTabViewBeforeDedicatedWorkspaceV497.apply(this, arguments);
+};
+window.buildCustomTabView = buildCustomTabView;
+
+const renderCustomTabViewBeforeDedicatedWorkspaceV497 = renderCustomTabView;
+renderCustomTabView = function(tabId) {
+    const tab = getCustomTab(tabId);
+    if (!isDedicatedWorkspaceTabV497(tab)) {
+        return renderCustomTabViewBeforeDedicatedWorkspaceV497.apply(this, arguments);
+    }
+    const view = ensureDedicatedWorkspaceViewV497(tab);
+    if (view?.classList.contains('active')) syncDedicatedWorkspaceClassesV497(tab);
+    if (typeof window.ensureLoggyExtras === 'function') {
+        try { window.ensureLoggyExtras({ urgent: true }).catch(() => {}); } catch {}
+    }
+    return view;
+};
+window.renderCustomTabView = renderCustomTabView;
+
+const openCustomTabBeforeDedicatedWorkspaceV497 = openCustomTab;
+function openCustomTabDedicatedWorkspaceV497(tabId) {
+    const tab = getCustomTab(tabId);
+    if (!isDedicatedWorkspaceTabV497(tab)) {
+        return openCustomTabBeforeDedicatedWorkspaceV497.apply(this, arguments);
+    }
+
+    const view = ensureDedicatedWorkspaceViewV497(tab);
+    activeCustomTabId = tabId;
+    customTabEditMode = false;
+    syncDedicatedWorkspaceClassesV497(tab);
+    try { switchView(view); } catch { view?.classList.add('active'); }
+
+    if (typeof window.ensureLoggyExtras === 'function') {
+        window.ensureLoggyExtras({ urgent: true }).then(() => {
+            const liveOpen = window.openCustomTab;
+            if (typeof liveOpen === 'function' && liveOpen !== openCustomTabDedicatedWorkspaceV497) {
+                try { liveOpen(tabId); } catch (error) { console.warn('Workspace runtime open failed', error); }
+            }
+        }).catch(error => console.warn('Workspace runtime hydration failed', error));
+    }
+    return view;
+}
+openCustomTab = openCustomTabDedicatedWorkspaceV497;
+window.openCustomTab = openCustomTabDedicatedWorkspaceV497;
+
+requestAnimationFrame(() => {
+    try {
+        getCustomTabs().filter(isDedicatedWorkspaceTabV497).forEach(tab => ensureDedicatedWorkspaceViewV497(tab));
+    } catch {}
+});
+
 function patchCustomTabCreateButtonV53() {
     const modal =
         document.getElementById(
@@ -20349,186 +20641,181 @@ function patchCustomTabCreateButtonV53() {
     }
 }
 
-function createCustomTabFromModalV53() {
-    const modal =
-        document.getElementById(
-            'custom-tab-create-modal'
-        );
+async function createCustomTabFromModalV53() {
+    const modal = document.getElementById('custom-tab-create-modal');
+    const input = modal?.querySelector('#custom-tab-name-input');
+    if (!modal || !input) return;
 
-    const input =
-        modal?.querySelector(
-            '#custom-tab-name-input'
-        );
+    const templateId = String(modal.dataset.selectedTemplateV53 || '');
+    const isSpecialWorkspace = templateId === 'whiteboard-v197' || templateId === 'notepad-v249';
+    const confirmButton = modal.querySelector('#custom-tab-create-confirm');
 
-    // V496: Whiteboard/Notebook creation must never block on lazy feature boot.
-    // V484 waited for a readiness flag and recursively re-entered this function;
-    // if the flag lagged or never flipped, the tab was never inserted. The tab's
-    // built-in component is enough to persist immediately. Trigger the lazy
-    // runtime in parallel and let its normal renderer attach when available.
-    const requestedTemplateV496 = String(modal?.dataset?.selectedTemplateV53 || '');
-    const isSpecialWorkspaceV496 =
-        requestedTemplateV496 === 'whiteboard-v197' ||
-        requestedTemplateV496 === 'notepad-v249';
-    if (isSpecialWorkspaceV496 && typeof window.ensureLoggyExtras === 'function') {
-        try { window.ensureLoggyExtras({ urgent: true }).catch(() => {}); } catch {}
-    }
-
+    // The final reusable templates/components live in the later extras bundles.
+    // If somebody clicks a normal template before those lazy bundles have finished,
+    // finish hydration first instead of creating an empty/unsupported tab.
     if (
-        !modal ||
-        !input
+        templateId &&
+        !isSpecialWorkspace &&
+        typeof window.ensureLoggyExtras === 'function' &&
+        !window.__loggyV339TemplateCreationConnections
     ) {
-        return;
-    }
-
-    const templateId =
-        modal.dataset
-            .selectedTemplateV53 ||
-        '';
-
-    const template =
-        customTemplateV53(
-            templateId
-        );
-
-    const name =
-        input.value
-            .trim() ||
-        template?.name ||
-        'My Tab';
-
-    const icon =
-        modal
-            .querySelector(
-                '.custom-tab-icon-choice.selected'
-            )
-            ?.dataset.icon ||
-        template?.icon ||
-        'ph-squares-four';
-
-    const chosenDailySources =
-        Array.from(
-            modal.querySelectorAll(
-                '.custom-tab-daily-source-grid input[type="checkbox"]:checked'
-            )
-        ).map(
-            input =>
-                input.value
-        );
-
-    const tab = {
-        id:
-            customId(
-                'tab'
-            ),
-        name,
-        icon,
-        templateIdV53:
-            templateId ||
-            '',
-        components:
-            template
-                ? buildPrebuiltTabComponentsV53(
-                    template.id
-                )
-                : []
-    };
-
-    if (
-        chosenDailySources.length
-    ) {
-        const existingCollection =
-            tab.components.find(
-                component =>
-                    component.type ===
-                    'dailyLogCollection'
-            );
-
-        if (
-            existingCollection
-        ) {
-            existingCollection.sources =
-                Array.from(
-                    new Set([
-                        ...(
-                            existingCollection.sources ||
-                            []
-                        ),
-                        ...chosenDailySources
-                    ])
-                );
-        } else {
-            tab.components.push({
-                ...defaultCustomComponent(
-                    'dailyLogCollection'
-                ),
-                sources:
-                    chosenDailySources
-            });
+        const oldText = confirmButton?.textContent || '';
+        if (confirmButton) {
+            confirmButton.disabled = true;
+            confirmButton.textContent = 'Creating…';
+        }
+        try {
+            await window.ensureLoggyExtras({ urgent: true });
+        } catch (error) {
+            console.warn('Create Tab extras hydration failed', error);
+        } finally {
+            if (confirmButton?.isConnected) {
+                confirmButton.disabled = false;
+                confirmButton.textContent = oldText || 'Create Tab';
+            }
         }
     }
 
-    if (
-        modal
-            .querySelector(
-                '#custom-tab-add-connections-map'
-            )
-            ?.checked &&
-        !tab.components.some(
-            component =>
-                component.type ===
-                'dailyConnectionsGraph'
-        )
-    ) {
-        tab.components.push({
-            id:
-                customId(
-                    'component'
-                ),
-            type:
-                'dailyConnectionsGraph',
-            title:
-                'Daily Log Connections',
-            titleBackground:
-                'none'
-        });
+    const template = customTemplateV53(templateId);
+    const name = input.value.trim() || template?.name || 'My Tab';
+    const icon = modal.querySelector('.custom-tab-icon-choice.selected')?.dataset.icon || template?.icon || 'ph-squares-four';
+
+    const tab = {
+        id: customId('tab'),
+        name,
+        icon,
+        templateIdV53: templateId || '',
+        components: template ? buildPrebuiltTabComponentsV53(template.id) : []
+    };
+
+    // Give the two full-screen apps valid native state immediately. This means
+    // their runtimes never need to infer a half-created ordinary custom tab.
+    if (templateId === 'whiteboard-v197') {
+        const boardId = customId('board');
+        tab.whiteboardV198 = {
+            version: 198,
+            theme: 'light',
+            activeBoardId: boardId,
+            folders: [],
+            boards: [{
+                id: boardId,
+                name: 'Board 1',
+                camera: { x: 160, y: 120, zoom: .72 },
+                notes: [], images: [], texts: [], strokes: [], connections: [],
+                folderId: '', tags: [], createdAt: Date.now(), updatedAt: Date.now()
+            }]
+        };
+    } else if (templateId === 'notepad-v249') {
+        const categoryId = customId('notepad-category');
+        const pageId = customId('notepad-page');
+        tab.notepadV249 = {
+            version: 249,
+            activeCategoryId: categoryId,
+            activePageId: pageId,
+            categories: [{ id: categoryId, name: 'Notebook 1' }],
+            pages: [{
+                id: pageId,
+                title: 'Page 1',
+                categoryId,
+                paper: 'lined',
+                html: '',
+                images: [],
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            }]
+        };
     }
 
-    getCustomTabs().push(
-        tab
-    );
-
+    getCustomTabs().push(tab);
     saveDb();
-
     closeCustomTabCreateModal();
-
     renderCustomTabNavigation();
 
-    const view =
-        buildCustomTabView(
-            tab
-        );
+    activeCustomTabId = tab.id;
+    customTabEditMode = false;
 
-    document.body.insertBefore(
-        view,
-        document.getElementById(
-            'companion-stage'
-        ) ||
-        null
-    );
+    if (isSpecialWorkspace) {
+        // DO NOT build or render the normal custom-tab header/canvas at all.
+        // Put a real full-viewport app host on screen immediately, then finish
+        // loading the Whiteboard/Notebook runtime in the background.
+        document.getElementById(`custom-tab-view-${tab.id}`)?.remove();
+        const view = document.createElement('div');
+        view.id = `custom-tab-view-${tab.id}`;
+        view.dataset.customTabId = String(tab.id);
+        view.className = templateId === 'whiteboard-v197'
+            ? 'view custom-tab-view whiteboard-tab-view-v198'
+            : 'view custom-tab-view notepad-tab-view-v249';
+        if (templateId === 'whiteboard-v197') view.dataset.whiteboardV198 = '1';
+        else view.dataset.notepadV249 = '1';
 
-    activeCustomTabId =
-        tab.id;
+        const hostClass = templateId === 'whiteboard-v197'
+            ? 'whiteboard-runtime-host-v198'
+            : 'notepad-runtime-host-v249';
+        const loadingClass = templateId === 'whiteboard-v197'
+            ? 'whiteboard-runtime-loading-v198'
+            : 'notepad-runtime-loading-v249';
+        const loadingText = templateId === 'whiteboard-v197'
+            ? 'Opening whiteboard…'
+            : 'Opening notebook…';
+        view.innerHTML = `<div class="${hostClass}"><div class="${loadingClass}">${loadingText}</div></div>`;
 
-    customTabEditMode =
-        false;
+        const forceFullScreen = element => {
+            if (!element) return;
+            [
+                ['position','fixed'],['inset','0'],['left','0'],['top','0'],['right','0'],['bottom','0'],
+                ['width','100vw'],['height','100dvh'],['min-width','100vw'],['min-height','100dvh'],
+                ['max-width','none'],['max-height','none'],['margin','0'],['padding','0'],
+                ['transform','none'],['border-radius','0'],['overflow','hidden'],
+                ['box-sizing','border-box'],['z-index','2147480000'],['visibility','visible'],
+                ['pointer-events','auto']
+            ].forEach(([property,value]) => element.style.setProperty(property,value,'important'));
+        };
+        forceFullScreen(view);
+        const host = view.firstElementChild;
+        forceFullScreen(host);
+        host.style.setProperty('z-index','auto','important');
 
-    renderCustomTabView(
-        tab.id
-    );
+        document.body.insertBefore(view, document.getElementById('companion-stage') || null);
 
-    switchView(
-        view
-    );
+        if (templateId === 'whiteboard-v197') {
+            document.body.classList.add('whiteboard-tab-active-v198');
+            document.documentElement.classList.add('whiteboard-tab-active-v198');
+            document.body.classList.remove('notepad-tab-active-v249');
+            document.documentElement.classList.remove('notepad-tab-active-v249');
+        } else {
+            document.body.classList.add('notepad-tab-active-v249');
+            document.documentElement.classList.add('notepad-tab-active-v249');
+            document.body.classList.remove('whiteboard-tab-active-v198');
+            document.documentElement.classList.remove('whiteboard-tab-active-v198');
+        }
+
+        try { switchView(view); } catch { view.classList.add('active'); }
+
+        const mountRealWorkspace = async () => {
+            try {
+                if (typeof window.ensureLoggyExtras === 'function') {
+                    await window.ensureLoggyExtras({ urgent: true });
+                }
+                // Extras 5 installs the actual Whiteboard/Notebook open wrappers.
+                // Calling only AFTER hydration prevents core openCustomTab from
+                // replacing this app host with the ordinary custom-tab canvas.
+                if (typeof window.openCustomTab === 'function') {
+                    window.openCustomTab(tab.id);
+                } else if (typeof openCustomTab === 'function') {
+                    openCustomTab(tab.id);
+                }
+            } catch (error) {
+                console.error('Could not mount full-screen workspace', error);
+            }
+        };
+        mountRealWorkspace();
+        return;
+    }
+
+    const view = buildCustomTabView(tab);
+    document.body.insertBefore(view, document.getElementById('companion-stage') || null);
+    renderCustomTabView(tab.id);
+    switchView(view);
 }
 
 const ensureCustomTabCreateModalBeforeTemplatesV53 =
@@ -20577,6 +20864,8 @@ openCustomTabCreateModal =
         }
 
         openCustomTabCreateModalBeforeTemplatesV53();
+        try { renderBlueprintCardsV162?.(); } catch (_) {}
+        try { window.ensureCustomTabPromptButtonV328?.(); } catch (_) {}
     };
 
 
@@ -22432,17 +22721,7 @@ function getKnowledgeItemTagsV55(
 function formatKnowledgeTagsV55(
     tags
 ) {
-    return (
-        tags ||
-        []
-    )
-        .map(
-            tag =>
-                `#${tag}`
-        )
-        .join(
-            ' '
-        );
+    return normalizeKnowledgeTagsV55(tags || []).join(', ');
 }
 
 function buildKnowledgeTagsEditorV55(
@@ -22463,12 +22742,12 @@ function buildKnowledgeTagsEditorV55(
                         value
                     )
                 )}"
-                placeholder="#verb #noun #adjective…"
+                placeholder="verb, noun, adjective…"
                 autocomplete="off"
             >
 
             <p class="progress-hint">
-                Separate tags with spaces or commas. You can search them later with #tag.
+                Separate tags with spaces or commas.
             </p>
         </div>
     `;

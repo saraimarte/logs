@@ -225,7 +225,7 @@
   const save=()=>{try{return typeof saveDb==='function'?saveDb():undefined}catch(e){console.warn('V250 save',e)}};
 
   function addStyle(){if($('#loggy-v250-style'))return;const s=document.createElement('style');s.id='loggy-v250-style';s.textContent=`
-  .v250-switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;-webkit-user-select:none}.v250-switch>input{position:absolute;opacity:0;pointer-events:none}.v250-switch-track{width:42px;height:24px;border-radius:999px;border:var(--thin-border,1px solid #bbb);background:var(--track-bg,#e9e9e9);position:relative;flex:none;transition:.15s}.v250-switch-track:after{content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;border-radius:50%;background:var(--white,#fff);border:1px solid color-mix(in srgb,var(--black,#111) 18%,transparent);transition:.15s}.v250-switch>input:checked+.v250-switch-track{background:color-mix(in srgb,var(--accent,#222) 24%,var(--white,#fff));border-color:var(--accent,#222)}.v250-switch>input:checked+.v250-switch-track:after{transform:translateX(18px);background:var(--accent,#222)}
+  .v250-switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;-webkit-user-select:none}.v250-switch>input{position:absolute;opacity:0;pointer-events:none}.v250-switch-track{width:42px;height:24px;border-radius:999px;border:var(--thin-border,1px solid #bbb);background:var(--track-bg,#e9e9e9);position:relative;flex:none;transition:.15s}.v250-switch-track:after{content:'';position:absolute;width:16px;height:16px;left:3px;top:50%;transform:translateY(-50%);border-radius:50%;background:var(--white,#fff);border:1px solid color-mix(in srgb,var(--black,#111) 18%,transparent);transition:.15s}.v250-switch>input:checked+.v250-switch-track{background:color-mix(in srgb,var(--accent,#222) 24%,var(--white,#fff));border-color:var(--accent,#222)}.v250-switch>input:checked+.v250-switch-track:after{transform:translate(18px,-50%);background:var(--accent,#222)}
   .kb-hide-from-quizzes-row-v59.v250-toggle-row,.kb-enable-parts-row.v250-toggle-row,.daily-logs-setting-toggle-row.v250-toggle-row,#quiz-settings-modal-v58 .feature-toggle-row.v250-toggle-row{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;text-align:left!important}.v250-toggle-copy{display:flex!important;align-items:center!important;gap:0!important;order:1!important;flex:0 0 auto!important}.v250-toggle-copy strong,.v250-toggle-copy label,.v250-toggle-copy .field-label{font-size:1.1rem!important;font-weight:400!important;color:inherit!important;opacity:1!important;line-height:1.2!important;margin:0!important}.v250-toggle-row>.v250-switch{order:2!important;margin:0!important;flex:0 0 auto!important}.kb-hide-from-quizzes-row-v59.v250-toggle-row small{display:none!important}
   #add-item-modal .kb-enable-parts-row.v250-toggle-row,#add-item-modal .kb-hide-from-quizzes-row-v59.v250-toggle-row{width:100%!important;max-width:none!important;align-self:stretch!important;justify-content:flex-start!important;text-align:left!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box!important}#add-item-modal .kb-enable-parts-row.v250-toggle-row>.v250-toggle-copy,#add-item-modal .kb-hide-from-quizzes-row-v59.v250-toggle-row>.v250-toggle-copy{order:1!important;flex:0 0 auto!important;margin:0!important}#add-item-modal .kb-enable-parts-row.v250-toggle-row>.v250-switch,#add-item-modal .kb-hide-from-quizzes-row-v59.v250-toggle-row>.v250-switch{order:2!important;flex:0 0 auto!important;margin:0!important}
   .kb-v250-field-kinds{display:flex;flex-wrap:wrap;gap:10px}.kb-v250-extra-panel{display:grid;gap:10px}.kb-v250-extra-panel.hidden{display:none!important}.kb-v250-live{padding:10px 12px;border:var(--thin-border);border-radius:10px;background:var(--track-bg,#fafafa);min-height:42px}.kb-v250-drop{border:1px dashed color-mix(in srgb,var(--black,#111) 35%,transparent);border-radius:12px;padding:18px;text-align:center;cursor:pointer;background:color-mix(in srgb,var(--white,#fff) 95%,var(--black,#111));display:grid;gap:5px}.kb-v250-drop.drag{outline:2px solid var(--accent,#222);outline-offset:2px}.kb-v250-attachment{display:flex;align-items:center;justify-content:space-between;gap:10px;border:var(--thin-border);border-radius:10px;padding:10px 12px}.kb-v250-attachment a{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:inherit}.kb-v250-date-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kb-v250-date-grid.single{grid-template-columns:1fr}.kb-v250-boolean-display{display:inline-flex;align-items:center;gap:8px;font-weight:700}.kb-v250-dot{width:10px;height:10px;border-radius:50%;background:#aaa}.kb-v250-boolean-display.on .kb-v250-dot{background:#2f9d59}.kb-v250-math{font-family:'Times New Roman',serif;font-size:1.08em;line-height:1.55;overflow:auto}.kb-v250-frac{display:inline-grid;grid-template-rows:auto auto;vertical-align:middle;text-align:center;line-height:1.05;margin:0 .15em}.kb-v250-frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .15em}.kb-v250-sqrt{white-space:nowrap}.kb-v250-sup{vertical-align:super;font-size:.75em}.kb-v250-sub{vertical-align:sub;font-size:.75em}.kb-v250-math-display{display:block;text-align:center;padding:10px 12px;margin:6px 0;font-size:1.15em}
@@ -239,8 +239,8 @@
   .daily-collection-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important;grid-auto-rows:min-content!important;align-items:start!important;gap:12px!important}.daily-collection-card{height:auto!important;min-height:0!important;align-self:start!important;padding:12px!important}.daily-collection-card-body{height:auto!important;min-height:0!important;display:block!important}.daily-collection-card[data-daily-kind=audio]{min-height:0!important}.daily-collection-card[data-daily-kind=audio] .daily-collection-card-body{padding-top:6px!important}.daily-collection-audio{width:100%!important;height:34px!important;display:block!important}.daily-collection-text{margin:5px 0 0!important;min-height:0!important;white-space:pre-wrap!important}.daily-collection-knowledge{min-height:36px!important;height:auto!important}.daily-collection-image{height:auto!important;max-height:360px!important;object-fit:contain!important}.daily-collection-video{aspect-ratio:16/9!important;height:auto!important}.daily-collection-pdf{height:260px!important}
   /* V254: Daily Logs switches use a centered black knob that stays inside the track. */
   .daily-logs-setting-toggle-row .v250-switch-track{box-sizing:border-box!important;width:42px!important;height:24px!important}
-  .daily-logs-setting-toggle-row .v250-switch-track:after{box-sizing:border-box!important;width:16px!important;height:16px!important;left:3px!important;top:3px!important;background:#111!important;border:0!important}
-  .daily-logs-setting-toggle-row .v250-switch>input:checked+.v250-switch-track:after{transform:translateX(18px)!important;background:#111!important}
+  .daily-logs-setting-toggle-row .v250-switch-track:after{box-sizing:border-box!important;width:16px!important;height:16px!important;left:3px!important;top:50%!important;transform:translateY(-50%)!important;background:#111!important;border:0!important}
+  .daily-logs-setting-toggle-row .v250-switch>input:checked+.v250-switch-track:after{transform:translate(18px,-50%)!important;background:#111!important}
   /* V254: KB option selection is represented by an underline, never an icon-color swap. */
   #kb-field-create-modal-v221 .kb-field-pronunciation-v221,#kb-field-create-modal-v221 .kb-field-quiz-v221,#kb-field-create-modal-v221 .kb-field-editable-v221{color:inherit!important;border-bottom:2px solid transparent!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
   #kb-field-create-modal-v221 .kb-field-pronunciation-v221.selected,#kb-field-create-modal-v221 .kb-field-quiz-v221.selected,#kb-field-create-modal-v221 .kb-field-editable-v221.selected{color:inherit!important;border-bottom-color:currentColor!important;background:transparent!important;box-shadow:none!important}
@@ -2948,7 +2948,7 @@
       #${MODAL_ID} .tb307-color-row{display:grid;grid-template-columns:minmax(0,1fr) 42px 94px;gap:7px;align-items:center}.tb307-color-row label{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tb307-color-row input[type=color]{width:42px;height:34px;padding:2px;border:1px solid #aaa;border-radius:7px;background:#fff}.tb307-color-row input[type=text]{padding:7px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.8rem}
       #${MODAL_ID} .tb307-gradient-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:7px;max-height:210px;overflow:auto}.tb307-gradient{height:62px;border:2px solid transparent;border-radius:10px;cursor:pointer;position:relative;overflow:hidden;background:#eee}.tb307-gradient.selected{border-color:#111}.tb307-gradient span{position:absolute;left:5px;right:5px;bottom:5px;background:rgba(255,255,255,.82);color:#111;border-radius:6px;padding:2px 4px;font-size:.66rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       #${MODAL_ID} .tb311-bg-source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#${MODAL_ID} .tb311-bg-source{display:flex;align-items:flex-start;gap:9px;text-align:left;border:1px solid #c9c9c9;border-radius:12px;background:#fff;padding:10px;cursor:pointer;color:#171717}#${MODAL_ID} .tb311-bg-source:hover{border-color:#777}#${MODAL_ID} .tb311-bg-source.active{border:2px solid #171717;padding:9px;background:#f7f7f7}#${MODAL_ID} .tb311-bg-switch{width:34px;height:20px;border-radius:999px;background:#d6d6d6;position:relative;flex:0 0 auto;margin-top:1px}#${MODAL_ID} .tb311-bg-switch::after{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}#${MODAL_ID} .tb311-bg-source.active .tb311-bg-switch{background:#171717}#${MODAL_ID} .tb311-bg-source.active .tb311-bg-switch::after{transform:translateX(14px)}#${MODAL_ID} .tb311-bg-source-copy{display:grid;gap:2px;min-width:0}#${MODAL_ID} .tb311-bg-source-copy strong{font-size:.92rem}#${MODAL_ID} .tb311-bg-source-copy small{font-size:.72rem;color:#666;line-height:1.2}#${MODAL_ID} .tb311-active-bg{border:1px solid #d8d8d8;border-radius:12px;background:#fafafa;padding:10px;display:grid;gap:9px}
-      #${MODAL_ID} .tb312-use-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;-webkit-user-select:none;padding:2px 0}#${MODAL_ID} .tb312-use-toggle>input{position:absolute;opacity:0;pointer-events:none}#${MODAL_ID} .tb312-switch-track{width:42px;height:24px;border-radius:999px;border:1px solid #aaa;background:#ddd;position:relative;flex:0 0 auto;transition:.15s}#${MODAL_ID} .tb312-switch-track::after{content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;border-radius:50%;background:#fff;border:1px solid rgba(0,0,0,.12);box-shadow:0 1px 2px rgba(0,0,0,.12);transition:transform .15s}#${MODAL_ID} .tb312-use-toggle>input:checked+.tb312-switch-track{background:#171717;border-color:#171717}#${MODAL_ID} .tb312-use-toggle>input:checked+.tb312-switch-track::after{transform:translateX(18px)}#${MODAL_ID} .tb312-use-copy{display:grid;gap:1px;min-width:0}#${MODAL_ID} .tb312-use-copy strong{font-size:.9rem}#${MODAL_ID} .tb312-use-copy small{color:#666;font-size:.74rem;line-height:1.2}#${MODAL_ID} .tb312-subsettings{display:grid;gap:9px;border-top:1px solid #ececec;padding-top:9px;margin-top:2px}
+      #${MODAL_ID} .tb312-use-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;-webkit-user-select:none;padding:2px 0}#${MODAL_ID} .tb312-use-toggle>input{position:absolute;opacity:0;pointer-events:none}#${MODAL_ID} .tb312-switch-track{width:42px;height:24px;border-radius:999px;border:1px solid #aaa;background:#ddd;position:relative;flex:0 0 auto;transition:.15s}#${MODAL_ID} .tb312-switch-track::after{content:'';position:absolute;width:16px;height:16px;left:3px;top:50%;transform:translateY(-50%);border-radius:50%;background:#fff;border:1px solid rgba(0,0,0,.12);box-shadow:0 1px 2px rgba(0,0,0,.12);transition:transform .15s}#${MODAL_ID} .tb312-use-toggle>input:checked+.tb312-switch-track{background:#171717;border-color:#171717}#${MODAL_ID} .tb312-use-toggle>input:checked+.tb312-switch-track::after{transform:translate(18px,-50%)}#${MODAL_ID} .tb312-use-copy{display:grid;gap:1px;min-width:0}#${MODAL_ID} .tb312-use-copy strong{font-size:.9rem}#${MODAL_ID} .tb312-use-copy small{color:#666;font-size:.74rem;line-height:1.2}#${MODAL_ID} .tb312-subsettings{display:grid;gap:9px;border-top:1px solid #ececec;padding-top:9px;margin-top:2px}
       #${MODAL_ID} .tb315-cursor-emoji{display:grid;place-items:center;width:100%;height:100%;font-size:2rem;line-height:1}#${MODAL_ID} .tb315-trinket-gallery.is-disabled{opacity:.42;filter:saturate(.7)}#${MODAL_ID} .tb315-trinket-gallery.is-disabled .tb307-trinket{cursor:default}
       #${MODAL_ID} .tb324-auto-choice{border:1px solid #d4d4d4;border-radius:12px;background:#fff;padding:11px;display:grid;gap:10px;margin-bottom:10px}#${MODAL_ID} .tb324-auto-choice.is-active{border-color:#171717;box-shadow:inset 0 0 0 1px #171717}#${MODAL_ID} .tb324-auto-choice-body{display:grid;gap:11px;border-top:1px solid #ececec;padding-top:11px}#${MODAL_ID} .tb324-auto-choice .tb312-use-toggle{padding:0}#${MODAL_ID} .tb312-ai-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}#${MODAL_ID} .tb312-ai-step{border:1px solid #ddd;border-radius:10px;padding:9px;background:#fafafa;display:grid;gap:3px}#${MODAL_ID} .tb312-ai-step strong{font-size:.86rem}#${MODAL_ID} .tb312-ai-step small{font-size:.74rem;color:#666;line-height:1.3}#${MODAL_ID} .tb312-ai-json{min-height:260px!important}#${MODAL_ID} .tb312-ai-status{min-height:20px;font-size:.82rem;font-weight:750;color:#555}#${MODAL_ID} .tb325-ai-apply-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}#${MODAL_ID} .tb325-ai-apply{min-width:150px;min-height:42px;padding:0 20px;border:1px solid #171717;border-radius:9px;background:#171717;color:#fff;font:inherit;font-weight:850;cursor:pointer;white-space:nowrap}#${MODAL_ID} .tb325-ai-apply:disabled{opacity:.42;cursor:not-allowed}#${MODAL_ID} .tb316-toggle-settings{display:grid;gap:9px;padding:10px 0 0 46px;border-top:1px solid #eee;margin-top:2px}#${MODAL_ID} .tb316-auto-theme{gap:12px}#${MODAL_ID} .tb312-ai-step small{display:block;margin-top:5px;color:#666;line-height:1.35;font-weight:500}#${MODAL_ID} .tb316-copy-prompt{width:100%;min-height:42px;border:1px solid #171717;border-radius:9px;background:#171717;color:#fff;font:inherit;font-weight:850;cursor:pointer}#${MODAL_ID} .tb316-copy-prompt{transition:transform .15s ease,box-shadow .15s ease,background .15s ease,color .15s ease}#${MODAL_ID} .tb316-copy-prompt:hover{transform:translateY(-2px);background:#fff;color:#171717;box-shadow:0 4px 0 #171717,0 8px 18px rgba(0,0,0,.12)}#${MODAL_ID} .tb316-copy-prompt:active{transform:translateY(0);box-shadow:0 2px 0 #171717}#${MODAL_ID} .tb316-ai-paste{display:grid;gap:7px;padding-top:2px}#${MODAL_ID} .tb316-ai-paste-head{display:flex;align-items:center;justify-content:space-between;gap:8px}#${MODAL_ID} .tb323-mode-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}#${MODAL_ID} .tb323-mode-row>strong{margin-right:auto}#${MODAL_ID} .tb323-mode-btn{border:1px solid #aaa;background:#fff;color:#171717;border-radius:999px;padding:7px 13px;font-weight:800;cursor:pointer;user-select:none;-webkit-user-select:none}#${MODAL_ID} .tb323-mode-btn.active{background:#171717;color:#fff;border-color:#171717}#${MODAL_ID} .tb432-ai-options{display:grid;gap:10px;padding:11px;border:1px solid #e2e2e2;border-radius:11px;background:#fafafa}#${MODAL_ID} .tb432-ai-option-row{display:grid;grid-template-columns:minmax(120px,.6fr) minmax(0,1fr);gap:12px;align-items:center}#${MODAL_ID} .tb432-ai-option-label{display:grid;gap:2px}#${MODAL_ID} .tb432-ai-option-label strong{font-size:.86rem}#${MODAL_ID} .tb432-ai-option-label small{font-size:.72rem;color:#666;line-height:1.3}#${MODAL_ID} .tb432-ai-segments{display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}#${MODAL_ID} .tb432-ai-segment{border:1px solid #aaa;background:#fff;color:#171717;border-radius:999px;padding:7px 12px;font:inherit;font-size:.8rem;font-weight:850;cursor:pointer}#${MODAL_ID} .tb432-ai-segment.active{background:#171717;color:#fff;border-color:#171717}@media(max-width:720px){#${MODAL_ID} .tb432-ai-option-row{grid-template-columns:1fr}#${MODAL_ID} .tb432-ai-segments{justify-content:flex-start}}#${MODAL_ID} .tb323-smart-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:end}#${MODAL_ID} .tb323-smart-seed{display:grid;grid-template-columns:minmax(0,1fr) 46px 104px;gap:7px;align-items:center}#${MODAL_ID} .tb323-smart-seed>span{font-weight:800}#${MODAL_ID} .tb323-smart-seed input[type=color]{width:46px;height:38px;padding:2px;border:1px solid #aaa;border-radius:8px;background:#fff}#${MODAL_ID} .tb323-smart-seed input[type=text]{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}#${MODAL_ID} .tb323-swatches{display:grid;grid-template-columns:repeat(7,1fr);height:22px;border:1px solid #ccc;border-radius:999px;overflow:hidden}#${MODAL_ID} .tb323-swatches span{min-width:0}
       #${MODAL_ID} .tb307-range-row{display:grid;grid-template-columns:34px minmax(0,1fr) 48px 34px;gap:6px;align-items:center}.tb307-range-row button{width:34px;height:34px;border:1px solid #aaa;border-radius:8px;background:#fff;cursor:pointer;font-weight:900}.tb307-range-value{text-align:center;font-weight:800;color:#333}
@@ -2965,7 +2965,7 @@
       #${MODAL_ID} .tb561-ai-version-tabs .tb323-mode-btn{border:0;padding:6px 12px;background:transparent}#${MODAL_ID} .tb561-ai-version-tabs .tb323-mode-btn.active{background:#171717;color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12)}
       #${MODAL_ID} .tb561-ai-ready-badge{font-size:.72rem;font-weight:800;color:#4e4e4e;background:#f1f1f1;border:1px solid #ddd;border-radius:999px;padding:6px 9px;white-space:nowrap}
       #${MODAL_ID} .tb561-ai-settings{display:grid;gap:8px}#${MODAL_ID} .tb561-ai-setting{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:11px 12px;border:1px solid #dedede;border-radius:11px;background:#fff}#${MODAL_ID} .tb561-ai-setting>div:first-child{display:grid;gap:2px}#${MODAL_ID} .tb561-ai-setting strong{font-size:.86rem}#${MODAL_ID} .tb561-ai-setting small{font-size:.73rem;color:#666;line-height:1.32;max-width:620px}
-      #${MODAL_ID} .tb561-texture-setting{cursor:pointer}#${MODAL_ID} .tb561-mini-switch{position:relative;width:44px;height:25px;flex:0 0 auto}#${MODAL_ID} .tb561-mini-switch input{position:absolute;opacity:0;pointer-events:none}#${MODAL_ID} .tb561-mini-switch>span{position:absolute;inset:0;border:1px solid #aaa;border-radius:999px;background:#ddd;transition:.15s}#${MODAL_ID} .tb561-mini-switch>span:after{content:'';position:absolute;width:17px;height:17px;left:3px;top:3px;border-radius:50%;background:#fff;border:1px solid rgba(0,0,0,.12);transition:transform .15s}#${MODAL_ID} .tb561-mini-switch input:checked+span{background:#171717;border-color:#171717}#${MODAL_ID} .tb561-mini-switch input:checked+span:after{transform:translateX(19px)}
+      #${MODAL_ID} .tb561-texture-setting{cursor:pointer}#${MODAL_ID} .tb561-mini-switch{position:relative;width:44px;height:25px;flex:0 0 auto}#${MODAL_ID} .tb561-mini-switch input{position:absolute;opacity:0;pointer-events:none}#${MODAL_ID} .tb561-mini-switch>span{position:absolute;inset:0;border:1px solid #aaa;border-radius:999px;background:#ddd;transition:.15s}#${MODAL_ID} .tb561-mini-switch>span:after{content:'';position:absolute;width:15px;height:15px;left:4px;top:50%;transform:translateY(-50%);border-radius:50%;background:#fff;border:1px solid rgba(0,0,0,.12);transition:transform .15s}#${MODAL_ID} .tb561-mini-switch input:checked+span{background:#171717;border-color:#171717}#${MODAL_ID} .tb561-mini-switch input:checked+span:after{transform:translate(18px,-50%)}
       #${MODAL_ID} .tb561-ai-contract{display:flex;gap:6px;flex-wrap:wrap}#${MODAL_ID} .tb561-ai-contract span{display:inline-flex;align-items:center;gap:5px;border:1px solid #ddd;border-radius:999px;background:#f7f7f7;padding:5px 8px;font-size:.7rem;font-weight:800;color:#555}
       #${MODAL_ID} .tb561-ai-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}#${MODAL_ID} .tb561-ai-flow>div{display:flex;align-items:flex-start;gap:8px;padding:9px 10px;border:1px solid #e0e0e0;border-radius:10px;background:#fafafa}#${MODAL_ID} .tb561-ai-flow b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#171717;color:#fff;font-size:.72rem;flex:0 0 auto}#${MODAL_ID} .tb561-ai-flow span{display:grid;gap:2px}#${MODAL_ID} .tb561-ai-flow strong{font-size:.78rem}#${MODAL_ID} .tb561-ai-flow small{font-size:.69rem;color:#6b6b6b;line-height:1.3}
       #${MODAL_ID} .tb561-copy-prompt{display:flex;align-items:center;justify-content:center;gap:7px;min-height:46px;border-radius:11px}
@@ -8352,87 +8352,6 @@ Return the raw JSON object now and nothing else.`;
     q('#open-trash-view-btn')?.remove();
   }
 
-  function restoreTabTemplatesV327() {
-    try { ensureCustomTabCreateModal?.(); } catch {}
-    const modal = q('#custom-tab-create-modal');
-    if (!modal) return;
-    const box = q('.modal-box', modal);
-    if (!box) return;
-
-    let built = null;
-    try { built = ensurePrebuiltTabSectionV53?.() || q('.custom-tab-template-section-v53', modal); } catch { built = q('.custom-tab-template-section-v53', modal); }
-    if (built) {
-      try { renderPrebuiltTabCardsV53?.(built); } catch {}
-      const appDb = (typeof db !== 'undefined' ? db : window.db);
-      const builtInState = appDb?.settings?.builtInBlueprintStateV162 || {};
-      qa('[data-custom-tab-template-v53]', built).forEach(card => {
-        const state = String(builtInState[card.dataset.customTabTemplateV53] || 'active');
-        card.classList.toggle('hidden', state !== 'active');
-      });
-      built.hidden = false;
-      built.classList.remove('hidden');
-      built.style.removeProperty('display');
-      const label = q('.field-label', built);
-      if (label) label.textContent = 'Tab Templates';
-      const iconSection = q('#custom-tab-icon-picker', modal)?.closest('.modal-section');
-      const nameSection = q('#custom-tab-name-input', modal)?.closest('.modal-section');
-      /* V329: Create Tab order is Tab Name -> icon search/icons -> Tab Templates. */
-      const templateAnchor = iconSection || nameSection;
-      if (templateAnchor && templateAnchor.nextElementSibling !== built) templateAnchor.insertAdjacentElement('afterend', built);
-    }
-
-    /* The V162 wrapper around ensureCustomTabCreateModal normally creates this.
-       If an older/later modal rebuild skipped it, build the visible cards here;
-       the existing V162 capture handler still owns instantiation on Create Tab. */
-    let mine = q('.custom-blueprint-section-v162', modal);
-    if (!mine) {
-      mine = document.createElement('section');
-      mine.className = 'custom-blueprint-section-v162';
-      mine.innerHTML = '<div class="custom-blueprint-heading-v162"><strong>My Templates</strong><button type="button" class="small-icon-btn custom-blueprint-manage-v162"><i class="ph ph-sliders"></i> Manage</button></div><div class="custom-blueprint-grid-v162"></div>';
-      (built || q('#custom-tab-create-confirm', modal))?.insertAdjacentElement(built ? 'afterend' : 'beforebegin', mine);
-    } else if (built && built.nextElementSibling !== mine) {
-      built.insertAdjacentElement('afterend', mine);
-    }
-    mine.hidden = false;
-    mine.classList.remove('hidden');
-    mine.style.removeProperty('display');
-
-    const grid = q('.custom-blueprint-grid-v162', mine);
-    if (grid && !q('[data-custom-blueprint-id-v162]', grid)) {
-      const appDb = (typeof db !== 'undefined' ? db : window.db);
-      const list = Array.isArray(appDb?.settings?.customTabBlueprintsV162) ? appDb.settings.customTabBlueprintsV162 : [];
-      grid.innerHTML = '';
-      list.filter(item => item?.status === 'active').forEach(item => {
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'custom-template-card-v162';
-        card.dataset.customBlueprintIdV162 = String(item.id || '');
-        card.innerHTML = `<i class="ph ${String(item.icon || 'ph-tabs').replace(/[^a-z0-9_-]/gi,'')}"></i><span></span>`;
-        q('span', card).textContent = String(item.name || 'Template');
-        card.addEventListener('click', () => {
-          modal.dataset.selectedBlueprintV162 = String(item.id || '');
-          qa('button', grid).forEach(button => button.classList.toggle('selected', button === card));
-          qa('[data-custom-tab-template-v53]', modal).forEach(button => button.classList.remove('selected'));
-          const name = q('#custom-tab-name-input', modal);
-          if (name && !name.value.trim()) name.value = String(item.name || 'Template');
-        });
-        grid.appendChild(card);
-      });
-      if (!grid.children.length) grid.innerHTML = '<small>Save any tab as a template to reuse its layout.</small>';
-    }
-
-    const manage = q('.custom-blueprint-manage-v162', mine);
-    if (manage && !manage.dataset.v327Bound) {
-      manage.dataset.v327Bound = '1';
-      manage.addEventListener('click', () => {
-        /* If V162 already created the manager, its own state/render code remains
-           authoritative. This fallback simply reveals it. */
-        const manager = q('#blueprint-manager-v162');
-        manager?.classList.remove('hidden');
-      });
-    }
-  }
-
   function openTrashModalInsideSettingsV327() {
     try {
       renderTrashModal?.();
@@ -8502,17 +8421,7 @@ Return the raw JSON object now and nothing else.`;
   installStyleV327();
   removeTrashNavV327();
 
-  try {
-    const before = openCustomTabCreateModal;
-    openCustomTabCreateModal = function() {
-      try { ensureCustomTabCreateModal?.(); } catch {}
-      restoreTabTemplatesV327();
-      const result = before.apply(this, arguments);
-      restoreTabTemplatesV327();
-      requestAnimationFrame(restoreTabTemplatesV327);
-      return result;
-    };
-  } catch {}
+
 
   try {
     const before = openGlobalThemeSettings;
@@ -8541,7 +8450,6 @@ Return the raw JSON object now and nothing else.`;
     if (event.target?.matches?.('#daily-logs-local-view-type')) requestAnimationFrame(syncDailyLayoutVisibilityV327);
   }, true);
   document.addEventListener('click', event => {
-    if (event.target?.closest?.('#add-custom-tab-btn,[data-action="create-tab"]')) requestAnimationFrame(restoreTabTemplatesV327);
     if (event.target?.closest?.('#open-daily-settings-btn,#open-global-daily-settings-nav-btn')) requestAnimationFrame(() => {
       ensureLogSettingsTrashV327();
     });
@@ -8550,7 +8458,6 @@ Return the raw JSON object now and nothing else.`;
 
   const bootV327 = () => {
     removeTrashNavV327();
-    try { restoreTabTemplatesV327(); } catch {}
     try { ensureLogSettingsTrashV327(); } catch {}
     try { syncDailyLayoutVisibilityV327(); } catch {}
     /* Historical code can still call ensureTrashNavButtonV2 later. Remove any
@@ -8620,12 +8527,6 @@ Return the raw JSON object now and nothing else.`;
       name: 'Media & Inspiration',
       icon: 'ph-images-square',
       description: 'A searchable moodboard with polaroids, project images, saved links, and Daily Log media.'
-    },
-    {
-      id: 'whiteboard-v197',
-      name: 'Whiteboard',
-      icon: 'ph-selection-background',
-      description: 'A full-screen multi-board canvas for notes, images, drawing, connections, and visual planning.'
     }
   ];
 
@@ -8789,11 +8690,17 @@ Return the raw JSON object now and nothing else.`;
       const keepIds = new Set(['whiteboard-v197', 'notepad-v249']);
       const preserved = CUSTOM_TAB_TEMPLATES_V53.filter(template => keepIds.has(String(template?.id || '')));
       const ordered = [];
-      const notebook = preserved.find(template => template.id === 'notepad-v249');
-      const whiteboard = preserved.find(template => template.id === 'whiteboard-v197');
-      if (notebook) ordered.push(notebook);
+      const whiteboard = preserved.find(template => template.id === 'whiteboard-v197') || {
+        id:'whiteboard-v197', name:'Whiteboard', icon:'ph-selection-background',
+        description:'A full-screen multi-board canvas for notes, images, drawing, connections, and visual planning.'
+      };
+      const notebook = preserved.find(template => template.id === 'notepad-v249') || {
+        id:'notepad-v249', name:'Notebook', icon:'ph-notebook',
+        description:'A full-screen multi-page notebook with page categories, paper styles, movable images, drawing tools, and exact-page links from Daily Logs.'
+      };
+      // One canonical order only: Whiteboard first, Notebook second, then the normal templates.
+      ordered.push(deepCopyV328(whiteboard), deepCopyV328(notebook));
       ordered.push(...NEW_TEMPLATE_DEFS_V328.filter(item => String(item?.id || '') !== 'logs-review-v536').map(deepCopyV328));
-      if (whiteboard) ordered.push(whiteboard);
       ordered.push({
         id: 'logs-review-v536',
         name: 'Logs Review',
@@ -9039,6 +8946,8 @@ Return the raw JSON object now and nothing else.`;
     if (anchor) anchor.insertAdjacentElement(anchor.matches('#custom-tab-create-confirm') ? 'beforebegin' : 'afterend', section);
   }
 
+  window.ensureCustomTabPromptButtonV328 = ensureCustomTabPromptButtonV328;
+
   function installStyleV328() {
     if (q('#loggy-v328-tab-template-style')) return;
     const style = document.createElement('style');
@@ -9064,328 +8973,9 @@ Return the raw JSON object now and nothing else.`;
   installStyleV328();
   installUsefulTemplatesV328();
 
-  try {
-    const before = openCustomTabCreateModal;
-    openCustomTabCreateModal = function() {
-      installUsefulTemplatesV328();
-      const result = before.apply(this, arguments);
-      installUsefulTemplatesV328();
-      ensureCustomTabPromptButtonV328();
-      requestAnimationFrame(() => {
-        installUsefulTemplatesV328();
-        ensureCustomTabPromptButtonV328();
-      });
-      return result;
-    };
-  } catch {}
 
-  document.addEventListener('click', event => {
-    if (event.target?.closest?.('#add-custom-tab-btn,[data-action="create-tab"]')) {
-      requestAnimationFrame(() => {
-        installUsefulTemplatesV328();
-        ensureCustomTabPromptButtonV328();
-      });
-    }
-  }, true);
 
-  const bootV328 = () => {
-    installUsefulTemplatesV328();
-    ensureCustomTabPromptButtonV328();
-  };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(bootV328), { once:true });
-  else requestAnimationFrame(bootV328);
-})();
-
-/* ============================================================
-   V330 — CREATE TAB TEMPLATE CARDS HARDENING
-   The V53/V162/V328 wrappers can leave the template section shell in the
-   modal while its grid is empty. Render the desired built-ins directly so
-   the cards are present every time the Create Tab modal opens.
-   ============================================================ */
-(() => {
-  'use strict';
-  if (window.__loggyV330TemplateCards) return;
-  window.__loggyV330TemplateCards = true;
-
-  const q = (selector, root = document) => root?.querySelector?.(selector) || null;
-  const qa = (selector, root = document) => Array.from(root?.querySelectorAll?.(selector) || []);
-  const clone = value => {
-    try { return JSON.parse(JSON.stringify(value)); } catch { return value; }
-  };
-
-  const FALLBACK_V330 = [
-    {
-      id: 'whiteboard-v197',
-      name: 'Whiteboard',
-      icon: 'ph-selection-background',
-      description: 'A full-screen multi-board canvas for notes, images, drawing, connections, and visual planning.'
-    },
-    {
-      id: 'notepad-v249',
-      name: 'Notebook',
-      icon: 'ph-notebook',
-      description: 'A full-screen multi-page notebook with page categories, paper styles, images, and drawing tools.'
-    },
-    {
-      id: 'personal-dashboard-v328',
-      name: 'Personal Dashboard',
-      icon: 'ph-gauge',
-      description: 'Goals, priorities, quick notes, progress, and recent Daily Log activity in one home base.'
-    },
-    {
-      id: 'study-center-v328',
-      name: 'Study Center',
-      icon: 'ph-graduation-cap',
-      description: 'Searchable study material, a study queue, key terms, questions, and resources.'
-    },
-    {
-      id: 'project-workspace-v328',
-      name: 'Project Workspace',
-      icon: 'ph-kanban',
-      description: 'Goals, next actions, milestones, a project table, references, and visual project work.'
-    },
-    {
-      id: 'habit-practice-v328',
-      name: 'Habit & Practice',
-      icon: 'ph-repeat',
-      description: 'Track a target, practice sessions, skill ratings, routines, and milestone wins.'
-    },
-    {
-      id: 'milestones-goals-v329',
-      name: 'Milestones & Goals',
-      icon: 'ph-target',
-      description: 'Track goals, progress, milestones, next actions, target dates, and status in one focused tracker.'
-    },
-    {
-      id: 'media-board-v328',
-      name: 'Media & Inspiration',
-      icon: 'ph-images-square',
-      description: 'A searchable moodboard with polaroids, project images, saved links, and Daily Log media.'
-    },
-    {
-      id: 'logs-review-v536',
-      name: 'Logs Review',
-      icon: 'ph-chart-bar',
-      description: 'Weekly, Monthly, and Yearly log review sections that can be reordered or hidden in Edit Mode.'
-    }
-  ];
-
-  function desiredTemplatesV330() {
-    let current = [];
-    try { current = Array.isArray(CUSTOM_TAB_TEMPLATES_V53) ? CUSTOM_TAB_TEMPLATES_V53 : []; } catch {}
-    const currentById = new Map(current.map(item => [String(item?.id || ''), item]));
-    return FALLBACK_V330.map(fallback => {
-      const existing = currentById.get(fallback.id);
-      return existing ? { ...clone(fallback), ...clone(existing), id: fallback.id } : clone(fallback);
-    });
-  }
-
-  function syncTemplateRegistryV330() {
-    const desired = desiredTemplatesV330();
-    try {
-      if (Array.isArray(CUSTOM_TAB_TEMPLATES_V53)) {
-        CUSTOM_TAB_TEMPLATES_V53.splice(0, CUSTOM_TAB_TEMPLATES_V53.length, ...desired);
-      }
-    } catch {}
-    return desired;
-  }
-
-  function ensureSectionV330(modal) {
-    let section = q('.custom-tab-template-section-v53', modal);
-    if (section) return section;
-
-    section = document.createElement('section');
-    section.className = 'modal-section custom-tab-template-section-v53';
-    section.dataset.v330OwnedSection = '1';
-    section.innerHTML = `
-      <span class="field-label">Tab Templates</span>
-      <p class="custom-tab-create-hint">Pick one to create a ready-made page. You can still edit, reorder, add, or remove its sections afterward.</p>
-      <div class="custom-tab-template-grid-v53"></div>`;
-
-    const iconSection = q('#custom-tab-icon-picker', modal)?.closest('.modal-section');
-    const nameSection = q('#custom-tab-name-input', modal)?.closest('.modal-section');
-    const anchor = iconSection || nameSection;
-    if (anchor) anchor.insertAdjacentElement('afterend', section);
-    else q('.modal-box', modal)?.appendChild(section);
-
-    section.addEventListener('click', event => {
-      const card = event.target.closest?.('[data-custom-tab-template-v53]');
-      if (!card) return;
-      const id = String(card.dataset.customTabTemplateV53 || '');
-      const wasSelected = card.classList.contains('selected');
-      qa('[data-custom-tab-template-v53]', section).forEach(item => item.classList.remove('selected'));
-      modal.dataset.selectedTemplateV53 = wasSelected ? '' : id;
-      if (wasSelected) return;
-      card.classList.add('selected');
-      let template = null;
-      try { template = CUSTOM_TAB_TEMPLATES_V53.find(item => String(item?.id || '') === id) || null; } catch {}
-      const name = q('#custom-tab-name-input', modal);
-      if (name && (!name.value.trim() || name.value === (modal.dataset.lastTemplateNameV53 || ''))) {
-        name.value = String(template?.name || card.dataset.templateNameV330 || '');
-      }
-      modal.dataset.lastTemplateNameV53 = String(template?.name || card.dataset.templateNameV330 || '');
-      try { selectTemplateIconV53?.(modal, String(template?.icon || card.dataset.templateIconV330 || 'ph-squares-four')); } catch {}
-    });
-    return section;
-  }
-
-  function stateForV330(id) {
-    try {
-      const appDb = (typeof db !== 'undefined' ? db : window.db);
-      return String(appDb?.settings?.builtInBlueprintStateV162?.[id] || 'active');
-    } catch {
-      return 'active';
-    }
-  }
-
-  function renderTemplateCardsV330() {
-    try { ensureCustomTabCreateModal?.(); } catch {}
-    const modal = q('#custom-tab-create-modal');
-    if (!modal) return;
-
-    const templates = syncTemplateRegistryV330();
-    const section = ensureSectionV330(modal);
-    if (!section) return;
-
-    section.hidden = false;
-    section.classList.remove('hidden');
-    section.style.setProperty('display', 'flex', 'important');
-    section.style.setProperty('visibility', 'visible', 'important');
-    section.style.setProperty('opacity', '1', 'important');
-    section.style.flexDirection = 'column';
-
-    const label = q('.field-label', section);
-    if (label) label.textContent = 'Tab Templates';
-
-    let hint = q('.custom-tab-create-hint', section);
-    if (!hint) {
-      hint = document.createElement('p');
-      hint.className = 'custom-tab-create-hint';
-      hint.textContent = 'Pick one to create a ready-made page. You can still edit, reorder, add, or remove its sections afterward.';
-      label?.insertAdjacentElement('afterend', hint);
-    }
-
-    let grid = q('.custom-tab-template-grid-v53', section);
-    if (!grid) {
-      grid = document.createElement('div');
-      grid.className = 'custom-tab-template-grid-v53';
-      section.appendChild(grid);
-    }
-    grid.style.setProperty('display', 'grid', 'important');
-    grid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
-    grid.style.gap = '8px';
-    grid.innerHTML = '';
-
-    templates.forEach(template => {
-      if (stateForV330(template.id) !== 'active') return;
-      const card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'custom-tab-template-card-v53';
-      card.dataset.customTabTemplateV53 = String(template.id);
-      card.dataset.templateNameV330 = String(template.name || 'Template');
-      card.dataset.templateIconV330 = String(template.icon || 'ph-tabs');
-
-      const iconWrap = document.createElement('span');
-      iconWrap.className = 'custom-tab-template-icon-v53';
-      const icon = document.createElement('i');
-      icon.className = `ph ${String(template.icon || 'ph-tabs').replace(/[^a-z0-9_-]/gi, '')}`;
-      iconWrap.appendChild(icon);
-
-      const copy = document.createElement('span');
-      copy.className = 'custom-tab-template-copy-v53';
-      const strong = document.createElement('strong');
-      strong.textContent = String(template.name || 'Template');
-      const small = document.createElement('small');
-      small.textContent = String(template.description || '');
-      copy.append(strong, small);
-
-      const check = document.createElement('i');
-      check.className = 'ph ph-check-circle custom-tab-template-check-v53';
-      card.append(iconWrap, copy, check);
-      grid.appendChild(card);
-    });
-
-    /* If older settings somehow hide every built-in, do not leave a blank hole.
-       Newly introduced V328/V329 templates are restored to active automatically. */
-    if (!grid.children.length) {
-      try {
-        const appDb = (typeof db !== 'undefined' ? db : window.db);
-        const states = appDb?.settings?.builtInBlueprintStateV162;
-        if (states && typeof states === 'object') {
-          FALLBACK_V330.filter(item => /-v32[89]$/.test(item.id)).forEach(item => { delete states[item.id]; });
-        }
-      } catch {}
-      FALLBACK_V330.filter(item => /-v32[89]$/.test(item.id)).forEach(template => {
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'custom-tab-template-card-v53';
-        card.dataset.customTabTemplateV53 = template.id;
-        card.dataset.templateNameV330 = template.name;
-        card.dataset.templateIconV330 = template.icon;
-        card.innerHTML = `<span class="custom-tab-template-icon-v53"><i class="ph ${template.icon}"></i></span><span class="custom-tab-template-copy-v53"><strong></strong><small></small></span><i class="ph ph-check-circle custom-tab-template-check-v53"></i>`;
-        q('strong', card).textContent = template.name;
-        q('small', card).textContent = template.description;
-        grid.appendChild(card);
-      });
-    }
-
-    /* Keep the requested modal order: name, icon search/icons, templates, then My Templates. */
-    const iconSection = q('#custom-tab-icon-picker', modal)?.closest('.modal-section');
-    if (iconSection && iconSection.nextElementSibling !== section) iconSection.insertAdjacentElement('afterend', section);
-    const mine = q('.custom-blueprint-section-v162', modal);
-    if (mine && section.nextElementSibling !== mine) section.insertAdjacentElement('afterend', mine);
-  }
-
-  function installStyleV330() {
-    if (q('#loggy-v330-template-card-style')) return;
-    const style = document.createElement('style');
-    style.id = 'loggy-v330-template-card-style';
-    style.textContent = `
-      #custom-tab-create-modal .custom-tab-template-grid-v53{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;min-height:88px}
-      #custom-tab-create-modal .custom-tab-template-card-v53:not(.hidden){display:grid!important;visibility:visible!important;opacity:1!important}
-      @media(max-width:600px){#custom-tab-create-modal .custom-tab-template-grid-v53{grid-template-columns:1fr!important}}
-    `;
-    document.head.appendChild(style);
-  }
-
-  installStyleV330();
-
-  try {
-    const beforeOpenV330 = openCustomTabCreateModal;
-    openCustomTabCreateModal = function() {
-      renderTemplateCardsV330();
-      const result = beforeOpenV330.apply(this, arguments);
-      renderTemplateCardsV330();
-      requestAnimationFrame(renderTemplateCardsV330);
-      setTimeout(renderTemplateCardsV330, 0);
-      setTimeout(renderTemplateCardsV330, 60);
-      return result;
-    };
-  } catch {}
-
-  document.addEventListener('click', event => {
-    if (!event.target?.closest?.('#add-custom-tab-btn,[data-action="create-tab"]')) return;
-    requestAnimationFrame(renderTemplateCardsV330);
-    setTimeout(renderTemplateCardsV330, 0);
-    setTimeout(renderTemplateCardsV330, 60);
-  }, true);
-
-  const bootV330 = () => {
-    renderTemplateCardsV330();
-    const modal = q('#custom-tab-create-modal');
-    if (!modal || modal.dataset.v330TemplateObserver === '1') return;
-    modal.dataset.v330TemplateObserver = '1';
-    try {
-      new MutationObserver(() => {
-        const section = q('.custom-tab-template-section-v53', modal);
-        const grid = q('.custom-tab-template-grid-v53', section);
-        if (!section || !grid || !grid.children.length) renderTemplateCardsV330();
-      }).observe(modal, { childList: true, subtree: true });
-    } catch {}
-  };
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(bootV330), { once: true });
-  else requestAnimationFrame(bootV330);
+  installUsefulTemplatesV328();
 })();
 
 // ============================================================================
@@ -9495,33 +9085,6 @@ Return the raw JSON object now and nothing else.`;
 
   // If any late repair re-renders the grid, put the selected state back onto
   // the newly-created card instead of making the choice appear to disappear.
-  function observeCreateModalV337() {
-    const modal = q('#custom-tab-create-modal');
-    if (!modal || modal.dataset.v337TemplateObserver === '1') return;
-    modal.dataset.v337TemplateObserver = '1';
-    try {
-      new MutationObserver(() => restoreSelectedCardV337(modal)).observe(modal, {
-        childList: true,
-        subtree: true
-      });
-    } catch {}
-  }
-
-  try {
-    const before = window.openCustomTabCreateModal;
-    if (typeof before === 'function' && !before.__v337TemplateSelection) {
-      const wrapped = function() {
-        const result = before.apply(this, arguments);
-        observeCreateModalV337();
-        requestAnimationFrame(() => restoreSelectedCardV337(q('#custom-tab-create-modal')));
-        return result;
-      };
-      wrapped.__v337TemplateSelection = true;
-      window.openCustomTabCreateModal = wrapped;
-      try { openCustomTabCreateModal = wrapped; } catch {}
-    }
-  } catch {}
-
   const CONNECTION_HELP_V337 = {
     title: 'Daily Log Connections',
     what: 'Shows an undirected graph of which Daily Log days are connected to each other.',
@@ -9587,7 +9150,6 @@ Return the raw JSON object now and nothing else.`;
   } catch {}
 
   function bootV337() {
-    observeCreateModalV337();
     try {
       const tabId = typeof activeCustomTabId !== 'undefined' ? activeCustomTabId : '';
       const tab = tabId && typeof getCustomTab === 'function' ? getCustomTab(tabId) : null;
@@ -9845,10 +9407,32 @@ Return the raw JSON object now and nothing else.`;
     try { closeCustomTabCreateModal?.(); } catch { modal.classList.add('hidden'); }
     try { renderCustomTabNavigation?.(); } catch {}
 
-    // Build the view through the current wrapper chain. For Whiteboard/Notebook,
-    // extras-5 replaces this with the full-screen host instead of a normal canvas.
+    // Whiteboard/Notebook are not ordinary custom-tab canvases. Build their exact
+    // dedicated fullscreen host here instead of trusting any older generic
+    // buildCustomTabView wrapper to recognize them later. This prevents the bad
+    // state where creation opens a normal custom tab containing only the title.
+    const special = ['whiteboard-v197','notepad-v249'].includes(String(templateId));
     let view = null;
-    try { view = buildCustomTabView(tab); } catch (error) { console.error('V339 could not build template view', error); }
+    try {
+      if (special) {
+        view = document.createElement('div');
+        view.id = `custom-tab-view-${tab.id}`;
+        view.dataset.customTabId = String(tab.id);
+        if (String(templateId) === 'whiteboard-v197') {
+          view.className = 'view custom-tab-view whiteboard-tab-view-v198';
+          view.dataset.whiteboardV198 = '1';
+          view.innerHTML = '<div class="whiteboard-runtime-host-v198"><div class="whiteboard-runtime-loading-v198">Opening whiteboard…</div></div>';
+        } else {
+          view.className = 'view custom-tab-view notepad-tab-view-v249';
+          view.dataset.notepadV249 = '1';
+          view.innerHTML = '<div class="notepad-runtime-host-v249"><div class="notepad-runtime-loading-v249">Opening notebook…</div></div>';
+        }
+      } else {
+        view = buildCustomTabView(tab);
+      }
+    } catch (error) {
+      console.error('V339 could not build template view', error);
+    }
     if (view) {
       const existing = document.getElementById(`custom-tab-view-${tab.id}`);
       if (existing) existing.replaceWith(view);
@@ -9856,12 +9440,13 @@ Return the raw JSON object now and nothing else.`;
     }
     try { activeCustomTabId = tab.id; } catch {}
     try { customTabEditMode = false; } catch {}
-    try { renderCustomTabView(tab.id); } catch {}
+    // Special workspaces mount themselves through the Whiteboard/Notebook
+    // openCustomTab wrappers. Do not run the generic custom-tab renderer first.
+    if (!special) {
+      try { renderCustomTabView(tab.id); } catch {}
+    }
     try {
-      const special = ['whiteboard-v197','notepad-v249'].includes(String(templateId));
       if (special && typeof openCustomTab === 'function') {
-        // V484: use the dedicated special-tab wrappers. Calling switchView
-        // directly can skip the Whiteboard/Notebook bootstrap/mount path.
         openCustomTab(tab.id);
       } else {
         const liveView = document.getElementById(`custom-tab-view-${tab.id}`) || view;
@@ -14333,39 +13918,6 @@ window.__loggyQuizShortcutExclusiveV470 = true;
     }
   } catch {}
 
-  // ---- Create Tab ordering: Whiteboard LAST. Weekly Review stays near the bottom.
-  const ORDER_V534 = ['whiteboard-v197','notepad-v249','personal-dashboard-v328','study-center-v328','project-workspace-v328','habit-practice-v328','milestones-goals-v329','media-board-v328','logs-review-v536'];
-  function orderRegistryV534(){
-    try {
-      if (!Array.isArray(CUSTOM_TAB_TEMPLATES_V53)) return;
-      const rank=new Map(ORDER_V534.map((id,i)=>[id,i]));
-      CUSTOM_TAB_TEMPLATES_V53.sort((a,b)=>(rank.get(String(a?.id||''))??999)-(rank.get(String(b?.id||''))??999));
-    } catch {}
-  }
-  function orderTemplateCardsV534(){
-    orderRegistryV534();
-    const modal=q('#custom-tab-create-modal');
-    const grid=q('.custom-tab-template-grid-v53',modal);
-    if(!grid)return;
-    const rank=new Map(ORDER_V534.map((id,i)=>[id,i]));
-    qa('[data-custom-tab-template-v53]',grid)
-      .sort((a,b)=>(rank.get(String(a.dataset.customTabTemplateV53||''))??999)-(rank.get(String(b.dataset.customTabTemplateV53||''))??999))
-      .forEach(card=>grid.appendChild(card));
-  }
-  orderRegistryV534();
-  document.addEventListener('click',e=>{
-    if(e.target?.closest?.('#add-custom-tab-btn,[data-action="create-tab"]')){
-      requestAnimationFrame(()=>requestAnimationFrame(orderTemplateCardsV534));
-    }
-  },true);
-  try{
-    const before=window.openCustomTabCreateModal;
-    if(typeof before==='function'&&!before.__v534Order){
-      const wrapped=function(){orderRegistryV534();const result=before.apply(this,arguments);requestAnimationFrame(()=>requestAnimationFrame(orderTemplateCardsV534));return result};
-      wrapped.__v534Order=true;window.openCustomTabCreateModal=wrapped;try{openCustomTabCreateModal=wrapped}catch{}
-    }
-  }catch{}
-
   if (!isPreview()) return;
 
   // ---- Lightweight live preview authority. No full preview remount is required.
@@ -14512,46 +14064,24 @@ window.__loggyQuizShortcutExclusiveV470 = true;
       const seen=new Set(), list=[];
       for(const raw of CUSTOM_TAB_TEMPLATES_V53){
         const id=String(raw?.id||'');
-        if(!id||id==='weekly-review'||id===TEMPLATE_ID||id==='whiteboard-v197')continue;
+        if(!id||id==='weekly-review'||id===TEMPLATE_ID||id==='whiteboard-v197'||id==='notepad-v249')continue;
         if(seen.has(id))continue; seen.add(id); list.push(raw);
       }
       const existingWhiteboard=CUSTOM_TAB_TEMPLATES_V53.find(x=>String(x?.id||'')==='whiteboard-v197');
+      const existingNotebook=CUSTOM_TAB_TEMPLATES_V53.find(x=>String(x?.id||'')==='notepad-v249');
       const whiteboard=existingWhiteboard||{id:'whiteboard-v197',name:'Whiteboard',icon:'ph-selection-background',description:'A full-screen multi-board canvas for notes, images, drawing, connections, and visual planning.'};
-      CUSTOM_TAB_TEMPLATES_V53.splice(0,CUSTOM_TAB_TEMPLATES_V53.length,whiteboard,...list,templateDef());
+      const notebook=existingNotebook||{id:'notepad-v249',name:'Notebook',icon:'ph-notebook',description:'A full-screen multi-page notebook with page categories, paper styles, movable images, drawing tools, and exact-page links from Daily Logs.'};
+      CUSTOM_TAB_TEMPLATES_V53.splice(0,CUSTOM_TAB_TEMPLATES_V53.length,whiteboard,notebook,...list,templateDef());
+      // The modal may already be open/rendered from V328. Repaint the cards now so
+      // the visible UI matches the final array immediately instead of keeping stale order.
+      const section=q('#custom-tab-create-modal .custom-tab-template-section-v53');
+      if(section&&typeof renderPrebuiltTabCardsV53==='function'){
+        try{renderPrebuiltTabCardsV53(section)}catch{}
+      }
     }catch{}
   }
 
-  function enforceCardOrder(){
-    enforceTemplateOrder();
-    const modal=q('#custom-tab-create-modal');
-    const section=q('.custom-tab-template-section-v53',modal);
-    const grid=q('.custom-tab-template-grid-v53',section);
-    if(!grid)return;
-    // If any older renderer put Weekly Review back, rebuild once from the final registry.
-    const cards=qa('[data-custom-tab-template-v53]',grid);
-    const ids=cards.map(card=>String(card.dataset.customTabTemplateV53||''));
-    const desired=CUSTOM_TAB_TEMPLATES_V53.map(item=>String(item?.id||''));
-    if(ids.length!==desired.length||ids.some((id,i)=>id!==desired[i])){
-      try{renderPrebuiltTabCardsV53(section)}catch{}
-    }
-    const white=q('[data-custom-tab-template-v53="whiteboard-v197"]',grid);
-    const logs=q('[data-custom-tab-template-v53="logs-review-v536"]',grid);
-    if(white) grid.insertBefore(white, grid.firstElementChild);
-    if(logs) grid.appendChild(logs);
-  }
-
-  try{
-    enforceTemplateOrder();
-    const oldRender=renderPrebuiltTabCardsV53;
-    if(typeof oldRender==='function'&&!oldRender.__v536Order){
-      const wrapped=function(){enforceTemplateOrder();const result=oldRender.apply(this,arguments);const grid=arguments[0]?.querySelector?.('.custom-tab-template-grid-v53');const white=grid?.querySelector?.('[data-custom-tab-template-v53="whiteboard-v197"]');const logs=grid?.querySelector?.('[data-custom-tab-template-v53="logs-review-v536"]');if(white)grid.insertBefore(white,grid.firstElementChild);if(logs)grid.appendChild(logs);return result};
-      wrapped.__v536Order=true; renderPrebuiltTabCardsV53=wrapped; window.renderPrebuiltTabCardsV53=wrapped;
-    }
-  }catch{}
-
-  document.addEventListener('click',event=>{
-    if(event.target?.closest?.('#add-custom-tab-btn,[data-action="create-tab"]')) requestAnimationFrame(()=>requestAnimationFrame(enforceCardOrder));
-  },true);
+  enforceTemplateOrder();
 
   try{
     const before=buildPrebuiltTabComponentsV53;
@@ -14658,7 +14188,6 @@ window.__loggyQuizShortcutExclusiveV470 = true;
   document.head.appendChild(style);
 
   enforceTemplateOrder();
-  requestAnimationFrame(enforceCardOrder);
 })();
 
 // ============================================================================
@@ -16126,7 +15655,15 @@ window.__loggyQuizShortcutExclusiveV470 = true;
   function installKbHeaderEditV602(itemId){
     const modal=q('#phrase-modal');
     const close=q('#phrase-modal-close');
-    if(!modal||!close||!['library','edit'].includes(modal.dataset.mode))return;
+    if(!modal||!close)return;
+
+    const mode=String(modal.dataset.mode||'');
+    if(!['library','day','edit'].includes(mode))return;
+
+    // Remember the read-only surface that launched edit mode so the pencil is a
+    // real two-way toggle for BOTH KB cards and Items Learned cards.
+    if(mode==='library'||mode==='day') modal.dataset.editReturnModeV692=mode;
+
     let edit=q('#phrase-modal-kb-edit-v602');
     if(!edit){
       edit=document.createElement('button');
@@ -16135,16 +15672,30 @@ window.__loggyQuizShortcutExclusiveV470 = true;
       edit.className=`${close.className || 'small-icon-btn'} phrase-modal-kb-edit-v602`;
       close.before(edit);
     }
-    const editing=modal.dataset.mode==='edit';
+
+    const editing=mode==='edit';
+    edit.hidden=false;
+    edit.style.removeProperty('display');
     edit.title=editing?'Exit edit mode':'Edit item';
     edit.setAttribute('aria-label',editing?'Exit edit mode':'Edit item');
     edit.setAttribute('aria-pressed',editing?'true':'false');
     edit.innerHTML='<i class="ph ph-pencil-simple"></i>';
+
     edit.onclick=event=>{
       event.preventDefault();
       event.stopPropagation();
-      // Pencil is a true toggle: edit -> normal view, normal view -> edit.
-      openItemModal(String(itemId||activeModalItem||''),true,!editing);
+      const id=String(itemId||activeModalItem||'');
+      if(!id)return;
+
+      if(editing){
+        const returnMode=String(modal.dataset.editReturnModeV692||'library');
+        openItemModal(id,returnMode==='library',false);
+        if(returnMode==='day') modal.dataset.editReturnModeV692='day';
+      }else{
+        modal.dataset.editReturnModeV692=mode;
+        openItemModal(id,mode==='library',true);
+        modal.dataset.editReturnModeV692=mode;
+      }
     };
   }
 
@@ -16255,7 +15806,8 @@ window.__loggyQuizShortcutExclusiveV470 = true;
       if(control){
         const display=document.createElement('div');
         display.className='kb-display-text kb-title-field-static-v602';
-        display.textContent=String(itemId||'');
+        if(String(itemId||'').includes('\\') && typeof placeholderTokenHtmlV56==='function') display.innerHTML=placeholderTokenHtmlV56(String(itemId||''));
+        else display.textContent=String(itemId||'');
         control.replaceChildren(display);
       }
     }
@@ -16421,7 +15973,11 @@ document.addEventListener('keydown',event=>{
       inline.className='anki-inline-progress-v665';
       shell.prepend(inline);
     }
-    inline.textContent=label.textContent||'';
+    const nextText=label.textContent||'';
+    // Do not rewrite the text node when nothing changed. V665's observer watches
+    // this same quiz area, so unconditional textContent assignment could create
+    // a self-triggering MutationObserver loop as soon as Anki renders.
+    if(inline.textContent!==nextText) inline.textContent=nextText;
   }
 
   try{
@@ -16436,9 +15992,20 @@ document.addEventListener('keydown',event=>{
     }
   }catch{}
 
-  const observer=new MutationObserver(()=>syncAnkiInlineProgressV665());
+  let ankiProgressSyncQueuedV665=false;
+  const observer=new MutationObserver(()=>{
+    if(ankiProgressSyncQueuedV665) return;
+    ankiProgressSyncQueuedV665=true;
+    queueMicrotask(()=>{
+      ankiProgressSyncQueuedV665=false;
+      syncAnkiInlineProgressV665();
+    });
+  });
   const area=document.getElementById('quiz-flashcard-area');
-  if(area) observer.observe(area,{childList:true,subtree:true,characterData:true});
+  // Child-list changes are enough to catch card rerenders. Avoid observing
+  // characterData here so updating the progress label can never recursively
+  // wake the observer and lock the Log page.
+  if(area) observer.observe(area,{childList:true,subtree:true});
   document.addEventListener('DOMContentLoaded',syncAnkiInlineProgressV665,{once:true});
 })();
 
@@ -17205,4 +16772,482 @@ document.addEventListener('keydown',event=>{
   else seed();
 
   window.__loggyHydrateThemeSearchCatalogV681 = hydrateCatalogV681;
+})();
+
+/* ============================================================================
+   V682 — PERMANENT DECORATION SOURCE REGISTRY + SELF-HEALING ARTWORK
+   This is a new source authority, not a one-off repair. Decoration source
+   identity is stored separately from theme layout/state so later theme rewrites,
+   saves, copies, reloads, previews, or compatibility layers cannot silently drop
+   the file path and leave an empty decoration wrapper behind.
+   ============================================================================ */
+(() => {
+  'use strict';
+  if (window.__loggyDecorationSourceRegistryV682) return;
+  window.__loggyDecorationSourceRegistryV682 = true;
+
+  const REGISTRY_KEY = 'loggy-decoration-source-registry-v682';
+  const STAGE_ID = 'custom-theme-background-stage';
+  let registry = { byId:{}, byName:{}, bySlot:{} };
+  let saveQueued = 0;
+  let repairQueued = 0;
+
+  const str = value => String(value ?? '').trim();
+  const cloneSource = asset => ({
+    projectPath: str(asset?.projectPath || asset?.originalProjectPathV682 || asset?.path),
+    path: str(asset?.path),
+    url: str(asset?.url || asset?.originalUrlV682 || asset?.src),
+    src: str(asset?.src),
+    dataUrl: str(asset?.dataUrl),
+    dataUrlBackupV494: str(asset?.dataUrlBackupV494),
+    stableUrl: str(asset?._stableUrlV164),
+    projectUrl: str(asset?._projectUrlV495),
+    name: str(asset?.name),
+    savedAt: Date.now()
+  });
+
+  function readRegistry() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(REGISTRY_KEY) || '{}');
+      registry = {
+        byId: parsed?.byId && typeof parsed.byId === 'object' ? parsed.byId : {},
+        byName: parsed?.byName && typeof parsed.byName === 'object' ? parsed.byName : {},
+        bySlot: parsed?.bySlot && typeof parsed.bySlot === 'object' ? parsed.bySlot : {}
+      };
+    } catch { registry = { byId:{}, byName:{}, bySlot:{} }; }
+  }
+
+  function queueSave() {
+    if (saveQueued) return;
+    saveQueued = setTimeout(() => {
+      saveQueued = 0;
+      try { localStorage.setItem(REGISTRY_KEY, JSON.stringify(registry)); } catch {}
+    }, 0);
+  }
+
+  function publicUrl(projectPath) {
+    let p = str(projectPath).replace(/\\/g, '/').replace(/^\.\//, '');
+    if (!p) return '';
+    const lower = p.toLowerCase();
+    const marker = '/public/';
+    const i = lower.lastIndexOf(marker);
+    if (i >= 0) p = p.slice(i + marker.length);
+    else if (lower.startsWith('public/')) p = p.slice(7);
+    if (!p) return '';
+    return '/' + p.split('/').filter(Boolean).map(part => {
+      try { return encodeURIComponent(decodeURIComponent(part)); }
+      catch { return encodeURIComponent(part); }
+    }).join('/');
+  }
+
+  function themeKey(theme, explicit) {
+    return str(explicit || theme?.id || theme?.themeId || theme?.name || db?.settings?.theme || 'theme');
+  }
+
+  function sourceId(asset, themeId, index) {
+    let id = str(asset?.decorationSourceIdV682 || asset?.assetId || asset?.id || asset?.uploadId);
+    if (!id) {
+      const name = str(asset?.name).toLowerCase();
+      const slot = Number.isFinite(Number(asset?.placementIndexV405)) ? Number(asset.placementIndexV405) : index;
+      id = `${themeId}::${name || 'decoration'}::${slot}`;
+      try { asset.decorationSourceIdV682 = id; } catch {}
+    }
+    return id;
+  }
+
+  function hasDurableSource(asset) {
+    return !!str(asset?.projectPath || asset?.path || asset?.url || asset?.src || asset?.dataUrl || asset?.dataUrlBackupV494 || asset?._stableUrlV164);
+  }
+
+  function mergeRecord(oldRecord, nextRecord) {
+    const out = { ...(oldRecord || {}) };
+    for (const [key, value] of Object.entries(nextRecord || {})) {
+      if (key === 'savedAt' || str(value)) out[key] = value;
+    }
+    return out;
+  }
+
+  function rememberAsset(asset, themeId, index) {
+    if (!asset || typeof asset !== 'object' || !hasDurableSource(asset)) return;
+    const id = sourceId(asset, themeId, index);
+    const record = cloneSource(asset);
+    const project = str(record.projectPath || record.path);
+    const url = str(record.url || record.src || record.stableUrl || record.projectUrl);
+
+    // Preserve immutable originals on the asset itself whenever available.
+    if (project) {
+      asset.originalProjectPathV682 ||= project;
+      asset.projectPath ||= project;
+    }
+    if (url && !/^blob:/i.test(url)) {
+      asset.originalUrlV682 ||= url;
+      asset._stableUrlV164 ||= url;
+    }
+
+    registry.byId[id] = mergeRecord(registry.byId[id], record);
+    const name = str(asset.name).toLowerCase();
+    if (name) registry.byName[name] = mergeRecord(registry.byName[name], record);
+    registry.bySlot[`${themeId}::${index}`] = mergeRecord(registry.bySlot[`${themeId}::${index}`], record);
+    queueSave();
+  }
+
+  function bestRecord(asset, themeId, index) {
+    const id = sourceId(asset, themeId, index);
+    const name = str(asset?.name).toLowerCase();
+    return registry.byId[id] || registry.bySlot[`${themeId}::${index}`] || (name ? registry.byName[name] : null) || null;
+  }
+
+  function hydrateAsset(asset, themeId, index) {
+    if (!asset || typeof asset !== 'object') return asset;
+    const record = bestRecord(asset, themeId, index);
+    if (!record) {
+      rememberAsset(asset, themeId, index);
+      return asset;
+    }
+
+    const fill = (key, value) => {
+      if (!str(asset[key]) && str(value)) asset[key] = value;
+    };
+    fill('projectPath', record.projectPath || record.path);
+    fill('path', record.path || record.projectPath);
+    fill('dataUrl', record.dataUrl);
+    fill('dataUrlBackupV494', record.dataUrlBackupV494 || record.dataUrl);
+    fill('_stableUrlV164', record.stableUrl || record.url || record.src || record.projectUrl);
+    fill('_projectUrlV495', record.projectUrl || publicUrl(record.projectPath || record.path));
+    fill('originalProjectPathV682', record.projectPath || record.path);
+    fill('originalUrlV682', record.url || record.src || record.stableUrl || record.projectUrl);
+
+    const project = str(asset.projectPath || asset.originalProjectPathV682 || asset.path);
+    const rebuilt = publicUrl(project);
+    const current = str(asset.url || asset.src);
+    if (rebuilt) asset.url = rebuilt;
+    else if (!current || /^blob:/i.test(current)) {
+      asset.url = str(record.url || record.src || record.stableUrl || record.projectUrl || record.dataUrlBackupV494 || record.dataUrl);
+    }
+
+    rememberAsset(asset, themeId, index);
+    return asset;
+  }
+
+  function hydrateTheme(theme, explicitId) {
+    if (!theme || typeof theme !== 'object') return theme;
+    const id = themeKey(theme, explicitId);
+    const list = Array.isArray(theme.backgroundSvgs) ? theme.backgroundSvgs : [];
+    list.forEach((asset, index) => hydrateAsset(asset, id, index));
+    return theme;
+  }
+
+  function rememberTheme(theme, explicitId) {
+    if (!theme || typeof theme !== 'object') return theme;
+    const id = themeKey(theme, explicitId);
+    const list = Array.isArray(theme.backgroundSvgs) ? theme.backgroundSvgs : [];
+    list.forEach((asset, index) => rememberAsset(asset, id, index));
+    return theme;
+  }
+
+  function currentTheme() {
+    const id = str(db?.settings?.theme || 'default');
+    try {
+      const snap = window.__loggyReadCanonicalThemeSnapshotV588?.(id);
+      if (snap?.theme) return hydrateTheme(snap.theme, id);
+      if (snap?.backgroundSvgs) return hydrateTheme(snap, id);
+    } catch {}
+    try {
+      const built = resolveBuiltInThemeOverrideV550?.(id);
+      if (built) return hydrateTheme(built, id);
+    } catch {}
+    try {
+      const custom = resolveAppliedCustomThemeV445?.(id);
+      if (custom) return hydrateTheme(custom, id);
+    } catch {}
+    return null;
+  }
+
+  function candidates(asset) {
+    const out = [];
+    const push = value => { const v = str(value); if (v && !out.includes(v)) out.push(v); };
+    push(publicUrl(asset?.projectPath || asset?.originalProjectPathV682 || asset?.path));
+    push(asset?.url);
+    push(asset?.src);
+    push(asset?._projectUrlV495);
+    push(asset?._stableUrlV164);
+    push(asset?.originalUrlV682);
+    push(asset?.dataUrlBackupV494);
+    push(asset?.dataUrl);
+    return out;
+  }
+
+  function hidden(asset) {
+    return asset?.hidden === true || asset?.visible === false || asset?.showOnScreen === false || asset?.show === false;
+  }
+
+  function assetFor(wrapper, theme, displayIndex) {
+    const all = Array.isArray(theme?.backgroundSvgs) ? theme.backgroundSvgs : [];
+    const raw = Number(wrapper?.dataset?.svgIndex ?? wrapper?.dataset?.sourceDecorationIndexV531);
+    if (Number.isFinite(raw)) {
+      const byPlacement = all.find(asset => Number(asset?.placementIndexV405) === raw);
+      if (byPlacement) return { asset:byPlacement, index:all.indexOf(byPlacement) };
+      if (all[raw]) return { asset:all[raw], index:raw };
+    }
+    const visible = all.map((asset,index)=>({asset,index})).filter(row => row.asset && !hidden(row.asset));
+    return visible[displayIndex] || { asset:all[displayIndex] || null, index:displayIndex };
+  }
+
+  function makeImage(wrapper, source) {
+    const host = wrapper.querySelector('.theme-svg-motion-shell,.theme-image-motion-shell-v36') || wrapper;
+    let img = wrapper.querySelector('img');
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'theme-decoration-image-v36 theme-decoration-image-health-v494 theme-decoration-image-source-v682';
+      img.alt = '';
+      img.draggable = false;
+      img.decoding = 'async';
+      host.replaceChildren(img);
+    }
+    if (source && str(img.getAttribute('src')) !== source) img.setAttribute('src', source);
+    img.style.setProperty('display','block','important');
+    img.style.setProperty('visibility','visible','important');
+    img.style.setProperty('opacity','1','important');
+    img.style.setProperty('width','100%','important');
+    img.style.setProperty('height','100%','important');
+    img.style.setProperty('object-fit','contain','important');
+    return img;
+  }
+
+  function bindFallback(img, asset, themeId, index) {
+    if (!img || img.dataset.decorationSourceV682Bound === '1') return;
+    img.dataset.decorationSourceV682Bound = '1';
+    img.addEventListener('load', () => {
+      const src = str(img.currentSrc || img.getAttribute('src'));
+      if (src && !/^blob:/i.test(src)) {
+        asset._stableUrlV164 = src;
+        asset.originalUrlV682 ||= src;
+        rememberAsset(asset, themeId, index);
+      }
+    });
+    img.addEventListener('error', () => {
+      hydrateAsset(asset, themeId, index);
+      const tried = new Set(str(img.dataset.decorationSourceV682Tried).split('\n').filter(Boolean));
+      const bad = str(img.getAttribute('src'));
+      if (bad) tried.add(bad);
+      img.dataset.decorationSourceV682Tried = Array.from(tried).join('\n');
+      const next = candidates(asset).find(src => !tried.has(src));
+      if (next) img.setAttribute('src', next);
+    });
+  }
+
+  function repairStage(explicitTheme) {
+    const stage = document.getElementById(STAGE_ID);
+    if (!stage) return;
+    const theme = hydrateTheme(explicitTheme || currentTheme());
+    if (!theme) return;
+    const id = themeKey(theme);
+    const wrappers = Array.from(stage.querySelectorAll(':scope > .custom-theme-background-svg'))
+      .filter(node => node.dataset.themeCrossCloneV350 !== 'true' && node.dataset.themeCrossCloneV149 !== 'true' && node.dataset.themeCrossCloneV94 !== 'true');
+
+    wrappers.forEach((wrapper, displayIndex) => {
+      const row = assetFor(wrapper, theme, displayIndex);
+      const asset = row.asset;
+      if (!asset || hidden(asset) || str(asset.markup)) return;
+      hydrateAsset(asset, id, row.index);
+      const list = candidates(asset);
+      if (!list.length) return;
+      const img = makeImage(wrapper, list[0]);
+      bindFallback(img, asset, id, row.index);
+    });
+  }
+
+  function scheduleRepair(theme) {
+    if (repairQueued) cancelAnimationFrame(repairQueued);
+    repairQueued = requestAnimationFrame(() => {
+      repairQueued = 0;
+      repairStage(theme);
+    });
+  }
+
+  // Seed registry from every locally cached theme now, while old paths still exist.
+  function scanValue(value, contextKey, seen = new WeakSet()) {
+    if (!value || typeof value !== 'object' || seen.has(value)) return;
+    seen.add(value);
+    if (Array.isArray(value.backgroundSvgs)) rememberTheme(value, value.id || value.themeId || contextKey);
+    if (Array.isArray(value)) value.forEach((item,index)=>scanValue(item, `${contextKey}:${index}`, seen));
+    else Object.entries(value).forEach(([key,val])=>scanValue(val, key === 'theme' ? (value.id || contextKey) : `${contextKey}:${key}`, seen));
+  }
+  function seedAll() {
+    readRegistry();
+    try { scanValue(db, 'db'); } catch {}
+    try {
+      for (let i=0;i<localStorage.length;i++) {
+        const key = localStorage.key(i);
+        if (!key || key === REGISTRY_KEY) continue;
+        const raw = localStorage.getItem(key);
+        if (!raw || (!raw.includes('backgroundSvgs') && !raw.includes('projectPath'))) continue;
+        try { scanValue(JSON.parse(raw), key); } catch {}
+      }
+    } catch {}
+    scheduleRepair();
+  }
+
+  // Replace the older healer with a registry-backed healer. Existing callers keep
+  // working, but missing paths are now restored before they ever reach a renderer.
+  try {
+    const oldHealTheme = window.__loggyHealDecorationSourcesV529;
+    window.__loggyHealDecorationSourcesV529 = function(theme) {
+      try { oldHealTheme?.(theme); } catch {}
+      return hydrateTheme(theme);
+    };
+  } catch {}
+
+  // Every mount is source-healed first, then checked again after DOM creation.
+  try {
+    const oldMount = window.mountCustomThemeBackgroundSvgsV2 || (typeof mountCustomThemeBackgroundSvgsV2 === 'function' ? mountCustomThemeBackgroundSvgsV2 : null);
+    if (typeof oldMount === 'function' && !oldMount.__sourceRegistryV682) {
+      const wrapped = function(theme = {}) {
+        hydrateTheme(theme);
+        const result = oldMount.apply(this, arguments);
+        rememberTheme(theme);
+        repairStage(theme);
+        scheduleRepair(theme);
+        return result;
+      };
+      wrapped.__sourceRegistryV682 = true;
+      window.mountCustomThemeBackgroundSvgsV2 = wrapped;
+      try { mountCustomThemeBackgroundSvgsV2 = wrapped; } catch {}
+    }
+  } catch {}
+
+  // A late renderer is allowed to replace wrappers, but never to leave them empty.
+  try {
+    new MutationObserver(records => {
+      let relevant = false;
+      for (const record of records) {
+        if (record.type === 'attributes' && record.target?.closest?.(`#${STAGE_ID}`)) { relevant = true; break; }
+        for (const node of record.addedNodes || []) {
+          if (node?.nodeType === 1 && (node.id === STAGE_ID || node.matches?.(`#${STAGE_ID} *`) || node.querySelector?.(`#${STAGE_ID}`))) { relevant = true; break; }
+        }
+        for (const node of record.removedNodes || []) {
+          if (node?.nodeType === 1 && (node.id === STAGE_ID || node.matches?.('img') || node.querySelector?.('img'))) { relevant = true; break; }
+        }
+        if (relevant) break;
+      }
+      if (relevant) scheduleRepair();
+    }).observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['src','class','style'] });
+  } catch {}
+
+  window.addEventListener('storage', event => {
+    if (event.key === REGISTRY_KEY) readRegistry();
+    else if (event.key && /theme/i.test(event.key)) setTimeout(seedAll, 0);
+  });
+  window.addEventListener('pageshow', () => { readRegistry(); scheduleRepair(); });
+  window.addEventListener('loggy-features-ready', () => { seedAll(); scheduleRepair(); });
+
+  window.__loggyDecorationSourceRegistryV682Api = {
+    rememberTheme, hydrateTheme, rememberAsset, hydrateAsset, repairStage, seedAll
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', seedAll, { once:true });
+  else seedAll();
+})();
+
+// ============================================================================
+// V690 — AUTHORITATIVE THEME BACKGROUND HANDOFF
+// One owner for the outgoing page background. Every real theme switch clears
+// the previous theme's inline/custom background state before the incoming theme
+// paints. This prevents an AI Theme Builder gradient/texture + page color from
+// surviving underneath the next theme until Ctrl+R.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyThemeBackgroundHandoffV690) return;
+  window.__loggyThemeBackgroundHandoffV690 = true;
+
+  const ROOT_BACKGROUND_VARS = [
+    '--custom-theme-page-bg',
+    '--custom-theme-background-image',
+    '--custom-theme-gradient-v56'
+  ];
+
+  function clearOutgoingThemeBackgroundV690() {
+    const root = document.documentElement;
+    const body = document.body;
+
+    // Remove every inline page-background value that Theme Builder / AI themes
+    // can own. Source-theme CSS is class/link based, so removing these inline
+    // values lets the incoming source theme paint immediately.
+    [
+      'background',
+      'background-color',
+      'background-image',
+      'background-size',
+      'background-position',
+      'background-repeat',
+      'background-attachment',
+      'background-blend-mode'
+    ].forEach(property => {
+      try { body?.style?.removeProperty(property); } catch (_) {}
+    });
+
+    ROOT_BACKGROUND_VARS.forEach(name => {
+      try { root?.style?.removeProperty(name); } catch (_) {}
+      try { body?.style?.removeProperty(name); } catch (_) {}
+    });
+
+    // Interactive/custom-code backgrounds are also outgoing-theme state.
+    try { document.getElementById('custom-theme-code-background-v56')?.remove(); } catch (_) {}
+    try { body?.classList?.remove('custom-code-background-active-v56'); } catch (_) {}
+    try {
+      root?.classList?.remove(
+        'custom-code-background-viewport-v61',
+        'custom-code-needs-y-scroll-v61'
+      );
+    } catch (_) {}
+  }
+
+  window.__loggyClearOutgoingThemeBackgroundV690 = clearOutgoingThemeBackgroundV690;
+
+  // Rewrite the creative-background handoff itself: unlike the historical V56
+  // implementation, a theme with NO gradient/image must actively clear the old
+  // gradient instead of doing nothing and leaving it behind.
+  try {
+    const previousMount = mountThemeCreativeBackgroundV56;
+    if (typeof previousMount === 'function' && !previousMount.__handoffV690) {
+      const rewrittenMount = function(theme = {}) {
+        clearOutgoingThemeBackgroundV690();
+        return previousMount.apply(this, arguments);
+      };
+      rewrittenMount.__handoffV690 = true;
+      mountThemeCreativeBackgroundV56 = rewrittenMount;
+      try { window.mountThemeCreativeBackgroundV56 = rewrittenMount; } catch (_) {}
+    }
+  } catch (_) {}
+
+  // Built-in themes without a Theme Builder override do not call the creative
+  // background renderer at all, so clear the outgoing custom/AI background at
+  // the beginning of the real core switch too.
+  try {
+    const previousCore = window.__loggyCoreApplyThemeV589;
+    if (typeof previousCore === 'function' && !previousCore.__handoffV690) {
+      const rewrittenCore = function(themeValue, ...rest) {
+        clearOutgoingThemeBackgroundV690();
+        return previousCore.call(this, themeValue, ...rest);
+      };
+      rewrittenCore.__handoffV690 = true;
+      window.__loggyCoreApplyThemeV589 = rewrittenCore;
+    }
+  } catch (_) {}
+
+  // Some late compatibility paths still hold/use applyTheme directly. Keep the
+  // same handoff there too so every user-visible switch has identical behavior.
+  try {
+    const previousApply = window.applyTheme || (typeof applyTheme === 'function' ? applyTheme : null);
+    if (typeof previousApply === 'function' && !previousApply.__handoffV690) {
+      const rewrittenApply = function(themeValue, ...rest) {
+        clearOutgoingThemeBackgroundV690();
+        return previousApply.call(this, themeValue, ...rest);
+      };
+      rewrittenApply.__handoffV690 = true;
+      window.applyTheme = rewrittenApply;
+      try { applyTheme = rewrittenApply; } catch (_) {}
+    }
+  } catch (_) {}
 })();

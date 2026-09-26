@@ -5920,7 +5920,7 @@ function refreshComponentBackdropToggleV62(
 // ------------------------------------------------------------
 
 let pageActionIconSizeV62 =
-    22;
+    32;
 
 function readKnowledgePlusIconSizeV62() {
     const icon =
