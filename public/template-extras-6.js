@@ -248,12 +248,6 @@
   #kb-field-create-modal-v221 .kb-clean-icon-option,#kb-field-create-modal .kb-clean-icon-option{color:inherit!important;border-bottom:2px solid transparent!important;border-radius:0!important;box-shadow:none!important}
   #kb-field-create-modal-v221 .kb-clean-icon-option,#kb-field-create-modal .kb-clean-icon-option{opacity:1!important;color:var(--black)!important;background:transparent!important;box-shadow:none!important;border-bottom:2px solid transparent!important}#kb-field-create-modal-v221 .kb-clean-icon-option i,#kb-field-create-modal .kb-clean-icon-option i{opacity:.58!important;color:inherit!important}#kb-field-create-modal-v221 .kb-clean-icon-option.selected,#kb-field-create-modal .kb-clean-icon-option.selected{color:var(--black)!important;opacity:1!important;border-bottom:2px solid var(--black)!important;background:transparent!important;box-shadow:none!important}#kb-field-create-modal-v221 .kb-clean-icon-option.selected i,#kb-field-create-modal .kb-clean-icon-option.selected i{opacity:.58!important;color:inherit!important}
   #kb-field-create-modal-v221 .kb-clean-icon-option i,#kb-field-create-modal .kb-clean-icon-option i{color:inherit!important;stroke:currentColor!important}
-  /* V254: nested Dropdown components do not receive an extra wrapper card/border. */
-  .custom-component-dropdownV239 .dropdown-child-borderless-v254,.custom-component-dropdownV239 .custom-component-content .custom-tab-component:not(.custom-component-dropdownV239),.custom-component-dropdownV239 .custom-component-content [class*="dropdown-child"],.custom-component-dropdownV239 .custom-component-content [class*="nested-component"]{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;padding:0!important}
-  .custom-component-dropdownV239 .custom-component-content{position:relative!important;user-select:none!important;-webkit-user-select:none!important}.custom-component-dropdownV239 .custom-component-content input,.custom-component-dropdownV239 .custom-component-content textarea,.custom-component-dropdownV239 .custom-component-content select,.custom-component-dropdownV239 .custom-component-content [contenteditable="true"]{user-select:text!important;-webkit-user-select:text!important}
-  .custom-component-dropdownV239 .dropdown-add-plus-v254{float:right!important;clear:both!important;width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;margin:10px 0 0 auto!important;padding:0!important;display:none!important;place-items:center!important;border-radius:8px!important}
-  .custom-component-dropdownV239 .dropdown-add-plus-v254.dropdown-add-visible-v255{display:grid!important}
-  .custom-component-dropdownV239 .dropdown-add-plus-v254 i{margin:0!important;font-size:17px!important}
   .custom-card-grid.custom-card-style-vertical{grid-template-columns:repeat(auto-fill,minmax(180px,220px))!important}.custom-card-style-vertical .custom-user-card{min-height:260px!important}
   .custom-card-grid.custom-card-style-horizontal{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))!important}.custom-card-style-horizontal .custom-user-card{min-height:130px!important}
   .custom-card-grid.custom-card-style-square{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))!important}.custom-card-style-square .custom-user-card{aspect-ratio:1/1!important;overflow:auto!important}
@@ -262,7 +256,6 @@
   .custom-card-style-rounded .custom-user-card{border-radius:24px!important}.custom-card-style-borderless .custom-user-card{border:0!important;box-shadow:0 8px 22px rgba(0,0,0,.09)!important}.custom-card-style-index-card .custom-user-card{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,color-mix(in srgb,currentColor 12%,transparent) 28px)!important}
   .custom-polaroid-grid.custom-polaroid-layout-square{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))!important}.custom-polaroid-layout-square .custom-user-polaroid{aspect-ratio:1/1!important}.custom-polaroid-layout-square .custom-polaroid-media{aspect-ratio:1/1!important}
   .custom-polaroid-grid.custom-polaroid-layout-mini{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))!important}.custom-polaroid-layout-mini .custom-user-polaroid{padding:8px!important}.custom-polaroid-grid.custom-polaroid-layout-wide{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))!important}.custom-polaroid-layout-wide .custom-polaroid-media{aspect-ratio:16/9!important}.custom-polaroid-layout-rounded .custom-user-polaroid{border-radius:22px!important;overflow:hidden!important}.custom-polaroid-layout-borderless .custom-user-polaroid{border:0!important;box-shadow:0 8px 22px rgba(0,0,0,.09)!important}.custom-polaroid-layout-scrapbook .custom-user-polaroid:nth-child(odd){transform:rotate(-1.4deg)!important}.custom-polaroid-layout-scrapbook .custom-user-polaroid:nth-child(even){transform:rotate(1.4deg)!important}
-  .custom-component-dropdownV239 .custom-component-content:after{content:'';display:block;clear:both}
   `;document.head.appendChild(s)}
   addStyle();
 
@@ -299,7 +292,7 @@
 
   // 1) Polaroid settings only exist visually while Polaroid Grid is selected.
   function syncKbPolaroidConditional(){const box=$('#kb-polaroid-options-v163');if(!box)return;const isPolaroid=String(window.db?.settings?.libraryView||'list')==='polaroid';box.classList.toggle('v250-non-polaroid-hidden',!isPolaroid)}
-  document.addEventListener('click',e=>{if(e.target.closest?.('.kb-view-btn,#open-settings-btn,#settings-btn,#settings-category-tabs'))requestAnimationFrame(syncKbPolaroidConditional)},true);
+  document.addEventListener('click',e=>{if(e.target.closest?.('.kb-view-btn,#open-settings-btn,#settings-btn,#settings-category-tabs'))syncKbPolaroidConditional()},true);
   document.addEventListener('change',e=>{if(e.target.closest?.('#settings-modal'))requestAnimationFrame(syncKbPolaroidConditional)},true);
   setTimeout(syncKbPolaroidConditional,0);
 
@@ -448,34 +441,6 @@
 
   // Ensure core migration keeps V250 field kinds across reloads.
   try{const oldNorm=normalizeKnowledgeField;normalizeKnowledgeField=function(field,index,config){const raw=String(field?.kind||'');if(!EXTRA_KINDS.has(raw))return oldNorm.apply(this,arguments);const n={...(typeof field==='object'?field:{}),id:field?.id||`kb-field-v250-${index}`,name:String(field?.name||`Field ${index+1}`),kind:raw,pronunciation:!!field?.pronunciation,ttsLang:String(field?.ttsLang||config?.ttsLang||'ko'),quiz:field?.quiz!==false,editable:!!field?.editable,options:[]};if(raw==='numberFormat'){n.numberStyle=['number','currency','percent'].includes(field?.numberStyle)?field.numberStyle:'number';n.decimals=Math.max(0,Math.min(8,Number(field?.decimals??2)));n.currencySymbol=String(field?.currencySymbol||'$').slice(0,6)}if(raw==='dateTime')n.dateMode=field?.dateMode==='range'?'range':'single';return n}}catch{}
-
-  // V254: normalize nested Dropdown component chrome after every custom-tab render.
-  function polishDropdownComponentsV254(scope=document){
-    $$('.custom-component-dropdownV239',scope).forEach(drop=>{
-      const content=$('.custom-component-content',drop)||drop;
-      $$('[data-component-id]',content).forEach(child=>{if(child!==drop)child.classList.add('dropdown-child-borderless-v254')});
-      $$('button',content).forEach(button=>{
-        const text=String(button.textContent||'').replace(/\s+/g,' ').trim();
-        const aria=String(button.getAttribute('aria-label')||button.title||'').trim();
-        if(!/add component/i.test(`${text} ${aria}`))return;
-        button.classList.add('dropdown-add-plus-v254');
-        const editing=typeof customTabEditMode!=='undefined'&&!!customTabEditMode;
-        button.classList.toggle('dropdown-add-visible-v255',editing);
-        button.title='Add component';button.setAttribute('aria-label','Add component');
-        if(!button.querySelector(':scope > i.ph-plus')||text)button.innerHTML='<i class="ph ph-plus" aria-hidden="true"></i>';
-        content.appendChild(button);
-      });
-    });
-  }
-  try{
-    const previousRenderCustomTabV254=renderCustomTabView;
-    if(typeof previousRenderCustomTabV254==='function'&&!previousRenderCustomTabV254.__dropdownPolishV254){
-      const wrapped=function(){const result=previousRenderCustomTabV254.apply(this,arguments);queueMicrotask(()=>polishDropdownComponentsV254());return result};
-      wrapped.__dropdownPolishV254=true;renderCustomTabView=wrapped;
-    }
-  }catch{}
-  document.addEventListener('click',event=>{if(event.target.closest?.('.custom-tab-nav-btn,.custom-tab-view,.custom-component-dropdownV239,[data-custom-component-type]'))requestAnimationFrame(()=>polishDropdownComponentsV254())},true);
-  setTimeout(()=>polishDropdownComponentsV254(),300);
 
   // V266: reloads preserve the current top-level/custom/special tab.
   // Do not reset last-app-tab or delete Notebook/Whiteboard route state here;
@@ -8352,6 +8317,87 @@ Return the raw JSON object now and nothing else.`;
     q('#open-trash-view-btn')?.remove();
   }
 
+  function restoreTabTemplatesV327() {
+    try { ensureCustomTabCreateModal?.(); } catch {}
+    const modal = q('#custom-tab-create-modal');
+    if (!modal) return;
+    const box = q('.modal-box', modal);
+    if (!box) return;
+
+    let built = null;
+    try { built = ensurePrebuiltTabSectionV53?.() || q('.custom-tab-template-section-v53', modal); } catch { built = q('.custom-tab-template-section-v53', modal); }
+    if (built) {
+      try { renderPrebuiltTabCardsV53?.(built); } catch {}
+      const appDb = (typeof db !== 'undefined' ? db : window.db);
+      const builtInState = appDb?.settings?.builtInBlueprintStateV162 || {};
+      qa('[data-custom-tab-template-v53]', built).forEach(card => {
+        const state = String(builtInState[card.dataset.customTabTemplateV53] || 'active');
+        card.classList.toggle('hidden', state !== 'active');
+      });
+      built.hidden = false;
+      built.classList.remove('hidden');
+      built.style.removeProperty('display');
+      const label = q('.field-label', built);
+      if (label) label.textContent = 'Tab Templates';
+      const iconSection = q('#custom-tab-icon-picker', modal)?.closest('.modal-section');
+      const nameSection = q('#custom-tab-name-input', modal)?.closest('.modal-section');
+      /* V329: Create Tab order is Tab Name -> icon search/icons -> Tab Templates. */
+      const templateAnchor = iconSection || nameSection;
+      if (templateAnchor && templateAnchor.nextElementSibling !== built) templateAnchor.insertAdjacentElement('afterend', built);
+    }
+
+    /* The V162 wrapper around ensureCustomTabCreateModal normally creates this.
+       If an older/later modal rebuild skipped it, build the visible cards here;
+       the existing V162 capture handler still owns instantiation on Create Tab. */
+    let mine = q('.custom-blueprint-section-v162', modal);
+    if (!mine) {
+      mine = document.createElement('section');
+      mine.className = 'custom-blueprint-section-v162';
+      mine.innerHTML = '<div class="custom-blueprint-heading-v162"><strong>My Templates</strong><button type="button" class="small-icon-btn custom-blueprint-manage-v162"><i class="ph ph-sliders"></i> Manage</button></div><div class="custom-blueprint-grid-v162"></div>';
+      (built || q('#custom-tab-create-confirm', modal))?.insertAdjacentElement(built ? 'afterend' : 'beforebegin', mine);
+    } else if (built && built.nextElementSibling !== mine) {
+      built.insertAdjacentElement('afterend', mine);
+    }
+    mine.hidden = false;
+    mine.classList.remove('hidden');
+    mine.style.removeProperty('display');
+
+    const grid = q('.custom-blueprint-grid-v162', mine);
+    if (grid && !q('[data-custom-blueprint-id-v162]', grid)) {
+      const appDb = (typeof db !== 'undefined' ? db : window.db);
+      const list = Array.isArray(appDb?.settings?.customTabBlueprintsV162) ? appDb.settings.customTabBlueprintsV162 : [];
+      grid.innerHTML = '';
+      list.filter(item => item?.status === 'active').forEach(item => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'custom-template-card-v162';
+        card.dataset.customBlueprintIdV162 = String(item.id || '');
+        card.innerHTML = `<i class="ph ${String(item.icon || 'ph-tabs').replace(/[^a-z0-9_-]/gi,'')}"></i><span></span>`;
+        q('span', card).textContent = String(item.name || 'Template');
+        card.addEventListener('click', () => {
+          modal.dataset.selectedBlueprintV162 = String(item.id || '');
+          qa('button', grid).forEach(button => button.classList.toggle('selected', button === card));
+          qa('[data-custom-tab-template-v53]', modal).forEach(button => button.classList.remove('selected'));
+          const name = q('#custom-tab-name-input', modal);
+          if (name && !name.value.trim()) name.value = String(item.name || 'Template');
+        });
+        grid.appendChild(card);
+      });
+      if (!grid.children.length) grid.innerHTML = '<small>Save any tab as a template to reuse its layout.</small>';
+    }
+
+    const manage = q('.custom-blueprint-manage-v162', mine);
+    if (manage && !manage.dataset.v327Bound) {
+      manage.dataset.v327Bound = '1';
+      manage.addEventListener('click', () => {
+        /* If V162 already created the manager, its own state/render code remains
+           authoritative. This fallback simply reveals it. */
+        const manager = q('#blueprint-manager-v162');
+        manager?.classList.remove('hidden');
+      });
+    }
+  }
+
   function openTrashModalInsideSettingsV327() {
     try {
       renderTrashModal?.();
@@ -8421,7 +8467,17 @@ Return the raw JSON object now and nothing else.`;
   installStyleV327();
   removeTrashNavV327();
 
-
+  try {
+    const before = openCustomTabCreateModal;
+    openCustomTabCreateModal = function() {
+      try { ensureCustomTabCreateModal?.(); } catch {}
+      restoreTabTemplatesV327();
+      const result = before.apply(this, arguments);
+      restoreTabTemplatesV327();
+      requestAnimationFrame(restoreTabTemplatesV327);
+      return result;
+    };
+  } catch {}
 
   try {
     const before = openGlobalThemeSettings;
@@ -8450,6 +8506,7 @@ Return the raw JSON object now and nothing else.`;
     if (event.target?.matches?.('#daily-logs-local-view-type')) requestAnimationFrame(syncDailyLayoutVisibilityV327);
   }, true);
   document.addEventListener('click', event => {
+    if (event.target?.closest?.('#add-custom-tab-btn,[data-action="create-tab"]')) requestAnimationFrame(restoreTabTemplatesV327);
     if (event.target?.closest?.('#open-daily-settings-btn,#open-global-daily-settings-nav-btn')) requestAnimationFrame(() => {
       ensureLogSettingsTrashV327();
     });
@@ -8458,6 +8515,7 @@ Return the raw JSON object now and nothing else.`;
 
   const bootV327 = () => {
     removeTrashNavV327();
+    try { restoreTabTemplatesV327(); } catch {}
     try { ensureLogSettingsTrashV327(); } catch {}
     try { syncDailyLayoutVisibilityV327(); } catch {}
     /* Historical code can still call ensureTrashNavButtonV2 later. Remove any
@@ -8492,41 +8550,25 @@ Return the raw JSON object now and nothing else.`;
   };
 
   const NEW_TEMPLATE_DEFS_V328 = [
+
+
     {
-      id: 'personal-dashboard-v328',
-      name: 'Personal Dashboard',
-      icon: 'ph-gauge',
-      description: 'Goals, priorities, quick notes, progress, and recent Daily Log activity in one home base.'
+      id: 'writers-room-v804',
+      name: "Writer's Room",
+      icon: 'ph-pen-nib',
+      description: 'Plan and write your story.'
     },
     {
-      id: 'study-center-v328',
-      name: 'Study Center',
-      icon: 'ph-graduation-cap',
-      description: 'Searchable study material, a study queue, key terms, questions, and resources.'
+      id: 'curriculum-v813',
+      name: 'Curriculum',
+      icon: 'ph-books',
+      description: 'Chapters and sections connected to the real Knowledge Base and Items Learned.'
     },
     {
-      id: 'project-workspace-v328',
-      name: 'Project Workspace',
-      icon: 'ph-kanban',
-      description: 'Goals, next actions, milestones, a project table, references, and visual project work.'
-    },
-    {
-      id: 'habit-practice-v328',
-      name: 'Habit & Practice',
-      icon: 'ph-repeat',
-      description: 'Track a target, practice sessions, skill ratings, routines, and milestone wins.'
-    },
-    {
-      id: 'milestones-goals-v329',
-      name: 'Milestones & Goals',
-      icon: 'ph-target',
-      description: 'Track goals, progress, milestones, next actions, target dates, and status in one focused tracker.'
-    },
-    {
-      id: 'media-board-v328',
-      name: 'Media & Inspiration',
-      icon: 'ph-images-square',
-      description: 'A searchable moodboard with polaroids, project images, saved links, and Daily Log media.'
+      id: 'whiteboard-v197',
+      name: 'Whiteboard',
+      icon: 'ph-selection-background',
+      description: 'Draw and organize ideas on a visual canvas.'
     }
   ];
 
@@ -8582,6 +8624,8 @@ Return the raw JSON object now and nothing else.`;
 
   function buildUsefulTemplateV328(templateId) {
     switch (templateId) {
+      case 'learning-roadmap-2-v813':
+        return [componentV339('pageNavigatorV753',{title:'Skills',pagesV753:[]})];
       case 'logs-review-v536':
       case 'weekly-review':
         return [{
@@ -8596,89 +8640,6 @@ Return the raw JSON object now and nothing else.`;
             { id:'yearly', label:'Yearly Review', hidden:false }
           ]
         }];
-      case 'personal-dashboard-v328': {
-        const search = componentV328('globalSearchV163', { placeholder: 'Search this dashboard...' });
-        const goals = componentV328('goalsV162', { title: 'Goals' });
-        const progress = componentV328('progressMeter', { title: 'Current Progress', target: 7, unit: 'steps' });
-        const recent = componentV328('dailyLogCollection', { title: 'Recent Daily Log Activity', sources: ['notes','knowledge','resources'] });
-        return [
-          search,
-          goals,
-          progress,
-          checklistV328('Top Priorities', ['Choose today’s most important task', 'Finish one meaningful next action', 'Review what needs attention next']),
-          cardsV328('Quick Notes', [
-            { title: 'Remember', body: 'Keep an important reminder here.' },
-            { title: 'Idea', body: 'Capture something worth returning to.' }
-          ]),
-          recent
-        ];
-      }
-      case 'study-center-v328': {
-        const search = componentV328('globalSearchV163', { placeholder: 'Search everything in this study center...' });
-        const collection = componentV328('kbDynamicCollectionV162', { title: 'Study Material', display: 'cards' });
-        const vocab = componentV328('vocabulary', { title: 'Key Terms' });
-        const qa = componentV328('qaV162', { title: 'Questions & Answers' });
-        const resources = componentV328('resources', { title: 'Study Resources' });
-        return [
-          search,
-          checklistV328('Study Queue', ['Choose what to review', 'Practice active recall', 'Mark the next topic to revisit']),
-          collection,
-          vocab,
-          qa,
-          resources
-        ];
-      }
-      case 'project-workspace-v328': {
-        const goals = componentV328('goalsV162', { title: 'Project Goals' });
-        const milestones = componentV328('milestones', { title: 'Milestones' });
-        const resources = componentV328('resources', { title: 'References & Links' });
-        const gallery = componentV328('projectGallery', { title: 'Project Gallery' });
-        return [
-          goals,
-          checklistV328('Next Actions', ['Define the next deliverable', 'Choose the next concrete action', 'Review blockers and progress']),
-          milestones,
-          tableV328('Project Board', ['Task', 'Status', 'Notes']),
-          resources,
-          gallery
-        ];
-      }
-      case 'habit-practice-v328': {
-        const progress = componentV328('progressMeter', { title: 'Weekly Target', target: 5, unit: 'sessions' });
-        const practice = componentV328('practiceLog', { title: 'Practice Sessions' });
-        const skills = componentV328('skillRatings', { title: 'Skill Check-In' });
-        const milestones = componentV328('milestones', { title: 'Milestones' });
-        return [
-          progress,
-          checklistV328('Routine', ['Start with the smallest version of the habit', 'Log the session', 'Write one thing to improve next time']),
-          practice,
-          skills,
-          milestones
-        ];
-      }
-      case 'milestones-goals-v329': {
-        const goals = componentV328('goalsV162', { title: 'Goals' });
-        const progress = componentV328('progressMeter', { title: 'Overall Progress', target: 5, unit: 'goals' });
-        const milestones = componentV328('milestones', { title: 'Milestones' });
-        return [
-          goals,
-          progress,
-          checklistV328('Next Actions', [
-            'Choose the goal that matters most right now',
-            'Write the next concrete action',
-            'Review progress and update the next step'
-          ]),
-          milestones,
-          tableV328('Goal Planner', ['Goal', 'Target Date', 'Status', 'Notes'])
-        ];
-      }
-      case 'media-board-v328': {
-        const search = componentV328('globalSearchV163', { placeholder: 'Search this media board...' });
-        const polaroids = componentV328('polaroids', { title: 'Moodboard', items: [] });
-        const gallery = componentV328('projectGallery', { title: 'Visual Projects' });
-        const resources = componentV328('resources', { title: 'Links & References' });
-        const collection = componentV328('dailyLogCollection', { title: 'Saved Daily Log Media', sources: ['images','videos','pdfs','audio','resources'] });
-        return [search, polaroids, gallery, resources, collection];
-      }
       default:
         return null;
     }
@@ -8687,27 +8648,12 @@ Return the raw JSON object now and nothing else.`;
   function installUsefulTemplatesV328() {
     try {
       if (!Array.isArray(CUSTOM_TAB_TEMPLATES_V53)) return;
-      const keepIds = new Set(['whiteboard-v197', 'notepad-v249']);
-      const preserved = CUSTOM_TAB_TEMPLATES_V53.filter(template => keepIds.has(String(template?.id || '')));
-      const ordered = [];
-      const whiteboard = preserved.find(template => template.id === 'whiteboard-v197') || {
-        id:'whiteboard-v197', name:'Whiteboard', icon:'ph-selection-background',
-        description:'A full-screen multi-board canvas for notes, images, drawing, connections, and visual planning.'
-      };
-      const notebook = preserved.find(template => template.id === 'notepad-v249') || {
-        id:'notepad-v249', name:'Notebook', icon:'ph-notebook',
-        description:'A full-screen multi-page notebook with page categories, paper styles, movable images, drawing tools, and exact-page links from Daily Logs.'
-      };
-      // One canonical order only: Whiteboard first, Notebook second, then the normal templates.
-      ordered.push(deepCopyV328(whiteboard), deepCopyV328(notebook));
-      ordered.push(...NEW_TEMPLATE_DEFS_V328.filter(item => String(item?.id || '') !== 'logs-review-v536').map(deepCopyV328));
-      ordered.push({
-        id: 'logs-review-v536',
-        name: 'Logs Review',
-        icon: 'ph-chart-bar',
-        description: 'Weekly, Monthly, and Yearly log review sections. Reorder or hide the sections in Edit Mode.'
-      });
-      CUSTOM_TAB_TEMPLATES_V53.splice(0, CUSTOM_TAB_TEMPLATES_V53.length, ...ordered);
+      // The canonical built-in template registry is defined in extras-2.
+      // Do not reconstruct an older order or resurrect obsolete templates here.
+      const allowed = new Set(window.__loggyTemplateCatalogV831?.map(x=>x.id) || ["whiteboard-v197", "notepad-v249", "writers-room-v804", "curriculum-v813", "learning-roadmap-2-v813", "research-lab-v822", "youtube-studio-v822", "business-dashboard-v822", "logs-review-v536"]);
+      for(let i=CUSTOM_TAB_TEMPLATES_V53.length-1;i>=0;i--){
+        if(!allowed.has(String(CUSTOM_TAB_TEMPLATES_V53[i]?.id||''))) CUSTOM_TAB_TEMPLATES_V53.splice(i,1);
+      }
 
       if (!buildPrebuiltTabComponentsV53.__v328UsefulTemplates) {
         const before = buildPrebuiltTabComponentsV53;
@@ -8946,8 +8892,6 @@ Return the raw JSON object now and nothing else.`;
     if (anchor) anchor.insertAdjacentElement(anchor.matches('#custom-tab-create-confirm') ? 'beforebegin' : 'afterend', section);
   }
 
-  window.ensureCustomTabPromptButtonV328 = ensureCustomTabPromptButtonV328;
-
   function installStyleV328() {
     if (q('#loggy-v328-tab-template-style')) return;
     const style = document.createElement('style');
@@ -8973,9 +8917,209 @@ Return the raw JSON object now and nothing else.`;
   installStyleV328();
   installUsefulTemplatesV328();
 
+  try {
+    const before = openCustomTabCreateModal;
+    openCustomTabCreateModal = function() {
+      installUsefulTemplatesV328();
+      const result = before.apply(this, arguments);
+      installUsefulTemplatesV328();
+      ensureCustomTabPromptButtonV328();
+      requestAnimationFrame(() => {
+        installUsefulTemplatesV328();
+        ensureCustomTabPromptButtonV328();
+      });
+      return result;
+    };
+  } catch {}
 
+  document.addEventListener('click', event => {
+    if (event.target?.closest?.('#add-custom-tab-btn,[data-action="create-tab"]')) {
+      requestAnimationFrame(() => {
+        installUsefulTemplatesV328();
+        ensureCustomTabPromptButtonV328();
+      });
+    }
+  }, true);
 
-  installUsefulTemplatesV328();
+  const bootV328 = () => {
+    installUsefulTemplatesV328();
+    ensureCustomTabPromptButtonV328();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(bootV328), { once:true });
+  else requestAnimationFrame(bootV328);
+})();
+
+/* ============================================================
+   V330 — CREATE TAB TEMPLATE CARDS HARDENING
+   The V53/V162/V328 wrappers can leave the template section shell in the
+   modal while its grid is empty. Render the desired built-ins directly so
+   the cards are present every time the Create Tab modal opens.
+   ============================================================ */
+(() => {
+  'use strict';
+  if (window.__loggyV330TemplateCards) return;
+  window.__loggyV330TemplateCards = true;
+
+  const q = (selector, root = document) => root?.querySelector?.(selector) || null;
+  const qa = (selector, root = document) => Array.from(root?.querySelectorAll?.(selector) || []);
+  const clone = value => {
+    try { return JSON.parse(JSON.stringify(value)); } catch { return value; }
+  };
+
+  const FALLBACK_V330 = [
+    {
+      id: 'whiteboard-v197',
+      name: 'Whiteboard',
+      icon: 'ph-selection-background',
+      description: 'Draw and organize ideas on a visual canvas.'
+    },
+    {
+      id: 'notepad-v249',
+      name: 'Notebook',
+      icon: 'ph-notebook',
+      description: 'A full-screen multi-page notebook with page categories, paper styles, images, and drawing tools.'
+    },
+    {
+      id: 'writers-room-v804',
+      name: "Writer's Room",
+      icon: 'ph-pen-nib',
+      description: 'Plan and write your story.'
+    },
+    {
+      id: 'logs-review-v536',
+      name: 'Logs Review',
+      icon: 'ph-chart-bar',
+      description: 'Review your activity across weeks, months, and years.'
+    },
+    {
+      id: 'curriculum-v813',
+      name: 'Curriculum',
+      icon: 'ph-books',
+      description: 'Chapter → Sections with automatic completion using logged real-KB items.'
+    },
+    {
+      id: 'learning-roadmap-2-v813',
+      name: 'Multiples',
+      icon: 'ph-path',
+      description: 'Explore several skills within one Log.'
+    }
+  ];
+
+  function desiredTemplatesV330() {
+    let current = [];
+    try { current = Array.isArray(CUSTOM_TAB_TEMPLATES_V53) ? CUSTOM_TAB_TEMPLATES_V53 : []; } catch {}
+    const currentById = new Map(current.map(item => [String(item?.id || ''), item]));
+    return (window.__loggyTemplateCatalogV831 || FALLBACK_V330).map(fallback => {
+      const existing = currentById.get(fallback.id);
+      return existing ? { ...clone(fallback), ...clone(existing), id: fallback.id } : clone(fallback);
+    });
+  }
+
+  function syncTemplateRegistryV330() {
+    const desired = desiredTemplatesV330();
+    try {
+      if (Array.isArray(CUSTOM_TAB_TEMPLATES_V53)) {
+        CUSTOM_TAB_TEMPLATES_V53.splice(0, CUSTOM_TAB_TEMPLATES_V53.length, ...desired);
+      }
+    } catch {}
+    return desired;
+  }
+
+  function ensureSectionV330(modal) {
+    let section = q('.custom-tab-template-section-v53', modal);
+    if (section) return section;
+
+    section = document.createElement('section');
+    section.className = 'modal-section custom-tab-template-section-v53';
+    section.dataset.v330OwnedSection = '1';
+    section.innerHTML = `
+      <span class="field-label">Tab Templates</span>
+      <p class="custom-tab-create-hint">Pick one to create a ready-made page. You can still edit, reorder, add, or remove its sections afterward.</p>
+      <div class="custom-tab-template-grid-v53"></div>`;
+
+    const iconSection = q('#custom-tab-icon-picker', modal)?.closest('.modal-section');
+    const nameSection = q('#custom-tab-name-input', modal)?.closest('.modal-section');
+    const anchor = iconSection || nameSection;
+    if (anchor) anchor.insertAdjacentElement('afterend', section);
+    else q('.modal-box', modal)?.appendChild(section);
+
+    section.addEventListener('click', event => {
+      const card = event.target.closest?.('[data-custom-tab-template-v53]');
+      if (!card) return;
+      const id = String(card.dataset.customTabTemplateV53 || '');
+      const wasSelected = card.classList.contains('selected');
+      qa('[data-custom-tab-template-v53]', section).forEach(item => item.classList.remove('selected'));
+      modal.dataset.selectedTemplateV53 = wasSelected ? '' : id;
+      if (wasSelected) return;
+      card.classList.add('selected');
+      let template = null;
+      try { template = CUSTOM_TAB_TEMPLATES_V53.find(item => String(item?.id || '') === id) || null; } catch {}
+      const name = q('#custom-tab-name-input', modal);
+      if (name && (!name.value.trim() || name.value === (modal.dataset.lastTemplateNameV53 || ''))) {
+        name.value = String(template?.name || card.dataset.templateNameV330 || '');
+      }
+      modal.dataset.lastTemplateNameV53 = String(template?.name || card.dataset.templateNameV330 || '');
+      try { selectTemplateIconV53?.(modal, String(template?.icon || card.dataset.templateIconV330 || 'ph-squares-four')); } catch {}
+    });
+    return section;
+  }
+
+  function stateForV330(id) {
+    try {
+      const appDb = (typeof db !== 'undefined' ? db : window.db);
+      return String(appDb?.settings?.builtInBlueprintStateV162?.[id] || 'active');
+    } catch {
+      return 'active';
+    }
+  }
+
+  function renderTemplateCardsV330() {
+    // One authoritative early picker. The older V330 renderer must never rebuild
+    // a partial registry or blank the grid after Create Tab is already visible.
+    window.__loggyRenderTemplateCatalogV831?.();
+  }
+
+  function installStyleV330() {
+    if (q('#loggy-v330-template-card-style')) return;
+    const style = document.createElement('style');
+    style.id = 'loggy-v330-template-card-style';
+    style.textContent = `
+      #custom-tab-create-modal .custom-tab-template-grid-v53{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;min-height:88px}
+      #custom-tab-create-modal .custom-tab-template-card-v53:not(.hidden){display:grid!important;visibility:visible!important;opacity:1!important}
+      @media(max-width:600px){#custom-tab-create-modal .custom-tab-template-grid-v53{grid-template-columns:1fr!important}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  installStyleV330();
+
+  // V831: metadata is available immediately. One lightweight, idempotent pass
+  // replaces the former four full-grid rerenders on each modal opening.
+  try {
+    const beforeOpenV330 = openCustomTabCreateModal;
+    openCustomTabCreateModal = function() {
+      const result = beforeOpenV330.apply(this, arguments);
+      try{window.__loggyRenderTemplateCatalogV831?.()}catch{}
+      return result;
+    };
+  } catch {}
+
+  const bootV330 = () => {
+    renderTemplateCardsV330();
+    const modal = q('#custom-tab-create-modal');
+    if (!modal || modal.dataset.v330TemplateObserver === '1') return;
+    modal.dataset.v330TemplateObserver = '1';
+    try {
+      new MutationObserver(() => {
+        const section = q('.custom-tab-template-section-v53', modal);
+        const grid = q('.custom-tab-template-grid-v53', section);
+        if (!section || !grid || !grid.children.length) renderTemplateCardsV330();
+      }).observe(modal, { childList: true, subtree: true });
+    } catch {}
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(bootV330), { once: true });
+  else requestAnimationFrame(bootV330);
 })();
 
 // ============================================================================
@@ -9085,11 +9229,38 @@ Return the raw JSON object now and nothing else.`;
 
   // If any late repair re-renders the grid, put the selected state back onto
   // the newly-created card instead of making the choice appear to disappear.
+  function observeCreateModalV337() {
+    const modal = q('#custom-tab-create-modal');
+    if (!modal || modal.dataset.v337TemplateObserver === '1') return;
+    modal.dataset.v337TemplateObserver = '1';
+    try {
+      new MutationObserver(() => restoreSelectedCardV337(modal)).observe(modal, {
+        childList: true,
+        subtree: true
+      });
+    } catch {}
+  }
+
+  try {
+    const before = window.openCustomTabCreateModal;
+    if (typeof before === 'function' && !before.__v337TemplateSelection) {
+      const wrapped = function() {
+        const result = before.apply(this, arguments);
+        observeCreateModalV337();
+        requestAnimationFrame(() => restoreSelectedCardV337(q('#custom-tab-create-modal')));
+        return result;
+      };
+      wrapped.__v337TemplateSelection = true;
+      window.openCustomTabCreateModal = wrapped;
+      try { openCustomTabCreateModal = wrapped; } catch {}
+    }
+  } catch {}
+
   const CONNECTION_HELP_V337 = {
     title: 'Daily Log Connections',
-    what: 'Shows an undirected graph of which Daily Log days are connected to each other.',
-    how: 'To use it: open any Daily Log, type @ and link another Day in Log Notes. That creates one line between the two Day nodes automatically. The link works both ways, so it does not matter which Day contains the @Day reference. Click a Day node to open that log.',
-    example: 'Example: if Day 12 contains @Day 3, the graph shows one connection: Day 12 — Day 3. Adding @Day 12 inside Day 3 will not create a duplicate line.'
+    what: 'See which Daily Log days are connected to each other.',
+    how: 'Use @Day links in Log Notes to connect days. This component turns those links into a visual map you can click through.',
+    example: 'Useful when you want to see how different learning days or topics connect.'
   };
 
   function componentForWrapV337(tab, wrap, index) {
@@ -9150,6 +9321,7 @@ Return the raw JSON object now and nothing else.`;
   } catch {}
 
   function bootV337() {
+    observeCreateModalV337();
     try {
       const tabId = typeof activeCustomTabId !== 'undefined' ? activeCustomTabId : '';
       const tab = tabId && typeof getCustomTab === 'function' ? getCustomTab(tabId) : null;
@@ -9187,12 +9359,11 @@ Return the raw JSON object now and nothing else.`;
   const TEMPLATE_META_V339 = [
     { id:'whiteboard-v197', name:'Whiteboard', icon:'ph-selection-background' },
     { id:'notepad-v249', name:'Notebook', icon:'ph-notebook' },
-    { id:'personal-dashboard-v328', name:'Personal Dashboard', icon:'ph-gauge' },
-    { id:'study-center-v328', name:'Study Center', icon:'ph-graduation-cap' },
-    { id:'project-workspace-v328', name:'Project Workspace', icon:'ph-kanban' },
-    { id:'habit-practice-v328', name:'Habit & Practice', icon:'ph-repeat' },
-    { id:'milestones-goals-v329', name:'Milestones & Goals', icon:'ph-target' },
-    { id:'media-board-v328', name:'Media & Inspiration', icon:'ph-images-square' },
+
+
+    { id:'curriculum-v813', name:'Curriculum', icon:'ph-books' },
+    { id:'learning-roadmap-2-v813', name:'Multiples', icon:'ph-path' },
+    { id:'writers-room-v804', name:"Writer's Room", icon:'ph-pen-nib' },
     { id:'logs-review-v536', name:'Logs Review', icon:'ph-chart-bar' },
     { id:'weekly-review', name:'Logs Review', icon:'ph-chart-bar' }
   ];
@@ -9232,64 +9403,129 @@ Return the raw JSON object now and nothing else.`;
         return [{ id:makeId('component'), type:'miroWhiteboardV197', title:'Whiteboard' }];
       case 'notepad-v249':
         return [{ id:makeId('component'), type:'fullNotepadV249', title:'Notebook' }];
-      case 'personal-dashboard-v328':
-        return [
-          componentV339('globalSearchV163', { placeholder:'Search this dashboard...' }),
-          componentV339('goalsV162', { title:'Goals' }),
-          componentV339('progressMeter', { title:'Current Progress', target:7, unit:'steps' }),
-          checklistV339('Top Priorities', [
-            'Choose today’s most important task',
-            'Finish one meaningful next action',
-            'Review what needs attention next'
-          ]),
-          cardsV339('Quick Notes', [
-            { title:'Remember', body:'Keep an important reminder here.' },
-            { title:'Idea', body:'Capture something worth returning to.' }
-          ]),
-          componentV339('dailyLogCollection', { title:'Recent Daily Log Activity', sources:['notes','knowledge','resources'] })
-        ];
-      case 'study-center-v328':
-        return [
-          componentV339('globalSearchV163', { placeholder:'Search everything in this study center...' }),
-          checklistV339('Study Queue', ['Choose what to review','Practice active recall','Mark the next topic to revisit']),
-          componentV339('kbDynamicCollectionV162', { title:'Study Material', display:'cards' }),
-          componentV339('vocabulary', { title:'Key Terms' }),
-          componentV339('qaV162', { title:'Questions & Answers' }),
-          componentV339('resources', { title:'Study Resources' })
-        ];
-      case 'project-workspace-v328':
-        return [
-          componentV339('goalsV162', { title:'Project Goals' }),
-          checklistV339('Next Actions', ['Define the next deliverable','Choose the next concrete action','Review blockers and progress']),
-          componentV339('milestones', { title:'Milestones' }),
-          tableV339('Project Board', ['Task','Status','Notes']),
-          componentV339('resources', { title:'References & Links' }),
-          componentV339('projectGallery', { title:'Project Gallery' })
-        ];
-      case 'habit-practice-v328':
-        return [
-          componentV339('progressMeter', { title:'Weekly Target', target:5, unit:'sessions' }),
-          checklistV339('Routine', ['Start with the smallest version of the habit','Log the session','Write one thing to improve next time']),
-          componentV339('practiceLog', { title:'Practice Sessions' }),
-          componentV339('skillRatings', { title:'Skill Check-In' }),
-          componentV339('milestones', { title:'Milestones' })
-        ];
-      case 'milestones-goals-v329':
-        return [
-          componentV339('goalsV162', { title:'Goals' }),
-          componentV339('progressMeter', { title:'Overall Progress', target:5, unit:'goals' }),
-          checklistV339('Next Actions', ['Choose the goal that matters most right now','Write the next concrete action','Review progress and update the next step']),
-          componentV339('milestones', { title:'Milestones' }),
-          tableV339('Goal Planner', ['Goal','Target Date','Status','Notes'])
-        ];
-      case 'media-board-v328':
-        return [
-          componentV339('globalSearchV163', { placeholder:'Search this media board...' }),
-          componentV339('polaroids', { title:'Moodboard', items:[] }),
-          componentV339('projectGallery', { title:'Visual Projects' }),
-          componentV339('resources', { title:'Links & References' }),
-          componentV339('dailyLogCollection', { title:'Saved Daily Log Media', sources:['images','videos','pdfs','audio','resources'] })
-        ];
+      case 'curriculum-v813':
+      case 'learning-roadmap-v750': {
+        const kbId=makeId('component');
+        const linearRoadmapId=makeId('component');
+        const moduleRoadmapId=makeId('component');
+        const recId=makeId('component');
+        const field=(name)=>({id:makeId('kb-field'),name,kind:'text',pronunciation:false,ttsLang:'en',options:[],maxRating:5,defaultPinColor:'#e53935',numberStyle:'number',decimals:2,currencySymbol:'$',dateMode:'single'});
+        const conceptField=field('Concept / Prompt'), answerField=field('Answer / Key idea');
+        const catSettings=()=>({fields:[clone(conceptField),clone(answerField)]});
+        const kb={
+          id:kbId,type:'customKnowledgeBaseV453',title:'Chemistry Course Knowledge Base',titleBackground:'none',
+          categories:['Conversion Factors','Atomic Structure','Chemical Naming','Stoichiometry'],activeCategory:'all',placeholdersEnabledV463:false,placeholdersV463:[],
+          categorySettings:{
+            'Conversion Factors':catSettings(),
+            'Atomic Structure':catSettings(),
+            'Chemical Naming':catSettings(),
+            'Stoichiometry':catSettings()
+          },
+          items:[
+            {id:makeId('kb-item'),title:'Metric prefix ladder',category:'Conversion Factors',tags:['module-1','1.1','conversion-factors','reference'],values:{'Concept / Prompt':'kilo → hecto → deka → base → deci → centi → milli','Answer / Key idea':'Each metric step changes by a factor of 10.'}},
+            {id:makeId('kb-item'),title:'Conversion-factor setup',category:'Conversion Factors',tags:['module-1','1.1','conversion-factors','reference'],values:{'Concept / Prompt':'How should a unit conversion be arranged?','Answer / Key idea':'Multiply by a ratio equal to 1 so the unwanted unit cancels.'}},
+            {id:makeId('kb-item'),title:'Practice: kg → g',category:'Conversion Factors',tags:['module-1','1.2','conversion-factors','practice'],values:{'Concept / Prompt':'Convert 3.5 kg to g.','Answer / Key idea':'3500 g'}},
+            {id:makeId('kb-item'),title:'Practice: mL → L',category:'Conversion Factors',tags:['module-1','1.2','conversion-factors','practice'],values:{'Concept / Prompt':'Convert 725 mL to L.','Answer / Key idea':'0.725 L'}},
+            {id:makeId('kb-item'),title:'Practice: mg → kg',category:'Conversion Factors',tags:['module-1','1.2','conversion-factors','practice'],values:{'Concept / Prompt':'Convert 480000 mg to kg.','Answer / Key idea':'0.48 kg'}},
+            {id:makeId('kb-item'),title:'Practice: kg/m³ → g/cm³',category:'Conversion Factors',tags:['module-1','1.3','conversion-factors','practice','compound-units'],values:{'Concept / Prompt':'Convert 1250 kg/m³ to g/cm³.','Answer / Key idea':'1.25 g/cm³'}},
+            {id:makeId('kb-item'),title:'Practice: m² → ft²',category:'Conversion Factors',tags:['module-1','1.3','conversion-factors','practice','compound-units'],values:{'Concept / Prompt':'Convert 2.0 m² to ft² using 1 m = 3.28084 ft.','Answer / Key idea':'Square the length conversion factor before multiplying.'}},
+
+            {id:makeId('kb-item'),title:'Proton',category:'Atomic Structure',tags:['module-2','2.1','atomic-structure','reference'],values:{'Concept / Prompt':'Positively charged particle in the nucleus.','Answer / Key idea':'The proton count determines the element.'}},
+            {id:makeId('kb-item'),title:'Neutron',category:'Atomic Structure',tags:['module-2','2.1','atomic-structure','reference'],values:{'Concept / Prompt':'Neutral particle in the nucleus.','Answer / Key idea':'Protons + neutrons = mass number.'}},
+            {id:makeId('kb-item'),title:'Electron',category:'Atomic Structure',tags:['module-2','2.1','atomic-structure','reference'],values:{'Concept / Prompt':'Negatively charged particle outside the nucleus.','Answer / Key idea':'Changing electron count creates ions.'}},
+            {id:makeId('kb-item'),title:'Practice: count subatomic particles',category:'Atomic Structure',tags:['module-2','2.2','atomic-structure','practice'],values:{'Concept / Prompt':'For ²³Na⁺, determine protons, neutrons, and electrons.','Answer / Key idea':'Use atomic number for protons, mass − atomic number for neutrons, then adjust electrons for charge.'}},
+            {id:makeId('kb-item'),title:'Practice: identify ion charge',category:'Atomic Structure',tags:['module-2','2.3','atomic-structure','practice','ions'],values:{'Concept / Prompt':'An atom has 12 protons and 10 electrons. What is its charge?','Answer / Key idea':'+2'}},
+
+            {id:makeId('kb-item'),title:'Binary molecular prefixes',category:'Chemical Naming',tags:['module-3','3.1','naming','reference'],values:{'Concept / Prompt':'Prefixes indicate atom counts in binary molecular compounds.','Answer / Key idea':'mono-, di-, tri-, tetra-, penta-, hexa-, hepta-, octa-, nona-, deca-'}},
+            {id:makeId('kb-item'),title:'Fixed-charge ionic naming rule',category:'Chemical Naming',tags:['module-3','3.2','naming','reference'],values:{'Concept / Prompt':'How do you name a fixed-charge metal + nonmetal/polyatomic ion compound?','Answer / Key idea':'Metal name first, then the anion name. No Roman numeral.'}},
+            {id:makeId('kb-item'),title:'Variable-charge ionic naming rule',category:'Chemical Naming',tags:['module-3','3.3','naming','reference'],values:{'Concept / Prompt':'How do you name a variable-charge metal compound?','Answer / Key idea':'Find the metal charge from the anion charges and show it with a Roman numeral.'}},
+            {id:makeId('kb-item'),title:'Practice: N₂O₅',category:'Chemical Naming',tags:['module-3','3.1','naming','practice'],values:{'Concept / Prompt':'Give the IUPAC name of N₂O₅.','Answer / Key idea':'dinitrogen pentoxide'}},
+            {id:makeId('kb-item'),title:'Practice: FeCl₃',category:'Chemical Naming',tags:['module-3','3.3','naming','practice'],values:{'Concept / Prompt':'Give the IUPAC name of FeCl₃.','Answer / Key idea':'iron(III) chloride'}},
+            {id:makeId('kb-item'),title:'Practice: calcium nitrate formula',category:'Chemical Naming',tags:['module-3','3.2','naming','practice'],values:{'Concept / Prompt':'Write the formula for calcium nitrate.','Answer / Key idea':'Ca(NO₃)₂'}},
+
+            {id:makeId('kb-item'),title:'Mole ratio',category:'Stoichiometry',tags:['module-4','4.1','stoichiometry','reference'],values:{'Concept / Prompt':'Where does a mole ratio come from?','Answer / Key idea':'From coefficients in a balanced chemical equation.'}},
+            {id:makeId('kb-item'),title:'Molar mass',category:'Stoichiometry',tags:['module-4','4.2','stoichiometry','reference'],values:{'Concept / Prompt':'Mass of one mole of a substance.','Answer / Key idea':'Add the atomic masses for every atom in the formula.'}},
+            {id:makeId('kb-item'),title:'Practice: moles → grams',category:'Stoichiometry',tags:['module-4','4.2','stoichiometry','practice'],values:{'Concept / Prompt':'Find the grams in 2.0 mol H₂O.','Answer / Key idea':'Multiply moles by the molar mass of H₂O.'}},
+            {id:makeId('kb-item'),title:'Practice: reaction mole ratio',category:'Stoichiometry',tags:['module-4','4.3','stoichiometry','practice'],values:{'Concept / Prompt':'For 2H₂ + O₂ → 2H₂O, how many mol H₂O form from 3 mol O₂?','Answer / Key idea':'6 mol H₂O'}}
+          ]
+        };
+
+        const baseRoadmap={
+          type:'skillRoadmapV749',titleBackground:'none',roadmapKbSourceModeV750:'component',roadmapKbSourceTabIdV750:'',roadmapKbSourceComponentIdV750:kbId,
+          xpPerSkillV749:25,nodesPerRowV749:4,sequentialV749:false,autoCompleteSubsectionsV749:true,showTitlesV749:true,
+          showAddSkillOutsideEditV752:false,showFocusOutsideEditV785:true,sectionContentModeV785:'tagged',autoLinkSectionsToCurrentDayV753:true,
+          pathModeV749:'rainbow',pathColorV749:'#6f4bd8',nodeClickSoundV756:'soft',
+          completedColorV749:'#3fbf8f',completedTextColorV749:'#ffffff',currentColorV749:'#ffffff',currentBorderV749:'#6f4bd8',lockedColorV749:'#eeeeee',
+          confettiV749:false,rewardSoundV749:false,rewardsV749:[{xp:100,title:'100 XP Reward',message:'You reached 100 XP!',icon:'ph-star'},{xp:250,title:'250 XP Reward',message:'You reached 250 XP!',icon:'ph-trophy'}],claimedRewardIdsV749:[]
+        };
+        const linearRoadmap={...clone(baseRoadmap),id:linearRoadmapId,title:'Course Overview · Standard Roadmap',structureModeV753:'linear',nodes:[
+          {id:makeId('road-node'),label:'1.1',title:'Measurement & Conversion Factors',kbTagsV752:['module-1','conversion-factors'],description:'Use this node as the curriculum checkpoint for metric and compound-unit conversions.',subsections:[],linkedDays:[],completed:false,manualItemKeysV785:[],modalLayoutV785:null,autoCompleteRuleV788:{mode:'manual',tags:[],target:1}},
+          {id:makeId('road-node'),label:'1.2',title:'Atomic Structure',kbTagsV752:['module-2','atomic-structure'],description:'Track the particle, isotope, and ion skills in this module.',subsections:[],linkedDays:[],completed:false,manualItemKeysV785:[],modalLayoutV785:null,autoCompleteRuleV788:{mode:'manual',tags:[],target:1}},
+          {id:makeId('road-node'),label:'1.3',title:'Chemical Naming',kbTagsV752:['module-3','naming'],description:'Track binary molecular and ionic compound naming/formula skills.',subsections:[],linkedDays:[],completed:false,manualItemKeysV785:[],modalLayoutV785:null,autoCompleteRuleV788:{mode:'manual',tags:[],target:1}},
+          {id:makeId('road-node'),label:'1.4',title:'Stoichiometry',kbTagsV752:['module-4','stoichiometry'],description:'Track mole ratios, molar mass, and conversion problems.',subsections:[],linkedDays:[],completed:false,manualItemKeysV785:[],modalLayoutV785:null,autoCompleteRuleV788:{mode:'manual',tags:[],target:1}}
+        ]};
+        const sub=(label,title,tags,description,autoCompleteRuleV788={mode:'manual',tags:[],target:1})=>({id:makeId('road-sub'),label,title,rawTitle:`${label} ${title}`,kbTagV753:tags[0],kbTagsV753:tags,description,done:false,completedAt:'',manualItemKeysV785:[],modalLayoutV785:null,autoCompleteRuleV788});
+        const moduleRoadmap={...clone(baseRoadmap),id:moduleRoadmapId,title:'Course Modules · Main Node + Section Nodes',structureModeV753:'chapters',nodesPerRowV749:3,nodes:[
+          {id:makeId('road-node'),label:'CH1',title:'Chapter 1 · Measurement & Conversions',kbTag:'CH1',kbTagsV752:['CH1','module-1','conversion-factors'],description:'Complete the smaller section nodes as your module checklist. Each section recommends matching KB references and practice problems.',subsections:[
+            sub('1.1','Set Up Conversion Factors',['1.1','conversion-factors'],'Review the metric ladder and how units cancel.'),
+            sub('1.2','Single-Unit Conversions',['1.2','conversion-factors','practice'],'Recommended practice includes kg → g, mL → L, and mg → kg.',{mode:'distinct',tags:['1.2','conversion-factors','practice'],target:3}),
+            sub('1.3','Compound & Squared Units',['1.3','conversion-factors','compound-units','practice'],'Recommended practice includes kg/m³ → g/cm³ and area conversions.')
+          ],linkedDays:[],completed:false,completedAt:'',manualItemKeysV785:[],modalLayoutV785:null,autoCompleteRuleV788:{mode:'manual',tags:[],target:1}},
+          {id:makeId('road-node'),label:'CH2',title:'Chapter 2 · Atomic Structure',kbTag:'CH2',kbTagsV752:['CH2','module-2','atomic-structure'],description:'Work from particle facts into isotope and ion problems.',subsections:[
+            sub('2.1','Protons, Neutrons & Electrons',['2.1','atomic-structure'],'Review the three subatomic particles.'),
+            sub('2.2','Isotopes & Particle Counts',['2.2','atomic-structure','practice'],'Use atomic and mass numbers to determine particle counts.'),
+            sub('2.3','Ions & Charge',['2.3','atomic-structure','ions','practice'],'Determine charge from proton/electron counts.')
+          ],linkedDays:[],completed:false,completedAt:'',manualItemKeysV785:[],modalLayoutV785:null,autoCompleteRuleV788:{mode:'manual',tags:[],target:1}},
+          {id:makeId('road-node'),label:'CH3',title:'Chapter 3 · Chemical Naming',kbTag:'CH3',kbTagsV752:['CH3','module-3','naming'],description:'Use the KB rules as references and the tagged entries as recommended practice.',subsections:[
+            sub('3.1','Binary Molecular Compounds',['3.1','naming'],'Use prefixes and -ide endings.'),
+            sub('3.2','Fixed-Charge Ionic Compounds',['3.2','naming'],'Name and write formulas without Roman numerals.'),
+            sub('3.3','Variable-Charge Ionic Compounds',['3.3','naming'],'Determine the metal charge and use a Roman numeral.')
+          ],linkedDays:[],completed:false,completedAt:'',manualItemKeysV785:[],modalLayoutV785:null,autoCompleteRuleV788:{mode:'manual',tags:[],target:1}},
+          {id:makeId('road-node'),label:'CH4',title:'Chapter 4 · Stoichiometry',kbTag:'CH4',kbTagsV752:['CH4','module-4','stoichiometry'],description:'Use the roadmap as a guide for which ideas/problems to work through, then mark sections complete yourself.',subsections:[
+            sub('4.1','Mole Ratios',['4.1','stoichiometry'],'Read mole ratios from balanced equations.'),
+            sub('4.2','Molar Mass Conversions',['4.2','stoichiometry','practice'],'Practice converting between moles and grams.'),
+            sub('4.3','Reaction Conversions',['4.3','stoichiometry','practice'],'Use coefficients to move between reactant and product amounts.')
+          ],linkedDays:[],completed:false,completedAt:'',manualItemKeysV785:[],modalLayoutV785:null,autoCompleteRuleV788:{mode:'manual',tags:[],target:1}}
+        ]};
+        const rec={
+          id:recId,type:'lazyRecommendationV747',title:'Recommendation Button',titleBackground:'none',iconV747:'ph-shuffle',
+          categoriesV747:[],tagsV747:['practice'],tagModeV747:'and',removeTagsV747:[],fieldFiltersV747:[],
+          sourceModeV748:'component',sourceTabIdV748:'',sourceComponentIdV748:kbId,
+          destinationModeV747:'none',dayDestinationV747:'current',destinationComponentIdV747:'',
+          acceptedItemIdsV747:[],acceptedSourceKeysV748:[],currentItemIdV747:'',lastItemIdV747:'',currentSourceKeyV748:'',lastSourceKeyV748:''
+        };
+        if(templateId==='curriculum-v813' || templateId==='learning-roadmap-v750'){
+          const curriculum=moduleRoadmap;
+          curriculum.title='Curriculum · Chapters & Sections';
+          curriculum.roadmapKbSourceModeV750='global';
+          curriculum.roadmapKbSourceComponentIdV750='';
+          curriculum.roadmapKbSourceTabIdV750='';
+          curriculum.sectionContentModeV785='learned';
+          curriculum.autoCompleteSubsectionsV749=true;
+          const chapterTitles=['Getting Started','Building Foundations','Practice & Application','Review & Mastery'];
+          curriculum.nodes.forEach((node,i)=>{
+            node.title=`Chapter ${i+1} · ${chapterTitles[i]}`;
+            node.description='Match your real Knowledge Base entries to this chapter or its sections using the section tags. Items Learned in Day Logs count toward automatic completion.';
+            node.kbTagsV752=[`CH${i+1}`];
+            node.autoCompleteRuleV788={mode:'manual',tags:[],target:1};
+            node.subsections.forEach((sub,j)=>{
+              sub.title=['Concepts & References','Practice Problems','Apply & Review'][j]||`Section ${j+1}`;
+              sub.description=`Add #${i+1}.${j+1} to real KB items, then add them to Items Learned. This section automatically completes after 3 different matching KB items are logged.`;
+              sub.kbTagV753=`${i+1}.${j+1}`;
+              sub.kbTagsV753=[`${i+1}.${j+1}`];
+              sub.autoCompleteRuleV788={mode:'distinct',tags:[`${i+1}.${j+1}`],target:3};
+            });
+          });
+          return [
+            componentV339('heading',{text:'Curriculum'}),
+            componentV339('text',{title:'How to use your curriculum',text:'This roadmap uses the real Knowledge Base. Add section tags such as #1.1 to KB items, then record those items in your Day Logs under Items Learned. Each section completes after 3 different matching items have been logged. You can change its target or tagging rule in Automatic Completion. Your existing Quizzes tab remains the quiz system.'}),
+            curriculum
+          ];
+        }
+        // Retired single-Chemistry roadmap must not reappear through a legacy alias.
+        // The live Multiples template is created by the shared skill-page builder.
+        return [componentV339('pageNavigatorV753',{title:'Skills',pagesV753:[]})];
+      }
       case 'logs-review-v536':
       case 'weekly-review':
         return [{
@@ -9310,6 +9546,8 @@ Return the raw JSON object now and nothing else.`;
   }
 
   function buildTemplateComponentsV339(templateId) {
+    // Multiples is created solely by its shared skill-page builder, never the legacy Chemistry blueprint.
+    if (String(templateId) === 'learning-roadmap-2-v813') return [componentV339('pageNavigatorV753',{title:'Skills',pagesV753:[]})];
     let components = [];
     try {
       if (typeof buildPrebuiltTabComponentsV53 === 'function') {
@@ -9323,22 +9561,6 @@ Return the raw JSON object now and nothing else.`;
     return clone(components || []);
   }
 
-  function addOptionalCreateContentV339(tab, modal) {
-    // Whiteboard and Notebook are dedicated full-screen apps. Do not attach
-    // normal custom-tab sections to them; those sections would never be shown.
-    if (['whiteboard-v197','notepad-v249'].includes(String(tab.templateIdV53 || ''))) return;
-
-    const chosenDailySources = qa('.custom-tab-daily-source-grid input[type="checkbox"]:checked', modal).map(input => input.value);
-    if (chosenDailySources.length) {
-      const existing = tab.components.find(component => component?.type === 'dailyLogCollection');
-      if (existing) existing.sources = Array.from(new Set([...(existing.sources || []), ...chosenDailySources]));
-      else tab.components.push(componentV339('dailyLogCollection', { sources:chosenDailySources }));
-    }
-
-    if (q('#custom-tab-add-connections-map', modal)?.checked && !tab.components.some(component => component?.type === 'dailyConnectionsGraph')) {
-      tab.components.push({ id:makeId('component'), type:'dailyConnectionsGraph', title:'Daily Log Connections', titleBackground:'none' });
-    }
-  }
 
   function createSelectedTemplateV339(modal, templateId) {
     if (!modal || !templateId) return null;
@@ -9393,7 +9615,6 @@ Return the raw JSON object now and nothing else.`;
       };
     }
 
-    addOptionalCreateContentV339(tab, modal);
 
     if (!Array.isArray(tab.components) || !tab.components.length) {
       console.error('V339 refused to create an empty built-in template', templateId);
@@ -9403,36 +9624,44 @@ Return the raw JSON object now and nothing else.`;
     const tabs = typeof getCustomTabs === 'function' ? getCustomTabs() : null;
     if (!Array.isArray(tabs)) return null;
     tabs.push(tab);
+    try{if(String(templateId)==='learning-roadmap-2-v813')window.__loggyExpandMultiplesV854?.(tab);else window.__loggyExpandTemplatePagesV822?.(tab)}catch(error){console.error('Could not create template pages',error)}
+
+    if (String(templateId) === 'curriculum-v813') {
+      // Reusable examples are real KB entries and are recorded in actual Day Logs.
+      // Preserve anything the user has already written in either day.
+      try {
+        const data = (typeof db !== 'undefined' ? db : window.db);
+        data.phrases ||= []; data.phrase_meta ||= {}; data.days ||= {};
+        data.settings ||= {}; data.settings.categories ||= [];
+        const category = 'Curriculum Examples';
+        if (!data.settings.categories.includes(category)) data.settings.categories.push(category);
+        data.settings.categorySettings ||= {};
+        data.settings.categorySettings[category] ||= {fields:[{id:'curriculum-answer-v814',name:'Answer / Notes',kind:'text',options:[]}]};
+        const sample = [
+          ['Curriculum Demo: Metric prefixes', '1.1', 1, 'Recognize kilo, centi, and milli.'],
+          ['Curriculum Demo: Unit cancellation', '1.1', 1, 'Cancel matching units when multiplying conversion factors.'],
+          ['Curriculum Demo: Factors equal to one', '1.1', 2, 'A conversion ratio represents the same amount in two units.'],
+          ['Curriculum Demo: kg to g', '1.2', 2, '1 kg = 1000 g.'],
+          ['Curriculum Demo: mL to L', '1.2', 2, '1000 mL = 1 L.']
+        ];
+        for (const [id,section,day,answer] of sample) {
+          if (!data.phrases.includes(id)) data.phrases.push(id);
+          const prior = data.phrase_meta[id] || {};
+          data.phrase_meta[id] = {...prior,type:category,tags:[...new Set([...(prior.tags||[]),section,'curriculum-demo'])],custom_fields:{...(prior.custom_fields||{}),'Answer / Notes':answer},parts:prior.parts||[]};
+          data.days[day] ||= {notes:'',phrases:[],tools:[],video:'',checkedParts:{},customTabLinks:[]};
+          data.days[day].phrases ||= [];
+          if (!data.days[day].phrases.includes(id)) data.days[day].phrases.push(id);
+        }
+      } catch (error) { console.warn('Could not seed Curriculum demo activity',error); }
+    }
     try { saveDb(); } catch {}
     try { closeCustomTabCreateModal?.(); } catch { modal.classList.add('hidden'); }
     try { renderCustomTabNavigation?.(); } catch {}
 
-    // Whiteboard/Notebook are not ordinary custom-tab canvases. Build their exact
-    // dedicated fullscreen host here instead of trusting any older generic
-    // buildCustomTabView wrapper to recognize them later. This prevents the bad
-    // state where creation opens a normal custom tab containing only the title.
-    const special = ['whiteboard-v197','notepad-v249'].includes(String(templateId));
+    // Build the view through the current wrapper chain. For Whiteboard/Notebook,
+    // extras-5 replaces this with the full-screen host instead of a normal canvas.
     let view = null;
-    try {
-      if (special) {
-        view = document.createElement('div');
-        view.id = `custom-tab-view-${tab.id}`;
-        view.dataset.customTabId = String(tab.id);
-        if (String(templateId) === 'whiteboard-v197') {
-          view.className = 'view custom-tab-view whiteboard-tab-view-v198';
-          view.dataset.whiteboardV198 = '1';
-          view.innerHTML = '<div class="whiteboard-runtime-host-v198"><div class="whiteboard-runtime-loading-v198">Opening whiteboard…</div></div>';
-        } else {
-          view.className = 'view custom-tab-view notepad-tab-view-v249';
-          view.dataset.notepadV249 = '1';
-          view.innerHTML = '<div class="notepad-runtime-host-v249"><div class="notepad-runtime-loading-v249">Opening notebook…</div></div>';
-        }
-      } else {
-        view = buildCustomTabView(tab);
-      }
-    } catch (error) {
-      console.error('V339 could not build template view', error);
-    }
+    try { view = buildCustomTabView(tab); } catch (error) { console.error('V339 could not build template view', error); }
     if (view) {
       const existing = document.getElementById(`custom-tab-view-${tab.id}`);
       if (existing) existing.replaceWith(view);
@@ -9440,13 +9669,12 @@ Return the raw JSON object now and nothing else.`;
     }
     try { activeCustomTabId = tab.id; } catch {}
     try { customTabEditMode = false; } catch {}
-    // Special workspaces mount themselves through the Whiteboard/Notebook
-    // openCustomTab wrappers. Do not run the generic custom-tab renderer first.
-    if (!special) {
-      try { renderCustomTabView(tab.id); } catch {}
-    }
+    try { renderCustomTabView(tab.id); } catch {}
     try {
+      const special = ['whiteboard-v197','notepad-v249'].includes(String(templateId));
       if (special && typeof openCustomTab === 'function') {
+        // V484: use the dedicated special-tab wrappers. Calling switchView
+        // directly can skip the Whiteboard/Notebook bootstrap/mount path.
         openCustomTab(tab.id);
       } else {
         const liveView = document.getElementById(`custom-tab-view-${tab.id}`) || view;
@@ -9724,6 +9952,7 @@ Return the raw JSON object now and nothing else.`;
 
   const FIELD_KINDS_V340 = [
     ['text','Text','ph-text-t'],
+    ['link','Link','ph-link'],
     ['video','Video','ph-video-camera'],
     ['image','Image','ph-image'],
     ['svg','SVG','ph-code'],
@@ -9788,6 +10017,7 @@ Return the raw JSON object now and nothing else.`;
     if(value==null||value==='') return '';
     const label=`<small class="v340-record-label">${esc(field.name)}</small>`;
     if(field.kind==='image'||field.kind==='pinnedImage') return `<div class="v340-record-media"><img src="${esc(String(value))}" alt=""></div>`;
+    if(field.kind==='link'){const href=String(value||'').trim();const safeHref=/^(https?:\/\/|mailto:)/i.test(href)?href:(href?`https://${href}`:'');return safeHref?`<div class="v340-record-value">${label}<a href="${esc(safeHref)}" target="_blank" rel="noopener noreferrer"><i class="ph ph-link"></i> ${esc(href)}</a></div>`:''}
     if(field.kind==='video'){
       const id=youtubeIdV340(value);return id?`<div class="v340-record-media"><img src="https://i.ytimg.com/vi/${esc(id)}/hqdefault.jpg" alt=""><span class="v340-media-badge"><i class="ph ph-play"></i></span></div>`:`<div class="v340-record-value">${label}<span>${esc(value)}</span></div>`;
     }
@@ -9811,7 +10041,7 @@ Return the raw JSON object now and nothing else.`;
     .v340-record-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}.v340-record-card{min-width:0;overflow:hidden;border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);padding:12px;display:grid;gap:9px}.v340-record-card h3,.v340-kanban-card h3{margin:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word;white-space:normal}.v340-record-value{min-width:0;display:grid;gap:2px}.v340-record-value>span,.v340-record-value>a{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word;white-space:normal}.v340-record-label{opacity:.62;font-weight:700}.v340-record-media{position:relative;width:100%;min-height:110px;display:grid;place-items:center;overflow:hidden;border-radius:9px;background:var(--track-bg)}.v340-record-media img{width:100%;height:100%;max-height:260px;object-fit:cover;display:block}.v340-svg svg{max-width:100%;max-height:230px}.v340-stars{display:flex!important;gap:2px}.v340-media-badge{position:absolute;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.62);color:#fff}
     .v340-record-grid.is-polaroid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));align-items:start}.v340-polaroid-card{padding:10px 10px 14px!important;border-radius:4px!important;background:#fff!important;color:#111!important;box-shadow:0 8px 18px rgba(0,0,0,.12)!important}.v340-polaroid-image{min-height:170px;display:grid;gap:6px;align-content:stretch;background:#eee;overflow:hidden}.v340-polaroid-image>.v340-record-media{height:100%;min-height:170px;border-radius:0}.v340-polaroid-bottom{display:grid;gap:6px;padding:10px 4px 0;min-width:0}.v340-polaroid-bottom .v340-record-label{color:#555}.v340-polaroid-bottom .v340-record-value>span,.v340-polaroid-bottom .v340-record-value>a{color:#111}
     .v340-fields-button{width:auto!important;padding:0 9px!important}.v340-fields-modal .modal-box{width:min(760px,calc(100vw - 28px));max-height:min(84vh,760px);overflow:auto}.v340-field-row{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(145px,1fr) minmax(130px,.8fr) auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid color-mix(in srgb,currentColor 12%,transparent)}.v340-field-row input,.v340-field-row select{width:100%;min-width:0}.v340-field-remove{width:34px;height:34px}.v340-fields-actions{display:flex;justify-content:space-between;gap:10px;margin-top:12px}.v340-record-editor .modal-box{width:min(650px,calc(100vw - 28px));max-height:min(86vh,800px);overflow:auto}.v340-record-editor-fields{display:grid;gap:4px}.v340-record-editor .kb-item-field{margin-top:10px}.v340-simple-file{display:grid;gap:6px;padding:10px;border:1px dashed color-mix(in srgb,currentColor 28%,transparent);border-radius:9px}.v340-simple-file img{width:100%;max-height:220px;object-fit:contain}.v340-rating-editor{display:flex;gap:4px;flex-wrap:wrap}.v340-rating-editor button{width:34px;height:34px;padding:0;display:grid;place-items:center}.v340-select-options{font-size:.72rem;opacity:.65}
-    .v340-kanban-board{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 14px}.v340-kanban-column{flex:0 0 280px;min-width:0;border:var(--thin-border);border-radius:var(--border-radius);background:color-mix(in srgb,var(--white) 92%,var(--track-bg));padding:10px;display:flex;flex-direction:column;gap:9px}.v340-kanban-column-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.v340-kanban-column-head strong{min-width:0;overflow-wrap:anywhere}.v340-kanban-list{display:grid;gap:8px;min-height:44px}.v340-kanban-card{min-width:0;max-width:100%;overflow:hidden;border:var(--thin-border);border-radius:9px;background:var(--white);padding:10px;display:grid;gap:6px;cursor:grab}.v340-kanban-card *{max-width:100%}.v340-kanban-card .v340-record-value>span,.v340-kanban-card .v340-record-value>a{display:block;overflow:hidden;overflow-wrap:anywhere;word-break:break-word;white-space:normal}.v340-kanban-add{width:100%;justify-content:center}.v340-kanban-header-actions{display:flex;gap:6px;align-items:center}
+    .v340-fields-modal .modal-box{box-sizing:border-box;width:min(820px,calc(100vw - 28px))!important;max-width:calc(100vw - 28px)!important;overflow-x:hidden!important}.v340-fields-list{min-width:0;max-width:100%}.v340-field-row{box-sizing:border-box;display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(0,.95fr) minmax(0,1fr) 36px!important;gap:8px!important;width:100%;min-width:0!important;max-width:100%;align-items:center}.v340-field-row input,.v340-field-row select{box-sizing:border-box;min-width:0!important;max-width:100%;width:100%!important}.v340-field-remove{width:36px!important;min-width:0!important;padding:0!important}.custom-polaroid-header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}.custom-polaroid-header-actions .v340-card-style,.custom-polaroid-header-actions .v340-fields-button,.custom-polaroid-header-actions .v340-add-record{height:42px!important;min-height:42px!important;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;line-height:1!important;margin:0!important}.custom-polaroid-header-actions .v340-card-style{padding:0 12px!important;width:auto!important;max-width:100%;font:inherit}.custom-polaroid-header-actions .v340-fields-button,.custom-polaroid-header-actions .v340-add-record{min-width:42px!important;padding:0 10px!important}@media(max-width:620px){.v340-field-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px!important}.v340-field-row .v340-field-area{grid-column:1 / 3;grid-row:2}.v340-field-row .v340-field-remove{grid-column:3;grid-row:1 / 3;align-self:center}}.v340-kanban-board{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 14px}.v340-kanban-column{flex:0 0 280px;min-width:0;border:var(--thin-border);border-radius:var(--border-radius);background:color-mix(in srgb,var(--white) 92%,var(--track-bg));padding:10px;display:flex;flex-direction:column;gap:9px}.v340-kanban-column-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.v340-kanban-column-head strong{min-width:0;overflow-wrap:anywhere}.v340-kanban-list{display:grid;gap:8px;min-height:44px}.v340-kanban-card{min-width:0;max-width:100%;overflow:hidden;border:var(--thin-border);border-radius:9px;background:var(--white);padding:10px;display:grid;gap:6px;cursor:grab}.v340-kanban-card *{max-width:100%}.v340-kanban-card .v340-record-value>span,.v340-kanban-card .v340-record-value>a{display:block;overflow:hidden;overflow-wrap:anywhere;word-break:break-word;white-space:normal}.v340-kanban-add{width:100%;justify-content:center}.v340-kanban-header-actions{display:flex;gap:6px;align-items:center}
   `;document.head.appendChild(s)}
 
   function polishPracticeV340(scope=document){
@@ -9833,6 +10063,7 @@ Return the raw JSON object now and nothing else.`;
       const value=readValueV340(item,field);const sec=document.createElement('div');sec.className='modal-section kb-item-field';sec.dataset.fieldId=field.id;
       let control='';
       if(field.kind==='text') control=/description|note|body|details/i.test(field.name)?`<textarea rows="3" data-v340-input="${esc(field.id)}">${esc(value)}</textarea>`:`<input type="text" data-v340-input="${esc(field.id)}" value="${esc(value)}">`;
+      else if(field.kind==='link') control=`<input type="url" data-v340-input="${esc(field.id)}" value="${esc(value)}" placeholder="https://example.com">`;
       else if(field.kind==='video') control=`<input type="url" data-v340-input="${esc(field.id)}" value="${esc(value)}" placeholder="YouTube or MP4 URL">`;
       else if(field.kind==='svg'||field.kind==='latex') control=`<textarea rows="4" data-v340-input="${esc(field.id)}">${esc(value)}</textarea>`;
       else if(field.kind==='select') control=`<select data-v340-input="${esc(field.id)}"><option value=""></option>${field.options.map(x=>`<option ${String(value)===x?'selected':''}>${esc(x)}</option>`).join('')}</select><small class="v340-select-options">Options: ${esc(field.options.join(', ')||'configure in Fields')}</small>`;
@@ -9864,7 +10095,7 @@ Return the raw JSON object now and nothing else.`;
     const fields=fieldsForV340(component,type);component.items=Array.isArray(component.items)?component.items:[];
     const polaroid=type==='polaroids'||component.cardStyle==='polaroid';
     if(type==='cards'&&!['normal','vertical','horizontal','thin-vertical','square','compact','wide','rounded','borderless','index-card','polaroid'].includes(component.cardStyle))component.cardStyle='normal';
-    content.innerHTML=`<div class="custom-collection-header"><h2>${esc(component.title||(type==='polaroids'?'Polaroids':'Cards'))}</h2><div class="custom-polaroid-header-actions">${type==='cards'&&customTabEditMode?`<select class="v340-card-style"><option value="normal">Normal</option><option value="vertical">Vertical</option><option value="horizontal">Horizontal</option><option value="square">Square</option><option value="compact">Compact</option><option value="wide">Wide</option><option value="rounded">Rounded</option><option value="borderless">Borderless</option><option value="index-card">Index Card</option><option value="polaroid">Polaroid</option></select>`:''}<button type="button" class="small-icon-btn v340-fields-button" title="Configure fields"><i class="ph ph-list-plus"></i></button><button type="button" class="small-icon-btn v340-add-record" title="Add ${type==='polaroids'?'polaroid':'card'}"><i class="ph ph-plus"></i></button></div></div><div class="v340-record-grid ${polaroid?'is-polaroid':''}"></div>`;
+    content.innerHTML=`<div class="custom-collection-header"><h2>${esc(component.title||(type==='polaroids'?'Polaroids':'Cards'))}</h2><div class="custom-polaroid-header-actions">${type==='cards'&&(customTabEditMode||component.showCardStyleOutsideEditV807!==false)?`<select class="v340-card-style" aria-label="Card display style" title="Card display style"><option value="normal">Normal</option><option value="vertical">Vertical</option><option value="horizontal">Horizontal</option><option value="square">Square</option><option value="compact">Compact</option><option value="wide">Wide</option><option value="rounded">Rounded</option><option value="borderless">Borderless</option><option value="index-card">Index Card</option><option value="polaroid">Polaroid</option></select>`:''}<button type="button" class="small-icon-btn v340-fields-button" title="Configure fields"><i class="ph ph-list-plus"></i></button><button type="button" class="small-icon-btn v340-add-record" title="Add ${type==='polaroids'?'polaroid':'card'}"><i class="ph ph-plus"></i></button></div></div><div class="v340-record-grid ${polaroid?'is-polaroid':''}"></div>`;
     const style=q('.v340-card-style',content);if(style){style.value=component.cardStyle||'normal';style.onchange=async()=>{component.cardStyle=style.value;await save();renderCustomTabView(tab.id)}};
     q('.v340-fields-button',content).onclick=()=>openFieldsModalV340(tab,component,type);
     const grid=q('.v340-record-grid',content);
@@ -9876,16 +10107,42 @@ Return the raw JSON object now and nothing else.`;
   function normalizeKanbanV340(component){
     component.columns=Array.isArray(component.columns)&&component.columns.length?component.columns:[{id:uid('column'),title:'To Do',cards:[]},{id:uid('column'),title:'Doing',cards:[]},{id:uid('column'),title:'Done',cards:[]}];
     component.columns=component.columns.map((c,i)=>({id:String(c.id||uid('column')),title:String(c.title||c.name||`Column ${i+1}`),cards:Array.isArray(c.cards)?c.cards:Array.isArray(c.items)?c.items:[]}));
-    fieldsForV340(component,'cards');return component.columns;
+    const fields=fieldsForV340(component,'cards');if(!fields.some(f=>f.kind==='link')){component.recordFieldsV340.push(fieldV340('Link','link','bottom'));}return component.columns;
   }
   function renderKanbanV340(tab,component,content){
     const columns=normalizeKanbanV340(component),fields=fieldsForV340(component,'cards');
-    content.innerHTML=`<div class="custom-collection-header"><h2>${esc(component.title||'Kanban Board')}</h2><div class="v340-kanban-header-actions"><button type="button" class="small-icon-btn v340-fields-button" title="Card fields"><i class="ph ph-list-plus"></i></button><button type="button" class="small-icon-btn v340-add-column" title="Add column"><i class="ph ph-plus"></i></button></div></div><div class="v340-kanban-board"></div>`;q('.v340-fields-button',content).onclick=()=>openFieldsModalV340(tab,component,'cards');q('.v340-add-column',content).onclick=async()=>{const name=await showAppPrompt({title:'Add Column',label:'Column name',value:'New Column'});if(name==null||!name.trim())return;columns.push({id:uid('column'),title:name.trim(),cards:[]});await save();renderCustomTabView(tab.id)};const board=q('.v340-kanban-board',content);
-    columns.forEach(column=>{const col=document.createElement('section');col.className='v340-kanban-column';col.dataset.columnId=column.id;col.innerHTML=`<div class="v340-kanban-column-head"><strong>${esc(column.title)}</strong><span>${column.cards.length}</span></div><div class="v340-kanban-list"></div><button type="button" class="icon-btn v340-kanban-add"><i class="ph ph-plus"></i> Card</button>`;
+    const cardHeight=['compact','tall','extra'].includes(component.cardHeightV839)?component.cardHeightV839:'normal';
+    const boardHeight=component.boardHeightV849==='long'?'long':'standard';
+    component.boardHeightV849=boardHeight;
+    content.innerHTML=`<div class="custom-collection-header"><h2>${esc(component.title||'Kanban Board')}</h2><div class="v340-kanban-header-actions"><button type="button" class="small-icon-btn v340-fields-button" title="Card fields"><i class="ph ph-list-plus"></i></button><button type="button" class="small-icon-btn v340-add-column" title="Add column"><i class="ph ph-plus"></i></button></div></div><div class="v340-kanban-board kanban-height-${cardHeight} kanban-board-height-${boardHeight}" data-kanban-card-height-v839="${cardHeight}" data-kanban-board-height-v849="${boardHeight}"></div>`;
+    q('.v340-fields-button',content).onclick=()=>openFieldsModalV340(tab,component,'cards');
+    q('.v340-add-column',content).onclick=async()=>{const name=await showAppPrompt({title:'Add Column',label:'Column name',value:'New Column'});if(name==null||!name.trim())return;columns.push({id:uid('column'),title:name.trim(),cards:[]});await save();renderCustomTabView(tab.id)};
+    const board=q('.v340-kanban-board',content);
+    board.style.minHeight=boardHeight==='long'?'760px':'';
+    columns.forEach(column=>{
+      const col=document.createElement('section');col.className='v340-kanban-column';col.dataset.columnId=column.id;col.dataset.boardHeightV849=boardHeight;
+      col.style.setProperty('--kanban-column-height',boardHeight==='long'?'760px':'auto');col.style.height=boardHeight==='long'?'760px':'auto';col.style.minHeight=boardHeight==='long'?'760px':'0';col.style.maxHeight=boardHeight==='long'?'760px':'none';
+      col.innerHTML=`<div class="v340-kanban-column-head"><strong>${esc(column.title)}</strong><span>${column.cards.length}</span></div><div class="v340-kanban-list"></div><button type="button" class="icon-btn v340-kanban-add"><i class="ph ph-plus"></i><span>Card</span></button>`;
       col.oncontextmenu=e=>{if(e.target.closest('.v340-kanban-card,.v340-kanban-add'))return;e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Rename column',icon:'ph-pencil-simple',action:async()=>{const name=await showAppPrompt({title:'Rename Column',label:'Column name',value:column.title});if(name==null||!name.trim())return;column.title=name.trim();await save();renderCustomTabView(tab.id)}},{label:'Delete column',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Column',message:`Delete “${column.title}” and its ${column.cards.length} card${column.cards.length===1?'':'s'}?`,confirmLabel:'Delete'});if(!ok)return;component.columns=columns.filter(c=>c.id!==column.id);await save();renderCustomTabView(tab.id)}}])};
-      const list=q('.v340-kanban-list',col);list.ondragover=e=>e.preventDefault();list.ondrop=async e=>{e.preventDefault();const cardId=e.dataTransfer.getData('text/v340-kanban-card');if(!cardId)return;let moved=null;columns.forEach(c=>{const i=c.cards.findIndex(x=>String(x.id)===cardId);if(i>=0)moved=c.cards.splice(i,1)[0]});if(moved){column.cards.push(moved);await save();renderCustomTabView(tab.id)}};
-      column.cards.forEach(item=>{ensureItemValuesV340(component,item,'cards');const card=document.createElement('article');card.className='v340-kanban-card custom-searchable-item';card.draggable=true;card.dataset.searchText=cardSearchV340(component,item,'cards');const titleField=fields.find(f=>/^title$/i.test(f.name))||fields.find(f=>f.kind==='text');const other=fields.filter(f=>f!==titleField&&f.areaV340!=='hidden').slice(0,3);card.innerHTML=`${titleField?`<h3>${esc(readValueV340(item,titleField)||'Untitled Card')}</h3>`:''}${other.map(f=>displayFieldV340(f,readValueV340(item,f),true)).join('')}`;card.ondragstart=e=>e.dataTransfer.setData('text/v340-kanban-card',String(item.id));card.oncontextmenu=e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit card',icon:'ph-pencil-simple',action:()=>createRecordModalV340('Edit Card',fields,item,async()=>{await save();renderCustomTabView(tab.id)})},{label:'Delete card',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Card',message:'Delete this card?',confirmLabel:'Delete'});if(!ok)return;column.cards=column.cards.filter(x=>x.id!==item.id);await save();renderCustomTabView(tab.id)}}])};list.appendChild(card)});
-      q('.v340-kanban-add',col).onclick=()=>{const item={id:uid('card'),valuesV340:{}};createRecordModalV340('Add Card',fields,item,async()=>{if(!column.cards.includes(item))column.cards.push(item);await save();renderCustomTabView(tab.id)})};board.appendChild(col)});
+      const list=q('.v340-kanban-list',col);
+      list.ondragover=e=>e.preventDefault();
+      list.ondrop=async e=>{e.preventDefault();const cardId=e.dataTransfer.getData('text/v340-kanban-card');if(!cardId)return;let moved=null;columns.forEach(c=>{const i=c.cards.findIndex(x=>String(x.id)===cardId);if(i>=0)moved=c.cards.splice(i,1)[0]});if(moved){column.cards.push(moved);await save();renderCustomTabView(tab.id)}};
+      column.cards.forEach(item=>{
+        ensureItemValuesV340(component,item,'cards');
+        const card=document.createElement('article');card.className='v340-kanban-card custom-searchable-item custom-content-editable';card.draggable=true;card.dataset.customItemId=String(item.id);card.dataset.searchText=cardSearchV340(component,item,'cards');const cardMinHeight={compact:70,normal:110,tall:170,extra:245}[cardHeight]||110;card.style.setProperty('--kanban-card-height',`${cardMinHeight}px`);card.style.height=`${cardMinHeight}px`;card.style.minHeight=`${cardMinHeight}px`;card.style.maxHeight=`${cardMinHeight}px`;
+        const titleField=fields.find(f=>/^title$/i.test(f.name))||fields.find(f=>f.kind==='text');
+        const linkFields=fields.filter(f=>f.kind==='link'&&f.areaV340!=='hidden'&&String(readValueV340(item,f)||'').trim());
+        const other=fields.filter(f=>f!==titleField&&f.kind!=='link'&&f.areaV340!=='hidden').slice(0,3);
+        const linkIcons=linkFields.map(f=>{const raw=String(readValueV340(item,f)||'').trim(),href=/^(https?:\/\/|mailto:)/i.test(raw)?raw:`https://${raw}`;return `<a class="v340-kanban-link-icon-v851" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(f.name||'Open link')}" aria-label="${esc(f.name||'Open link')}"><i class="ph ph-link"></i></a>`}).join('');
+        card.innerHTML=`${titleField?`<h3>${esc(readValueV340(item,titleField)||'Untitled Card')}</h3>`:''}${other.map(f=>/^description$/i.test(f.name)?(readValueV340(item,f)?`<div class="v340-kanban-description-v853">${esc(String(readValueV340(item,f))).replace(/\n/g,'<br>')}</div>`:''):displayFieldV340(f,readValueV340(item,f),true)).join('')}${linkIcons?`<div class="v340-kanban-card-links-v851">${linkIcons}</div>`:''}`;
+        card.querySelectorAll('.v340-kanban-link-icon-v851').forEach(a=>{a.addEventListener('pointerdown',e=>e.stopPropagation());a.addEventListener('click',e=>e.stopPropagation());a.addEventListener('contextmenu',e=>e.stopPropagation())});
+        card.ondragstart=e=>{if(e.target.closest?.('a')){e.preventDefault();return}e.dataTransfer.setData('text/v340-kanban-card',String(item.id));};
+        card.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit card',icon:'ph-pencil-simple',action:()=>createRecordModalV340('Edit Card',fields,item,async()=>{await save();renderCustomTabView(tab.id)})},{label:'Delete card',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Card',message:'Delete this card?',confirmLabel:'Delete'});if(!ok)return;column.cards=column.cards.filter(x=>String(x.id)!==String(item.id));await save();renderCustomTabView(tab.id)}}])},{capture:true});
+        list.appendChild(card)
+      });
+      q('.v340-kanban-add',col).onclick=()=>{const item={id:uid('card'),valuesV340:{}};createRecordModalV340('Add Card',fields,item,async()=>{if(!column.cards.includes(item))column.cards.push(item);await save();renderCustomTabView(tab.id)})};
+      board.appendChild(col)
+    });
   }
 
   function installV340(){
@@ -10012,6 +10269,7 @@ Return the raw JSON object now and nothing else.`;
     let days={};try{days=db?.days||{}}catch{}
     Object.entries(days).forEach(([sourceKey,dayData])=>{
       const source=Math.floor(Number(sourceKey));if(!Number.isFinite(source)||source<1)return;
+      nodes.add(source); // V812: include saved days even when they have no links.
       // @Day autocomplete writes links into notes.innerHTML; parse those directly.
       extractMentionDaysV341(dayData?.notes||'').forEach(target=>addEdge(source,target));
       // Preserve legacy/manual links as the same undirected edges.
@@ -10037,12 +10295,12 @@ Return the raw JSON object now and nothing else.`;
   function renderConnectionsV341(tab,component,content){
     const {nodes,edges}=connectionDataV341();
     const title=esc(component?.title||'Daily Log Connections');
-    if(!edges.length){
+    if(!nodes.length){
       content.innerHTML=`<div class="daily-connections-v341-head"><div><h2>${title}</h2><small>Undirected graph built from every @Day link in Daily Log notes.</small></div></div><div class="daily-connections-v341-empty"><i class="ph ph-share-network"></i><strong>No connections found</strong><span>Open a Daily Log, type @, choose another Day, and save/leave the log. Example: linking Day 12 to Day 3 creates one undirected edge: Day 12 — Day 3.</span></div>`;
       return;
     }
     const pos=graphPositionsV341(nodes,edges);
-    content.innerHTML=`<div class="daily-connections-v341-head"><div><h2>${title}</h2><small>${nodes.length} connected day${nodes.length===1?'':'s'} · ${edges.length} undirected connection${edges.length===1?'':'s'}</small></div></div><div class="daily-connections-v341-graph"><svg class="daily-connections-v341-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${edges.map(e=>{const a=pos.get(e.a),b=pos.get(e.b);return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"></line>`}).join('')}</svg>${nodes.map(day=>{const p=pos.get(day);return `<button type="button" class="daily-connections-v341-node" data-v341-day="${day}" style="left:${p.x}%;top:${p.y}%"><span>Day</span><strong>${day}</strong></button>`}).join('')}</div>`;
+    content.innerHTML=`<div class="daily-connections-v341-head"><div><h2>${title}</h2><small>${nodes.length} saved day${nodes.length===1?'':'s'} · ${edges.length} undirected connection${edges.length===1?'':'s'}</small></div></div><div class="daily-connections-v341-graph"><svg class="daily-connections-v341-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${edges.map(e=>{const a=pos.get(e.a),b=pos.get(e.b);return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"></line>`}).join('')}</svg>${nodes.map(day=>{const p=pos.get(day);return `<button type="button" class="daily-connections-v341-node" data-v341-day="${day}" style="left:${p.x}%;top:${p.y}%"><span>Day</span><strong>${day}</strong></button>`}).join('')}</div>`;
     qa('[data-v341-day]',content).forEach(btn=>btn.onclick=()=>{const day=Number(btn.dataset.v341Day);try{if(Number.isFinite(day)&&typeof openDayLog==='function')openDayLog(day)}catch{}});
   }
 
@@ -10140,7 +10398,7 @@ Return the raw JSON object now and nothing else.`;
     try{
       if(typeof renderCustomComponentPalette==='function'&&!renderCustomComponentPalette.__v341CalendarHelp){
         const before=renderCustomComponentPalette;
-        const wrapped=function(palette){const result=before.apply(this,arguments);const card=q('.custom-component-palette-item[data-component-type="monthlyCalendarV341"]',palette);if(card){let help=q('.custom-palette-help-v164',card);if(help){const tip=q('.custom-palette-tooltip-v164',help);if(tip)tip.textContent='A full monthly calendar. Click a date to add an event, click an event to edit it, or right-click an event to delete it. Use the arrows to move between months.'}}return result};
+        const wrapped=function(palette){const result=before.apply(this,arguments);const card=q('.custom-component-palette-item[data-component-type="monthlyCalendarV341"]',palette);if(card){let help=q('.custom-palette-help-v164',card);if(help){const tip=q('.custom-palette-tooltip-v164',help);if(tip)tip.textContent='Add a monthly calendar for creating and viewing events.'}}return result};
         wrapped.__v341CalendarHelp=true;window.renderCustomComponentPalette=wrapped;try{renderCustomComponentPalette=wrapped}catch{}
       }
     }catch{}
@@ -12058,7 +12316,7 @@ Return the raw JSON object now and nothing else.`;
     new MutationObserver(()=>{if(!modal.classList.contains('hidden'))requestAnimationFrame(syncLogSettingsContrastV365)}).observe(modal,{attributes:true,attributeFilter:['class']});
   }
   document.addEventListener('click',e=>{
-    if(e.target.closest?.('#daily-settings-modal,#open-daily-settings,#open-settings-btn')) requestAnimationFrame(syncLogSettingsContrastV365);
+    if(e.target.closest?.('#daily-settings-modal,#open-daily-settings,#open-settings-btn')) syncLogSettingsContrastV365();
   },true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncLogSettingsContrastV365,{once:true});else syncLogSettingsContrastV365();
 })();
@@ -12610,7 +12868,7 @@ Return the raw JSON object now and nothing else.`;
   `;document.head.appendChild(st);
   const force=()=>['#daily-settings-close','#settings-close'].forEach(sel=>{const b=document.querySelector(sel);if(!b)return;b.style.setProperty('background','transparent','important');b.style.setProperty('background-color','transparent','important');b.style.setProperty('background-image','none','important');b.style.setProperty('box-shadow','none','important');b.style.setProperty('color','var(--settings-modal-text-v380,var(--black,#111))','important')});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',force,{once:true});else force();
-  document.addEventListener('click',e=>{if(e.target.closest?.('#open-daily-settings-btn,#daily-settings-modal,#settings-modal,#open-settings-btn'))requestAnimationFrame(force)},true);
+  document.addEventListener('click',e=>{if(e.target.closest?.('#open-daily-settings-btn,#daily-settings-modal,#settings-modal,#open-settings-btn'))force()},true);
   window.addEventListener('message',e=>{if(e.origin===location.origin&&e.data?.type==='loggy-theme-preview-apply-v307')requestAnimationFrame(force)});
 })();
 
@@ -13615,7 +13873,11 @@ window.__loggyQuizShortcutExclusiveV470 = true;
     closeMenuV531();
     const menu=document.createElement('div');
     menu.id='log-page-theme-context-v531';
-    menu.innerHTML='<button type="button" data-log-context-action="edit-theme"><i class="ph ph-paint-brush"></i><span>Edit Theme</span></button><button type="button" data-log-context-action="settings"><i class="ph ph-gear-six"></i><span>Settings</span></button>';
+    const dayActive=!!document.querySelector('#log-view.view.active') && Number((typeof currentDay!=='undefined'?currentDay:0)||0)>0;
+    // V745: numbered Day Logs own Components + Edit Layout directly in this
+    // authoritative page menu. Do not rely on a later context-menu wrapper to
+    // append them, because this capture listener can stop propagation first.
+    menu.innerHTML=`${dayActive?'<button type="button" data-log-context-action="components"><i class="ph ph-squares-four"></i><span>Components</span></button><button type="button" data-log-context-action="edit-layout"><i class="ph ph-layout"></i><span>Edit Layout</span></button>':''}<button type="button" data-log-context-action="edit-theme"><i class="ph ph-paint-brush"></i><span>Edit Theme</span></button><button type="button" data-log-context-action="settings"><i class="ph ph-gear-six"></i><span>Settings</span></button>`;
     Object.assign(menu.style,{position:'fixed',zIndex:'2147483640',minWidth:'160px',padding:'6px',border:'1px solid rgba(0,0,0,.16)',borderRadius:'10px',background:'var(--settings-modal-bg-v380,var(--white,#fff))',color:'var(--settings-modal-text-v380,var(--black,#111))',boxShadow:'0 12px 30px rgba(0,0,0,.18)'});
     const buttons=Array.from(menu.querySelectorAll('button'));
     buttons.forEach(btn=>Object.assign(btn.style,{width:'100%',display:'flex',alignItems:'center',gap:'8px',border:'0',background:'transparent',color:'inherit',padding:'9px 10px',borderRadius:'7px',font:'inherit',cursor:'pointer',textAlign:'left'}));
@@ -13623,6 +13885,8 @@ window.__loggyQuizShortcutExclusiveV470 = true;
     const r=menu.getBoundingClientRect();
     menu.style.left=`${Math.max(8,Math.min(x,innerWidth-r.width-8))}px`;
     menu.style.top=`${Math.max(8,Math.min(y,innerHeight-r.height-8))}px`;
+    menu.querySelector('[data-log-context-action="components"]')?.addEventListener('click',()=>{ closeMenuV531(); try { window.__loggyDayComponentCanvasV713?.openComponents?.(); } catch { try { window.__loggyOpenDayComponentsV713?.(); } catch { try { window.__loggyOpenDayComponentsV712?.(); } catch {} } } });
+    menu.querySelector('[data-log-context-action="edit-layout"]')?.addEventListener('click',()=>{ closeMenuV531(); try { window.__loggyDayComponentCanvasV713?.editLayout?.(); } catch {} });
     menu.querySelector('[data-log-context-action="edit-theme"]')?.addEventListener('click',()=>{ closeMenuV531(); try { window.__loggyThemeBuilderV307OpenEdit?.(currentThemeIdV531()); } catch {} });
     menu.querySelector('[data-log-context-action="settings"]')?.addEventListener('click',()=>{ closeMenuV531(); try { openGlobalThemeSettings?.(); } catch { try { window.openGlobalThemeSettings?.(); } catch {} } });
     requestAnimationFrame(()=>document.addEventListener('pointerdown',function outside(e){if(menu.contains(e.target))return;closeMenuV531();document.removeEventListener('pointerdown',outside,true)},true));
@@ -13918,6 +14182,40 @@ window.__loggyQuizShortcutExclusiveV470 = true;
     }
   } catch {}
 
+  // ---- Create Tab ordering: Whiteboard LAST. Weekly Review stays near the bottom.
+  const ORDER_V534 = ["whiteboard-v197", "notepad-v249", "writers-room-v804", "curriculum-v813", "learning-roadmap-2-v813", "research-lab-v822", "youtube-studio-v822", "business-dashboard-v822", "logs-review-v536"];
+  function orderRegistryV534(){
+    try {
+      if (!Array.isArray(CUSTOM_TAB_TEMPLATES_V53)) return;
+      const rank=new Map(ORDER_V534.map((id,i)=>[id,i]));
+      CUSTOM_TAB_TEMPLATES_V53.sort((a,b)=>(rank.get(String(a?.id||''))??999)-(rank.get(String(b?.id||''))??999));
+    } catch {}
+  }
+  function orderTemplateCardsV534(){
+    orderRegistryV534();
+    const modal=q('#custom-tab-create-modal');
+    const grid=q('.custom-tab-template-grid-v53',modal);
+    if(!grid)return;
+    const rank=new Map(ORDER_V534.map((id,i)=>[id,i]));
+    const cards=qa('[data-custom-tab-template-v53]',grid);
+    const sorted=[...cards].sort((a,b)=>(rank.get(String(a.dataset.customTabTemplateV53||''))??999)-(rank.get(String(b.dataset.customTabTemplateV53||''))??999));
+    // Already in the right order: don't detach/reattach every template on open.
+    if(sorted.some((card,i)=>card!==cards[i]))sorted.forEach(card=>grid.appendChild(card));
+  }
+  orderRegistryV534();
+  document.addEventListener('click',e=>{
+    if(e.target?.closest?.('#add-custom-tab-btn,[data-action="create-tab"]')){
+      requestAnimationFrame(()=>requestAnimationFrame(orderTemplateCardsV534));
+    }
+  },true);
+  try{
+    const before=window.openCustomTabCreateModal;
+    if(typeof before==='function'&&!before.__v534Order){
+      const wrapped=function(){orderRegistryV534();const result=before.apply(this,arguments);requestAnimationFrame(()=>requestAnimationFrame(orderTemplateCardsV534));return result};
+      wrapped.__v534Order=true;window.openCustomTabCreateModal=wrapped;try{openCustomTabCreateModal=wrapped}catch{}
+    }
+  }catch{}
+
   if (!isPreview()) return;
 
   // ---- Lightweight live preview authority. No full preview remount is required.
@@ -14056,32 +14354,46 @@ window.__loggyQuizShortcutExclusiveV470 = true;
     return ordered;
   }
 
-  function templateDef(){return {id:TEMPLATE_ID,name:'Logs Review',icon:'ph-chart-bar',description:'Weekly, Monthly, and Yearly log review sections. Reorder or hide the sections in Edit Mode.'}}
+  function templateDef(){return {id:TEMPLATE_ID,name:'Logs Review',icon:'ph-chart-bar',description:'Review your activity across weeks, months, and years.'}}
 
   function enforceTemplateOrder(){
     try{
       if(!Array.isArray(CUSTOM_TAB_TEMPLATES_V53))return;
-      const seen=new Set(), list=[];
-      for(const raw of CUSTOM_TAB_TEMPLATES_V53){
-        const id=String(raw?.id||'');
-        if(!id||id==='weekly-review'||id===TEMPLATE_ID||id==='whiteboard-v197'||id==='notepad-v249')continue;
-        if(seen.has(id))continue; seen.add(id); list.push(raw);
-      }
-      const existingWhiteboard=CUSTOM_TAB_TEMPLATES_V53.find(x=>String(x?.id||'')==='whiteboard-v197');
-      const existingNotebook=CUSTOM_TAB_TEMPLATES_V53.find(x=>String(x?.id||'')==='notepad-v249');
-      const whiteboard=existingWhiteboard||{id:'whiteboard-v197',name:'Whiteboard',icon:'ph-selection-background',description:'A full-screen multi-board canvas for notes, images, drawing, connections, and visual planning.'};
-      const notebook=existingNotebook||{id:'notepad-v249',name:'Notebook',icon:'ph-notebook',description:'A full-screen multi-page notebook with page categories, paper styles, movable images, drawing tools, and exact-page links from Daily Logs.'};
-      CUSTOM_TAB_TEMPLATES_V53.splice(0,CUSTOM_TAB_TEMPLATES_V53.length,whiteboard,notebook,...list,templateDef());
-      // The modal may already be open/rendered from V328. Repaint the cards now so
-      // the visible UI matches the final array immediately instead of keeping stale order.
-      const section=q('#custom-tab-create-modal .custom-tab-template-section-v53');
-      if(section&&typeof renderPrebuiltTabCardsV53==='function'){
-        try{renderPrebuiltTabCardsV53(section)}catch{}
-      }
+      window.__loggySyncTemplateRegistryV855?.();
     }catch{}
   }
 
-  enforceTemplateOrder();
+  function enforceCardOrder(){
+    enforceTemplateOrder();
+    const modal=q('#custom-tab-create-modal');
+    const section=q('.custom-tab-template-section-v53',modal);
+    const grid=q('.custom-tab-template-grid-v53',section);
+    if(!grid)return;
+    // If any older renderer put Weekly Review back, rebuild once from the final registry.
+    const cards=qa('[data-custom-tab-template-v53]',grid);
+    const ids=cards.map(card=>String(card.dataset.customTabTemplateV53||''));
+    const desired=CUSTOM_TAB_TEMPLATES_V53.map(item=>String(item?.id||''));
+    if(ids.length!==desired.length||ids.some((id,i)=>id!==desired[i])){
+      try{renderPrebuiltTabCardsV53(section)}catch{}
+    }
+    const white=q('[data-custom-tab-template-v53="whiteboard-v197"]',grid);
+    const logs=q('[data-custom-tab-template-v53="logs-review-v536"]',grid);
+    if(white&&grid.firstElementChild!==white) grid.insertBefore(white, grid.firstElementChild);
+    if(logs&&grid.lastElementChild!==logs) grid.appendChild(logs);
+  }
+
+  try{
+    enforceTemplateOrder();
+    const oldRender=renderPrebuiltTabCardsV53;
+    if(typeof oldRender==='function'&&!oldRender.__v536Order){
+      const wrapped=function(){enforceTemplateOrder();const result=oldRender.apply(this,arguments);const grid=arguments[0]?.querySelector?.('.custom-tab-template-grid-v53');const white=grid?.querySelector?.('[data-custom-tab-template-v53="whiteboard-v197"]');const logs=grid?.querySelector?.('[data-custom-tab-template-v53="logs-review-v536"]');if(white&&grid.firstElementChild!==white)grid.insertBefore(white,grid.firstElementChild);if(logs&&grid.lastElementChild!==logs)grid.appendChild(logs);return result};
+      wrapped.__v536Order=true; renderPrebuiltTabCardsV53=wrapped; window.renderPrebuiltTabCardsV53=wrapped;
+    }
+  }catch{}
+
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('#add-custom-tab-btn,[data-action="create-tab"]')) requestAnimationFrame(()=>requestAnimationFrame(enforceCardOrder));
+  },true);
 
   try{
     const before=buildPrebuiltTabComponentsV53;
@@ -14188,6 +14500,7 @@ window.__loggyQuizShortcutExclusiveV470 = true;
   document.head.appendChild(style);
 
   enforceTemplateOrder();
+  requestAnimationFrame(enforceCardOrder);
 })();
 
 // ============================================================================
@@ -14767,6 +15080,8 @@ window.__loggyQuizShortcutExclusiveV470 = true;
     const hideRow=q('.kb-hide-tags-setting-v557',modal);
     const hideTitle=q('.kb-hide-tags-copy-v557 strong',hideRow||modal);
     const hideSwitch=q('.kb-hide-tags-switch-v557',hideRow||modal);
+    const hideCatRow=q('.kb-hide-cat-tabs-setting-v558',modal);
+    const hideCatSwitch=q('.kb-hide-tags-switch-v557',hideCatRow||modal);
 
     // Explicit default state in both real Log and Theme Builder preview host.
     const hideInput=q('.kb-hide-tags-toggle-v557',hideRow||modal);
@@ -14796,35 +15111,38 @@ window.__loggyQuizShortcutExclusiveV470 = true;
       }
     }
 
-    // Keep Hide Tags immediately after its text, left aligned, never centered.
-    if(hideRow){
-      hideRow.classList.remove('mt-20');
+    // V1905: Hide Tags + Hide category tabs use the same left-copy / right-toggle
+    // geometry as Placeholders and Daily KB Recommendation from the first paint.
+    for(const row of [hideRow,hideCatRow].filter(Boolean)){
+      row.classList.remove('mt-20');
       const styles={
-        display:'inline-flex',
+        display:'flex',
         'flex-direction':'row',
         'align-items':'center',
-        'justify-content':'flex-start',
-        'align-self':'flex-start',
-        gap:'8px',
-        width:'auto',
+        'justify-content':'space-between',
+        'align-self':'stretch',
+        gap:'18px',
+        width:'100%',
         'max-width':'100%',
         'margin-left':'0',
-        'margin-right':'auto',
+        'margin-right':'0',
         padding:'0',
         'text-align':'left'
       };
-      for(const [k,v] of Object.entries(styles))hideRow.style.setProperty(k,v,'important');
-      const copy=q('.kb-hide-tags-copy-v557',hideRow);
+      for(const [k,v] of Object.entries(styles))row.style.setProperty(k,v,'important');
+      const copy=q('.kb-hide-tags-copy-v557',row);
       if(copy){
         copy.style.setProperty('display','inline-flex','important');
         copy.style.setProperty('width','auto','important');
-        copy.style.setProperty('flex','0 0 auto','important');
+        copy.style.setProperty('flex','1 1 auto','important');
+        copy.style.setProperty('min-width','0','important');
         copy.style.setProperty('margin','0','important');
       }
-      if(hideSwitch){
-        hideSwitch.style.setProperty('display','inline-block','important');
-        hideSwitch.style.setProperty('flex','0 0 46px','important');
-        hideSwitch.style.setProperty('margin','0','important');
+      const sw=q('.kb-hide-tags-switch-v557',row);
+      if(sw){
+        sw.style.setProperty('display','inline-block','important');
+        sw.style.setProperty('flex','0 0 46px','important');
+        sw.style.setProperty('margin','0 0 0 auto','important');
       }
     }
 
@@ -14851,7 +15169,7 @@ window.__loggyQuizShortcutExclusiveV470 = true;
     }
 
     // All three switch wrappers/tracks use the exact same sizing/style.
-    for(const sw of [placeholderSwitch,recSwitch,hideSwitch].filter(Boolean)){
+    for(const sw of [placeholderSwitch,recSwitch,hideSwitch,hideCatSwitch].filter(Boolean)){
       sw.classList.add('kb-switch-v173');
       sw.style.setProperty('position','relative','important');
       sw.style.setProperty('width','46px','important');
@@ -14936,27 +15254,39 @@ window.__loggyQuizShortcutExclusiveV470 = true;
       display:block!important;
     }
 
-    /* Hide Tags stays on one left-aligned line. */
-    #settings-modal .kb-hide-tags-setting-v557{
-      display:inline-flex!important;
+    /* V1905: both KB visibility toggles mirror the full-width rows above. */
+    #settings-modal .kb-hide-tags-setting-v557,
+    #settings-modal .kb-hide-cat-tabs-setting-v558{
+      display:flex!important;
       flex-direction:row!important;
       align-items:center!important;
-      justify-content:flex-start!important;
-      align-self:flex-start!important;
-      gap:8px!important;
-      width:auto!important;
+      justify-content:space-between!important;
+      align-self:stretch!important;
+      gap:18px!important;
+      width:100%!important;
       max-width:100%!important;
-      margin:0 auto 0 0!important;
+      margin:0!important;
       padding:0!important;
       text-align:left!important;
     }
-    #settings-modal .kb-hide-tags-copy-v557{
+    #settings-modal .kb-hide-tags-setting-v557 .kb-hide-tags-copy-v557,
+    #settings-modal .kb-hide-cat-tabs-setting-v558 .kb-hide-tags-copy-v557{
       display:inline-flex!important;
-      flex:0 0 auto!important;
+      flex:1 1 auto!important;
+      min-width:0!important;
       width:auto!important;
       margin:0!important;
       padding:0!important;
     }
+    #settings-modal .kb-hide-tags-setting-v557 .kb-hide-tags-switch-v557,
+    #settings-modal .kb-hide-cat-tabs-setting-v558 .kb-hide-tags-switch-v557{
+      margin-left:auto!important;
+      margin-right:0!important;
+      flex:0 0 46px!important;
+    }
+    /* V1905: these are visually and structurally the final two KB Settings rows. */
+    #settings-modal .kb-clear-out-setting-v780{order:9998!important;}
+    #settings-modal #kb-shortcuts-v467{order:9999!important;}
 
     /* Placeholders row geometry mirrors Daily KB Recommendation. */
     #settings-modal .kb-placeholder-settings-heading-v56{
@@ -14985,7 +15315,7 @@ window.__loggyQuizShortcutExclusiveV470 = true;
   // Real Log page.
   document.addEventListener('click',event=>{
     if(event.target.closest?.('#open-settings-btn,#settings-btn,.settings-btn,#settings-modal')){
-      requestAnimationFrame(normalizeKbSettingsUiV575);
+      normalizeKbSettingsUiV575();
     }
   },true);
 
@@ -15699,9 +16029,11 @@ window.__loggyQuizShortcutExclusiveV470 = true;
     };
   }
 
-  // V628: KB cards have one deliberate right-click action: Remove.
-  // Capture before historical card context-menu listeners so no old Edit/Delete
-  // menu can appear alongside this one. Removal uses the existing KB Trash flow.
+  // V735: KB cards expose the two item-level actions that are useful from the
+  // library itself: quiz visibility and Remove. Capture before historical card
+  // context-menu listeners so no old Edit/Delete menu can appear alongside it.
+  // Quiz visibility uses the SAME hideFromQuizzesV59 flag as the item editor,
+  // Flashcards, Anki, Learn, and the rest of the quiz deck filters.
   document.addEventListener('contextmenu',event=>{
     const card=event.target?.closest?.('#phrases-library-grid .phrase-card,#phrases-library-grid .polaroid-card');
     if(!card)return;
@@ -15710,23 +16042,47 @@ window.__loggyQuizShortcutExclusiveV470 = true;
     event.stopImmediatePropagation();
     const itemId=String(card.dataset.kbItemIdV162||'').trim();
     if(!itemId)return;
-    showCustomItemContextMenu(event.clientX,event.clientY,[{
-      label:'Remove',
-      icon:'ph-trash',
-      danger:true,
-      action:async()=>{
-        const ok=await showAppConfirm({
-          title:'Remove Knowledge Base item?',
-          message:`“${itemId}” will be moved to Trash and can be restored later.`,
-          confirmLabel:'Remove'
-        });
-        if(!ok)return;
-        moveKnowledgeItemToTrash(itemId);
-        const search=document.getElementById('phrases-search-bar');
-        renderPhrasesLibrary(search?.value||'');
-        try{if(currentDay&&db.days?.[currentDay])renderPhrases(db.days[currentDay].phrases||[])}catch{}
+
+    const hiddenFromQuizzes=!!db.phrase_meta?.[itemId]?.hideFromQuizzesV59;
+    const setQuizVisibility=hide=>{
+      db.phrase_meta ||= {};
+      db.phrase_meta[itemId] ||= {};
+      db.phrase_meta[itemId].hideFromQuizzesV59=!!hide;
+      try{window.reconcileLearnSessionV737?.({syncRuntime:true,saveServer:false})}catch{}
+      saveDb();
+      try{updateQuizUI?.()}catch{}
+
+      // Keep an already-open item editor/read modal in sync with the quick action.
+      try{
+        const check=document.getElementById('edit-kb-hide-from-quizzes-v59');
+        if(check&&String(activeModalItem||'')===itemId)check.checked=!!hide;
+      }catch{}
+    };
+
+    showCustomItemContextMenu(event.clientX,event.clientY,[
+      {
+        label:hiddenFromQuizzes?'Show in Quizzes':'Hide from Quizzes',
+        icon:hiddenFromQuizzes?'ph-eye':'ph-eye-slash',
+        action:()=>setQuizVisibility(!hiddenFromQuizzes)
+      },
+      {
+        label:'Remove',
+        icon:'ph-trash',
+        danger:true,
+        action:async()=>{
+          const ok=await showAppConfirm({
+            title:'Remove Knowledge Base item?',
+            message:`“${itemId}” will be moved to Trash and can be restored later.`,
+            confirmLabel:'Remove'
+          });
+          if(!ok)return;
+          moveKnowledgeItemToTrash(itemId);
+          const search=document.getElementById('phrases-search-bar');
+          renderPhrasesLibrary(search?.value||'');
+          try{if(currentDay&&db.days?.[currentDay])renderPhrases(db.days[currentDay].phrases||[])}catch{}
+        }
       }
-    }]);
+    ]);
   },true);
 
   // --------------------------------------------------------------------------
@@ -16061,6 +16417,7 @@ document.addEventListener('keydown',event=>{
     if (String(window.quizMode || (typeof quizMode !== 'undefined' ? quizMode : '')) !== 'learn') return;
     const card = event.target?.closest?.('#quiz-learn-view .quiz-learn-prompt-card-v38');
     if (!card || event.target.closest(interactiveSelector)) return;
+    if (card.closest('.quizlet-written-wrap-v476') && window.quizWrittenStackedReviewEnabledV743?.()) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -16087,6 +16444,7 @@ document.addEventListener('keydown',event=>{
     if (String(window.quizMode || (typeof quizMode !== 'undefined' ? quizMode : '')) !== 'learn') return;
     const stage = event.target?.closest?.('#quiz-learn-view .map-learn-card-v621 .map-v621-stage-shell');
     if (!stage || event.target.closest(interactiveSelector)) return;
+    if (window.quizWrittenStackedReviewEnabledV743?.() && stage.closest('.map-learn-v621')?.querySelector('.map-written-v621')) return;
     if (!stage.querySelector('.kb-map-pin-label-v169')) return;
     stage.classList.toggle('quiz-map-front-reference-v668');
   }, true);
@@ -17250,4 +17608,5298 @@ document.addEventListener('keydown',event=>{
       try { applyTheme = rewrittenApply; } catch (_) {}
     }
   } catch (_) {}
+})();
+
+// ============================================================================
+// V711 — ITEMS LEARNED CARDS ALWAYS OPEN READ-ONLY
+// Clicking an item from a numbered Daily Log must never inherit/stay in edit
+// mode. The pencil remains the explicit way to enter edit mode.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyItemsLearnedViewModeV711) return;
+  window.__loggyItemsLearnedViewModeV711 = true;
+
+  document.addEventListener('click', event => {
+    const main = event.target?.closest?.('#phrases-container .kb-day-item-main');
+    if (!main) return;
+
+    const chip = main.closest('.chip[data-kb-item-id-v162]');
+    const itemId = String(chip?.dataset?.kbItemIdV162 || '').trim();
+    if (!itemId || typeof openItemModal !== 'function') return;
+
+    // Own this click before any historical/rebound card handler can reopen the
+    // same item with editInfo=true.
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const modal = document.getElementById('phrase-modal');
+    if (modal) {
+      modal.dataset.editReturnModeV692 = 'day';
+      modal.dataset.mode = 'day';
+    }
+
+    openItemModal(itemId, false, false);
+
+    // Defensive final state: the Items Learned opener is always read-only.
+    if (modal) {
+      modal.dataset.mode = 'day';
+      modal.dataset.editReturnModeV692 = 'day';
+    }
+  }, true);
+})();
+
+
+// ============================================================================
+// V712 — DAY LOG COMPONENTS + REPEATABLE RECOMMENDATION BUTTONS
+// Right-click a numbered Day Log -> Components. Built-in sections are managed
+// here instead of the Settings modal. Recommendation buttons are independent,
+// repeatable filter-driven components that can be renamed/edited by right-click.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyDayComponentsV712) return;
+  window.__loggyDayComponentsV712 = true;
+
+  const q=(s,r=document)=>r?.querySelector?.(s)||null;
+  const qa=(s,r=document)=>Array.from(r?.querySelectorAll?.(s)||[]);
+  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const attr=esc;
+  const clone=value=>{try{return structuredClone(value)}catch{try{return JSON.parse(JSON.stringify(value))}catch{return value}}};
+  const uid=prefix=>`${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
+
+  const BUILTINS=[
+    {key:'itemsLearned',label:'Items Learned',icon:'ph-books'},
+    {key:'logNotes',label:'Log Notes',icon:'ph-note-pencil'},
+    {key:'tools',label:'Toolbox',icon:'ph-wrench'},
+    {key:'videoLogs',label:'Video Logs',icon:'ph-video-camera'},
+    {key:'tabItems',label:'Tab Items',icon:'ph-tabs'},
+    {key:'mediaResources',label:'Media Resources',icon:'ph-link'}
+  ];
+  const ICONS=[
+    'ph-moon-stars','ph-lightning','ph-star','ph-sparkle','ph-fire','ph-target','ph-brain','ph-book-open',
+    'ph-graduation-cap','ph-pencil-simple','ph-note-pencil','ph-calculator','ph-function','ph-sigma','ph-pi',
+    'ph-ruler','ph-flask','ph-atom','ph-globe','ph-map-trifold','ph-translate','ph-chats-circle','ph-question',
+    'ph-question-mark','ph-lightbulb','ph-magnifying-glass','ph-puzzle-piece','ph-cards','ph-stack','ph-list-checks',
+    'ph-check-circle','ph-arrow-clockwise','ph-shuffle','ph-dice-five','ph-magic-wand','ph-rocket','ph-trophy',
+    'ph-medal','ph-heart','ph-smiley','ph-sun','ph-cloud','ph-plant','ph-tree','ph-mountains','ph-compass',
+    'ph-clock','ph-calendar','ph-alarm','ph-coffee','ph-cookie','ph-fork-knife','ph-music-note','ph-headphones',
+    'ph-camera','ph-paint-brush','ph-palette','ph-code','ph-terminal','ph-chart-line','ph-chart-bar','ph-currency-dollar',
+    'ph-briefcase','ph-wrench','ph-hammer','ph-gear','ph-flag','ph-bookmark','ph-tag','ph-hash'
+  ];
+  const runtime=new Map();
+
+  function onNumberedDay(){
+    let day=0; try{day=Number(typeof currentDay!=='undefined'?currentDay:0)}catch{}
+    return day>0 && !!q('#log-view.view.active');
+  }
+  function currentDayNumber(){try{return Number(typeof currentDay!=='undefined'?currentDay:0)||0}catch{return 0}}
+  function ensureSettings(){try{db.settings||={};return db.settings}catch{return{}}}
+  function hiddenMap(){
+    const settings=ensureSettings();
+    if(!settings.hiddenSectionsV432 || typeof settings.hiddenSectionsV432!=='object' || Array.isArray(settings.hiddenSectionsV432)) settings.hiddenSectionsV432={};
+    return settings.hiddenSectionsV432;
+  }
+
+  // The Components modal is now the single restore/show authority. Retire the
+  // old "Hidden Day Log Sections" list from Settings rather than merely hiding it.
+  function retireHiddenSettingsV712(){q('#hidden-day-log-sections-v433')?.remove()}
+  try{ensureHiddenDayLogSectionsSettingsV433=function(){retireHiddenSettingsV712();return null};window.ensureHiddenDayLogSectionsSettingsV433=ensureHiddenDayLogSectionsSettingsV433}catch{}
+  try{renderHiddenDayLogSectionSettingsV433=function(){retireHiddenSettingsV712()};window.renderHiddenDayLogSectionSettingsV433=renderHiddenDayLogSectionSettingsV433}catch{}
+  // Day-page Toolbox visibility is controlled here independently from whether
+  // the Toolbox navigation tab itself is hidden.
+  try{toolboxBuiltInHiddenV433=function(){return false};window.toolboxBuiltInHiddenV433=toolboxBuiltInHiddenV433}catch{}
+  retireHiddenSettingsV712();
+
+  function defaultRecommendation(index=1){
+    const legacy=clone(ensureSettings().lazyRecommendationV686||{});
+    const useLegacy=index===1 && legacy && typeof legacy==='object' && Object.keys(legacy).length;
+    const raw=useLegacy?legacy:{};
+    return {
+      id:uid('day-recommendation'),
+      title:String(raw.title||'Lazy Day Recommendation').trim()||'Recommendation',
+      icon:String(raw.icon||'ph-moon-stars').replace(/^ph\s+/,'').trim()||'ph-moon-stars',
+      categories:Array.isArray(raw.categories)?[...raw.categories]:[],
+      tags:Array.isArray(raw.tags)?raw.tags.map(v=>String(v).replace(/^#/,'').trim()).filter(Boolean):['lazy'],
+      tagMode:String(raw.tagMode||'and').toLowerCase()==='or'?'or':'and',
+      removeTagsOnLearn:Array.isArray(raw.removeTagsOnLearn)?raw.removeTagsOnLearn.map(v=>String(v).replace(/^#/,'').trim()).filter(Boolean):['lazy','hide'],
+      fieldFilters:Array.isArray(raw.fieldFilters)?raw.fieldFilters.map(row=>({category:String(row?.category||''),field:String(row?.field||''),contains:String(row?.contains||'')})).filter(row=>row.category&&row.field):[],
+      placement:index===1?'items':'canvas'
+    };
+  }
+
+  function recommendationConfigs(){
+    const settings=ensureSettings();
+    if(!Array.isArray(settings.dayRecommendationButtonsV712)){
+      settings.dayRecommendationButtonsV712=[defaultRecommendation(1)];
+      settings.dayRecommendationButtonsMigratedV712=true;
+      try{saveDb?.()}catch{}
+    }
+    settings.dayRecommendationButtonsV712=settings.dayRecommendationButtonsV712.filter(row=>row&&typeof row==='object').map((raw,index)=>({
+      id:String(raw.id||uid('day-recommendation')),
+      title:String(raw.title||`Recommendation ${index+1}`).trim()||`Recommendation ${index+1}`,
+      icon:String(raw.icon||'ph-moon-stars').replace(/^ph\s+/,'').trim()||'ph-moon-stars',
+      categories:Array.isArray(raw.categories)?[...new Set(raw.categories.map(String).filter(Boolean))]:[],
+      tags:Array.isArray(raw.tags)?[...new Set(raw.tags.map(v=>String(v).replace(/^#/,'').trim()).filter(Boolean))]:[],
+      tagMode:String(raw.tagMode||'and').toLowerCase()==='or'?'or':'and',
+      removeTagsOnLearn:Array.isArray(raw.removeTagsOnLearn)?[...new Set(raw.removeTagsOnLearn.map(v=>String(v).replace(/^#/,'').trim()).filter(Boolean))]:[],
+      fieldFilters:Array.isArray(raw.fieldFilters)?raw.fieldFilters.map(row=>({category:String(row?.category||'').trim(),field:String(row?.field||'').trim(),contains:String(row?.contains||'').trim()})).filter(row=>row.category&&row.field):[],
+      placement:index===0?'items':(String(raw.placement||'canvas')==='items'?'items':'canvas')
+    }));
+    return settings.dayRecommendationButtonsV712;
+  }
+
+  function tagsForItem(id){
+    try{if(typeof getKnowledgeItemTagsV55==='function')return (getKnowledgeItemTagsV55(id)||[]).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean)}catch{}
+    const meta=db.phrase_meta?.[id]||{};
+    return [...new Set([...(meta.tags||[]),meta.type].map(v=>String(v||'').replace(/^#/,'').trim().toLowerCase()).filter(Boolean))];
+  }
+  function learnedSet(){const out=new Set();Object.values(db.days||{}).forEach(day=>(day?.phrases||[]).forEach(id=>out.add(String(id))));return out}
+  function categories(){return [...new Set([...(db.settings?.categories||[]),...Object.keys(db.settings?.categorySettings||{}),...(db.phrases||[]).map(id=>String(db.phrase_meta?.[id]?.type||''))].map(String).filter(Boolean))]}
+  function fieldsForCategory(category){
+    const names=[];
+    try{(getKnowledgeFieldDefs?.(category)||[]).forEach(field=>{if(field?.name)names.push(String(field.name))})}catch{}
+    try{const cfg=getCategoryConfig?.(category);(cfg?.fields||[]).forEach((raw,index)=>{let field=raw;try{if(typeof normalizeKnowledgeField==='function')field=normalizeKnowledgeField(raw,index,cfg)}catch{}if(field?.name)names.push(String(field.name))})}catch{}
+    return [...new Set(names.filter(Boolean))];
+  }
+  function fieldValue(id,row){if(row.field==='__title__')return String(id||'');return String(db.phrase_meta?.[id]?.custom_fields?.[row.field]??'')}
+  function candidatesFor(config){
+    const learned=learnedSet();
+    const wantedCats=new Set((config.categories||[]).map(String));
+    const wantedTags=(config.tags||[]).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean);
+    return (db.phrases||[]).filter(rawId=>{
+      const id=String(rawId); if(learned.has(id))return false;
+      const meta=db.phrase_meta?.[id]||{}; const category=String(meta.type||'');
+      if(wantedCats.size && !wantedCats.has(category))return false;
+      const itemTags=tagsForItem(id);
+      if(wantedTags.length){const ok=config.tagMode==='or'?wantedTags.some(tag=>itemTags.includes(tag)):wantedTags.every(tag=>itemTags.includes(tag));if(!ok)return false}
+      const relevant=(config.fieldFilters||[]).filter(row=>!row.category||row.category===category);
+      for(const row of relevant){const value=fieldValue(id,row).trim();if(!value)return false;const wanted=String(row.contains||'').trim().toLowerCase();if(wanted&&!value.toLowerCase().includes(wanted))return false}
+      return true;
+    });
+  }
+
+  function ensureStyle(){
+    if(q('#loggy-day-components-v712-style'))return;
+    const style=document.createElement('style');style.id='loggy-day-components-v712-style';style.textContent=`
+      /* V716 restores the original Items Learned recommendation slot. */
+      #day-recommendation-components-v712{display:none!important}
+      #day-recommendation-components-v712.hidden{display:none!important}
+      .day-recommendation-buttons-v712{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+      .day-recommendation-button-v712{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 10px;border:var(--thin-border);border-radius:999px;background:var(--white);color:var(--black);font:inherit;font-size:.78rem;font-weight:700;cursor:pointer;box-shadow:none}
+      .day-recommendation-button-v712:hover{background:var(--track-bg)}
+      .day-recommendation-button-v712.active{outline:2px solid color-mix(in srgb,var(--black) 18%,transparent);outline-offset:1px}
+      .day-recommendation-panel-v712{max-width:720px;width:100%;box-sizing:border-box}
+      .day-recommendation-panel-v712 .lazy-day-recommendation-v596{display:flex!important;margin:0!important}
+      .day-components-box-v712{width:min(720px,calc(100vw - 28px));max-height:min(82vh,760px);overflow:auto}
+      .day-components-grid-v712{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+      .day-component-card-v712{display:flex;align-items:center;gap:10px;padding:12px;border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);color:var(--black)}
+      .day-component-card-v712>i{font-size:1.25rem;flex:0 0 auto}.day-component-copy-v712{min-width:0;flex:1;display:grid;gap:2px}.day-component-copy-v712 strong{font-size:.9rem}.day-component-copy-v712 small{color:var(--muted-text);font-size:.72rem}
+      .day-component-toggle-v712{min-width:68px}.day-component-toggle-v712[data-visible="true"]{font-weight:700}
+      .day-components-recommendations-v712{display:grid;gap:9px}.day-components-recommendation-head-v712{display:flex;align-items:center;justify-content:space-between;gap:12px}.day-components-recommendation-list-v712{display:grid;gap:7px}
+      .day-components-rec-row-v712{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid color-mix(in srgb,var(--black) 16%,transparent);border-radius:8px}.day-components-rec-row-v712>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.day-components-rec-row-v712 i{font-size:1rem}
+      .day-components-help-v712{margin:0;color:var(--muted-text);font-size:.75rem;line-height:1.4}
+      @media(max-width:620px){.day-components-grid-v712{grid-template-columns:1fr}#day-recommendation-components-v712{padding-left:0;padding-right:0}}
+    `;document.head.appendChild(style)
+  }
+
+  function ensureRecommendationHost(){
+    // V733: V716/V713 are the only live recommendation surfaces. The original
+    // Lazy Day control stays as the moon icon beside Items Learned +, while
+    // recommendations explicitly moved to the page are rendered by V713.
+    // Retire the obsolete V712 full-width bar so it can never appear on load.
+    ensureStyle();
+    q('#day-recommendation-components-v712')?.remove();
+    return null;
+  }
+
+  function recommendationRuntime(id){if(!runtime.has(id))runtime.set(id,{current:'',last:''});return runtime.get(id)}
+  function displayLabel(id){try{if(typeof getKnowledgeDisplayLabelV162==='function')return getKnowledgeDisplayLabelV162(id,'everywhere')}catch{}return id}
+  function patternHtml(id){try{if(String(id).includes('\\')&&typeof placeholderTokenHtmlV56==='function')return placeholderTokenHtmlV56(String(id))}catch{}return esc(displayLabel(id))}
+
+  function showRecommendation(config, forceNext=false){
+    const host=ensureRecommendationHost();if(!host)return;
+    const panelHost=q('.day-recommendation-panel-v712',host);const state=recommendationRuntime(config.id);const pool=candidatesFor(config);
+    if(forceNext)state.current='';
+    if(!state.current || !pool.includes(state.current)){
+      let choices=pool;if(pool.length>1&&state.last){const rest=pool.filter(id=>String(id)!==String(state.last));if(rest.length)choices=rest}
+      state.current=choices.length?String(choices[Math.floor(Math.random()*choices.length)]):'';if(state.current)state.last=state.current;
+    }
+    qa('.day-recommendation-button-v712',host).forEach(btn=>btn.classList.toggle('active',btn.dataset.recommendationId===config.id));
+    if(!pool.length){panelHost.innerHTML=`<div class="lazy-day-recommendation-v596 lazy-day-empty-v623"><button type="button" class="lazy-day-recommendation-main-v596"><span class="lazy-day-recommendation-icon-v596"><i class="ph ${attr(config.icon)}"></i></span><span class="lazy-day-recommendation-copy-v596"><small>${esc(config.title)}</small><span class="lazy-day-recommendation-value-v596">No unlearned Knowledge Base items match these filters.</span><em class="lazy-day-recommendation-meta-v596">Right-click the button above to edit its filters.</em></span></button></div>`;return}
+    const id=state.current;const tagText=(config.tags||[]).length?(config.tags||[]).map(tag=>`#${tag}`).join(config.tagMode==='or'?' OR ':' + '):'custom filters';
+    panelHost.innerHTML=`<div class="lazy-day-recommendation-v596" aria-live="polite"><button type="button" class="lazy-day-recommendation-main-v596" data-rec-open><span class="lazy-day-recommendation-icon-v596"><i class="ph ${attr(config.icon)}"></i></span><span class="lazy-day-recommendation-copy-v596"><small>${esc(config.title)}</small><span class="lazy-day-recommendation-value-v596">${patternHtml(id)}</span><em class="lazy-day-recommendation-meta-v596">${esc(tagText)} · ${pool.length} unlearned item${pool.length===1?'':'s'} available</em></span></button><div class="lazy-day-recommendation-actions-v597"><button type="button" class="small-icon-btn" data-rec-skip title="Skip and show another"><i class="ph ph-skip-forward"></i></button><button type="button" class="small-icon-btn" data-rec-learn title="Add to Items Learned"><i class="ph ph-check"></i></button></div></div>`;
+    q('[data-rec-open]',panelHost)?.addEventListener('click',()=>{try{openItemModal?.(id,true,false)}catch{}});
+    q('[data-rec-skip]',panelHost)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();state.current='';showRecommendation(config,true)});
+    q('[data-rec-learn]',panelHost)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();acceptRecommendation(config).catch(()=>{})});
+  }
+
+  async function acceptRecommendation(config){
+    const day=currentDayNumber();const state=recommendationRuntime(config.id);const id=String(state.current||'');if(!day||!id)return;
+    db.days||={};db.days[day]||={notes:'',phrases:[],tools:[],video:'',checkedParts:{}};db.days[day].phrases||=[];if(!db.days[day].phrases.includes(id))db.days[day].phrases.push(id);
+    const remove=new Set((config.removeTagsOnLearn||[]).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean));
+    const meta=db.phrase_meta?.[id];if(meta&&remove.size&&Array.isArray(meta.tags))meta.tags=meta.tags.filter(tag=>!remove.has(String(tag||'').replace(/^#/,'').trim().toLowerCase()));
+
+    // V783: optimistic first paint. Items Learned updates before expensive KB
+    // datalist/library refreshes and persistence work, so accepting a
+    // recommendation feels immediate even with a large Knowledge Base.
+    try{renderPhrases?.(db.days[day].phrases)}catch{}
+    state.current='';showRecommendation(config,true);
+    try{showFeatureToast?.(`Added “${id}” to Items Learned.`)}catch{}
+    setTimeout(async()=>{
+      try{populatePhrasesDatalist?.()}catch{}
+      try{renderPhrasesLibrary?.(q('#phrases-search-bar')?.value||'')}catch{}
+      try{await saveDb?.()}catch{}
+    },0);
+  }
+
+  function renderRecommendationButtons(){
+    // V733: no separate full-width recommendation toolbar. V716 renders the
+    // icon(s) in Items Learned and V713 renders only page-placed components.
+    q('#day-recommendation-components-v712')?.remove();
+  }
+
+  async function removeRecommendation(id){
+    const rows=recommendationConfigs();const config=rows.find(row=>row.id===id);if(!config)return;
+    let ok=true;try{ok=await showAppConfirm?.({title:'Remove Recommendation Button?',message:`Remove “${config.title}” from this Log page?`,confirmLabel:'Remove'})??true}catch{}
+    if(!ok)return;ensureSettings().dayRecommendationButtonsV712=rows.filter(row=>row.id!==id);runtime.delete(id);try{await saveDb?.()}catch{}renderRecommendationButtons();renderComponentsModal();
+  }
+
+  function addRecommendation(){
+    const rows=recommendationConfigs();const config=defaultRecommendation(rows.length+1);config.title=`Recommendation ${rows.length+1}`;config.tags=[];config.removeTagsOnLearn=[];rows.push(config);ensureSettings().dayRecommendationButtonsV712=rows;try{saveDb?.()}catch{}renderRecommendationButtons();renderComponentsModal();setTimeout(()=>openRecommendationSettings(config.id),0)
+  }
+
+  function splitList(value){return [...new Set(String(value||'').split(',').map(v=>v.trim().replace(/^#/,'')).filter(Boolean))]}
+  function openRecommendationSettings(id){
+    q('#lazy-recommendation-settings-v686')?.remove();const config=recommendationConfigs().find(row=>row.id===id);if(!config)return;
+    const draft=clone(config);const cats=categories();let selectedIcon=draft.icon||'ph-moon-stars';let rows=clone(draft.fieldFilters||[]);
+    const modal=document.createElement('div');modal.id='lazy-recommendation-settings-v686';modal.className='modal-overlay lazy-recommendation-settings-v686';modal.innerHTML=`<div class="modal-box lazy-recommendation-settings-box-v686" role="dialog" aria-modal="true" aria-label="Recommendation Settings"><div class="modal-header"><h2>Recommendation Settings</h2><button type="button" class="small-icon-btn lazy-recommendation-close-v686" title="Close"><i class="ph ph-x"></i></button></div><div class="modal-section"><span class="field-label">Button name</span><input type="text" class="lazy-recommendation-name-v686" value="${attr(draft.title)}" placeholder="Recommendation name"></div><div class="modal-section"><span class="field-label">Icon</span><div class="lazy-recommendation-icon-search-v686"><i class="ph ph-magnifying-glass"></i><input type="search" class="lazy-recommendation-icon-query-v686" placeholder="Search icons…" autocomplete="off"></div><div class="lazy-recommendation-icon-grid-v686"></div></div><div class="modal-section"><span class="field-label">Categories</span><div class="lazy-recommendation-category-grid-v686">${cats.map(cat=>`<label class="lazy-recommendation-check-v686"><input type="checkbox" value="${attr(cat)}" ${(draft.categories||[]).includes(cat)?'checked':''}><span>${esc(cat)}</span></label>`).join('')}</div></div><div class="modal-section"><span class="field-label">Required tags</span><div class="lazy-recommendation-tag-rule-v689"><input type="text" class="lazy-recommendation-tags-v686" value="${attr((draft.tags||[]).join(', '))}" placeholder="lazy, algebra, hard"><select class="lazy-recommendation-tag-mode-v689"><option value="and" ${draft.tagMode!=='or'?'selected':''}>Match all tags</option><option value="or" ${draft.tagMode==='or'?'selected':''}>Match any tag</option></select></div></div><div class="modal-section"><span class="field-label">Tags removed when accepted</span><input type="text" class="lazy-recommendation-remove-tags-v688" value="${attr((draft.removeTagsOnLearn||[]).join(', '))}" placeholder="lazy, hide"><p class="progress-hint">Leave blank to keep every tag.</p></div><div class="modal-section"><div class="lazy-recommendation-fields-head-v686"><span class="field-label">Field filters</span><button type="button" class="small-icon-btn lazy-recommendation-add-field-v686" title="Add field filter"><i class="ph ph-plus"></i></button></div><div class="lazy-recommendation-field-list-v686"></div></div><div class="lazy-recommendation-match-summary-v686"></div><div class="modal-actions lazy-recommendation-actions-footer-v686"><button type="button" class="icon-btn lazy-recommendation-save-v686"><i class="ph ph-check"></i> Save</button></div></div>`;
+    document.body.appendChild(modal);const iconGrid=q('.lazy-recommendation-icon-grid-v686',modal),iconQuery=q('.lazy-recommendation-icon-query-v686',modal),fieldList=q('.lazy-recommendation-field-list-v686',modal),summary=q('.lazy-recommendation-match-summary-v686',modal);
+    const close=()=>modal.remove();q('.lazy-recommendation-close-v686',modal).onclick=close;modal.addEventListener('click',event=>{if(event.target===modal)close()});
+    const renderIcons=()=>{const term=String(iconQuery.value||'').trim().toLowerCase().replace(/^ph-/,'');const visible=ICONS.filter(icon=>!term||icon.replace(/^ph-/,'').includes(term));iconGrid.innerHTML=visible.map(icon=>`<button type="button" class="lazy-recommendation-icon-option-v686 ${icon===selectedIcon?'selected':''}" data-icon="${attr(icon)}"><i class="ph ${attr(icon)}"></i></button>`).join('')||'<small>No icons found.</small>';qa('[data-icon]',iconGrid).forEach(btn=>btn.onclick=()=>{selectedIcon=btn.dataset.icon;renderIcons()})};
+    const catOptions=selected=>cats.map(cat=>`<option value="${attr(cat)}" ${cat===selected?'selected':''}>${esc(cat)}</option>`).join('');
+    const renderFields=()=>{fieldList.innerHTML=rows.map((row,index)=>{const fieldOptions=[{name:'__title__',label:'Title'},...fieldsForCategory(row.category).map(name=>({name,label:name}))];if(!fieldOptions.some(field=>field.name===row.field))row.field=fieldOptions[0]?.name||'__title__';return `<div class="lazy-recommendation-field-row-v686" data-index="${index}"><select class="lazy-recommendation-field-category-v686">${catOptions(row.category)}</select><select class="lazy-recommendation-field-name-v686">${fieldOptions.map(field=>`<option value="${attr(field.name)}" ${field.name===row.field?'selected':''}>${esc(field.label)}</option>`).join('')}</select><input type="text" class="lazy-recommendation-field-contains-v686" value="${attr(row.contains)}" placeholder="Contains… (optional)"><button type="button" class="small-icon-btn lazy-recommendation-remove-field-v686"><i class="ph ph-x"></i></button></div>`}).join('')||'<div class="lazy-recommendation-no-fields-v686">No field filters. Any field values are allowed.</div>';qa('.lazy-recommendation-field-row-v686',fieldList).forEach(rowEl=>{const index=Number(rowEl.dataset.index),cat=q('.lazy-recommendation-field-category-v686',rowEl),field=q('.lazy-recommendation-field-name-v686',rowEl),contains=q('.lazy-recommendation-field-contains-v686',rowEl);cat.onchange=()=>{rows[index].category=cat.value;rows[index].field=fieldsForCategory(cat.value)[0]||'__title__';renderFields();updateSummary()};field.onchange=()=>{rows[index].field=field.value;updateSummary()};contains.oninput=()=>{rows[index].contains=contains.value;updateSummary()};q('.lazy-recommendation-remove-field-v686',rowEl).onclick=()=>{rows.splice(index,1);renderFields();updateSummary()}})};
+    const draftNow=()=>({id:config.id,title:String(q('.lazy-recommendation-name-v686',modal)?.value||'').trim()||'Recommendation',icon:selectedIcon||'ph-moon-stars',categories:qa('.lazy-recommendation-category-grid-v686 input:checked',modal).map(input=>input.value),tags:splitList(q('.lazy-recommendation-tags-v686',modal)?.value),tagMode:q('.lazy-recommendation-tag-mode-v689',modal)?.value==='or'?'or':'and',removeTagsOnLearn:splitList(q('.lazy-recommendation-remove-tags-v688',modal)?.value),fieldFilters:rows.map(row=>({category:String(row.category||'').trim(),field:String(row.field||'').trim(),contains:String(row.contains||'').trim()})).filter(row=>row.category&&row.field)});
+    const updateSummary=()=>{const count=candidatesFor(draftNow()).length;summary.innerHTML=`<strong>${count}</strong> unlearned KB item${count===1?'':'s'} currently match these filters.`};
+    iconQuery.oninput=renderIcons;qa('input,select',modal).forEach(input=>{if(!input.closest('.lazy-recommendation-field-list-v686'))input.addEventListener(input.tagName==='SELECT'?'change':'input',updateSummary)});q('.lazy-recommendation-add-field-v686',modal).onclick=()=>{const category=cats[0]||'';if(!category)return;rows.push({category,field:fieldsForCategory(category)[0]||'__title__',contains:''});renderFields();updateSummary()};q('.lazy-recommendation-save-v686',modal).onclick=async()=>{const next=draftNow();Object.assign(config,next);runtime.delete(config.id);try{await saveDb?.()}catch{}renderRecommendationButtons();renderComponentsModal();close()};
+    renderIcons();renderFields();updateSummary();setTimeout(()=>q('.lazy-recommendation-name-v686',modal)?.focus(),0);
+  }
+
+  function ensureComponentsModal(){
+    let modal=q('#day-components-modal-v712');if(modal)return modal;modal=document.createElement('div');modal.id='day-components-modal-v712';modal.className='modal-overlay hidden';modal.innerHTML=`<div class="modal-box day-components-box-v712"><div class="modal-header"><h2>Day Log Components</h2><button type="button" class="small-icon-btn" data-day-components-close title="Close"><i class="ph ph-x"></i></button></div><p class="day-components-help-v712">Show or hide the built-in sections on this Log. Recommendation buttons are repeatable; right-click one on the Day Log to rename it or edit its filters.</p><div class="modal-section"><div class="day-components-grid-v712" data-day-components-grid></div></div><div class="modal-section day-components-recommendations-v712"><div class="day-components-recommendation-head-v712"><div><span class="field-label">Recommendation Buttons</span><p class="day-components-help-v712">Each button can use completely different KB categories, tags and field filters.</p></div><button type="button" class="icon-btn" data-add-day-recommendation><i class="ph ph-plus"></i> Add</button></div><div class="day-components-recommendation-list-v712" data-day-recommendation-list></div></div></div>`;document.body.appendChild(modal);q('[data-day-components-close]',modal).onclick=()=>modal.classList.add('hidden');modal.addEventListener('click',event=>{if(event.target===modal)modal.classList.add('hidden')});q('[data-add-day-recommendation]',modal).onclick=addRecommendation;return modal
+  }
+
+  function renderComponentsModal(){
+    const modal=q('#day-components-modal-v712');if(!modal)return;const hidden=hiddenMap(),grid=q('[data-day-components-grid]',modal);grid.innerHTML=BUILTINS.map(item=>{const visible=hidden[item.key]!==true;return `<div class="day-component-card-v712"><i class="ph ${item.icon}"></i><div class="day-component-copy-v712"><strong>${esc(item.label)}</strong><small>${visible?'Visible on numbered Day Logs':'Hidden from numbered Day Logs'}</small></div><button type="button" class="icon-btn day-component-toggle-v712" data-component-key="${item.key}" data-visible="${visible?'true':'false'}">${visible?'Hide':'Show'}</button></div>`}).join('');qa('[data-component-key]',grid).forEach(button=>button.onclick=async()=>{const key=button.dataset.componentKey;if(hidden[key]===true)delete hidden[key];else hidden[key]=true;try{await saveDb?.()}catch{}try{applyHiddenLoggySectionsV432?.()}catch{try{window.__applyHiddenLoggySectionsV433?.()}catch{}}renderComponentsModal()});
+    const rows=recommendationConfigs(),list=q('[data-day-recommendation-list]',modal);list.innerHTML=rows.map(config=>`<div class="day-components-rec-row-v712"><i class="ph ${attr(config.icon)}"></i><span>${esc(config.title)}</span><button type="button" class="small-icon-btn" data-edit-rec="${attr(config.id)}" title="Edit filters"><i class="ph ph-pencil-simple"></i></button><button type="button" class="small-icon-btn" data-remove-rec="${attr(config.id)}" title="Remove"><i class="ph ph-trash"></i></button></div>`).join('')||'<p class="day-components-help-v712">No recommendation buttons yet.</p>';qa('[data-edit-rec]',list).forEach(btn=>btn.onclick=()=>{modal.classList.add('hidden');openRecommendationSettings(btn.dataset.editRec)});qa('[data-remove-rec]',list).forEach(btn=>btn.onclick=()=>removeRecommendation(btn.dataset.removeRec));
+  }
+
+  function openComponentsModal(){if(!onNumberedDay())return;const modal=ensureComponentsModal();renderComponentsModal();modal.classList.remove('hidden')}
+  window.__loggyOpenDayComponentsV712=openComponentsModal;
+
+  // Add Components to the existing per-section right-click menu as well, so
+  // right-clicking section space and right-clicking blank page space both lead
+  // to the same component manager.
+  try{
+    const beforeOpenSection=openSectionTitleContextMenuV434;
+    openSectionTitleContextMenuV434=function(target,x,y){const result=beforeOpenSection.apply(this,arguments);const menu=q('#section-title-context-menu-v434');if(!menu)return result;let button=q('.loggy-section-context-components-v745,.loggy-section-context-components-v712',menu);if(!button){button=document.createElement('button');button.type='button';button.className='loggy-section-context-option-v434 loggy-section-context-components-v712';button.setAttribute('role','menuitem');button.innerHTML='<i class="ph ph-squares-four"></i><span>Components</span>';button.addEventListener('click',()=>{try{closeSectionTitleContextMenuV434?.()}catch{}openComponentsModal()});menu.appendChild(button)}const show=!!target?.closest?.('#log-view')&&onNumberedDay();button.classList.toggle('hidden',!show);if(show){requestAnimationFrame(()=>{const rect=menu.getBoundingClientRect();const gap=8;const left=Math.min(Math.max(gap,Number(x)||gap),Math.max(gap,innerWidth-rect.width-gap));const top=Math.min(Math.max(gap,Number(y)||gap),Math.max(gap,innerHeight-rect.height-gap));menu.style.left=`${left}px`;menu.style.top=`${top}px`})}return result};window.openSectionTitleContextMenuV434=openSectionTitleContextMenuV434
+  }catch{}
+
+  function refreshDayComponents(){retireHiddenSettingsV712();renderRecommendationButtons();try{applyHiddenLoggySectionsV432?.()}catch{try{window.__applyHiddenLoggySectionsV433?.()}catch{}}}
+  try{const beforeOpenDay=openDayLog;if(typeof beforeOpenDay==='function'&&!beforeOpenDay.__dayComponentsV712){const wrapped=function(){const result=beforeOpenDay.apply(this,arguments);requestAnimationFrame(refreshDayComponents);return result};wrapped.__dayComponentsV712=true;openDayLog=wrapped;try{window.openDayLog=wrapped}catch{}}}catch{}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{ensureStyle();refreshDayComponents()},{once:true});else{ensureStyle();refreshDayComponents()}
+
+  window.__loggyDayComponentsV712={open:openComponentsModal,render:refreshDayComponents,recommendations:recommendationConfigs,editRecommendation:openRecommendationSettings};
+})();
+
+// ============================================================================
+// V713 — NUMBERED DAY LOG COMPONENT CANVAS
+// Per-day drag/drop layout for built-in Day Log sections and repeatable
+// recommendation buttons. The Components manager now controls the ACTIVE
+// numbered day instead of a Log-wide fixed layout.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyDayComponentCanvasV713) return;
+  window.__loggyDayComponentCanvasV713 = true;
+
+  const q = (s, r = document) => r?.querySelector?.(s) || null;
+  const qa = (s, r = document) => Array.from(r?.querySelectorAll?.(s) || []);
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const attr = esc;
+  const clone = value => { try { return structuredClone(value); } catch { try { return JSON.parse(JSON.stringify(value)); } catch { return value; } } };
+  const uid = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
+
+  const BUILTINS = [
+    { key:'itemsLearned', label:'Items Learned', icon:'ph-books', span:12 },
+    { key:'tools', label:'Toolbox', icon:'ph-wrench', span:6 },
+    { key:'logNotes', label:'Log Notes', icon:'ph-note-pencil', span:6 },
+    { key:'videoLogs', label:'Video Logs', icon:'ph-video-camera', span:6 },
+    { key:'tabItems', label:'Tab Items', icon:'ph-tabs', span:12 },
+    { key:'mediaResources', label:'Media Resources', icon:'ph-link', span:12 }
+  ];
+  const VALID_SPANS = [12, 6, 4];
+  const recRuntime = new Map();
+  let layoutEditMode = false;
+  let lastContextTarget = null;
+  let saveTimer = 0;
+
+  function currentDayNumberV713() {
+    try { return Number(typeof currentDay !== 'undefined' ? currentDay : 0) || 0; }
+    catch { return 0; }
+  }
+
+  function onNumberedDayV713() {
+    return currentDayNumberV713() > 0 && !!q('#log-view.view.active');
+  }
+
+  function settingsV713() {
+    try { db.settings ||= {}; return db.settings; }
+    catch { return {}; }
+  }
+
+  function dayDataV713(day = currentDayNumberV713()) {
+    if (!day) return null;
+    try {
+      db.days ||= {};
+      db.days[day] ||= { notes:'', phrases:[], tools:[], video:'', checkedParts:{}, customTabLinks:[] };
+      return db.days[day];
+    } catch { return null; }
+  }
+
+  function recommendationConfigsV713() {
+    try {
+      const api = window.__loggyDayComponentsV712;
+      if (api && typeof api === 'object' && typeof api.recommendations === 'function') {
+        return api.recommendations();
+      }
+    } catch {}
+    const s = settingsV713();
+    if (!Array.isArray(s.dayRecommendationButtonsV712)) s.dayRecommendationButtonsV712 = [];
+    return s.dayRecommendationButtonsV712;
+  }
+
+  function recommendationByIdV713(id) {
+    return recommendationConfigsV713().find(row => String(row?.id || '') === String(id || '')) || null;
+  }
+
+  function builtinEntryV713(item, hidden = {}) {
+    return {
+      id:`builtin:${item.key}`,
+      type:'builtin',
+      key:item.key,
+      span:item.span,
+      visible:hidden?.[item.key] !== true
+    };
+  }
+
+  function recommendationEntryV713(id, visible = true) {
+    return {
+      id:`recommendation:${id}`,
+      type:'recommendation',
+      recommendationId:String(id),
+      span:4,
+      visible:visible !== false,
+      presentation:'button'
+    };
+  }
+
+  function buildInitialTemplateV713() {
+    const s = settingsV713();
+    const legacyHidden = s.hiddenSectionsV432 && typeof s.hiddenSectionsV432 === 'object' && !Array.isArray(s.hiddenSectionsV432)
+      ? clone(s.hiddenSectionsV432)
+      : {};
+    return [
+      ...BUILTINS.map(item => builtinEntryV713(item, legacyHidden)),
+      ...recommendationConfigsV713().map(row => recommendationEntryV713(row.id, true))
+    ];
+  }
+
+  function normalizeLayoutV713(raw) {
+    const configs = new Set(recommendationConfigsV713().map(row => String(row?.id || '')).filter(Boolean));
+    const incoming = Array.isArray(raw) ? raw.filter(row => row && typeof row === 'object') : [];
+    const seen = new Set();
+    const out = [];
+
+    incoming.forEach(row => {
+      if (row.type === 'builtin') {
+        const item = BUILTINS.find(def => def.key === row.key);
+        if (!item || seen.has(`builtin:${item.key}`)) return;
+        seen.add(`builtin:${item.key}`);
+        out.push({
+          id:`builtin:${item.key}`,
+          type:'builtin',
+          key:item.key,
+          span:VALID_SPANS.includes(Number(row.span)) ? Number(row.span) : item.span,
+          visible:row.visible !== false
+        });
+        return;
+      }
+      if (row.type === 'recommendation') {
+        const id = String(row.recommendationId || row.recId || '').trim();
+        if (!id || !configs.has(id) || seen.has(`recommendation:${id}`)) return;
+        seen.add(`recommendation:${id}`);
+        const presentation = ['button','compact','full'].includes(row.presentation) ? row.presentation : 'button';
+        out.push({
+          id:`recommendation:${id}`,
+          type:'recommendation',
+          recommendationId:id,
+          span:VALID_SPANS.includes(Number(row.span)) ? Number(row.span) : 4,
+          visible:row.visible !== false,
+          presentation
+        });
+      }
+    });
+
+    BUILTINS.forEach(item => {
+      const id = `builtin:${item.key}`;
+      if (!seen.has(id)) out.push(builtinEntryV713(item, {}));
+    });
+    return out;
+  }
+
+  function ensureLayoutTemplateV713() {
+    const s = settingsV713();
+    if (!Array.isArray(s.dayComponentLayoutTemplateV713)) {
+      s.dayComponentLayoutTemplateV713 = buildInitialTemplateV713();
+      s.dayComponentLayoutMigratedV713 = true;
+      // The old global hide map must stop controlling Day pages after migration.
+      // Its state was copied into the V713 template above.
+      s.hiddenSectionsV432 = {};
+      queueSaveV713();
+    }
+    // V821: migrate the old default half-width Items Learned layout once.
+    // Keep deliberate user-customized layouts unchanged.
+    if (!s.dayItemsLearnedFullDefaultV821) {
+      const layout = s.dayComponentLayoutTemplateV713;
+      const item = layout.find(row => row.type === 'builtin' && row.key === 'itemsLearned');
+      const builtinOrder = layout.filter(row => row.type === 'builtin').map(row => row.key);
+      const defaultOrder = BUILTINS.map(row => row.key);
+      const looksLikeOldDefault = builtinOrder.every((key, index) => key === defaultOrder[index]);
+      if (item && item.span === 6 && looksLikeOldDefault) {
+        item.span = 12;
+        const days = db?.days || {};
+        Object.values(days).forEach(day => {
+          if (!Array.isArray(day?.componentLayoutV713)) return;
+          const order = day.componentLayoutV713.filter(row => row.type === 'builtin').map(row => row.key);
+          if (!order.every((key, index) => key === defaultOrder[index])) return;
+          const entry = day.componentLayoutV713.find(row => row.type === 'builtin' && row.key === 'itemsLearned');
+          if (entry && Number(entry.span) === 6) entry.span = 12;
+        });
+      }
+      s.dayItemsLearnedFullDefaultV821 = true;
+      queueSaveV713();
+    }
+    s.dayComponentLayoutTemplateV713 = normalizeLayoutV713(s.dayComponentLayoutTemplateV713);
+    return s.dayComponentLayoutTemplateV713;
+  }
+
+  function currentLayoutV713() {
+    const day = dayDataV713();
+    if (!day) return [];
+    const template = ensureLayoutTemplateV713();
+    if (!Array.isArray(day.componentLayoutV713)) day.componentLayoutV713 = clone(template);
+    day.componentLayoutV713 = normalizeLayoutV713(day.componentLayoutV713);
+    return day.componentLayoutV713;
+  }
+
+  function entryV713(id) {
+    return currentLayoutV713().find(row => row.id === id) || null;
+  }
+
+  function queueSaveV713() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { try { saveDb?.(); } catch {} }, 90);
+  }
+
+  function saveNowV713() {
+    clearTimeout(saveTimer);
+    try { return saveDb?.(); } catch { return null; }
+  }
+
+  function sectionForBuiltinV713(key) {
+    try {
+      if (typeof dayLogSectionForKeyV433 === 'function') return dayLogSectionForKeyV433(key);
+    } catch {}
+    if (key === 'itemsLearned') return q('#phrases-container')?.closest('#log-view section') || null;
+    if (key === 'logNotes') return q('#log-view .notes-section');
+    if (key === 'tools') return q('#add-tool-to-day-btn')?.closest('section') || null;
+    if (key === 'videoLogs') return q('#log-view .video-section');
+    if (key === 'tabItems') return q('#daily-custom-tab-links-section');
+    if (key === 'mediaResources') return q('#day-resources-section');
+    return null;
+  }
+
+  function ensureStyleV713() {
+    if (q('#loggy-day-component-canvas-v713-style')) return;
+    const style = document.createElement('style');
+    style.id = 'loggy-day-component-canvas-v713-style';
+    style.textContent = `
+      #day-layout-editbar-v713{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:9px 10px;border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);color:var(--black);box-sizing:border-box}
+      #day-layout-editbar-v713.hidden{display:none!important}
+      #day-layout-editbar-v713 .day-layout-edit-copy-v713{flex:1;min-width:180px;display:grid;gap:1px}
+      #day-layout-editbar-v713 .day-layout-edit-copy-v713 small{font-size:.72rem;color:var(--muted-text)}
+
+      .day-layout-editing-v713 #day-component-canvas-v713>.day-layout-item-v713{outline:1px dashed color-mix(in srgb,var(--black) 38%,transparent);outline-offset:3px;padding-top:34px!important;transition:outline-color .12s ease,opacity .12s ease}
+      .day-layout-editing-v713 #day-component-canvas-v713>.day-layout-item-v713.day-layout-dragging-v713{opacity:.42}
+      .day-layout-editing-v713 #day-component-canvas-v713>.day-layout-item-v713.day-layout-drop-before-v713{outline:2px solid var(--black)!important}
+      .day-layout-toolbar-v713{display:none;position:absolute;z-index:50;top:4px;right:4px;left:4px;height:26px;align-items:center;justify-content:flex-end;gap:5px;pointer-events:none}
+      .day-layout-editing-v713 .day-layout-toolbar-v713{display:flex}
+      .day-layout-toolbar-v713 button{pointer-events:auto;min-height:25px!important;height:25px!important;padding:2px 7px!important;font-size:.68rem!important;border-radius:6px!important}
+      .day-layout-drag-handle-v713{cursor:grab!important;margin-right:auto!important}
+      .day-layout-drag-handle-v713:active{cursor:grabbing!important}
+
+      .day-recommendation-component-v713{overflow:visible!important}
+      .day-rec-shell-v713{display:grid;gap:8px;min-width:0}
+      .day-rec-launch-v713{width:100%;min-height:38px;display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 11px;border:var(--thin-border);border-radius:999px;background:var(--white);color:var(--black);font:inherit;font-weight:750;cursor:pointer;box-sizing:border-box}
+      .day-rec-launch-v713 i{font-size:1rem}
+      .day-rec-shell-v713[data-presentation="compact"] .day-rec-launch-v713{justify-content:flex-start;border-radius:var(--border-radius);min-height:52px}
+      .day-rec-shell-v713[data-presentation="full"] .day-rec-launch-v713{justify-content:flex-start;border-radius:var(--border-radius);font-size:.95rem}
+      .day-rec-output-v713{min-width:0}
+      .day-rec-output-v713.hidden{display:none!important}
+      .day-rec-compact-result-v713{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid color-mix(in srgb,var(--black) 16%,transparent);border-radius:var(--border-radius);background:var(--track-bg);color:var(--black);min-width:0}
+      .day-rec-compact-result-v713 .day-rec-compact-main-v713{flex:1;min-width:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit;display:grid;gap:2px}
+      .day-rec-compact-result-v713 .day-rec-compact-main-v713 strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .day-rec-compact-result-v713 .day-rec-compact-main-v713 small{font-size:.7rem;color:var(--muted-text)}
+      .day-rec-empty-v713{padding:10px;border:1px dashed color-mix(in srgb,var(--black) 28%,transparent);border-radius:var(--border-radius);font-size:.76rem;color:var(--muted-text)}
+
+      #day-components-modal-v713 .day-components-box-v713{max-width:760px;width:min(760px,calc(100vw - 30px));max-height:min(82vh,820px);overflow:auto}
+      #day-components-modal-v713 .day-components-top-actions-v713{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+      #day-components-modal-v713 .day-components-grid-v713{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+      #day-components-modal-v713 .day-component-card-v713{display:flex;align-items:center;gap:10px;padding:11px;border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);color:var(--black)}
+      #day-components-modal-v713 .day-component-card-v713>i{font-size:1.2rem;flex:0 0 auto}
+      #day-components-modal-v713 .day-component-copy-v713{display:grid;gap:2px;flex:1;min-width:0}
+      #day-components-modal-v713 .day-component-copy-v713 small{font-size:.71rem;color:var(--muted-text)}
+      #day-components-modal-v713 .day-components-recommendation-head-v713{display:flex;align-items:center;justify-content:space-between;gap:10px}
+      #day-components-modal-v713 .day-components-recommendation-list-v713{display:grid;gap:7px;margin-top:8px}
+      #day-components-modal-v713 .day-components-rec-row-v713{display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid color-mix(in srgb,var(--black) 16%,transparent);border-radius:8px}
+      #day-components-modal-v713 .day-components-rec-row-v713>.day-components-rec-name-v713{flex:1;min-width:0;display:grid;gap:1px}
+      #day-components-modal-v713 .day-components-rec-row-v713>.day-components-rec-name-v713 strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      #day-components-modal-v713 .day-components-rec-row-v713>.day-components-rec-name-v713 small{font-size:.68rem;color:var(--muted-text)}
+      #day-components-modal-v713 .day-components-help-v713{margin:0;color:var(--muted-text);font-size:.74rem;line-height:1.4}
+
+      @media(max-width:760px){
+        #day-components-modal-v713 .day-components-grid-v713{grid-template-columns:1fr}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureCanvasV713() {
+    if (!onNumberedDayV713()) return null;
+    ensureStyleV713();
+    try { ensureDailyCustomTabLinksUI?.(); } catch {}
+    const logContent = q('#log-view .log-content');
+    if (!logContent) return null;
+    logContent.classList.add('day-layout-host-v713');
+    let canvas = q('#day-component-canvas-v713');
+    if (!canvas) {
+      canvas = document.createElement('div');
+      canvas.id = 'day-component-canvas-v713';
+      canvas.setAttribute('aria-label','Day Log component layout');
+      logContent.appendChild(canvas);
+    } else if (canvas.parentElement !== logContent) {
+      logContent.appendChild(canvas);
+    }
+    return canvas;
+  }
+
+  function ensureEditBarV713() {
+    const log = q('#log-view');
+    const header = q('#log-view > .log-header-container');
+    if (!log || !header) return null;
+    let bar = q('#day-layout-editbar-v713');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'day-layout-editbar-v713';
+      bar.className = 'hidden';
+      bar.innerHTML = `
+        <div class="day-layout-edit-copy-v713">
+          <strong>Editing Day Log layout</strong>
+          <small>Drag components with the handle. Change widths or hide a component without deleting its data.</small>
+        </div>
+        <button type="button" class="icon-btn" data-layout-apply-future-v713>Use for future days</button>
+        <button type="button" class="icon-btn" data-layout-apply-all-v843>Use for all days</button>
+        <button type="button" class="icon-btn" data-layout-done-v713>Done</button>
+      `;
+      header.insertAdjacentElement('afterend', bar);
+      q('[data-layout-done-v713]',bar)?.addEventListener('click',()=>setLayoutEditModeV713(false));
+      q('[data-layout-apply-future-v713]',bar)?.addEventListener('click',applyCurrentLayoutToFutureV713);
+      q('[data-layout-apply-all-v843]',bar)?.addEventListener('click',applyCurrentLayoutToAllDaysV843);
+    }
+    return bar;
+  }
+
+  function componentLabelV713(entry) {
+    if (entry.type === 'builtin') return BUILTINS.find(item => item.key === entry.key)?.label || entry.key;
+    return recommendationByIdV713(entry.recommendationId)?.title || 'Recommendation';
+  }
+
+  function widthLabelV713(span) {
+    return Number(span) === 12 ? 'Full' : Number(span) === 6 ? 'Half' : 'Third';
+  }
+
+  function cycleSpanV713(entry) {
+    const index = VALID_SPANS.indexOf(Number(entry.span));
+    entry.span = VALID_SPANS[(index + 1 + VALID_SPANS.length) % VALID_SPANS.length];
+    queueSaveV713();
+    renderDayLayoutV713();
+  }
+
+  function hideEntryV713(entry) {
+    entry.visible = false;
+    queueSaveV713();
+    renderDayLayoutV713();
+    renderComponentsModalV713();
+  }
+
+  function installEditToolbarV713(el, entry) {
+    q('.day-layout-toolbar-v713', el)?.remove();
+    if (!layoutEditMode) {
+      el.draggable = false;
+      return;
+    }
+    const toolbar = document.createElement('div');
+    toolbar.className = 'day-layout-toolbar-v713';
+    toolbar.innerHTML = `
+      <button type="button" class="small-icon-btn day-layout-drag-handle-v713" draggable="true" title="Drag ${attr(componentLabelV713(entry))}"><i class="ph ph-dots-six-vertical"></i></button>
+      <button type="button" class="small-icon-btn" data-layout-width-v713 title="Change width">${widthLabelV713(entry.span)}</button>
+      <button type="button" class="small-icon-btn" data-layout-hide-v713 title="Hide from this day"><i class="ph ph-eye-slash"></i></button>
+    `;
+    el.prepend(toolbar);
+    q('[data-layout-width-v713]',toolbar)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();cycleSpanV713(entry)});
+    q('[data-layout-hide-v713]',toolbar)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();hideEntryV713(entry)});
+    const handle = q('.day-layout-drag-handle-v713',toolbar);
+    handle?.addEventListener('dragstart', event => {
+      try { event.dataTransfer.effectAllowed='move'; event.dataTransfer.setData('text/plain',entry.id); } catch {}
+      el.classList.add('day-layout-dragging-v713');
+    });
+    handle?.addEventListener('dragend', () => {
+      el.classList.remove('day-layout-dragging-v713');
+      qa('.day-layout-drop-before-v713',q('#day-component-canvas-v713')).forEach(node=>node.classList.remove('day-layout-drop-before-v713'));
+      persistDomOrderV713();
+    });
+  }
+
+  function persistDomOrderV713() {
+    const canvas = q('#day-component-canvas-v713');
+    if (!canvas) return;
+    const layout = currentLayoutV713();
+    const byId = new Map(layout.map(row => [row.id,row]));
+    const visibleOrder = qa(':scope > .day-layout-item-v713',canvas).map(el => el.dataset.dayComponentId).filter(Boolean);
+    const visibleSet = new Set(visibleOrder);
+    const reordered = [
+      ...visibleOrder.map(id => byId.get(id)).filter(Boolean),
+      ...layout.filter(row => !visibleSet.has(row.id))
+    ];
+    const day = dayDataV713();
+    if (day) day.componentLayoutV713 = reordered;
+    queueSaveV713();
+  }
+
+  function installCanvasDnDV713(canvas) {
+    if (!canvas || canvas.dataset.dayLayoutDndV713 === '1') return;
+    canvas.dataset.dayLayoutDndV713 = '1';
+    canvas.addEventListener('dragover', event => {
+      if (!layoutEditMode) return;
+      const dragging = q('.day-layout-dragging-v713',canvas);
+      if (!dragging) return;
+      event.preventDefault();
+      const target = event.target?.closest?.('.day-layout-item-v713');
+      if (!target || target === dragging || target.parentElement !== canvas) return;
+      qa('.day-layout-drop-before-v713',canvas).forEach(node=>node.classList.remove('day-layout-drop-before-v713'));
+      target.classList.add('day-layout-drop-before-v713');
+      const rect = target.getBoundingClientRect();
+      const before = event.clientY < rect.top + rect.height/2 || (Math.abs(event.clientY - (rect.top + rect.height/2)) < rect.height*.18 && event.clientX < rect.left + rect.width/2);
+      canvas.insertBefore(dragging, before ? target : target.nextSibling);
+    });
+    canvas.addEventListener('drop', event => {
+      if (!layoutEditMode) return;
+      event.preventDefault();
+      qa('.day-layout-drop-before-v713',canvas).forEach(node=>node.classList.remove('day-layout-drop-before-v713'));
+      persistDomOrderV713();
+    });
+  }
+
+  function tagsForItemV713(id) {
+    try { if (typeof getKnowledgeItemTagsV55 === 'function') return (getKnowledgeItemTagsV55(id)||[]).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean); } catch {}
+    const meta = db.phrase_meta?.[id] || {};
+    return [...new Set([...(meta.tags||[]),meta.type].map(v=>String(v||'').replace(/^#/,'').trim().toLowerCase()).filter(Boolean))];
+  }
+
+  function learnedSetV713() {
+    const out = new Set();
+    Object.values(db.days || {}).forEach(day => (day?.phrases || []).forEach(id => out.add(String(id))));
+    return out;
+  }
+
+  function fieldValueV713(id,row) {
+    if (row.field === '__title__') return String(id || '');
+    return String(db.phrase_meta?.[id]?.custom_fields?.[row.field] ?? '');
+  }
+
+  function recommendationCandidatesV713(config) {
+    const learned = learnedSetV713();
+    const wantedCats = new Set((config.categories || []).map(String));
+    const wantedTags = (config.tags || []).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean);
+    return (db.phrases || []).filter(rawId => {
+      const id = String(rawId);
+      if (learned.has(id)) return false;
+      const meta = db.phrase_meta?.[id] || {};
+      const category = String(meta.type || '');
+      if (wantedCats.size && !wantedCats.has(category)) return false;
+      const tags = tagsForItemV713(id);
+      if (wantedTags.length) {
+        const ok = String(config.tagMode || 'and').toLowerCase() === 'or'
+          ? wantedTags.some(tag => tags.includes(tag))
+          : wantedTags.every(tag => tags.includes(tag));
+        if (!ok) return false;
+      }
+      const filters = (config.fieldFilters || []).filter(row => !row.category || row.category === category);
+      for (const row of filters) {
+        const value = fieldValueV713(id,row).trim();
+        if (!value) return false;
+        const wanted = String(row.contains || '').trim().toLowerCase();
+        if (wanted && !value.toLowerCase().includes(wanted)) return false;
+      }
+      return true;
+    });
+  }
+
+  function runtimeForRecV713(id) {
+    const key = `${currentDayNumberV713()}:${id}`;
+    if (!recRuntime.has(key)) recRuntime.set(key,{current:'',last:'',expanded:false});
+    return recRuntime.get(key);
+  }
+
+  function recommendationDisplayLabelV713(id) {
+    try { if (typeof getKnowledgeDisplayLabelV162 === 'function') return getKnowledgeDisplayLabelV162(id,'everywhere'); } catch {}
+    return id;
+  }
+
+  function recommendationPatternHtmlV713(id) {
+    try { if (String(id).includes('\\') && typeof placeholderTokenHtmlV56 === 'function') return placeholderTokenHtmlV56(String(id)); } catch {}
+    return esc(recommendationDisplayLabelV713(id));
+  }
+
+  function itemsBarRecommendationConfigsV716() {
+    return recommendationConfigsV713().filter((config,index) => index === 0 || String(config?.placement || 'canvas') === 'items');
+  }
+
+  function itemsLearnedSectionV716() {
+    return sectionForBuiltinV713('itemsLearned') || q('#phrases-container')?.closest('section') || null;
+  }
+
+  function ensureItemsBarStyleV716() {
+    if (q('#day-items-bar-recommendations-v716-style')) return;
+    const style=document.createElement('style');
+    style.id='day-items-bar-recommendations-v716-style';
+    style.textContent=`
+      #log-view .day-items-bar-rec-btn-v716{flex:0 0 auto}
+      #log-view .day-items-bar-rec-btn-v716 i{pointer-events:none}
+      #log-view #lazy-day-recommendation-btn-v596{display:inline-flex!important}
+      #log-view #lazy-day-recommendation-v596{display:flex}
+      #log-view #lazy-day-recommendation-v596.hidden{display:none!important}
+      #log-view #lazy-day-recommendation-v596 .lazy-day-recommendation-main-v596{min-width:0}
+      #day-components-modal-v713 .day-rec-placement-v716{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+      #day-components-modal-v713 .day-rec-add-actions-v716{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+      #day-components-modal-v713 .day-components-rec-row-v713[data-placement="items"]{background:color-mix(in srgb,var(--track-bg) 58%,transparent)}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function toolbarRuntimeV716(config) {
+    return runtimeForRecV713(config.id);
+  }
+
+  function renderItemsBarPanelV716(config, forceNext=false) {
+    const section=itemsLearnedSectionV716();
+    const panel=q('#lazy-day-recommendation-v596');
+    if(!section||!panel||!config)return;
+    const {state,pool,id}=chooseRecommendationV713(config,forceNext);
+    panel.dataset.recommendationIdV716=String(config.id);
+    panel.classList.remove('hidden');
+    if(!pool.length){
+      const isLazy=(config.tags||[]).map(v=>String(v).replace(/^#/,'').toLowerCase()).includes('lazy');
+      panel.innerHTML=isLazy
+        ? `<button type="button" class="lazy-day-recommendation-main-v596"><span class="lazy-day-recommendation-icon-v596"><i class="ph ${attr(config.icon||'ph-moon-stars')}"></i></span><span class="lazy-day-recommendation-copy-v596"><small>${esc(config.title||'Lazy Day Recommendation')}</small><span class="lazy-day-recommendation-value-v596">To add a lazy day recommendation, add to the KB an item with the tag #lazy</span></span></button>`
+        : `<button type="button" class="lazy-day-recommendation-main-v596"><span class="lazy-day-recommendation-icon-v596"><i class="ph ${attr(config.icon||'ph-moon-stars')}"></i></span><span class="lazy-day-recommendation-copy-v596"><small>${esc(config.title||'Recommendation')}</small><span class="lazy-day-recommendation-value-v596">No unlearned Knowledge Base items match these filters.</span></span></button>`;
+      return;
+    }
+    const tagText=(config.tags||[]).length?(config.tags||[]).map(tag=>`#${tag}`).join(String(config.tagMode||'and').toLowerCase()==='or'?' OR ':' + '):'custom filters';
+    panel.innerHTML=`
+      <button type="button" class="lazy-day-recommendation-main-v596" data-items-rec-open-v716>
+        <span class="lazy-day-recommendation-icon-v596"><i class="ph ${attr(config.icon||'ph-moon-stars')}"></i></span>
+        <span class="lazy-day-recommendation-copy-v596">
+          <small>${esc(config.title||'Recommendation')}</small>
+          <span class="lazy-day-recommendation-value-v596">${recommendationPatternHtmlV713(id)}</span>
+          <em class="lazy-day-recommendation-meta-v596">${esc(tagText)} · ${pool.length} unlearned item${pool.length===1?'':'s'} available</em>
+        </span>
+      </button>
+      <div class="lazy-day-recommendation-actions-v597">
+        <button type="button" class="small-icon-btn" data-items-rec-skip-v716 title="Skip and show another"><i class="ph ph-skip-forward"></i></button>
+        <button type="button" class="small-icon-btn" data-items-rec-learn-v716 title="Add to Items Learned"><i class="ph ph-check"></i></button>
+      </div>`;
+    q('[data-items-rec-open-v716]',panel)?.addEventListener('click',()=>{try{openItemModal?.(id,true,false)}catch{}});
+    q('[data-items-rec-skip-v716]',panel)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();state.current='';renderItemsBarPanelV716(config,true)});
+    q('[data-items-rec-learn-v716]',panel)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();acceptItemsBarRecommendationV716(config).catch(()=>{})});
+  }
+
+  async function acceptItemsBarRecommendationV716(config) {
+    const {state,id}=chooseRecommendationV713(config,false);
+    const day=currentDayNumberV713();
+    if(!id||!day)return;
+    const data=dayDataV713(day);data.phrases||=[];
+    if(!data.phrases.includes(id))data.phrases.push(id);
+    const remove=new Set((config.removeTagsOnLearn||[]).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean));
+    const meta=db.phrase_meta?.[id];
+    if(meta&&remove.size&&Array.isArray(meta.tags))meta.tags=meta.tags.filter(tag=>!remove.has(String(tag||'').replace(/^#/,'').trim().toLowerCase()));
+
+    // V783: update the visible Items Learned list first, then let the heavier
+    // KB-wide refresh/save work finish after the browser has painted.
+    try{renderPhrases?.(data.phrases)}catch{}
+    state.current='';renderItemsBarPanelV716(config,true);
+    try{showFeatureToast?.(`Added “${id}” to Items Learned.`)}catch{}
+    setTimeout(async()=>{
+      try{populatePhrasesDatalist?.()}catch{}
+      try{renderPhrasesLibrary?.(q('#phrases-search-bar')?.value||'')}catch{}
+      try{await saveDb?.()}catch{}
+    },0);
+  }
+
+  function toolbarContextActionsV716(config,index) {
+    const actions=[
+      {label:'Edit filters / rename',icon:'ph-sliders-horizontal',action:()=>openRecommendationEditorV713(config.id)}
+    ];
+    if(index!==0){
+      actions.push({label:'Move to Page',icon:'ph-layout',action:()=>setRecommendationPlacementV716(config.id,'canvas')});
+      actions.push({label:'Duplicate',icon:'ph-copy',action:()=>duplicateRecommendationV713(config.id)});
+      actions.push({label:'Remove from Log',icon:'ph-trash',danger:true,action:()=>removeRecommendationV713(config.id)});
+    }
+    actions.push({label:'Components',icon:'ph-squares-four',action:()=>openComponentsModalV713()});
+    return actions;
+  }
+
+  function renderItemsBarRecommendationsV716() {
+    if(!onNumberedDayV713())return;
+    ensureItemsBarStyleV716();
+    const section=itemsLearnedSectionV716();
+    const add=q('#add-phrase-btn',section||document);
+    const actions=add?.parentElement;
+    if(!section||!actions||!add)return;
+    let panel=q('#lazy-day-recommendation-v596',section);
+    if(!panel){panel=document.createElement('div');panel.id='lazy-day-recommendation-v596';panel.className='lazy-day-recommendation-v596 hidden';panel.setAttribute('aria-live','polite');const input=q('#phrase-input-group',section);if(input)input.insertAdjacentElement('beforebegin',panel);else q('.section-header',section)?.insertAdjacentElement('afterend',panel)}
+    qa('.day-items-bar-rec-btn-v716',actions).forEach(btn=>btn.remove());
+    const configs=itemsBarRecommendationConfigsV716();
+    configs.forEach((config,index)=>{
+      let button;
+      if(index===0){
+        const old=q('#lazy-day-recommendation-btn-v596',actions);
+        if(old){button=old.cloneNode(false);old.replaceWith(button)}
+        else{button=document.createElement('button');button.id='lazy-day-recommendation-btn-v596'}
+      }else button=document.createElement('button');
+      button.type='button';button.className='small-icon-btn day-items-bar-rec-btn-v716';button.dataset.recommendationIdV716=String(config.id);button.title=String(config.title||'Recommendation');button.setAttribute('aria-label',String(config.title||'Recommendation'));button.innerHTML=`<i class="ph ${attr(config.icon||'ph-moon-stars')}"></i>`;
+      if(!button.isConnected)actions.insertBefore(button,add);else actions.insertBefore(button,add);
+      button.addEventListener('click',event=>{
+        event.preventDefault();event.stopPropagation();
+        const same=String(panel.dataset.recommendationIdV716||'')===String(config.id);
+        if(same&&!panel.classList.contains('hidden')){panel.classList.add('hidden');return}
+        renderItemsBarPanelV716(config,false);
+      });
+      button.addEventListener('contextmenu',event=>{
+        event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+        try{showCustomItemContextMenu?.(event.clientX,event.clientY,toolbarContextActionsV716(config,index))}catch{}
+      });
+    });
+    // The first recommendation is the original Lazy Day slot and is permanently anchored here.
+    if(configs[0]){configs[0].placement='items'}
+    const activeId=String(panel.dataset.recommendationIdV716||'');
+    if(activeId&&!configs.some(row=>String(row.id)===activeId))panel.classList.add('hidden');
+  }
+
+  function setRecommendationPlacementV716(id,placement) {
+    const configs=recommendationConfigsV713();
+    const index=configs.findIndex(row=>String(row?.id||'')===String(id));
+    if(index<0)return;
+    if(index===0){configs[0].placement='items';return}
+    const config=configs[index];config.placement=placement==='items'?'items':'canvas';
+    if(config.placement==='canvas'){
+      let entry=entryV713(`recommendation:${config.id}`);
+      if(!entry){entry=recommendationEntryV713(config.id,true);currentLayoutV713().push(entry)}
+      entry.visible=true;
+    }
+    queueSaveV713();
+    renderDayLayoutV713();renderItemsBarRecommendationsV716();renderComponentsModalV713();
+  }
+
+  async function addRecommendationWithPlacementV716(placement) {
+    const rows=recommendationConfigsV713();
+    const config={id:uid('day-recommendation'),title:`Recommendation ${rows.length+1}`,icon:'ph-moon-stars',categories:[],tags:[],tagMode:'and',removeTagsOnLearn:[],fieldFilters:[],placement:placement==='items'?'items':'canvas'};
+    rows.push(config);settingsV713().dayRecommendationButtonsV712=rows;
+    if(config.placement==='canvas')currentLayoutV713().push(recommendationEntryV713(config.id,true));
+    await saveNowV713();
+    renderDayLayoutV713();renderItemsBarRecommendationsV716();renderComponentsModalV713();
+    openRecommendationEditorV713(config.id);
+  }
+
+  function chooseRecommendationV713(config, forceNext = false) {
+    const state = runtimeForRecV713(config.id);
+    const pool = recommendationCandidatesV713(config);
+    if (forceNext) state.current = '';
+    if (!state.current || !pool.includes(state.current)) {
+      let choices = pool;
+      if (pool.length > 1 && state.last) {
+        const rest = pool.filter(id => String(id) !== String(state.last));
+        if (rest.length) choices = rest;
+      }
+      state.current = choices.length ? String(choices[Math.floor(Math.random()*choices.length)]) : '';
+      if (state.current) state.last = state.current;
+    }
+    return {state,pool,id:state.current};
+  }
+
+  async function acceptRecommendationV713(config, section) {
+    const choice = chooseRecommendationV713(config,false);
+    const id = String(choice.id || '');
+    const day = currentDayNumberV713();
+    if (!id || !day) return;
+    const data = dayDataV713(day);
+    data.phrases ||= [];
+    if (!data.phrases.includes(id)) data.phrases.push(id);
+    const remove = new Set((config.removeTagsOnLearn || []).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean));
+    const meta = db.phrase_meta?.[id];
+    if (meta && remove.size && Array.isArray(meta.tags)) meta.tags = meta.tags.filter(tag => !remove.has(String(tag||'').replace(/^#/,'').trim().toLowerCase()));
+
+    // V783: optimistic UI for page-placed Recommendation components too.
+    try { renderPhrases?.(data.phrases); } catch {}
+    const state = runtimeForRecV713(config.id); state.current = '';
+    renderRecommendationOutputV713(section,config,true);
+    try { showFeatureToast?.(`Added “${id}” to Items Learned.`); } catch {}
+    setTimeout(async()=>{
+      try { populatePhrasesDatalist?.(); } catch {}
+      try { renderPhrasesLibrary?.(q('#phrases-search-bar')?.value || ''); } catch {}
+      try { await saveDb?.(); } catch {}
+    },0);
+  }
+
+  function renderRecommendationOutputV713(section, config, forceNext = false) {
+    const entry = entryV713(`recommendation:${config.id}`);
+    const output = q('.day-rec-output-v713',section);
+    if (!output || !entry) return;
+    const {state,pool,id} = chooseRecommendationV713(config,forceNext);
+    const presentation = entry.presentation || 'button';
+    const shouldShow = presentation === 'full' || presentation === 'compact' || state.expanded;
+    output.classList.toggle('hidden',!shouldShow);
+    if (!shouldShow) { output.innerHTML=''; return; }
+    if (!pool.length) {
+      output.innerHTML = `<div class="day-rec-empty-v713">No unlearned Knowledge Base items match these filters. Right-click this component to edit its filters.</div>`;
+      return;
+    }
+    const tagText = (config.tags || []).length ? (config.tags || []).map(tag=>`#${tag}`).join(String(config.tagMode||'and').toLowerCase()==='or'?' OR ':' + ') : 'custom filters';
+    if (presentation === 'compact') {
+      output.innerHTML = `<div class="day-rec-compact-result-v713"><button type="button" class="day-rec-compact-main-v713" data-rec-open-v713><strong>${recommendationPatternHtmlV713(id)}</strong><small>${esc(tagText)} · ${pool.length} available</small></button><button type="button" class="small-icon-btn" data-rec-skip-v713 title="Show another"><i class="ph ph-skip-forward"></i></button><button type="button" class="small-icon-btn" data-rec-learn-v713 title="Add to Items Learned"><i class="ph ph-check"></i></button></div>`;
+    } else {
+      output.innerHTML = `<div class="lazy-day-recommendation-v596" aria-live="polite"><button type="button" class="lazy-day-recommendation-main-v596" data-rec-open-v713><span class="lazy-day-recommendation-icon-v596"><i class="ph ${attr(config.icon)}"></i></span><span class="lazy-day-recommendation-copy-v596"><small>${esc(config.title)}</small><span class="lazy-day-recommendation-value-v596">${recommendationPatternHtmlV713(id)}</span><em class="lazy-day-recommendation-meta-v596">${esc(tagText)} · ${pool.length} unlearned item${pool.length===1?'':'s'} available</em></span></button><div class="lazy-day-recommendation-actions-v597"><button type="button" class="small-icon-btn" data-rec-skip-v713 title="Skip and show another"><i class="ph ph-skip-forward"></i></button><button type="button" class="small-icon-btn" data-rec-learn-v713 title="Add to Items Learned"><i class="ph ph-check"></i></button></div></div>`;
+    }
+    q('[data-rec-open-v713]',output)?.addEventListener('click',()=>{ try { openItemModal?.(id,true,false); } catch {} });
+    q('[data-rec-skip-v713]',output)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();state.current='';renderRecommendationOutputV713(section,config,true)});
+    q('[data-rec-learn-v713]',output)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();acceptRecommendationV713(config,section).catch(()=>{})});
+  }
+
+  function openRecommendationEditorV713(id) {
+    try {
+      window.__loggyDayComponentsV712?.editRecommendation?.(id);
+      requestAnimationFrame(() => {
+        const save = q('.lazy-recommendation-save-v686');
+        if (save && save.dataset.v713RefreshBound !== '1') {
+          save.dataset.v713RefreshBound = '1';
+          save.addEventListener('click',()=>setTimeout(()=>{renderDayLayoutV713();renderItemsBarRecommendationsV716();renderComponentsModalV713()},120));
+        }
+      });
+    } catch {}
+  }
+
+  function setRecommendationPresentationV713(id,presentation) {
+    const entry = entryV713(`recommendation:${id}`);
+    if (!entry) return;
+    entry.presentation = ['button','compact','full'].includes(presentation) ? presentation : 'button';
+    const state = runtimeForRecV713(id);
+    if (presentation === 'full' || presentation === 'compact') state.expanded = true;
+    queueSaveV713();
+    renderDayLayoutV713();
+  }
+
+  function setEntrySpanV713(id,span) {
+    const entry = entryV713(id);
+    if (!entry || !VALID_SPANS.includes(Number(span))) return;
+    entry.span = Number(span);
+    queueSaveV713();
+    renderDayLayoutV713();
+  }
+
+  async function duplicateRecommendationV713(id) {
+    const rows = recommendationConfigsV713();
+    const source = rows.find(row=>String(row?.id||'')===String(id));
+    if (!source) return;
+    const copy = clone(source);
+    copy.id = uid('day-recommendation');
+    copy.title = `${String(source.title || 'Recommendation')} Copy`;
+    const at = rows.indexOf(source);
+    rows.splice(at + 1,0,copy);
+    settingsV713().dayRecommendationButtonsV712 = rows;
+    const layout = currentLayoutV713();
+    const oldIndex = layout.findIndex(row=>row.id===`recommendation:${id}`);
+    const newEntry = recommendationEntryV713(copy.id,true);
+    if (oldIndex >= 0) {
+      const sourceEntry = layout[oldIndex];
+      newEntry.span = sourceEntry.span;
+      newEntry.presentation = sourceEntry.presentation;
+      layout.splice(oldIndex+1,0,newEntry);
+    } else layout.push(newEntry);
+    await saveNowV713();
+    renderDayLayoutV713();renderItemsBarRecommendationsV716();renderComponentsModalV713();
+    openRecommendationEditorV713(copy.id);
+  }
+
+  async function removeRecommendationV713(id) {
+    const configs = recommendationConfigsV713();
+    const config = configs.find(row=>String(row?.id||'')===String(id));
+    if (!config) return;
+    if (configs[0] === config) { try { showFeatureToast?.('The original Lazy Day button stays in Items Learned. You can edit its filters and name.'); } catch {} return; }
+    let ok = true;
+    try { ok = await showAppConfirm?.({title:'Remove Recommendation Component?',message:`Remove “${config.title}” from this Log and all Day Log layouts?`,confirmLabel:'Remove'}) ?? true; } catch {}
+    if (!ok) return;
+    const s = settingsV713();
+    s.dayRecommendationButtonsV712 = recommendationConfigsV713().filter(row=>String(row?.id||'')!==String(id));
+    if (Array.isArray(s.dayComponentLayoutTemplateV713)) s.dayComponentLayoutTemplateV713 = s.dayComponentLayoutTemplateV713.filter(row=>row.id!==`recommendation:${id}`);
+    Object.values(db.days || {}).forEach(day=>{ if(Array.isArray(day?.componentLayoutV713)) day.componentLayoutV713 = day.componentLayoutV713.filter(row=>row.id!==`recommendation:${id}`); });
+    [...recRuntime.keys()].filter(key=>key.endsWith(`:${id}`)).forEach(key=>recRuntime.delete(key));
+    await saveNowV713();
+    renderDayLayoutV713();renderItemsBarRecommendationsV716();renderComponentsModalV713();
+  }
+
+  async function addRecommendationV713() {
+    return addRecommendationWithPlacementV716('canvas');
+  }
+
+  function recommendationContextActionsV713(config,entry) {
+    return [
+      {label:'Edit filters / rename',icon:'ph-sliders-horizontal',action:()=>openRecommendationEditorV713(config.id)},
+      {label:'Move to Items Learned bar',icon:'ph-books',action:()=>setRecommendationPlacementV716(config.id,'items')},
+      {label:'Display: Button',icon:entry.presentation==='button'?'ph-check':'ph-circle',action:()=>setRecommendationPresentationV713(config.id,'button')},
+      {label:'Display: Compact Card',icon:entry.presentation==='compact'?'ph-check':'ph-circle',action:()=>setRecommendationPresentationV713(config.id,'compact')},
+      {label:'Display: Full Component',icon:entry.presentation==='full'?'ph-check':'ph-circle',action:()=>setRecommendationPresentationV713(config.id,'full')},
+      {label:'Width: Full',icon:Number(entry.span)===12?'ph-check':'ph-arrows-out-line-horizontal',action:()=>setEntrySpanV713(entry.id,12)},
+      {label:'Width: Half',icon:Number(entry.span)===6?'ph-check':'ph-arrows-out-line-horizontal',action:()=>setEntrySpanV713(entry.id,6)},
+      {label:'Width: Third',icon:Number(entry.span)===4?'ph-check':'ph-arrows-out-line-horizontal',action:()=>setEntrySpanV713(entry.id,4)},
+      {label:'Duplicate',icon:'ph-copy',action:()=>duplicateRecommendationV713(config.id)},
+      {label:'Hide on this Day',icon:'ph-eye-slash',action:()=>hideEntryV713(entry)},
+      {label:'Remove from Log',icon:'ph-trash',danger:true,action:()=>removeRecommendationV713(config.id)},
+      {label:'Components',icon:'ph-squares-four',action:()=>openComponentsModalV713()},
+      {label:'Edit Layout',icon:'ph-layout',action:()=>setLayoutEditModeV713(true)}
+    ];
+  }
+
+  function createRecommendationComponentV713(entry) {
+    const config = recommendationByIdV713(entry.recommendationId);
+    if (!config || String(config.placement||'canvas') === 'items') return null;
+    const section = document.createElement('section');
+    section.className = 'borderless-section day-layout-item-v713 day-recommendation-component-v713';
+    section.dataset.dayComponentId = entry.id;
+    section.style.gridColumn = `span ${entry.span}`;
+    section.innerHTML = `<div class="day-rec-shell-v713" data-presentation="${attr(entry.presentation || 'button')}"><button type="button" class="day-rec-launch-v713"><i class="ph ${attr(config.icon || 'ph-moon-stars')}"></i><span>${esc(config.title || 'Recommendation')}</span></button><div class="day-rec-output-v713 hidden"></div></div>`;
+    const state = runtimeForRecV713(config.id);
+    if (entry.presentation === 'full' || entry.presentation === 'compact') state.expanded = true;
+    q('.day-rec-launch-v713',section)?.addEventListener('click',()=>{
+      if (entry.presentation === 'full') { renderRecommendationOutputV713(section,config,false); return; }
+      state.expanded = !state.expanded;
+      renderRecommendationOutputV713(section,config,false);
+    });
+    section.addEventListener('contextmenu',event=>{
+      event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+      try { showCustomItemContextMenu?.(event.clientX,event.clientY,recommendationContextActionsV713(config,entry)); } catch {}
+    });
+    installEditToolbarV713(section,entry);
+    if (entry.presentation === 'full' || entry.presentation === 'compact') requestAnimationFrame(()=>renderRecommendationOutputV713(section,config,false));
+    return section;
+  }
+
+  function prepareBuiltinComponentV713(entry) {
+    const section = sectionForBuiltinV713(entry.key);
+    if (!section) return null;
+    section.classList.add('day-layout-item-v713');
+    section.classList.remove('loggy-section-hidden-v433');
+    section.hidden = false;
+    section.removeAttribute('aria-hidden');
+    section.dataset.dayComponentId = entry.id;
+    section.style.gridColumn = `span ${entry.span}`;
+    installEditToolbarV713(section,entry);
+    return section;
+  }
+
+  function renderDayLayoutV713() {
+    if (!onNumberedDayV713()) return;
+    const canvas = ensureCanvasV713();
+    if (!canvas) return;
+    ensureEditBarV713();
+    installCanvasDnDV713(canvas);
+    const layout = currentLayoutV713();
+    const visibleIds = new Set(layout.filter(row=>row.visible!==false).map(row=>row.id));
+
+    // Remove only V713-created recommendation components. Built-ins are reused.
+    qa(':scope > .day-recommendation-component-v713',canvas).forEach(node=>node.remove());
+
+    layout.forEach(entry=>{
+      if (entry.visible === false) {
+        if (entry.type === 'builtin') {
+          const section = sectionForBuiltinV713(entry.key);
+          if (section) { section.hidden = true; section.setAttribute('aria-hidden','true'); section.classList.add('day-layout-hidden-v713'); }
+        }
+        return;
+      }
+      let node = entry.type === 'builtin' ? prepareBuiltinComponentV713(entry) : createRecommendationComponentV713(entry);
+      if (!node) return;
+      node.hidden = false;
+      node.removeAttribute('aria-hidden');
+      node.classList.remove('day-layout-hidden-v713');
+      node.style.gridColumn = `span ${entry.span}`;
+      canvas.appendChild(node);
+    });
+
+    // Anything not currently visible must remain hidden even if another legacy
+    // renderer tries to reveal it.
+    BUILTINS.forEach(item=>{
+      const id=`builtin:${item.key}`;
+      const section=sectionForBuiltinV713(item.key);
+      if(section && !visibleIds.has(id)){section.hidden=true;section.setAttribute('aria-hidden','true');section.classList.add('day-layout-hidden-v713')}
+    });
+
+    const log = q('#log-view');
+    log?.classList.toggle('day-layout-editing-v713',layoutEditMode);
+    q('#day-layout-editbar-v713')?.classList.toggle('hidden',!layoutEditMode);
+    renderItemsBarRecommendationsV716();
+    requestAnimationFrame(()=>{try{syncNotesHeight?.()}catch{}});
+  }
+
+  function setLayoutEditModeV713(enabled) {
+    if (!onNumberedDayV713() && enabled) return;
+    layoutEditMode = !!enabled;
+    renderDayLayoutV713();
+    if (enabled) {
+      try { q('#day-component-canvas-v713')?.scrollIntoView({block:'nearest',behavior:'smooth'}); } catch {}
+    }
+  }
+
+  function setBuiltinVisibleV713(key,visible) {
+    const entry = entryV713(`builtin:${key}`);
+    if (!entry) return;
+    entry.visible = !!visible;
+    queueSaveV713();
+    renderDayLayoutV713();renderComponentsModalV713();
+  }
+
+  function setRecommendationVisibleV713(id,visible) {
+    let entry = entryV713(`recommendation:${id}`);
+    if (!entry && visible) {
+      entry = recommendationEntryV713(id,true);
+      currentLayoutV713().push(entry);
+    }
+    if (entry) entry.visible = !!visible;
+    queueSaveV713();
+    renderDayLayoutV713();renderComponentsModalV713();
+  }
+
+  async function applyCurrentLayoutToFutureV713() {
+    const s = settingsV713();
+    s.dayComponentLayoutTemplateV713 = clone(currentLayoutV713());
+    await saveNowV713();
+    try { showFeatureToast?.('This layout will be used for new Day Logs. Existing customized days stay unchanged.'); } catch {}
+  }
+
+  async function applyCurrentLayoutToAllDaysV843(){
+    const layout=clone(currentLayoutV713());let ok=true;
+    try{ok=await showAppConfirm?.({title:'Use this layout for all days?',message:'Apply this component layout to every existing numbered Day Log and use it for future days? Hidden components keep their saved content.',confirmLabel:'Use for All Days'})??true}catch{}
+    if(!ok)return;const settings=settingsV713();settings.dayComponentLayoutTemplateV713=clone(layout);
+    Object.values(db.days||{}).forEach(day=>{if(day&&typeof day==='object')day.componentLayoutV713=clone(layout)});
+    await saveNowV713();renderDayLayoutV713();try{showFeatureToast?.('Applied this layout to all existing and future Day Logs.')}catch{}
+  }
+
+  async function resetCurrentDayLayoutV713() {
+    const day = dayDataV713();
+    if (!day) return;
+    let ok = true;
+    try { ok = await showAppConfirm?.({title:'Reset this Day layout?',message:'Restore this Day to your current default component layout? Your notes, videos, items, and resources will not be deleted.',confirmLabel:'Reset Layout'}) ?? true; } catch {}
+    if (!ok) return;
+    day.componentLayoutV713 = clone(ensureLayoutTemplateV713());
+    await saveNowV713();
+    renderDayLayoutV713();renderComponentsModalV713();
+  }
+
+  function ensureComponentsModalV713() {
+    let modal = q('#day-components-modal-v713');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'day-components-modal-v713';
+    modal.className = 'modal-overlay hidden';
+    modal.innerHTML = `
+      <div class="modal-box day-components-box-v713">
+        <div class="modal-header"><h2>Day Log Components</h2><button type="button" class="small-icon-btn" data-components-close-v713 title="Close"><i class="ph ph-x"></i></button></div>
+        <p class="day-components-help-v713">These controls apply to the numbered Day you currently have open. Hidden components keep all of their saved data.</p>
+        <div class="day-components-top-actions-v713">
+          <button type="button" class="icon-btn" data-edit-layout-v713><i class="ph ph-layout"></i> Edit Layout</button>
+          <button type="button" class="icon-btn" data-apply-future-v713>Use for future days</button>
+          <button type="button" class="icon-btn" data-apply-all-v843>Use for all days</button>
+          <button type="button" class="icon-btn" data-reset-layout-v713><i class="ph ph-arrow-counter-clockwise"></i> Reset this Day</button>
+        </div>
+        <div class="modal-section"><span class="field-label">Built-in Components</span><div class="day-components-grid-v713" data-components-grid-v713></div></div>
+        <div class="modal-section"><div class="day-components-recommendation-head-v713"><div><span class="field-label">Recommendation Buttons</span><p class="day-components-help-v713">Choose whether a button lives in the Items Learned header or as a movable component anywhere on the Day page.</p></div><div class="day-rec-add-actions-v716"><button type="button" class="icon-btn" data-add-rec-items-v716><i class="ph ph-books"></i> Add to Items Learned</button><button type="button" class="icon-btn" data-add-rec-v713><i class="ph ph-layout"></i> Add to Page</button></div></div><div class="day-components-recommendation-list-v713" data-rec-list-v713></div></div>
+      </div>`;
+    document.body.appendChild(modal);
+    q('[data-components-close-v713]',modal)?.addEventListener('click',()=>modal.classList.add('hidden'));
+    modal.addEventListener('click',event=>{if(event.target===modal)modal.classList.add('hidden')});
+    q('[data-edit-layout-v713]',modal)?.addEventListener('click',()=>{modal.classList.add('hidden');setLayoutEditModeV713(true)});
+    q('[data-apply-future-v713]',modal)?.addEventListener('click',applyCurrentLayoutToFutureV713);
+    q('[data-apply-all-v843]',modal)?.addEventListener('click',applyCurrentLayoutToAllDaysV843);
+    q('[data-reset-layout-v713]',modal)?.addEventListener('click',resetCurrentDayLayoutV713);
+    q('[data-add-rec-v713]',modal)?.addEventListener('click',()=>{modal.classList.add('hidden');addRecommendationWithPlacementV716('canvas')});
+    q('[data-add-rec-items-v716]',modal)?.addEventListener('click',()=>{modal.classList.add('hidden');addRecommendationWithPlacementV716('items')});
+    return modal;
+  }
+
+  function renderComponentsModalV713() {
+    const modal = q('#day-components-modal-v713');
+    if (!modal || !onNumberedDayV713()) return;
+    const layout = currentLayoutV713();
+    const byId = new Map(layout.map(row=>[row.id,row]));
+    const grid = q('[data-components-grid-v713]',modal);
+    if (grid) {
+      grid.innerHTML = BUILTINS.map(item=>{
+        const entry = byId.get(`builtin:${item.key}`);
+        const visible = entry?.visible !== false;
+        return `<div class="day-component-card-v713"><i class="ph ${item.icon}"></i><div class="day-component-copy-v713"><strong>${esc(item.label)}</strong><small>${visible?`${widthLabelV713(entry?.span||item.span)} width on Day ${currentDayNumberV713()}`:`Hidden on Day ${currentDayNumberV713()}`}</small></div><button type="button" class="icon-btn" data-toggle-builtin-v713="${attr(item.key)}">${visible?'Hide':'Show'}</button></div>`;
+      }).join('');
+      qa('[data-toggle-builtin-v713]',grid).forEach(button=>button.addEventListener('click',()=>{
+        const item=byId.get(`builtin:${button.dataset.toggleBuiltinV713}`);setBuiltinVisibleV713(button.dataset.toggleBuiltinV713,item?.visible===false);
+      }));
+    }
+    const list = q('[data-rec-list-v713]',modal);
+    if (list) {
+      const configs = recommendationConfigsV713();
+      list.innerHTML = configs.map((config,index)=>{
+        const placement=index===0?'items':(String(config.placement||'canvas')==='items'?'items':'canvas');
+        const entry=byId.get(`recommendation:${config.id}`);const visible=placement==='items'?true:entry?.visible===true;
+        const detail=placement==='items'?'Items Learned bar':(visible?`${widthLabelV713(entry?.span||4)} · ${esc(entry?.presentation||'button')}`:'Hidden on this Day');
+        const moveLabel=placement==='items'?'Move to Page':'Move to Items Learned';
+        const moveIcon=placement==='items'?'ph-layout':'ph-books';
+        return `<div class="day-components-rec-row-v713" data-placement="${placement}"><i class="ph ${attr(config.icon||'ph-moon-stars')}"></i><div class="day-components-rec-name-v713"><strong>${esc(config.title||'Recommendation')}</strong><small>${detail}</small></div>${placement==='canvas'?`<button type="button" class="small-icon-btn" data-toggle-rec-v713="${attr(config.id)}" title="${visible?'Hide from this Day':'Show on this Day'}"><i class="ph ${visible?'ph-eye-slash':'ph-eye'}"></i></button>`:''}${index===0?'':`<button type="button" class="small-icon-btn day-rec-placement-v716" data-move-rec-v716="${attr(config.id)}" data-to="${placement==='items'?'canvas':'items'}" title="${moveLabel}"><i class="ph ${moveIcon}"></i></button>`}<button type="button" class="small-icon-btn" data-edit-rec-v713="${attr(config.id)}" title="Edit filters / rename"><i class="ph ph-pencil-simple"></i></button><button type="button" class="small-icon-btn" data-duplicate-rec-v713="${attr(config.id)}" title="Duplicate"><i class="ph ph-copy"></i></button>${index===0?'':`<button type="button" class="small-icon-btn" data-remove-rec-v713="${attr(config.id)}" title="Remove from Log"><i class="ph ph-trash"></i></button>`}</div>`;
+      }).join('') || '<p class="day-components-help-v713">No recommendation buttons yet.</p>';
+      qa('[data-toggle-rec-v713]',list).forEach(button=>button.addEventListener('click',()=>{const entry=byId.get(`recommendation:${button.dataset.toggleRecV713}`);setRecommendationVisibleV713(button.dataset.toggleRecV713,!(entry?.visible===true))}));
+      qa('[data-move-rec-v716]',list).forEach(button=>button.addEventListener('click',()=>setRecommendationPlacementV716(button.dataset.moveRecV716,button.dataset.to)));
+      qa('[data-edit-rec-v713]',list).forEach(button=>button.addEventListener('click',()=>{modal.classList.add('hidden');openRecommendationEditorV713(button.dataset.editRecV713)}));
+      qa('[data-duplicate-rec-v713]',list).forEach(button=>button.addEventListener('click',()=>{modal.classList.add('hidden');duplicateRecommendationV713(button.dataset.duplicateRecV713)}));
+      qa('[data-remove-rec-v713]',list).forEach(button=>button.addEventListener('click',()=>removeRecommendationV713(button.dataset.removeRecV713)));
+    }
+  }
+
+  function openComponentsModalV713() {
+    if (!onNumberedDayV713()) return;
+    renderDayLayoutV713();
+    const modal = ensureComponentsModalV713();
+    renderComponentsModalV713();
+    modal.classList.remove('hidden');
+  }
+
+  function pageContextMenuV713(x,y) {
+    try {
+      showCustomItemContextMenu?.(x,y,[
+        {label:'Components',icon:'ph-squares-four',action:openComponentsModalV713},
+        {label:'Edit Layout',icon:'ph-layout',action:()=>setLayoutEditModeV713(true)},
+        {label:'Edit Theme',icon:'ph-paint-brush',action:()=>{try{window.__loggyThemeBuilderV307OpenEdit?.(String(db?.settings?.theme||'default'))}catch{}}},
+        {label:'Settings',icon:'ph-gear-six',action:()=>{try{openGlobalThemeSettings?.()}catch{try{window.openGlobalThemeSettings?.()}catch{}}}}
+      ]);
+    } catch {}
+  }
+
+  // V713 owns per-day hiding. The old section menu still calls this function,
+  // so replace its implementation rather than letting it write the old global map.
+  try {
+    hideDayLogSectionFromHeadingV434 = async function(target) {
+      const key = typeof hideableDayLogSectionKeyV433 === 'function' ? hideableDayLogSectionKeyV433(target) : '';
+      if (!key) return;
+      const entry = entryV713(`builtin:${key}`);
+      if (!entry) return;
+      entry.visible = false;
+      await saveNowV713();
+      renderDayLayoutV713();renderComponentsModalV713();
+    };
+    window.hideDayLogSectionFromHeadingV434 = hideDayLogSectionFromHeadingV434;
+  } catch {}
+
+  // The old matching-height calculation assumes fixed left/right columns.
+  // In the component canvas, Notes should size naturally instead.
+  try {
+    const syncBeforeV713 = syncNotesHeight;
+    if (typeof syncBeforeV713 === 'function' && !syncBeforeV713.__v713Canvas) {
+      const wrapped = function() {
+        if (onNumberedDayV713() && q('#day-component-canvas-v713')) {
+          const notes=q('#log-notes');if(notes)notes.style.height='auto';return;
+        }
+        return syncBeforeV713.apply(this,arguments);
+      };
+      wrapped.__v713Canvas=true;syncNotesHeight=wrapped;window.syncNotesHeight=wrapped;
+    }
+  } catch {}
+
+  // Blank Day-page context menu from V531 resolves this global at click time.
+  window.__loggyOpenDayComponentsV712 = openComponentsModalV713;
+  window.__loggyOpenDayComponentsV713 = openComponentsModalV713;
+
+  // Section right-clicks are intercepted earlier by the core V434 menu. Replace
+  // V712's Components button listener after that menu is built and add Edit Layout.
+  try {
+    const beforeSectionMenuV713 = openSectionTitleContextMenuV434;
+    if (typeof beforeSectionMenuV713 === 'function' && !beforeSectionMenuV713.__v713Canvas) {
+      const wrapped = function(target,x,y) {
+        const result = beforeSectionMenuV713.apply(this,arguments);
+        const menu=q('#section-title-context-menu-v434');
+        if (!menu) return result;
+        const old=q('.loggy-section-context-components-v712',menu);
+        if (old) {
+          const fresh=old.cloneNode(true);
+          old.replaceWith(fresh);
+          fresh.addEventListener('click',()=>{try{closeSectionTitleContextMenuV434?.()}catch{}openComponentsModalV713()});
+        }
+        let edit=q('.loggy-section-context-edit-layout-v745,.loggy-section-context-edit-layout-v713',menu);
+        if(!edit){edit=document.createElement('button');edit.type='button';edit.className='loggy-section-context-option-v434 loggy-section-context-edit-layout-v713';edit.setAttribute('role','menuitem');edit.innerHTML='<i class="ph ph-layout"></i><span>Edit Layout</span>';edit.addEventListener('click',()=>{try{closeSectionTitleContextMenuV434?.()}catch{}setLayoutEditModeV713(true)});menu.appendChild(edit)}
+        const show=!!target?.closest?.('#log-view')&&onNumberedDayV713();edit.classList.toggle('hidden',!show);
+        return result;
+      };
+      wrapped.__v713Canvas=true;openSectionTitleContextMenuV434=wrapped;window.openSectionTitleContextMenuV434=wrapped;
+    }
+  } catch {}
+
+  // Preserve specialized context menus (Items Learned chips, tools, linked Tab
+  // Items, etc.) and append the Day-level Components / Edit Layout actions.
+  document.addEventListener('contextmenu',event=>{lastContextTarget=event.target},true);
+  try {
+    const beforeCustomMenuV713=showCustomItemContextMenu;
+    if(typeof beforeCustomMenuV713==='function'&&!beforeCustomMenuV713.__v713Canvas){
+      const wrapped=function(x,y,actions){
+        let next=Array.isArray(actions)?[...actions]:[];
+        const target=lastContextTarget instanceof Element?lastContextTarget:null;
+        const valid=onNumberedDayV713()&&target?.closest?.('#log-view')&&!target.closest?.('.modal-overlay,.context-menu,#custom-item-context-menu');
+        if(valid){
+          if(!next.some(def=>String(def?.label||'').toLowerCase()==='components'))next.push({label:'Components',icon:'ph-squares-four',action:openComponentsModalV713});
+          if(!next.some(def=>String(def?.label||'').toLowerCase()==='edit layout'))next.push({label:'Edit Layout',icon:'ph-layout',action:()=>setLayoutEditModeV713(true)});
+        }
+        return beforeCustomMenuV713.call(this,x,y,next);
+      };
+      wrapped.__v713Canvas=true;showCustomItemContextMenu=wrapped;window.showCustomItemContextMenu=wrapped;
+    }
+  } catch {}
+
+  // Protected controls do not reach the section-title context menu and V531
+  // intentionally ignores them. Give those spots the same Day-level menu while
+  // leaving elements with their own specialized context menu alone.
+  document.addEventListener('contextmenu',event=>{
+    if(event.defaultPrevented||!onNumberedDayV713())return;
+    const target=event.target instanceof Element?event.target:null;
+    if(!target?.closest?.('#log-view'))return;
+    if(target.closest('.modal-overlay,#section-title-context-menu-v434,#custom-item-context-menu,.day-recommendation-component-v713'))return;
+    const specialized=target.closest('.phrase-chip,.tool-chip,.note-image,.note-audio,.daily-custom-tab-link,[data-custom-item-id],.kb-item-card,.quiz-card,.flashcard,.anki-card');
+    if(specialized)return;
+    // Ordinary section/background space is already handled by V434/V531 before
+    // this listener. This branch primarily catches buttons, inputs and Notes.
+    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+    pageContextMenuV713(event.clientX,event.clientY);
+  },true);
+
+  // Any old global hidden map is now inert; V713 restores visibility from the
+  // current day's layout after core rendering finishes.
+  function refreshV713() {
+    if (!onNumberedDayV713()) { setLayoutEditModeV713(false); return; }
+    ensureLayoutTemplateV713();
+    try { settingsV713().hiddenSectionsV432 = {}; } catch {}
+    requestAnimationFrame(()=>renderDayLayoutV713());
+  }
+
+  try {
+    const beforeOpenDayV713 = openDayLog;
+    if(typeof beforeOpenDayV713==='function'&&!beforeOpenDayV713.__v713Canvas){
+      const wrapped=function(){const result=beforeOpenDayV713.apply(this,arguments);layoutEditMode=false;requestAnimationFrame(refreshV713);return result};
+      wrapped.__v713Canvas=true;openDayLog=wrapped;window.openDayLog=wrapped;
+    }
+  } catch {}
+
+  window.__loggyDayComponentCanvasV713 = {
+    openComponents:openComponentsModalV713,
+    editLayout:()=>setLayoutEditModeV713(true),
+    render:renderDayLayoutV713,
+    applyToFuture:applyCurrentLayoutToFutureV713,
+    addRecommendationToItemsBar:()=>addRecommendationWithPlacementV716('items'),
+    addRecommendationToPage:()=>addRecommendationWithPlacementV716('canvas'),
+    moveRecommendation:setRecommendationPlacementV716
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refreshV713,{once:true});
+  else refreshV713();
+})();
+
+
+// ============================================================================
+// V716 — DUAL RECOMMENDATION PLACEMENT
+// The original Lazy Day moon button is anchored back in the Items Learned
+// header. Additional recommendation buttons can live either in that same bar
+// or as movable Day-page components. Placement is saved per recommendation.
+// ============================================================================
+
+// ============================================================================
+// V714 — KB POLAROID SIZE + ALPHABETICAL CUSTOM COMPONENT PALETTE
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyKbPolaroidSizeAndPaletteV714) return;
+  window.__loggyKbPolaroidSizeAndPaletteV714 = true;
+
+  const q = (sel, root=document) => root?.querySelector?.(sel) || null;
+  const normSize = value => ['small','medium','large'].includes(String(value || '')) ? String(value) : 'medium';
+
+  function currentKbSizeV714(){
+    try {
+      db.settings ||= {};
+      db.settings.kbPolaroidSizeV714 = normSize(db.settings.kbPolaroidSizeV714);
+      return db.settings.kbPolaroidSizeV714;
+    } catch (_) {
+      return 'medium';
+    }
+  }
+
+  function applyKbPolaroidSizeV714(){
+    const grid = q('#phrases-library-grid');
+    if (!grid) return;
+    grid.classList.remove('kb-polaroid-size-small-v714','kb-polaroid-size-medium-v714','kb-polaroid-size-large-v714');
+    let polaroid = false;
+    try { polaroid = String(db.settings?.libraryView || 'list') === 'polaroid'; } catch (_) {}
+    if (!polaroid) return;
+    grid.classList.add(`kb-polaroid-size-${currentKbSizeV714()}-v714`);
+  }
+
+  function ensureKbPolaroidSizeControlV714(){
+    let box = q('#kb-polaroid-options-v163');
+    if (!box) {
+      const modal = q('#settings-modal');
+      const modalBox = q('.modal-box', modal);
+      if (!modal || !modalBox) return null;
+      box = document.createElement('div');
+      box.id = 'kb-polaroid-options-v163';
+      box.className = 'kb-polaroid-options-v163';
+      box.innerHTML = `
+        <label><input type="checkbox" class="kb-hide-tags-v163"> <span>Hide tags in this view</span></label>
+        <div class="kb-polaroid-control-section-v228">
+          <span class="field-label">Polaroid Orientation</span>
+          <select class="kb-polaroid-orientation-v163"><option value="vertical">Vertical</option><option value="horizontal">Horizontal</option></select>
+        </div>
+        <div class="kb-polaroid-control-section-v228">
+          <span class="field-label">Polaroids per row</span>
+          <select class="kb-polaroids-row-v163">${[1,2,3,4,5,6,7,8].map(n=>`<option value="${n}">${n}</option>`).join('')}</select>
+        </div>`;
+      const viewSection = q('.kb-view-btn', modal)?.closest?.('.modal-section');
+      if (viewSection) viewSection.insertAdjacentElement('afterend', box);
+      else modalBox.insertBefore(box, modalBox.children[1] || null);
+
+      const cfg = () => {
+        let cat = null;
+        try { cat = typeof activeCategorySettingTab !== 'undefined' ? activeCategorySettingTab : null; } catch (_) {}
+        if (cat) {
+          db.settings ||= {};
+          db.settings.categorySettings ||= {};
+          return db.settings.categorySettings[cat] ||= {};
+        }
+        db.settings ||= {};
+        return db.settings;
+      };
+      const syncBase = () => {
+        const c = cfg();
+        const hide = q('.kb-hide-tags-v163', box);
+        const orient = q('.kb-polaroid-orientation-v163', box);
+        const perRow = q('.kb-polaroids-row-v163', box);
+        if (hide) hide.checked = !!c.hideTagsInPolaroidV163;
+        if (orient) orient.value = c.polaroidOrientationV163 || 'vertical';
+        if (perRow) perRow.value = String(c.polaroidsPerRowV163 || 4);
+      };
+      box.addEventListener('change', event => {
+        if (event.target?.closest?.('.kb-polaroid-size-setting-v714')) return;
+        const c = cfg();
+        c.hideTagsInPolaroidV163 = !!q('.kb-hide-tags-v163', box)?.checked;
+        c.polaroidOrientationV163 = q('.kb-polaroid-orientation-v163', box)?.value || 'vertical';
+        c.polaroidsPerRowV163 = Number(q('.kb-polaroids-row-v163', box)?.value) || 4;
+        try { saveDb(); } catch (_) {}
+        try { renderPhrasesLibrary(q('#phrases-search-bar')?.value || ''); } catch (_) {}
+      });
+      modal.addEventListener('click', event => {
+        if (event.target?.closest?.('#settings-category-tabs')) setTimeout(syncBase, 0);
+      });
+      syncBase();
+    }
+    let row = q('.kb-polaroid-size-setting-v714', box);
+    if (!row) {
+      row = document.createElement('div');
+      row.className = 'kb-polaroid-control-section-v228 kb-polaroid-size-setting-v714';
+      row.innerHTML = `
+        <span class="field-label">Polaroid Size</span>
+        <select class="kb-polaroid-size-select-v714" aria-label="Knowledge Base polaroid size">
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+        </select>`;
+      const controls = Array.from(box.querySelectorAll('.kb-polaroid-control-section-v228'));
+      const perRow = controls.find(node => /polaroids per row/i.test(node.textContent || ''));
+      if (perRow) perRow.insertAdjacentElement('afterend', row);
+      else box.appendChild(row);
+      const select = q('.kb-polaroid-size-select-v714', row);
+      select?.addEventListener('change', () => {
+        try {
+          db.settings ||= {};
+          db.settings.kbPolaroidSizeV714 = normSize(select.value);
+          saveDb();
+        } catch (_) {}
+        applyKbPolaroidSizeV714();
+        try { renderPhrasesLibrary(q('#phrases-search-bar')?.value || ''); } catch (_) {}
+      });
+    }
+    const select = q('.kb-polaroid-size-select-v714', row);
+    if (select) select.value = currentKbSizeV714();
+    let polaroid = false;
+    try { polaroid = String(db.settings?.libraryView || 'list') === 'polaroid'; } catch (_) {}
+    row.classList.toggle('hidden', !polaroid);
+    return row;
+  }
+
+  function refreshKbV714(){
+    ensureKbPolaroidSizeControlV714();
+    applyKbPolaroidSizeV714();
+  }
+
+  // Make the Knowledge Base size class the final word after every library render.
+  try {
+    const beforeRenderPhrasesV714 = renderPhrasesLibrary;
+    renderPhrasesLibrary = function(){
+      const result = beforeRenderPhrasesV714.apply(this, arguments);
+      requestAnimationFrame(applyKbPolaroidSizeV714);
+      return result;
+    };
+  } catch (_) {}
+
+  // Recreate/sync the size selector whenever KB Settings rebuilds.
+  try {
+    const beforeRenderSettingsV714 = renderSettings;
+    renderSettings = function(){
+      const result = beforeRenderSettingsV714.apply(this, arguments);
+      requestAnimationFrame(refreshKbV714);
+      return result;
+    };
+  } catch (_) {}
+
+  document.addEventListener('click', event => {
+    if (event.target?.closest?.('.kb-view-btn,#settings-category-tabs,#settings-modal')) {
+      setTimeout(refreshKbV714, 0);
+    }
+  }, true);
+
+  // The component palette shown while editing a custom tab is for discovery,
+  // so sort the rendered cards alphabetically without changing saved tab order.
+  try {
+    const beforePaletteV714 = renderCustomComponentPalette;
+    renderCustomComponentPalette = function(palette){
+      const result = beforePaletteV714.apply(this, arguments);
+      if (palette) {
+        const cards = Array.from(palette.querySelectorAll(':scope > .custom-component-palette-item'));
+        cards
+          .sort((a,b) => String(a.textContent || '').trim().localeCompare(String(b.textContent || '').trim(), undefined, {sensitivity:'base'}))
+          .forEach(card => palette.appendChild(card));
+      }
+      return result;
+    };
+  } catch (_) {}
+
+  const boot = () => requestAnimationFrame(refreshKbV714);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});
+  else boot();
+  window.addEventListener('loggy-features-ready', boot);
+})();
+
+
+// ============================================================================
+// V715 — SCREEN RECORDER BOOT GUARANTEE
+// Old saved Log shells and some newer template copies may not contain the
+// recorder tags directly. Load the current recorder runtime from the final
+// extras file so every numbered Day Log gets the same working shortcuts.
+// ============================================================================
+(() => {
+  if (window.__loggyRecorderLoaderV715) return;
+  window.__loggyRecorderLoaderV715 = true;
+
+  const ensureStyle = () => {
+    if (document.querySelector('link[data-loggy-recorder-style-v715]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/loggy-screen-recorder.css?v=920';
+    link.dataset.loggyRecorderStyleV715 = '1';
+    document.head.appendChild(link);
+  };
+
+  const ensureScript = () => {
+    if (window.__loggyScreenRecorderV715 || document.querySelector('script[data-loggy-recorder-runtime-v715]')) return;
+    const script = document.createElement('script');
+    script.src = '/loggy-screen-recorder.js?v=920';
+    script.async = false;
+    script.dataset.loggyRecorderRuntimeV715 = '1';
+    script.addEventListener('error', () => {
+      try { showFeatureToast?.('Screen Recorder could not load. Make sure loggy-screen-recorder.js is in public/.'); } catch (_) {}
+    });
+    document.head.appendChild(script);
+  };
+
+  ensureStyle();
+  ensureScript();
+})();
+
+// ============================================================================
+// V718 — TIER MAKER CUSTOM COMPONENT
+// Persistent YouTube-style ranking board with unlimited tiers/items, drag/drop,
+// per-tier editing, an unranked item bank, and an explicit Restart action.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyTierMakerV718) return;
+  window.__loggyTierMakerV718 = true;
+
+  const TYPE = 'tierMakerV718';
+  const q = (sel, root=document) => root?.querySelector?.(sel) || null;
+  const qa = (sel, root=document) => Array.from(root?.querySelectorAll?.(sel) || []);
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const attr = esc;
+  const uid = prefix => {
+    try { if (typeof customId === 'function') return customId(prefix); } catch (_) {}
+    return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+  };
+  const save = async () => { try { await Promise.resolve(saveDb()); } catch (_) {} };
+  const COLORS = ['#ff7b7b','#ffb56b','#ffe36e','#99dc7b','#77cfe8','#9ba7ff','#cf93ef','#f39bc6','#a8a8a8'];
+
+  function ensureStylesV718(){
+    if (q('#loggy-tier-maker-v718-style')) return;
+    const style = document.createElement('style');
+    style.id = 'loggy-tier-maker-v718-style';
+    style.textContent = `
+      .tier-maker-v718{display:grid;gap:12px;min-width:0}
+      .tier-maker-toolbar-v718{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+      .tier-maker-toolbar-v718 h2{margin:0}
+      .tier-maker-actions-v718{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+      .tier-maker-actions-v718 .icon-btn,.tier-maker-actions-v718 .small-icon-btn{min-height:36px;height:36px;padding:0 10px!important;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+      .tier-maker-board-v718{display:grid;gap:6px;min-width:0}
+      .tier-maker-row-v718{display:grid;grid-template-columns:minmax(74px,104px) minmax(0,1fr);min-height:106px;border:var(--thin-border);border-radius:var(--border-radius);overflow:hidden;background:var(--white);color:var(--black)}
+      .tier-maker-label-v718{border:0;border-right:var(--thin-border);padding:10px 8px;display:grid;place-items:center;text-align:center;font:800 1rem/1.15 inherit;color:#111;cursor:context-menu;word-break:break-word}
+      .tier-maker-items-v718{display:flex;align-content:flex-start;align-items:flex-start;gap:8px;flex-wrap:wrap;min-width:0;min-height:104px;padding:8px;background:color-mix(in srgb,var(--white) 96%,var(--track-bg));transition:background .12s ease,outline-color .12s ease}
+      .tier-maker-items-v718.is-drag-over{background:color-mix(in srgb,var(--track-bg) 68%,var(--white));outline:2px dashed currentColor;outline-offset:-4px}
+      .tier-maker-item-v718{position:relative;display:grid;grid-template-rows:minmax(0,1fr) auto;width:92px;height:92px;min-width:92px;border:var(--thin-border);border-radius:8px;overflow:hidden;background:var(--white);color:var(--black);cursor:grab;user-select:none;box-shadow:1px 2px 0 color-mix(in srgb,currentColor 14%,transparent)}
+      .tier-maker-item-v718:active{cursor:grabbing}
+      .tier-maker-item-v718.dragging-v718{opacity:.42}
+      .tier-maker-item-image-v718{width:100%;height:62px;display:block;object-fit:cover;background:var(--track-bg)}
+      .tier-maker-item-fallback-v718{height:62px;display:grid;place-items:center;padding:6px;text-align:center;background:var(--track-bg);font-weight:800;font-size:.78rem;overflow:hidden}
+      .tier-maker-item-name-v718{display:block;min-width:0;padding:5px 6px;font-size:.68rem;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:var(--thin-border)}
+      .tier-maker-pool-v718{border:var(--thin-border);border-radius:var(--border-radius);overflow:hidden;background:var(--white)}
+      .tier-maker-pool-head-v718{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-bottom:var(--thin-border);background:var(--track-bg)}
+      .tier-maker-pool-head-v718 strong{font-size:.82rem}
+      .tier-maker-pool-v718 .tier-maker-items-v718{min-height:116px;border:0}
+      .tier-maker-empty-v718{width:100%;min-height:78px;display:grid;place-items:center;text-align:center;padding:12px;opacity:.55;font-size:.78rem;pointer-events:none}
+      .tier-maker-count-v718{font-size:.72rem;opacity:.62}
+      @media(max-width:650px){
+        .tier-maker-row-v718{grid-template-columns:66px minmax(0,1fr)}
+        .tier-maker-item-v718{width:78px;height:82px;min-width:78px}
+        .tier-maker-item-image-v718,.tier-maker-item-fallback-v718{height:54px}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function normalizeV718(component){
+    component.title = String(component.title || 'Tier Maker').trim() || 'Tier Maker';
+    component.items = Array.isArray(component.items) ? component.items : [];
+    component.tiersV718 = Array.isArray(component.tiersV718) ? component.tiersV718 : [];
+    component.unrankedItemIdsV718 = Array.isArray(component.unrankedItemIdsV718) ? component.unrankedItemIdsV718 : [];
+
+    if (!component.tiersV718.length) {
+      component.tiersV718 = ['S','A','B','C','D'].map((name,index)=>({id:uid('tier'),name,color:COLORS[index%COLORS.length],itemIds:[]}));
+    }
+
+    const itemIds = new Set();
+    component.items = component.items.map((raw,index)=>{
+      const item = raw && typeof raw === 'object' ? raw : {name:String(raw || `Item ${index+1}`)};
+      let id = String(item.id || uid('tier-item'));
+      while (itemIds.has(id)) id = uid('tier-item');
+      itemIds.add(id);
+      return {
+        ...item,
+        id,
+        name:String(item.name || item.title || `Item ${index+1}`).trim() || `Item ${index+1}`,
+        imageUrlV718:String(item.imageUrlV718 || item.image || '').trim()
+      };
+    });
+
+    const tierIds = new Set();
+    component.tiersV718 = component.tiersV718.map((raw,index)=>{
+      const tier = raw && typeof raw === 'object' ? raw : {name:String(raw || `Tier ${index+1}`)};
+      let id = String(tier.id || uid('tier'));
+      while (tierIds.has(id)) id = uid('tier');
+      tierIds.add(id);
+      return {
+        ...tier,
+        id,
+        name:String(tier.name || `Tier ${index+1}`).trim() || `Tier ${index+1}`,
+        color:/^#[0-9a-f]{6}$/i.test(String(tier.color || '')) ? String(tier.color) : COLORS[index%COLORS.length],
+        itemIds:Array.isArray(tier.itemIds) ? tier.itemIds.map(String) : []
+      };
+    });
+
+    const used = new Set();
+    component.tiersV718.forEach(tier=>{
+      tier.itemIds = tier.itemIds.filter(id=>itemIds.has(String(id)) && !used.has(String(id))).map(String);
+      tier.itemIds.forEach(id=>used.add(id));
+    });
+    const cleanUnrankedV718=[];
+    component.unrankedItemIdsV718.map(String).forEach(id=>{
+      if(!itemIds.has(id)||used.has(id))return;
+      cleanUnrankedV718.push(id);used.add(id);
+    });
+    component.unrankedItemIdsV718=cleanUnrankedV718;
+    component.items.forEach(item=>{
+      if(!used.has(item.id)){
+        component.unrankedItemIdsV718.push(item.id);
+        used.add(item.id);
+      }
+    });
+    return component;
+  }
+
+  function itemByIdV718(component,id){
+    return component.items.find(item=>String(item.id)===String(id)) || null;
+  }
+
+  function removePlacementV718(component,itemId){
+    const id=String(itemId);
+    component.tiersV718.forEach(tier=>{tier.itemIds=tier.itemIds.filter(value=>String(value)!==id)});
+    component.unrankedItemIdsV718=component.unrankedItemIdsV718.filter(value=>String(value)!==id);
+  }
+
+  function listForTargetV718(component,target){
+    if(target==='unranked') return component.unrankedItemIdsV718;
+    return component.tiersV718.find(tier=>String(tier.id)===String(target))?.itemIds || null;
+  }
+
+  async function placeV718(tab,component,itemId,target,index=null){
+    normalizeV718(component);
+    const item=itemByIdV718(component,itemId); if(!item)return;
+    const id=String(itemId);
+    let sourceTarget='unranked',sourceIndex=component.unrankedItemIdsV718.indexOf(id);
+    if(sourceIndex<0){
+      for(const tier of component.tiersV718){
+        const found=tier.itemIds.indexOf(id);
+        if(found>=0){sourceTarget=String(tier.id);sourceIndex=found;break;}
+      }
+    }
+    let requested=index==null?null:Math.max(0,Number(index)||0);
+    if(requested!=null&&String(sourceTarget)===String(target)&&sourceIndex>=0&&sourceIndex<requested)requested--;
+    removePlacementV718(component,id);
+    const list=listForTargetV718(component,target); if(!list)return;
+    const safeIndex=requested==null?list.length:Math.max(0,Math.min(requested,list.length));
+    list.splice(safeIndex,0,id);
+    await save();
+    renderCustomTabView(tab.id);
+  }
+
+  async function addItemV718(tab,component){
+    const values=await showAppFormModal({
+      title:'Add Tier Item',submitLabel:'Add Item',
+      fields:[
+        {name:'name',label:'Item name',placeholder:'Book, movie, song, character…'},
+        {name:'image',label:'Image URL (optional)',placeholder:'https://…'}
+      ]
+    });
+    if(!values||!String(values.name||'').trim())return;
+    normalizeV718(component);
+    const item={id:uid('tier-item'),name:String(values.name).trim(),imageUrlV718:String(values.image||'').trim()};
+    component.items.push(item);
+    component.unrankedItemIdsV718.push(item.id);
+    await save();renderCustomTabView(tab.id);
+  }
+
+  async function editItemV718(tab,component,item){
+    const values=await showAppFormModal({
+      title:'Edit Tier Item',submitLabel:'Save',
+      fields:[
+        {name:'name',label:'Item name',value:item.name||''},
+        {name:'image',label:'Image URL (optional)',value:item.imageUrlV718||''}
+      ]
+    });
+    if(!values||!String(values.name||'').trim())return;
+    item.name=String(values.name).trim();
+    item.imageUrlV718=String(values.image||'').trim();
+    await save();renderCustomTabView(tab.id);
+  }
+
+  async function deleteItemV718(tab,component,item){
+    const ok=await showAppConfirm({title:'Delete Tier Item?',message:`Delete “${item.name}”?`,confirmLabel:'Delete'});
+    if(!ok)return;
+    removePlacementV718(component,item.id);
+    component.items=component.items.filter(entry=>entry.id!==item.id);
+    await save();renderCustomTabView(tab.id);
+  }
+
+  async function addTierV718(tab,component){
+    normalizeV718(component);
+    const values=await showAppFormModal({
+      title:'Add Tier',submitLabel:'Add Tier',
+      fields:[
+        {name:'name',label:'Tier name',value:`Tier ${component.tiersV718.length+1}`},
+        {name:'color',label:'Tier color',type:'color',value:COLORS[component.tiersV718.length%COLORS.length]}
+      ]
+    });
+    if(!values||!String(values.name||'').trim())return;
+    component.tiersV718.push({id:uid('tier'),name:String(values.name).trim(),color:/^#[0-9a-f]{6}$/i.test(String(values.color||''))?values.color:COLORS[component.tiersV718.length%COLORS.length],itemIds:[]});
+    await save();renderCustomTabView(tab.id);
+  }
+
+  async function editTierV718(tab,component,tier){
+    const values=await showAppFormModal({
+      title:'Edit Tier',submitLabel:'Save',
+      fields:[
+        {name:'name',label:'Tier name',value:tier.name||''},
+        {name:'color',label:'Tier color',type:'color',value:tier.color||'#ff7b7b'}
+      ]
+    });
+    if(!values||!String(values.name||'').trim())return;
+    tier.name=String(values.name).trim();
+    if(/^#[0-9a-f]{6}$/i.test(String(values.color||'')))tier.color=values.color;
+    await save();renderCustomTabView(tab.id);
+  }
+
+  async function deleteTierV718(tab,component,tier){
+    const ok=await showAppConfirm({title:'Delete Tier?',message:`Delete “${tier.name}”? Its items will return to Unranked.`,confirmLabel:'Delete Tier'});
+    if(!ok)return;
+    const returned=[...tier.itemIds];
+    component.tiersV718=component.tiersV718.filter(entry=>entry.id!==tier.id);
+    returned.forEach(id=>{if(!component.unrankedItemIdsV718.includes(id))component.unrankedItemIdsV718.push(id)});
+    await save();renderCustomTabView(tab.id);
+  }
+
+  async function moveTierV718(tab,component,tier,delta){
+    const index=component.tiersV718.findIndex(entry=>entry.id===tier.id);if(index<0)return;
+    const target=index+delta;if(target<0||target>=component.tiersV718.length)return;
+    component.tiersV718.splice(index,1);component.tiersV718.splice(target,0,tier);
+    await save();renderCustomTabView(tab.id);
+  }
+
+  async function restartV718(tab,component){
+    const ok=await showAppConfirm({title:'Restart Tier Ranking?',message:'Move every item back to Unranked? Your tiers and items will stay.',confirmLabel:'Restart'});
+    if(!ok)return;
+    normalizeV718(component);
+    component.tiersV718.forEach(tier=>tier.itemIds=[]);
+    component.unrankedItemIdsV718=component.items.map(item=>item.id);
+    await save();renderCustomTabView(tab.id);
+  }
+
+  function itemHtmlV718(item){
+    const image=String(item.imageUrlV718||'').trim();
+    return `<article class="tier-maker-item-v718 custom-searchable-item" draggable="true" data-tier-item-v718="${attr(item.id)}" data-search-text="${attr(String(item.name||'').toLowerCase())}" title="${attr(item.name||'Tier item')}">
+      ${image?`<img class="tier-maker-item-image-v718" src="${attr(image)}" alt="${attr(item.name||'')}" loading="lazy">`:`<div class="tier-maker-item-fallback-v718">${esc(item.name||'Item')}</div>`}
+      <span class="tier-maker-item-name-v718">${esc(item.name||'Item')}</span>
+    </article>`;
+  }
+
+  function bindDropZoneV718(tab,component,host,target){
+    host.addEventListener('dragover',event=>{
+      if(!event.dataTransfer?.types?.includes?.('text/loggy-tier-item-v718'))return;
+      event.preventDefault();event.dataTransfer.dropEffect='move';host.classList.add('is-drag-over');
+    });
+    host.addEventListener('dragleave',event=>{if(!host.contains(event.relatedTarget))host.classList.remove('is-drag-over')});
+    host.addEventListener('drop',event=>{
+      const id=event.dataTransfer?.getData('text/loggy-tier-item-v718');if(!id)return;
+      event.preventDefault();event.stopPropagation();host.classList.remove('is-drag-over');
+      placeV718(tab,component,id,target);
+    });
+  }
+
+  function bindItemsV718(tab,component,content){
+    qa('.tier-maker-item-v718',content).forEach(card=>{
+      const item=itemByIdV718(component,card.dataset.tierItemV718);if(!item)return;
+      card.addEventListener('dragstart',event=>{
+        event.stopPropagation();card.classList.add('dragging-v718');
+        event.dataTransfer.effectAllowed='move';
+        event.dataTransfer.setData('text/loggy-tier-item-v718',String(item.id));
+      });
+      card.addEventListener('dragend',event=>{event.stopPropagation();card.classList.remove('dragging-v718');qa('.tier-maker-items-v718',content).forEach(host=>host.classList.remove('is-drag-over'))});
+      card.addEventListener('dragover',event=>{if(event.dataTransfer?.types?.includes?.('text/loggy-tier-item-v718'))event.preventDefault()});
+      card.addEventListener('drop',event=>{
+        const moved=event.dataTransfer?.getData('text/loggy-tier-item-v718');if(!moved||moved===item.id)return;
+        event.preventDefault();event.stopPropagation();
+        const host=card.closest('.tier-maker-items-v718');const target=host?.dataset.tierTargetV718;if(!target)return;
+        const list=listForTargetV718(component,target)||[];let index=list.indexOf(item.id);if(index<0)index=list.length;
+        const rect=card.getBoundingClientRect();if(event.clientX>rect.left+rect.width/2)index++;
+        placeV718(tab,component,moved,target,index);
+      });
+      card.addEventListener('contextmenu',event=>{
+        event.preventDefault();event.stopPropagation();
+        showCustomItemContextMenu(event.clientX,event.clientY,[
+          {label:'Edit item',icon:'ph-pencil-simple',action:()=>editItemV718(tab,component,item)},
+          {label:'Delete item',icon:'ph-trash',danger:true,action:()=>deleteItemV718(tab,component,item)}
+        ]);
+      });
+      const image=q('img',card);if(image)image.addEventListener('error',()=>{image.replaceWith(Object.assign(document.createElement('div'),{className:'tier-maker-item-fallback-v718',textContent:item.name||'Item'}))},{once:true});
+    });
+  }
+
+  function renderV718(tab,component,content){
+    ensureStylesV718();normalizeV718(component);
+    const renderList=ids=>ids.map(id=>itemByIdV718(component,id)).filter(Boolean).map(itemHtmlV718).join('');
+    content.innerHTML=`<section class="tier-maker-v718">
+      <div class="tier-maker-toolbar-v718">
+        <h2>${esc(component.title)}</h2>
+        <div class="tier-maker-actions-v718">
+          <button type="button" class="small-icon-btn tier-maker-add-item-v718" title="Add item"><i class="ph ph-plus"></i><span>Add Item</span></button>
+          <button type="button" class="small-icon-btn tier-maker-add-tier-v718" title="Add tier"><i class="ph ph-stack"></i><span>Add Tier</span></button>
+          <button type="button" class="small-icon-btn tier-maker-restart-v718" title="Restart ranking"><i class="ph ph-arrow-counter-clockwise"></i><span>Restart</span></button>
+        </div>
+      </div>
+      <div class="tier-maker-board-v718">
+        ${component.tiersV718.map(tier=>`<div class="tier-maker-row-v718" data-tier-row-v718="${attr(tier.id)}">
+          <button type="button" class="tier-maker-label-v718" data-tier-label-v718="${attr(tier.id)}" style="background:${attr(tier.color)}" title="Right-click to edit tier">${esc(tier.name)}</button>
+          <div class="tier-maker-items-v718" data-tier-target-v718="${attr(tier.id)}">${renderList(tier.itemIds)}${tier.itemIds.length?'':'<div class="tier-maker-empty-v718">Drop items here</div>'}</div>
+        </div>`).join('')}
+      </div>
+      <div class="tier-maker-pool-v718">
+        <div class="tier-maker-pool-head-v718"><strong>Unranked</strong><span class="tier-maker-count-v718">${component.unrankedItemIdsV718.length} item${component.unrankedItemIdsV718.length===1?'':'s'}</span></div>
+        <div class="tier-maker-items-v718" data-tier-target-v718="unranked">${renderList(component.unrankedItemIdsV718)}${component.unrankedItemIdsV718.length?'':'<div class="tier-maker-empty-v718">All items are ranked. Drag one here to unrank it.</div>'}</div>
+      </div>
+    </section>`;
+
+    q('.tier-maker-add-item-v718',content)?.addEventListener('click',()=>addItemV718(tab,component));
+    q('.tier-maker-add-tier-v718',content)?.addEventListener('click',()=>addTierV718(tab,component));
+    q('.tier-maker-restart-v718',content)?.addEventListener('click',()=>restartV718(tab,component));
+
+    qa('[data-tier-target-v718]',content).forEach(host=>bindDropZoneV718(tab,component,host,host.dataset.tierTargetV718));
+    bindItemsV718(tab,component,content);
+
+    qa('[data-tier-label-v718]',content).forEach(label=>{
+      const tier=component.tiersV718.find(entry=>entry.id===label.dataset.tierLabelV718);if(!tier)return;
+      label.addEventListener('contextmenu',event=>{
+        event.preventDefault();event.stopPropagation();
+        const index=component.tiersV718.findIndex(entry=>entry.id===tier.id);
+        const options=[{label:'Edit tier',icon:'ph-pencil-simple',action:()=>editTierV718(tab,component,tier)}];
+        if(index>0)options.push({label:'Move tier up',icon:'ph-arrow-up',action:()=>moveTierV718(tab,component,tier,-1)});
+        if(index>=0&&index<component.tiersV718.length-1)options.push({label:'Move tier down',icon:'ph-arrow-down',action:()=>moveTierV718(tab,component,tier,1)});
+        options.push({label:'Delete tier',icon:'ph-trash',danger:true,action:()=>deleteTierV718(tab,component,tier)});
+        showCustomItemContextMenu(event.clientX,event.clientY,options);
+      });
+    });
+  }
+
+  function installV718(){
+    ensureStylesV718();
+    try{
+      if(Array.isArray(CUSTOM_COMPONENT_LIBRARY)&&!CUSTOM_COMPONENT_LIBRARY.some(def=>def?.type===TYPE)){
+        CUSTOM_COMPONENT_LIBRARY.push({type:TYPE,label:'Tier Maker',icon:'ph-list-numbers'});
+      }
+    }catch(_){}
+    try{CUSTOM_TITLE_BACKGROUND_TYPES?.add?.(TYPE)}catch(_){}
+
+    try{
+      if(typeof defaultCustomComponent==='function'&&!defaultCustomComponent.__tierMakerV718){
+        const before=defaultCustomComponent;
+        const wrapped=function(type){
+          if(type===TYPE)return normalizeV718({id:uid('component'),type:TYPE,title:'Tier Maker',titleBackground:'none',items:[],tiersV718:[],unrankedItemIdsV718:[]});
+          return before.apply(this,arguments);
+        };
+        wrapped.__tierMakerV718=true;wrapped.__tierMakerBefore=before;defaultCustomComponent=wrapped;window.defaultCustomComponent=wrapped;
+      }
+    }catch(_){}
+
+    try{
+      if(typeof renderCustomComponentContent==='function'&&!renderCustomComponentContent.__tierMakerV718){
+        const before=renderCustomComponentContent;
+        const wrapped=function(tab,component,content){if(component?.type===TYPE)return renderV718(tab,component,content);return before.apply(this,arguments)};
+        wrapped.__tierMakerV718=true;wrapped.__tierMakerBefore=before;renderCustomComponentContent=wrapped;window.renderCustomComponentContent=wrapped;
+      }
+    }catch(_){}
+
+    try{
+      if(typeof editCustomComponent==='function'&&!editCustomComponent.__tierMakerV718){
+        const before=editCustomComponent;
+        const wrapped=async function(tabId,componentId){
+          const tab=getCustomTab(tabId);const component=tab?.components?.find(entry=>entry.id===componentId);
+          if(component?.type===TYPE){
+            const value=await showAppPrompt({title:'Edit Tier Maker',label:'Title',value:component.title||'Tier Maker',submitLabel:'Save'});
+            if(value==null||!String(value).trim())return;component.title=String(value).trim();await save();renderCustomTabView(tabId);return;
+          }
+          return before.apply(this,arguments);
+        };
+        wrapped.__tierMakerV718=true;editCustomComponent=wrapped;window.editCustomComponent=wrapped;
+      }
+    }catch(_){}
+
+    try{
+      if(typeof getCustomComponentItemArray==='function'&&!getCustomComponentItemArray.__tierMakerV718){
+        const before=getCustomComponentItemArray;
+        const wrapped=function(component){if(component?.type===TYPE)return normalizeV718(component).items;return before.apply(this,arguments)};
+        wrapped.__tierMakerV718=true;getCustomComponentItemArray=wrapped;window.getCustomComponentItemArray=wrapped;
+      }
+    }catch(_){}
+
+    try{
+      if(typeof getCustomItemLabel==='function'&&!getCustomItemLabel.__tierMakerV718){
+        const before=getCustomItemLabel;
+        const wrapped=function(component,item){if(component?.type===TYPE)return String(item?.name||'Tier Item');return before.apply(this,arguments)};
+        wrapped.__tierMakerV718=true;getCustomItemLabel=wrapped;window.getCustomItemLabel=wrapped;
+      }
+    }catch(_){}
+
+    try{
+      if(typeof renderCustomComponentPalette==='function'&&!renderCustomComponentPalette.__tierMakerHelpV718){
+        const before=renderCustomComponentPalette;
+        const wrapped=function(palette){
+          const result=before.apply(this,arguments);
+          const card=q(`.custom-component-palette-item[data-component-type="${TYPE}"]`,palette);
+          const tip=q('.custom-palette-tooltip-v164',card);
+          if(tip)tip.textContent='A persistent drag-and-drop ranking board. Add unlimited tiers and items, drag items between tiers, right-click tiers/items to edit them, and use Restart only when you want to clear the ranking.';
+          return result;
+        };
+        wrapped.__tierMakerHelpV718=true;renderCustomComponentPalette=wrapped;window.renderCustomComponentPalette=wrapped;
+      }
+    }catch(_){}
+  }
+
+  installV718();
+  let tries=0;
+  const retry=setInterval(()=>{tries++;installV718();if(tries>20)clearInterval(retry)},350);
+})();
+
+// ============================================================================
+// V725 — UI POLISH + TIER MAKER KB ITEMS + MEDIA/FULLSCREEN + MEDIA PDF PREVIEW
+//         + GENERIC KNOWLEDGE BASE SORT BOARD
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyV720ComponentPack) return;
+  window.__loggyV720ComponentPack = true;
+
+  const q=(s,r=document)=>r?.querySelector?.(s)||null;
+  const qa=(s,r=document)=>Array.from(r?.querySelectorAll?.(s)||[]);
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const attr=esc;
+  const uid=p=>{try{if(typeof customId==='function')return customId(p)}catch{}return `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`};
+  const save=async()=>{try{await Promise.resolve(saveDb())}catch{}};
+
+  function ensureV720Styles(){
+    if(q('#loggy-v720-component-pack-style'))return;
+    const style=document.createElement('style');
+    style.id='loggy-v720-component-pack-style';
+    style.textContent=`
+      /* Recommendation placement actions must look like one control family. */
+      #day-components-modal-v713 .day-rec-add-actions-v716{display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:7px!important}
+      #day-components-modal-v713 .day-rec-add-actions-v716 .icon-btn{width:188px!important;min-width:188px!important;height:52px!important;min-height:52px!important;padding:0 14px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;box-sizing:border-box!important;white-space:nowrap!important}
+      #day-components-modal-v713 .day-rec-add-actions-v716 .icon-btn>i{font-size:1.18rem!important;flex:0 0 auto!important}
+
+      /* AI Prompt Generator Tags field: same control height as its neighbors. */
+      .custom-tab-component input[placeholder="practice, important"]{height:48px!important;min-height:48px!important;padding:0 12px!important;box-sizing:border-box!important;line-height:1.2!important}
+
+      /* Media Resources composer is strictly opt-in via the + button. */
+      #day-resources-section #resource-input-group.hidden{display:none!important}
+      #day-resources-section #resource-input-group:not(.hidden){display:flex!important;align-items:stretch!important;gap:10px!important}
+      #day-resources-section #resource-input-group #new-resource-url{flex:1 1 auto!important;min-width:0!important}
+      #day-resources-section .daily-resource-pdf-button-v59{flex:0 0 auto!important;white-space:nowrap!important;padding-left:14px!important;padding-right:14px!important}
+      .daily-pdf-preview-card-v720{position:relative!important;width:min(260px,100%)!important;aspect-ratio:8.5/11!important;overflow:hidden!important;border:var(--thin-border)!important;border-radius:10px!important;background:var(--white)!important;cursor:pointer!important;box-sizing:border-box!important}
+      .daily-pdf-preview-card-v720 .daily-pdf-preview-frame-v720{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important;background:#fff!important;pointer-events:none!important}
+      .daily-pdf-preview-card-v720 .daily-pdf-preview-caption-v720{position:absolute!important;left:8px!important;right:44px!important;bottom:8px!important;padding:6px 8px!important;border-radius:7px!important;background:rgba(255,255,255,.92)!important;color:#111!important;font-size:.72rem!important;font-weight:700!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;box-shadow:0 1px 5px rgba(0,0,0,.14)!important}
+      .daily-pdf-preview-card-v720 .resource-card-controls{position:absolute!important;right:8px!important;top:8px!important;z-index:3!important}
+      #daily-pdf-fullscreen-v720{position:fixed!important;inset:0!important;z-index:2147483400!important;background:rgba(0,0,0,.82)!important;padding:18px!important;box-sizing:border-box!important;display:grid!important;grid-template-rows:auto minmax(0,1fr)!important;gap:10px!important}
+      #daily-pdf-fullscreen-v720.hidden{display:none!important}
+      .daily-pdf-fullscreen-head-v720{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;color:#fff!important}
+      .daily-pdf-fullscreen-head-v720 strong{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+      .daily-pdf-fullscreen-head-v720 button{width:38px!important;height:38px!important;display:grid!important;place-items:center!important;border:1px solid #fff!important;border-radius:8px!important;background:#fff!important;color:#111!important;cursor:pointer!important}
+      .daily-pdf-fullscreen-frame-v720{width:100%!important;height:100%!important;min-height:0!important;border:0!important;border-radius:10px!important;background:#fff!important}
+
+      /* Tier Maker V720 polish. */
+      .tier-maker-v720 .tier-maker-actions-v718{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important}
+      .tier-maker-v720 .tier-maker-actions-v718>button{height:38px!important;min-height:38px!important;padding:0 12px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;box-sizing:border-box!important;white-space:nowrap!important}
+      .tier-maker-upload-preview-v720{display:flex;align-items:center;gap:10px;min-height:74px;padding:9px;border:var(--thin-border);border-radius:9px;background:var(--track-bg)}
+      .tier-maker-upload-preview-v720 img{width:66px;height:66px;object-fit:cover;border:var(--thin-border);border-radius:7px;background:#fff}
+      .tier-maker-upload-preview-v720 .empty{width:66px;height:66px;display:grid;place-items:center;border:1px dashed currentColor;border-radius:7px;opacity:.55}
+      .tier-maker-upload-actions-v720{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+      .tier-maker-upload-actions-v720 button,.tier-maker-item-editor-actions-v720 button{min-height:38px!important;padding:0 13px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;box-sizing:border-box!important}
+      #tier-maker-fullscreen-v720{position:fixed;inset:0;z-index:2147483300;background:var(--page-bg,var(--white,#fff));color:var(--black,#111);overflow:auto;padding:24px 26px 42px;box-sizing:border-box}
+      #tier-maker-fullscreen-v720 .tier-maker-fullscreen-close-v720{position:fixed;right:18px;top:16px;z-index:2;width:40px;height:40px;display:grid;place-items:center;border:var(--thin-border);border-radius:10px;background:var(--white,#fff);color:var(--black,#111);cursor:pointer;box-shadow:0 5px 16px rgba(0,0,0,.15)}
+      #tier-maker-fullscreen-v720 .tier-maker-fullscreen-body-v720{width:min(1500px,100%);margin:42px auto 0;display:grid;gap:10px}
+      #tier-maker-fullscreen-v720 .tier-maker-row-v718{min-height:132px}
+      #tier-maker-fullscreen-v720 .tier-maker-items-v718{min-height:130px}
+      #tier-maker-fullscreen-v720 .tier-maker-item-v718{width:112px;height:112px;min-width:112px}
+      #tier-maker-fullscreen-v720 .tier-maker-item-image-v718,#tier-maker-fullscreen-v720 .tier-maker-item-fallback-v718{height:80px}
+
+      /* Generic KB Sort Board. */
+      .kb-sort-board-v720{display:grid;gap:12px;min-width:0}
+      .kb-sort-toolbar-v720{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+      .kb-sort-toolbar-v720 h2{margin:0}
+      .kb-sort-toolbar-actions-v720{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+      .kb-sort-toolbar-actions-v720 button{height:38px!important;min-height:38px!important;padding:0 12px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important}
+      .kb-sort-source-v720{border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);overflow:hidden}
+      .kb-sort-source-head-v720{display:grid;grid-template-columns:auto minmax(160px,1fr) auto;align-items:center;gap:10px;padding:9px 10px;border-bottom:var(--thin-border);background:var(--track-bg)}
+      .kb-sort-source-head-v720 input{min-height:38px;border:var(--thin-border);border-radius:8px;background:var(--white);color:var(--black);padding:7px 10px;box-sizing:border-box}
+      .kb-sort-source-items-v720{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;padding:10px;min-height:110px;max-height:320px;overflow:auto}
+      .kb-sort-box-grid-v720{display:grid;grid-template-columns:repeat(var(--kb-sort-columns-v720,2),minmax(0,1fr));gap:10px;align-items:stretch}
+      .kb-sort-box-v720{border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);overflow:hidden;min-width:0;height:280px;display:grid;grid-template-rows:auto minmax(0,1fr)}
+      .kb-sort-box-head-v720{width:100%;border:0;border-bottom:var(--thin-border);background:var(--kb-sort-box-color-v720,var(--track-bg));color:#111;padding:9px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;font:inherit;font-weight:800;cursor:pointer}
+      .kb-sort-box-items-v720{min-height:0;height:100%;padding:9px;display:flex;gap:8px;flex-wrap:wrap;align-content:flex-start;align-items:flex-start;overflow:auto;background:color-mix(in srgb,var(--white) 96%,var(--track-bg))}
+      .kb-sort-box-items-v720.drag-over-v720{outline:2px dashed currentColor;outline-offset:-5px;background:var(--track-bg)}
+      .kb-sort-card-v720{position:relative;display:grid;grid-template-rows:auto auto auto;width:var(--kb-sort-card-width-v720,104px);min-width:var(--kb-sort-card-width-v720,104px);border:var(--thin-border);border-radius:8px;overflow:hidden;background:var(--white);color:var(--black);cursor:grab;user-select:none;box-sizing:border-box}
+      .kb-sort-card-v720:active{cursor:grabbing}
+      .kb-sort-card-v720.dragging-v720{opacity:.42}
+      .kb-sort-card-image-v720{width:100%;aspect-ratio:3/4;object-fit:cover;background:var(--track-bg);display:block}
+      .kb-sort-card-image-fallback-v720{width:100%;aspect-ratio:3/4;display:grid;place-items:center;background:var(--track-bg);padding:8px;text-align:center;font-weight:800;font-size:.74rem;box-sizing:border-box}
+      .kb-sort-card-primary-v720{padding:6px 7px 2px;font-size:.72rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .kb-sort-card-secondary-v720{padding:0 7px 6px;font-size:.65rem;opacity:.68;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .kb-sort-card-v720.focus-v720{outline:3px solid currentColor;outline-offset:1px}
+      .kb-sort-board-v720[data-card-size="small"]{--kb-sort-card-width-v720:82px}
+      .kb-sort-board-v720[data-card-size="medium"]{--kb-sort-card-width-v720:104px}
+      .kb-sort-board-v720[data-card-size="large"]{--kb-sort-card-width-v720:132px}
+      .kb-sort-board-v720[data-item-display-v726=image] .kb-sort-source-items-v720,.kb-sort-board-v720[data-item-display-v726=image] .kb-sort-box-items-v720{gap:0!important;padding:0!important}
+      .kb-sort-board-v720[data-item-display-v726=image] .kb-sort-card-v720{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;display:block!important;overflow:hidden!important}
+      .kb-sort-board-v720[data-item-display-v726=image] .kb-sort-card-v720.has-image-v726 .kb-sort-card-primary-v720,.kb-sort-board-v720[data-item-display-v726=image] .kb-sort-card-v720.has-image-v726 .kb-sort-card-secondary-v720{display:none!important}
+      .kb-sort-board-v720[data-item-display-v726=image] .kb-sort-card-v720.has-image-v726 .kb-sort-card-image-v720{display:block!important;width:100%!important;height:auto!important;aspect-ratio:3/4!important;object-fit:cover!important;border:0!important;border-radius:0!important}
+      .kb-sort-board-v720[data-item-display-v726=image] .kb-sort-card-v720.no-image-v726 .kb-sort-card-primary-v720,.kb-sort-board-v720[data-item-display-v726=image] .kb-sort-card-v720.no-image-v726 .kb-sort-card-secondary-v720{display:none!important}
+      .kb-sort-board-v720[data-item-display-v726=image] .kb-sort-card-v720.no-image-v726 .kb-sort-card-image-fallback-v720{width:100%!important;aspect-ratio:3/4!important;border:0!important;border-radius:0!important}
+      .kb-sort-board-v720[data-item-display-v726=image] .kb-sort-box-items-v720{min-height:calc(var(--kb-sort-card-width-v720,104px) * 4 / 3)!important}
+      .kb-sort-board-v720[data-item-display-v726=image] .kb-sort-source-items-v720{min-height:calc(var(--kb-sort-card-width-v720,104px) * 4 / 3)!important}
+      .kb-sort-empty-v720{width:100%;min-height:82px;display:grid;place-items:center;text-align:center;padding:10px;opacity:.55;font-size:.76rem;pointer-events:none}
+      .kb-sort-focus-banner-v720{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:8px 10px;border:var(--thin-border);border-radius:8px;background:var(--track-bg);font-size:.78rem}
+      .kb-sort-settings-grid-v720{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+      .kb-sort-settings-grid-v720 label{display:grid;gap:5px}
+      .kb-sort-settings-grid-v720 label>span{font-size:.74rem;font-weight:700}
+      .kb-sort-settings-grid-v720 select,.kb-sort-settings-grid-v720 input{width:100%;min-height:40px;border:var(--thin-border);border-radius:8px;background:var(--white);color:var(--black);padding:7px 9px;box-sizing:border-box}
+      .kb-sort-membership-list-v720{display:grid;gap:7px;margin-top:8px}
+      .kb-sort-membership-row-v720{padding:9px 10px;border:var(--thin-border);border-radius:8px;background:var(--white)}
+      @media(max-width:760px){.kb-sort-box-grid-v720{grid-template-columns:1fr!important}.kb-sort-source-head-v720{grid-template-columns:1fr}.kb-sort-settings-grid-v720{grid-template-columns:1fr}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureTierDisplayStylesV721(){
+    if(q('#loggy-tier-display-v721-style'))return;
+    const style=document.createElement('style');style.id='loggy-tier-display-v721-style';style.textContent=`
+      #tier-item-editor-v720 [data-tier-name],#tier-item-editor-v720 [data-tier-image-url]{width:100%!important;min-height:42px!important;border:var(--thin-border)!important;border-radius:var(--border-radius)!important;background:var(--white)!important;color:var(--black)!important;padding:8px 10px!important;box-sizing:border-box!important;font:inherit!important}
+      .tier-maker-v720[data-tier-size-v721=small]{--tier-v721-w:84px;--tier-v721-img-h:112px;--tier-v721-card-h:144px}
+      .tier-maker-v720[data-tier-size-v721=medium]{--tier-v721-w:104px;--tier-v721-img-h:138px;--tier-v721-card-h:170px}
+      .tier-maker-v720[data-tier-size-v721=large]{--tier-v721-w:132px;--tier-v721-img-h:176px;--tier-v721-card-h:208px}
+      .tier-maker-v720[data-tier-shape-v721=square]{--tier-v721-img-ratio:1}
+      .tier-maker-v720[data-tier-shape-v721=wide]{--tier-v721-img-ratio:1.55}
+      .tier-maker-v720[data-tier-shape-v721=portrait]{--tier-v721-img-ratio:.75}
+      .tier-maker-v720 .tier-maker-item-v718{width:var(--tier-v721-w,104px)!important;min-width:var(--tier-v721-w,104px)!important;height:var(--tier-v721-card-h,170px)!important;grid-template-rows:minmax(0,1fr) auto!important}
+      .tier-maker-v720 .tier-maker-item-image-v718,.tier-maker-v720 .tier-maker-item-fallback-v718{width:100%!important;height:var(--tier-v721-img-h,138px)!important;min-height:var(--tier-v721-img-h,138px)!important;object-fit:cover!important}
+      .tier-maker-v720[data-tier-shape-v721=square] .tier-maker-item-image-v718,.tier-maker-v720[data-tier-shape-v721=square] .tier-maker-item-fallback-v718{height:var(--tier-v721-w,104px)!important;min-height:var(--tier-v721-w,104px)!important}
+      .tier-maker-v720[data-tier-shape-v721=wide] .tier-maker-item-image-v718,.tier-maker-v720[data-tier-shape-v721=wide] .tier-maker-item-fallback-v718{height:calc(var(--tier-v721-w,104px) / 1.55)!important;min-height:calc(var(--tier-v721-w,104px) / 1.55)!important}
+      .tier-maker-v720[data-tier-shape-v721=square] .tier-maker-item-v718{height:calc(var(--tier-v721-w,104px) + 32px)!important}
+      .tier-maker-v720[data-tier-shape-v721=wide] .tier-maker-item-v718{height:calc(var(--tier-v721-w,104px) / 1.55 + 32px)!important}
+      .tier-maker-v720 .tier-maker-items-v718{min-height:calc(var(--tier-v721-card-h,170px) + 16px)!important;align-content:flex-start!important}
+      .tier-maker-v720 .tier-maker-row-v718{min-height:calc(var(--tier-v721-card-h,170px) + 16px)!important}
+      .tier-maker-v720[data-tier-shape-v721=square] .tier-maker-items-v718,.tier-maker-v720[data-tier-shape-v721=square] .tier-maker-row-v718{min-height:calc(var(--tier-v721-w,104px) + 48px)!important}
+      .tier-maker-v720[data-tier-shape-v721=wide] .tier-maker-items-v718,.tier-maker-v720[data-tier-shape-v721=wide] .tier-maker-row-v718{min-height:calc(var(--tier-v721-w,104px) / 1.55 + 48px)!important}
+      #tier-maker-fullscreen-v720 .tier-maker-v720 .tier-maker-item-v718{width:var(--tier-v721-w,104px)!important;min-width:var(--tier-v721-w,104px)!important}
+      #tier-maker-fullscreen-v720 .tier-maker-v720 .tier-maker-items-v718,#tier-maker-fullscreen-v720 .tier-maker-v720 .tier-maker-row-v718{min-height:calc(var(--tier-v721-card-h,170px) + 16px)!important}
+      #tier-maker-display-settings-v721 select{width:100%;min-height:42px;border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);color:var(--black);padding:7px 9px;box-sizing:border-box}
+      .tier-kb-picker-box-v725{width:min(860px,calc(100vw - 28px))!important;max-height:88vh!important;overflow:hidden!important;display:grid!important;grid-template-rows:auto auto minmax(0,1fr) auto!important;gap:12px!important}
+      .tier-kb-picker-controls-v725{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0;overflow:visible}
+      .tier-kb-picker-controls-v725 label{display:grid;gap:5px;min-width:0}
+      .tier-kb-picker-search-wrap-v725{grid-column:1/-1}
+      .tier-kb-picker-controls-v725 label>span{font-size:.74rem;font-weight:700}
+      .tier-kb-picker-controls-v725 select,.tier-kb-picker-controls-v725 input{width:100%;min-height:42px;border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);color:var(--black);padding:7px 10px;box-sizing:border-box;font:inherit}
+      .tier-kb-picker-grid-v725{min-height:180px;max-height:52vh;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:9px;align-content:start;padding:2px}
+      .tier-kb-picker-card-v725{position:relative;min-width:0;display:grid;grid-template-rows:150px auto auto;gap:0;padding:0;border:var(--thin-border);border-radius:10px;overflow:hidden;background:var(--white);color:var(--black);text-align:left;cursor:pointer;box-sizing:border-box}
+      .tier-kb-picker-card-v725>img,.tier-kb-picker-fallback-v725{width:100%;height:150px;display:block;object-fit:cover;background:var(--track-bg)}
+      .tier-kb-picker-fallback-v725{display:grid;place-items:center;font-size:1.4rem;opacity:.58}
+      .tier-kb-picker-name-v725{padding:7px 8px 3px;font-size:.75rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .tier-kb-picker-state-v725{padding:0 8px 7px;font-size:.66rem;opacity:.65}
+      .tier-kb-picker-card-v725.selected{outline:3px solid currentColor;outline-offset:-3px}
+      .tier-kb-picker-card-v725.is-added{opacity:.45;cursor:default}
+      .tier-kb-picker-footer-v725{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid color-mix(in srgb,currentColor 18%,transparent);padding-top:10px}
+      .tier-kb-picker-footer-v725>span{font-size:.78rem;font-weight:700}
+      .tier-kb-picker-footer-v725>div{display:flex;align-items:center;gap:8px}
+      .tier-kb-picker-footer-v725 button{min-height:40px;padding:0 13px!important;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+      .tier-kb-picker-empty-v725{grid-column:1/-1;min-height:150px;display:grid;place-items:center;text-align:center;opacity:.58;border:1px dashed currentColor;border-radius:10px;padding:16px}
+      @media(max-width:700px){.tier-kb-picker-controls-v725{grid-template-columns:1fr}.tier-kb-picker-grid-v725{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}.tier-kb-picker-card-v725{grid-template-rows:132px auto auto}.tier-kb-picker-card-v725>img,.tier-kb-picker-fallback-v725{height:132px}}
+      .tier-maker-layout-v724{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:start;min-width:0}
+      .tier-maker-layout-v724[data-tier-pool-position-v724=right]{grid-template-columns:minmax(0,1fr) clamp(250px,27vw,390px);gap:12px}
+      .tier-maker-layout-v724[data-tier-pool-position-v724=right]>.tier-maker-pool-v718{position:sticky;top:12px;max-height:calc(100dvh - 80px);overflow:auto;min-width:0}
+      .tier-maker-layout-v724[data-tier-pool-position-v724=right]>.tier-maker-pool-v718>.tier-maker-items-v718{align-content:flex-start}
+
+      /* V726 — image-only / collage mode: no card chrome, labels, padding, or gaps. */
+      .tier-maker-v720[data-tier-display-v726=image] .tier-maker-items-v718{gap:0!important;padding:0!important}
+      .tier-maker-v720[data-tier-display-v726=image] .tier-maker-item-v718{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;display:block!important;height:auto!important;overflow:hidden!important}
+      .tier-maker-v720[data-tier-display-v726=image] .tier-maker-item-v718.has-image-v726 .tier-maker-item-name-v718{display:none!important}
+      .tier-maker-v720[data-tier-display-v726=image] .tier-maker-item-v718.has-image-v726 .tier-maker-item-image-v718{display:block!important;width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:3/4!important;object-fit:cover!important;border:0!important;border-radius:0!important}
+      .tier-maker-v720[data-tier-display-v726=image] .tier-maker-item-v718.no-image-v726{aspect-ratio:3/4!important;display:grid!important;grid-template-rows:1fr!important}
+      .tier-maker-v720[data-tier-display-v726=image] .tier-maker-item-v718.no-image-v726 .tier-maker-item-name-v718{display:none!important}
+      .tier-maker-v720[data-tier-display-v726=image] .tier-maker-item-fallback-v718{width:100%!important;height:100%!important;min-height:0!important;aspect-ratio:3/4!important;border:0!important;border-radius:0!important}
+      .tier-maker-v720[data-tier-display-v726=image] .tier-maker-row-v718{min-height:calc((var(--tier-v721-w,104px) * 4 / 3) + 2px)!important}
+      .tier-maker-v720[data-tier-display-v726=image] .tier-maker-row-v718>.tier-maker-items-v718{min-height:calc(var(--tier-v721-w,104px) * 4 / 3)!important}
+      .tier-maker-v720[data-tier-display-v726=image] .tier-maker-pool-v718>.tier-maker-items-v718{min-height:calc(var(--tier-v721-w,104px) * 4 / 3)!important}
+      #tier-maker-fullscreen-v720 .tier-maker-v720[data-tier-display-v726=image] .tier-maker-items-v718{gap:0!important;padding:0!important}
+
+      @media(max-width:900px){.tier-maker-layout-v724[data-tier-pool-position-v724=right]{grid-template-columns:minmax(0,1fr)}.tier-maker-layout-v724[data-tier-pool-position-v724=right]>.tier-maker-pool-v718{position:relative;top:auto;max-height:none;overflow:visible}}
+    `;document.head.appendChild(style);
+  }
+
+  // ------------------------------------------------------------------------
+  // Media Resources: hidden composer + real PDF preview/fullscreen viewer.
+  // ------------------------------------------------------------------------
+  function openPdfFullscreenV720(resource){
+    q('#daily-pdf-fullscreen-v720')?.remove();
+    const modal=document.createElement('div');
+    modal.id='daily-pdf-fullscreen-v720';
+    const title=String(resource?.title||resource?.fileName||'PDF');
+    modal.innerHTML=`<div class="daily-pdf-fullscreen-head-v720"><strong>${esc(title)}</strong><button type="button" title="Close PDF"><i class="ph ph-x"></i></button></div><iframe class="daily-pdf-fullscreen-frame-v720" src="${attr(resource?.url||'')}" title="${attr(title)}"></iframe>`;
+    document.body.appendChild(modal);
+    const close=()=>modal.remove();
+    q('button',modal)?.addEventListener('click',close);
+    const key=e=>{if(e.key==='Escape'){document.removeEventListener('keydown',key,true);close()}};
+    document.addEventListener('keydown',key,true);
+  }
+
+  function decoratePdfResourcesV720(dayData){
+    const grid=q('#resources-grid');if(!grid)return;
+    (dayData?.resources||[]).forEach((resource,index)=>{
+      if(resource?.type!=='pdf')return;
+      const card=q(`#daily-resource-${index}`,grid)||grid.children?.[index];
+      if(!card)return;
+      card.className='resource-card pdf daily-pdf-preview-card-v720';
+      card.dataset.resourceIndex=String(index);
+      const url=String(resource.url||'');
+      const preview=url?`${url}${url.includes('#')?'&':'#'}page=1&toolbar=0&navpanes=0&scrollbar=0&view=FitH`:'';
+      card.innerHTML=`<iframe class="daily-pdf-preview-frame-v720" src="${attr(preview)}" title="PDF first-page preview"></iframe><span class="daily-pdf-preview-caption-v720">${esc(resource.title||resource.fileName||'PDF')}</span><div class="resource-card-controls"><button type="button" class="resource-card-btn" data-action="delete" title="Remove"><i class="ph ph-trash"></i></button></div>`;
+      card.addEventListener('click',event=>{if(event.target.closest('[data-action=delete]'))return;openPdfFullscreenV720(resource)});
+      q('[data-action=delete]',card)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();dayData.resources.splice(index,1);renderResources(dayData);try{scheduleSaveDay()}catch{}});
+    });
+  }
+
+  function hideResourceComposerV720(){q('#resource-input-group')?.classList.add('hidden')}
+
+  function installMediaResourcesV720(){
+    try{
+      if(typeof renderResources==='function'&&!renderResources.__pdfPreviewV720){
+        const before=renderResources;
+        const wrapped=function(dayData){const result=before.apply(this,arguments);decoratePdfResourcesV720(dayData);return result};
+        wrapped.__pdfPreviewV720=true;wrapped.__pdfPreviewBefore=before;renderResources=wrapped;window.renderResources=wrapped;
+      }
+    }catch{}
+    try{
+      if(typeof openDayLog==='function'&&!openDayLog.__resourceComposerV720){
+        const before=openDayLog;
+        const wrapped=function(){const result=before.apply(this,arguments);hideResourceComposerV720();return result};
+        wrapped.__resourceComposerV720=true;openDayLog=wrapped;window.openDayLog=wrapped;
+      }
+    }catch{}
+    // The existing + listener removes .hidden. Keep first paint/Day changes clean.
+    requestAnimationFrame(()=>{if(q('#log-view')?.classList.contains('active'))hideResourceComposerV720()});
+  }
+
+  // ------------------------------------------------------------------------
+  // Tier Maker V720: upload images + clean fullscreen presentation.
+  // ------------------------------------------------------------------------
+  const TIER_TYPE='tierMakerV718';
+  const TIER_COLORS=['#ff7b7b','#ffb56b','#ffe36e','#99dc7b','#77cfe8','#9ba7ff','#cf93ef','#f39bc6','#a8a8a8'];
+
+  function normalizeTierV720(component){
+    component.title=String(component.title||'Tier Maker').trim()||'Tier Maker';
+    component.items=Array.isArray(component.items)?component.items:[];
+    component.itemSizeV721=['small','medium','large'].includes(String(component.itemSizeV721))?String(component.itemSizeV721):'medium';
+    component.itemShapeV721=['portrait','square','wide'].includes(String(component.itemShapeV721))?String(component.itemShapeV721):'portrait';
+    component.itemDisplayV726=String(component.itemDisplayV726)==='image'?'image':'card';
+    component.unrankedPositionV724=String(component.unrankedPositionV724)==='right'?'right':'below';
+    component.tiersV718=Array.isArray(component.tiersV718)?component.tiersV718:[];
+    component.unrankedItemIdsV718=Array.isArray(component.unrankedItemIdsV718)?component.unrankedItemIdsV718.map(String):[];
+    if(!component.tiersV718.length)component.tiersV718=['S','A','B','C','D'].map((name,i)=>({id:uid('tier'),name,color:TIER_COLORS[i],itemIds:[]}));
+    const ids=new Set();
+    component.items=component.items.map((raw,i)=>{const x=raw&&typeof raw==='object'?raw:{};let id=String(x.id||uid('tier-item'));while(ids.has(id))id=uid('tier-item');ids.add(id);return{...x,id,name:String(x.name||x.title||`Item ${i+1}`).trim()||`Item ${i+1}`,imageUrlV718:String(x.imageUrlV718||x.image||'').trim(),sourceTypeV725:String(x.sourceTypeV725||''),kbItemIdV725:String(x.kbItemIdV725||''),kbCategoryV725:String(x.kbCategoryV725||''),kbImageFieldV725:String(x.kbImageFieldV725||'')}});
+    const placed=new Set();
+    component.tiersV718=component.tiersV718.map((raw,i)=>{const t=raw&&typeof raw==='object'?raw:{};const itemIds=(Array.isArray(t.itemIds)?t.itemIds:[]).map(String).filter(id=>ids.has(id)&&!placed.has(id));itemIds.forEach(id=>placed.add(id));return{...t,id:String(t.id||uid('tier')),name:String(t.name||`Tier ${i+1}`).trim()||`Tier ${i+1}`,color:/^#[0-9a-f]{6}$/i.test(String(t.color||''))?String(t.color):TIER_COLORS[i%TIER_COLORS.length],itemIds}});
+    component.unrankedItemIdsV718=component.unrankedItemIdsV718.filter(id=>ids.has(id)&&!placed.has(id));component.unrankedItemIdsV718.forEach(id=>placed.add(id));
+    component.items.forEach(item=>{if(!placed.has(item.id)){component.unrankedItemIdsV718.push(item.id);placed.add(item.id)}});
+    return component;
+  }
+  const tierItem=(c,id)=>c.items.find(x=>String(x.id)===String(id));
+  function tierRemove(c,id){id=String(id);c.tiersV718.forEach(t=>t.itemIds=t.itemIds.filter(x=>String(x)!==id));c.unrankedItemIdsV718=c.unrankedItemIdsV718.filter(x=>String(x)!==id)}
+  function tierList(c,target){return target==='unranked'?c.unrankedItemIdsV718:c.tiersV718.find(t=>String(t.id)===String(target))?.itemIds}
+  function refreshTierV720(tab,component){
+    try{renderCustomTabView(tab.id)}catch{}
+    const overlay=q('#tier-maker-fullscreen-v720');
+    if(overlay&&overlay.dataset.componentId===String(component.id))setTimeout(()=>renderTierFullscreenBodyV720(tab,component,overlay),0);
+  }
+  async function placeTierV720(tab,c,id,target,index=null){normalizeTierV720(c);const list=tierList(c,target);if(!tierItem(c,id)||!list)return;let sourceList=c.unrankedItemIdsV718,sourceIndex=sourceList.indexOf(String(id));for(const t of c.tiersV718){const i=t.itemIds.indexOf(String(id));if(i>=0){sourceList=t.itemIds;sourceIndex=i;break}}let n=index==null?list.length:Math.max(0,Number(index)||0);if(sourceList===list&&sourceIndex>=0&&sourceIndex<n)n--;tierRemove(c,id);const next=tierList(c,target);next.splice(Math.max(0,Math.min(n,next.length)),0,String(id));await save();refreshTierV720(tab,c)}
+
+  async function imageFileDataV720(file){
+    if(!file)return'';
+    if(!String(file.type||'').startsWith('image/'))throw new Error('Choose an image file.');
+    const source=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result||''));r.onerror=()=>reject(new Error('Could not read that image.'));r.readAsDataURL(file)});
+    if(file.type==='image/gif')return source;
+    try{
+      const image=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=source});
+      const max=1200,scale=Math.min(1,max/Math.max(image.naturalWidth||1,image.naturalHeight||1));
+      const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+      return canvas.toDataURL(file.type==='image/png'?'image/png':'image/jpeg',.88);
+    }catch{return source}
+  }
+
+  function tierKbVisualFieldsV725(category){
+    return kbFieldDefsV720(category).filter(field => {
+      const kind=String(field?.kind||'');
+      const name=String(field?.name||'');
+      return kind==='image'||kind==='pinnedImage'||/image|photo|cover|picture|map/i.test(name);
+    });
+  }
+  function tierKbPreferredImageFieldV725(category,preferred=''){
+    const visual=tierKbVisualFieldsV725(category);
+    const requested=String(preferred||'');
+    if(requested&&visual.some(field=>String(field.name)===requested))return requested;
+    let cfg=db.settings?.categorySettings?.[category]||{};
+    try{cfg=getCategoryConfig?.(category)||cfg}catch{}
+    const primary=String(cfg?.displayFieldV162||'');
+    if(primary&&visual.some(field=>String(field.name)===primary))return primary;
+    return String(visual[0]?.name||'');
+  }
+  function tierKbResolvedV725(item){
+    const kbId=String(item?.kbItemIdV725||'');
+    if(!kbId)return {name:String(item?.name||''),image:String(item?.imageUrlV718||''),exists:false};
+    const exists=Array.isArray(db.phrases)&&db.phrases.map(String).includes(kbId);
+    const category=String(db.phrase_meta?.[kbId]?.type||item?.kbCategoryV725||'');
+    const imageField=tierKbPreferredImageFieldV725(category,item?.kbImageFieldV725||'');
+    const raw=imageField?kbFieldV720(kbId,imageField):'';
+    let name='';
+    try{name=String(getKnowledgeDisplayLabelV162?.(kbId,'kb')||'')}catch{}
+    if(!name||name===kbId){
+      try{name=String(kbLabelV720(kbId)||kbId)}catch{name=kbId}
+    }
+    return {
+      name:name||String(item?.name||kbId),
+      image:imageValueV720(raw)||String(item?.imageUrlV718||''),
+      exists,
+      category,
+      imageField
+    };
+  }
+  function tierKbPickerCardV725(kbId,imageField,alreadyAdded=false){
+    const category=String(db.phrase_meta?.[kbId]?.type||'');
+    const field=tierKbPreferredImageFieldV725(category,imageField);
+    const image=imageValueV720(field?kbFieldV720(kbId,field):'');
+    let label='';
+    try{label=String(getKnowledgeDisplayLabelV162?.(kbId,'kb')||kbId)}catch{label=String(kbId)}
+    if(!label)label=String(kbId);
+    return `<button type="button" class="tier-kb-picker-card-v725${alreadyAdded?' is-added':''}" data-tier-kb-id-v725="${attr(kbId)}" ${alreadyAdded?'disabled':''} title="${attr(label)}">${image?`<img src="${attr(image)}" alt="">`:`<span class="tier-kb-picker-fallback-v725"><i class="ph ph-image"></i></span>`}<span class="tier-kb-picker-name-v725">${esc(label)}</span><span class="tier-kb-picker-state-v725">${alreadyAdded?'Already added':'Select'}</span></button>`;
+  }
+  // V728 — Tier Maker KB picker layout, Shift-range multi-select, and Add All.
+  function openTierKbPickerV725(tab,c){
+    normalizeTierV720(c);
+    q('#tier-kb-picker-v725')?.remove();
+    const categories=kbCategoriesV720();
+    const defaultCategory=categories.includes(String(c.kbSourceCategoryV725||''))?String(c.kbSourceCategoryV725):(categories.includes('Books')?'Books':String(categories[0]||''));
+    const modal=document.createElement('div');
+    modal.id='tier-kb-picker-v725';
+    modal.className='modal-overlay';
+    modal.innerHTML=`<div class="modal-box tier-kb-picker-box-v725"><div class="modal-header"><div><h2>Add from Knowledge Base</h2><p class="progress-hint">Pick existing Knowledge Base items to add to this Tier Maker.</p></div><button type="button" class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div><div class="tier-kb-picker-controls-v725"><label><span>Category</span><select data-category></select></label><label><span>Image field</span><select data-image-field></select></label><label class="tier-kb-picker-search-wrap-v725"><span>Search</span><input type="search" data-search placeholder="Search items…"></label></div><div class="tier-kb-picker-grid-v725" data-grid></div><div class="tier-kb-picker-footer-v725"><span data-count>0 selected</span><div><button type="button" class="icon-btn" data-cancel>Cancel</button><button type="button" class="icon-btn" data-add-all>Add All</button><button type="button" class="icon-btn" data-add disabled>Add Selected</button></div></div></div>`;
+    document.body.appendChild(modal);
+    const categorySelect=q('[data-category]',modal),imageSelect=q('[data-image-field]',modal),search=q('[data-search]',modal),grid=q('[data-grid]',modal),count=q('[data-count]',modal),add=q('[data-add]',modal),addAll=q('[data-add-all]',modal);
+    categorySelect.innerHTML=categories.map(category=>`<option value="${attr(category)}">${esc(category)}</option>`).join('')||'<option value="">No categories</option>';
+    categorySelect.value=defaultCategory;
+    const selected=new Set();
+    const existingKb=new Set(c.items.filter(item=>String(item.sourceTypeV725)==='kb'&&item.kbItemIdV725).map(item=>String(item.kbItemIdV725)));
+    let visibleIdsV728=[];
+    let lastClickedIdV728='';
+    const updateCount=()=>{count.textContent=`${selected.size} selected`;add.disabled=selected.size===0;addAll.disabled=!visibleIdsV728.some(id=>!existingKb.has(id))};
+    const rebuildImageFields=()=>{
+      const category=String(categorySelect.value||'');
+      const visual=tierKbVisualFieldsV725(category);
+      imageSelect.innerHTML=`<option value="">Auto</option>${visual.map(field=>`<option value="${attr(field.name)}">${esc(field.name)}</option>`).join('')}`;
+      const saved=String(c.kbImageFieldV725||'');
+      if(saved&&visual.some(field=>String(field.name)===saved))imageSelect.value=saved;
+    };
+    const render=()=>{
+      const category=String(categorySelect.value||'');
+      const term=String(search.value||'').trim().toLowerCase();
+      const ids=(db.phrases||[]).map(String).filter(id=>String(db.phrase_meta?.[id]?.type||'')===category).filter(id=>{
+        if(!term)return true;
+        let label='';try{label=String(getKnowledgeDisplayLabelV162?.(id,'kb')||id)}catch{label=id}
+        return `${id} ${label}`.toLowerCase().includes(term);
+      });
+      visibleIdsV728=ids.slice();
+      grid.innerHTML=ids.map(id=>tierKbPickerCardV725(id,String(imageSelect.value||''),existingKb.has(id))).join('')||'<div class="tier-kb-picker-empty-v725">No matching Knowledge Base items.</div>';
+      qa('[data-tier-kb-id-v725]',grid).forEach(card=>{
+        if(card.disabled)return;
+        const id=String(card.dataset.tierKbIdV725||'');
+        const syncCardV728=()=>{card.classList.toggle('selected',selected.has(id));q('.tier-kb-picker-state-v725',card).textContent=selected.has(id)?'Selected':'Select'};
+        syncCardV728();
+        card.onclick=event=>{
+          const eligible=visibleIdsV728.filter(itemId=>!existingKb.has(itemId));
+          if(event.shiftKey&&lastClickedIdV728&&eligible.includes(lastClickedIdV728)&&eligible.includes(id)){
+            const a=eligible.indexOf(lastClickedIdV728),b=eligible.indexOf(id);
+            eligible.slice(Math.min(a,b),Math.max(a,b)+1).forEach(itemId=>selected.add(itemId));
+          }else{
+            if(selected.has(id))selected.delete(id);else selected.add(id);
+          }
+          lastClickedIdV728=id;
+          qa('[data-tier-kb-id-v725]',grid).forEach(node=>{const nodeId=String(node.dataset.tierKbIdV725||'');if(node.disabled)return;node.classList.toggle('selected',selected.has(nodeId));const state=q('.tier-kb-picker-state-v725',node);if(state)state.textContent=selected.has(nodeId)?'Selected':'Select'});
+          updateCount();
+        };
+      });
+      updateCount();
+    };
+    rebuildImageFields();render();
+    categorySelect.onchange=()=>{selected.clear();lastClickedIdV728='';rebuildImageFields();render()};
+    imageSelect.onchange=()=>render();
+    search.oninput=()=>render();
+    const close=()=>modal.remove();
+    q('[data-close]',modal).onclick=close;q('[data-cancel]',modal).onclick=close;modal.onclick=e=>{if(e.target===modal)close()};
+    const addKbIdsV728=async ids=>{
+      const category=String(categorySelect.value||'');
+      const imageField=String(imageSelect.value||'');
+      const unique=[...new Set((ids||[]).map(String))].filter(kbId=>kbId&&!existingKb.has(kbId));
+      if(!unique.length)return;
+      c.kbSourceCategoryV725=category;c.kbImageFieldV725=imageField;
+      for(const kbId of unique){
+        const resolved=tierKbResolvedV725({kbItemIdV725:kbId,kbCategoryV725:category,kbImageFieldV725:imageField});
+        const item={id:uid('tier-item'),name:resolved.name||kbId,imageUrlV718:resolved.image||'',sourceTypeV725:'kb',kbItemIdV725:kbId,kbCategoryV725:category,kbImageFieldV725:imageField};
+        c.items.push(item);c.unrankedItemIdsV718.push(item.id);existingKb.add(kbId);
+      }
+      await save();close();refreshTierV720(tab,c);
+    };
+    add.onclick=async()=>{if(!selected.size)return;await addKbIdsV728([...selected])};
+    addAll.onclick=async()=>{await addKbIdsV728(visibleIdsV728)};
+    setTimeout(()=>search?.focus(),0);
+  }
+
+  function tierItemEditorV720(item=null){
+    return new Promise(resolve=>{
+      q('#tier-item-editor-v720')?.remove();
+      const modal=document.createElement('div');modal.id='tier-item-editor-v720';modal.className='modal-overlay';
+      let imageValue=String(item?.imageUrlV718||'');
+      modal.innerHTML=`<div class="modal-box" style="width:min(520px,calc(100vw - 28px));max-height:86vh;overflow:auto"><div class="modal-header"><h2>${item?'Edit':'Add'} Tier Item</h2><button type="button" class="small-icon-btn" data-tier-editor-close><i class="ph ph-x"></i></button></div><div class="modal-section"><span class="field-label">Item name</span><input type="text" data-tier-name value="${attr(item?.name||'')}" placeholder="Book, movie, song, character…"></div><div class="modal-section"><span class="field-label">Image</span><div class="tier-maker-upload-preview-v720" data-tier-image-preview></div><div class="tier-maker-upload-actions-v720"><button type="button" class="icon-btn" data-tier-upload><i class="ph ph-upload-simple"></i> Upload Image</button><button type="button" class="icon-btn" data-tier-remove-image><i class="ph ph-trash"></i> Remove Image</button><input type="file" accept="image/*" class="hidden" data-tier-file></div><span class="field-label" style="margin-top:8px">Or use an image URL</span><input type="url" data-tier-image-url value="${attr(/^data:/i.test(imageValue)?'':imageValue)}" placeholder="https://…"></div><div class="tier-maker-item-editor-actions-v720" style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="icon-btn" data-tier-editor-cancel>Cancel</button><button type="button" class="icon-btn" data-tier-editor-save>${item?'Save':'Add Item'}</button></div></div>`;
+      document.body.appendChild(modal);
+      const preview=q('[data-tier-image-preview]',modal),url=q('[data-tier-image-url]',modal),file=q('[data-tier-file]',modal);
+      const draw=()=>{preview.innerHTML=imageValue?`<img src="${attr(imageValue)}" alt=""><span>${/^data:/i.test(imageValue)?'Uploaded image':'Image URL'}</span>`:`<span class="empty"><i class="ph ph-image"></i></span><span>No image selected</span>`};draw();
+      const close=value=>{modal.remove();resolve(value)};
+      q('[data-tier-editor-close]',modal).onclick=()=>close(null);q('[data-tier-editor-cancel]',modal).onclick=()=>close(null);modal.addEventListener('click',e=>{if(e.target===modal)close(null)});
+      q('[data-tier-upload]',modal).onclick=()=>{file.value='';file.click()};
+      file.onchange=async()=>{const f=file.files?.[0];if(!f)return;try{imageValue=await imageFileDataV720(f);url.value='';draw()}catch(error){showFeatureToast?.(error.message||'Could not load image.')}};
+      q('[data-tier-remove-image]',modal).onclick=()=>{imageValue='';url.value='';draw()};
+      url.oninput=()=>{imageValue=String(url.value||'').trim();draw()};
+      q('[data-tier-editor-save]',modal).onclick=()=>{const name=String(q('[data-tier-name]',modal).value||'').trim();if(!name){showFeatureToast?.('Enter an item name.');return}close({name,image:imageValue||String(url.value||'').trim()})};
+      setTimeout(()=>q('[data-tier-name]',modal)?.focus(),0);
+    });
+  }
+
+  async function addTierItemV720(tab,c){const v=await tierItemEditorV720();if(!v)return;normalizeTierV720(c);const item={id:uid('tier-item'),name:v.name,imageUrlV718:v.image};c.items.push(item);c.unrankedItemIdsV718.push(item.id);await save();refreshTierV720(tab,c)}
+  async function editTierItemV720(tab,c,item){const v=await tierItemEditorV720(item);if(!v)return;item.name=v.name;item.imageUrlV718=v.image;await save();refreshTierV720(tab,c)}
+  async function deleteTierItemV720(tab,c,item){if(!await showAppConfirm({title:'Delete Tier Item?',message:`Delete “${item.name}”?`,confirmLabel:'Delete'}))return;tierRemove(c,item.id);c.items=c.items.filter(x=>x.id!==item.id);await save();refreshTierV720(tab,c)}
+  async function addTierRowV720(tab,c){normalizeTierV720(c);const v=await showAppFormModal({title:'Add Tier',submitLabel:'Add Tier',fields:[{name:'name',label:'Tier name',value:`Tier ${c.tiersV718.length+1}`},{name:'color',label:'Tier color',type:'color',value:TIER_COLORS[c.tiersV718.length%TIER_COLORS.length]}]});if(!v||!String(v.name||'').trim())return;c.tiersV718.push({id:uid('tier'),name:String(v.name).trim(),color:String(v.color||TIER_COLORS[0]),itemIds:[]});await save();refreshTierV720(tab,c)}
+  async function restartTierV720(tab,c){if(!await showAppConfirm({title:'Restart Tier Ranking?',message:'Move every item back to Unranked? Your tiers and items will stay.',confirmLabel:'Restart'}))return;normalizeTierV720(c);c.tiersV718.forEach(t=>t.itemIds=[]);c.unrankedItemIdsV718=c.items.map(x=>x.id);await save();refreshTierV720(tab,c)}
+  function tierItemHtmlV720(item){const linked=String(item?.sourceTypeV725||'')==='kb'&&item?.kbItemIdV725;const resolved=linked?tierKbResolvedV725(item):{name:String(item.name||''),image:String(item.imageUrlV718||''),exists:true};const name=resolved.name||String(item.name||'Tier item');const image=resolved.image||'';return `<article class="tier-maker-item-v718 custom-searchable-item ${image?'has-image-v726':'no-image-v726'}${linked?' tier-maker-kb-linked-v725':''}" draggable="true" data-tier-item-v720="${attr(item.id)}" data-search-text="${attr(name.toLowerCase())}" title="${attr(name)}">${image?`<img class="tier-maker-item-image-v718" src="${attr(image)}" alt="${attr(name)}">`:`<div class="tier-maker-item-fallback-v718">${esc(name)}</div>`}<span class="tier-maker-item-name-v718">${esc(name)}</span></article>`}
+  function closeTierAddMenuV727(){q('#tier-maker-add-menu-v727')?.remove()}
+  function openTierAddMenuV727(tab,c,button){
+    closeTierAddMenuV727();
+    const fullOverlay=button?.closest?.('#tier-maker-fullscreen-v720')||null;
+    const parent=fullOverlay||document.body;
+    const menu=document.createElement('div');
+    menu.id='tier-maker-add-menu-v727';
+    menu.className='tier-maker-add-menu-v727';
+    menu.setAttribute('role','menu');
+    menu.innerHTML=`<button type="button" data-tier-add-manual-v727><i class="ph ph-pencil-simple"></i><span>Add manually</span></button><button type="button" data-tier-add-kb-v727><i class="ph ph-books"></i><span>Add from Knowledge Base</span></button>`;
+    parent.appendChild(menu);
+    const rect=button.getBoundingClientRect();
+    const width=214;
+    const left=Math.max(10,Math.min(window.innerWidth-width-10,rect.right-width));
+    const top=Math.max(10,Math.min(window.innerHeight-106,rect.bottom+6));
+    menu.style.left=`${left}px`;menu.style.top=`${top}px`;
+    const leaveFullscreenForModal=async()=>{
+      closeTierAddMenuV727();
+      if(!fullOverlay)return;
+      try{if(document.fullscreenElement)await document.exitFullscreen?.()}catch{}
+      fullOverlay.remove();
+    };
+    q('[data-tier-add-manual-v727]',menu).onclick=async e=>{e.stopPropagation();await leaveFullscreenForModal();addTierItemV720(tab,c)};
+    q('[data-tier-add-kb-v727]',menu).onclick=async e=>{e.stopPropagation();await leaveFullscreenForModal();openTierKbPickerV725(tab,c)};
+    const outside=e=>{if(menu.contains(e.target)||e.target===button||button.contains(e.target))return;closeTierAddMenuV727();document.removeEventListener('pointerdown',outside,true)};
+    setTimeout(()=>document.addEventListener('pointerdown',outside,true),0);
+  }
+  function bindTierSurfaceV720(tab,c,root){
+    qa('[data-tier-add-menu-v727]',root).forEach(button=>{button.onclick=e=>{e.preventDefault();e.stopPropagation();openTierAddMenuV727(tab,c,button)}});
+    qa('[data-tier-target-v720]',root).forEach(host=>{host.ondragover=e=>{if(!e.dataTransfer?.types?.includes('text/loggy-tier-v720'))return;e.preventDefault();host.classList.add('is-drag-over')};host.ondragleave=e=>{if(!host.contains(e.relatedTarget))host.classList.remove('is-drag-over')};host.ondrop=e=>{const id=e.dataTransfer?.getData('text/loggy-tier-v720');if(!id)return;e.preventDefault();e.stopPropagation();host.classList.remove('is-drag-over');placeTierV720(tab,c,id,host.dataset.tierTargetV720)}});
+    qa('[data-tier-item-v720]',root).forEach(card=>{const item=tierItem(c,card.dataset.tierItemV720);if(!item)return;card.ondragstart=e=>{e.stopPropagation();card.classList.add('dragging-v718');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/loggy-tier-v720',item.id)};card.ondragend=()=>card.classList.remove('dragging-v718');card.ondragover=e=>{if(e.dataTransfer?.types?.includes('text/loggy-tier-v720'))e.preventDefault()};card.ondrop=e=>{const moved=e.dataTransfer?.getData('text/loggy-tier-v720');if(!moved||moved===item.id)return;e.preventDefault();e.stopPropagation();const host=card.closest('[data-tier-target-v720]'),target=host?.dataset.tierTargetV720;if(!target)return;const list=tierList(c,target)||[];let index=list.indexOf(item.id);if(index<0)index=list.length;const rect=card.getBoundingClientRect();if(e.clientX>rect.left+rect.width/2)index++;placeTierV720(tab,c,moved,target,index)};card.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();if(String(item.sourceTypeV725||'')==='kb'&&item.kbItemIdV725){showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Open Knowledge Base item',icon:'ph-book-open',action:()=>{try{openItemModal?.(String(item.kbItemIdV725),true,false)}catch{}}},{label:'Remove from Tier Maker',icon:'ph-trash',danger:true,action:()=>deleteTierItemV720(tab,c,item)}])}else{showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit item',icon:'ph-pencil-simple',action:()=>editTierItemV720(tab,c,item)},{label:'Delete item',icon:'ph-trash',danger:true,action:()=>deleteTierItemV720(tab,c,item)}])}}});
+    qa('[data-tier-label-v720]',root).forEach(label=>{const tier=c.tiersV718.find(t=>t.id===label.dataset.tierLabelV720);if(!tier)return;label.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();const i=c.tiersV718.indexOf(tier);const opts=[{label:'Edit tier',icon:'ph-pencil-simple',action:async()=>{const v=await showAppFormModal({title:'Edit Tier',submitLabel:'Save',fields:[{name:'name',label:'Tier name',value:tier.name},{name:'color',label:'Tier color',type:'color',value:tier.color}]});if(!v||!String(v.name||'').trim())return;tier.name=String(v.name).trim();tier.color=String(v.color||tier.color);await save();refreshTierV720(tab,c)}}];if(i>0)opts.push({label:'Move tier up',icon:'ph-arrow-up',action:async()=>{c.tiersV718.splice(i,1);c.tiersV718.splice(i-1,0,tier);await save();refreshTierV720(tab,c)}});if(i<c.tiersV718.length-1)opts.push({label:'Move tier down',icon:'ph-arrow-down',action:async()=>{c.tiersV718.splice(i,1);c.tiersV718.splice(i+1,0,tier);await save();refreshTierV720(tab,c)}});opts.push({label:'Delete tier',icon:'ph-trash',danger:true,action:async()=>{if(!await showAppConfirm({title:'Delete Tier?',message:`Delete “${tier.name}”? Its items will return to Unranked.`,confirmLabel:'Delete Tier'}))return;tier.itemIds.forEach(id=>{if(!c.unrankedItemIdsV718.includes(id))c.unrankedItemIdsV718.push(id)});c.tiersV718=c.tiersV718.filter(t=>t.id!==tier.id);await save();refreshTierV720(tab,c)}});showCustomItemContextMenu(e.clientX,e.clientY,opts)}});
+  }
+  function openTierDisplaySettingsV721(tab,c){
+    normalizeTierV720(c);q('#tier-maker-display-settings-v721')?.remove();
+    const modal=document.createElement('div');modal.id='tier-maker-display-settings-v721';modal.className='modal-overlay';
+    modal.innerHTML=`<div class="modal-box" style="width:min(480px,calc(100vw - 28px))"><div class="modal-header"><h2>Tier Maker Display</h2><button type="button" class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div><div class="modal-section tier-maker-tier-action-v727"><span class="field-label">Tiers</span><button type="button" class="icon-btn" data-tier-add-tier-v727><i class="ph ph-stack-plus"></i><span>Add Tier</span></button></div><div class="modal-section"><span class="field-label">Item display</span><select data-tier-display-v726><option value="card" ${c.itemDisplayV726==='image'?'':'selected'}>Cards</option><option value="image" ${c.itemDisplayV726==='image'?'selected':''}>Images only / collage</option></select></div><div class="modal-section"><span class="field-label">Item size</span><select data-tier-size-v721><option value="small" ${c.itemSizeV721==='small'?'selected':''}>Small</option><option value="medium" ${c.itemSizeV721==='medium'?'selected':''}>Medium</option><option value="large" ${c.itemSizeV721==='large'?'selected':''}>Large</option></select></div><div class="modal-section"><span class="field-label">Cover shape</span><select data-tier-shape-v721><option value="portrait" ${c.itemShapeV721==='portrait'?'selected':''}>Portrait / tall cover</option><option value="square" ${c.itemShapeV721==='square'?'selected':''}>Square</option><option value="wide" ${c.itemShapeV721==='wide'?'selected':''}>Wide</option></select></div><div class="modal-section"><span class="field-label">Unranked items position</span><select data-tier-pool-v724><option value="below" ${c.unrankedPositionV724==='right'?'':'selected'}>Below tiers</option><option value="right" ${c.unrankedPositionV724==='right'?'selected':''}>Right of tiers</option></select><p class="progress-hint" style="margin-top:5px">Right works especially well when the custom tab itself uses Wide page width.</p></div><div style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="icon-btn" data-cancel>Cancel</button><button type="button" class="icon-btn" data-save>Save</button></div></div>`;
+    document.body.appendChild(modal);const close=()=>modal.remove();q('[data-close]',modal).onclick=close;q('[data-cancel]',modal).onclick=close;modal.onclick=e=>{if(e.target===modal)close()};q('[data-tier-add-tier-v727]',modal).onclick=()=>{close();addTierRowV720(tab,c)};q('[data-save]',modal).onclick=async()=>{c.itemDisplayV726=q('[data-tier-display-v726]',modal).value==='image'?'image':'card';c.itemSizeV721=q('[data-tier-size-v721]',modal).value;c.itemShapeV721=q('[data-tier-shape-v721]',modal).value;c.unrankedPositionV724=q('[data-tier-pool-v724]',modal).value==='right'?'right':'below';await save();close();refreshTierV720(tab,c)};
+  }
+  function tierSurfaceAttrsV721(c){normalizeTierV720(c);return `data-tier-size-v721="${attr(c.itemSizeV721)}" data-tier-shape-v721="${attr(c.itemShapeV721)}" data-tier-display-v726="${attr(c.itemDisplayV726)}" data-tier-pool-v724="${attr(c.unrankedPositionV724)}"`}
+  function tierBoardMarkupV720(c){normalizeTierV720(c);const list=ids=>ids.map(id=>tierItem(c,id)).filter(Boolean).map(tierItemHtmlV720).join('');const board=`<div class="tier-maker-board-v718">${c.tiersV718.map(t=>`<div class="tier-maker-row-v718"><button type="button" class="tier-maker-label-v718" data-tier-label-v720="${attr(t.id)}" style="background:${attr(t.color)}">${esc(t.name)}</button><div class="tier-maker-items-v718" data-tier-target-v720="${attr(t.id)}">${list(t.itemIds)}${t.itemIds.length?'':'<div class="tier-maker-empty-v718">Drop items here</div>'}</div></div>`).join('')}</div>`;const pool=`<div class="tier-maker-pool-v718"><div class="tier-maker-pool-head-v718"><strong>Unranked</strong><span class="tier-maker-pool-actions-v727"><span class="tier-maker-count-v718">${c.unrankedItemIdsV718.length} item${c.unrankedItemIdsV718.length===1?'':'s'}</span><button type="button" class="small-icon-btn tier-maker-pool-add-v727" data-tier-add-menu-v727 title="Add item" aria-label="Add item"><i class="ph ph-plus"></i></button></span></div><div class="tier-maker-items-v718" data-tier-target-v720="unranked">${list(c.unrankedItemIdsV718)}${c.unrankedItemIdsV718.length?'':'<div class="tier-maker-empty-v718">All items are ranked.</div>'}</div></div>`;return `<div class="tier-maker-layout-v724" data-tier-pool-position-v724="${attr(c.unrankedPositionV724)}">${board}${pool}</div>`}
+  function renderTierV720(tab,c,content){normalizeTierV720(c);content.innerHTML=`<section class="tier-maker-v718 tier-maker-v720" ${tierSurfaceAttrsV721(c)}><div class="tier-maker-toolbar-v718"><h2>${esc(c.title)}</h2><div class="tier-maker-actions-v718"><button type="button" class="small-icon-btn tier-maker-icon-action-v727" data-tier-display-v721 title="Display and tiers" aria-label="Display and tiers"><i class="ph ph-sliders-horizontal"></i></button><button type="button" class="small-icon-btn tier-maker-icon-action-v727" data-tier-fullscreen-v720 title="Full screen" aria-label="Full screen"><i class="ph ph-arrows-out"></i></button><button type="button" class="small-icon-btn tier-maker-icon-action-v727" data-tier-restart-v720 title="Restart ranking" aria-label="Restart ranking"><i class="ph ph-arrow-counter-clockwise"></i></button></div></div>${tierBoardMarkupV720(c)}</section>`;q('[data-tier-display-v721]',content).onclick=()=>openTierDisplaySettingsV721(tab,c);q('[data-tier-fullscreen-v720]',content).onclick=()=>openTierFullscreenV720(tab,c);q('[data-tier-restart-v720]',content).onclick=()=>restartTierV720(tab,c);bindTierSurfaceV720(tab,c,content)}
+  function renderTierFullscreenBodyV720(tab,c,overlay){normalizeTierV720(c);let body=q('.tier-maker-fullscreen-body-v720',overlay);if(!body){body=document.createElement('div');body.className='tier-maker-fullscreen-body-v720 tier-maker-v720';overlay.appendChild(body)}body.setAttribute('data-tier-size-v721',c.itemSizeV721);body.setAttribute('data-tier-shape-v721',c.itemShapeV721);body.setAttribute('data-tier-display-v726',c.itemDisplayV726);body.setAttribute('data-tier-pool-v724',c.unrankedPositionV724);body.innerHTML=tierBoardMarkupV720(c);bindTierSurfaceV720(tab,c,body)}
+  function openTierFullscreenV720(tab,c){q('#tier-maker-fullscreen-v720')?.remove();const overlay=document.createElement('div');overlay.id='tier-maker-fullscreen-v720';overlay.dataset.componentId=String(c.id);overlay.innerHTML='<button type="button" class="tier-maker-fullscreen-close-v720" title="Exit full screen"><i class="ph ph-x"></i></button>';document.body.appendChild(overlay);renderTierFullscreenBodyV720(tab,c,overlay);const close=()=>{try{if(document.fullscreenElement===overlay)document.exitFullscreen?.()}catch{}overlay.remove()};q('.tier-maker-fullscreen-close-v720',overlay).onclick=close;const key=e=>{if(e.key==='Escape'){document.removeEventListener('keydown',key,true);close()}};document.addEventListener('keydown',key,true);try{overlay.requestFullscreen?.().catch(()=>{})}catch{}}
+
+  // ------------------------------------------------------------------------
+  // KB Sort Board — one generic classifier for any Knowledge Base category.
+  // ------------------------------------------------------------------------
+  const SORT_TYPE='kbSortBoardV720';
+  const SORT_COLORS=['#e8eef9','#f9e8ef','#f8efd8','#e5f3e7','#eee7f8','#e3f1f4','#f4e8dd','#ececec'];
+  const sortFocus=new Map();
+  function kbCategoriesV720(){return [...new Set([...(db.settings?.categories||[]),...Object.keys(db.settings?.categorySettings||{}),...(db.phrases||[]).map(id=>String(db.phrase_meta?.[id]?.type||''))].map(String).filter(Boolean))].sort((a,b)=>a.localeCompare(b))}
+  function kbFieldDefsV720(category){let cfg=db.settings?.categorySettings?.[category]||{};let rawFields=Array.isArray(cfg.fields)?cfg.fields:[];try{const resolved=getCategoryConfig?.(category);if(resolved&&Array.isArray(resolved.fields)){cfg=resolved;rawFields=resolved.fields}}catch{}if(!rawFields.length){try{const defs=getKnowledgeFieldDefs?.(category);if(Array.isArray(defs)&&defs.length)return defs.filter(f=>f?.name)}catch{}}if(!rawFields.length&&Array.isArray(db.settings?.fields))rawFields=db.settings.fields.map((name,i)=>typeof name==='string'?{id:`legacy-${i}`,name,kind:'text'}:name);return rawFields.map((raw,i)=>{try{return typeof normalizeKnowledgeField==='function'?normalizeKnowledgeField(raw,i,cfg):raw}catch{return raw}}).filter(f=>f?.name)}
+  function kbFieldV720(id,name){if(name==='__title__')return String(id);return db.phrase_meta?.[id]?.custom_fields?.[name]??''}
+  function kbLabelV720(id){try{return String(getKnowledgeDisplayLabelV162?.(id,'everywhere')||id)}catch{return String(id)}}
+  function imageValueV720(raw){if(!raw)return'';if(typeof raw==='object')return String(raw.src||raw.url||raw.image||raw.dataUrl||'');const text=String(raw).trim();if(!text)return'';if(/^(data:image|blob:|https?:|\/)/i.test(text))return text;try{const o=JSON.parse(text);return String(o?.src||o?.url||o?.image||o?.dataUrl||'')}catch{return''}}
+  function normalizeSortV720(c){
+    const cats=kbCategoriesV720();c.title=String(c.title||'KB Sort Board').trim()||'KB Sort Board';c.sourceCategory=String(c.sourceCategory||cats[0]||'');
+    const fields=kbFieldDefsV720(c.sourceCategory);const names=fields.map(f=>String(f.name));
+    const visualNames=new Set(fields.filter(f=>['image','pinnedImage'].includes(String(f.kind||''))||/image|photo|cover|picture|map/i.test(String(f.name||''))).map(f=>String(f.name)));
+    const textNames=new Set(fields.filter(f=>!visualNames.has(String(f.name))).map(f=>String(f.name)));
+    if(!c.imageFieldV720||!names.includes(String(c.imageFieldV720))){const img=fields.find(f=>visualNames.has(String(f.name)));c.imageFieldV720=String(img?.name||'')}
+    if(!c.primaryFieldV720||c.primaryFieldV720!=='__title__'&&!textNames.has(String(c.primaryFieldV720)))c.primaryFieldV720='__title__';
+    if(c.secondaryFieldV720 && c.secondaryFieldV720!=='__title__' && !textNames.has(String(c.secondaryFieldV720))) c.secondaryFieldV720='';
+    c.membershipModeV720=c.membershipModeV720==='single'?'single':'multi';c.clickBehaviorV720=c.clickBehaviorV720==='modal'?'modal':'focus';c.cardDisplayV726=c.cardDisplayV726==='image'?'image':'card';c.cardSizeV720=['small','medium','large'].includes(c.cardSizeV720)?c.cardSizeV720:'medium';c.boxColumnsV720=Math.max(1,Math.min(3,Number(c.boxColumnsV720||2)));c.showAddBoxOutsideEditV763=c.showAddBoxOutsideEditV763!==false;c.showSettingsOutsideEditV763=c.showSettingsOutsideEditV763===true;
+    c.boxesV720=Array.isArray(c.boxesV720)?c.boxesV720:[];c.boxesV720=c.boxesV720.map((b,i)=>({...b,id:String(b?.id||uid('kb-sort-box')),name:String(b?.name||`Box ${i+1}`).trim()||`Box ${i+1}`,color:/^#[0-9a-f]{6}$/i.test(String(b?.color||''))?String(b.color):SORT_COLORS[i%SORT_COLORS.length],itemIds:[...new Set((Array.isArray(b?.itemIds)?b.itemIds:[]).map(String))]}));return c
+  }
+  function categoryItemsV720(c){return (db.phrases||[]).map(String).filter(id=>String(db.phrase_meta?.[id]?.type||'')===c.sourceCategory)}
+  function membershipsV720(c,id){return c.boxesV720.filter(b=>b.itemIds.includes(String(id)))}
+  function sortCardHtmlV720(c,id,sourceBox=''){const image=imageValueV720(kbFieldV720(id,c.imageFieldV720));const primary=c.primaryFieldV720==='__title__'?kbLabelV720(id):String(kbFieldV720(id,c.primaryFieldV720)||kbLabelV720(id));const secondary=c.secondaryFieldV720?(c.secondaryFieldV720==='__title__'?kbLabelV720(id):String(kbFieldV720(id,c.secondaryFieldV720)||'')):'';return `<article class="kb-sort-card-v720 ${image?'has-image-v726':'no-image-v726'}" draggable="true" data-kb-sort-item-v720="${attr(id)}" data-kb-sort-source-box-v720="${attr(sourceBox)}" title="${attr(kbLabelV720(id))}">${image?`<img class="kb-sort-card-image-v720" src="${attr(image)}" alt="">`:`<div class="kb-sort-card-image-fallback-v720">${esc(kbLabelV720(id))}</div>`}<span class="kb-sort-card-primary-v720">${esc(primary)}</span>${secondary?`<span class="kb-sort-card-secondary-v720">${esc(secondary)}</span>`:'<span class="kb-sort-card-secondary-v720"></span>'}</article>`}
+  async function setMembershipV720(tab,c,id,targetBox,sourceBox=''){normalizeSortV720(c);const target=c.boxesV720.find(b=>b.id===targetBox);if(!target)return;if(c.membershipModeV720==='single')c.boxesV720.forEach(b=>b.itemIds=b.itemIds.filter(x=>x!==id));else if(sourceBox&&sourceBox!==targetBox){const src=c.boxesV720.find(b=>b.id===sourceBox);if(src)src.itemIds=src.itemIds.filter(x=>x!==id)}if(!target.itemIds.includes(id))target.itemIds.push(id);await save();renderCustomTabView(tab.id)}
+  function openMembershipsV720(c,id){q('#kb-sort-memberships-modal-v720')?.remove();const boxes=membershipsV720(c,id);const modal=document.createElement('div');modal.id='kb-sort-memberships-modal-v720';modal.className='modal-overlay';modal.innerHTML=`<div class="modal-box" style="width:min(480px,calc(100vw - 28px))"><div class="modal-header"><h2>${esc(kbLabelV720(id))}</h2><button class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div><p class="progress-hint">${boxes.length?`This item is in ${boxes.length} box${boxes.length===1?'':'es'}.`:'This item is not in any box yet.'}</p><div class="kb-sort-membership-list-v720">${boxes.map(b=>`<div class="kb-sort-membership-row-v720">${esc(b.name)}</div>`).join('')}</div></div>`;document.body.appendChild(modal);q('[data-close]',modal).onclick=()=>modal.remove();modal.onclick=e=>{if(e.target===modal)modal.remove()}}
+  function openBoxItemsV720(c,box){q('#kb-sort-box-items-modal-v720')?.remove();const modal=document.createElement('div');modal.id='kb-sort-box-items-modal-v720';modal.className='modal-overlay';modal.innerHTML=`<div class="modal-box kb-sort-box-items-viewer-v773"><div class="modal-header"><h2>${esc(box.name)}</h2><button class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div><div class="kb-sort-box-items-grid-v773">${box.itemIds.map(id=>sortCardHtmlV720(c,id,box.id)).join('')||'<p class="progress-hint">No items in this box yet.</p>'}</div></div>`;document.body.appendChild(modal);qa('[draggable]',modal).forEach(el=>el.draggable=false);q('[data-close]',modal).onclick=()=>modal.remove();modal.onclick=e=>{if(e.target===modal)modal.remove()}}
+  async function addSortBoxV720(tab,c){const v=await showAppFormModal({title:'Add Box',submitLabel:'Add Box',fields:[{name:'name',label:'Box name',placeholder:'Love triangle, Alkali metals, Dynamic programming…'},{name:'color',label:'Box color',type:'color',value:SORT_COLORS[c.boxesV720.length%SORT_COLORS.length]}]});if(!v||!String(v.name||'').trim())return;c.boxesV720.push({id:uid('kb-sort-box'),name:String(v.name).trim(),color:String(v.color||SORT_COLORS[0]),itemIds:[]});await save();renderCustomTabView(tab.id)}
+  async function editSortBoxV720(tab,c,box){const v=await showAppFormModal({title:'Edit Box',submitLabel:'Save',fields:[{name:'name',label:'Box name',value:box.name},{name:'color',label:'Box color',type:'color',value:box.color}]});if(!v||!String(v.name||'').trim())return;box.name=String(v.name).trim();box.color=String(v.color||box.color);await save();renderCustomTabView(tab.id)}
+  function renderSortV720(tab,c,content){normalizeSortV720(c);const all=categoryItemsV720(c),focus=sortFocus.get(c.id)||'';content.innerHTML=`<section class="kb-sort-board-v720" data-card-size="${attr(c.cardSizeV720)}" data-item-display-v726="${attr(c.cardDisplayV726)}" style="--kb-sort-columns-v720:${c.boxColumnsV720}"><div class="kb-sort-toolbar-v720"><h2>${esc(c.title)}</h2><div class="kb-sort-toolbar-actions-v720">${(customTabEditMode||c.showAddBoxOutsideEditV763)?'<button type="button" class="small-icon-btn" data-kb-sort-add-box title="Add Box"><i class="ph ph-plus"></i><span>Add Box</span></button>':''}</div></div>${focus?`<div class="kb-sort-focus-banner-v720"><span>Showing where <strong>${esc(kbLabelV720(focus))}</strong> belongs.</span><button type="button" class="small-icon-btn" data-kb-sort-clear-focus>Clear Focus</button></div>`:''}<div class="kb-sort-source-v720"><div class="kb-sort-source-head-v720"><strong>${esc(c.sourceCategory||'Knowledge Base')}</strong><input type="search" data-kb-sort-search placeholder="Search source items…"><span>${all.length} item${all.length===1?'':'s'}</span></div><div class="kb-sort-source-items-v720">${all.map(id=>sortCardHtmlV720(c,id,'')).join('')||'<div class="kb-sort-empty-v720">No items are in this Knowledge Base category yet.</div>'}</div></div><div class="kb-sort-box-grid-v720">${c.boxesV720.map(box=>{const ids=focus?box.itemIds.filter(id=>id===focus):box.itemIds;return `<section class="kb-sort-box-v720"><button type="button" class="kb-sort-box-head-v720" data-kb-sort-box-head="${attr(box.id)}" style="--kb-sort-box-color-v720:${attr(box.color)}"><span>${esc(box.name)}</span><span>${box.itemIds.length}</span></button><div class="kb-sort-box-items-v720" data-kb-sort-box="${attr(box.id)}">${ids.map(id=>sortCardHtmlV720(c,id,box.id)).join('')||`<div class="kb-sort-empty-v720">${focus?'This item is not in this box.':'Drop items here'}</div>`}</div></section>`}).join('')||'<div class="kb-sort-empty-v720">Add your first box to start sorting.</div>'}</div></section>`;
+    const search=q('[data-kb-sort-search]',content);search.oninput=()=>{const text=search.value.trim().toLowerCase();qa('.kb-sort-source-items-v720 .kb-sort-card-v720',content).forEach(card=>card.classList.toggle('hidden',text&&!kbLabelV720(card.dataset.kbSortItemV720).toLowerCase().includes(text)))};
+    q('[data-kb-sort-add-box]',content)?.addEventListener('click',()=>addSortBoxV720(tab,c));q('[data-kb-sort-clear-focus]',content)?.addEventListener('click',()=>{sortFocus.delete(c.id);renderCustomTabView(tab.id)});
+    qa('[data-kb-sort-box]',content).forEach(host=>{host.ondragover=e=>{if(!e.dataTransfer?.types?.includes('text/loggy-kb-sort-v720'))return;e.preventDefault();host.classList.add('drag-over-v720')};host.ondragleave=e=>{if(!host.contains(e.relatedTarget))host.classList.remove('drag-over-v720')};host.ondrop=e=>{const raw=e.dataTransfer?.getData('text/loggy-kb-sort-v720');if(!raw)return;e.preventDefault();host.classList.remove('drag-over-v720');try{const d=JSON.parse(raw);setMembershipV720(tab,c,String(d.id),host.dataset.kbSortBox,String(d.sourceBox||''))}catch{}}});
+    qa('.kb-sort-card-v720',content).forEach(card=>{const id=card.dataset.kbSortItemV720,sourceBox=card.dataset.kbSortSourceBoxV720||'';card.ondragstart=e=>{card.classList.add('dragging-v720');e.dataTransfer.effectAllowed='copyMove';e.dataTransfer.setData('text/loggy-kb-sort-v720',JSON.stringify({id,sourceBox}))};card.ondragend=()=>card.classList.remove('dragging-v720');card.onclick=e=>{if(e.detail!==1)return;if(sourceBox){try{openItemModal?.(id,true,false)}catch{}return}if(c.clickBehaviorV720==='modal')openMembershipsV720(c,id);else{if(sortFocus.get(c.id)===id)sortFocus.delete(c.id);else sortFocus.set(c.id,id);renderCustomTabView(tab.id)}};card.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();const opts=[{label:'Show box memberships',icon:'ph-list-checks',action:()=>openMembershipsV720(c,id)},{label:'Open Knowledge Base item',icon:'ph-book-open',action:()=>{try{openItemModal?.(id,true,false)}catch{}}}];if(sourceBox)opts.unshift({label:'Remove from this box',icon:'ph-x',action:async()=>{const box=c.boxesV720.find(b=>b.id===sourceBox);if(box){box.itemIds=box.itemIds.filter(x=>x!==id);await save();renderCustomTabView(tab.id)}}});showCustomItemContextMenu(e.clientX,e.clientY,opts)}});
+    qa('[data-kb-sort-box-head]',content).forEach(head=>{const box=c.boxesV720.find(b=>b.id===head.dataset.kbSortBoxHead);if(!box)return;head.onclick=()=>openBoxItemsV720(c,box);head.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Open box',icon:'ph-folder-open',action:()=>openBoxItemsV720(c,box)},{label:'Edit box',icon:'ph-pencil-simple',action:()=>editSortBoxV720(tab,c,box)},{label:'Delete box',icon:'ph-trash',danger:true,action:async()=>{if(!await showAppConfirm({title:'Delete Box?',message:`Delete “${box.name}”? Knowledge Base items themselves will not be deleted.`,confirmLabel:'Delete Box'}))return;c.boxesV720=c.boxesV720.filter(b=>b.id!==box.id);await save();renderCustomTabView(tab.id)}}])}})
+  }
+  function openSortSettingsV720(tab,c){
+    normalizeSortV720(c);q('#kb-sort-settings-v720')?.remove();
+    const modal=document.createElement('div');modal.id='kb-sort-settings-v720';modal.className='modal-overlay';
+    const categories=kbCategoriesV720();
+    const optionSets=category=>{const defs=kbFieldDefsV720(category);const isVisual=f=>['image','pinnedImage'].includes(String(f.kind||''))||/image|photo|cover|picture|map/i.test(String(f.name||''));const visuals=defs.filter(isVisual);const texts=defs.filter(f=>!isVisual(f));return{image:`<option value="">None</option>${visuals.map(f=>`<option value="${attr(f.name)}">${esc(f.name)}</option>`).join('')}`,primary:`<option value="__title__">Item title</option>${texts.map(f=>`<option value="${attr(f.name)}">${esc(f.name)}</option>`).join('')}`,secondary:`<option value="">None</option><option value="__title__">Item title</option>${texts.map(f=>`<option value="${attr(f.name)}">${esc(f.name)}</option>`).join('')}`}};
+    const sets=optionSets(c.sourceCategory);
+    modal.innerHTML=`<div class="modal-box" style="width:min(660px,calc(100vw - 28px));max-height:86vh;overflow:auto"><div class="modal-header"><h2>KB Sort Board Settings</h2><button class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div><div class="kb-sort-settings-grid-v720"><label><span>Title</span><input data-title value="${attr(c.title)}"></label><label><span>Knowledge Base category</span><select data-category>${categories.map(x=>`<option value="${attr(x)}" ${x===c.sourceCategory?'selected':''}>${esc(x)}</option>`).join('')}</select></label><label><span>Image field</span><select data-image>${sets.image}</select></label><label><span>Primary display field</span><select data-primary>${sets.primary}</select></label><label><span>Secondary display field</span><select data-secondary>${sets.secondary}</select></label><label><span>Membership mode</span><select data-mode><option value="multi" ${c.membershipModeV720==='multi'?'selected':''}>Multiple boxes</option><option value="single" ${c.membershipModeV720==='single'?'selected':''}>One box only</option></select></label><label><span>Click source item</span><select data-click><option value="focus" ${c.clickBehaviorV720==='focus'?'selected':''}>Focus it across boxes</option><option value="modal" ${c.clickBehaviorV720==='modal'?'selected':''}>Show membership list</option></select></label><label><span>Item display</span><select data-display><option value="card" ${c.cardDisplayV726==='image'?'':'selected'}>Cards</option><option value="image" ${c.cardDisplayV726==='image'?'selected':''}>Images only / collage</option></select></label><label><span>Card size</span><select data-size><option value="small" ${c.cardSizeV720==='small'?'selected':''}>Small</option><option value="medium" ${c.cardSizeV720==='medium'?'selected':''}>Medium</option><option value="large" ${c.cardSizeV720==='large'?'selected':''}>Large</option></select></label><label><span>Boxes per row</span><select data-columns><option value="1" ${c.boxColumnsV720===1?'selected':''}>1</option><option value="2" ${c.boxColumnsV720===2?'selected':''}>2</option><option value="3" ${c.boxColumnsV720===3?'selected':''}>3</option></select></label></div><div class="custom-button-visibility-panel-v763 kb-sort-button-visibility-v763"><strong>Buttons outside Edit Tab Layout</strong><label><input type="checkbox" data-show-add-box-outside-v763 ${c.showAddBoxOutsideEditV763?'checked':''}><span>Show Add Box outside edit mode</span></label></div><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="icon-btn" data-cancel>Cancel</button><button class="icon-btn" data-save>Save</button></div></div>`;
+    document.body.appendChild(modal);
+    const setFields=()=>{const setsNow=optionSets(q('[data-category]',modal).value);const oldImage=q('[data-image]',modal).value,oldPrimary=q('[data-primary]',modal).value,oldSecondary=q('[data-secondary]',modal).value;q('[data-image]',modal).innerHTML=setsNow.image;q('[data-primary]',modal).innerHTML=setsNow.primary;q('[data-secondary]',modal).innerHTML=setsNow.secondary;if([...q('[data-image]',modal).options].some(o=>o.value===oldImage))q('[data-image]',modal).value=oldImage;if([...q('[data-primary]',modal).options].some(o=>o.value===oldPrimary))q('[data-primary]',modal).value=oldPrimary;else q('[data-primary]',modal).value='__title__';if([...q('[data-secondary]',modal).options].some(o=>o.value===oldSecondary))q('[data-secondary]',modal).value=oldSecondary;};
+    q('[data-image]',modal).value=c.imageFieldV720||'';q('[data-primary]',modal).value=c.primaryFieldV720||'__title__';q('[data-secondary]',modal).value=c.secondaryFieldV720||'';q('[data-category]',modal).onchange=setFields;
+    const close=()=>modal.remove();q('[data-close]',modal).onclick=close;q('[data-cancel]',modal).onclick=close;modal.onclick=e=>{if(e.target===modal)close()};
+    q('[data-save]',modal).onclick=async()=>{const oldCategory=c.sourceCategory;c.title=String(q('[data-title]',modal).value||'KB Sort Board').trim()||'KB Sort Board';c.sourceCategory=q('[data-category]',modal).value;c.imageFieldV720=q('[data-image]',modal).value;c.primaryFieldV720=q('[data-primary]',modal).value||'__title__';c.secondaryFieldV720=q('[data-secondary]',modal).value;c.membershipModeV720=q('[data-mode]',modal).value;c.clickBehaviorV720=q('[data-click]',modal).value;c.cardDisplayV726=q('[data-display]',modal).value==='image'?'image':'card';c.cardSizeV720=q('[data-size]',modal).value;c.boxColumnsV720=Number(q('[data-columns]',modal).value||2);c.showAddBoxOutsideEditV763=!!q('[data-show-add-box-outside-v763]',modal)?.checked;normalizeSortV720(c);if(oldCategory!==c.sourceCategory){const valid=new Set(categoryItemsV720(c));c.boxesV720.forEach(b=>b.itemIds=b.itemIds.filter(id=>valid.has(id)));sortFocus.delete(c.id)}await save();close();renderCustomTabView(tab.id)};
+  }
+
+
+  function installCustomComponentsV720(){
+    ensureV720Styles();ensureTierDisplayStylesV721();installMediaResourcesV720();
+    try{if(Array.isArray(CUSTOM_COMPONENT_LIBRARY)&&!CUSTOM_COMPONENT_LIBRARY.some(x=>x?.type===SORT_TYPE)){CUSTOM_COMPONENT_LIBRARY.push({type:SORT_TYPE,label:'KB Sort Board',icon:'ph-kanban'});CUSTOM_COMPONENT_LIBRARY.sort((a,b)=>String(a?.label||'').localeCompare(String(b?.label||'')))}}catch{}
+    try{CUSTOM_TITLE_BACKGROUND_TYPES?.add?.(SORT_TYPE)}catch{}
+    try{if(typeof defaultCustomComponent==='function'&&!defaultCustomComponent.__v720Sort){const before=defaultCustomComponent;const wrapped=function(type){if(type===SORT_TYPE)return normalizeSortV720({id:uid('component'),type:SORT_TYPE,title:'KB Sort Board',titleBackground:'none',sourceCategory:'',boxesV720:[]});return before.apply(this,arguments)};wrapped.__v720Sort=true;defaultCustomComponent=wrapped;window.defaultCustomComponent=wrapped}}catch{}
+    try{if(typeof renderCustomComponentContent==='function'&&!renderCustomComponentContent.__v720Components){const before=renderCustomComponentContent;const wrapped=function(tab,component,content){if(component?.type===TIER_TYPE)return renderTierV720(tab,component,content);if(component?.type===SORT_TYPE)return renderSortV720(tab,component,content);return before.apply(this,arguments)};wrapped.__v720Components=true;renderCustomComponentContent=wrapped;window.renderCustomComponentContent=wrapped}}catch{}
+    try{if(typeof editCustomComponent==='function'&&!editCustomComponent.__v720Components){const before=editCustomComponent;const wrapped=async function(tabId,componentId){const tab=getCustomTab?.(tabId),component=tab?.components?.find(x=>x.id===componentId);if(component?.type===SORT_TYPE){openSortSettingsV720(tab,component);return}return before.apply(this,arguments)};wrapped.__v720Components=true;editCustomComponent=wrapped;window.editCustomComponent=wrapped}}catch{}
+    try{if(typeof renderCustomComponentPalette==='function'&&!renderCustomComponentPalette.__v720SortHelp){const before=renderCustomComponentPalette;const wrapped=function(palette){const result=before.apply(this,arguments);const card=q(`.custom-component-palette-item[data-component-type="${SORT_TYPE}"]`,palette);const tip=q('.custom-palette-tooltip-v164',card);if(tip)tip.textContent='Take items from a Knowledge Base category and sort copies of them into boxes you create.';return result};wrapped.__v720SortHelp=true;renderCustomComponentPalette=wrapped;window.renderCustomComponentPalette=wrapped}}catch{}
+  }
+
+  ensureV720Styles();ensureTierDisplayStylesV721();installCustomComponentsV720();
+  let attempts=0;const retry=setInterval(()=>{attempts++;installCustomComponentsV720();if(attempts>24)clearInterval(retry)},350);
+})();
+
+
+/* ============================================================================
+   V727 — Tier Maker compact toolbar + Unranked add menu
+   ============================================================================ */
+(() => {
+  'use strict';
+  if (document.getElementById('tier-maker-compact-controls-v727-style')) return;
+  const style=document.createElement('style');
+  style.id='tier-maker-compact-controls-v727-style';
+  style.textContent=`
+    .tier-maker-v720 .tier-maker-actions-v718 .tier-maker-icon-action-v727{
+      width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;
+      padding:0!important;display:inline-grid!important;place-items:center!important;
+    }
+    .tier-maker-v720 .tier-maker-actions-v718 .tier-maker-icon-action-v727 i{margin:0!important;font-size:18px!important}
+    .tier-maker-pool-actions-v727{margin-left:auto;display:inline-flex;align-items:center;gap:7px;min-width:0}
+    .tier-maker-pool-add-v727{width:30px!important;min-width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;display:grid!important;place-items:center!important;flex:0 0 30px}
+    .tier-maker-pool-add-v727 i{margin:0!important}
+    #tier-maker-add-menu-v727{position:fixed;z-index:2147483600;width:214px;padding:6px;border:var(--thin-border);border-radius:10px;background:var(--white,#fff);color:var(--black,#111);box-shadow:0 10px 28px rgba(0,0,0,.18);display:grid;gap:4px;box-sizing:border-box}
+    #tier-maker-add-menu-v727 button{width:100%;min-height:38px;padding:8px 10px;border:0;border-radius:7px;background:transparent;color:inherit;display:flex;align-items:center;gap:9px;text-align:left;cursor:pointer;font:inherit}
+    #tier-maker-add-menu-v727 button:hover,#tier-maker-add-menu-v727 button:focus-visible{background:var(--track-bg)}
+    #tier-maker-add-menu-v727 button i{font-size:17px;flex:0 0 auto}
+    .tier-maker-tier-action-v727 .icon-btn{min-height:38px!important;width:max-content!important;padding:0 13px!important;display:inline-flex!important;align-items:center!important;gap:7px!important}
+  `;
+  document.head.appendChild(style);
+})();
+
+
+// ============================================================================
+// V730 — SCREEN RECORDER RESILIENCE + SETTINGS SHORTCUT FALLBACK
+// Keeps recorder launch/settings available on old saved log shells even if the
+// direct recorder tag was missing or stale. The live recorder runtime upgrades
+// this fallback in place when it loads.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyRecorderResilienceV730) return;
+  window.__loggyRecorderResilienceV730 = true;
+
+  const DEFAULTS = {
+    start:'Shift+.',
+    bar:'Shift+,',
+    pause:'Ctrl+Alt+P',
+    mic:'Ctrl+Alt+M',
+    camera:'Ctrl+Alt+C',
+    cameraFullscreen:'Ctrl+Alt+V',
+    screenAudio:'Ctrl+Alt+A',
+    float:'Ctrl+Alt+F',
+    marker:'Ctrl+Alt+K',
+    shortcuts:'Ctrl+Alt+/'
+  };
+  const LABELS = {
+    start:'Start / Stop Recording',
+    bar:'Show / Hide Recorder Bar',
+    pause:'Pause / Resume Recording',
+    mic:'Microphone On / Off',
+    camera:'Camera On / Off',
+    cameraFullscreen:'Camera Full Screen On / Off',
+    screenAudio:'Screen Audio On / Off',
+    float:'Open Screen Recorder Settings',
+    marker:'Add Marker',
+    shortcuts:'Show Recorder Shortcuts'
+  };
+  const SETTINGS_KEY='loggy-screen-recorder-client-settings-v710';
+  const q=(s,r=document)=>r?.querySelector?.(s)||null;
+
+  function currentShortcuts(){
+    try{
+      const parsed=JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}');
+      const incoming={...(parsed?.shortcuts||{})};
+      const values={...DEFAULTS,...incoming};
+      if(!incoming.start||incoming.start==='Ctrl+Alt+R')values.start=DEFAULTS.start;
+      if(!incoming.bar)values.bar=DEFAULTS.bar;
+      if(!incoming.cameraFullscreen)values.cameraFullscreen=DEFAULTS.cameraFullscreen;
+      delete values.stop;
+      return values;
+    }catch{return {...DEFAULTS};}
+  }
+
+  function ensureFallbackShortcuts(){
+    const modal=q('#daily-settings-modal');
+    const shortcuts=q('#global-shortcuts-section',modal||document);
+    if(!modal||!shortcuts)return false;
+    let section=q('#screen-recorder-shortcuts-v710',modal);
+    if(section)return true;
+    section=document.createElement('div');
+    section.id='screen-recorder-shortcuts-v710';
+    section.className='screen-recorder-shortcuts-v717';
+    const values=currentShortcuts();
+    section.innerHTML=`
+      <span class="field-label">Screen Recorder</span>
+      <p class="progress-hint">Recorder shortcuts are available here even when the recorder bar is closed.</p>
+      <div class="loggy-recorder-shortcut-settings-v710">
+        ${Object.keys(DEFAULTS).map(key=>`
+          <div class="loggy-recorder-shortcut-row-v710">
+            <span>${LABELS[key]}</span>
+            <button type="button" class="loggy-recorder-shortcut-capture-v710" data-rec-shortcut-key="${key}" title="${values[key]}">${values[key]}</button>
+          </div>`).join('')}
+      </div>`;
+    shortcuts.appendChild(section);
+    return true;
+  }
+
+  function ensureRuntime(){
+    if(window.__loggyScreenRecorderV730 && window.LoggyScreenRecorderV710?.launch){
+      ensureFallbackShortcuts();
+      return Promise.resolve(window.LoggyScreenRecorderV710);
+    }
+    if(window.__loggyRecorderLoadPromiseV730)return window.__loggyRecorderLoadPromiseV730;
+    window.__loggyRecorderLoadPromiseV730=new Promise((resolve,reject)=>{
+      let script=q('script[data-loggy-recorder-runtime-v730]');
+      if(!script){
+        script=document.createElement('script');
+        script.src='/loggy-screen-recorder.js?v=920';
+        script.async=false;
+        script.dataset.loggyRecorderRuntimeV730='1';
+        document.head.appendChild(script);
+      }
+      const finish=()=>{
+        ensureFallbackShortcuts();
+        if(window.LoggyScreenRecorderV710?.launch) resolve(window.LoggyScreenRecorderV710);
+        else reject(new Error('Screen Recorder loaded, but its controls did not initialize.'));
+      };
+      if(window.__loggyScreenRecorderV730)return finish();
+      script.addEventListener('load',finish,{once:true});
+      script.addEventListener('error',()=>reject(new Error('Screen Recorder could not load from public/loggy-screen-recorder.js.')),{once:true});
+      setTimeout(()=>{ if(window.LoggyScreenRecorderV710?.launch)finish(); },1200);
+    }).catch(error=>{
+      window.__loggyRecorderLoadPromiseV730=null;
+      try{showFeatureToast?.(error.message||'Screen Recorder could not load.');}catch{}
+      throw error;
+    });
+    return window.__loggyRecorderLoadPromiseV730;
+  }
+  window.__loggyEnsureRecorderRuntimeV730=ensureRuntime;
+
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('#open-settings-btn,#open-daily-settings-btn')){
+      setTimeout(()=>{
+        ensureFallbackShortcuts();
+        ensureRuntime().catch(()=>{});
+      },0);
+    }
+  },true);
+
+  const settingsModal=q('#daily-settings-modal');
+  if(settingsModal){
+    new MutationObserver(()=>{
+      if(!settingsModal.classList.contains('hidden')){
+        ensureFallbackShortcuts();
+        ensureRuntime().catch(()=>{});
+      }
+    }).observe(settingsModal,{attributes:true,attributeFilter:['class']});
+  }
+
+  document.addEventListener('click',event=>{
+    const plus=event.target?.closest?.('#edit-video-btn,#add-second-video-btn');
+    if(!plus||window.LoggyScreenRecorderV710?.launch)return;
+    ensureRuntime().catch(()=>{});
+  },true);
+
+  const boot=()=>{
+    ensureFallbackShortcuts();
+    ensureRuntime().catch(()=>{});
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
+
+// ============================================================================
+// V743 — Quiz keyboard/session controls + live item editing
+// Flashcards: A = advance/keep, D = known/remove. Learn: F = reference flip.
+// Both Learn and Flashcards can right-click the tested item to edit live KB info.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyQuizSessionKeysV743) return;
+  window.__loggyQuizSessionKeysV743 = true;
+
+  const quizViewActive = () => !!document.querySelector('#quiz-learn-view.view.active');
+  const mode = () => {
+    try { return String(typeof quizMode !== 'undefined' ? quizMode : (window.quizMode || '')); }
+    catch { return String(window.quizMode || ''); }
+  };
+  const currentItemId = () => {
+    try {
+      if (mode() === 'learn') return String(learnQueue?.[0]?.id || '');
+      return String(activeQuizDeck?.[activeQuizIndex] || '');
+    } catch { return ''; }
+  };
+  const typingTarget = target => !!target?.closest?.('input,textarea,select,[contenteditable="true"]');
+
+  function flipLearnReferenceV743() {
+    if (mode() !== 'learn' || !quizViewActive()) return false;
+    if (window.quizWrittenStackedReviewEnabledV743?.() && document.querySelector('#quiz-learn-view.view.active .quizlet-written-form-v476')) return false;
+
+    const card = document.querySelector('#quiz-learn-view.view.active .quiz-learn-prompt-card-v38');
+    if (card) {
+      card.dispatchEvent(new MouseEvent('click', { bubbles:true, cancelable:true, view:window }));
+      return true;
+    }
+
+    const mapStage = document.querySelector('#quiz-learn-view.view.active .map-learn-card-v621 .map-v621-stage-shell');
+    if (mapStage) {
+      if (window.quizWrittenStackedReviewEnabledV743?.() && mapStage.closest('.map-learn-v621')?.querySelector('.map-written-v621')) return false;
+      mapStage.dispatchEvent(new MouseEvent('click', { bubbles:true, cancelable:true, view:window }));
+      return true;
+    }
+    return false;
+  }
+  window.flipLearnReferenceV743 = flipLearnReferenceV743;
+
+  document.addEventListener('keydown', event => {
+    if (!quizViewActive() || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+    const key = String(event.key || '').toLowerCase();
+    const currentMode = mode();
+    const isTyping = typingTarget(event.target);
+
+    // Written inputs must still allow literal letters. F flips normally when the
+    // card has focus; Shift+F is the safe equivalent while an answer field has focus.
+    if (isTyping) {
+      if (currentMode === 'learn' && key === 'f' && event.shiftKey && flipLearnReferenceV743()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+      return;
+    }
+
+    if (currentMode === 'flashcards' && (key === 'a' || key === 'd')) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (key === 'a') window.flashcardKeepCurrentV743?.();
+      else window.flashcardKnowCurrentV743?.();
+      return;
+    }
+
+    if (currentMode === 'learn' && key === 'f') {
+      if (flipLearnReferenceV743()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }
+  }, true);
+
+  // Final card-level navigation authority for specialized map Flashcards.
+  // Part/pin navigation is intentionally excluded and keeps its own behavior.
+  document.addEventListener('click', event => {
+    if (mode() !== 'flashcards' || !quizViewActive()) return;
+    const next = event.target?.closest?.('#fc-next,[data-card-next-v621],[data-map-next-v617]');
+    const prev = event.target?.closest?.('#fc-prev,[data-card-prev-v621],[data-map-prev-v617]');
+    if (!next && !prev) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    if (next) window.flashcardKeepCurrentV743?.();
+    else window.flashcardPreviousV743?.();
+  }, true);
+
+  let quizEditingItemV743 = '';
+
+  document.addEventListener('contextmenu', event => {
+    if (!quizViewActive()) return;
+    // Keep the browser's normal input/text context menu available; Edit info
+    // belongs to the tested card itself, not the answer controls.
+    if (event.target?.closest?.('input,textarea,select,button,a,[contenteditable="true"]')) return;
+    const area = event.target?.closest?.('#quiz-learn-view #quiz-flashcard-area');
+    if (!area) return;
+    const id = currentItemId();
+    if (!id || !db?.phrase_meta?.[id]) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    try {
+      showCustomItemContextMenu(event.clientX, event.clientY, [{
+        label: 'Edit info',
+        icon: 'ph-pencil-simple',
+        action: () => {
+          quizEditingItemV743 = id;
+          try { openItemModal(id, true, true); } catch {}
+        }
+      }]);
+    } catch {}
+  }, true);
+
+  function refreshQuizAfterEditV743() {
+    if (!quizEditingItemV743) return;
+    quizEditingItemV743 = '';
+    requestAnimationFrame(() => {
+      try {
+        if (mode() === 'learn') window.reconcileLearnSessionV737?.({ syncRuntime:true, saveServer:false });
+        if (mode() === 'flashcards') window.reconcileFlashcardSessionV743?.({ syncRuntime:true, saveServer:false });
+      } catch {}
+      try { showQuizCard(); } catch {}
+    });
+  }
+
+  const phraseModal = document.getElementById('phrase-modal');
+  if (phraseModal) {
+    new MutationObserver(() => {
+      if (phraseModal.classList.contains('hidden')) refreshQuizAfterEditV743();
+    }).observe(phraseModal, { attributes:true, attributeFilter:['class'] });
+  }
+})();
+
+// ============================================================================
+// V749 — unified quiz shortcuts used by Settings + Global Shortcuts
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyUnifiedQuizShortcutsV749) return;
+  window.__loggyUnifiedQuizShortcutsV749 = true;
+
+  const quizActive = () => !!document.querySelector('#quiz-learn-view.view.active');
+  const mode = () => {
+    try { return String(typeof quizMode !== 'undefined' ? quizMode : (window.quizMode || '')); }
+    catch { return String(window.quizMode || ''); }
+  };
+  const typing = target => !!target?.closest?.('input,textarea,select,[contenteditable="true"],[role="textbox"]');
+
+  function flipStandardQuizCardV749() {
+    const current = mode();
+    if (!quizActive()) return false;
+    if (current === 'learn') return !!window.flipLearnReferenceV743?.();
+    if (current !== 'flashcards' && current !== 'anki') return false;
+    try {
+      quizCardFlipped = !quizCardFlipped;
+      currentSlideIndex = 0;
+      showQuizCard();
+      return true;
+    } catch {
+      const candidate = document.querySelector(
+        '#quiz-learn-view.view.active #quiz-flip-front,' +
+        '#quiz-learn-view.view.active #quiz-flip-front-v480,' +
+        '#quiz-learn-view.view.active [data-anki-flip-v480],' +
+        '#quiz-learn-view.view.active #quiz-anki-back-v669,' +
+        '#quiz-learn-view.view.active [data-anki-back-flip-v669]'
+      );
+      candidate?.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+      return !!candidate;
+    }
+  }
+
+  function runQuizShortcutV749(action) {
+    if (!quizActive()) return false;
+    const current = mode();
+    if (action === 'quiz:flip') return flipStandardQuizCardV749();
+    if (action === 'quiz:again') {
+      if (current === 'flashcards') { window.flashcardKeepCurrentV743?.(); return true; }
+      if (current === 'anki') { try { processAnkiAnswer('Again'); return true; } catch {} }
+      return false;
+    }
+    if (action === 'quiz:known') {
+      if (current === 'flashcards') { window.flashcardKnowCurrentV743?.(); return true; }
+      if (current === 'anki') { try { processAnkiAnswer('Good'); return true; } catch {} }
+      return false;
+    }
+    if (action === 'quiz:voice') {
+      if (current !== 'learn') return false;
+      const button = document.querySelector('#quiz-learn-view.view.active .written-voice-toggle-v743:not(.hidden)');
+      if (!button || button.disabled) return false;
+      button.click();
+      return true;
+    }
+    return false;
+  }
+  window.runQuizShortcutV749 = runQuizShortcutV749;
+  window.flipStandardQuizCardV749 = flipStandardQuizCardV749;
+
+  // Fallback before the deferred global shortcut manager loads. Once it is active,
+  // its window-capture listener prevents this document listener from double-firing.
+  document.addEventListener('keydown', event => {
+    if (!quizActive() || event.defaultPrevented || event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
+    if (typing(event.target)) return;
+    const key = String(event.key || '').toLowerCase();
+    const current = mode();
+    let action = '';
+    if (key === 'f') action = 'quiz:flip';
+    else if (key === 'a' && (current === 'flashcards' || current === 'anki')) action = 'quiz:again';
+    else if (key === 'd' && (current === 'flashcards' || current === 'anki')) action = 'quiz:known';
+    else if (key === 'm' && current === 'learn') action = 'quiz:voice';
+    if (!action) return;
+    if (runQuizShortcutV749(action)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, false);
+})();
+
+// V749 — final Quiz Settings copy spacing authority. V250 builds its switch
+// markup at runtime, so this late style must beat its old horizontal gap:0 rule.
+(() => {
+  if (document.getElementById('quiz-settings-spacing-v749')) return;
+  const style=document.createElement('style');
+  style.id='quiz-settings-spacing-v749';
+  style.textContent=`
+    #quiz-settings-modal-v58 .feature-toggle-row.v250-toggle-row>.v250-toggle-copy{
+      flex:1 1 auto!important;min-width:0!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:6px!important;
+    }
+    #quiz-settings-modal-v58 .feature-toggle-row.v250-toggle-row>.v250-toggle-copy strong{
+      display:block!important;font-size:1rem!important;font-weight:800!important;line-height:1.25!important;margin:0!important;
+    }
+    #quiz-settings-modal-v58 .feature-toggle-row.v250-toggle-row>.v250-toggle-copy small{
+      display:block!important;font-size:.78rem!important;line-height:1.4!important;margin:0!important;color:var(--muted-text,#666)!important;
+    }
+    #quiz-settings-modal-v58 .feature-toggle-row>span:not(.v250-switch),
+    #quiz-settings-modal-v58 .quiz-settings-field-v743>span{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:6px!important;min-width:0!important;}
+    #quiz-settings-modal-v58 .feature-toggle-row>span:not(.v250-switch)>strong{display:block!important;font-weight:800!important;line-height:1.25!important;margin:0!important;}
+    #quiz-settings-modal-v58 .feature-toggle-row>span:not(.v250-switch)>small{display:block!important;line-height:1.4!important;margin:0!important;color:var(--muted-text,#666)!important;}
+    #quiz-settings-modal-v58 .quiz-settings-field-v743>span>strong{line-height:1.25!important;}
+    #quiz-settings-modal-v58 .quiz-settings-field-v743>span>small{line-height:1.4!important;margin:0!important;}
+  `;
+  document.head.appendChild(style);
+})();
+
+
+// ============================================================================
+// V750 — MEDIA RESOURCES COMPOSER AUTHORITY
+// Link input + Upload PDF stay hidden until the user presses the section +.
+// ============================================================================
+(() => {
+  'use strict';
+  if(window.__loggyMediaComposerV750)return;
+  window.__loggyMediaComposerV750=true;
+  const group=()=>document.getElementById('resource-input-group');
+  const hide=()=>{const el=group();if(!el)return;el.dataset.openedByPlusV750='0';el.classList.add('hidden')};
+  const show=()=>{const el=group();if(!el)return;el.dataset.openedByPlusV750='1';el.classList.remove('hidden');document.getElementById('new-resource-url')?.focus?.()};
+  document.addEventListener('click',event=>{if(event.target.closest?.('#add-resource-btn')){event.preventDefault();event.stopImmediatePropagation();const el=group();if(el?.dataset.openedByPlusV750==='1')hide();else show();}},true);
+  try{
+    const before=openDayLog;
+    openDayLog=function(){hide();const result=before.apply(this,arguments);requestAnimationFrame(hide);return result};
+    window.openDayLog=openDayLog;
+  }catch{}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hide,{once:true});else hide();
+})();
+
+
+/* ============================================================================
+   V752 — Daily Stack layout + quiz controls + custom-tab/nav/roadmap repair
+   ============================================================================ */
+(() => {
+  'use strict';
+  if (window.__loggyV752RepairPack) return;
+  window.__loggyV752RepairPack = true;
+
+  const q=(sel,root=document)=>root?.querySelector?.(sel)||null;
+  const qa=(sel,root=document)=>Array.from(root?.querySelectorAll?.(sel)||[]);
+  const appDb=()=>{ try{return db}catch{return window.db} };
+  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
+  // ---- QUIZZES: exactly one resume action for the active mode.
+  function syncQuizResumeAuthorityV752(){
+    const learn=q('#resume-learn-btn-v737'), flash=q('#resume-flashcards-btn-v743'), start=q('#start-quiz-btn');
+    const mode=String((typeof quizMode!=='undefined'?quizMode:'')||'anki');
+    if(learn)learn.classList.toggle('hidden',mode!=='learn'||!readLearnSessionV737?.()?.queue?.length);
+    if(flash)flash.classList.toggle('hidden',mode!=='flashcards'||!readFlashcardSessionV743?.()?.deck?.length);
+    [start,learn,flash].filter(Boolean).forEach(button=>button.classList.add('quiz-full-action-v752'));
+  }
+  document.addEventListener('click',e=>{
+    if(e.target?.closest?.('.quiz-mode-btn,#open-quizzes-btn,#start-quiz-btn,#resume-learn-btn-v737,#resume-flashcards-btn-v743')){
+      requestAnimationFrame(()=>requestAnimationFrame(syncQuizResumeAuthorityV752));
+    }
+  },true);
+  try{
+    const oldLearn=syncLearnSessionControlsV737;
+    if(typeof oldLearn==='function'&&!oldLearn.__v752){
+      const fn=function(){const r=oldLearn.apply(this,arguments);syncQuizResumeAuthorityV752();return r};fn.__v752=true;syncLearnSessionControlsV737=fn;window.syncLearnSessionControlsV737=fn;
+    }
+  }catch{}
+  try{
+    const oldFlash=syncFlashcardSessionControlsV743;
+    if(typeof oldFlash==='function'&&!oldFlash.__v752){
+      const fn=function(){const r=oldFlash.apply(this,arguments);syncQuizResumeAuthorityV752();return r};fn.__v752=true;syncFlashcardSessionControlsV743=fn;window.syncFlashcardSessionControlsV743=fn;
+    }
+  }catch{}
+
+  // ---- Create Tab / My Templates layer.
+  function promoteBlueprintManagerV752(){
+    const manager=q('#blueprint-manager-v162'); if(!manager)return;
+    if(!manager.classList.contains('hidden') && (manager.parentElement!==document.body || manager!==document.body.lastElementChild)) document.body.appendChild(manager);
+  }
+  document.addEventListener('click',e=>{
+    if(e.target?.closest?.('.custom-blueprint-manage-v162')) requestAnimationFrame(()=>requestAnimationFrame(promoteBlueprintManagerV752));
+  },true);
+
+  // V814: the legacy single Learning Roadmap template is retired.
+  // The template registry is maintained by V330 with distinct Curriculum and Roadmap 2.0 IDs.
+
+  // ---- Custom tab: one Settings button in header; layout edit lives in menu/settings.
+  window.__loggyEnterCustomTabEditV752=function(tabId){
+    try{openCustomTab?.(tabId)}catch{}
+    try{activeCustomTabId=tabId;customTabEditMode=true;renderCustomTabView?.(tabId)}catch{}
+    try{window.ensureLoggyExtras?.({urgent:true});window.__loggyLoadWidgetsRuntimeV241?.()}catch{}
+  };
+  function polishCustomTabHeaderV752(tabId=''){
+    const view=tabId?q(`#custom-tab-view-${CSS.escape(String(tabId))}`):q('.custom-tab-view.view.active');
+    if(!view)return;
+    const legacyEdit=q('.custom-tab-edit-btn',view);
+    if(legacyEdit){legacyEdit.classList.add('custom-tab-edit-retired-v752');legacyEdit.setAttribute('aria-hidden','true');legacyEdit.tabIndex=-1;}
+    const settings=q('.custom-tab-settings-btn',view);
+    if(settings){settings.classList.add('custom-tab-only-settings-v752');settings.title='Tab settings';}
+  }
+  function injectEditLayoutInSettingsV752(){
+    const modal=q('#custom-tab-settings-modal');if(!modal||modal.classList.contains('hidden'))return;
+    const tabId=String(modal.dataset.customTabId||((typeof activeCustomTabId!=='undefined'&&activeCustomTabId)||''));
+    const box=q('.modal-box',modal);if(!box||!tabId)return;
+    let button=q('.custom-tab-edit-layout-v752',box);
+    if(!button){
+      button=document.createElement('button');button.type='button';button.className='icon-btn custom-tab-edit-layout-v752';button.dataset.customTabAction='edit-layout';button.innerHTML='<i class="ph ph-layout"></i> Edit Tab Layout';
+      const blueprint=q('.tab-blueprint-actions-v162',box);
+      if(blueprint)box.insertBefore(button,blueprint);else{
+        const del=q('.custom-tab-delete-tab',box); if(del)box.insertBefore(button,del); else box.appendChild(button);
+      }
+    }
+    button.onclick=()=>{modal.classList.add('hidden');window.__loggyEnterCustomTabEditV752(tabId)};
+  }
+  try{
+    const beforeView=renderCustomTabView;
+    if(typeof beforeView==='function'&&!beforeView.__v752Header){
+      const fn=function(tabId){const r=beforeView.apply(this,arguments);polishCustomTabHeaderV752(tabId);return r};fn.__v752Header=true;renderCustomTabView=fn;window.renderCustomTabView=fn;
+    }
+  }catch{}
+  try{
+    const beforeSettings=openCustomTabSettingsModal;
+    if(typeof beforeSettings==='function'&&!beforeSettings.__v752LayoutButton){
+      const fn=function(tabId){const r=beforeSettings.apply(this,arguments);const modal=q('#custom-tab-settings-modal');if(modal)modal.dataset.customTabId=tabId;requestAnimationFrame(injectEditLayoutInSettingsV752);return r};fn.__v752LayoutButton=true;openCustomTabSettingsModal=fn;window.openCustomTabSettingsModal=fn;
+    }
+  }catch{}
+
+  // ---- Final startup sync.
+  const boot=()=>{syncQuizResumeAuthorityV752();roadmapTemplateOrderV752();};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>requestAnimationFrame(boot),{once:true});else requestAnimationFrame(boot);
+})();
+
+
+// ============================================================================
+// V753 — navigation click/drag authority, nested Page Navigator, UI repairs
+// ============================================================================
+(() => {
+  'use strict';
+  if(window.__loggyV753Authority)return;
+  window.__loggyV753Authority=true;
+  const q=(s,r=document)=>r?.querySelector?.(s)||null, qa=(s,r=document)=>Array.from(r?.querySelectorAll?.(s)||[]);
+  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  // Custom-tab page header always owns exactly one Settings button.
+  function cleanCustomHeader(view){if(!view)return;const actions=q('.custom-tab-header-actions',view);if(!actions)return;qa('button',actions).forEach(b=>{if(!b.classList.contains('custom-tab-settings-btn')&&!b.classList.contains('custom-tab-exit-edit-v760'))b.remove()});let settings=q('.custom-tab-settings-btn',actions);if(!settings){settings=document.createElement('button');settings.type='button';settings.className='small-icon-btn custom-tab-settings-btn custom-tab-only-settings-v753';settings.innerHTML='<i class="ph ph-sliders-horizontal"></i>';actions.appendChild(settings);settings.onclick=()=>openCustomTabSettingsModal?.(String(view.dataset.customTabId||''))}else{settings.replaceChildren(Object.assign(document.createElement('i'),{className:'ph ph-sliders-horizontal'}));settings.classList.add('custom-tab-only-settings-v753');settings.title='Tab settings'}
+    const tabId=String(view.dataset.customTabId||''),tab=typeof getCustomTab==='function'?getCustomTab(tabId):null;
+    if(tab?.nestedParentV753&&!q('.nested-tab-back-v753',view)){const back=document.createElement('button');back.type='button';back.className='small-icon-btn nested-tab-back-v753';back.innerHTML='<i class="ph ph-arrow-left"></i>';back.title='Back to parent page';back.onclick=()=>{const parent=getCustomTab?.(tab.nestedParentV753.tabId);if(parent)openCustomTab(parent.id)};q('.custom-tab-title-wrap',view)?.prepend(back)}
+  }
+  function cleanAllHeaders(){qa('.custom-tab-view').forEach(cleanCustomHeader)}
+  let refreshPending=false;
+  const bodyObs=new MutationObserver(records=>{
+    if(refreshPending)return;
+    const relevant=records.some(record=>Array.from(record.addedNodes).some(node=>node.nodeType===1&&(node.matches?.('.custom-tab-view')||node.querySelector?.('.custom-tab-view'))));
+    if(!relevant)return;
+    refreshPending=true;
+    requestAnimationFrame(()=>{refreshPending=false;cleanAllHeaders()});
+  });
+  bodyObs.observe(document.body,{childList:true,subtree:true});
+  requestAnimationFrame(cleanAllHeaders);
+
+  // Page Navigator: pages are real custom tabs hidden from the side navigation.
+  const PAGE_TYPE='pageNavigatorV753';
+  const ICONS=['ph-books','ph-flask','ph-function','ph-brain','ph-notebook','ph-list-checks','ph-path','ph-target','ph-atom','ph-calculator','ph-code','ph-globe','ph-language','ph-chart-line','ph-lightbulb','ph-star','ph-folder','ph-file-text','ph-cards','ph-squares-four'];
+  function normPages(c){c.pagesV753=Array.isArray(c.pagesV753)?c.pagesV753:[];return c}
+  function nestedTab(page){try{return getCustomTab(page.tabId)}catch{return null}}
+  function ensurePageModal(){let m=q('#page-navigator-editor-v753');if(m)return m;m=document.createElement('div');m.id='page-navigator-editor-v753';m.className='modal-overlay hidden page-navigator-editor-v753';m.innerHTML='<div class="modal-box page-navigator-editor-box-v753"><div class="modal-header"><h2>Pages</h2><button type="button" class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div><div class="page-navigator-editor-body-v753"></div></div>';document.body.appendChild(m);q('[data-close]',m).onclick=()=>m.classList.add('hidden');m.onpointerdown=e=>{if(e.target===m)m.classList.add('hidden')};return m}
+  function openPageEditor(tabId,componentId){const tab=getCustomTab?.(tabId),c=tab?.components?.find(x=>x.id===componentId);if(!tab||!c)return;normPages(c);const m=ensurePageModal(),body=q('.page-navigator-editor-body-v753',m);let chosen=ICONS[0];const draw=()=>{body.innerHTML=`<p class="progress-hint">Create private subpages that behave like full custom tabs but never get their own side-nav icon.</p><div class="page-nav-create-v753"><input data-page-title-v753 placeholder="New page name"><div class="page-nav-icon-grid-v753">${ICONS.map((icon,i)=>`<button type="button" data-page-icon-v753="${icon}" class="${icon===chosen?'selected':''}" title="${icon}"><i class="ph ${icon}"></i></button>`).join('')}</div><button type="button" class="icon-btn" data-page-add-v753><i class="ph ph-plus"></i> Add Page</button></div><div class="page-nav-edit-list-v753">${c.pagesV753.map(p=>`<div data-page-row-v753="${esc(p.id)}"><i class="ph ${esc(p.icon||'ph-file-text')}"></i><strong>${esc(p.title)}</strong><button type="button" class="small-icon-btn" data-open><i class="ph ph-arrow-square-out"></i></button><button type="button" class="small-icon-btn" data-delete><i class="ph ph-trash"></i></button></div>`).join('')||'<p class="progress-hint">No pages yet.</p>'}</div>`;qa('[data-page-icon-v753]',body).forEach(b=>b.onclick=()=>{chosen=b.dataset.pageIconV753;draw()});q('[data-page-add-v753]',body).onclick=()=>{const input=q('[data-page-title-v753]',body),title=String(input.value||'').trim();if(!title)return;const child={id:customId('tab'),name:title,icon:chosen,components:[],nestedParentV753:{tabId:tab.id,componentId:c.id}};getCustomTabs().push(child);c.pagesV753.push({id:customId('page'),tabId:child.id,title,icon:chosen});saveDb();renderAllCustomTabViews?.();renderCustomTabNavigation?.();renderCustomTabView?.(tab.id);draw()};qa('[data-page-row-v753]',body).forEach(row=>{const page=c.pagesV753.find(x=>x.id===row.dataset.pageRowV753);q('[data-open]',row).onclick=()=>{m.classList.add('hidden');if(page?.tabId)openCustomTab(page.tabId)};q('[data-delete]',row).onclick=async()=>{const ok=await showAppConfirm?.({title:'Delete this subpage?',message:`“${page?.title||'This page'}” and its components will be removed.`,confirmLabel:'Delete'});if(!ok)return;c.pagesV753=c.pagesV753.filter(x=>x!==page);const tabs=getCustomTabs(),idx=tabs.findIndex(x=>x.id===page?.tabId);if(idx>=0)tabs.splice(idx,1);q(`#custom-tab-view-${CSS.escape(String(page?.tabId||''))}`)?.remove();saveDb();renderCustomTabNavigation?.();renderCustomTabView?.(tab.id);draw()}})};draw();m.classList.remove('hidden')}
+  try{for(let i=CUSTOM_COMPONENT_LIBRARY.length-1;i>=0;i--)if(CUSTOM_COMPONENT_LIBRARY[i]?.type===PAGE_TYPE)CUSTOM_COMPONENT_LIBRARY.splice(i,1);CUSTOM_COMPONENT_LIBRARY.push({type:PAGE_TYPE,label:'Pages',icon:'ph-folders'})}catch{}
+  try{const before=defaultCustomComponent;defaultCustomComponent=function(type){if(type===PAGE_TYPE)return{id:customId('component'),type:PAGE_TYPE,title:'Pages',pagesV753:[]};return before.apply(this,arguments)}}catch{}
+  try{const before=renderCustomComponentContent;renderCustomComponentContent=function(tab,c,content){if(c?.type===PAGE_TYPE){normPages(c);content.innerHTML=`<section class="page-navigator-v753"><div class="page-navigator-head-v753"><div><h2>${esc(c.title||'Pages')}</h2></div>${customTabEditMode?'<button type="button" class="small-icon-btn" data-pages-settings-v753><i class="ph ph-gear-six"></i></button>':''}</div><div class="page-navigator-grid-v753">${c.pagesV753.map(page=>`<button type="button" data-page-open-v753="${esc(page.id)}"><i class="ph ${esc(page.icon||'ph-file-text')}"></i><span>${esc(page.title)}</span><small>${nestedTab(page)?.components?.length||0} components</small></button>`).join('')||'<div class="page-navigator-empty-v753">Edit this component to create your first private page.</div>'}</div></section>`;q('[data-pages-settings-v753]',content)?.addEventListener('click',()=>openPageEditor(tab.id,c.id));qa('[data-page-open-v753]',content).forEach(b=>b.onclick=()=>{const page=c.pagesV753.find(x=>x.id===b.dataset.pageOpenV753);if(page?.tabId)openCustomTab(page.tabId)});return}return before.apply(this,arguments)}}catch{}
+  try{const before=editCustomComponent;editCustomComponent=async function(tabId,componentId){const tab=getCustomTab?.(tabId),c=tab?.components?.find(x=>x.id===componentId);if(c?.type===PAGE_TYPE)return openPageEditor(tabId,componentId);return before.apply(this,arguments)}}catch{}
+  try{window.__loggyRefreshCustomComponentPaletteV746?.()}catch{}
+})();
+
+// V754 — unified reorderable main + custom side navigation, nested page privacy, page context menu.
+(()=>{
+'use strict';
+if(window.__loggyUnifiedNavV754)return;window.__loggyUnifiedNavV754=true;
+const $=(s,r=document)=>r?.querySelector?.(s)||null;
+const key='loggy-unified-tab-order-v754:'+location.pathname;
+const fixed=['open-daily-logs-nav-btn','open-phrases-btn','open-quizzes-btn'];
+const ident=b=>b?.dataset?.customTabId?'custom:'+b.dataset.customTabId:(b?.id?'base:'+b.id:'');
+let rebuilding=false,dragged='';
+const getOrder=()=>{try{const a=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(a)?a:[]}catch{return[]}};
+const persist=(host)=>{try{localStorage.setItem(key,JSON.stringify(Array.from(host.children).map(ident).filter(Boolean)))}catch{}};
+function refresh(){
+ if(rebuilding)return;const nav=$('.side-nav');if(!nav)return;
+ rebuilding=true;try{
+  let host=$('#side-nav-unified-v754',nav);if(!host){host=document.createElement('div');host.id='side-nav-unified-v754';const add=$('#add-custom-tab-btn',nav);if(add)nav.insertBefore(host,add);else nav.appendChild(host)}
+  const originals=[...fixed.map(id=>$('#'+id)),...Array.from(document.querySelectorAll('.custom-tab-nav-btn[data-custom-tab-id]'))];
+  const buttons=originals.filter((b,i)=>b&&!originals.slice(0,i).includes(b)&&(!b.dataset.customTabId||!getCustomTab?.(b.dataset.customTabId)?.nestedParentV753));
+  const order=getOrder();buttons.sort((a,b)=>{let ia=order.indexOf(ident(a)),ib=order.indexOf(ident(b));if(ia<0)ia=10000+originals.indexOf(a);if(ib<0)ib=10000+originals.indexOf(b);return ia-ib});
+  if(host.children.length!==buttons.length || buttons.some((b,i)=>host.children[i]!==b))host.replaceChildren(...buttons);
+  for(const button of buttons){button.draggable=true; if(button.dataset.v754Drag==='1')continue;button.dataset.v754Drag='1';
+   button.addEventListener('dragstart',e=>{dragged=ident(button);e.dataTransfer?.setData('text/loggy-unified-v754',dragged);if(e.dataTransfer)e.dataTransfer.effectAllowed='move';});
+   button.addEventListener('dragover',e=>{if(!dragged)return;e.preventDefault();e.stopImmediatePropagation();button.classList.add('nav-drop-v754')},true);
+   button.addEventListener('dragleave',()=>button.classList.remove('nav-drop-v754'));
+   button.addEventListener('drop',e=>{if(!dragged||dragged===ident(button))return;e.preventDefault();e.stopImmediatePropagation();const move=Array.from(host.children).find(x=>ident(x)===dragged);if(move){const r=button.getBoundingClientRect();host.insertBefore(move,e.clientY>r.top+r.height/2?button.nextSibling:button);persist(host)}dragged='';button.classList.remove('nav-drop-v754')},true);
+   button.addEventListener('dragend',()=>{dragged='';host.querySelectorAll('.nav-drop-v754').forEach(x=>x.classList.remove('nav-drop-v754'))});
+  }
+  for(const b of document.querySelectorAll('.custom-tab-nav-btn[data-custom-tab-id]')){if(getCustomTab?.(b.dataset.customTabId)?.nestedParentV753)b.remove()}
+  const home=$('a[title="Back to Dashboard"]',nav);if(home&&nav.firstElementChild!==home)nav.prepend(home);
+  const add=$('#add-custom-tab-btn',nav);if(add&&nav.lastElementChild!==add)nav.appendChild(add);
+ }finally{rebuilding=false}
+}
+let queued=false;function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;refresh()})}
+const observer=new MutationObserver(records=>{if(rebuilding)return;if(records.some(r=>Array.from(r.addedNodes).some(n=>n.nodeType===1&&(n.matches?.('.custom-tab-nav-btn,#open-daily-logs-nav-btn,#add-custom-tab-btn')||n.querySelector?.('.custom-tab-nav-btn')))))schedule()});
+observer.observe(document.body,{childList:true,subtree:true});
+const oldRender=window.renderCustomTabNavigation; if(typeof oldRender==='function'){window.renderCustomTabNavigation=function(){const result=oldRender.apply(this,arguments);schedule();return result};try{renderCustomTabNavigation=window.renderCustomTabNavigation}catch{}}
+window.__loggyEnterCustomTabEditV752=function(tabId){return window.__loggyOpenLayoutEditorV759?.(tabId) ?? window.__loggyOpenLayoutEditorV758?.(tabId) ?? false;};
+document.addEventListener('contextmenu',e=>{const view=e.target?.closest?.('.custom-tab-view.active');if(!view||e.target.closest('input,textarea,[contenteditable="true"],.page-card-v761,.skill-roadmap-node-v749,#roadmap-section-orbit-v755,.roadmap-section-orbit-v753,#roadmap-section-orbit-v801,.roadmap-section-orbit-v801,.roadmap-node-drawer-v749,.custom-kb-card-v461,.custom-kb-card-v453,.custom-resource-card-v788,.priority-item-v788,.learning-progress-card,.learning-skill-row,.qa-row-v163,.qa-card-v162,.custom-user-card,.writer-character-card-v804,.writer-world-card-v804,.writer-beat-card-v804,.writer-scene-card-v804,.writer-session-row-v804,.custom-tab-component .custom-collection-header > h2,.custom-tab-component .writer-header-v804 > h2,.custom-tab-component .writer-draft-head-v808 h2'))return;const tabId=view.dataset.customTabId;if(!tabId)return;e.preventDefault();e.stopImmediatePropagation();const tab=getCustomTab?.(tabId),parent=tab?.nestedParentV753?getCustomTab?.(tab.nestedParentV753.tabId):null;
+const root=parent||tab;const isTemplate=!!root?.templateIdV53&&!['whiteboard-v197','notepad-v249'].includes(root.templateIdV53);
+const actions=[{label:'Edit Theme',icon:'ph-paint-brush',action:()=>window.__loggyThemeBuilderV307OpenEdit?.(String(db?.settings?.theme||'default'))},{label:'Edit Tab Layout',icon:'ph-layout',action:()=>window.__loggyEnterCustomTabEditV752(tabId)},{label:'Settings',icon:'ph-sliders-horizontal',action:()=>openCustomTabSettingsModal?.(tabId)}];
+if(isTemplate)actions.push({label:'Reset template defaults',icon:'ph-arrow-counter-clockwise',action:()=>window.__loggyResetTemplateDefaultsV855?.(root.id)});
+showCustomItemContextMenu(e.clientX,e.clientY,actions)},true);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
+})();
+
+
+// V757 — reliable custom-tab layout action + stable unified sidebar dragging.
+(()=>{
+  'use strict';
+  if(window.__loggyCustomTabActionsV757)return;
+  window.__loggyCustomTabActionsV757=true;
+  const navSelector='#side-nav-unified-v754';
+  const orderKey='loggy-unified-tab-order-v754:'+location.pathname;
+  const resolveTabId=()=>{
+    const modal=document.getElementById('custom-tab-settings-modal');
+    return String(modal?.dataset?.customTabId || (typeof activeCustomTabId!=='undefined'?activeCustomTabId:'') || document.querySelector('.custom-tab-view.active')?.dataset.customTabId || '');
+  };
+  function startEditing(id){
+    const tabId=String(id||'');
+    if(!tabId)return false;
+    const modal=document.getElementById('custom-tab-settings-modal');
+    modal?.classList.add('hidden');
+    const core=window.__loggyOpenLayoutEditorV759 || window.__loggyOpenLayoutEditorV758;
+    if(typeof core==='function')return core(tabId);
+    return false;
+  }
+  window.__loggyEnterCustomTabEditV752=startEditing;
+  // V758: template.js owns context menu and Settings layout button immediately,
+  // including before lazy feature bundles load. No competing handlers here.
+  let moving=null;
+  const identify=button=>button?.dataset?.customTabId?'custom:'+button.dataset.customTabId:button?.id?'base:'+button.id:'';
+  const eligible=target=>target?.closest?.(`${navSelector} > button, ${navSelector} > a`);
+  function clear(){
+    document.documentElement.classList.remove('loggy-nav-reordering-v757');
+    document.querySelectorAll(`${navSelector} .nav-drop-v754,${navSelector} .custom-tab-nav-drop-target,${navSelector} .nav-drop-v757,${navSelector} .custom-tab-nav-dragging`).forEach(el=>el.classList.remove('nav-drop-v754','custom-tab-nav-drop-target','nav-drop-v757','custom-tab-nav-dragging'));
+    moving=null;
+  }
+  window.addEventListener('dragstart',event=>{
+    const button=eligible(event.target);if(!button)return;
+    const id=identify(button);if(!id)return;
+    moving=id;
+    // Prevent old per-custom-tab drag handlers from injecting competing drop styles.
+    event.stopImmediatePropagation();
+    try{
+      event.dataTransfer.effectAllowed='move';
+      event.dataTransfer.setData('text/loggy-unified-v754',id);
+      // Suppress Firefox/Chromium's blackened native button drag preview.
+      const blank=document.createElement('canvas');blank.width=1;blank.height=1;
+      event.dataTransfer.setDragImage(blank,0,0);
+    }catch{}
+    document.documentElement.classList.add('loggy-nav-reordering-v757');
+  },true);
+  window.addEventListener('dragover',event=>{
+    if(!moving)return;
+    const button=eligible(event.target);if(!button)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const host=document.querySelector(navSelector);
+    host?.querySelectorAll('.nav-drop-v757').forEach(el=>el.classList.remove('nav-drop-v757'));
+    if(identify(button)!==moving)button.classList.add('nav-drop-v757');
+    if(event.dataTransfer)event.dataTransfer.dropEffect='move';
+  },true);
+  window.addEventListener('drop',event=>{
+    if(!moving)return;
+    const button=eligible(event.target);
+    if(!button){clear();return}
+    event.preventDefault();event.stopImmediatePropagation();
+    const host=document.querySelector(navSelector);
+    const dragged=Array.from(host?.children||[]).find(el=>identify(el)===moving);
+    if(dragged && dragged!==button){
+      const r=button.getBoundingClientRect();
+      host.insertBefore(dragged,event.clientY>r.top+r.height/2?button.nextSibling:button);
+      try{localStorage.setItem(orderKey,JSON.stringify(Array.from(host.children).map(identify).filter(Boolean)))}catch{}
+    }
+    clear();
+  },true);
+  window.addEventListener('dragend',clear,true);
+})();
+
+// ============================================================================
+// V761 — Pages component management + visual layouts + Kanban fields-in-edit
+// ============================================================================
+(()=>{
+  'use strict';
+  if(window.__loggyPagesKanbanV761)return;
+  window.__loggyPagesKanbanV761=true;
+
+  const PAGE_TYPE='pageNavigatorV753';
+  const KANBAN_TYPE='kanbanV239';
+  const $=(s,r=document)=>r?.querySelector?.(s)||null;
+  const $$=(s,r=document)=>Array.from(r?.querySelectorAll?.(s)||[]);
+  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const attr=esc;
+  const uid=p=>{try{return typeof customId==='function'?customId(p):`${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`}catch{return `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`}};
+
+  const PAGE_ICONS=[
+    "ph-yarn",
+    "ph-cooking-pot",
+    "ph-bowl-food",
+    "ph-books",
+    "ph-scales",
+    "ph-globe-hemisphere-west",
+    "ph-code",
+    "ph-barbell",
+    "ph-music-notes",
+    "ph-paint-brush",
+    "ph-pen-nib",
+    "ph-plant",
+    "ph-camera",
+    "ph-bicycle",
+    "ph-translate",
+    "ph-basketball",
+    "ph-game-controller",
+    "ph-guitar",
+    "ph-piano-keys",
+    "ph-microphone-stage",
+    "ph-headphones",
+    "ph-palette",
+    "ph-film-strip",
+    "ph-video-camera",
+    "ph-book-open",
+    "ph-graduation-cap",
+    "ph-chalkboard-teacher",
+    "ph-notebook",
+    "ph-calculator",
+    "ph-flask",
+    "ph-atom",
+    "ph-dna",
+    "ph-brain",
+    "ph-heartbeat",
+    "ph-stethoscope",
+    "ph-tooth",
+    "ph-hammer",
+    "ph-screwdriver",
+    "ph-gear-six",
+    "ph-car",
+    "ph-airplane-tilt",
+    "ph-rocket",
+    "ph-mountains",
+    "ph-tent",
+    "ph-compass",
+    "ph-baseball",
+    "ph-soccer-ball",
+    "ph-volleyball",
+    "ph-boxing-glove",
+    "ph-trophy",
+    "ph-puzzle-piece",
+    "ph-microscope",
+    "ph-test-tube",
+    "ph-moon-stars",
+    "ph-leaf",
+    "ph-tree",
+    "ph-flower-lotus",
+    "ph-butterfly",
+    "ph-paw-print",
+    "ph-dog",
+    "ph-cat",
+    "ph-bird",
+    "ph-fish-simple",
+    "ph-anchor",
+    "ph-boat",
+    "ph-train",
+    "ph-map-trifold",
+    "ph-campfire",
+    "ph-backpack",
+    "ph-first-aid-kit",
+    "ph-crown",
+    "custom-archery",
+    "ph-football",
+    "ph-tennis-ball",
+    "ph-person-simple-run",
+    "ph-medal",
+    "ph-target",
+    "ph-horse",
+    "ph-coffee",
+    "ph-cake",
+    "ph-cookie",
+    "ph-scissors",
+    "ph-t-shirt",
+    "ph-handbag",
+    "ph-heart",
+    "ph-star",
+    "ph-sun",
+    "ph-cloud",
+    "ph-snowflake",
+    "ph-umbrella",
+    "ph-lightning",
+    "ph-gift",
+    "ph-shopping-bag",
+    "ph-smiley",
+    "ph-rabbit",
+    "ph-bug",
+    "ph-squares-four",
+    "ph-house",
+    "ph-bookmark",
+    "ph-folder",
+    "ph-folder-open",
+    "ph-note",
+    "ph-images",
+    "ph-image",
+    "ph-microphone",
+    "ph-pencil",
+    "ph-pen",
+    "ph-sparkle",
+    "ph-moon",
+    "ph-cloud-rain",
+    "ph-flower",
+    "ph-fish",
+    "ph-teddy-bear",
+    "ph-pizza",
+    "ph-ice-cream",
+    "ph-fork-knife",
+    "ph-dress",
+    "ph-sneaker",
+    "ph-balloon",
+    "ph-confetti",
+    "ph-dice-five",
+    "ph-airplane",
+    "ph-map-pin",
+    "ph-globe",
+    "ph-calendar",
+    "ph-clock",
+    "ph-alarm",
+    "ph-check-square",
+    "ph-list-checks",
+    "ph-list-bullets",
+    "ph-chart-bar",
+    "ph-chart-line-up",
+    "ph-student",
+    "ph-terminal",
+    "ph-monitor",
+    "ph-device-mobile",
+    "ph-keyboard",
+    "ph-mouse",
+    "ph-wifi-high",
+    "ph-link",
+    "ph-paperclip",
+    "ph-envelope",
+    "ph-chat-circle",
+    "ph-bell",
+    "ph-magnifying-glass",
+    "ph-lightbulb",
+    "ph-smiley-wink",
+    "ph-thumbs-up",
+    "ph-fire",
+    "ph-diamond",
+    "ph-gem",
+    "ph-key",
+    "ph-lock",
+    "ph-shield",
+    "ph-eye",
+    "ph-binoculars",
+    "ph-archive",
+    "ph-package",
+    "ph-tag",
+    "ph-push-pin",
+    "ph-flag",
+    "ph-wrench",
+    "ph-sliders-horizontal",
+    "ph-sliders",
+    "ph-layout",
+    "ph-file-text",
+    "ph-path",
+    "ph-cards",
+    "ph-kanban",
+    "ph-language",
+    "custom-skateboard"
+  ];
+  const DISPLAY_OPTIONS=[
+    ['cards','Cards'],['compact','Compact'],['wide','Wide'],['list','List'],['icon','Icon Tiles'],
+    ['mini','Mini Grid'],['polaroid','Polaroid'],['outline','Outline'],['soft','Soft Cards'],['horizontal','Horizontal']
+  ];
+  const FIELD_KINDS=[
+    ['text','Text'],['link','Link'],['video','Video'],['image','Image'],['svg','SVG'],['select','Select'],['rating','Rating'],
+    ['pinnedImage','Pinned Image / Map'],['latex','LaTeX / Math'],['attachment','Attachment'],['numberFormat','Number'],['dateTime','Date / Time'],['boolean','Yes / No']
+  ];
+  const FIELD_KIND_SET=new Set(FIELD_KINDS.map(x=>x[0]));
+  const PAGE_CUSTOM_SVG_V763=new Map();
+  const PAGE_BUILTIN_SVG_V763={
+    'custom-skateboard':`<svg class="page-icon-svg-v763" viewBox="0 0 32 32" aria-hidden="true"><path d="M4.5 13.2c2.6 2.2 5.2 2.8 11.5 2.8s8.9-.6 11.5-2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.2 13.2h21.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9.2 16.1l-1.1 3.2m14.7-3.2 1.1 3.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="7.2" cy="22.1" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24.8" cy="22.1" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/></svg>`,
+    'custom-archery':`<svg class="page-icon-svg-v763" viewBox="0 0 32 32" aria-hidden="true"><path d="M10 4.5c6.1 3.5 8.7 7.2 8.7 11.5S16.1 24 10 27.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 4.5 10 27.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 16h21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m22.5 12.8 4 3.2-4 3.2M6.5 13.2 3 16l3.5 2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+  };
+  function sanitizePageSvgV763(raw){
+    try{
+      const doc=new DOMParser().parseFromString(String(raw||''),'image/svg+xml');
+      if(doc.querySelector('parsererror'))return'';const svg=doc.documentElement;if(!svg||String(svg.localName).toLowerCase()!=='svg')return'';
+      svg.querySelectorAll('script,foreignObject,iframe,object,embed').forEach(n=>n.remove());
+      svg.querySelectorAll('*').forEach(n=>Array.from(n.attributes||[]).forEach(a=>{const name=String(a.name||'').toLowerCase(),value=String(a.value||'');if(name.startsWith('on')||name==='style'||/javascript\s*:/i.test(value)||((name==='href'||name==='xlink:href')&&value&&!value.startsWith('#')))n.removeAttribute(a.name)}));
+      svg.removeAttribute('width');svg.removeAttribute('height');svg.setAttribute('class','page-icon-svg-v763');svg.setAttribute('aria-hidden','true');if(!svg.getAttribute('viewBox'))svg.setAttribute('viewBox','0 0 64 64');
+      return new XMLSerializer().serializeToString(svg);
+    }catch{return''}
+  }
+  function pageIconHtmlV763(icon,inlineSvg=''){const id=String(icon||'ph-file-text');const stored=sanitizePageSvgV763(inlineSvg);return stored||PAGE_CUSTOM_SVG_V763.get(id)||PAGE_BUILTIN_SVG_V763[id]||`<i class="ph ${attr(id)}"></i>`}
+  let PAGE_ICON_FETCH_V763=null;
+  async function fetchDashboardCustomPageIconsV763(force=false){
+    if(PAGE_ICON_FETCH_V763&&!force)return PAGE_ICON_FETCH_V763;
+    PAGE_ICON_FETCH_V763=(async()=>{
+      try{
+        const response=await fetch('/api/dashboard-custom-icons',{cache:'no-store'});if(!response.ok)return[];const rows=await response.json();if(!Array.isArray(rows))return[];
+        rows.forEach(row=>{const id=String(row?.id||'');const svg=sanitizePageSvgV763(row?.svg);if(id&&svg)PAGE_CUSTOM_SVG_V763.set(id,svg)});
+        return rows;
+      }catch{return[]}
+    })();
+    return PAGE_ICON_FETCH_V763;
+  }
+  async function loadDashboardCustomPageIconsV763(modal){
+    try{
+      const rows=await fetchDashboardCustomPageIconsV763(true);
+      const grid=$('.page-add-icon-grid-v761',modal);if(!grid)return;
+      rows.forEach(row=>{const id=String(row?.id||'');const svg=PAGE_CUSTOM_SVG_V763.get(id)||'';if(!id||!svg)return;if(grid.querySelector(`[data-page-icon-v761="${CSS.escape(id)}"]`))return;const b=document.createElement('button');b.type='button';b.dataset.pageIconV761=id;b.title=String(row?.name||'Custom icon');b.innerHTML=svg;const skateboard=grid.querySelector('[data-page-icon-v761="custom-skateboard"]');grid.insertBefore(b,skateboard||null)});
+      const skateboard=grid.querySelector('[data-page-icon-v761="custom-skateboard"]');if(skateboard)grid.appendChild(skateboard);
+      modal.dispatchEvent(new CustomEvent('loggy-page-icons-loaded-v763'));
+    }catch{}
+  }
+
+  function tabs(){try{return getCustomTabs?.()||[]}catch{return[]}}
+  function pageComponent(tabId,componentId){const tab=getCustomTab?.(tabId);return [tab,tab?.components?.find(x=>String(x.id)===String(componentId))]}
+  function normalizePages(c){
+    c.pagesV753=Array.isArray(c.pagesV753)?c.pagesV753:[];
+    c.pageDisplayV761=DISPLAY_OPTIONS.some(x=>x[0]===c.pageDisplayV761)?c.pageDisplayV761:'cards';
+    c.showAddOutsideEditV761=c.showAddOutsideEditV761!==false;
+    return c;
+  }
+  function pageRecordForTab(tab){
+    if(!tab?.nestedParentV753)return null;
+    const parent=getCustomTab?.(tab.nestedParentV753.tabId);
+    const component=parent?.components?.find(x=>String(x.id)===String(tab.nestedParentV753.componentId));
+    if(!component||component.type!==PAGE_TYPE)return null;
+    normalizePages(component);
+    return {parent,component,page:component.pagesV753.find(p=>String(p.tabId)===String(tab.id))||null};
+  }
+  function syncNestedPageRefsV761({save=true}={}){
+    let changed=false;
+    const activeTabs=tabs();
+    const activeIds=new Set(activeTabs.map(t=>String(t.id)));
+    // Remove cards whose backing private tab is no longer active (for example, moved to Trash).
+    activeTabs.forEach(parent=>{
+      (parent.components||[]).forEach(component=>{
+        if(component?.type!==PAGE_TYPE)return;
+        normalizePages(component);
+        const filtered=component.pagesV753.filter(page=>activeIds.has(String(page?.tabId||'')));
+        if(filtered.length!==component.pagesV753.length){component.pagesV753=filtered;changed=true}
+      });
+    });
+    // Restored/legacy nested tabs rebuild their parent page card automatically.
+    activeTabs.forEach(tab=>{
+      const rel=tab?.nestedParentV753;if(!rel)return;
+      const parent=getCustomTab?.(rel.tabId),component=parent?.components?.find(x=>String(x.id)===String(rel.componentId));
+      if(!component||component.type!==PAGE_TYPE)return;
+      normalizePages(component);
+      let page=component.pagesV753.find(p=>String(p.tabId)===String(tab.id));
+      if(!page){component.pagesV753.push({id:uid('page'),tabId:tab.id,title:tab.name||'Page',icon:tab.icon||'ph-file-text',iconSvgV763:tab.iconSvgV763||''});changed=true;return}
+      const title=String(tab.name||page.title||'Page'),icon=String(tab.icon||page.icon||'ph-file-text'),iconSvg=String(tab.iconSvgV763||page.iconSvgV763||'');
+      if(page.title!==title){page.title=title;changed=true}if(page.icon!==icon){page.icon=icon;changed=true}if(page.iconSvgV763!==iconSvg){page.iconSvgV763=iconSvg;changed=true}
+    });
+    if(changed&&save){try{saveDb?.()}catch{}}
+    return changed;
+  }
+
+  function ensureViewRendered(tabId){
+    const tab=getCustomTab?.(tabId);if(!tab)return false;
+    let view=document.getElementById(`custom-tab-view-${CSS.escape(String(tabId))}`);
+    if(!view&&typeof buildCustomTabView==='function'){
+      view=buildCustomTabView(tab);
+      document.body.insertBefore(view,document.getElementById('companion-stage')||null);
+    }
+    try{renderCustomTabView?.(tabId)}catch{}
+    return !!document.getElementById(`custom-tab-view-${CSS.escape(String(tabId))}`);
+  }
+  function openNestedPage(tabId){
+    if(!ensureViewRendered(tabId))return;
+    requestAnimationFrame(()=>{try{renderCustomTabView?.(tabId);openCustomTab?.(tabId)}catch{}});
+  }
+
+  function closeModal(id){document.getElementById(id)?.remove()}
+  function modalShell(id,title,bodyHtml,extraClass=''){
+    closeModal(id);
+    const modal=document.createElement('div');modal.id=id;modal.className=`modal-overlay ${extraClass}`;
+    modal.innerHTML=`<div class="modal-box"><div class="modal-header"><h2>${esc(title)}</h2><button type="button" class="small-icon-btn" data-v761-close><i class="ph ph-x"></i></button></div>${bodyHtml}</div>`;
+    $('[data-v761-close]',modal).onclick=()=>modal.remove();modal.addEventListener('pointerdown',e=>{if(e.target===modal)modal.remove()});document.body.appendChild(modal);return modal;
+  }
+
+  function openAddPageModal(tabId,componentId){
+    const [parent,c]=pageComponent(tabId,componentId);if(!parent||!c)return;normalizePages(c);
+    let chosen=PAGE_ICONS[0];
+    const modal=modalShell('page-add-modal-v761','Add Page',`<div class="page-add-body-v761">
+      <label class="page-add-name-v761"><span>Page Name</span><input type="text" data-page-name-v761 placeholder="New page"></label>
+      <div class="page-add-icon-label-v761">Page Icon</div>
+      <div class="page-add-icon-grid-v761">${PAGE_ICONS.map(icon=>`<button type="button" data-page-icon-v761="${attr(icon)}" title="${attr(icon)}">${pageIconHtmlV763(icon)}</button>`).join('')}</div>
+      <button type="button" class="icon-btn page-add-save-v761" data-page-create-v761><i class="ph ph-plus"></i> Add Page</button>
+    </div>`,'page-add-modal-v761');
+    const setChosen=icon=>{chosen=icon;$$('[data-page-icon-v761]',modal).forEach(b=>b.classList.toggle('selected',b.dataset.pageIconV761===chosen))};setChosen(chosen);
+    const bindIconButtons=()=>$$('[data-page-icon-v761]',modal).forEach(b=>{b.onclick=()=>setChosen(b.dataset.pageIconV761)});bindIconButtons();
+    modal.addEventListener('loggy-page-icons-loaded-v763',()=>{bindIconButtons();setChosen(chosen)});
+    loadDashboardCustomPageIconsV763(modal);
+    const input=$('[data-page-name-v761]',modal);requestAnimationFrame(()=>input?.focus());
+    $('[data-page-create-v761]',modal).onclick=()=>{
+      const name=String(input?.value||'').trim();if(!name){input?.focus();return}
+      const chosenSvg=PAGE_CUSTOM_SVG_V763.get(chosen)||PAGE_BUILTIN_SVG_V763[chosen]||'';
+      const child={id:uid('tab'),name,icon:chosen,iconSvgV763:chosenSvg,components:[],pinned:false,nestedParentV753:{tabId:parent.id,componentId:c.id},pageWidthV724:parent.templateIdV53==='youtube-studio-v822'||parent.youtubeSubjectV839?'wide':'standard'};
+      if(parent.templateIdV53==='youtube-studio-v822'){
+        let pipeline;try{pipeline=defaultCustomComponent?.('kanbanV239')}catch{}
+        pipeline=(pipeline&&typeof pipeline==='object')?JSON.parse(JSON.stringify(pipeline)):{id:uid('component'),type:'kanbanV239'};
+        pipeline.id=uid('component');pipeline.type='kanbanV239';pipeline.title='Video Pipeline';pipeline.showBorderV811=false;pipeline.cardHeightV839='tall';
+        pipeline.columns=['Ideas','To Film','Filmed','To Edit','Editing','To Upload','Published'].map(title=>({id:uid('column'),title,name:title,cards:[]}));
+        child.components=[pipeline];child.youtubeSubjectV839=true;child.pageWidthV724='wide';child.youtubeWideDefaultAppliedV853=true;
+      }
+      tabs().push(child);c.pagesV753.push({id:uid('page'),tabId:child.id,title:name,icon:chosen,iconSvgV763:chosenSvg});
+      try{saveDb?.()}catch{}
+      let childView=document.getElementById(`custom-tab-view-${CSS.escape(String(child.id))}`);
+      try{
+        if(!childView&&typeof buildCustomTabView==='function'){
+          childView=buildCustomTabView(child);
+          document.body.insertBefore(childView,document.getElementById('companion-stage')||null);
+        }
+        renderCustomTabView?.(parent.id);
+        renderCustomTabView?.(child.id);
+        renderCustomTabNavigation?.();
+      }catch{}
+      modal.remove();
+      // Open the real nested custom-tab view immediately. A second frame render
+      // protects against deferred component bundles without ever showing a blank page.
+      try{
+        activeCustomTabId=child.id;customTabEditMode=false;
+        childView=document.getElementById(`custom-tab-view-${CSS.escape(String(child.id))}`)||childView;
+        if(childView){renderCustomTabView?.(child.id);switchView?.(childView)}else openNestedPage(child.id);
+      }catch{openNestedPage(child.id)}
+      requestAnimationFrame(()=>{try{renderCustomTabView?.(child.id);const view=document.getElementById(`custom-tab-view-${CSS.escape(String(child.id))}`);if(view)switchView?.(view)}catch{}});
+    };
+  }
+
+  function displayPreview(id){
+    const content=id==='list'?'<i></i><b></b><i></i>':id==='horizontal'?'<i></i><b></b>':id==='polaroid'?'<i></i><span></span>':'<i></i><i></i><i></i>';
+    return `<span class="page-display-preview-v761 preview-${attr(id)}">${content}</span>`;
+  }
+  function openPagesComponentEdit(tabId,componentId){
+    const [tab,c]=pageComponent(tabId,componentId);if(!tab||!c)return;normalizePages(c);
+    let selected=c.pageDisplayV761;
+    const modal=modalShell('page-component-edit-v761','Edit Pages Component',`<div class="page-component-edit-body-v761">
+      <label class="page-component-name-v761"><span>Component Name</span><input type="text" data-pages-title-v761 value="${attr(c.title||'Pages')}"></label>
+      <div class="page-display-heading-v761"><strong>Page Card Display</strong><span>Choose how the private pages look inside this component.</span></div>
+      <div class="page-display-options-v761">${DISPLAY_OPTIONS.map(([id,label])=>`<button type="button" data-page-display-v761="${attr(id)}" class="${id===selected?'selected':''}">${displayPreview(id)}<strong>${esc(label)}</strong></button>`).join('')}</div>
+      <label class="page-plus-toggle-v761"><input type="checkbox" data-pages-plus-outside-v761 ${c.showAddOutsideEditV761?'checked':''}><span><strong>Show the + Add Page button outside Edit Tab Layout mode</strong><small>When off, the + button is only visible while editing the tab layout.</small></span></label>
+      <button type="button" class="icon-btn page-component-save-v761" data-pages-save-v761><i class="ph ph-check"></i> Save</button>
+    </div>`,'page-component-edit-modal-v761');
+    $$('[data-page-display-v761]',modal).forEach(b=>b.onclick=()=>{selected=b.dataset.pageDisplayV761;$$('[data-page-display-v761]',modal).forEach(x=>x.classList.toggle('selected',x===b))});
+    $('[data-pages-save-v761]',modal).onclick=()=>{
+      const title=String($('[data-pages-title-v761]',modal)?.value||'').trim();if(title)c.title=title;
+      c.pageDisplayV761=DISPLAY_OPTIONS.some(x=>x[0]===selected)?selected:'cards';
+      c.showAddOutsideEditV761=!!$('[data-pages-plus-outside-v761]',modal)?.checked;
+      try{saveDb?.();renderCustomTabView?.(tab.id)}catch{}
+      modal.remove();
+    };
+  }
+
+  function cloneNestedTree(source,parentRef,nameOverride){
+    if(!source)return null;
+    const clone=typeof cloneCustomValueWithFreshIds==='function'?cloneCustomValueWithFreshIds(source):JSON.parse(JSON.stringify(source));
+    clone.id=uid('tab');clone.name=nameOverride||`${source.name||'Page'} Copy`;clone.pinned=false;clone.nestedParentV753=parentRef||null;
+    const sourceComponents=Array.isArray(source.components)?source.components:[];
+    clone.components=Array.isArray(clone.components)?clone.components:[];
+    tabs().push(clone);
+    sourceComponents.forEach((sourceComponent,index)=>{
+      if(sourceComponent?.type!==PAGE_TYPE)return;
+      const clonedComponent=clone.components[index];if(!clonedComponent)return;
+      clonedComponent.pagesV753=[];
+      (sourceComponent.pagesV753||[]).forEach(sourcePage=>{
+        const sourceChild=getCustomTab?.(sourcePage.tabId);if(!sourceChild)return;
+        const childCopy=cloneNestedTree(sourceChild,{tabId:clone.id,componentId:clonedComponent.id},sourceChild.name);
+        if(childCopy)clonedComponent.pagesV753.push({id:uid('page'),tabId:childCopy.id,title:childCopy.name,icon:childCopy.icon||sourcePage.icon||'ph-file-text',iconSvgV763:childCopy.iconSvgV763||sourcePage.iconSvgV763||''});
+      });
+    });
+    return clone;
+  }
+
+  async function renamePage(parent,c,page){
+    const child=getCustomTab?.(page.tabId);if(!child)return;
+    const value=await showAppPrompt?.({title:'Rename Page',label:'Page name',value:child.name||page.title||'Page',submitLabel:'Save'});
+    if(value==null||!String(value).trim())return;
+    const name=String(value).trim();child.name=name;page.title=name;
+    try{saveDb?.();renderCustomTabView?.(parent.id);renderCustomTabView?.(child.id)}catch{}
+  }
+  function duplicatePage(parent,c,page){
+    const source=getCustomTab?.(page.tabId);if(!source)return;
+    const copy=cloneNestedTree(source,{tabId:parent.id,componentId:c.id},`${source.name||page.title||'Page'} Copy`);if(!copy)return;
+    c.pagesV753.push({id:uid('page'),tabId:copy.id,title:copy.name,icon:copy.icon||page.icon||'ph-file-text',iconSvgV763:copy.iconSvgV763||page.iconSvgV763||''});
+    try{saveDb?.();renderAllCustomTabViews?.();renderCustomTabView?.(parent.id);renderCustomTabNavigation?.()}catch{}
+    try{showFeatureToast?.(`Duplicated “${source.name||'Page'}”.`)}catch{}
+  }
+  async function deletePage(parent,c,page){
+    const child=getCustomTab?.(page.tabId);if(!child){c.pagesV753=c.pagesV753.filter(x=>x!==page);saveDb?.();renderCustomTabView?.(parent.id);return}
+    const ok=await showAppConfirm?.({title:'Move this page to Trash?',message:`“${child.name||page.title||'This page'}” and everything inside it can be restored later from Trash.`,confirmLabel:'Move to Trash'});
+    if(!ok)return;
+    try{moveCustomTabToTrash?.(child.id)}catch{}
+    syncNestedPageRefsV761();
+    try{document.getElementById(`custom-tab-view-${CSS.escape(String(child.id))}`)?.remove();renderCustomTabView?.(parent.id);renderCustomTabNavigation?.()}catch{}
+  }
+
+  function renderPages(tab,c,content){
+    normalizePages(c);syncNestedPageRefsV761({save:false});
+    const mode=c.pageDisplayV761;
+    const showAdd=!!customTabEditMode||c.showAddOutsideEditV761;
+    content.innerHTML=`<section class="page-navigator-v753 page-navigator-v761 display-${attr(mode)}">
+      <div class="page-navigator-head-v753 page-navigator-head-v761"><div><h2>${esc(c.title||'Pages')}</h2></div>${showAdd?'<button type="button" class="small-icon-btn page-add-button-v761" data-page-add-button-v761 title="Add Page" aria-label="Add Page"><i class="ph ph-plus"></i></button>':''}</div>
+      <div class="page-navigator-grid-v753 page-navigator-grid-v761">${c.pagesV753.map(page=>{const child=getCustomTab?.(page.tabId);if(!child)return'';return `<button type="button" class="page-card-v761" data-page-open-v761="${attr(page.id)}">${pageIconHtmlV763(page.icon||child.icon||'ph-file-text',page.iconSvgV763||child.iconSvgV763||'')}<span>${esc(page.title||child.name||'Page')}</span></button>`}).join('')||'<div class="page-navigator-empty-v753">No pages yet. Use + to create one.</div>'}</div>
+    </section>`;
+    $('[data-page-add-button-v761]',content)?.addEventListener('click',e=>{e.stopPropagation();openAddPageModal(tab.id,c.id)});
+    $$('[data-page-open-v761]',content).forEach(button=>{
+      const page=c.pagesV753.find(x=>String(x.id)===String(button.dataset.pageOpenV761));
+      button.onclick=()=>page?.tabId&&openNestedPage(page.tabId);
+      button.oncontextmenu=e=>{
+        e.preventDefault();e.stopPropagation();if(!page)return;
+        showCustomItemContextMenu?.(e.clientX,e.clientY,[
+          {label:'Duplicate tab',icon:'ph-copy',action:()=>duplicatePage(tab,c,page)},
+          {label:'Rename tab',icon:'ph-pencil-simple',action:()=>renamePage(tab,c,page)},
+          {label:'Delete tab',icon:'ph-trash',danger:true,action:()=>deletePage(tab,c,page)}
+        ]);
+      };
+    });
+  }
+
+  function normalizeKanbanFields(component){
+    if(!Array.isArray(component.recordFieldsV340)||!component.recordFieldsV340.length){
+      component.recordFieldsV340=[
+        {id:uid('field'),name:'Title',kind:'text',areaV340:'bottom',options:[],maxRating:5},
+        {id:uid('field'),name:'Description',kind:'text',areaV340:'bottom',options:[],maxRating:5}
+      ];
+    }
+    component.recordFieldsV340=component.recordFieldsV340.map((raw,i)=>({
+      id:String(raw?.id||uid('field')),name:String(raw?.name||`Field ${i+1}`),kind:FIELD_KIND_SET.has(String(raw?.kind||''))?String(raw.kind):'text',
+      areaV340:['bottom','image','hidden'].includes(raw?.areaV340)?raw.areaV340:'bottom',options:Array.isArray(raw?.options)?raw.options.map(String):[],maxRating:Math.max(1,Math.min(10,Number(raw?.maxRating)||5))
+    }));
+    if(!component.recordFieldsV340.some(f=>f.kind==='link'))component.recordFieldsV340.push({id:uid('field'),name:'Link',kind:'link',areaV340:'bottom',options:[],maxRating:5});
+    return component.recordFieldsV340;
+  }
+  function fieldRowHtml(field){
+    return `<div class="kanban-edit-field-row-v761" data-kanban-field-id-v761="${attr(field.id)}">
+      <input type="text" class="kanban-field-name-v761" value="${attr(field.name)}" aria-label="Field name">
+      <select class="kanban-field-kind-v761">${FIELD_KINDS.map(([id,label])=>`<option value="${attr(id)}" ${field.kind===id?'selected':''}>${esc(label)}</option>`).join('')}</select>
+      <select class="kanban-field-area-v761"><option value="bottom" ${field.areaV340==='bottom'?'selected':''}>Show on card</option><option value="image" ${field.areaV340==='image'?'selected':''}>Image area</option><option value="hidden" ${field.areaV340==='hidden'?'selected':''}>Hidden</option></select>
+      <input type="text" class="kanban-field-options-v761 ${field.kind==='select'?'':'hidden'}" value="${attr(field.options.join(', '))}" placeholder="Select options, comma separated">
+      <button type="button" class="small-icon-btn kanban-field-remove-v761" title="Remove field"><i class="ph ph-trash"></i></button>
+    </div>`;
+  }
+  function openKanbanEdit(tabId,componentId){
+    const tab=getCustomTab?.(tabId),c=tab?.components?.find(x=>String(x.id)===String(componentId));if(!tab||!c)return;
+    const fields=normalizeKanbanFields(c).map(f=>({...f,options:[...f.options]}));
+    const modal=modalShell('kanban-component-edit-v761','Edit Kanban Board',`<div class="kanban-component-edit-body-v761">
+      <label class="kanban-title-field-v761"><span>Component Name</span><input type="text" data-kanban-title-v761 value="${attr(c.title||'Kanban Board')}"></label>
+      <label class="kanban-title-field-v761"><span>Card height</span><select data-kanban-card-height-v839><option value="normal" ${!c.cardHeightV839||c.cardHeightV839==='normal'?'selected':''}>Normal</option><option value="compact" ${c.cardHeightV839==='compact'?'selected':''}>Compact</option><option value="tall" ${c.cardHeightV839==='tall'?'selected':''}>Tall</option><option value="extra" ${c.cardHeightV839==='extra'?'selected':''}>Extra tall</option></select></label>
+      <label class="kanban-title-field-v761"><span>Board height</span><select data-kanban-board-height-v849><option value="standard" ${c.boardHeightV849!=='long'?'selected':''}>Standard</option><option value="long" ${c.boardHeightV849==='long'?'selected':''}>Long vertical</option></select></label>
+      <div class="kanban-fields-heading-v761"><div><strong>Card Fields</strong><span>Configure the fields used by every card on this board.</span></div><button type="button" class="small-icon-btn" data-kanban-add-field-v761 title="Add field"><i class="ph ph-plus"></i></button></div>
+      <div class="kanban-edit-fields-v761"></div>
+      <button type="button" class="icon-btn kanban-edit-save-v761" data-kanban-save-v761><i class="ph ph-check"></i> Save</button>
+    </div>`,'kanban-component-edit-modal-v761');
+    const list=$('.kanban-edit-fields-v761',modal);
+    const draw=()=>{
+      list.innerHTML=fields.map(fieldRowHtml).join('')||'<p class="progress-hint">No fields yet.</p>';
+      $$('.kanban-edit-field-row-v761',list).forEach(row=>{
+        const field=fields.find(f=>String(f.id)===String(row.dataset.kanbanFieldIdV761));if(!field)return;
+        const kind=$('.kanban-field-kind-v761',row),options=$('.kanban-field-options-v761',row);
+        kind.onchange=()=>{field.kind=kind.value;options.classList.toggle('hidden',field.kind!=='select')};
+        $('.kanban-field-remove-v761',row).onclick=()=>{const i=fields.indexOf(field);if(i>=0)fields.splice(i,1);draw()};
+      });
+    };draw();
+    $('[data-kanban-add-field-v761]',modal).onclick=()=>{fields.push({id:uid('field'),name:`Field ${fields.length+1}`,kind:'text',areaV340:'bottom',options:[],maxRating:5});draw()};
+    $('[data-kanban-save-v761]',modal).onclick=async()=>{
+      $$('.kanban-edit-field-row-v761',modal).forEach(row=>{
+        const f=fields.find(x=>String(x.id)===String(row.dataset.kanbanFieldIdV761));if(!f)return;
+        f.name=String($('.kanban-field-name-v761',row)?.value||'').trim()||'Field';f.kind=$('.kanban-field-kind-v761',row)?.value||'text';f.areaV340=$('.kanban-field-area-v761',row)?.value||'bottom';
+        f.options=f.kind==='select'?String($('.kanban-field-options-v761',row)?.value||'').split(',').map(x=>x.trim()).filter(Boolean):f.options;
+      });
+      const title=String($('[data-kanban-title-v761]',modal)?.value||'').trim();if(title)c.title=title;c.recordFieldsV340=fields;c.cardHeightV839=$('[data-kanban-card-height-v839]',modal)?.value||'normal';c.boardHeightV849=$('[data-kanban-board-height-v849]',modal)?.value==='long'?'long':'standard';
+      try{await Promise.resolve(saveDb?.());renderCustomTabView?.(tab.id)}catch{}modal.remove();
+    };
+  }
+
+  window.__loggyOpenKanbanEditV852=openKanbanEdit;
+
+  // The Page Navigator pencil is component settings; the + button is Add Page.
+  // Kanban's pencil owns Card Fields, so no separate Card Fields button remains.
+  try{
+    const before=window.editCustomComponent||editCustomComponent;
+    const wrapped=async function(tabId,componentId){
+      const tab=getCustomTab?.(tabId),c=tab?.components?.find(x=>String(x.id)===String(componentId));
+      if(c?.type===PAGE_TYPE){openPagesComponentEdit(tabId,componentId);return}
+      if(c?.type===KANBAN_TYPE){openKanbanEdit(tabId,componentId);return}
+      return before?.apply(this,arguments);
+    };
+    wrapped.__v761=true;window.editCustomComponent=wrapped;try{editCustomComponent=wrapped}catch{}
+  }catch{}
+
+  try{
+    const before=window.renderCustomComponentContent||renderCustomComponentContent;
+    const wrapped=function(tab,c,content){
+      if(c?.type===PAGE_TYPE)return renderPages(tab,c,content);
+      const result=before?.apply(this,arguments);
+      if(c?.type===KANBAN_TYPE){$('.v340-fields-button',content)?.remove()}
+      return result;
+    };
+    wrapped.__v761=true;window.renderCustomComponentContent=wrapped;try{renderCustomComponentContent=wrapped}catch{}
+  }catch{}
+
+  // Nested pages are never main side-nav destinations. Remove them synchronously
+  // on every navigation render rather than relying only on a later observer pass.
+  try{
+    const before=window.renderCustomTabNavigation||renderCustomTabNavigation;
+    const wrapped=function(){syncNestedPageRefsV761();const result=before?.apply(this,arguments);$$('.custom-tab-nav-btn[data-custom-tab-id]').forEach(button=>{const tab=getCustomTab?.(button.dataset.customTabId);if(tab?.nestedParentV753)button.remove()});return result};
+    window.renderCustomTabNavigation=wrapped;try{renderCustomTabNavigation=wrapped}catch{}
+  }catch{}
+
+  // Any nested page moved to Trash disappears from its parent Pages component.
+  try{
+    const before=window.moveCustomTabToTrash||moveCustomTabToTrash;
+    const wrapped=function(tabId){
+      const tab=getCustomTab?.(tabId),rel=tab?.nestedParentV753;
+      const parentId=String(rel?.tabId||'');
+      const wasOpen=String(activeCustomTabId||'')===String(tabId)||document.getElementById(`custom-tab-view-${CSS.escape(String(tabId))}`)?.classList.contains('active');
+      if(rel){const parent=getCustomTab?.(rel.tabId),component=parent?.components?.find(x=>String(x.id)===String(rel.componentId));if(component?.type===PAGE_TYPE){normalizePages(component);component.pagesV753=component.pagesV753.filter(p=>String(p.tabId)!==String(tabId))}}
+      const result=before?.apply(this,arguments);syncNestedPageRefsV761();
+      if(parentId){try{renderCustomTabView?.(parentId)}catch{}}
+      if(parentId&&wasOpen){requestAnimationFrame(()=>requestAnimationFrame(()=>{try{const parent=getCustomTab?.(parentId);if(parent)openCustomTab?.(parentId)}catch{}}))}
+      return result;
+    };
+    window.moveCustomTabToTrash=wrapped;try{moveCustomTabToTrash=wrapped}catch{}
+  }catch{}
+
+  // Use the shorter component-library name.
+  try{const def=CUSTOM_COMPONENT_LIBRARY?.find?.(x=>x?.type===PAGE_TYPE);if(def)def.label='Pages';window.__loggyRefreshCustomComponentPaletteV746?.()}catch{}
+
+  window.__loggyPagesV761={openAddPage:openAddPageModal,editComponent:openPagesComponentEdit,sync:syncNestedPageRefsV761};
+  syncNestedPageRefsV761();
+  fetchDashboardCustomPageIconsV763().then(()=>{
+    try{tabs().forEach(tab=>{if((tab.components||[]).some(c=>c?.type===PAGE_TYPE))renderCustomTabView?.(tab.id)})}catch{}
+  });
+})();
+
+// ============================================================================
+// V763 — universal custom-component action button visibility controls
+// ============================================================================
+(()=>{
+  'use strict';
+  if(window.__loggyComponentButtonsV763)return;window.__loggyComponentButtonsV763=true;
+  const q=(s,r=document)=>r?.querySelector?.(s)||null,qa=(s,r=document)=>Array.from(r?.querySelectorAll?.(s)||[]);
+  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const EXCLUDE='.custom-component-controls,.custom-component-help-v163,.custom-palette-help-v164,.page-card-v761,.kb-sort-card-v720,.kb-sort-box-head-v720,.custom-tab-component [data-custom-item-id],.custom-user-card,.custom-user-polaroid';
+  const ACTION_CLASS_RE=/(?:^|-)(?:head|header|toolbar|actions?|controls?|topbar|button-row|buttons)(?:-|$)/i;
+  function actionContext(btn,content){let node=btn.parentElement;while(node&&node!==content){if(Array.from(node.classList||[]).some(c=>ACTION_CLASS_RE.test(c)))return true;node=node.parentElement}return false}
+  function cleanLabel(btn){return String(btn.getAttribute('aria-label')||btn.title||btn.textContent||'Button').replace(/\s+/g,' ').trim()||'Button'}
+  function actionKey(btn){
+    for(const a of Array.from(btn.attributes||[])){if(!a.name.startsWith('data-'))continue;if(/(?:add|setting|display|fullscreen|restart|create|new|manage|filter|sort|field|upload|record|action|toggle|menu|focus)/i.test(a.name))return a.name}
+    const useful=Array.from(btn.classList||[]).find(c=>!/^(small-icon-btn|icon-btn|btn|filter-tab|active|selected)$/i.test(c)&&/(add|setting|display|full|restart|create|new|manage|filter|sort|field|upload|record|action|toggle|menu|focus)/i.test(c));
+    return useful?`class:${useful}`:`label:${cleanLabel(btn).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}`;
+  }
+  function collect(component,content){
+    if(!component||!content)return[];const seen=new Map(),out=[];
+    qa('button',content).forEach(btn=>{
+      if(btn.closest(EXCLUDE))return;
+      if(!actionContext(btn,content)&&!((btn.classList.contains('small-icon-btn')||btn.classList.contains('icon-btn'))&&(btn.title||btn.getAttribute('aria-label'))))return;
+      const base=actionKey(btn);const n=(seen.get(base)||0)+1;seen.set(base,n);const key=n===1?base:`${base}#${n}`;
+      btn.dataset.loggyButtonKeyV763=key;out.push({key,label:cleanLabel(btn),button:btn});
+    });
+    return out;
+  }
+  function prefs(component){component.buttonVisibilityV763=(component.buttonVisibilityV763&&typeof component.buttonVisibilityV763==='object')?component.buttonVisibilityV763:{};return component.buttonVisibilityV763}
+  function apply(tab,component,content){
+    if(!component||!content)return;
+    // Pages, Roadmap, and KB Sort have dedicated controls that can also create
+    // edit-only buttons outside edit mode, so they keep their purpose-built UI.
+    if(['pageNavigatorV753','skillRoadmapV749','kbSortBoardV720'].includes(String(component.type||'')))return;
+    const map=prefs(component);collect(component,content).forEach(({key,button})=>{
+      const showOutside=map[key]!==false;
+      button.classList.toggle('custom-action-hidden-outside-v763',!customTabEditMode&&!showOutside);
+      button.classList.toggle('custom-action-show-outside-v763',!customTabEditMode&&showOutside);
+      if(!customTabEditMode&&!showOutside)button.setAttribute('aria-hidden','true');else button.removeAttribute('aria-hidden');
+    });
+    applyCardsV807(component,content);
+  }
+  function applyCardsV807(component,content){
+    if(!['cards','polaroids'].includes(component.type))return;
+    const editing=!!customTabEditMode;
+    const set=(sel,enabled)=>{const el=q(sel,content);if(el){el.style.display=editing||enabled?'':'none';el.toggleAttribute('aria-hidden',!editing&&!enabled)}};
+    set('.v340-fields-button',component.showConfigureFieldsOutsideEditV807!==false);
+    set('.v340-add-record',component.showAddCardOutsideEditV807!==false);
+    set('.v340-card-style',component.showCardStyleOutsideEditV807!==false);
+  }
+  window.__loggyApplyCustomComponentButtonVisibilityV763=apply;
+
+  function panelFor(tabId,componentId){
+    const tab=getCustomTab?.(tabId),component=tab?.components?.find(x=>String(x.id)===String(componentId));if(!tab||!component)return null;
+    if(['pageNavigatorV753','skillRoadmapV749','kbSortBoardV720'].includes(String(component.type||'')))return null;
+    const content=q(`#custom-tab-view-${CSS.escape(String(tabId))} .custom-tab-component[data-component-id="${CSS.escape(String(componentId))}"] .custom-component-content`);
+    if(!content)return null;const actions=collect(component,content);const map=prefs(component);
+    const panel=document.createElement('div');panel.className='custom-button-visibility-panel-v763';
+    const isCards=['cards','polaroids'].includes(component.type);
+    const list=isCards?actions.filter(a=>!a.button.matches('.v340-fields-button,.v340-add-record')):actions;
+    const cardsRows=isCards?`<label><input type="checkbox" data-card-pref-v807="showAddCardOutsideEditV807" ${component.showAddCardOutsideEditV807!==false?'checked':''}><span>Show Add ${component.type==='polaroids'?'Polaroid':'Card'} outside edit mode</span></label><label><input type="checkbox" data-card-pref-v807="showConfigureFieldsOutsideEditV807" ${component.showConfigureFieldsOutsideEditV807!==false?'checked':''}><span>Show Configure Fields outside edit mode</span></label>${component.type==='cards'?`<label><input type="checkbox" data-card-pref-v807="showCardStyleOutsideEditV807" ${component.showCardStyleOutsideEditV807!==false?'checked':''}><span>Show Card Display Style outside edit mode</span></label>`:''}`:'';
+    panel.innerHTML=`<strong>Component appearance</strong><label><input type="checkbox" class="custom-component-border-toggle-v811" ${component.showBorderV811!==false?'checked':''}><span>Show component border</span></label>${actions.length?`<strong>Buttons outside Edit Tab Layout</strong><small>Choose which component controls stay visible outside edit mode.</small>${cardsRows}${list.map(a=>`<label><input type="checkbox" data-button-key-v763="${esc(a.key)}" ${map[a.key]!==false?'checked':''}><span>${esc(a.label)}</span></label>`).join('')}`:''}`;
+    q('.custom-component-border-toggle-v811',panel)?.addEventListener('change',event=>{component.showBorderV811=event.target.checked;try{saveDb?.()}catch{};const wrapper=content.closest('.custom-tab-component');wrapper?.classList.toggle('component-no-border-v811',!event.target.checked)});
+    qa('[data-card-pref-v807]',panel).forEach(input=>input.addEventListener('change',()=>{component[input.dataset.cardPrefV807]=input.checked;try{saveDb?.()}catch{}}));
+    qa('[data-button-key-v763]',panel).forEach(input=>input.addEventListener('change',()=>{map[input.dataset.buttonKeyV763]=!!input.checked;try{saveDb?.()}catch{}}));return panel;
+  }
+  function inject(modal,tabId,componentId){
+    if(!modal)return false;
+    const comp=getCustomTab?.(tabId)?.components?.find(x=>String(x.id)===String(componentId));
+    const box=q('.modal-box',modal)||modal;
+    const heading=q('.modal-header h2,.modal-header h3,#app-prompt-title',box);
+    if(comp&&heading&&!q('.component-type-hint-v807',box)){
+      const hint=document.createElement('div');hint.className='component-type-hint-v807';
+      const dict={cards:'Cards',polaroids:'Polaroids',skillRoadmapV749:'Learning Roadmap',resources:'Resources',progressMeter:'Progress Meter',storyBeatsV804:'Story Beats',scenePlannerV804:'Scene Planner',worldBibleV804:'World Bible',characterProfilesV804:'People',writingTrackerV804:'Writing Tracker'};
+      hint.textContent='Component: '+(dict[comp.type]||CUSTOM_COMPONENT_LIBRARY?.find?.(d=>d.type===comp.type)?.label||comp.type);
+      const header=heading.closest('.modal-header');
+      (header||heading).insertAdjacentElement('afterend',hint);
+    }
+    if(comp){const existing=q('.component-type-hint-v807',box);if(existing){existing.textContent='Component: '+(CUSTOM_COMPONENT_LIBRARY?.find?.(d=>d.type===comp.type)?.label||({worldBibleV804:'World Bible',writingTrackerV804:'Writing Tracker',characterProfilesV804:'Character Profiles',storyBeatsV804:'Story Beats',scenePlannerV804:'Scene Planner'})[comp.type]||comp.type);existing.style.display='block';existing.style.width='100%';existing.style.flexBasis='100%';existing.style.clear='both';const header=q('.modal-header',box);if(header&&existing.previousElementSibling!==header)header.insertAdjacentElement('afterend',existing);}}
+    if(q('.custom-button-visibility-panel-v763[data-auto-v763]',modal))return false;
+    const panel=panelFor(tabId,componentId);if(!panel)return false;panel.dataset.autoV763='1';const footer=Array.from(box.children).find(el=>el.matches?.('.modal-actions,.form-actions,.modal-footer'))||null;if(footer)box.insertBefore(panel,footer);else box.appendChild(panel);return true}
+
+  try{
+    const before=window.editCustomComponent||editCustomComponent;
+    const wrapped=function(tabId,componentId){
+      const pre=new Set(qa('.modal-overlay:not(.hidden)'));
+      let done=false;
+      const tryInject=()=>{if(done)return;const visible=qa('.modal-overlay:not(.hidden)').filter(m=>!pre.has(m));const modal=visible[visible.length-1]||qa('.modal-overlay:not(.hidden)').at(-1);if(modal&&inject(modal,tabId,componentId)){done=true;obs.disconnect()}};
+      const obs=new MutationObserver(tryInject);obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});setTimeout(()=>obs.disconnect(),4000);
+      const result=before?.apply(this,arguments);queueMicrotask(tryInject);setTimeout(tryInject,0);setTimeout(tryInject,60);return result;
+    };
+    wrapped.__v763=true;window.editCustomComponent=wrapped;try{editCustomComponent=wrapped}catch{}
+  }catch{}
+})();
+
+
+// ============================================================================
+// V764 — Pages cleanup + searchable 4-row component picker + Stack repair
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyV764PagesStackPalette) return;
+  window.__loggyV764PagesStackPalette = true;
+
+  const q=(selector,root=document)=>root?.querySelector?.(selector)||null;
+  const qa=(selector,root=document)=>Array.from(root?.querySelectorAll?.(selector)||[]);
+
+  // ------------------------------------------------------------------------
+  // Custom-component picker: live search inside the picker itself. The search
+  // survives every late palette re-render because it is attached after the
+  // complete, already-decorated palette has been rebuilt.
+  // ------------------------------------------------------------------------
+  function installComponentSearchV764(palette) {
+    if (!palette) return;
+    let search = q(':scope > .custom-component-search-v764', palette);
+    if (!search) {
+      search = document.createElement('label');
+      search.className = 'custom-component-search-v764';
+      search.innerHTML = '<i class="ph ph-magnifying-glass" aria-hidden="true"></i><input type="search" autocomplete="off" spellcheck="false" placeholder="Search components..." aria-label="Search custom components">';
+      palette.insertBefore(search, palette.firstChild);
+    }
+    const input = q('input', search);
+    const filter = () => {
+      const term = String(input?.value || '').trim().toLowerCase();
+      qa(':scope > .custom-component-palette-item', palette).forEach(card => {
+        const label = String(card.textContent || '').replace(/\?/g,'').replace(/\s+/g,' ').trim().toLowerCase();
+        const type = String(card.dataset.componentType || '').toLowerCase();
+        card.classList.toggle('custom-component-filtered-v764', !!term && !label.includes(term) && !type.includes(term));
+      });
+    };
+    if (input && input.dataset.boundV764 !== '1') {
+      input.dataset.boundV764 = '1';
+      input.addEventListener('input', filter);
+      input.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && input.value) {
+          event.stopPropagation();
+          input.value = '';
+          filter();
+        }
+      });
+    }
+    filter();
+  }
+
+  try {
+    const before = window.renderCustomComponentPalette || renderCustomComponentPalette;
+    if (typeof before === 'function' && !before.__v764Search) {
+      const wrapped = function(palette) {
+        const result = before.apply(this, arguments);
+        installComponentSearchV764(palette);
+        return result;
+      };
+      wrapped.__v764Search = true;
+      window.renderCustomComponentPalette = wrapped;
+      try { renderCustomComponentPalette = wrapped; } catch {}
+    }
+  } catch {}
+
+  // ------------------------------------------------------------------------
+  // Daily Log Stack: restored logs can add/rebuild numbered day nodes AFTER the
+  // older Stack formatter has already run. Normalize every current/future row,
+  // including a bare top-level numbered .day-box, so no restored day becomes a
+  // giant square tile.
+  // ------------------------------------------------------------------------
+  let repairingStackV764 = false;
+  function stackIsActiveV764() {
+    try {
+      const view = String(db?.settings?.dailyViewType || 'default');
+      const layout = String(db?.settings?.dailyDayLayoutV228 || 'grid');
+      return (view === 'default' && layout === 'stack') || view === 'stacked';
+    } catch { return false; }
+  }
+  function stackPreviewV764(day, maxWords=15) {
+    try {
+      const box = document.createElement('div');
+      box.innerHTML = String(day?.notes || '');
+      const full = String(box.textContent || box.innerText || '').replace(/\s+/g,' ').trim();
+      if (!full) return '';
+      const words = full.split(/\s+/).filter(Boolean);
+      const text = words.slice(0,maxWords).join(' ');
+      return text + (words.length > maxWords ? '…' : '');
+    } catch { return ''; }
+  }
+  function isAddDayNodeV764(node) {
+    if (!(node instanceof Element)) return false;
+    return node.matches('.daily-add-day-slot-v238,.daily-stack-grid-plus-v228,.daily-stack-grid-plus-v752,.add-extra-day-card,.add-day-card') ||
+      !!node.matches('[title="Add extra log day"]') || !!q('[title="Add extra log day"]', node);
+  }
+  function dayNumberForV764(node, button) {
+    const fromData = Number(node?.dataset?.day ?? button?.dataset?.day);
+    if (Number.isInteger(fromData) && fromData > 0) return fromData;
+    const text = String(button?.textContent || '').trim();
+    const match = text.match(/^(?:Day\s*)?(\d+)$/i);
+    const parsed = match ? Number(match[1]) : NaN;
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : NaN;
+  }
+  function repairDailyStackV764() {
+    if (repairingStackV764) return;
+    const grid = document.getElementById('days-grid');
+    if (!grid || !stackIsActiveV764()) return;
+    repairingStackV764 = true;
+    try {
+      // Complete the old one-time migration even when this log was restored
+      // after the migration code already ran on another log.
+      try {
+        if (String(db?.settings?.dailyViewType || 'default') === 'stacked') {
+          db.settings.dailyViewType = 'default';
+          db.settings.dailyDayLayoutV228 = 'stack';
+          saveDb?.();
+        }
+      } catch {}
+      grid.classList.add('daily-day-layout-stack-v228','daily-stack-authority-v764');
+      grid.classList.remove('daily-stacked-list-v751');
+
+      Array.from(grid.children).forEach(node => {
+        if (!(node instanceof Element)) return;
+        if (isAddDayNodeV764(node)) {
+          node.classList.add('daily-stack-grid-plus-v228');
+          return;
+        }
+        const button = node.matches('.day-box') ? node : q(':scope > .day-box', node);
+        if (!button) return;
+        const dayNumber = dayNumberForV764(node, button);
+        if (!Number.isInteger(dayNumber)) return;
+
+        node.dataset.day = String(dayNumber);
+        node.classList.add('daily-stack-row-wrap-v228','daily-stack-row-wrap-v764');
+        button.classList.add('daily-stack-row-v228','daily-stack-row-v764');
+        button.style.removeProperty('height');
+        button.style.removeProperty('min-height');
+        button.style.removeProperty('max-height');
+        button.style.removeProperty('aspect-ratio');
+
+        const preview = stackPreviewV764(db?.days?.[dayNumber]);
+        const currentLabel = q(':scope > .daily-stack-day-v764', button)?.textContent || '';
+        const currentPreview = q(':scope > .daily-stack-preview-v764', button)?.textContent || '';
+        const desiredLabel = `Day ${dayNumber}`;
+        if (currentLabel !== desiredLabel || currentPreview !== preview || button.children.length > (preview ? 2 : 1)) {
+          button.replaceChildren();
+          const label = document.createElement('strong');
+          label.className = 'daily-stack-day-v228 daily-stack-day-v764';
+          label.textContent = desiredLabel;
+          button.appendChild(label);
+          if (preview) {
+            const span = document.createElement('span');
+            span.className = 'daily-stack-preview-v228 daily-stack-preview-v764';
+            span.textContent = preview;
+            span.title = preview;
+            button.appendChild(span);
+          }
+        }
+      });
+    } finally {
+      repairingStackV764 = false;
+    }
+  }
+
+  let stackObserverV764 = null;
+  function observeStackV764() {
+    const grid = document.getElementById('days-grid');
+    if (!grid || grid.dataset.stackObserverV764 === '1') { repairDailyStackV764(); return; }
+    grid.dataset.stackObserverV764 = '1';
+    stackObserverV764?.disconnect?.();
+    stackObserverV764 = new MutationObserver(() => requestAnimationFrame(repairDailyStackV764));
+    stackObserverV764.observe(grid,{childList:true,subtree:true});
+    repairDailyStackV764();
+  }
+
+  try {
+    const beforeInit = window.initGrid || initGrid;
+    if (typeof beforeInit === 'function' && !beforeInit.__v764Stack) {
+      const wrappedInit = function() {
+        const result = beforeInit.apply(this, arguments);
+        requestAnimationFrame(() => { observeStackV764(); repairDailyStackV764(); });
+        return result;
+      };
+      wrappedInit.__v764Stack = true;
+      window.initGrid = wrappedInit;
+      try { initGrid = wrappedInit; } catch {}
+    }
+  } catch {}
+
+  document.addEventListener('click', event => {
+    if (event.target?.closest?.('[data-daily-layout-v228],#open-daily-logs-btn,.log-settings-trash-card-v327')) {
+      setTimeout(() => { observeStackV764(); repairDailyStackV764(); }, 0);
+      setTimeout(repairDailyStackV764, 120);
+    }
+  }, true);
+
+  const boot = () => {
+    try {
+      const view = document.querySelector('.custom-tab-view.view.active');
+      const palette = q('.custom-component-palette', view);
+      if (palette) installComponentSearchV764(palette);
+    } catch {}
+    observeStackV764();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(boot), {once:true});
+  else requestAnimationFrame(boot);
+})();
+
+
+// ============================================================================
+// V787 — KB POLAROID SHAPE PICKER + UNCROPPED POLAROID CARDS
+// Adds the same visual card-shape choices used by image-primary categories to
+// Knowledge Base Settings whenever Polaroid Grid is selected. Keeps the entire
+// polaroid card content visible instead of clipping the image/title area.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyKbPolaroidShapeV787) return;
+  window.__loggyKbPolaroidShapeV787 = true;
+
+  const q=(sel,root=document)=>root?.querySelector?.(sel)||null;
+  const qa=(sel,root=document)=>Array.from(root?.querySelectorAll?.(sel)||[]);
+  const SHAPES=new Set(['portrait','portrait-small','square','landscape','wide']);
+  const norm=value=>SHAPES.has(String(value||''))?String(value):'portrait';
+
+  function currentShape(){
+    try{
+      db.settings ||= {};
+      db.settings.kbPolaroidCardShapeV787=norm(db.settings.kbPolaroidCardShapeV787);
+      return db.settings.kbPolaroidCardShapeV787;
+    }catch{return 'portrait'}
+  }
+
+  function isPolaroid(){
+    try{return String(db.settings?.libraryView||'list')==='polaroid'}catch{return false}
+  }
+
+  function applyShape(){
+    const grid=q('#phrases-library-grid');
+    if(!grid)return;
+    [...SHAPES].forEach(shape=>grid.classList.remove(`kb-polaroid-shape-${shape}-v788`));
+    if(!isPolaroid())return;
+    const shape=currentShape();
+    grid.classList.add(`kb-polaroid-shape-${shape}-v788`);
+    grid.dataset.kbPolaroidShapeV787=shape;
+  }
+
+  function syncButtons(section){
+    const shape=currentShape();
+    qa('[data-kb-polaroid-shape-v788]',section).forEach(button=>{
+      const active=button.dataset.kbPolaroidShapeV787===shape;
+      button.classList.toggle('selected',active);
+      button.setAttribute('aria-checked',active?'true':'false');
+    });
+  }
+
+  function positionSettings(section){
+    const modal=q('#settings-modal');
+    const box=q(':scope > .modal-box',modal)||q('.modal-box',modal);
+    if(!box||!section)return;
+    const viewSection=q('.kb-view-btn',box)?.closest?.('.modal-section');
+    const legacy=q('#kb-polaroid-options-v163',box);
+    const order=q('#kb-item-order-setting-v215',box);
+    if(viewSection && viewSection.nextElementSibling!==section) viewSection.insertAdjacentElement('afterend',section);
+    if(legacy && section.nextElementSibling!==legacy) section.insertAdjacentElement('afterend',legacy);
+    if(order){
+      const anchor=legacy||section;
+      if(anchor.nextElementSibling!==order) anchor.insertAdjacentElement('afterend',order);
+    }
+  }
+
+  function ensureSetting(){
+    const modal=q('#settings-modal');
+    const box=q(':scope > .modal-box',modal)||q('.modal-box',modal);
+    if(!box)return null;
+    let section=q('#kb-polaroid-display-shapes-v788',box);
+    if(!section){
+      section=document.createElement('section');
+      section.id='kb-polaroid-display-shapes-v788';
+      section.className='modal-section kb-polaroid-display-shapes-v788';
+      section.innerHTML=`
+        <span class="field-label">Polaroid Card Shape</span>
+        <p class="progress-hint">Choose the shape used by cards in Polaroid Grid.</p>
+        <div class="kb-polaroid-shape-choices-v788" role="radiogroup" aria-label="Knowledge Base polaroid card shape">
+          <button type="button" data-kb-polaroid-shape-v788="portrait" role="radio"><span class="kb-primary-layout-mini-v752 portrait"><i></i></span><small>Portrait</small></button>
+          <button type="button" data-kb-polaroid-shape-v788="portrait-small" role="radio"><span class="kb-primary-layout-mini-v752 portrait-small"><i></i></span><small>Compact Portrait</small></button>
+          <button type="button" data-kb-polaroid-shape-v788="square" role="radio"><span class="kb-primary-layout-mini-v752 square"><i></i></span><small>Square</small></button>
+          <button type="button" data-kb-polaroid-shape-v788="landscape" role="radio"><span class="kb-primary-layout-mini-v752 landscape"><i></i></span><small>Landscape</small></button>
+          <button type="button" data-kb-polaroid-shape-v788="wide" role="radio"><span class="kb-primary-layout-mini-v752 wide"><i></i></span><small>Wide</small></button>
+        </div>`;
+      section.addEventListener('click',event=>{
+        const button=event.target.closest?.('[data-kb-polaroid-shape-v788]');
+        if(!button)return;
+        db.settings ||= {};
+        db.settings.kbPolaroidCardShapeV787=norm(button.dataset.kbPolaroidShapeV787);
+        syncButtons(section);
+        applyShape();
+        try{saveDb()}catch{}
+        try{renderPhrasesLibrary(q('#phrases-search-bar')?.value||'')}catch{}
+      });
+    }
+    section.classList.toggle('hidden',!isPolaroid());
+    const legacy=q('#kb-polaroid-options-v163',box);
+    if(legacy)legacy.classList.toggle('hidden',!isPolaroid());
+    syncButtons(section);
+    positionSettings(section);
+    return section;
+  }
+
+  function refresh(){
+    ensureSetting();
+    applyShape();
+    requestAnimationFrame(()=>{
+      const section=q('#kb-polaroid-display-shapes-v788');
+      if(section)positionSettings(section);
+      applyShape();
+    });
+  }
+
+  try{
+    const beforeSettings=renderSettings;
+    renderSettings=function(){
+      const result=beforeSettings.apply(this,arguments);
+      refresh();
+      return result;
+    };
+    window.renderSettings=renderSettings;
+  }catch{}
+
+  try{
+    const beforeLibrary=renderPhrasesLibrary;
+    renderPhrasesLibrary=function(){
+      const result=beforeLibrary.apply(this,arguments);
+      requestAnimationFrame(applyShape);
+      return result;
+    };
+    window.renderPhrasesLibrary=renderPhrasesLibrary;
+  }catch{}
+
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('.kb-view-btn,#open-settings-btn,#settings-category-tabs')) refresh();
+  },true);
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});
+  else refresh();
+})();
+
+
+// ============================================================================
+// V788 — roadmap curriculum integrations, media-grid Resources, deep custom-tab
+// search, roadmap progress snapshots, Priority Matrix, Wheel Picker, Container.
+// ============================================================================
+(() => {
+  'use strict';
+  if(window.__loggyV788CurriculumIntegrations)return;
+  window.__loggyV788CurriculumIntegrations=true;
+  const q=(s,r=document)=>r?.querySelector?.(s)||null, qa=(s,r=document)=>Array.from(r?.querySelectorAll?.(s)||[]);
+  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const uid=p=>{try{return customId(p)}catch{return `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`}};
+  const tabs=()=>{try{return getCustomTabs?.()||[]}catch{return[]}};
+  const appDb=()=>{try{return db}catch{return window.db||{}}};
+  const cleanTag=v=>String(v||'').replace(/^#+/,'').trim().toLowerCase();
+  const itemTags=id=>{try{return (typeof getKnowledgeItemTagsV55==='function'?getKnowledgeItemTagsV55(id):(appDb().phrase_meta?.[id]?.tags||[])).map(cleanTag).filter(Boolean)}catch{return[]}};
+
+  // ---- Resources: visual media-style grid + Notebook/Whiteboard links + files.
+  function notebookTargets(){
+    const out=[];for(const tab of tabs()){
+      if(!window.__loggyIsNotepadTabV249?.(tab))continue;const state=tab.notepadV249||{};
+      for(const page of (state.pages||[]))out.push({kind:'notebook',tabId:String(tab.id),targetId:String(page.id),title:String(page.title||'Notebook Page'),subtitle:String(tab.name||'Notebook')});
+    }return out;
+  }
+  function whiteboardTargets(){
+    const out=[];for(const tab of tabs()){
+      const boards=tab?.whiteboardV198?.boards;if(!Array.isArray(boards))continue;
+      for(const board of boards)out.push({kind:'whiteboard',tabId:String(tab.id),targetId:String(board.id),title:String(board.name||board.title||'Whiteboard'),subtitle:String(tab.name||'Whiteboard')});
+    }return out;
+  }
+  function resourceIcon(item){
+    const kind=String(item?.kind||'url'); if(kind==='notebook')return 'ph-notebook';if(kind==='whiteboard')return 'ph-selection-background';if(kind==='file'){
+      const type=String(item.mime||'');if(type.startsWith('image/'))return 'ph-image';if(type.startsWith('video/'))return 'ph-video';if(type.startsWith('audio/'))return 'ph-speaker-high';if(type.includes('pdf'))return 'ph-file-pdf';return 'ph-file';
+    }
+    const url=String(item?.url||'').toLowerCase();if(/youtube\.com|youtu\.be|\.mp4(?:$|\?)/.test(url))return 'ph-video';if(/\.pdf(?:$|\?)/.test(url))return 'ph-file-pdf';if(/\.(png|jpe?g|gif|webp|svg)(?:$|\?)/.test(url))return 'ph-image';return 'ph-link';
+  }
+  function resourcePreview(item){
+    const icon=resourceIcon(item),src=String(item.dataUrl||item.url||'');
+    if((item.kind==='file'&&String(item.mime||'').startsWith('image/'))||/\.(png|jpe?g|gif|webp)(?:$|\?)/i.test(src))return `<img src="${esc(src)}" alt="">`;
+    if(item.kind==='file'&&String(item.mime||'').startsWith('video/'))return `<video src="${esc(src)}" muted preload="metadata"></video>`;
+    return `<div class="custom-resource-icon-v788"><i class="ph ${icon}"></i></div>`;
+  }
+  function openResource(item){
+    if(item.kind==='notebook'){window.__loggyOpenNotepadPageV249?.(item.tabId,item.targetId);return}
+    if(item.kind==='whiteboard'){window.__loggyOpenWhiteboardV198?.(item.tabId,item.targetId);return}
+    const href=String(item.dataUrl||item.url||'');if(href)window.open(href,'_blank','noopener,noreferrer');
+  }
+  async function addResourceV788(tab,component,content){
+    const choice=await showAppFormModal({title:'Add Resource',submitLabel:'Continue',fields:[{name:'kind',label:'Resource type',type:'select',value:'url',options:[{value:'url',label:'Link / video / PDF URL'},{value:'file',label:'Upload a file'},{value:'notebook',label:'Existing Notebook page'},{value:'whiteboard',label:'Existing Whiteboard'}]}]});if(!choice)return;
+    const kind=String(choice.kind||'url');
+    if(kind==='file'){
+      const input=document.createElement('input');input.type='file';input.accept='image/*,video/*,audio/*,.pdf,.txt,.doc,.docx,.ppt,.pptx';input.style.display='none';document.body.appendChild(input);
+      input.onchange=async()=>{const file=input.files?.[0];input.remove();if(!file)return;const reader=new FileReader();reader.onload=async()=>{const v=await showAppFormModal({title:'Add File Resource',submitLabel:'Add',fields:[{name:'title',label:'Title',value:file.name.replace(/\.[^.]+$/,'')},{name:'note',label:'Note (optional)',type:'textarea'}]});if(!v)return;component.items||=[];component.items.push({id:uid('resource'),kind:'file',title:String(v.title||file.name),note:String(v.note||''),fileName:file.name,mime:file.type||'',dataUrl:String(reader.result||'')});saveDb();renderResourcesGrid(tab,component,content)};reader.readAsDataURL(file)};input.click();return;
+    }
+    if(kind==='notebook'||kind==='whiteboard'){
+      const targets=kind==='notebook'?notebookTargets():whiteboardTargets();if(!targets.length){showFeatureToast?.(`No ${kind==='notebook'?'Notebook pages':'Whiteboards'} are available yet.`);return}
+      const v=await showAppFormModal({title:kind==='notebook'?'Link Notebook Page':'Link Whiteboard',submitLabel:'Add',fields:[{name:'target',label:kind==='notebook'?'Notebook page':'Whiteboard',type:'select',options:targets.map((t,i)=>({value:String(i),label:`${t.title} · ${t.subtitle}`}))},{name:'note',label:'Note (optional)',type:'textarea'}]});if(!v)return;const target=targets[Number(v.target)||0];if(!target)return;component.items||=[];component.items.push({id:uid('resource'),...target,note:String(v.note||'')});saveDb();renderResourcesGrid(tab,component,content);return;
+    }
+    const v=await showAppFormModal({title:'Add Link Resource',submitLabel:'Add',fields:[{name:'title',label:'Title'},{name:'url',label:'URL',type:'url',value:'https://'},{name:'note',label:'Note (optional)',type:'textarea'}]});if(!v||!String(v.title||'').trim())return;component.items||=[];component.items.push({id:uid('resource'),kind:'url',title:String(v.title).trim(),url:String(v.url||'').trim(),note:String(v.note||'')});saveDb();renderResourcesGrid(tab,component,content);
+  }
+  function renderResourcesGrid(tab,component,content){
+    component.items=Array.isArray(component.items)?component.items:[];
+    content.innerHTML=`<div class="custom-collection-header"><h2>${esc(component.title||'Resources')}</h2><button type="button" class="small-icon-btn add-resource-v788" title="Add resource"><i class="ph ph-plus"></i></button></div><div class="custom-resource-grid-v788"></div>`;
+    const grid=q('.custom-resource-grid-v788',content);for(const item of component.items){const card=document.createElement('article');card.className='custom-resource-card-v788 custom-searchable-item';card.dataset.searchText=`${item.title||''} ${item.note||''} ${item.url||''} ${item.subtitle||''}`.toLowerCase();card.dataset.customItemId=item.id;card.innerHTML=`<button type="button" class="custom-resource-open-v788">${resourcePreview(item)}<div class="custom-resource-meta-v788"><strong>${esc(item.title||'Resource')}</strong>${item.subtitle?`<span>${esc(item.subtitle)}</span>`:''}${item.note?`<small>${esc(item.note)}</small>`:''}</div></button>`;q('.custom-resource-open-v788',card).onclick=()=>openResource(item);card.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit resource',icon:'ph-pencil-simple',action:async()=>{const fields=[{name:'title',label:'Title',value:item.title||''},{name:'note',label:'Note',type:'textarea',value:item.note||''}];if(item.kind==='url'||(!item.kind&&item.url))fields.splice(1,0,{name:'url',label:'URL',type:'url',value:item.url||''});const v=await showAppFormModal({title:'Edit Resource',submitLabel:'Save',fields});if(!v)return;item.title=String(v.title||'').trim()||item.title;if(Object.prototype.hasOwnProperty.call(v,'url'))item.url=String(v.url||'').trim();item.note=String(v.note||'');saveDb();renderResourcesGrid(tab,component,content)}},{label:'Delete resource',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Resource',message:`Delete “${item.title||'this resource'}”?`,confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x!==item);saveDb();renderResourcesGrid(tab,component,content)}}])};grid.appendChild(card)}
+    if(!component.items.length)grid.innerHTML='<div class="custom-resource-empty-v788">No resources yet.</div>';
+    q('.add-resource-v788',content).onclick=()=>addResourceV788(tab,component,content);
+  }
+
+  // ---- New custom components.
+  const NEW_DEFS=[
+    {type:'priorityMatrixV788',label:'Priority Matrix',icon:'ph-grid-four'},
+    {type:'wheelPickerV788',label:'Wheel Picker',icon:'ph-disc'},
+    {type:'containerGroupV788',label:'Container / Group',icon:'ph-selection-all'}
+  ];
+  try{for(const def of NEW_DEFS)if(!CUSTOM_COMPONENT_LIBRARY.some(x=>x.type===def.type))CUSTOM_COMPONENT_LIBRARY.push(def);window.__loggyRefreshCustomComponentPaletteV746?.()}catch{}
+  try{
+    const before=window.defaultCustomComponent||defaultCustomComponent;
+    const fn=function(type){
+      if(type==='priorityMatrixV788')return{id:uid('component'),type,title:'Priority Matrix',titleBackground:'none',quadrants:[{id:'ui',label:'Urgent / Important'},{id:'un',label:'Urgent / Not Important'},{id:'ni',label:'Not Urgent / Important'},{id:'nn',label:'Not Urgent / Not Important'}],items:[]};
+      if(type==='wheelPickerV788')return{id:uid('component'),type,title:'Wheel Picker',titleBackground:'none',sourceModeV788:'manual',items:['Option 1','Option 2','Option 3']};
+      if(type==='containerGroupV788')return{id:uid('component'),type,title:'Group',titleBackground:'none',childrenV788:[]};
+      return before?.apply(this,arguments);
+    };window.defaultCustomComponent=fn;try{defaultCustomComponent=fn}catch{}
+  }catch{}
+  function renderPriority(tab,c,content){
+    c.quadrants=Array.isArray(c.quadrants)&&c.quadrants.length===4?c.quadrants:[{id:'ui',label:'Urgent / Important'},{id:'un',label:'Urgent / Not Important'},{id:'ni',label:'Not Urgent / Important'},{id:'nn',label:'Not Urgent / Not Important'}];c.items=Array.isArray(c.items)?c.items:[];
+    content.innerHTML=`<div class="custom-collection-header"><h2>${esc(c.title||'Priority Matrix')}</h2><button class="small-icon-btn matrix-add-v788"><i class="ph ph-plus"></i></button></div><div class="priority-matrix-v788">${c.quadrants.map(row=>`<section data-q-v788="${esc(row.id)}"><h3>${esc(row.label)}</h3><div></div></section>`).join('')}</div>`;
+    const ordered=c.items.slice().sort((a,b)=>Number(!!a.done)-Number(!!b.done));
+    for(const item of ordered){const host=q(`[data-q-v788="${CSS.escape(String(item.quadrant||c.quadrants[0].id))}"]>div`,content)||q('[data-q-v788]>div',content);const card=document.createElement('article');card.className=`priority-item-v788 custom-searchable-item${item.done?' is-done':''}`;card.dataset.searchText=`${item.title||''} ${item.note||''}`.toLowerCase();card.innerHTML=`<label class="priority-item-main-v792"><input type="checkbox" ${item.done?'checked':''}><span><strong>${esc(item.title||'Item')}</strong>${item.note?`<small>${esc(item.note)}</small>`:''}</span></label>`;q('input',card).onchange=e=>{item.done=e.target.checked;item.completedAt=item.done?new Date().toISOString():'';saveDb();renderCustomTabView(tab.id)};card.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const moveItems=c.quadrants.filter(row=>String(row.id)!==String(item.quadrant)).map(row=>({label:`Move to ${row.label}`,icon:'ph-arrow-right',action:()=>{item.quadrant=row.id;saveDb();renderCustomTabView(tab.id)}}));showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit item',icon:'ph-pencil-simple',action:()=>matrixItemForm(item)},...moveItems,{label:'Delete item',icon:'ph-trash',danger:true,action:()=>{c.items=c.items.filter(x=>x!==item);saveDb();renderCustomTabView(tab.id)}}])};host.appendChild(card)}
+    async function matrixItemForm(item=null){const v=await showAppFormModal({title:item?'Edit Priority Item':'Add Priority Item',submitLabel:item?'Save':'Add',fields:[{name:'title',label:'Item',value:item?.title||''},{name:'note',label:'Details',type:'textarea',value:item?.note||''},{name:'quadrant',label:'Quadrant',type:'select',value:item?.quadrant||c.quadrants[0].id,options:c.quadrants.map(x=>({value:x.id,label:x.label}))}]});if(!v||!String(v.title||'').trim())return;if(item)Object.assign(item,{title:String(v.title).trim(),note:String(v.note||''),quadrant:String(v.quadrant)});else c.items.push({id:uid('priority'),title:String(v.title).trim(),note:String(v.note||''),quadrant:String(v.quadrant),done:false,completedAt:''});saveDb();renderCustomTabView(tab.id)}
+    q('.matrix-add-v788',content).onclick=()=>matrixItemForm();
+  }
+  function wheelKbCategoriesV796(){
+    const d=appDb();
+    return [...new Set([...(d.settings?.categories||[]),...Object.keys(d.settings?.categorySettings||{}),...(d.phrases||[]).map(id=>String(d.phrase_meta?.[id]?.type||''))].map(String).map(x=>x.trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  }
+  function wheelKbLabelV796(id){
+    try{const label=window.__loggyV162?.getKnowledgeDisplayLabel?.(id,'kb');if(String(label||'').trim())return String(label).trim()}catch{}
+    const meta=appDb().phrase_meta?.[id]||{};
+    return String(meta.title||meta.term||meta.label||meta.name||id||'').trim();
+  }
+  function wheelKbLearnedIdsV796(){
+    const out=new Set();for(const day of Object.values(appDb().days||{}))for(const id of (day?.phrases||[]))out.add(String(id));return out;
+  }
+  function wheelSource(c,tab){
+    const mode=String(c.sourceModeV788||'manual');
+    if(mode==='kbCategories'){
+      let cats=wheelKbCategoriesV796();
+      const only=(c.wheelKbCategoryNamesV796||[]).map(x=>String(x).trim().toLowerCase()).filter(Boolean);
+      if(only.length)cats=cats.filter(x=>only.includes(String(x).toLowerCase()));
+      return cats;
+    }
+    if(mode==='kbItems'){
+      const d=appDb(),learned=wheelKbLearnedIdsV796(),wantedTags=(c.wheelKbTagsV796||[]).map(cleanTag).filter(Boolean),tagMode=String(c.wheelKbTagModeV796||'all'),category=String(c.wheelKbCategoryV796||'').trim(),learnedMode=String(c.wheelKbLearnedV796||'any');
+      const specific=(c.wheelKbSpecificItemsV796||[]).map(x=>String(x).trim().toLowerCase()).filter(Boolean);
+      let rows=(d.phrases||[]).map(id=>({id:String(id),label:wheelKbLabelV796(id),meta:d.phrase_meta?.[id]||{}})).filter(x=>x.label);
+      if(category)rows=rows.filter(x=>String(x.meta.type||'')===category);
+      if(wantedTags.length)rows=rows.filter(x=>{const tags=itemTags(x.id);return tagMode==='any'?wantedTags.some(t=>tags.includes(t)):wantedTags.every(t=>tags.includes(t))});
+      if(learnedMode==='learned')rows=rows.filter(x=>learned.has(x.id));
+      else if(learnedMode==='unlearned')rows=rows.filter(x=>!learned.has(x.id));
+      if(specific.length)rows=rows.filter(x=>specific.includes(x.label.toLowerCase())||specific.includes(x.id.toLowerCase()));
+      const max=Math.max(0,Number(c.wheelKbMaxV796||0)||0);if(max)rows=rows.slice(0,max);
+      return rows.map(x=>x.label);
+    }
+    if(mode==='checklists'){
+      let lists=(tab.components||[]).filter(x=>x.type==='checklist');
+      const wanted=String(c.wheelChecklistComponentV796||'');if(wanted)lists=lists.filter(x=>String(x.id)===wanted);
+      const state=String(c.wheelChecklistStateV796||'incomplete');
+      let out=lists.flatMap(x=>(x.items||[]).filter(i=>state==='all'||(state==='completed'?!!i.done:!i.done)).map(i=>String(i.text||'').trim())).filter(Boolean);
+      const max=Math.max(0,Number(c.wheelKbMaxV796||0)||0);if(max)out=out.slice(0,max);return out;
+    }
+    return (c.items||[]).map(String).filter(Boolean);
+  }
+  function renderWheel(tab,c,content){
+    c.items=Array.isArray(c.items)?c.items:[];
+    const items=wheelSource(c,tab),n=Math.max(1,items.length),step=360/n;
+    const segs=items.length?items.map((_,i)=>{const a=(i*step).toFixed(4),b=((i+1)*step).toFixed(4);return `${i%2?'var(--wheel-seg-a-v790)':'var(--wheel-seg-b-v790)'} ${a}deg ${b}deg`}).join(','): 'var(--wheel-seg-a-v790) 0deg 360deg';
+    const labels=items.map((x,i)=>{const a=((i+.5)*step).toFixed(4);return `<span class="wheel-label-v790" style="--a:${a}deg"><b>${esc(x)}</b></span>`}).join('');
+    content.innerHTML=`<div class="custom-collection-header"><h2>${esc(c.title||'Wheel Picker')}</h2><button class="small-icon-btn wheel-edit-items-v788"><i class="ph ph-pencil-simple"></i></button></div><div class="wheel-picker-v788"><div class="wheel-stage-v790"><div class="wheel-disc-v790" style="--wheel-count-v790:${n};background:conic-gradient(from 0deg,${segs})">${labels}<button type="button" class="wheel-center-button-v790"><i class="ph ph-spinner-gap"></i><span>Spin</span></button></div><div class="wheel-pointer-v790" aria-hidden="true"></div></div><div class="wheel-result-v788" aria-live="polite"></div></div>`;
+    const btn=q('.wheel-center-button-v790',content),disc=q('.wheel-disc-v790',content),result=q('.wheel-result-v788',content);
+    btn.onclick=()=>{if(!items.length||btn.disabled)return;const winnerIndex=Math.floor(Math.random()*items.length),winner=items[winnerIndex],target=1800+((90-(((winnerIndex+.5)*step)%360)+360)%360);btn.disabled=true;result.classList.remove('is-visible');disc.style.transition='none';disc.style.transform='rotate(0deg)';void disc.offsetWidth;disc.style.transition='transform 1.1s cubic-bezier(.12,.78,.18,1)';disc.style.transform=`rotate(${target}deg)`;setTimeout(()=>{result.innerHTML=`<span>Selected</span><strong>${esc(winner)}</strong>`;result.classList.add('is-visible');btn.disabled=false},1100)};
+    q('.wheel-edit-items-v788',content).onclick=()=>editWheel(tab,c);
+  }
+  async function editWheel(tab,c){
+    const categories=wheelKbCategoriesV796();
+    const checklists=(tab.components||[]).filter(x=>x.type==='checklist');
+    const fields=[
+      {name:'title',label:'Title',value:c.title||'Wheel Picker'},
+      {name:'source',label:'Source',type:'select',value:c.sourceModeV788||'manual',options:[{value:'manual',label:'Manual entries'},{value:'kbItems',label:'Knowledge Base items'},{value:'kbCategories',label:'Knowledge Base categories'},{value:'checklists',label:'Checklist items on this tab'}]},
+      {name:'items',label:'Manual entries (one per line)',type:'textarea',rows:6,value:(c.items||[]).join('\n')},
+      {name:'kbCategory',label:'Category',type:'select',value:c.wheelKbCategoryV796||'',options:[{value:'',label:'All categories'},...categories.map(x=>({value:x,label:x}))]},
+      {name:'kbTags',label:'Tags (comma separated)',value:(c.wheelKbTagsV796||[]).join(', '),placeholder:'conversion-factors, practice'},
+      {name:'kbTagMode',label:'Tag matching',type:'select',value:c.wheelKbTagModeV796||'all',options:[{value:'all',label:'Match all tags'},{value:'any',label:'Match any tag'}]},
+      {name:'kbLearned',label:'Items to include',type:'select',value:c.wheelKbLearnedV796||'any',options:[{value:'any',label:'All matching items'},{value:'learned',label:'Already logged in Items Learned'},{value:'unlearned',label:'Not yet logged in Items Learned'}]},
+      {name:'kbSpecificItems',label:'Specific items (optional, one per line)',type:'textarea',rows:4,value:(c.wheelKbSpecificItemsV796||[]).join('\n'),placeholder:'Leave blank to use every matching item'},
+      {name:'kbCategoryNames',label:'Specific categories (optional, one per line)',type:'textarea',rows:4,value:(c.wheelKbCategoryNamesV796||[]).join('\n'),placeholder:'Leave blank to use every category'},
+      {name:'checklistComponent',label:'Checklist',type:'select',value:c.wheelChecklistComponentV796||'',options:[{value:'',label:'All Checklists on this tab'},...checklists.map(x=>({value:x.id,label:x.title||x.name||'Checklist'}))]},
+      {name:'checklistState',label:'Checklist items to include',type:'select',value:c.wheelChecklistStateV796||'incomplete',options:[{value:'incomplete',label:'Unchecked items'},{value:'completed',label:'Checked items'},{value:'all',label:'All items'}]},
+      {name:'maxItems',label:'Maximum wheel entries (0 = no limit)',type:'number',min:0,step:1,value:Number(c.wheelKbMaxV796||0),className:'wheel-max-entries-input-v803'}
+    ];
+    const promise=showAppFormModal({title:'Wheel Picker Settings',submitLabel:'Save',fields});
+    queueMicrotask(()=>{
+      const modal=document.getElementById('app-prompt-modal');if(!modal)return;
+      const input=name=>modal.querySelector(`[data-field-name="${name}"]`);
+      const row=name=>input(name)?.closest('.app-prompt-field');
+      const source=input('source');
+      const sync=()=>{
+        const mode=String(source?.value||'manual');
+        const show=(name,on)=>{const r=row(name);if(r)r.style.display=on?'':'none'};
+        show('items',mode==='manual');
+        for(const name of ['kbCategory','kbTags','kbTagMode','kbLearned','kbSpecificItems'])show(name,mode==='kbItems');
+        show('kbCategoryNames',mode==='kbCategories');
+        for(const name of ['checklistComponent','checklistState'])show(name,mode==='checklists');
+        show('maxItems',mode==='kbItems'||mode==='checklists');
+        const adv=modal.querySelector('.wheel-advanced-label-v796');if(adv)adv.style.display=mode==='manual'?'none':'';
+      };
+      source?.addEventListener('change',sync);sync();
+      const fieldsHost=modal.querySelector('#app-prompt-fields');
+      if(fieldsHost&&!fieldsHost.querySelector('.wheel-advanced-label-v796')){
+        const marker=document.createElement('div');marker.className='wheel-advanced-label-v796';marker.innerHTML='<strong>Advanced filters</strong><span>Use these only when the selected source supports them.</span>';
+        const kbRow=row('kbCategory');fieldsHost.insertBefore(marker,kbRow||null);
+      }
+      sync();
+    });
+    const v=await promise;if(!v)return;
+    c.title=String(v.title||'Wheel Picker');c.sourceModeV788=String(v.source||'manual');
+    c.items=String(v.items||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    c.wheelKbCategoryV796=String(v.kbCategory||'');
+    c.wheelKbTagsV796=String(v.kbTags||'').split(',').map(cleanTag).filter(Boolean);
+    c.wheelKbTagModeV796=String(v.kbTagMode||'all');
+    c.wheelKbLearnedV796=String(v.kbLearned||'any');
+    c.wheelKbSpecificItemsV796=String(v.kbSpecificItems||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    c.wheelKbCategoryNamesV796=String(v.kbCategoryNames||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    c.wheelChecklistComponentV796=String(v.checklistComponent||'');
+    c.wheelChecklistStateV796=String(v.checklistState||'incomplete');
+    c.wheelKbMaxV796=Math.max(0,Math.floor(Number(v.maxItems||0)||0));
+    saveDb();renderCustomTabView(tab.id)
+  }
+  function renderGroup(tab,c,content){
+    c.childrenV788=Array.isArray(c.childrenV788)?c.childrenV788:[];
+    content.innerHTML=`<div class="custom-group-v788"><div class="custom-collection-header"><h2>${esc(c.title||'Group')}</h2></div><div class="custom-group-children-v788"></div></div>`;
+    const host=q('.custom-group-children-v788',content);
+
+    for(const child of c.childrenV788){
+      const wrap=document.createElement('section');
+      wrap.className='custom-group-child-v788';
+      wrap.dataset.childId=child.id;
+      const body=document.createElement('div');
+      wrap.appendChild(body);
+      try{renderCustomComponentContent(tab,child,body)}catch{body.textContent='Component unavailable'}
+
+      if(customTabEditMode){
+        wrap.draggable=true;
+        wrap.title='Drag to move this component out of the group';
+        wrap.addEventListener('dragstart',e=>{
+          e.stopPropagation();
+          e.dataTransfer.effectAllowed='move';
+          e.dataTransfer.setData('text/custom-group-child',JSON.stringify({groupId:c.id,childId:child.id}));
+          wrap.classList.add('dragging');
+        });
+        wrap.addEventListener('dragend',()=>wrap.classList.remove('dragging'));
+
+        const out=document.createElement('button');
+        out.type='button';
+        out.className='small-icon-btn group-child-delete-v788';
+        out.title='Move out of group';
+        out.setAttribute('aria-label','Move out of group');
+        out.innerHTML='<i class="ph ph-arrow-square-out"></i>';
+        out.onclick=e=>{
+          e.stopPropagation();
+          const i=c.childrenV788.findIndex(x=>String(x.id)===String(child.id));
+          if(i<0)return;
+          const [moved]=c.childrenV788.splice(i,1);
+          const gi=(tab.components||[]).findIndex(x=>String(x.id)===String(c.id));
+          tab.components.splice(Math.max(0,gi+1),0,moved);
+          saveDb();
+          renderCustomTabView(tab.id);
+        };
+        wrap.appendChild(out);
+      }
+      host.appendChild(wrap);
+    }
+
+    if(!c.childrenV788.length){
+      host.innerHTML=customTabEditMode
+        ? '<div class="custom-group-drop-empty-v790"><i class="ph ph-hand-grabbing"></i><strong>Drag tab components into this group</strong><span>Add components to the tab normally, then drag them here.</span></div>'
+        : '<div class="custom-resource-empty-v788">This group is empty.</div>';
+    }
+
+    if(customTabEditMode){
+      host.addEventListener('dragover',e=>{
+        const existingId=e.dataTransfer?.getData('text/custom-existing-component');
+        if(!existingId)return;
+        const source=(tab.components||[]).find(x=>String(x.id)===String(existingId));
+        if(!source||source===c||source.type==='containerGroupV788')return;
+        e.preventDefault();e.stopPropagation();
+        host.classList.add('group-drop-active-v790');
+      });
+      host.addEventListener('dragleave',e=>{if(!host.contains(e.relatedTarget))host.classList.remove('group-drop-active-v790')});
+      host.addEventListener('drop',e=>{
+        const existingId=e.dataTransfer?.getData('text/custom-existing-component');
+        if(!existingId)return;
+        const sourceIndex=(tab.components||[]).findIndex(x=>String(x.id)===String(existingId));
+        if(sourceIndex<0)return;
+        const source=tab.components[sourceIndex];
+        if(source===c||source.type==='containerGroupV788')return;
+        e.preventDefault();e.stopPropagation();
+        host.classList.remove('group-drop-active-v790');
+        tab.components.splice(sourceIndex,1);
+        c.childrenV788.push(source);
+        saveDb();
+        renderCustomTabView(tab.id);
+      });
+    }
+  }
+
+
+  // ---- Progress Meter: manual or derived from compatible components on this tab.
+  function flattenTabComponentsV792(tab){
+    const out=[],seenTabs=new Set();
+    const walkTab=t=>{if(!t||seenTabs.has(String(t.id)))return;seenTabs.add(String(t.id));walk(t.components||[])};
+    const walk=list=>{for(const c of list||[]){if(!c)continue;out.push(c);
+      if(c.type==='containerGroupV788')walk(c.childrenV788||[]);
+      if(c.type==='pageNavigatorV753')for(const page of c.pagesV753||[]){const child=getCustomTab?.(page.tabId);if(child&&String(child.nestedParentV753?.tabId)===String(tab.id)||child&&seenTabs.has(String(child.nestedParentV753?.tabId)))walkTab(child)}
+    }};
+    walkTab(tab);return out;
+  }
+  function progressModeForTypeV792(type){return ({checklist:'checklist',milestones:'milestones',kanbanV239:'kanban',skillRoadmapV749:'roadmap',qaV162:'qa',resources:'resources',priorityMatrixV788:'priority',goalsV162:'goals',writerDraftV808:'writingWords'})[type]||''}
+  function progressTypeLabelV792(c){return ({checklist:'Checklist',milestones:'Milestones',kanbanV239:'Kanban Board',skillRoadmapV749:'Learning Roadmap',qaV162:'Questions & Answers',resources:'Resources',priorityMatrixV788:'Priority Matrix',goalsV162:'Goals',writerDraftV808:'Writing Document'})[c?.type]||c?.type||'Component'}
+  function compatibleProgressSourcesV792(tab,mode=''){
+    return flattenTabComponentsV792(tab).filter(c=>{const m=progressModeForTypeV792(c.type);return m&&(mode==='manual'||!mode||m===mode||(mode==='writingWeek'&&m==='writingWords'))});
+  }
+  function progressCurrentV792(tab,c){
+    const mode=String(c.progressModeV792||'manual');if(mode==='manual')return Math.max(0,Number(c.current)||0);
+    // V812: aggregate all Writing Documents in this tab and its nested Pages.
+    if(mode==='writingAllV812'||mode==='writingWeekAllV812'){
+      const docs=flattenTabComponentsV792(tab).filter(x=>x.type==='writerDraftV808');
+      if(mode==='writingAllV812')return docs.reduce((sum,x)=>sum+String(x.documentTextV808||'').trim().split(/\s+/).filter(Boolean).length,0);
+      const days=new Set(Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}));
+      return docs.reduce((sum,x)=>sum+(x.wordHistoryV809||[]).filter(row=>days.has(row.date)).reduce((n,row)=>n+Math.max(0,Number(row.words)||0),0),0);
+    }
+    const candidates=compatibleProgressSourcesV792(tab,mode);let src=candidates.find(x=>String(x.id)===String(c.progressSourceIdV792))||candidates[0];if(!src)return 0;
+    if(mode==='writingWords')return String(src.documentTextV808||'').trim().split(/\s+/).filter(Boolean).length;
+    if(mode==='writingWeek'){const days=new Set(Array.from({length:7},(_,i)=>{const date=new Date();date.setHours(12,0,0,0);date.setDate(date.getDate()-i);return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}));return (src.wordHistoryV809||[]).filter(row=>days.has(row.date)).reduce((sum,row)=>sum+Math.max(0,Number(row.words)||0),0)}
+    if(mode==='checklist')return (src.items||[]).filter(x=>x.done).length;
+    if(mode==='milestones')return (src.items||[]).filter(x=>x.done).length;
+    if(mode==='kanban'){
+      const cols=src.columns||[];const wanted=String(c.progressKanbanColumnV792||'').trim().toLowerCase();
+      if(wanted){const col=cols.find(x=>String(x.id)===String(c.progressKanbanColumnV792)||String(x.title||x.name||'').trim().toLowerCase()===wanted);return (col?.cards||col?.items||[]).length}
+      return cols.reduce((sum,col)=>sum+(col.cards||col.items||[]).length,0);
+    }
+    if(mode==='roadmap'){
+      const nodes=src.nodes||[];if(c.progressRoadmapMetricV792==='modules')return nodes.filter(x=>x.completed).length;
+      let sections=0;for(const node of nodes){if((node.subsections||[]).length)sections+=(node.subsections||[]).filter(x=>x.done).length;else if(node.completed)sections++}return sections;
+    }
+    if(mode==='qa')return (src.items||[]).filter(x=>String(x.answer||'').trim()).length;
+    if(mode==='resources')return (src.items||[]).length;
+    if(mode==='priority')return (src.items||[]).filter(x=>x.done).length;
+    if(mode==='goals')return (src.goals||[]).filter(g=>g.done||Number(g.manualProgress||0)>=Math.max(1,Number(g.target)||1)).length;
+    return 0;
+  }
+  async function editProgressMeterV792(tab,c){
+    const all=compatibleProgressSourcesV792(tab,'manual');
+    const sourceOptions=[{value:'',label:'Automatically use the first compatible component'},...all.map(x=>({value:String(x.id),label:`${progressTypeLabelV792(x)} · ${x.title||'Untitled'}`}))];
+    const v=await showAppFormModal({title:'Progress Meter Settings',subtitle:'Component: Progress Meter',submitLabel:'Save',fields:[
+      {name:'title',label:'Title',value:c.title||'Progress'},
+      {name:'mode',label:'Progress source',type:'select',value:c.progressModeV792||'manual',options:[
+        {value:'manual',label:'Manual (+ / −)'},{value:'writingAllV812',label:'All Writing Document words in this tab / its Pages'},{value:'writingWeekAllV812',label:'All words added across Pages in the past 7 days'},{value:'writingWords',label:'Total words in Writing Document (including Pages)'},{value:'writingWeek',label:'Words written in the past 7 days (Writing Document)'},{value:'checklist',label:'Checked Checklist items'},{value:'milestones',label:'Completed Milestones'},{value:'kanban',label:'Kanban cards in a column'},{value:'roadmap',label:'Completed Learning Roadmap sections / modules'},{value:'qa',label:'Answered Questions & Answers items'},{value:'resources',label:'Resources added'},{value:'priority',label:'Completed Priority Matrix items'},{value:'goals',label:'Completed Goals'}]},
+      {name:'sourceId',label:'Source component',type:'select',value:c.progressSourceIdV792||'',options:sourceOptions},
+      {name:'kanbanColumn',label:'Kanban column (name or ID, optional)',value:c.progressKanbanColumnV792||'',placeholder:'Done'},
+      {name:'roadmapMetric',label:'Roadmap count',type:'select',value:c.progressRoadmapMetricV792||'sections',options:[{value:'sections',label:'Completed sections'},{value:'modules',label:'Completed main modules'}]},
+      {name:'target',label:'Target',type:'number',min:1,value:String(Math.max(1,Number(c.target)||1)),className:'progress-number-input-v797'},
+      {name:'unit',label:'Unit',value:c.unit||'',placeholder:'items, sections, resources…'},
+      {name:'manualCurrent',label:'Manual current value',type:'number',min:0,value:String(Math.max(0,Number(c.current)||0)),className:'progress-number-input-v797'}
+    ]});
+    if(!v)return;c.title=String(v.title||'').trim()||'Progress';c.progressModeV792=String(v.mode||'manual');c.progressSourceIdV792=String(v.sourceId||'');c.progressKanbanColumnV792=String(v.kanbanColumn||'').trim();c.progressRoadmapMetricV792=String(v.roadmapMetric||'sections');c.target=Math.max(1,Number(v.target)||1);c.unit=String(v.unit||'').trim();c.current=Math.max(0,Number(v.manualCurrent)||0);saveDb();renderCustomTabView(tab.id);
+  }
+  function renderProgressMeterV792(tab,c,content){
+    c.progressModeV792=c.progressModeV792||'manual';const current=progressCurrentV792(tab,c),target=Math.max(1,Number(c.target)||1),percent=Math.min(100,Math.round(current/target*100)),manual=c.progressModeV792==='manual';
+    content.innerHTML=`<div class="custom-collection-header"><h2>${esc(c.title||'Progress')}</h2><div class="learning-inline-actions">${manual?'<button type="button" class="small-icon-btn progress-minus"><i class="ph ph-minus"></i></button><button type="button" class="small-icon-btn progress-plus"><i class="ph ph-plus"></i></button>':''}</div></div><div class="learning-progress-card custom-content-editable" title="Right-click to edit progress settings"><div class="learning-progress-number"><strong>${current}</strong><span>/ ${target} ${esc(c.unit||'')}</span></div><div class="learning-progress-track"><div class="learning-progress-fill" style="width:${percent}%"></div></div><div class="learning-progress-percent">${percent}%</div></div>`;
+    if(manual){q('.progress-minus',content).onclick=()=>{c.current=Math.max(0,current-1);saveDb();renderCustomTabView(tab.id)};q('.progress-plus',content).onclick=()=>{c.current=Math.max(0,current+1);saveDb();renderCustomTabView(tab.id)}}
+    if(['writingWords','writingWeek','writingAllV812','writingWeekAllV812'].includes(c.progressModeV792)){const onWords=event=>{if(!content.isConnected){window.removeEventListener('loggy:writing-words-v809',onWords);return}const currentNow=progressCurrentV792(tab,c),limit=Math.max(1,Number(c.target)||1);const strong=q('.learning-progress-number strong',content),fill=q('.learning-progress-fill',content),percent=q('.learning-progress-percent',content);if(strong)strong.textContent=currentNow;if(fill)fill.style.width=`${Math.min(100,Math.round(currentNow/limit*100))}%`;if(percent)percent.textContent=`${Math.min(100,Math.round(currentNow/limit*100))}%`};window.addEventListener('loggy:writing-words-v809',onWords)}
+    q('.learning-progress-card',content).oncontextmenu=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Progress Meter settings',icon:'ph-sliders-horizontal',action:()=>editProgressMeterV792(tab,c)}])};
+  }
+
+  // ---- renderer authority for Resources + new components.
+  try{
+    const before=window.renderCustomComponentContent||renderCustomComponentContent;
+    const fn=function(tab,c,content){if(c?.type==='resources')return renderResourcesGrid(tab,c,content);if(c?.type==='priorityMatrixV788')return renderPriority(tab,c,content);if(c?.type==='wheelPickerV788')return renderWheel(tab,c,content);if(c?.type==='containerGroupV788')return renderGroup(tab,c,content);if(c?.type==='progressMeter')return renderProgressMeterV792(tab,c,content);const r=before?.apply(this,arguments);if(c?.type==='logsReviewV536')queueMicrotask(()=>{if(content.closest('.custom-tab-canvas')?.classList.contains('is-editing')){const root=q('.logs-review-root-v536',content);if(root&&!q('.roadmap-review-toggle-v788',content)){const label=document.createElement('label');label.className='roadmap-review-toggle-v788';label.innerHTML=`<span><strong>Include roadmap progress</strong><small>Add section completions, learned items, and modules worked to each review period.</small></span><input type="checkbox" ${c.includeRoadmapProgressV788?'checked':''}>`;root.prepend(label);q('input',label).onchange=e=>{c.includeRoadmapProgressV788=e.target.checked;saveDb();renderCustomTabView(tab.id)}}}decorateLogsReview(content,c)});return r};
+    window.renderCustomComponentContent=fn;try{renderCustomComponentContent=fn}catch{}
+  }catch{}
+  // Settings/edit routes for the new components.
+  try{
+    const before=window.editCustomComponent||editCustomComponent;
+    const fn=async function(tabId,componentId){const tab=getCustomTab?.(tabId),c=tab?.components?.find(x=>String(x.id)===String(componentId));if(c?.type==='wheelPickerV788'){return editWheel(tab,c)}if(c?.type==='progressMeter'){return editProgressMeterV792(tab,c)}if(c?.type==='priorityMatrixV788'){const v=await showAppFormModal({title:'Priority Matrix Settings',subtitle:'Component: Priority Matrix',submitLabel:'Save',fields:[{name:'title',label:'Title',value:c.title||'Priority Matrix'},...((c.quadrants||[]).map((row,i)=>({name:`q${i}`,label:`Quadrant ${i+1}`,value:row.label||''})))]});if(!v)return;c.title=String(v.title||'Priority Matrix');(c.quadrants||[]).forEach((row,i)=>row.label=String(v[`q${i}`]||row.label));saveDb();renderCustomTabView(tab.id);return}if(c?.type==='containerGroupV788'){const v=await showAppFormModal({title:'Container / Group Settings',subtitle:'Component: Container / Group',submitLabel:'Save',fields:[{name:'title',label:'Group title',value:c.title||'Group'}]});if(!v)return;c.title=String(v.title||'Group');saveDb();renderCustomTabView(tab.id);return}return before?.apply(this,arguments)};window.editCustomComponent=fn;try{editCustomComponent=fn}catch{}
+  }catch{}
+
+  // ---- Deep search: roadmaps + nested Pages. Local Search immediately above a
+  // roadmap searches that roadmap; Global Search searches the current tab and its pages.
+  function searchableText(obj){try{return JSON.stringify(obj,(k,v)=>['image','dataUrl','iconSvgV763'].includes(k)?'':v).toLowerCase()}catch{return''}}
+  function roadmapHits(tab,component,query){const hits=[];for(const node of component.nodes||[]){const main=`${node.label||''} ${node.title||''} ${node.description||''} ${(node.kbTagsV752||[]).join(' ')}`.toLowerCase();if(main.includes(query))hits.push({kind:'roadmap-node',tabId:tab.id,componentId:component.id,nodeId:node.id,title:`${node.label||''} ${node.title||''}`,subtitle:component.title||'Learning Roadmap'});for(const sub of node.subsections||[]){const text=`${sub.label||''} ${sub.title||''} ${sub.description||''} ${(sub.kbTagsV753||[]).join(' ')}`.toLowerCase();if(text.includes(query))hits.push({kind:'roadmap-section',tabId:tab.id,componentId:component.id,nodeId:node.id,subId:sub.id,title:`${sub.label||''} ${sub.title||''}`,subtitle:`${component.title||'Learning Roadmap'} · ${node.title||''}`})}}return hits}
+  function tabHits(tab,query,includePages=true){const hits=[];for(const c of tab.components||[]){if(c.type==='skillRoadmapV749')hits.push(...roadmapHits(tab,c,query));else if(c.type==='pageNavigatorV753'&&includePages){for(const page of c.pagesV753||[]){const child=getCustomTab?.(page.tabId);if(!child)continue;if(`${page.title||''} ${child.name||''}`.toLowerCase().includes(query))hits.push({kind:'page',tabId:child.id,title:page.title||child.name,subtitle:`Page in ${tab.name||'custom tab'}`});for(const cc of child.components||[]){if(searchableText(cc).includes(query))hits.push({kind:'page-component',tabId:child.id,componentId:cc.id,title:cc.title||cc.text||CUSTOM_COMPONENT_LIBRARY.find(d=>d.type===cc.type)?.label||'Page content',subtitle:`${page.title||child.name}`});}hits.push(...tabHits(child,query,false).filter(h=>h.kind.startsWith('roadmap')))}}else if(searchableText(c).includes(query))hits.push({kind:'component',tabId:tab.id,componentId:c.id,title:c.title||c.text||CUSTOM_COMPONENT_LIBRARY.find(d=>d.type===c.type)?.label||'Component',subtitle:tab.name||'Custom tab'})}return hits.slice(0,40)}
+  function activateHit(hit,query){
+    openCustomTab?.(hit.tabId);setTimeout(()=>{if(hit.kind==='roadmap-node'){window.openRoadmapNodeV749?.(hit.tabId,hit.componentId,hit.nodeId);return}if(hit.kind==='roadmap-section'){window.openRoadmapSectionV753?.(hit.tabId,hit.componentId,hit.nodeId,hit.subId);return}const view=document.getElementById(`custom-tab-view-${CSS.escape(String(hit.tabId))}`);let target=hit.componentId?q(`.custom-tab-component[data-component-id="${CSS.escape(String(hit.componentId))}"]`,view):null;if(target){target.scrollIntoView({behavior:'smooth',block:'center'});target.classList.add('search-hit-flash-v788');setTimeout(()=>target.classList.remove('search-hit-flash-v788'),1400);const item=qa('.custom-searchable-item',target).find(el=>(el.dataset.searchText||el.textContent||'').toLowerCase().includes(query));item?.scrollIntoView({behavior:'smooth',block:'center'})}},80);
+  }
+  function enhanceSearchComponent(tab,c,content){const input=q('.custom-user-search',content);if(!input||input.dataset.deepSearchV788)return;input.dataset.deepSearchV788='1';const results=document.createElement('div');results.className='custom-deep-search-results-v788 hidden';content.appendChild(results);const isGlobal=c.type==='globalSearchV163';input.addEventListener('input',()=>{const query=String(input.value||'').trim().toLowerCase();if(query.length<2){results.classList.add('hidden');results.innerHTML='';return}let hits=[];if(isGlobal)hits=tabHits(tab,query,true);else{const wrapper=content.closest('.custom-tab-component'),next=wrapper?.nextElementSibling,componentId=next?.dataset?.componentId,target=(tab.components||[]).find(x=>String(x.id)===String(componentId));if(target?.type==='skillRoadmapV749')hits=roadmapHits(tab,target,query)}results.innerHTML=hits.length?hits.map((h,i)=>`<button type="button" data-hit-v788="${i}"><strong>${esc(h.title)}</strong><span>${esc(h.subtitle||'')}</span></button>`).join(''):'<div>No matching results.</div>';results.classList.remove('hidden');qa('[data-hit-v788]',results).forEach(b=>b.onclick=()=>{const hit=hits[Number(b.dataset.hitV788)];if(hit){results.classList.add('hidden');activateHit(hit,query)}})},true)}
+  try{const before=window.renderCustomComponentContent||renderCustomComponentContent;const fn=function(tab,c,content){const r=before?.apply(this,arguments);if(c?.type==='search'||c?.type==='globalSearchV163')queueMicrotask(()=>enhanceSearchComponent(tab,c,content));return r};window.renderCustomComponentContent=fn;try{renderCustomComponentContent=fn}catch{}}catch{}
+
+  // ---- Right-click real KB item -> roadmap destination(s).
+  function roadTargetsForKb(id){const tags=itemTags(id),out=[];for(const tab of tabs())for(const c of tab.components||[]){if(c.type!=='skillRoadmapV749')continue;for(const node of c.nodes||[]){const nt=(node.kbTagsV752||[node.kbTag]).map(cleanTag).filter(Boolean);if(nt.length&&nt.every(t=>tags.includes(t)))out.push({tab,c,node,title:`${node.label||''} ${node.title||''}`});for(const sub of node.subsections||[]){const st=(sub.kbTagsV753||[sub.kbTagV753,sub.label]).map(cleanTag).filter(Boolean);if(st.length&&st.every(t=>tags.includes(t)))out.push({tab,c,node,sub,title:`${sub.label||''} ${sub.title||''}`})}}}return out}
+  function chooseRoadTarget(targets){if(targets.length===1){const x=targets[0];openCustomTab(x.tab.id);setTimeout(()=>x.sub?window.openRoadmapSectionV753?.(x.tab.id,x.c.id,x.node.id,x.sub.id):window.openRoadmapNodeV749?.(x.tab.id,x.c.id,x.node.id),60);return}document.getElementById('kb-roadmap-picker-v788')?.remove();const m=document.createElement('div');m.id='kb-roadmap-picker-v788';m.className='modal-overlay';m.innerHTML=`<div class="modal-box kb-roadmap-picker-box-v788"><div class="modal-header"><h2>Show in Learning Roadmap</h2><button class="small-icon-btn"><i class="ph ph-x"></i></button></div><div>${targets.map((x,i)=>`<button type="button" data-i="${i}"><strong>${esc(x.title)}</strong><span>${esc(x.c.title||'Learning Roadmap')} · ${esc(x.tab.name||'Custom Tab')}</span></button>`).join('')}</div></div>`;document.body.appendChild(m);q('.modal-header button',m).onclick=()=>m.remove();qa('[data-i]',m).forEach(b=>b.onclick=()=>{const x=targets[Number(b.dataset.i)];m.remove();openCustomTab(x.tab.id);setTimeout(()=>x.sub?window.openRoadmapSectionV753?.(x.tab.id,x.c.id,x.node.id,x.sub.id):window.openRoadmapNodeV749?.(x.tab.id,x.c.id,x.node.id),60)});m.onclick=e=>{if(e.target===m)m.remove()}}
+  document.addEventListener('contextmenu',e=>{const card=e.target?.closest?.('[data-kb-item-id-v162]');if(!card)return;const id=String(card.dataset.kbItemIdV162||''),targets=roadTargetsForKb(id);e.preventDefault();e.stopImmediatePropagation();const items=[{label:'Edit info',icon:'ph-pencil-simple',action:()=>openItemModal?.(id,true,true)}];if(targets.length)items.push({label:'Show in Learning Roadmap',icon:'ph-path',action:()=>chooseRoadTarget(targets)});showCustomItemContextMenu?.(e.clientX,e.clientY,items)},true);
+
+  // ---- Roadmap progress snapshots for Logs Review + main Weekly Review.
+  function roadSnapshot(start,end){const days=[];for(let d=start;d<=end;d++)if(appDb().days?.[d])days.push(d);const learnedIds=[...new Set(days.flatMap(d=>appDb().days?.[d]?.phrases||[]))],learnedTags=new Set(learnedIds.flatMap(itemTags));const completed=new Set(),worked=[];for(const d of days)for(const ref of appDb().days?.[d]?.roadmapLinksV749||[])if(ref.subId)completed.add(`${ref.tabId}|${ref.componentId}|${ref.nodeId}|${ref.subId}`);for(const tab of tabs())for(const c of tab.components||[]){if(c.type!=='skillRoadmapV749')continue;for(const node of c.nodes||[]){const tags=(node.kbTagsV752||[]).map(cleanTag);if(tags.some(t=>learnedTags.has(t)))worked.push(`${node.label||''} ${node.title||''}`.trim())}}return{completed:completed.size,learned:learnedIds.length,worked:[...new Set(worked)].slice(0,6)}}
+  window.__loggyRoadSnapshotV788=roadSnapshot;
+  function decorateLogsReview(content,component){if(!component.includeRoadmapProgressV788)return;qa('.logs-review-section-v536',content).forEach(section=>{const id=section.dataset.reviewSectionV536||'weekly';let end=0,start=0;try{const s=(typeof reviewSummary==='function'?reviewSummary(id):null);start=s?.start||0;end=s?.end||0}catch{}if(!start||!end){const days=Object.keys(appDb().days||{}).map(Number).sort((a,b)=>a-b);end=days.at(-1)||1;start=Math.max(1,end-(id==='weekly'?6:id==='monthly'?29:364))}const snap=roadSnapshot(start,end);const box=document.createElement('div');box.className='roadmap-progress-snapshot-v788';box.innerHTML=`<strong>Roadmap progress</strong><span>Completed ${snap.completed} section${snap.completed===1?'':'s'} · learned ${snap.learned} item${snap.learned===1?'':'s'}${snap.worked.length?` · worked in ${esc(snap.worked.join(', '))}`:''}</span>`;q('.logs-review-stats-v536',section)?.insertAdjacentElement('afterend',box)})}
+  try{const before=window.renderLogsReviewV536;if(typeof before==='function'){const fn=function(tab,c,content){const r=before.apply(this,arguments);if(content.closest('.custom-tab-canvas')?.classList.contains('is-editing')){const root=q('.logs-review-root-v536',content);if(root&&!q('.roadmap-review-toggle-v788',content)){const label=document.createElement('label');label.className='roadmap-review-toggle-v788';label.innerHTML=`<span><strong>Include roadmap progress</strong><small>Add section completions, learned items, and modules worked to each review period.</small></span><input type="checkbox" ${c.includeRoadmapProgressV788?'checked':''}>`;root.prepend(label);q('input',label).onchange=e=>{c.includeRoadmapProgressV788=e.target.checked;saveDb();renderCustomTabView(tab.id)}}}decorateLogsReview(content,c);return r};window.renderLogsReviewV536=fn}}catch{}
+  function decorateWeeklyReview(){const view=q('#weekly-review-view');if(!view)return;let toggle=q('.weekly-roadmap-toggle-v788',view);if(!toggle){toggle=document.createElement('label');toggle.className='weekly-roadmap-toggle-v788';toggle.innerHTML=`<input type="checkbox"><span>Include roadmap progress</span>`;q('.weekly-review-header',view)?.appendChild(toggle);q('input',toggle).checked=appDb().settings?.weeklyReviewIncludeRoadmapV788===true;q('input',toggle).onchange=e=>{appDb().settings.weeklyReviewIncludeRoadmapV788=e.target.checked;saveDb();decorateWeeklyReview()}}q('.weekly-roadmap-snapshot-v788',view)?.remove();if(appDb().settings?.weeklyReviewIncludeRoadmapV788!==true)return;const days=Object.keys(appDb().days||{}).map(Number).sort((a,b)=>a-b),end=days.at(-1)||1,start=Math.max(1,end-6),snap=roadSnapshot(start,end),box=document.createElement('div');box.className='weekly-roadmap-snapshot-v788 roadmap-progress-snapshot-v788';box.innerHTML=`<strong>Roadmap progress</strong><span>This week: completed ${snap.completed} section${snap.completed===1?'':'s'}, learned ${snap.learned} item${snap.learned===1?'':'s'}${snap.worked.length?`, worked in ${esc(snap.worked.join(', '))}`:''}.</span>`;q('.weekly-review-stats',view)?.insertAdjacentElement('afterend',box)}
+  document.addEventListener('click',e=>{if(e.target?.closest?.('#open-weekly-review-btn,.weekly-review-refresh'))setTimeout(decorateWeeklyReview,60)},true);
+
+  if(!window.__loggyWheelTextareaEnterV794){
+    window.__loggyWheelTextareaEnterV794=true;
+    window.addEventListener('keydown',e=>{
+      if(e.key!=='Enter'||e.shiftKey||e.ctrlKey||e.metaKey||e.altKey)return;
+      const ta=e.target?.closest?.('#app-prompt-modal textarea');if(!ta)return;
+      const title=document.querySelector('#app-prompt-title,#app-prompt-modal h1,#app-prompt-modal h2,#app-prompt-modal .modal-title');
+      if(!/Wheel Picker Settings/i.test(title?.textContent||''))return;
+      e.stopImmediatePropagation();
+    },true);
+  }
+
+  // descriptions
+  try{const defs={resources:'Visual resource grid for links, videos, PDFs, uploaded files, Notebook pages, and Whiteboards. Right-click any resource to edit its information or delete it.',progressMeter:'Show progress toward a target manually or automatically from compatible components in this tab.',priorityMatrixV788:'Sort items into four priority boxes. Check items off, or right-click to edit, move, or delete them.',wheelPickerV788:'Put options in the wheel manually or pull filtered items from a Knowledge Base or Checklist, then spin to select one.',containerGroupV788:'Drag existing components into one group so they can be organized and moved together.'};for(const [type,text] of Object.entries(defs)){const def=CUSTOM_COMPONENT_LIBRARY.find(x=>x.type===type);if(def)def.description=text}}catch{}
+
+  const style=document.createElement('style');style.id='loggy-v788-curriculum-style';style.textContent=`
+    .custom-resource-grid-v788{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}.custom-resource-card-v788{border:var(--thin-border);border-radius:14px;overflow:hidden;background:var(--white)}.custom-resource-open-v788{all:unset;display:block;cursor:pointer;width:100%}.custom-resource-open-v788>img,.custom-resource-open-v788>video,.custom-resource-icon-v788{width:100%;height:128px;object-fit:cover;background:rgba(0,0,0,.035)}.custom-resource-icon-v788{display:grid;place-items:center;font-size:38px}.custom-resource-meta-v788{padding:11px;display:grid;gap:3px}.custom-resource-meta-v788 span,.custom-resource-meta-v788 small{opacity:.68;font-size:12px}.custom-resource-empty-v788{padding:18px;text-align:center;opacity:.6}
+    .priority-matrix-v788{display:grid;grid-template-columns:1fr 1fr;gap:10px}.priority-matrix-v788>section{border:var(--thin-border);border-radius:12px;padding:10px;min-height:150px;background:var(--white)}.priority-matrix-v788 h3{margin:0 0 8px;font-size:14px}.priority-matrix-v788 section>div{display:grid;gap:7px}.priority-item-v788{border:var(--thin-border);border-radius:9px;padding:9px;display:grid;gap:3px}.priority-item-main-v792{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:start;gap:8px;cursor:pointer}.priority-item-main-v792 input{width:18px;height:18px;margin:1px 0 0;accent-color:currentColor}.priority-item-main-v792>span{display:grid;gap:2px}.priority-item-v788 span{font-size:12px}.priority-item-v788.is-done{opacity:.58}.priority-item-v788.is-done strong{text-decoration:line-through}
+    .wheel-advanced-label-v796{display:grid;gap:2px;padding:10px 0 2px;border-top:1px solid color-mix(in srgb,currentColor 18%,transparent);margin-top:2px}.wheel-advanced-label-v796 strong{font-size:14px}.wheel-advanced-label-v796 span{font-size:12px;opacity:.65}\n    .wheel-picker-v788{--wheel-seg-a-v790:color-mix(in srgb,var(--white) 96%,currentColor 4%);--wheel-seg-b-v790:color-mix(in srgb,var(--white) 88%,currentColor 12%);display:grid;justify-items:center;gap:16px;padding:10px 0 16px}.wheel-stage-v790{position:relative;width:min(420px,82vw);aspect-ratio:1;display:grid;place-items:center}.wheel-disc-v790{width:100%;height:100%;border:3px solid currentColor;border-radius:50%;position:relative;overflow:hidden;transition:transform 1.1s cubic-bezier(.12,.78,.18,1);box-shadow:0 10px 24px rgba(0,0,0,.10),inset 0 0 0 6px color-mix(in srgb,var(--white) 82%,transparent),inset 0 0 0 14px color-mix(in srgb,currentColor 10%,transparent)}.wheel-disc-v790::after{content:'';position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(from 0deg,transparent 0 calc((360deg / max(1,var(--wheel-count-v790,3))) - 2deg),color-mix(in srgb,var(--white) 98%,currentColor 2%) calc((360deg / max(1,var(--wheel-count-v790,3))) - 2deg) calc((360deg / max(1,var(--wheel-count-v790,3))) + .2deg));pointer-events:none;opacity:1}.wheel-disc-v790::before{content:'';position:absolute;inset:12px;border-radius:50%;border:2px dotted color-mix(in srgb,currentColor 40%,transparent);opacity:.55;pointer-events:none}.wheel-label-v790{position:absolute;left:50%;top:50%;width:min(110px,32%);transform:translate(-50%,-50%) rotate(var(--a)) translateY(-128px) rotate(90deg);text-align:center;z-index:2;pointer-events:none;display:flex;align-items:center;justify-content:center}.wheel-label-v790 b{display:block;font-size:11px;line-height:1.2;font-weight:650;white-space:normal;overflow-wrap:anywhere;max-width:100%;overflow:hidden;text-overflow:ellipsis;background:none;padding:0}.wheel-pointer-v790{position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:18px solid transparent;border-bottom:18px solid transparent;border-right:none;border-left:30px solid color-mix(in srgb,var(--white) 94%,currentColor 6%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.16))}.wheel-pointer-v790::after{content:'';position:absolute;left:-32px;top:-18px;border-top:18px solid transparent;border-bottom:18px solid transparent;border-left:30px solid currentColor;z-index:-1}.wheel-center-button-v790{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:96px;height:96px;border-radius:50%;border:3px solid currentColor;background:var(--white);z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:inherit;font-weight:800;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.14)}.wheel-center-button-v790 i{font-size:20px;line-height:1}.wheel-center-button-v790 span{font-size:18px;line-height:1}.wheel-center-button-v790:hover{transform:translate(-50%,-50%) scale(1.03)}.wheel-center-button-v790:disabled{opacity:.6;cursor:default}.wheel-result-v788{min-height:0;width:min(360px,82vw);border:var(--thin-border);border-radius:13px;background:var(--white);padding:0 14px;display:grid;grid-template-rows:0fr;opacity:0;overflow:hidden;text-align:center;transition:grid-template-rows .18s ease,opacity .18s ease,padding .18s ease}.wheel-result-v788.is-visible{grid-template-rows:1fr;opacity:1;padding:12px 14px}.wheel-result-v788 span{font-size:11px;opacity:.6;text-transform:uppercase;letter-spacing:.08em}.wheel-result-v788 strong{font-size:18px;line-height:1.2}.wheel-disc-v790{--wheel-count-v790:3}
+    .custom-group-v788{border:var(--thin-border);border-radius:14px;padding:14px;background:var(--white)}.custom-group-children-v788{display:grid;gap:12px;min-height:84px;transition:border-color .15s ease,background .15s ease}.custom-group-child-v788{position:relative;border:1px dashed rgba(0,0,0,.18);border-radius:10px;padding:10px}.custom-group-child-v788.dragging{opacity:.5}.group-child-delete-v788{position:absolute;right:6px;top:6px;z-index:3}.custom-group-drop-empty-v790{min-height:84px;border:1.5px dashed rgba(0,0,0,.25);border-radius:10px;display:grid;place-items:center;align-content:center;gap:4px;text-align:center;padding:14px}.custom-group-drop-empty-v790 i{font-size:22px}.custom-group-drop-empty-v790 span{font-size:12px;opacity:.65}.custom-group-children-v788.group-drop-active-v790{outline:2px solid currentColor;outline-offset:4px;border-radius:10px}
+    .custom-deep-search-results-v788{position:relative;z-index:30;margin-top:6px;border:var(--thin-border);border-radius:10px;background:var(--white);max-height:320px;overflow:auto;padding:6px}.custom-deep-search-results-v788.hidden{display:none}.custom-deep-search-results-v788 button{width:100%;border:0;background:transparent;padding:8px 10px;text-align:left;display:grid;gap:2px;border-radius:8px}.custom-deep-search-results-v788 button:hover{background:rgba(0,0,0,.045)}.custom-deep-search-results-v788 span{font-size:12px;opacity:.65}.search-hit-flash-v788{outline:3px solid currentColor;outline-offset:4px}.roadmap-auto-progress-v788{display:flex;gap:8px;align-items:center;padding:9px 10px;border:var(--thin-border);border-radius:10px;margin:8px 0 12px}.roadmap-progress-snapshot-v788{border:var(--thin-border);border-radius:11px;padding:10px 12px;display:grid;gap:3px;margin:8px 0 14px}.roadmap-progress-snapshot-v788 span{font-size:13px;opacity:.75}.roadmap-review-toggle-v788,.weekly-roadmap-toggle-v788{display:flex;align-items:center;gap:10px;border:var(--thin-border);border-radius:10px;padding:10px 12px;margin-bottom:14px}.roadmap-review-toggle-v788>span{display:grid;gap:2px}.roadmap-review-toggle-v788 small{opacity:.65}.weekly-roadmap-toggle-v788{margin:0 0 0 auto}.kb-roadmap-picker-box-v788>div:last-child{display:grid;gap:8px}.kb-roadmap-picker-box-v788 [data-i]{border:var(--thin-border);background:var(--white);border-radius:10px;padding:10px;text-align:left;display:grid;gap:3px}
+  `;document.head.appendChild(style);
+
+  try{
+    const st=document.createElement('style');st.id='progress-meter-polish-v797';st.textContent=`
+      .progress-number-input-v797{
+        width:100% !important;
+        min-height:42px !important;
+        height:42px !important;
+        padding:9px 12px !important;
+        border:var(--thin-border) !important;
+        border-radius:10px !important;
+        background:var(--white) !important;
+        color:inherit !important;
+        font:inherit !important;
+        box-sizing:border-box !important;
+        appearance:auto !important;
+      }
+      .wheel-max-entries-input-v803{width:100% !important;min-height:42px !important;height:42px !important;padding:9px 12px !important;border:var(--thin-border) !important;border-radius:10px !important;background:var(--white) !important;color:inherit !important;font:inherit !important;box-sizing:border-box !important;appearance:auto !important;}
+      .wheel-max-entries-input-v803:focus{outline:2px solid currentColor !important;outline-offset:1px !important;}
+      .progress-number-input-v797:focus{
+        outline:2px solid currentColor !important;
+        outline-offset:1px !important;
+      }
+    `;
+    document.getElementById(st.id)?.remove();document.head.appendChild(st);
+  }catch{}
+})();
+
+
+// ============================================================================
+// V804 — Writer's Room built-in template registration / final ordering.
+// Keeps Learning Roadmap as the final built-in template while exposing the
+// complete Writer's Room immediately before it.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyWriterTemplateRegistryV804) return;
+  window.__loggyWriterTemplateRegistryV804 = true;
+  const ID='writers-room-v804';
+  const DEF={id:ID,name:"Writer's Room",icon:'ph-pen-nib',description:'Plan and write your story.'};
+  const q=(s,r=document)=>r?.querySelector?.(s)||null;
+  function ensureRegistry(){
+    try{
+      if(!Array.isArray(CUSTOM_TAB_TEMPLATES_V53))return;
+      window.__loggySyncTemplateRegistryV855?.();
+    }catch{}
+  }
+  function ensureCards(){
+    ensureRegistry();
+    const section=q('#custom-tab-create-modal .custom-tab-template-section-v53');
+    const grid=q('.custom-tab-template-grid-v53',section);if(!grid)return;
+    let card=q(`[data-custom-tab-template-v53="${ID}"]`,grid);
+    if(!card){try{renderPrebuiltTabCardsV53(section)}catch{};card=q(`[data-custom-tab-template-v53="${ID}"]`,grid)}
+    // The canonical catalogue owns order; do not move existing cards.
+  }
+  ensureRegistry();
+  try{
+    const before=buildPrebuiltTabComponentsV53;
+    if(typeof before==='function'&&!before.__v804WriterTemplate){
+      const wrapped=function(templateId){if(String(templateId||'')===ID&&typeof window.__loggyBuildWritersRoomV804==='function')return window.__loggyBuildWritersRoomV804();return before.apply(this,arguments)};
+      wrapped.__v804WriterTemplate=true;buildPrebuiltTabComponentsV53=wrapped;window.buildPrebuiltTabComponentsV53=wrapped;
+    }
+  }catch{}
+  try{
+    const before=renderPrebuiltTabCardsV53;
+    if(typeof before==='function'&&!before.__v804WriterTemplate){const wrapped=function(){ensureRegistry();const r=before.apply(this,arguments);ensureCards();return r};wrapped.__v804WriterTemplate=true;renderPrebuiltTabCardsV53=wrapped;window.renderPrebuiltTabCardsV53=wrapped}
+  }catch{}
+  document.addEventListener('click',e=>{if(e.target?.closest?.('#add-custom-tab-btn,[data-action="create-tab"]'))requestAnimationFrame(()=>requestAnimationFrame(ensureCards))},true);
+})();
+
+
+// V808: Writer's Room pages and a practical drafting workspace.
+(() => {
+  'use strict';
+  const WRITER='writers-room-v804';
+  const DRAFT='writerDraftV808';
+  const makeId=(prefix)=>`${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
+  const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const lib=typeof CUSTOM_COMPONENT_LIBRARY!=='undefined'?CUSTOM_COMPONENT_LIBRARY:null;
+  if(lib&&!lib.some(c=>c.type===DRAFT))lib.push({type:DRAFT,label:'Writing Document',icon:'ph-file-text',description:'Write and revise a draft directly in a custom tab or page. Your text saves as you work.'});
+  try{
+    const oldDefault=defaultCustomComponent;
+    defaultCustomComponent=function(type){if(type===DRAFT)return{id:makeId('component'),type,title:'Writing Document',documentTextV808:'',chapterV808:'Chapter 1'};return oldDefault.apply(this,arguments)};
+  }catch{}
+  try{
+    const oldRender=renderCustomComponentContent;
+    renderCustomComponentContent=function(tab,c,host){
+      if(c?.type!==DRAFT)return oldRender.apply(this,arguments);
+      host.innerHTML=`<div class="writer-draft-v808"><div class="writer-draft-head-v808"><div><h2>${esc(c.title||'Writing Document')}</h2><p>Write here, or link a full Notebook page in the Resources component.</p></div><span class="writer-draft-status-v808">Saved</span></div><input class="writer-draft-chapter-v808" aria-label="Chapter or document name" placeholder="Chapter or document name" value="${esc(c.chapterV808||'')}"><textarea class="writer-draft-text-v808" aria-label="Draft text" placeholder="Start your scene, chapter, outline, or notes here..."></textarea><div class="writer-draft-footer-v808"><span class="writer-draft-count-v808"></span><span>Draft saves automatically</span></div></div>`;
+      const area=host.querySelector('.writer-draft-text-v808'),name=host.querySelector('.writer-draft-chapter-v808'),count=host.querySelector('.writer-draft-count-v808'),status=host.querySelector('.writer-draft-status-v808');
+      area.value=String(c.documentTextV808||'');
+      const words=text=>String(text||'').trim().split(/\s+/).filter(Boolean).length;
+      const update=()=>{count.textContent=`${words(area.value)} words`};update();
+      let saveTimer;const save=()=>{const previous=words(c.documentTextV808),next=words(area.value),gain=Math.max(0,next-previous);c.documentTextV808=area.value;c.chapterV808=name.value;
+        if(gain){const day=new Date().toLocaleDateString('en-CA');c.wordHistoryV809||=[];let entry=c.wordHistoryV809.find(x=>x.date===day);if(!entry){entry={date:day,words:0};c.wordHistoryV809.push(entry)}entry.words+=gain}
+        status.textContent='Saving…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saveDb?.();status.textContent='Saved'},350);update();window.dispatchEvent(new CustomEvent('loggy:writing-words-v809',{detail:{documentId:c.id}}))};
+      area.addEventListener('input',save);name.addEventListener('input',save);
+    };
+  }catch{}
+  try{
+    const oldEdit=editCustomComponent;
+    editCustomComponent=async function(tabId,componentId){
+      const tab=getCustomTab?.(tabId),c=tab?.components?.find(x=>String(x.id)===String(componentId));
+      if(c?.type===DRAFT){const result=await showAppFormModal({title:'Writing Document Settings',submitLabel:'Save',fields:[{name:'title',label:'Component title',value:c.title||'Writing Document'},{name:'chapter',label:'Document title',value:c.chapterV808||'Chapter 1'}]});if(!result)return;c.title=String(result.title||'Writing Document');c.chapterV808=String(result.chapter||'');saveDb?.();renderCustomTabView?.(tab.id);return;}
+      return oldEdit.apply(this,arguments);
+    };window.editCustomComponent=editCustomComponent;
+  }catch{}
+  function upgrade(tab){
+    if(!tab||tab.templateIdV53!==WRITER||tab.writerPagesV808||tab.components?.some(x=>x.type==='pageNavigatorV753'))return;
+    const all=tab.components||[];if(!all.some(x=>x.type==='characterProfilesV804'))return;
+    const take=(pred)=>{const out=[];for(let i=all.length-1;i>=0;i--)if(pred(all[i]))out.unshift(...all.splice(i,1));return out};
+    const byTypes=(types)=>take(x=>types.includes(x.type));
+    const byNames=(names)=>take(x=>names.includes(x.title));
+    const overview=byNames(['Story Compass','Drafting Workflow']);
+    const people=[...byTypes(['characterProfilesV804','worldBibleV804']),...byNames(['Moodboard'])];
+    const plot=byTypes(['storyBeatsV804','scenePlannerV804']);
+    const writing=[{id:makeId('component'),type:DRAFT,title:'Chapter Draft',chapterV808:'Chapter 1',documentTextV808:'The map in Mara’s hands still showed the alley. Across the street, the street sign now carried a different name. She wrote down both before either could disappear.\n\n[Continue the scene here.]'},...byTypes(['writingTrackerV804']),...byNames(['Research, Drafts & Visual References'])];
+    const revision=byNames(['Open Story Questions','Continuity Tracker',"Writer's Block Wheel",'Revision Priorities','Revision Pass','Manuscript Milestones']);
+    const pages=[['Story Overview','ph-compass',overview],['Characters & World','ph-users-three',people],['Plot & Scenes','ph-git-branch',plot],['Draft & Documents','ph-notebook',writing],['Revision & Research','ph-check-circle',revision]];
+    const c={id:makeId('component'),type:'pageNavigatorV753',title:'Writer’s Room Pages',pagesV753:[]};
+    const tabs=getCustomTabs();
+    pages.forEach(([title,icon,components])=>{const id=makeId('tab');tabs.push({id,name:title,icon,pinned:false,components,nestedParentV753:{tabId:tab.id,componentId:c.id}});c.pagesV753.push({id:makeId('page'),tabId:id,title,icon});});
+    // A writer can subdivide these workspaces further with the same Pages
+    // component that powers top-level Writer's Room navigation.
+    const addSections=(parentTitle,sections)=>{
+      const parentPage=c.pagesV753.find(page=>page.title===parentTitle);
+      const parent=parentPage&&getCustomTab(parentPage.tabId);
+      if(!parent)return;
+      const original=parent.components||[];
+      const nav={id:makeId('component'),type:'pageNavigatorV753',title:parentTitle+' Sections',pagesV753:[]};
+      const allocated=new Set();
+      const children=[];
+      for(const [title,icon,types] of sections){
+        const selected=original.filter(comp=>types.includes(comp.type)&&!allocated.has(comp.id));
+        selected.forEach(comp=>allocated.add(comp.id));
+        children.push([title,icon,selected]);
+      }
+      for(const [title,icon,items] of children){
+        const childId=makeId('tab');
+        tabs.push({id:childId,name:title,icon,pinned:false,components:items,nestedParentV753:{tabId:parent.id,componentId:nav.id}});
+        nav.pagesV753.push({id:makeId('page'),tabId:childId,title,icon});
+      }
+      parent.components=[...original.filter(comp=>!allocated.has(comp.id)),nav];
+    };
+    addSections('Characters & World',[
+      ['People','ph-users-three',['characterProfilesV804']],
+      ['Places, Factions & Lore','ph-globe',['worldBibleV804']],
+      ['Visual Inspiration','ph-image',['polaroids','resources','projectGalleryV328']]
+    ]);
+    addSections('Plot & Scenes',[
+      ['Story Beats','ph-git-branch',['storyBeatsV804']],
+      ['Scene Planner','ph-film-strip',['scenePlannerV804']],
+    ]);
+    const worldEntry=c.pagesV753.find(page=>page.title==='Characters & World');
+    const peopleParent=worldEntry&&getCustomTab(worldEntry.tabId);
+    const peopleNav=peopleParent?.components?.find(comp=>comp.type==='pageNavigatorV753');
+    const worldPage=peopleNav?.pagesV753?.find(page=>page.title==='Places, Factions & Lore');
+    const worldTab=worldPage&&getCustomTab(worldPage.tabId);
+    const worldComponent=worldTab?.components?.find(comp=>comp.type==='worldBibleV804'||comp.type==='customKnowledgeBaseV453');
+      if(worldTab&&worldComponent){
+        const worldNav={id:makeId('component'),type:'pageNavigatorV753',title:'World Reference Sections',pagesV753:[]};
+        const originalWorldItems=worldComponent.items||[];
+        const sourceFields=['Summary','Details','Rules / Constraints','Story Use','Connections','Reference Image'];
+        const normalizeEntry=(item,category)=>{
+          if(worldComponent.type==='customKnowledgeBaseV453')return {...item,id:makeId('kb-item'),category};
+          return {id:makeId('kb-item'),title:item.title||'World Entry',category,tags:['worldbuilding'],values:{'Summary':item.summary||'','Details':item.details||'','Rules / Constraints':item.rules||'','Story Use':item.storyUse||'','Connections':item.connections||'','Reference Image':item.image||''}};
+        };
+        for(const [title,icon,category,filter] of [
+          ['Places & Maps','ph-map-pin','Place',item=>item.category==='Place'],
+          ['People & Factions','ph-users','Faction',item=>item.category==='Faction'],
+          ['Rules & Lore','ph-book-open','Rule / System',item=>item.category!=='Place'&&item.category!=='Faction']
+        ]){
+          const id=makeId('tab');
+          const source=originalWorldItems.filter(filter);
+          const categories=category==='Rule / System'?['Rule / System','Culture','Lore','History','Object']: [category];
+          const fields=sourceFields.slice();
+          const bible={id:makeId('component'),type:'customKnowledgeBaseV453',title, titleBackground:'none',categories,fields,items:source.map(item=>normalizeEntry(item,item.category||category)),activeCategory:'all'};
+          tabs.push({id,name:title,icon,pinned:false,components:[bible],nestedParentV753:{tabId:worldTab.id,componentId:worldNav.id}});
+          worldNav.pagesV753.push({id:makeId('page'),tabId:id,title,icon});
+        }
+        worldTab.components=[worldNav];
+      }
+    // Timeline is a fully editable standard custom component, also usable
+    // in any other tab or nested page.
+    const plotEntry=c.pagesV753.find(page=>page.title==='Plot & Scenes');
+    const plotParent=plotEntry&&getCustomTab(plotEntry.tabId);
+    const plotNav=plotParent?.components?.find(comp=>comp.type==='pageNavigatorV753');
+    if(plotNav){
+      const timelineTabId=makeId('tab');
+      tabs.push({id:timelineTabId,name:'Story Timeline',icon:'ph-clock-counter-clockwise',pinned:false,
+        components:[{id:makeId('component'),type:'timelineV700',title:'Story Timeline',layoutV700:'vertical',items:[
+          {id:makeId('tick'),label:'Opening · Unstable Street',side:'top',contentType:'text',text:'Mara maps a changed street sign and begins questioning the city’s memories.',image:''},
+          {id:makeId('tick'),label:'Inciting Event · Missing School',side:'bottom',contentType:'text',text:'Mara remembers a place that official maps—and everyone else—have forgotten.',image:''},
+          {id:makeId('tick'),label:'Midpoint · Archive Reveal',side:'top',contentType:'text',text:'The Archive may be choosing which districts survive, turning the mystery into a moral conflict.',image:''},
+          {id:makeId('tick'),label:'Final Choice · Anchors',side:'bottom',contentType:'text',text:'A difficult choice forces Mara to define what remembering actually means.',image:''}
+        ]}],
+        nestedParentV753:{tabId:plotParent.id,componentId:plotNav.id}});
+      plotNav.pagesV753.push({id:makeId('page'),tabId:timelineTabId,title:'Story Timeline',icon:'ph-clock-counter-clockwise'});
+    }
+    const wordMeter={id:makeId('component'),type:'progressMeter',title:'Manuscript Words',progressModeV792:'writingAllV812',progressSourceIdV792:writing[0].id,target:70000,current:0,unit:'words'};
+    const weeklyMeter={id:makeId('component'),type:'progressMeter',title:'Words Written · Last 7 Days',progressModeV792:'writingWeekAllV812',progressSourceIdV792:writing[0].id,target:3000,current:0,unit:'words'};
+    tab.components=[...all.filter(x=>x.type==='globalSearchV163'),{id:makeId('component'),type:'text',title:'The Glass Harbor · sample project',text:'Open the Pages below to plan characters, worldbuilding, scenes, drafts, and revision. The meters track total draft words and new words written in the past seven days. Add the same Progress Meters yourself on other tabs.'},c,wordMeter,weeklyMeter];
+    tab.writerPagesV808=true;
+    saveDb?.();
+    for(const child of tabs.filter(t=>{
+      let current=t,depth=0;
+      while(current?.nestedParentV753&&depth++<10){
+        if(current.nestedParentV753.tabId===tab.id)return true;
+        current=tabs.find(x=>x.id===current.nestedParentV753.tabId);
+      }
+      return false;
+    })){if(child&&!document.getElementById(`custom-tab-view-${child.id}`))document.body.insertBefore(buildCustomTabView(child),document.getElementById('companion-stage')||null);}
+  }
+  try{
+    const old=renderCustomTabView;
+    renderCustomTabView=function(tabId){try{upgrade(getCustomTab?.(tabId))}catch(e){console.warn('Writer template organization:',e)}return old.apply(this,arguments)};
+    window.renderCustomTabView=renderCustomTabView;
+  }catch{}
+})();
+
+// v811 — reusable custom-component border preference, including nested Pages.
+(()=>{if(window.__loggyCustomBorderV811)return;window.__loggyCustomBorderV811=true;
+ const apply=()=>{const get=window.getCustomTab||((id)=>window.getCustomTabs?.().find(t=>String(t.id)===String(id)));
+ document.querySelectorAll('.custom-tab-component[data-component-id]').forEach(el=>{
+   const tabId=el.closest('[data-custom-tab-id]')?.dataset.customTabId;
+   if(!tabId)return;const component=get?.(tabId)?.components?.find(c=>String(c.id)===String(el.dataset.componentId));
+   if(component)el.classList.toggle('component-no-border-v811',component.showBorderV811===false);
+ });};
+ let pending=false;new MutationObserver(mutations=>{if(document.hidden||pending||!mutations.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('.custom-tab-component')||n.querySelector?.('.custom-tab-component')))))return;pending=true;requestAnimationFrame(()=>{pending=false;apply()})}).observe(document.body,{subtree:true,childList:true});
+ document.addEventListener('DOMContentLoaded',apply);
+})();
+// V812: Reusable linked writer workspace components and chapter pages.
+(() => {
+  'use strict';
+  if (window.__loggyWriterLinksV812) return;
+  window.__loggyWriterLinksV812 = true;
+  const T = {
+    chapters:'writerChaptersV812', relationships:'writerRelationshipsV812',
+    calendar:'writerStoryCalendarV812',
+    manuscript:'writerManuscriptV812', links:'writerReferencesV812'
+  };
+  const defs = [
+    [T.relationships,'Relationship Board','ph-graph','Connect people from a People component. Add people to People first, then create labeled relationships and notes between them. Works with People in this tab or its nested Pages.'],
+    [T.calendar,'Story Calendar','ph-calendar-dots','Record dates, times, and important events on a separate fictional or project timeline. Link each event to a chapter or phase without changing real Day Log dates.'],
+    [T.manuscript,'Wordlector','ph-book-open-text','Collect and read text from selected Writing Document components across this tab, nested Pages, or other custom tabs. Choose the source documents from the component settings; editing stays in the original document.'],
+    [T.links,'Linked References','ph-link','Link to existing records, pages, documents, KB items, or external resources, then open the original from the link. Useful for connecting related information across components.']
+  ];
+  const uid = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
+  const esc = value => String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const allTabs = () => typeof getCustomTabs==='function' ? getCustomTabs() : [];
+  const findTab = id => allTabs().find(t=>String(t.id)===String(id));
+  const save = () => { try { saveDb(); } catch(e){ console.warn('Writer data save',e); } };
+  const redraw = tab => {save();try{renderCustomTabView(tab.id)}catch(e){console.warn(e)}};
+  const ancestry = tab => {const a=[tab]; let t=tab;for(let n=0;n<16&&t?.nestedParentV753;n++){t=findTab(t.nestedParentV753.tabId);if(!t)break;a.push(t)}return a};
+  const root = tab => ancestry(tab).find(t=>t.templateIdV53==='writers-room-v804')||ancestry(tab).at(-1)||tab;
+  function descendants(tab){const tabs=allTabs(),out=[tab],visited=new Set([String(tab.id)]);let changed=true;while(changed){changed=false;for(const t of tabs)if(t?.nestedParentV753&&visited.has(String(t.nestedParentV753.tabId))&&!visited.has(String(t.id))){visited.add(String(t.id));out.push(t);changed=true}}return out}
+  const comps=tab=>descendants(root(tab)).flatMap(t=>(t.components||[]).map(c=>({tab:t,c})));
+  const docs=tab=>allTabs().flatMap(t=>(t.components||[]).filter(c=>c.type==='writerDraftV808').map(c=>({tab:t,c})));
+  const chapters=tab=>{
+    const nav=comps(tab).find(({c})=>c.type===T.chapters)?.c;
+    if(nav?.chapterIdsV812?.length)return nav.chapterIdsV812.map(id=>findTab(id)).filter(Boolean);
+    return descendants(root(tab)).filter(t=>t.writerChapterV812);
+  };
+  const words=s=>String(s||'').trim().split(/\s+/).filter(Boolean).length;
+  const chapterWords=t=>(t.components||[]).filter(c=>c.type==='writerDraftV808').reduce((n,c)=>n+words(c.documentTextV808),0);
+  const linkedData=tab=>comps(tab).flatMap(({tab:t,c})=>(c.items||[]).map(item=>({id:String(item.id||''),label:String(item.title||item.name||item.question||'Untitled'),type:c.type,tabId:t.id,item}))).filter(x=>x.id);
+  const openTab=id=>{const t=findTab(id);if(!t)return;try{if(!document.getElementById(`custom-tab-view-${t.id}`)&&typeof buildCustomTabView==='function')document.body.insertBefore(buildCustomTabView(t),document.getElementById('companion-stage')||null);openCustomTab(t.id)}catch(e){console.warn('Chapter navigation',e)}};
+  function bindContext(element,items){element.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(typeof showCustomItemContextMenu==='function')showCustomItemContextMenu(e.clientX,e.clientY,items)},true)}
+  function fieldEditor(title,fields){return showAppFormModal({title,submitLabel:'Save',fields})}
+  function componentHeader(c,actions=''){return `<div class="custom-collection-header"><h2>${esc(c.title||'')}</h2>${actions}</div>`}
+  function card(label,sub=''){return `<span class="writer-linked-card-v812"><strong>${esc(label)}</strong>${sub?`<small>${esc(sub)}</small>`:''}</span>`}
+  function renderChapters(tab,c,host){
+    c.chapterIdsV812=Array.isArray(c.chapterIdsV812)?c.chapterIdsV812:[];
+    const list=chapters(tab);host.innerHTML=componentHeader(c,'<button class="small-icon-btn writer-add-chapter-v812" title="Add chapter"><i class="ph ph-plus"></i></button>')+`<p class="writer-chapter-intro-v815">Select a chapter to open its manuscript, references, and research. Drag a chapter to change the reading order. You can also open individual chapters from the Chapters pages below.</p><div class="writer-chapter-list-v812">${list.map((ch,i)=>`<button class="writer-chapter-row-v812" draggable="true" data-chapter-id="${esc(ch.id)}"><span class="writer-chapter-order-v812">${i+1}</span><span class="writer-chapter-info-v812"><strong>${esc(ch.name)}</strong><small>${esc(ch.writerChapterStatusV812||'Not started')}</small></span><span class="writer-chapter-words-v812">${chapterWords(ch).toLocaleString()} words</span><i class="ph ph-dots-six-vertical"></i></button>`).join('')}</div>`;
+    host.querySelector('.writer-add-chapter-v812').onclick=async()=>{
+      const v=await fieldEditor('Add Chapter',[{name:'name',label:'Chapter title',value:`Chapter ${list.length+1}`},{name:'status',label:'Status',type:'select',value:'Not started',options:['Not started','Outlining','Drafting','Revising','Complete']}]);if(!v?.name)return;
+      const parent=root(tab);const pageContainer=descendants(parent).find(t=>(t.components||[]).some(x=>x.type==='pageNavigatorV753'&&x.writerChapterPagesV812));
+      const nav=pageContainer?.components?.find(x=>x.writerChapterPagesV812);
+      if(!nav)return;
+      const id=uid('tab'),page={id:uid('page'),tabId:id,title:v.name,icon:'ph-file-text'};
+      const draft={id:uid('component'),type:'writerDraftV808',title:'Chapter Manuscript',chapterV808:v.name,documentTextV808:''};
+      const references={id:uid('component'),type:T.links,title:'Chapter References',items:[]};
+      const resources=typeof defaultCustomComponent==='function'?defaultCustomComponent('resources'):null;
+      if(resources)resources.title='Chapter Images, Files & Notebook Links';
+      const outline={id:uid('component'),type:'checklist',title:'Chapter Outline',items:[]};const ch={id,name:v.name,icon:'ph-file-text',pinned:false,writerChapterV812:true,writerChapterStatusV812:v.status||'Not started',components:[outline,draft,references,...(resources?[resources]:[])],nestedParentV753:{tabId:pageContainer.id,componentId:nav.id}};
+      allTabs().push(ch);nav.pagesV753.push(page);c.chapterIdsV812.push(id);save();redraw(tab);
+      openTab(id);
+    };
+    let dragId='';host.querySelectorAll('[data-chapter-id]').forEach(el=>{
+      const id=el.dataset.chapterId;
+      el.onclick=()=>openTab(id);
+      el.addEventListener('dragstart',e=>{dragId=id;e.dataTransfer.setData('text/writer-chapter-v812',id);e.dataTransfer.effectAllowed='move'});
+      el.addEventListener('dragover',e=>e.preventDefault());
+      el.addEventListener('drop',e=>{e.preventDefault();const incoming=e.dataTransfer.getData('text/writer-chapter-v812')||dragId;if(!incoming||incoming===id)return;const ids=chapters(tab).map(t=>t.id),from=ids.indexOf(incoming),to=ids.indexOf(id);if(from<0||to<0)return;ids.splice(to,0,ids.splice(from,1)[0]);c.chapterIdsV812=ids;const pagesContainer=descendants(root(tab)).flatMap(t=>(t.components||[])).find(x=>x.writerChapterPagesV812);if(pagesContainer)pagesContainer.pagesV753.sort((a,b)=>ids.indexOf(a.tabId)-ids.indexOf(b.tabId));redraw(tab)});
+      bindContext(el,[{label:'Edit chapter',icon:'ph-pencil-simple',action:async()=>{const t=findTab(id);const v=await fieldEditor('Edit Chapter',[{name:'name',label:'Chapter title',value:t.name},{name:'status',label:'Status',type:'select',value:t.writerChapterStatusV812||'Not started',options:['Not started','Outlining','Drafting','Revising','Complete']}]);if(!v)return;t.name=v.name||t.name;t.writerChapterStatusV812=v.status||t.writerChapterStatusV812;const page=descendants(root(tab)).flatMap(t=>t.components||[]).filter(x=>x.writerChapterPagesV812).flatMap(x=>x.pagesV753||[]).find(x=>x.tabId===id);if(page)page.title=t.name;redraw(tab)}},{label:'Open chapter',icon:'ph-arrow-square-out',action:()=>openTab(id)}]);
+    });
+  }
+  function sourceDocs(tab,c){const collection=docs(tab),selected=Array.isArray(c.wordlectorSourceIdsV836)?c.wordlectorSourceIdsV836:[];return selected.length?collection.filter(x=>selected.includes(String(x.c.id))):collection.filter(x=>ancestry(x.tab).some(t=>String(t.id)===String(root(tab).id)))}
+  function renderManuscript(tab,c,host){const sources=sourceDocs(tab,c),data=sources.map(({tab:t,c:d})=>({name:d.chapterV808||d.title||'Document',page:t.name,text:d.documentTextV808||''}));const total=data.reduce((n,d)=>n+words(d.text),0);host.innerHTML=componentHeader(c,'<button type="button" class="small-icon-btn wordlector-settings-v836" title="Choose Writing Document sources"><i class="ph ph-sliders-horizontal"></i> Sources</button><button type="button" class="small-icon-btn writer-export-txt-v812" title="Export collected text"><i class="ph ph-download-simple"></i></button>')+`<div class="wordlector-v840"><div class="wordlector-summary-v840"><div><strong>${total.toLocaleString()}</strong><span>words</span></div><div><strong>${data.length}</strong><span>documents</span></div></div><p class="writer-linked-muted-v812">Collect text from Writing Documents without changing the originals. Choose sources from any custom tab or nested Page.</p>${data.length?`<div class="wordlector-source-chips-v840">${data.map(d=>`<span>${esc(d.name)}<small>${esc(d.page)}</small></span>`).join('')}</div><div class="wordlector-documents-v840">${data.map(d=>`<section><div><h3>${esc(d.name)}</h3><small>${esc(d.page)} · ${words(d.text).toLocaleString()} words</small></div><div class="writer-manuscript-text-v812">${esc(d.text).replace(/\n/g,'<br>')}</div></section>`).join('')}</div>`:'<div class="wordlector-empty-v840"><i class="ph ph-files"></i><strong>No sources selected</strong><span>Choose Writing Documents from this workspace or other custom tabs.</span><button type="button" class="icon-btn wordlector-empty-sources-v840">Choose Sources</button></div>'}</div>`;const open=()=>editWordlector(tab,c);host.querySelector('.wordlector-settings-v836').onclick=open;host.querySelector('.wordlector-empty-sources-v840')?.addEventListener('click',open);host.querySelector('.writer-export-txt-v812').onclick=()=>{const text=data.map(d=>`${d.name} — ${d.page}\n\n${d.text}`).join('\n\n----------------\n\n');const blob=new Blob([text],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='wordlector.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}}
+  async function editWordlector(tab,c){const choices=docs(tab),selected=new Set(c.wordlectorSourceIdsV836||[]);document.querySelector('.wordlector-source-overlay-v840')?.remove();const overlay=document.createElement('div');overlay.className='modal-overlay wordlector-source-overlay-v840';overlay.innerHTML=`<div class="modal-box wordlector-source-box-v840"><div class="modal-header"><div><h2>Wordlector Sources</h2><small>Choose Writing Documents to collect. Your originals remain editable in their own pages.</small></div><button type="button" class="small-icon-btn wordlector-close-v840"><i class="ph ph-x"></i></button></div><label class="wordlector-search-v840"><i class="ph ph-magnifying-glass"></i><input type="search" placeholder="Search documents or pages…"></label><div class="wordlector-source-toolbar-v840"><span class="wordlector-count-v840"></span><button type="button" class="small-icon-btn" data-current>Select current workspace</button><button type="button" class="small-icon-btn" data-clear>Clear</button></div><div class="wordlector-source-list-v840"></div><div class="wordlector-source-actions-v840"><button type="button" class="icon-btn" data-cancel>Cancel</button><button type="button" class="icon-btn" data-save>Save Sources</button></div></div>`;document.body.appendChild(overlay);const workRoot=root(tab),list=overlay.querySelector('.wordlector-source-list-v840'),search=overlay.querySelector('input'),temp=new Set(Array.isArray(c.wordlectorSourceIdsV836)?c.wordlectorSourceIdsV836.map(String):choices.filter(x=>ancestry(x.tab).some(a=>String(a.id)===String(workRoot.id))).map(x=>String(x.c.id)));const draw=()=>{const q=search.value.trim().toLowerCase(),groups=new Map();for(const row of choices){const name=row.c.chapterV808||row.c.title||'Document',loc=row.tab.name||'Custom Tab';if(q&&!`${name} ${loc}`.toLowerCase().includes(q))continue;if(!groups.has(loc))groups.set(loc,[]);groups.get(loc).push({row,name})}list.innerHTML=[...groups].map(([loc,rows])=>`<section><h3>${esc(loc)}</h3>${rows.map(({row,name})=>`<label class="wordlector-source-row-v840"><input type="checkbox" value="${esc(row.c.id)}" ${temp.has(String(row.c.id))?'checked':''}><span><strong>${esc(name)}</strong><small>Writing Document · ${esc(loc)}</small></span></label>`).join('')}</section>`).join('')||'<p class="writer-linked-muted-v812">No matching Writing Documents.</p>';list.querySelectorAll('input').forEach(x=>x.onchange=()=>{x.checked?temp.add(x.value):temp.delete(x.value);count()});count()};const count=()=>overlay.querySelector('.wordlector-count-v840').textContent=`${temp.size} selected`;search.oninput=draw;overlay.querySelector('[data-current]').onclick=()=>{choices.filter(x=>ancestry(x.tab).some(a=>String(a.id)===String(workRoot.id))).forEach(x=>temp.add(String(x.c.id)));draw()};overlay.querySelector('[data-clear]').onclick=()=>{temp.clear();draw()};const close=()=>overlay.remove();overlay.querySelector('.wordlector-close-v840').onclick=close;overlay.querySelector('[data-cancel]').onclick=close;overlay.querySelector('[data-save]').onclick=()=>{c.wordlectorSourceIdsV836=[...temp];close();redraw(tab)};overlay.onclick=e=>{if(e.target===overlay)close()};draw();search.focus()}
+  async function editRelationship(tab,c,item){const profiles=comps(tab).filter(({c})=>c.type==='characterProfilesV804').flatMap(({c})=>c.items||[]);const names=profiles.map(p=>p.name).filter(Boolean);const v=await fieldEditor(item?'Edit Relationship':'Add Relationship',[{name:'from',label:'Person A',type:'select',value:item?.from||names[0]||'',options:names.length?names:['']},{name:'to',label:'Person B',type:'select',value:item?.to||names[1]||names[0]||'',options:names.length?names:['']},{name:'relation',label:'Relationship',value:item?.relation||'Allies'},{name:'notes',label:'Notes',type:'textarea',value:item?.notes||''}]);if(!v||!v.from||!v.to)return;if(item)Object.assign(item,v);else(c.items||=[]).push({id:uid('relationship'),...v});redraw(tab)}
+  function renderRelationships(tab,c,host){const arr=c.items||=[];host.innerHTML=componentHeader(c,'<button class="small-icon-btn writer-relationship-add-v812" title="Add relationship"><i class="ph ph-plus"></i></button>')+`<div class="writer-relationship-board-v812">${arr.map(x=>`<div class="writer-relationship-item-v812" data-item-id="${esc(x.id)}"><div class="writer-relationship-line-v812"><span>${esc(x.from)}</span><small>↔ ${esc(x.relation)} ↔</small><span>${esc(x.to)}</span></div>${x.notes?`<p>${esc(x.notes)}</p>`:''}</div>`).join('')||'<div class="relationship-empty-v840"><strong>Add a People component first</strong><span>Add people there, then return here to connect who knows, works with, supports, opposes, or relates to whom.</span></div>'}</div>`;host.querySelector('.writer-relationship-add-v812').onclick=()=>editRelationship(tab,c);host.querySelectorAll('[data-item-id]').forEach(el=>{const item=arr.find(x=>x.id===el.dataset.itemId);bindContext(el,[{label:'Edit relationship',icon:'ph-pencil-simple',action:()=>editRelationship(tab,c,item)},{label:'Delete relationship',icon:'ph-trash',danger:true,action:()=>{c.items=c.items.filter(x=>x!==item);redraw(tab)}}])})}
+
+  async function editStoryDate(tab,c,item){const v=await fieldEditor(item?'Edit Story Event':'Add Story Event',[{name:'title',label:'Event',value:item?.title||''},{name:'storyDate',label:'In-story date (not writing date)',value:item?.storyDate||'Day 1'},{name:'storyTime',label:'In-story time',value:item?.storyTime||'Morning'},{name:'chapter',label:'Chapter',value:item?.chapter||''},{name:'notes',label:'Details',type:'textarea',value:item?.notes||''}]);if(!v?.title)return;if(item)Object.assign(item,v);else(c.items||=[]).push({id:uid('story-event'),...v});redraw(tab)}
+  function renderCalendar(tab,c,host){const arr=c.items||[];host.innerHTML=componentHeader(c,'<button class="small-icon-btn writer-story-event-add-v812" title="Add in-story event"><i class="ph ph-plus"></i></button>')+`<div class="writer-story-timeline-v812">${arr.map(x=>`<article data-item-id="${esc(x.id)}"><div><strong>${esc(x.storyDate||'Day ?')}</strong><small>${esc(x.storyTime||'')}</small></div><section><strong>${esc(x.title)}</strong><small>${esc(x.chapter||'')}</small><p>${esc(x.notes||'')}</p></section></article>`).join('')}</div>`;host.querySelector('.writer-story-event-add-v812').onclick=()=>editStoryDate(tab,c);host.querySelectorAll('[data-item-id]').forEach(el=>{const item=arr.find(x=>x.id===el.dataset.itemId);bindContext(el,[{label:'Edit story event',icon:'ph-pencil-simple',action:()=>editStoryDate(tab,c,item)},{label:'Delete story event',icon:'ph-trash',danger:true,action:()=>{c.items=c.items.filter(x=>x!==item);redraw(tab)}}])})}
+  const refOptions=tab=>[
+    ...comps(tab).flatMap(({tab:t,c})=>c.type==='writerDraftV808'?[{id:c.id,label:`Document: ${c.chapterV808||c.title}`,tabId:t.id,type:'document'}]:[]),
+    ...linkedData(tab).map(x=>({...x,type:'item'})),
+    ...chapters(tab).map(t=>({id:t.id,label:`Chapter: ${t.name}`,tabId:t.id,type:'chapter'}))
+  ];
+  async function editLink(tab,c,item){const options=refOptions(tab);const v=await fieldEditor(item?'Edit Linked Reference':'Add Linked Reference',[{name:'label',label:'Display label',value:item?.label||''},{name:'relatedTo',label:'This reference belongs to (optional)',type:'select',value:item?.relatedTo||'',options:[{value:'',label:'Whole page / project'},...options.map(o=>({value:o.id,label:o.label}))]},{name:'target',label:'Link an existing item, chapter, or Writing Document',type:'select',value:item?.target||'',options:[{value:'',label:'Choose a reference'},...options.map(o=>({value:o.id,label:o.label}))]},{name:'url',label:'Or URL (image, PDF, Notebook or Whiteboard)',value:item?.url||''},{name:'notes',label:'Notes',type:'textarea',value:item?.notes||''}]);if(!v||( !v.target&&!v.url))return;if(item)Object.assign(item,v);else(c.items||=[]).push({id:uid('writer-link'),...v});redraw(tab)}
+  function renderLinks(tab,c,host){const arr=c.items||[],opt=refOptions(tab);host.innerHTML=componentHeader(c,'<button class="small-icon-btn writer-add-ref-v812" title="Add reference"><i class="ph ph-plus"></i></button>')+`<div class="writer-reference-grid-v812">${arr.map(item=>{const target=opt.find(x=>String(x.id)===String(item.target));const owner=opt.find(x=>String(x.id)===String(item.relatedTo));return `<button class="writer-reference-v812" data-ref-id="${esc(item.id)}">${card(item.label||target?.label||item.url||'Reference',[(owner?'For: '+owner.label:''),item.notes||''].filter(Boolean).join(' · '))}</button>`}).join('')}</div>`;host.querySelector('.writer-add-ref-v812').onclick=()=>editLink(tab,c);host.querySelectorAll('[data-ref-id]').forEach(el=>{const item=arr.find(x=>x.id===el.dataset.refId),target=opt.find(x=>String(x.id)===String(item.target));el.onclick=()=>{if(target?.tabId){openTab(target.tabId);if(target.type==='item')requestAnimationFrame(()=>requestAnimationFrame(()=>{const view=document.getElementById(`custom-tab-view-${target.tabId}`);const itemEl=Array.from(view?.querySelectorAll('[data-custom-item-id],[data-item-id]')||[]).find(el=>String(el.dataset.customItemId||el.dataset.itemId)===String(target.id));itemEl?.scrollIntoView({block:'center'});itemEl?.click()}))}else if(item.url){try{window.open(new URL(item.url,location.href).href,'_blank','noopener')}catch{}}};bindContext(el,[{label:'Edit reference',icon:'ph-pencil-simple',action:()=>editLink(tab,c,item)},{label:'Delete reference',icon:'ph-trash',danger:true,action:()=>{c.items=c.items.filter(x=>x!==item);redraw(tab)}}])})}
+  const renderer={ [T.chapters]:renderChapters,[T.relationships]:renderRelationships,[T.calendar]:renderCalendar,[T.manuscript]:renderManuscript,[T.links]:renderLinks };
+  function install(){
+    if(!Array.isArray(CUSTOM_COMPONENT_LIBRARY))return;
+    for(const [type,label,icon,description] of defs){const existing=CUSTOM_COMPONENT_LIBRARY.find(c=>c.type===type);if(existing)Object.assign(existing,{label,icon,description});else CUSTOM_COMPONENT_LIBRARY.push({type,label,icon,description})}
+    const beforeDefault=defaultCustomComponent;const wrappedDefault=function(type){if(renderer[type])return{id:uid('component'),type,title:defs.find(d=>d[0]===type)[1],items:[],chapterIdsV812:[]};return beforeDefault.apply(this,arguments)};defaultCustomComponent=wrappedDefault;window.defaultCustomComponent=wrappedDefault;
+    const beforeRender=renderCustomComponentContent;const wrappedRender=function(tab,c,host){
+      if(renderer[c?.type])return renderer[c.type](tab,c,host);
+      const result=beforeRender.apply(this,arguments);
+      if(c?.type==='writerDraftV808'){
+        const heading=host.querySelector('.writer-draft-head-v808');
+        if(heading&&!heading.querySelector('.writer-focus-v812')){
+          const button=document.createElement('button');button.type='button';button.className='small-icon-btn writer-focus-v812';button.title='Open distraction-free writing';button.innerHTML='<i class="ph ph-arrows-out"></i>';heading.appendChild(button);
+          button.onclick=()=>{
+            const overlay=document.createElement('div');overlay.className='writer-focus-overlay-v812';
+            overlay.innerHTML=`<div class="writer-focus-panel-v812"><div class="writer-focus-heading-v812"><h2>${esc(c.chapterV808||c.title||'Writing Document')}</h2><button type="button" class="small-icon-btn writer-focus-close-v812" aria-label="Close writing view"><i class="ph ph-x"></i></button></div><textarea aria-label="Write chapter in distraction-free mode" spellcheck="true"></textarea><small class="writer-focus-count-v812"></small></div>`;
+            document.body.appendChild(overlay);const area=overlay.querySelector('textarea'),count=overlay.querySelector('.writer-focus-count-v812');area.value=c.documentTextV808||'';let timer;
+            const update=()=>{const prev=words(c.documentTextV808),next=words(area.value),today=new Date().toLocaleDateString('en-CA');if(next>prev){c.wordHistoryV809||=[];let row=c.wordHistoryV809.find(x=>x.date===today);if(!row){row={date:today,words:0};c.wordHistoryV809.push(row)}row.words+=next-prev}c.documentTextV808=area.value;count.textContent=`${next} words · Autosaved`;clearTimeout(timer);timer=setTimeout(save,300);window.dispatchEvent(new CustomEvent('loggy:writing-words-v809',{detail:{documentId:c.id}}))};
+            count.textContent=`${words(area.value)} words`;area.addEventListener('input',update);
+            const close=()=>{clearTimeout(timer);save();overlay.remove();renderCustomTabView(tab.id)};
+            overlay.querySelector('.writer-focus-close-v812').onclick=close;
+            overlay.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();close()}});
+            area.focus();
+          };
+        }
+      }
+      return result;
+    };renderCustomComponentContent=wrappedRender;window.renderCustomComponentContent=wrappedRender;
+    const beforeEdit=editCustomComponent;const wrappedEdit=async function(tabId,id){const tab=findTab(tabId),c=tab?.components?.find(x=>String(x.id)===String(id));if(c?.type===T.manuscript)return editWordlector(tab,c);if(renderer[c?.type]){const v=await fieldEditor('Edit Component',[{name:'title',label:'Title',value:c.title||''}]);if(v){c.title=v.title||c.title;redraw(tab)}return}return beforeEdit.apply(this,arguments)};editCustomComponent=wrappedEdit;window.editCustomComponent=wrappedEdit;
+    window.__loggyRefreshCustomComponentPaletteV746?.();
+  }
+  function upgradeWriter(tab){if(!tab||tab.templateIdV53!=='writers-room-v804'||!tab.writerPagesV808)return;
+    if(tab.writerChaptersV812){const existing=descendants(tab).find(t=>t.name==='Chapters');if(existing){const clean=t=>{const before=t.components?.length||0;if(before)t.components=t.components.filter(c=>c.type!==T.chapters);return before!==(t.components?.length||0)};if([tab,existing].some(clean))save();return;}tab.writerChaptersV812=false;}
+    const pageNav=(tab.components||[]).find(c=>c.type==='pageNavigatorV753');if(!pageNav)return;
+    const makePage=(parent,nav,title,icon,components)=>{const id=uid('tab');const t={id,name:title,icon,pinned:false,components,nestedParentV753:{tabId:parent.id,componentId:nav.id}};allTabs().push(t);nav.pagesV753.push({id:uid('page'),tabId:id,title,icon});return t};
+    const chapterNav={id:uid('component'),type:'pageNavigatorV753',title:'Chapters',pagesV753:[],writerChapterPagesV812:true};
+    const chapterSection=makePage(tab,pageNav,'Chapters','ph-book-open',[chapterNav]);
+    tab.components.push({id:uid('component'),type:'pageNavigatorV753',title:'Chapters · Open Chapter Pages',pagesV753:[{id:uid('page'),tabId:chapterSection.id,title:'Chapters',icon:'ph-book-open'}],writerChapterShortcutV819:true});
+    const draftPage=descendants(tab).find(t=>t.name==='Draft & Documents');
+    const oldDraft=draftPage?.components?.find(c=>c.type==='writerDraftV808');
+    for(let n=1;n<=3;n++){
+      const name=`Chapter ${n}`;
+      const text=n===1?oldDraft?.documentTextV808||'': '';
+      const draft={id:uid('component'),type:'writerDraftV808',title:'Chapter Manuscript',chapterV808:name,documentTextV808:text,wordHistoryV809:[]};
+      const links={id:uid('component'),type:T.links,title:'Linked References',items:[]};
+      const resources=typeof defaultCustomComponent==='function'?defaultCustomComponent('resources'):null;
+      if(resources){resources.title='Chapter Images, Files & Notebook Links'}
+      const outline={id:uid('component'),type:'checklist',title:'Chapter Outline',items:[{id:uid('item'),text:'Outline the opening scene',done:n===1},{id:uid('item'),text:'Write the turning point',done:false},{id:uid('item'),text:'Review continuity and chapter ending',done:false}]};const ch=makePage(chapterSection,chapterNav,name,'ph-file-text',[outline,draft,links,...(resources?[resources]:[])]);ch.writerChapterV812=true;ch.writerChapterStatusV812=n===1?'Drafting':'Not started';
+    }
+    // Preserve old material without duplicating the same manuscript text.
+    if(oldDraft&&draftPage){draftPage.components=draftPage.components.filter(x=>x!==oldDraft)}
+    const charPage=descendants(tab).find(t=>t.name==='Character Profiles');
+    if(charPage)charPage.components.push({id:uid('component'),type:T.relationships,title:'Character Relationships',items:[{id:uid('relation'),from:'Mara',to:'Elias',relation:'Uneasy allies',notes:'They both remember places the city has erased.'}]},{id:uid('component'),type:T.links,title:'Character Reference Links',items:[]});
+    const scenePage=descendants(tab).find(t=>t.name==='Scene Planner');
+    if(scenePage)scenePage.components.push({id:uid('component'),type:T.links,title:'Scene Reference Links',items:[]});
+    const plotPage=descendants(tab).find(t=>t.name==='Plot & Scenes');
+    if(plotPage)plotPage.components.push({id:uid('component'),type:T.calendar,title:'In-Story Calendar',items:[{id:uid('event'),title:'Mara discovers the changed street',storyDate:'Day 1',storyTime:'Morning',chapter:'Chapter 1',notes:'The map and street sign disagree.'},{id:uid('event'),title:'Archive meeting',storyDate:'Day 1',storyTime:'Afternoon',chapter:'Chapter 1',notes:'Sera demands the obsolete map.'}]});
+    for(const meter of tab.components||[]){if(meter.type==='progressMeter'&&meter.title==='Manuscript Words'){meter.progressModeV792='writingAllV812';meter.progressSourceIdV792=''}if(meter.type==='progressMeter'&&meter.title==='Words Written · Last 7 Days'){meter.progressModeV792='writingWeekAllV812';meter.progressSourceIdV792=''}}
+    tab.components.push({id:uid('component'),type:T.manuscript,title:'Wordlector',items:[]});
+    // The restored Day Log Connections graph is a shared component, not a replacement for writer references.
+    tab.writerChaptersV812=true;save();
+    for(const child of descendants(tab).slice(1)){try{if(!document.getElementById(`custom-tab-view-${child.id}`))document.body.insertBefore(buildCustomTabView(child),document.getElementById('companion-stage')||null)}catch(e){console.warn(e)}}
+  }
+  function makeTemplateUpgrade(){const before=renderCustomTabView;const wrapped=function(tabId){const t=findTab(tabId);try{upgradeWriter(t)}catch(e){console.warn('Writer chapters setup',e)}return before.apply(this,arguments)};renderCustomTabView=wrapped;window.renderCustomTabView=wrapped}
+  try{install();makeTemplateUpgrade()}catch(e){console.error('Writer links init',e)}
+  // Keep the original graph in the palette and reuse its existing Day-node renderer.
+  try{if(!CUSTOM_COMPONENT_LIBRARY.some(x=>x.type==='dailyConnectionsGraph'))CUSTOM_COMPONENT_LIBRARY.push({type:'dailyConnectionsGraph',label:'Daily Log Connections',icon:'ph-graph',description:'View a graph of connected Day Logs. Each day appears as a node, with lines for @Day references and saved connections.'})}catch{}
+})();
+
+
+// V813: two distinct curriculum templates. Registry + rendered cards share a single source.
+(() => {
+  'use strict';
+  if(window.__loggySplitCurriculumV813)return;
+  window.__loggySplitCurriculumV813=true;
+  const entries=[
+    {id:'curriculum-v813',name:'Curriculum',icon:'ph-books',description:'Build a chapter-and-section curriculum connected to your Knowledge Base.'},
+    {id:'learning-roadmap-2-v813',name:'Multiples',icon:'ph-path',description:'Explore several skills within one Log.'}
+  ];
+  function ensure(){
+    if(!Array.isArray(CUSTOM_TAB_TEMPLATES_V53))return;
+    for(const item of entries){const existing=CUSTOM_TAB_TEMPLATES_V53.find(t=>t.id===item.id);if(existing)Object.assign(existing,item);else CUSTOM_TAB_TEMPLATES_V53.push({...item})}
+    for(let i=CUSTOM_TAB_TEMPLATES_V53.length-1;i>=0;i--)if(CUSTOM_TAB_TEMPLATES_V53[i]?.id==='learning-roadmap-v750')CUSTOM_TAB_TEMPLATES_V53.splice(i,1);
+    // Earlier template registries may have already drawn the picker using legacy IDs.
+    // The two real entries above must both exist before the picker renders.
+  }
+  const before=renderPrebuiltTabCardsV53;
+  if(typeof before==='function'){
+    const wrapped=function(){ensure();return before.apply(this,arguments)};
+    renderPrebuiltTabCardsV53=wrapped;window.renderPrebuiltTabCardsV53=wrapped;
+  }
+  ensure();
+})();
+
+
+
+/* V822 distinct, reusable template workspaces. No duplicate application-specific widgets. */
+(()=>{
+ 'use strict';
+ if(window.__loggyTemplateStudiosV822)return;
+ window.__loggyTemplateStudiosV822=true;
+ const DATA={
+  'research-lab-v822':{name:'Research Lab',icon:'ph-flask',description:'Organize research questions, evidence, experiments, and findings.',pages:{'Questions & Hypotheses':[['cards','Research Questions'],['qaV162','Working Hypotheses'],['resources','Background Sources']],'Evidence Library':[['customKnowledgeBaseV453','Evidence Catalog'],['resources','Citations & References'],['polaroids','Reference Images']],'Experiments & Trials':[['tableV162','Experiment Records'],['practiceLog','Research Sessions'],['progressMeter','Experiment Progress']],'Findings & Reports':[['writerDraftV808','Research Report'],['tableV162','Findings & Limitations'],['dailyLogCollection','Related Daily Logs']]}},
+  'business-dashboard-v822':{name:'Business Dashboard',icon:'ph-storefront',description:'Keep your business plans, operations, finances, and resources together.',pages:{'Business Plan':[['writerDraftV808','Business Plan'],['cards','Offerings & Customers'],['resources','Market Research']],'Launch & Operations':[['kanbanV239','Launch Tasks'],['checklist','Opening Requirements'],['tableV162','Operating Procedures']],'Finances':[['tableV162','Startup Costs & Budget'],['tableV162','Revenue & Expenses'],['resources','Financial Documents']],'Vendors & Marketing':[['customKnowledgeBaseV453','Vendor & Contact Directory'],['polaroids','Brand Moodboard'],['tableV162','Marketing Calendar']],'Daily Business Log':[['dailyLogCollection','Business Day Logs'],['practiceLog','Work Sessions'],['progressMeter','Opening Readiness']]}}
+ };
+ const ROOT={
+  'research-lab-v822':[['cards','Research Questions'],['priorityMatrixV788','Evidence Board'],['pageNavigatorV753','Research Areas'],['progressMeter','Research Progress']],
+  'youtube-studio-v822':[['pageNavigatorV753','Subjects']]
+ };
+ const makeId=pre=>{try{return customId(pre)}catch{return `${pre}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`}};
+ const clone=obj=>JSON.parse(JSON.stringify(obj));
+ const mk=(type,title)=>{let c;try{c=defaultCustomComponent(type)}catch{};c= c&&typeof c==='object'?clone(c):{id:makeId('component'),type};c.id=makeId('component');c.type=type;c.title=title;c.showBorderV811=false;c.titleBackground='none';return c;};
+ const defaults=(entry,section)=>{
+  const [type,title]=entry,c=mk(type,title);
+  if(type==='globalSearchV163')c.placeholder='Search this workspace and its pages...';
+  if(type==='writerDraftV808'){c.chapterV808=title;c.documentTextV808='';}
+  if(type==='tableV162'){
+    const heads=title.includes('Budget')||title.includes('Expenses')?['Item','Estimated','Actual','Notes']:title.includes('Schedule')?['Task / Event','Date','Owner','Status','Notes']:['Item','Status','Details','Notes'];
+    c.columns=heads.map(name=>({id:makeId('col'),name}));c.rows=[];
+  }
+  if(type==='kanbanV239'){
+    const statuses=section==='Production Pipeline'||title.includes('Video')?['Ideas','To Film','Filmed','To Edit','Editing','To Upload','Published']:['Backlog','In Progress','Review','Done'];
+    c.columns=statuses.map(name=>({id:makeId('col'),title:name,name,cards:[]}));
+  }
+  if(type==='pageNavigatorV753')c.pagesV753=[];
+  if(type==='checklist')c.items=[];
+  if(type==='cards')c.items=[];
+  if(type==='progressMeter'){c.target=10;c.value=0;c.unit='items';}
+  return c;
+ };
+ const register=()=>{if(typeof CUSTOM_TAB_TEMPLATES_V53==='undefined')return;for(const [id,def] of Object.entries(DATA))if(!CUSTOM_TAB_TEMPLATES_V53.some(e=>e.id===id))CUSTOM_TAB_TEMPLATES_V53.push({id,name:def.name,icon:def.icon,description:def.description});};
+ register();
+ try{
+  if(typeof buildPrebuiltTabComponentsV53==='function'){
+   const prior=buildPrebuiltTabComponentsV53;
+   buildPrebuiltTabComponentsV53=function(id){
+     if(id==='youtube-studio-v822'){
+       const nav=defaults(['pageNavigatorV753','Subjects'],'Overview');
+       nav.pagesV753=[];
+       return [nav];
+     }
+     if(DATA[id]){
+       if(id==='business-dashboard-v822')return [mk('globalSearchV163','Search'),mk('pageNavigatorV753','Business Dashboard Pages'),mk('dailyLogCollection','Business Day Logs')];
+       const spec=ROOT[id]||[['pageNavigatorV753',DATA[id].name+' Pages']];
+       return spec.map(entry=>defaults(entry,'Overview'));
+     }
+     return prior.apply(this,arguments)
+   };
+   window.buildPrebuiltTabComponentsV53=buildPrebuiltTabComponentsV53;
+  }
+ }catch(e){console.error('V822 template builder',e)}
+ window.__loggyExpandTemplatePagesV822=tab=>{
+  const isYoutube=tab?.templateIdV53==='youtube-studio-v822';
+  const def=DATA[tab?.templateIdV53];if((!def&&!isYoutube)||tab.__pagesCreatedV822)return;
+  const tabs=getCustomTabs?.();if(!Array.isArray(tabs))return;
+  const rootNav=tab.components.find(c=>c.type==='pageNavigatorV753');if(!rootNav)return;
+  rootNav.pagesV753=[];
+  if(isYoutube){
+   for(const subject of ['Discrete Math','Calculus 1','Calculus 2']){
+    const sub=makeId('tab'),pipeline=defaults(['kanbanV239','Video Pipeline'],'Production Pipeline');
+    pipeline.cardHeightV839='tall';pipeline.showBorderV811=false;
+    const child={id:sub,name:subject,icon:'ph-books',pinned:false,components:[pipeline],nestedParentV753:{tabId:tab.id,componentId:rootNav.id},youtubeSubjectV839:true,pageWidthV724:'wide',youtubeWideDefaultAppliedV853:true};
+    tabs.push(child);rootNav.pagesV753.push({id:makeId('page'),tabId:sub,title:subject,icon:'ph-books'});
+   }
+   tab.__pagesCreatedV822=true;return;
+  }
+  for(const [name,spec] of Object.entries(def.pages)){
+   const sub=makeId('tab'),nav=mk('pageNavigatorV753',name+' Pages');nav.pagesV753=[];
+   const components=def.name==='Business Dashboard'?[mk('globalSearchV163','Search '+name),...spec.map(e=>defaults(e,name))]:spec.map(e=>defaults(e,name));
+   // Keep nested, editable Pages components from the existing library.
+   const child={id:sub,name,icon:'ph-folder-open',pinned:false,components,nestedParentV753:{tabId:tab.id,componentId:rootNav.id}};
+   tabs.push(child);rootNav.pagesV753.push({id:makeId('page'),tabId:sub,title:name,icon:'ph-folder-open'});
+   // V823: Populate chapter/issue navigator with REAL nested pages, not empty placeholders.
+   const pageComponent=components.find(c=>c.type==='pageNavigatorV753');
+   if(pageComponent){
+     const pageName=name.includes('Chapter')?'Chapter 1':name.includes('Unit')?'Unit 1':'Page 1';
+     const innerId=makeId('tab');
+     const innerComps=[mk('writerDraftV808',pageName+' Notes'),mk('resources','References')];
+     tabs.push({id:innerId,name:pageName,icon:'ph-file-text',pinned:false,components:innerComps,nestedParentV753:{tabId:sub,componentId:pageComponent.id}});
+     pageComponent.pagesV753=[{id:makeId('page'),tabId:innerId,title:pageName,icon:'ph-file-text'}];
+   }
+  }
+  tab.__pagesCreatedV822=true;
+ };
+ // All template creation code continues to own save, navigation and Day Log resources.
+ window.__loggyStudioDefinitionsV822=DATA;
+ window.__loggyTemplateCatalogV831?.forEach(meta=>{if(!CUSTOM_TAB_TEMPLATES_V53.some(x=>x.id===meta.id))CUSTOM_TAB_TEMPLATES_V53.push({...meta})});
+ try{renderPrebuiltTabCardsV53?.(document.querySelector('.custom-tab-template-section-v53'))}catch{}
+})();
+
+
+
+// V843 — migrate older default YouTube Studio instances to Subject pages only.
+(()=>{
+ const tabs=()=>{try{return getCustomTabs?.()||[]}catch{return[]}},uid=p=>{try{return customId(p)}catch{return `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`}};
+ function raw(type,title){let c;try{c=defaultCustomComponent?.(type)}catch{};c=(c&&typeof c==='object')?JSON.parse(JSON.stringify(c)):{id:uid('component'),type};c.id=uid('component');c.type=type;c.title=title;c.showBorderV811=false;return c}
+ let changed=false;
+ const all=tabs();
+ const isYoutubePage=entry=>{let parentId=entry?.nestedParentV753?.tabId;const visited=new Set();while(parentId&&!visited.has(String(parentId))){visited.add(String(parentId));const parent=all.find(t=>String(t.id)===String(parentId));if(!parent)break;if(parent.templateIdV53==='youtube-studio-v822')return true;parentId=parent.nestedParentV753?.tabId}return false};
+ for(const existing of all){if((existing?.youtubeSubjectV839||isYoutubePage(existing))&&!existing.youtubeWideDefaultAppliedV853){existing.pageWidthV724='wide';existing.youtubeWideDefaultAppliedV853=true;changed=true}}for(const tab of tabs()){if(!tab||tab.nestedParentV753||tab.templateIdV53!=='youtube-studio-v822')continue;const comps=tab.components||[];let nav=comps.find(c=>c.type==='pageNavigatorV753');if(!nav){nav=raw('pageNavigatorV753','Subjects');nav.pagesV753=[];tab.components=[nav];changed=true}else if(comps.length!==1){nav.title='Subjects';tab.components=[nav];changed=true}if(!Array.isArray(nav.pagesV753)||!nav.pagesV753.length){nav.pagesV753=[];for(const subject of ['Discrete Math','Calculus 1','Calculus 2']){const childId=uid('tab'),pipeline=raw('kanbanV239','Video Pipeline');pipeline.cardHeightV839='tall';pipeline.columns=['Ideas','To Film','Filmed','To Edit','Editing','To Upload','Published'].map(title=>({id:uid('column'),title,name:title,cards:[]}));tabs().push({id:childId,name:subject,icon:'ph-books',pinned:false,components:[pipeline],nestedParentV753:{tabId:tab.id,componentId:nav.id},youtubeSubjectV839:true,pageWidthV724:'wide',youtubeWideDefaultAppliedV853:true});nav.pagesV753.push({id:uid('page'),tabId:childId,title:subject,icon:'ph-books'})}changed=true}}if(changed){try{saveDb?.();renderCustomTabNavigation?.()}catch{}}
+})();
+
+// V836 per-component profile fields: one entry point, no periodic redraw.
+(()=>{const before=window.editCustomComponent;if(typeof before!=='function')return;const edit=async function(tabId,componentId){const t=window.getCustomTabs?.().find(x=>String(x.id)===String(tabId));const c=t?.components?.find(x=>String(x.id)===String(componentId));if(c?.type==='kanbanV239'&&typeof window.__loggyOpenKanbanEditV852==='function')return window.__loggyOpenKanbanEditV852(tabId,componentId);if((c?.type==='characterProfilesV804'||c?.type==='worldBibleV804')&&typeof window.__editProfileSchemaV836==='function')return window.__editProfileSchemaV836(t,c);return before.apply(this,arguments)};window.editCustomComponent=edit;try{editCustomComponent=edit}catch{}})();
+
+
+
+;(()=>{
+ function fix(tab){if(!tab||tab.templateIdV53!=='curriculum-v813')return false;let ch=false;for(const c of tab.components||[]){if(c?.type!=='skillRoadmapV749')continue;c.structureModeV753='chapters';c.autoCompleteSubsectionsV749=true;for(const node of c.nodes||[]){node.autoCompleteRuleV788={mode:'manual',tags:[],target:1};for(const sub of node.subsections||[]){const tag=String(sub.label||sub.kbTagV753||'').replace(/^#/,'');const r=sub.autoCompleteRuleV788||{};if(!sub.autoCompleteRuleV788||!r.mode){sub.autoCompleteRuleV788={mode:'distinct',tags:[tag],target:3};ch=true}}}}if(ch)try{saveDb?.()}catch{};return ch}
+ try{const before=window.renderCustomTabView||renderCustomTabView;const w=function(id){try{fix(getCustomTab?.(id))}catch{}return before.apply(this,arguments)};window.renderCustomTabView=w;try{renderCustomTabView=w}catch{}}catch{}
+})();
+
+
+// ============================================================================
+// V1903 — KB SETTINGS EAGER PREWARM
+// Build and synchronize every Knowledge Base Settings section while the modal is
+// still hidden. The open click then only reveals already-complete DOM instead of
+// visibly appending late sections over the next animation frames/timers.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyKbSettingsPrewarmV1903) return;
+  window.__loggyKbSettingsPrewarmV1903 = true;
+
+  let running = false;
+  let warmed = false;
+
+  function prewarmKbSettingsV1903(force = false) {
+    if (running || (warmed && !force)) return;
+    const modal = document.getElementById('settings-modal');
+    if (!modal || typeof renderSettings !== 'function' || typeof db === 'undefined' || !db?.settings) return;
+
+    running = true;
+    try {
+      // renderSettings is the composed renderer after extras-3/5/6. Calling it
+      // while #settings-modal is hidden creates every injected section without a
+      // user-visible stagger and synchronizes current values in one pass.
+      renderSettings();
+      try { window.__loggyKbHideTagsV557?.ensureSetting?.(); } catch {}
+      try { window.__loggyNormalizeKbSettingsUiV575?.(); } catch {}
+      // V1905: DOM order matches the visual order before the modal can be revealed.
+      // Clear Out KB is second-last; Knowledge Base Page Shortcuts is always last.
+      try {
+        const box = modal.querySelector(':scope > .modal-box') || modal.querySelector('.modal-box');
+        const clear = box?.querySelector('.kb-clear-out-setting-v780');
+        const shortcuts = box?.querySelector('#kb-shortcuts-v467');
+        if (box && clear) box.appendChild(clear);
+        if (box && shortcuts) box.appendChild(shortcuts);
+      } catch {}
+      warmed = true;
+      modal.dataset.kbSettingsPrewarmedV1903 = '1';
+    } catch (error) {
+      console.warn('KB Settings prewarm V1903', error);
+    } finally {
+      running = false;
+    }
+  }
+
+  window.__loggyPrewarmKbSettingsV1903 = prewarmKbSettingsV1903;
+
+  // Capture phase runs before template.js's button listener reveals the modal.
+  // Force one synchronous refresh using the latest DB values, then the existing
+  // listener opens an already-complete Settings surface.
+  document.addEventListener('click', event => {
+    if (event.target?.closest?.('#open-settings-btn,#knowledge-settings-btn,#open-kb-settings-btn')) {
+      prewarmKbSettingsV1903(true);
+    }
+  }, true);
+
+  const schedule = () => {
+    // The early data promise resolves before/with loadData; a task hop lets the
+    // loadData continuation commit server data first, then prewarms the hidden UI.
+    const initial = window.__loggyInitialDataPromiseV187;
+    if (initial && typeof initial.finally === 'function') {
+      initial.finally(() => setTimeout(() => prewarmKbSettingsV1903(false), 0));
+    } else {
+      setTimeout(() => prewarmKbSettingsV1903(false), 0);
+    }
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, { once:true });
+  else schedule();
 })();

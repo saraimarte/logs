@@ -2270,6 +2270,23 @@ function ensureQuizSettingsV58() {
         settings.transformations = [];
     }
 
+    const learnGroupOptionsV743 = [4, 5, 10, 12, 15, 20];
+    if (!learnGroupOptionsV743.includes(Number(settings.learnGroupSizeV743))) {
+        settings.learnGroupSizeV743 = 4;
+    }
+    if (!['flip', 'stacked'].includes(String(settings.writtenReviewStyleV743 || ''))) {
+        settings.writtenReviewStyleV743 = 'flip';
+    }
+    if (settings.voiceTypingV743 === undefined) {
+        settings.voiceTypingV743 = true;
+    }
+    if (settings.tagFiltersEnabledV749 === undefined) {
+        settings.tagFiltersEnabledV749 = false;
+    }
+    if (!['all','any'].includes(String(settings.tagFilterModeV749 || ''))) {
+        settings.tagFilterModeV749 = 'all';
+    }
+
     return settings;
 }
 
@@ -2567,13 +2584,92 @@ function ensureQuizSettingsModalV58() {
             <div class="modal-header">
                 <div>
                     <h2>Quiz Settings</h2>
-                    <p class="quiz-settings-subtitle-v58">Optional generated practice. Your normal Flashcards, Quizlet Learn, and Anki decks still only use Items Learned from Daily Logs.</p>
+                    <p class="quiz-settings-subtitle-v58">Study behavior, Written-mode tools, and optional generated practice.</p>
                 </div>
 
                 <button type="button" class="small-icon-btn quiz-settings-close-v58" title="Close">
                     <i class="ph ph-x"></i>
                 </button>
             </div>
+
+            <section class="modal-section quiz-settings-option-v58 quiz-core-settings-v743">
+                <label class="quiz-settings-field-v743">
+                    <span><strong>Learn group size</strong><small>How many items stay in the active Learn batch before the next batch unlocks.</small></span>
+                    <select class="quiz-learn-group-size-v743" aria-label="Learn group size">
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="12">12</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select>
+                </label>
+
+                <label class="quiz-settings-field-v743">
+                    <span><strong>Written answer review</strong><small>Choose how the question stays available after checking an answer.</small></span>
+                    <select class="quiz-written-review-style-v743" aria-label="Written answer review style">
+                        <option value="flip">Flip card · click or F</option>
+                        <option value="stacked">Show question above answer</option>
+                    </select>
+                </label>
+
+                <label class="feature-toggle-row quiz-voice-typing-setting-v743">
+                    <input type="checkbox" class="quiz-voice-typing-toggle-v743">
+                    <span>
+                        <strong>Voice typing in Written mode</strong>
+                        <small>Show the microphone button and enable the M keyboard shortcut when supported by the browser.</small>
+                    </span>
+                </label>
+
+                <label class="feature-toggle-row quiz-tag-filter-setting-v749">
+                    <input type="checkbox" class="quiz-tag-filter-toggle-v749">
+                    <span>
+                        <strong>Tag filters</strong>
+                        <small>Show Knowledge Base tag filters on the Quizzes page for Anki, Flashcards, and Learn.</small>
+                    </span>
+                </label>
+
+                <label class="quiz-settings-field-v743 quiz-tag-match-setting-v749">
+                    <span>
+                        <strong>Multiple selected tags</strong>
+                        <small>Choose whether an item must contain every selected tag or at least one selected tag.</small>
+                    </span>
+                    <select class="quiz-tag-match-mode-v749" aria-label="How selected quiz tags match">
+                        <option value="all">Match all selected tags</option>
+                        <option value="any">Match any selected tag</option>
+                    </select>
+                </label>
+            </section>
+
+            <section class="modal-section quiz-settings-option-v58 quiz-shortcut-guide-v749">
+                <div class="quiz-settings-section-heading-v58 quiz-shortcut-guide-heading-v749">
+                    <div>
+                        <strong>Quiz shortcuts</strong>
+                        <small>These also appear in Settings → Shortcuts, where the main quiz keys can be changed.</small>
+                    </div>
+                </div>
+                <div class="quiz-shortcut-mode-grid-v749">
+                    <article>
+                        <strong>Anki</strong>
+                        <span><kbd data-quiz-shortcut-v749="quiz:flip">F</kbd> Flip card</span>
+                        <span><kbd data-quiz-shortcut-v749="quiz:again">A</kbd> Still Learning</span>
+                        <span><kbd data-quiz-shortcut-v749="quiz:known">D</kbd> Got It</span>
+                    </article>
+                    <article>
+                        <strong>Flashcards</strong>
+                        <span><kbd data-quiz-shortcut-v749="quiz:flip">F</kbd> Flip card</span>
+                        <span><kbd data-quiz-shortcut-v749="quiz:again">A</kbd> Next, keep in deck</span>
+                        <span><kbd data-quiz-shortcut-v749="quiz:known">D</kbd> Know it, remove from deck</span>
+                    </article>
+                    <article>
+                        <strong>Quizlet Learn</strong>
+                        <span><kbd data-quiz-shortcut-v749="quiz:flip">F</kbd> Flip/reference after answering</span>
+                        <span><kbd data-quiz-shortcut-v749="quiz:voice">M</kbd> Voice typing in Written mode</span>
+                        <span><kbd>Enter</kbd> Check / continue</span>
+                        <small>While typing, use Shift+F or Shift+M so normal letters still work.</small>
+                    </article>
+                </div>
+            </section>
 
             <section class="modal-section quiz-settings-option-v58">
                 <label class="feature-toggle-row">
@@ -2622,6 +2718,41 @@ function ensureQuizSettingsModalV58() {
         if (event.target === modal) close();
     });
 
+    modal.querySelector('.quiz-learn-group-size-v743')
+        ?.addEventListener('change', event => {
+            const value = Number(event.target.value);
+            ensureQuizSettingsV58().learnGroupSizeV743 = [4,5,10,12,15,20].includes(value) ? value : 4;
+            saveDb();
+        });
+
+    modal.querySelector('.quiz-written-review-style-v743')
+        ?.addEventListener('change', event => {
+            ensureQuizSettingsV58().writtenReviewStyleV743 = event.target.value === 'stacked' ? 'stacked' : 'flip';
+            saveDb();
+        });
+
+    modal.querySelector('.quiz-voice-typing-toggle-v743')
+        ?.addEventListener('change', event => {
+            ensureQuizSettingsV58().voiceTypingV743 = !!event.target.checked;
+            saveDb();
+            try { window.syncWrittenVoiceTypingControlsV743?.(); } catch {}
+        });
+
+    modal.querySelector('.quiz-tag-filter-toggle-v749')
+        ?.addEventListener('change', event => {
+            ensureQuizSettingsV58().tagFiltersEnabledV749 = !!event.target.checked;
+            saveDb();
+            try { updateAvailableQuizTypes(); } catch {}
+            syncQuizSettingsModalV58(modal);
+        });
+
+    modal.querySelector('.quiz-tag-match-mode-v749')
+        ?.addEventListener('change', event => {
+            ensureQuizSettingsV58().tagFilterModeV749 = event.target.value === 'any' ? 'any' : 'all';
+            saveDb();
+            try { updateAvailableQuizTypes(); } catch {}
+        });
+
     modal.querySelector('.quiz-smart-placeholder-toggle-v58')
         ?.addEventListener('change', event => {
             ensureQuizSettingsV58().smartPlaceholderPractice = event.target.checked;
@@ -2653,10 +2784,32 @@ function syncQuizSettingsModalV58(modal = ensureQuizSettingsModalV58()) {
     const smart = modal.querySelector('.quiz-smart-placeholder-toggle-v58');
     const transform = modal.querySelector('.quiz-transformation-toggle-v58');
     const details = modal.querySelector('.quiz-transformation-settings-v58');
+    const learnGroup = modal.querySelector('.quiz-learn-group-size-v743');
+    const writtenReview = modal.querySelector('.quiz-written-review-style-v743');
+    const voiceTyping = modal.querySelector('.quiz-voice-typing-toggle-v743');
+    const tagFilters = modal.querySelector('.quiz-tag-filter-toggle-v749');
+    const tagMode = modal.querySelector('.quiz-tag-match-mode-v749');
 
     if (smart) smart.checked = !!settings.smartPlaceholderPractice;
     if (transform) transform.checked = !!settings.transformationPractice;
+    if (learnGroup) learnGroup.value = String(settings.learnGroupSizeV743 || 4);
+    if (writtenReview) writtenReview.value = settings.writtenReviewStyleV743 === 'stacked' ? 'stacked' : 'flip';
+    if (voiceTyping) voiceTyping.checked = settings.voiceTypingV743 !== false;
+    if (tagFilters) tagFilters.checked = settings.tagFiltersEnabledV749 === true;
+    if (tagMode) {
+        tagMode.value = settings.tagFilterModeV749 === 'any' ? 'any' : 'all';
+        tagMode.disabled = settings.tagFiltersEnabledV749 !== true;
+    }
+    modal.querySelector('.quiz-tag-match-setting-v749')?.classList.toggle('disabled-v749', settings.tagFiltersEnabledV749 !== true);
     details?.classList.toggle('disabled-v58', !settings.transformationPractice);
+
+    modal.querySelectorAll('[data-quiz-shortcut-v749]').forEach(kbd => {
+        const action = kbd.dataset.quizShortcutV749;
+        try {
+            const text = window.__loggyGetShortcutLabelV749?.(action);
+            if (text) kbd.textContent = text;
+        } catch {}
+    });
 
     renderQuizTransformationRulesV58(modal);
 }
@@ -3057,9 +3210,9 @@ function findTransformationPracticeV58(itemId) {
 
 function normalizeTransformationAnswerV58(value) {
     return String(value || '')
-        .trim()
+        .normalize('NFKC')
         .toLocaleLowerCase()
-        .replace(/\s+/g, ' ');
+        .replace(/\s+/g, '');
 }
 
 function acceptedTransformationAnswersV58(answer) {
@@ -3137,13 +3290,18 @@ function renderTransformationPracticeV58(area, itemId, practice) {
         feedback.className = 'quiz-transformation-feedback-v58 wrong';
         feedback.innerHTML = `
             <span><i class="ph ph-info"></i> Correct answer: <strong>${escapeKnowledgeHtml(practice.answer)}</strong></span>
-            <button type="button" class="icon-btn quiz-transformation-continue-v58">Continue</button>
+            <span class="written-mark-correct-actions-v744">
+                <button type="button" class="icon-btn quiz-transformation-mark-correct-v744">Mark Correct</button>
+                <button type="button" class="icon-btn quiz-transformation-continue-v58">Continue</button>
+            </span>
         `;
 
         check.classList.add('hidden');
 
+        feedback.querySelector('.quiz-transformation-mark-correct-v744')
+            ?.addEventListener('click', () => processLearnAnswer(true), { once:true });
         feedback.querySelector('.quiz-transformation-continue-v58')
-            ?.addEventListener('click', () => processLearnAnswer(false));
+            ?.addEventListener('click', () => processLearnAnswer(false), { once:true });
     };
 
     check.addEventListener('click', evaluate);
@@ -3309,6 +3467,7 @@ function ensureKbQuizVisibilityRowV59(root, checked = false, editItemId = '') {
         row.querySelector('input')?.addEventListener('change', event => {
             if (!db.phrase_meta?.[editItemId]) return;
             db.phrase_meta[editItemId].hideFromQuizzesV59 = !!event.target.checked;
+            try { window.reconcileLearnSessionV737?.({ syncRuntime:true, saveServer:false }); } catch {}
             saveDb();
             updateQuizUI?.();
         });
@@ -4171,7 +4330,7 @@ function polishQuizSettingsV60(modal = document.getElementById('quiz-settings-mo
         optionSmall.remove();
     }
 
-    const heading = modal.querySelector('.quiz-settings-section-heading-v58 > div');
+    const heading = modal.querySelector('.quiz-transformation-settings-v58 .quiz-settings-section-heading-v58 > div');
     if (heading) {
         const strong = heading.querySelector('strong');
         if (strong) strong.textContent = 'Transformation Rules';
@@ -5198,36 +5357,36 @@ function fakeKnowledgeItemTitleV247(
     const number = String(index + 1).padStart(3, '0');
     const safeCategory = String(category || 'Category');
 
-    // Deliberately cycle through different content lengths so Developer Mode
-    // tests wrapping, dense cards, tall cards, and long labels instead of 500
-    // identical short strings.
+    // V731: stress-test realistic wrapping without injecting paragraph-length
+    // labels that make the preview look broken even though real KB cards do not.
     switch (index % 6) {
         case 0:
             return `${safeCategory} ${number}`;
         case 1:
             return `Preview ${safeCategory} Item ${number}`;
         case 2:
-            return `${safeCategory} ${number} · medium-length study item for layout testing`;
+            return `${safeCategory} ${number} · medium title`;
         case 3:
-            return `${safeCategory} ${number} · a longer Knowledge Base preview item that checks wrapping across cards and polaroid labels`;
+            return `${safeCategory} ${number} · longer title for wrapping`;
         case 4:
-            return `${safeCategory} ${number} · long-form preview content with several words, punctuation, and extra descriptive text so crowded category layouts can be stress-tested realistically`;
+            return `${safeCategory} ${number} · sample item with extra text`;
         default:
-            return `${safeCategory} ${number} · extra-long developer preview item used to test very tall labels, wrapping, overflow behavior, category switching, search filtering, and scrolling performance when a Knowledge Base contains hundreds of mixed-length entries`;
+            return `${safeCategory} ${number} · developer preview item`;
     }
 }
 
 let developerKbPreviewEpochV620=0;
 function setDeveloperKnowledgeFastLayoutV643(grid, enabled) {
     if (!grid) return;
-    grid.classList.toggle('kb-developer-fast-grid-v643', !!enabled);
+
+    // V731: Developer Mode must never swap the Knowledge Base into a different
+    // layout system. The normal V718/V724 native grid remains authoritative,
+    // so turning the stress preview on/off cannot resize or rearrange real cards.
+    grid.classList.remove('kb-developer-fast-grid-v643');
+    delete grid.dataset.kbDeveloperFastLayoutV731;
+
     if (!enabled) {
-        grid.style.removeProperty('height');
-        grid.querySelectorAll(':scope > .phrase-card, :scope > .polaroid-card').forEach(card => {
-            for (const prop of ['position','left','top','width','max-width','min-width','visibility']) {
-                card.style.removeProperty(prop);
-            }
-        });
+        delete grid.dataset.developerKbBuildingV731;
     }
 }
 
@@ -5240,13 +5399,18 @@ function appendDeveloperKnowledgeItemsV247(filterText = '') {
 
     const isPolaroid=db.settings.libraryView==='polaroid';
     const isAll=String(typeof libraryFilter!=='undefined' ? libraryFilter : 'all')==='all';
-    const useFastAllLayout=developerPreviewKnowledge500V247 && isAll && !isPolaroid;
-    setDeveloperKnowledgeFastLayoutV643(grid,useFastAllLayout);
+    setDeveloperKnowledgeFastLayoutV643(grid,false);
 
     if(!developerPreviewKnowledge500V247){
+        delete grid.dataset.developerKbBuildingV731;
         document.dispatchEvent(new Event('kb-preview-complete-v643'));
         return;
     }
+
+    // V731: batch DOM insertion is isolated from the normal KB layout observer.
+    // New preview cards receive the same basic grid geometry immediately, then
+    // the real layout owner performs one final pass when all batches are done.
+    grid.dataset.developerKbBuildingV731='1';
 
     const query=String(filterText||'').trim().toLowerCase();
     const categories=(db.settings.categories||[]).filter(category=>isAll||libraryFilter===category);
@@ -5283,6 +5447,23 @@ function appendDeveloperKnowledgeItemsV247(filterText = '') {
                 ? `<div class="polaroid-video developer-kb-preview-media-v61"><i class="ph ph-test-tube"></i></div><div class="polaroid-label"><span class="chip-text">${escapeKnowledgeHtml(title)}</span></div>`
                 : `<span class="chip-text">${escapeKnowledgeHtml(title)}</span>`;
             card.title=`Developer preview · ${category}`;
+
+            if(!isPolaroid){
+                // Match the normal compact KB card track while batches stream in.
+                card.style.setProperty('position','relative','important');
+                card.style.setProperty('inset','auto','important');
+                card.style.setProperty('width','100%','important');
+                card.style.setProperty('max-width','none','important');
+                card.style.setProperty('min-width','0','important');
+                card.style.setProperty('height','100%','important');
+                card.style.setProperty('min-height','0','important');
+                card.style.setProperty('visibility','visible','important');
+                card.style.setProperty('margin','0','important');
+                card.style.setProperty('transform','none','important');
+                card.style.setProperty('grid-row','span 1','important');
+                card.style.setProperty('grid-column','span 1','important');
+            }
+
             fragment.appendChild(card);
             count++;
         }
@@ -5298,6 +5479,7 @@ function appendDeveloperKnowledgeItemsV247(filterText = '') {
         // collection after every 100 cards, which caused repeated freezes and
         // the disappear/reappear flash. Developer All view now stays on the
         // browser's fast CSS grid for the whole stress preview.
+        delete grid.dataset.developerKbBuildingV731;
         document.dispatchEvent(new Event('kb-preview-complete-v643'));
         requestAnimationFrame(syncKnowledgeLibraryViewportV61);
     }
@@ -8348,7 +8530,7 @@ function polishQuizSettingsV64(
 
     const headingCopy =
         modal.querySelector(
-            '.quiz-settings-section-heading-v58 > div'
+            '.quiz-transformation-settings-v58 .quiz-settings-section-heading-v58 > div'
         );
 
     if (headingCopy) {

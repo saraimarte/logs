@@ -1,0 +1,1221 @@
+// V712 — DAY LOG COMPONENTS + REPEATABLE RECOMMENDATION BUTTONS
+// Right-click a numbered Day Log -> Components. Built-in sections are managed
+// here instead of the Settings modal. Recommendation buttons are independent,
+// repeatable filter-driven components that can be renamed/edited by right-click.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyDayComponentsV712) return;
+  window.__loggyDayComponentsV712 = true;
+
+  const q=(s,r=document)=>r?.querySelector?.(s)||null;
+  const qa=(s,r=document)=>Array.from(r?.querySelectorAll?.(s)||[]);
+  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const attr=esc;
+  const clone=value=>{try{return structuredClone(value)}catch{try{return JSON.parse(JSON.stringify(value))}catch{return value}}};
+  const uid=prefix=>`${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
+
+  const BUILTINS=[
+    {key:'itemsLearned',label:'Items Learned',icon:'ph-books'},
+    {key:'logNotes',label:'Log Notes',icon:'ph-note-pencil'},
+    {key:'tools',label:'Toolbox',icon:'ph-wrench'},
+    {key:'videoLogs',label:'Video Logs',icon:'ph-video-camera'},
+    {key:'tabItems',label:'Tab Items',icon:'ph-tabs'},
+    {key:'mediaResources',label:'Media Resources',icon:'ph-link'}
+  ];
+  const ICONS=[
+    'ph-moon-stars','ph-lightning','ph-star','ph-sparkle','ph-fire','ph-target','ph-brain','ph-book-open',
+    'ph-graduation-cap','ph-pencil-simple','ph-note-pencil','ph-calculator','ph-function','ph-sigma','ph-pi',
+    'ph-ruler','ph-flask','ph-atom','ph-globe','ph-map-trifold','ph-translate','ph-chats-circle','ph-question',
+    'ph-question-mark','ph-lightbulb','ph-magnifying-glass','ph-puzzle-piece','ph-cards','ph-stack','ph-list-checks',
+    'ph-check-circle','ph-arrow-clockwise','ph-shuffle','ph-dice-five','ph-magic-wand','ph-rocket','ph-trophy',
+    'ph-medal','ph-heart','ph-smiley','ph-sun','ph-cloud','ph-plant','ph-tree','ph-mountains','ph-compass',
+    'ph-clock','ph-calendar','ph-alarm','ph-coffee','ph-cookie','ph-fork-knife','ph-music-note','ph-headphones',
+    'ph-camera','ph-paint-brush','ph-palette','ph-code','ph-terminal','ph-chart-line','ph-chart-bar','ph-currency-dollar',
+    'ph-briefcase','ph-wrench','ph-hammer','ph-gear','ph-flag','ph-bookmark','ph-tag','ph-hash'
+  ];
+  const runtime=new Map();
+
+  function onNumberedDay(){
+    let day=0; try{day=Number(typeof currentDay!=='undefined'?currentDay:0)}catch{}
+    return day>0 && !!q('#log-view.view.active');
+  }
+  function currentDayNumber(){try{return Number(typeof currentDay!=='undefined'?currentDay:0)||0}catch{return 0}}
+  function ensureSettings(){try{db.settings||={};return db.settings}catch{return{}}}
+  function hiddenMap(){
+    const settings=ensureSettings();
+    if(!settings.hiddenSectionsV432 || typeof settings.hiddenSectionsV432!=='object' || Array.isArray(settings.hiddenSectionsV432)) settings.hiddenSectionsV432={};
+    return settings.hiddenSectionsV432;
+  }
+
+  // The Components modal is now the single restore/show authority. Retire the
+  // old "Hidden Day Log Sections" list from Settings rather than merely hiding it.
+  function retireHiddenSettingsV712(){q('#hidden-day-log-sections-v433')?.remove()}
+  try{ensureHiddenDayLogSectionsSettingsV433=function(){retireHiddenSettingsV712();return null};window.ensureHiddenDayLogSectionsSettingsV433=ensureHiddenDayLogSectionsSettingsV433}catch{}
+  try{renderHiddenDayLogSectionSettingsV433=function(){retireHiddenSettingsV712()};window.renderHiddenDayLogSectionSettingsV433=renderHiddenDayLogSectionSettingsV433}catch{}
+  // Day-page Toolbox visibility is controlled here independently from whether
+  // the Toolbox navigation tab itself is hidden.
+  try{toolboxBuiltInHiddenV433=function(){return false};window.toolboxBuiltInHiddenV433=toolboxBuiltInHiddenV433}catch{}
+  retireHiddenSettingsV712();
+
+  function defaultRecommendation(index=1){
+    const legacy=clone(ensureSettings().lazyRecommendationV686||{});
+    const useLegacy=index===1 && legacy && typeof legacy==='object' && Object.keys(legacy).length;
+    const raw=useLegacy?legacy:{};
+    return {
+      id:uid('day-recommendation'),
+      title:String(raw.title||'Lazy Day Recommendation').trim()||'Recommendation',
+      icon:String(raw.icon||'ph-moon-stars').replace(/^ph\s+/,'').trim()||'ph-moon-stars',
+      categories:Array.isArray(raw.categories)?[...raw.categories]:[],
+      tags:Array.isArray(raw.tags)?raw.tags.map(v=>String(v).replace(/^#/,'').trim()).filter(Boolean):['lazy'],
+      tagMode:String(raw.tagMode||'and').toLowerCase()==='or'?'or':'and',
+      removeTagsOnLearn:Array.isArray(raw.removeTagsOnLearn)?raw.removeTagsOnLearn.map(v=>String(v).replace(/^#/,'').trim()).filter(Boolean):['lazy','hide'],
+      fieldFilters:Array.isArray(raw.fieldFilters)?raw.fieldFilters.map(row=>({category:String(row?.category||''),field:String(row?.field||''),contains:String(row?.contains||'')})).filter(row=>row.category&&row.field):[]
+    };
+  }
+
+  function recommendationConfigs(){
+    const settings=ensureSettings();
+    if(!Array.isArray(settings.dayRecommendationButtonsV712)){
+      settings.dayRecommendationButtonsV712=[defaultRecommendation(1)];
+      settings.dayRecommendationButtonsMigratedV712=true;
+      try{saveDb?.()}catch{}
+    }
+    settings.dayRecommendationButtonsV712=settings.dayRecommendationButtonsV712.filter(row=>row&&typeof row==='object').map((raw,index)=>({
+      id:String(raw.id||uid('day-recommendation')),
+      title:String(raw.title||`Recommendation ${index+1}`).trim()||`Recommendation ${index+1}`,
+      icon:String(raw.icon||'ph-moon-stars').replace(/^ph\s+/,'').trim()||'ph-moon-stars',
+      categories:Array.isArray(raw.categories)?[...new Set(raw.categories.map(String).filter(Boolean))]:[],
+      tags:Array.isArray(raw.tags)?[...new Set(raw.tags.map(v=>String(v).replace(/^#/,'').trim()).filter(Boolean))]:[],
+      tagMode:String(raw.tagMode||'and').toLowerCase()==='or'?'or':'and',
+      removeTagsOnLearn:Array.isArray(raw.removeTagsOnLearn)?[...new Set(raw.removeTagsOnLearn.map(v=>String(v).replace(/^#/,'').trim()).filter(Boolean))]:[],
+      fieldFilters:Array.isArray(raw.fieldFilters)?raw.fieldFilters.map(row=>({category:String(row?.category||'').trim(),field:String(row?.field||'').trim(),contains:String(row?.contains||'').trim()})).filter(row=>row.category&&row.field):[]
+    }));
+    return settings.dayRecommendationButtonsV712;
+  }
+
+  function tagsForItem(id){
+    try{if(typeof getKnowledgeItemTagsV55==='function')return (getKnowledgeItemTagsV55(id)||[]).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean)}catch{}
+    const meta=db.phrase_meta?.[id]||{};
+    return [...new Set([...(meta.tags||[]),meta.type].map(v=>String(v||'').replace(/^#/,'').trim().toLowerCase()).filter(Boolean))];
+  }
+  function learnedSet(){const out=new Set();Object.values(db.days||{}).forEach(day=>(day?.phrases||[]).forEach(id=>out.add(String(id))));return out}
+  function categories(){return [...new Set([...(db.settings?.categories||[]),...Object.keys(db.settings?.categorySettings||{}),...(db.phrases||[]).map(id=>String(db.phrase_meta?.[id]?.type||''))].map(String).filter(Boolean))]}
+  function fieldsForCategory(category){
+    const names=[];
+    try{(getKnowledgeFieldDefs?.(category)||[]).forEach(field=>{if(field?.name)names.push(String(field.name))})}catch{}
+    try{const cfg=getCategoryConfig?.(category);(cfg?.fields||[]).forEach((raw,index)=>{let field=raw;try{if(typeof normalizeKnowledgeField==='function')field=normalizeKnowledgeField(raw,index,cfg)}catch{}if(field?.name)names.push(String(field.name))})}catch{}
+    return [...new Set(names.filter(Boolean))];
+  }
+  function fieldValue(id,row){if(row.field==='__title__')return String(id||'');return String(db.phrase_meta?.[id]?.custom_fields?.[row.field]??'')}
+  function candidatesFor(config){
+    const learned=learnedSet();
+    const wantedCats=new Set((config.categories||[]).map(String));
+    const wantedTags=(config.tags||[]).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean);
+    return (db.phrases||[]).filter(rawId=>{
+      const id=String(rawId); if(learned.has(id))return false;
+      const meta=db.phrase_meta?.[id]||{}; const category=String(meta.type||'');
+      if(wantedCats.size && !wantedCats.has(category))return false;
+      const itemTags=tagsForItem(id);
+      if(wantedTags.length){const ok=config.tagMode==='or'?wantedTags.some(tag=>itemTags.includes(tag)):wantedTags.every(tag=>itemTags.includes(tag));if(!ok)return false}
+      const relevant=(config.fieldFilters||[]).filter(row=>!row.category||row.category===category);
+      for(const row of relevant){const value=fieldValue(id,row).trim();if(!value)return false;const wanted=String(row.contains||'').trim().toLowerCase();if(wanted&&!value.toLowerCase().includes(wanted))return false}
+      return true;
+    });
+  }
+
+  function ensureStyle(){
+    if(q('#loggy-day-components-v712-style'))return;
+    const style=document.createElement('style');style.id='loggy-day-components-v712-style';style.textContent=`
+      /* Old singleton Lazy button is replaced by repeatable recommendation components. */
+      #log-view #lazy-day-recommendation-btn-v596,#log-view #lazy-day-recommendation-v596{display:none!important}
+      #day-recommendation-components-v712{width:100%;box-sizing:border-box;margin:8px 0 4px;padding:0 var(--daily-grid-side-inset,0);display:grid;gap:8px}
+      #day-recommendation-components-v712.hidden{display:none!important}
+      .day-recommendation-buttons-v712{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+      .day-recommendation-button-v712{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 10px;border:var(--thin-border);border-radius:999px;background:var(--white);color:var(--black);font:inherit;font-size:.78rem;font-weight:700;cursor:pointer;box-shadow:none}
+      .day-recommendation-button-v712:hover{background:var(--track-bg)}
+      .day-recommendation-button-v712.active{outline:2px solid color-mix(in srgb,var(--black) 18%,transparent);outline-offset:1px}
+      .day-recommendation-panel-v712{max-width:720px;width:100%;box-sizing:border-box}
+      .day-recommendation-panel-v712 .lazy-day-recommendation-v596{display:flex!important;margin:0!important}
+      .day-components-box-v712{width:min(720px,calc(100vw - 28px));max-height:min(82vh,760px);overflow:auto}
+      .day-components-grid-v712{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+      .day-component-card-v712{display:flex;align-items:center;gap:10px;padding:12px;border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);color:var(--black)}
+      .day-component-card-v712>i{font-size:1.25rem;flex:0 0 auto}.day-component-copy-v712{min-width:0;flex:1;display:grid;gap:2px}.day-component-copy-v712 strong{font-size:.9rem}.day-component-copy-v712 small{color:var(--muted-text);font-size:.72rem}
+      .day-component-toggle-v712{min-width:68px}.day-component-toggle-v712[data-visible="true"]{font-weight:700}
+      .day-components-recommendations-v712{display:grid;gap:9px}.day-components-recommendation-head-v712{display:flex;align-items:center;justify-content:space-between;gap:12px}.day-components-recommendation-list-v712{display:grid;gap:7px}
+      .day-components-rec-row-v712{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid color-mix(in srgb,var(--black) 16%,transparent);border-radius:8px}.day-components-rec-row-v712>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.day-components-rec-row-v712 i{font-size:1rem}
+      .day-components-help-v712{margin:0;color:var(--muted-text);font-size:.75rem;line-height:1.4}
+      @media(max-width:620px){.day-components-grid-v712{grid-template-columns:1fr}#day-recommendation-components-v712{padding-left:0;padding-right:0}}
+    `;document.head.appendChild(style)
+  }
+
+  function ensureRecommendationHost(){
+    ensureStyle();const log=q('#log-view');const header=q('#log-view>.log-header-container');if(!log||!header)return null;
+    let host=q('#day-recommendation-components-v712');
+    if(!host){host=document.createElement('div');host.id='day-recommendation-components-v712';host.innerHTML='<div class="day-recommendation-buttons-v712"></div><div class="day-recommendation-panel-v712"></div>';header.insertAdjacentElement('afterend',host)}
+    return host;
+  }
+
+  function recommendationRuntime(id){if(!runtime.has(id))runtime.set(id,{current:'',last:''});return runtime.get(id)}
+  function displayLabel(id){try{if(typeof getKnowledgeDisplayLabelV162==='function')return getKnowledgeDisplayLabelV162(id,'everywhere')}catch{}return id}
+  function patternHtml(id){try{if(String(id).includes('\\')&&typeof placeholderTokenHtmlV56==='function')return placeholderTokenHtmlV56(String(id))}catch{}return esc(displayLabel(id))}
+
+  function showRecommendation(config, forceNext=false){
+    const host=ensureRecommendationHost();if(!host)return;
+    const panelHost=q('.day-recommendation-panel-v712',host);const state=recommendationRuntime(config.id);const pool=candidatesFor(config);
+    if(forceNext)state.current='';
+    if(!state.current || !pool.includes(state.current)){
+      let choices=pool;if(pool.length>1&&state.last){const rest=pool.filter(id=>String(id)!==String(state.last));if(rest.length)choices=rest}
+      state.current=choices.length?String(choices[Math.floor(Math.random()*choices.length)]):'';if(state.current)state.last=state.current;
+    }
+    qa('.day-recommendation-button-v712',host).forEach(btn=>btn.classList.toggle('active',btn.dataset.recommendationId===config.id));
+    if(!pool.length){panelHost.innerHTML=`<div class="lazy-day-recommendation-v596 lazy-day-empty-v623"><button type="button" class="lazy-day-recommendation-main-v596"><span class="lazy-day-recommendation-icon-v596"><i class="ph ${attr(config.icon)}"></i></span><span class="lazy-day-recommendation-copy-v596"><small>${esc(config.title)}</small><span class="lazy-day-recommendation-value-v596">No unlearned Knowledge Base items match these filters.</span><em class="lazy-day-recommendation-meta-v596">Right-click the button above to edit its filters.</em></span></button></div>`;return}
+    const id=state.current;const tagText=(config.tags||[]).length?(config.tags||[]).map(tag=>`#${tag}`).join(config.tagMode==='or'?' OR ':' + '):'custom filters';
+    panelHost.innerHTML=`<div class="lazy-day-recommendation-v596" aria-live="polite"><button type="button" class="lazy-day-recommendation-main-v596" data-rec-open><span class="lazy-day-recommendation-icon-v596"><i class="ph ${attr(config.icon)}"></i></span><span class="lazy-day-recommendation-copy-v596"><small>${esc(config.title)}</small><span class="lazy-day-recommendation-value-v596">${patternHtml(id)}</span><em class="lazy-day-recommendation-meta-v596">${esc(tagText)} · ${pool.length} unlearned item${pool.length===1?'':'s'} available</em></span></button><div class="lazy-day-recommendation-actions-v597"><button type="button" class="small-icon-btn" data-rec-skip title="Skip and show another"><i class="ph ph-skip-forward"></i></button><button type="button" class="small-icon-btn" data-rec-learn title="Add to Items Learned"><i class="ph ph-check"></i></button></div></div>`;
+    q('[data-rec-open]',panelHost)?.addEventListener('click',()=>{try{openItemModal?.(id,true,false)}catch{}});
+    q('[data-rec-skip]',panelHost)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();state.current='';showRecommendation(config,true)});
+    q('[data-rec-learn]',panelHost)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();acceptRecommendation(config).catch(()=>{})});
+  }
+
+  async function acceptRecommendation(config){
+    const day=currentDayNumber();const state=recommendationRuntime(config.id);const id=String(state.current||'');if(!day||!id)return;
+    db.days||={};db.days[day]||={notes:'',phrases:[],tools:[],video:'',checkedParts:{}};db.days[day].phrases||=[];if(!db.days[day].phrases.includes(id))db.days[day].phrases.push(id);
+    const remove=new Set((config.removeTagsOnLearn||[]).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean));
+    const meta=db.phrase_meta?.[id];if(meta&&remove.size&&Array.isArray(meta.tags))meta.tags=meta.tags.filter(tag=>!remove.has(String(tag||'').replace(/^#/,'').trim().toLowerCase()));
+    try{renderPhrases?.(db.days[day].phrases)}catch{}try{populatePhrasesDatalist?.()}catch{}try{renderPhrasesLibrary?.(q('#phrases-search-bar')?.value||'')}catch{}try{await saveDb?.()}catch{}try{showFeatureToast?.(`Added “${id}” to Items Learned.`)}catch{}
+    state.current='';showRecommendation(config,true);
+  }
+
+  function renderRecommendationButtons(){
+    const host=ensureRecommendationHost();if(!host)return;const list=recommendationConfigs();const buttons=q('.day-recommendation-buttons-v712',host);const panel=q('.day-recommendation-panel-v712',host);
+    host.classList.toggle('hidden',!list.length);buttons.innerHTML=list.map(config=>`<button type="button" class="day-recommendation-button-v712" data-recommendation-id="${attr(config.id)}" title="${attr(config.title)} · Right-click to edit"><i class="ph ${attr(config.icon)}"></i><span>${esc(config.title)}</span></button>`).join('');
+    if(!list.length){panel.innerHTML='';return}
+    qa('[data-recommendation-id]',buttons).forEach(button=>{
+      const config=list.find(row=>row.id===button.dataset.recommendationId);if(!config)return;
+      button.addEventListener('click',()=>{const active=button.classList.contains('active');if(active){button.classList.remove('active');panel.innerHTML='';return}showRecommendation(config)});
+      button.addEventListener('contextmenu',event=>{event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+        if(typeof showCustomItemContextMenu==='function')showCustomItemContextMenu(event.clientX,event.clientY,[
+          {label:'Edit filters',icon:'ph-sliders-horizontal',action:()=>openRecommendationSettings(config.id)},
+          {label:'Remove',icon:'ph-trash',danger:true,action:()=>removeRecommendation(config.id)}
+        ]);else openRecommendationSettings(config.id)
+      })
+    })
+  }
+
+  async function removeRecommendation(id){
+    const rows=recommendationConfigs();const config=rows.find(row=>row.id===id);if(!config)return;
+    let ok=true;try{ok=await showAppConfirm?.({title:'Remove Recommendation Button?',message:`Remove “${config.title}” from this Log page?`,confirmLabel:'Remove'})??true}catch{}
+    if(!ok)return;ensureSettings().dayRecommendationButtonsV712=rows.filter(row=>row.id!==id);runtime.delete(id);try{await saveDb?.()}catch{}renderRecommendationButtons();renderComponentsModal();
+  }
+
+  function addRecommendation(){
+    const rows=recommendationConfigs();const config=defaultRecommendation(rows.length+1);config.title=`Recommendation ${rows.length+1}`;config.tags=[];config.removeTagsOnLearn=[];rows.push(config);ensureSettings().dayRecommendationButtonsV712=rows;try{saveDb?.()}catch{}renderRecommendationButtons();renderComponentsModal();setTimeout(()=>openRecommendationSettings(config.id),0)
+  }
+
+  function splitList(value){return [...new Set(String(value||'').split(',').map(v=>v.trim().replace(/^#/,'')).filter(Boolean))]}
+  function openRecommendationSettings(id){
+    q('#lazy-recommendation-settings-v686')?.remove();const config=recommendationConfigs().find(row=>row.id===id);if(!config)return;
+    const draft=clone(config);const cats=categories();let selectedIcon=draft.icon||'ph-moon-stars';let rows=clone(draft.fieldFilters||[]);
+    const modal=document.createElement('div');modal.id='lazy-recommendation-settings-v686';modal.className='modal-overlay lazy-recommendation-settings-v686';modal.innerHTML=`<div class="modal-box lazy-recommendation-settings-box-v686" role="dialog" aria-modal="true" aria-label="Recommendation Settings"><div class="modal-header"><h2>Recommendation Settings</h2><button type="button" class="small-icon-btn lazy-recommendation-close-v686" title="Close"><i class="ph ph-x"></i></button></div><div class="modal-section"><span class="field-label">Button name</span><input type="text" class="lazy-recommendation-name-v686" value="${attr(draft.title)}" placeholder="Recommendation name"></div><div class="modal-section"><span class="field-label">Icon</span><div class="lazy-recommendation-icon-search-v686"><i class="ph ph-magnifying-glass"></i><input type="search" class="lazy-recommendation-icon-query-v686" placeholder="Search icons…" autocomplete="off"></div><div class="lazy-recommendation-icon-grid-v686"></div></div><div class="modal-section"><span class="field-label">Categories</span><div class="lazy-recommendation-category-grid-v686">${cats.map(cat=>`<label class="lazy-recommendation-check-v686"><input type="checkbox" value="${attr(cat)}" ${(draft.categories||[]).includes(cat)?'checked':''}><span>${esc(cat)}</span></label>`).join('')}</div></div><div class="modal-section"><span class="field-label">Required tags</span><div class="lazy-recommendation-tag-rule-v689"><input type="text" class="lazy-recommendation-tags-v686" value="${attr((draft.tags||[]).join(', '))}" placeholder="lazy, algebra, hard"><select class="lazy-recommendation-tag-mode-v689"><option value="and" ${draft.tagMode!=='or'?'selected':''}>Match all tags</option><option value="or" ${draft.tagMode==='or'?'selected':''}>Match any tag</option></select></div></div><div class="modal-section"><span class="field-label">Tags removed when accepted</span><input type="text" class="lazy-recommendation-remove-tags-v688" value="${attr((draft.removeTagsOnLearn||[]).join(', '))}" placeholder="lazy, hide"><p class="progress-hint">Leave blank to keep every tag.</p></div><div class="modal-section"><div class="lazy-recommendation-fields-head-v686"><span class="field-label">Field filters</span><button type="button" class="small-icon-btn lazy-recommendation-add-field-v686" title="Add field filter"><i class="ph ph-plus"></i></button></div><div class="lazy-recommendation-field-list-v686"></div></div><div class="lazy-recommendation-match-summary-v686"></div><div class="modal-actions lazy-recommendation-actions-footer-v686"><button type="button" class="icon-btn lazy-recommendation-save-v686"><i class="ph ph-check"></i> Save</button></div></div>`;
+    document.body.appendChild(modal);const iconGrid=q('.lazy-recommendation-icon-grid-v686',modal),iconQuery=q('.lazy-recommendation-icon-query-v686',modal),fieldList=q('.lazy-recommendation-field-list-v686',modal),summary=q('.lazy-recommendation-match-summary-v686',modal);
+    const close=()=>modal.remove();q('.lazy-recommendation-close-v686',modal).onclick=close;modal.addEventListener('click',event=>{if(event.target===modal)close()});
+    const renderIcons=()=>{const term=String(iconQuery.value||'').trim().toLowerCase().replace(/^ph-/,'');const visible=ICONS.filter(icon=>!term||icon.replace(/^ph-/,'').includes(term));iconGrid.innerHTML=visible.map(icon=>`<button type="button" class="lazy-recommendation-icon-option-v686 ${icon===selectedIcon?'selected':''}" data-icon="${attr(icon)}"><i class="ph ${attr(icon)}"></i></button>`).join('')||'<small>No icons found.</small>';qa('[data-icon]',iconGrid).forEach(btn=>btn.onclick=()=>{selectedIcon=btn.dataset.icon;renderIcons()})};
+    const catOptions=selected=>cats.map(cat=>`<option value="${attr(cat)}" ${cat===selected?'selected':''}>${esc(cat)}</option>`).join('');
+    const renderFields=()=>{fieldList.innerHTML=rows.map((row,index)=>{const fieldOptions=[{name:'__title__',label:'Title'},...fieldsForCategory(row.category).map(name=>({name,label:name}))];if(!fieldOptions.some(field=>field.name===row.field))row.field=fieldOptions[0]?.name||'__title__';return `<div class="lazy-recommendation-field-row-v686" data-index="${index}"><select class="lazy-recommendation-field-category-v686">${catOptions(row.category)}</select><select class="lazy-recommendation-field-name-v686">${fieldOptions.map(field=>`<option value="${attr(field.name)}" ${field.name===row.field?'selected':''}>${esc(field.label)}</option>`).join('')}</select><input type="text" class="lazy-recommendation-field-contains-v686" value="${attr(row.contains)}" placeholder="Contains… (optional)"><button type="button" class="small-icon-btn lazy-recommendation-remove-field-v686"><i class="ph ph-x"></i></button></div>`}).join('')||'<div class="lazy-recommendation-no-fields-v686">No field filters. Any field values are allowed.</div>';qa('.lazy-recommendation-field-row-v686',fieldList).forEach(rowEl=>{const index=Number(rowEl.dataset.index),cat=q('.lazy-recommendation-field-category-v686',rowEl),field=q('.lazy-recommendation-field-name-v686',rowEl),contains=q('.lazy-recommendation-field-contains-v686',rowEl);cat.onchange=()=>{rows[index].category=cat.value;rows[index].field=fieldsForCategory(cat.value)[0]||'__title__';renderFields();updateSummary()};field.onchange=()=>{rows[index].field=field.value;updateSummary()};contains.oninput=()=>{rows[index].contains=contains.value;updateSummary()};q('.lazy-recommendation-remove-field-v686',rowEl).onclick=()=>{rows.splice(index,1);renderFields();updateSummary()}})};
+    const draftNow=()=>({id:config.id,title:String(q('.lazy-recommendation-name-v686',modal)?.value||'').trim()||'Recommendation',icon:selectedIcon||'ph-moon-stars',categories:qa('.lazy-recommendation-category-grid-v686 input:checked',modal).map(input=>input.value),tags:splitList(q('.lazy-recommendation-tags-v686',modal)?.value),tagMode:q('.lazy-recommendation-tag-mode-v689',modal)?.value==='or'?'or':'and',removeTagsOnLearn:splitList(q('.lazy-recommendation-remove-tags-v688',modal)?.value),fieldFilters:rows.map(row=>({category:String(row.category||'').trim(),field:String(row.field||'').trim(),contains:String(row.contains||'').trim()})).filter(row=>row.category&&row.field)});
+    const updateSummary=()=>{const count=candidatesFor(draftNow()).length;summary.innerHTML=`<strong>${count}</strong> unlearned KB item${count===1?'':'s'} currently match these filters.`};
+    iconQuery.oninput=renderIcons;qa('input,select',modal).forEach(input=>{if(!input.closest('.lazy-recommendation-field-list-v686'))input.addEventListener(input.tagName==='SELECT'?'change':'input',updateSummary)});q('.lazy-recommendation-add-field-v686',modal).onclick=()=>{const category=cats[0]||'';if(!category)return;rows.push({category,field:fieldsForCategory(category)[0]||'__title__',contains:''});renderFields();updateSummary()};q('.lazy-recommendation-save-v686',modal).onclick=async()=>{const next=draftNow();Object.assign(config,next);runtime.delete(config.id);try{await saveDb?.()}catch{}renderRecommendationButtons();renderComponentsModal();close()};
+    renderIcons();renderFields();updateSummary();setTimeout(()=>q('.lazy-recommendation-name-v686',modal)?.focus(),0);
+  }
+
+  function ensureComponentsModal(){
+    let modal=q('#day-components-modal-v712');if(modal)return modal;modal=document.createElement('div');modal.id='day-components-modal-v712';modal.className='modal-overlay hidden';modal.innerHTML=`<div class="modal-box day-components-box-v712"><div class="modal-header"><h2>Day Log Components</h2><button type="button" class="small-icon-btn" data-day-components-close title="Close"><i class="ph ph-x"></i></button></div><p class="day-components-help-v712">Show or hide the built-in sections on this Log. Recommendation buttons are repeatable; right-click one on the Day Log to rename it or edit its filters.</p><div class="modal-section"><div class="day-components-grid-v712" data-day-components-grid></div></div><div class="modal-section day-components-recommendations-v712"><div class="day-components-recommendation-head-v712"><div><span class="field-label">Recommendation Buttons</span><p class="day-components-help-v712">Each button can use completely different KB categories, tags and field filters.</p></div><button type="button" class="icon-btn" data-add-day-recommendation><i class="ph ph-plus"></i> Add</button></div><div class="day-components-recommendation-list-v712" data-day-recommendation-list></div></div></div>`;document.body.appendChild(modal);q('[data-day-components-close]',modal).onclick=()=>modal.classList.add('hidden');modal.addEventListener('click',event=>{if(event.target===modal)modal.classList.add('hidden')});q('[data-add-day-recommendation]',modal).onclick=addRecommendation;return modal
+  }
+
+  function renderComponentsModal(){
+    const modal=q('#day-components-modal-v712');if(!modal)return;const hidden=hiddenMap(),grid=q('[data-day-components-grid]',modal);grid.innerHTML=BUILTINS.map(item=>{const visible=hidden[item.key]!==true;return `<div class="day-component-card-v712"><i class="ph ${item.icon}"></i><div class="day-component-copy-v712"><strong>${esc(item.label)}</strong><small>${visible?'Visible on numbered Day Logs':'Hidden from numbered Day Logs'}</small></div><button type="button" class="icon-btn day-component-toggle-v712" data-component-key="${item.key}" data-visible="${visible?'true':'false'}">${visible?'Hide':'Show'}</button></div>`}).join('');qa('[data-component-key]',grid).forEach(button=>button.onclick=async()=>{const key=button.dataset.componentKey;if(hidden[key]===true)delete hidden[key];else hidden[key]=true;try{await saveDb?.()}catch{}try{applyHiddenLoggySectionsV432?.()}catch{try{window.__applyHiddenLoggySectionsV433?.()}catch{}}renderComponentsModal()});
+    const rows=recommendationConfigs(),list=q('[data-day-recommendation-list]',modal);list.innerHTML=rows.map(config=>`<div class="day-components-rec-row-v712"><i class="ph ${attr(config.icon)}"></i><span>${esc(config.title)}</span><button type="button" class="small-icon-btn" data-edit-rec="${attr(config.id)}" title="Edit filters"><i class="ph ph-pencil-simple"></i></button><button type="button" class="small-icon-btn" data-remove-rec="${attr(config.id)}" title="Remove"><i class="ph ph-trash"></i></button></div>`).join('')||'<p class="day-components-help-v712">No recommendation buttons yet.</p>';qa('[data-edit-rec]',list).forEach(btn=>btn.onclick=()=>{modal.classList.add('hidden');openRecommendationSettings(btn.dataset.editRec)});qa('[data-remove-rec]',list).forEach(btn=>btn.onclick=()=>removeRecommendation(btn.dataset.removeRec));
+  }
+
+  function openComponentsModal(){if(!onNumberedDay())return;const modal=ensureComponentsModal();renderComponentsModal();modal.classList.remove('hidden')}
+  window.__loggyOpenDayComponentsV712=openComponentsModal;
+
+  // Add Components to the existing per-section right-click menu as well, so
+  // right-clicking section space and right-clicking blank page space both lead
+  // to the same component manager.
+  try{
+    const beforeOpenSection=openSectionTitleContextMenuV434;
+    openSectionTitleContextMenuV434=function(target,x,y){const result=beforeOpenSection.apply(this,arguments);const menu=q('#section-title-context-menu-v434');if(!menu)return result;let button=q('.loggy-section-context-components-v712',menu);if(!button){button=document.createElement('button');button.type='button';button.className='loggy-section-context-option-v434 loggy-section-context-components-v712';button.setAttribute('role','menuitem');button.innerHTML='<i class="ph ph-squares-four"></i><span>Components</span>';button.addEventListener('click',()=>{try{closeSectionTitleContextMenuV434?.()}catch{}openComponentsModal()});menu.appendChild(button)}const show=!!target?.closest?.('#log-view')&&onNumberedDay();button.classList.toggle('hidden',!show);if(show){requestAnimationFrame(()=>{const rect=menu.getBoundingClientRect();const gap=8;const left=Math.min(Math.max(gap,Number(x)||gap),Math.max(gap,innerWidth-rect.width-gap));const top=Math.min(Math.max(gap,Number(y)||gap),Math.max(gap,innerHeight-rect.height-gap));menu.style.left=`${left}px`;menu.style.top=`${top}px`})}return result};window.openSectionTitleContextMenuV434=openSectionTitleContextMenuV434
+  }catch{}
+
+  function refreshDayComponents(){retireHiddenSettingsV712();renderRecommendationButtons();try{applyHiddenLoggySectionsV432?.()}catch{try{window.__applyHiddenLoggySectionsV433?.()}catch{}}}
+  try{const beforeOpenDay=openDayLog;if(typeof beforeOpenDay==='function'&&!beforeOpenDay.__dayComponentsV712){const wrapped=function(){const result=beforeOpenDay.apply(this,arguments);requestAnimationFrame(refreshDayComponents);return result};wrapped.__dayComponentsV712=true;openDayLog=wrapped;try{window.openDayLog=wrapped}catch{}}}catch{}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{ensureStyle();refreshDayComponents()},{once:true});else{ensureStyle();refreshDayComponents()}
+
+  window.__loggyDayComponentsV712={open:openComponentsModal,render:refreshDayComponents,recommendations:recommendationConfigs,editRecommendation:openRecommendationSettings};
+})();
+
+// ============================================================================
+// V713 — NUMBERED DAY LOG COMPONENT CANVAS
+// Per-day drag/drop layout for built-in Day Log sections and repeatable
+// recommendation buttons. The Components manager now controls the ACTIVE
+// numbered day instead of a Log-wide fixed layout.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyDayComponentCanvasV713) return;
+  window.__loggyDayComponentCanvasV713 = true;
+
+  const q = (s, r = document) => r?.querySelector?.(s) || null;
+  const qa = (s, r = document) => Array.from(r?.querySelectorAll?.(s) || []);
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const attr = esc;
+  const clone = value => { try { return structuredClone(value); } catch { try { return JSON.parse(JSON.stringify(value)); } catch { return value; } } };
+  const uid = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
+
+  const BUILTINS = [
+    { key:'itemsLearned', label:'Items Learned', icon:'ph-books', span:6 },
+    { key:'tools', label:'Toolbox', icon:'ph-wrench', span:6 },
+    { key:'logNotes', label:'Log Notes', icon:'ph-note-pencil', span:6 },
+    { key:'videoLogs', label:'Video Logs', icon:'ph-video-camera', span:6 },
+    { key:'tabItems', label:'Tab Items', icon:'ph-tabs', span:12 },
+    { key:'mediaResources', label:'Media Resources', icon:'ph-link', span:12 }
+  ];
+  const VALID_SPANS = [12, 6, 4];
+  const recRuntime = new Map();
+  let layoutEditMode = false;
+  let lastContextTarget = null;
+  let saveTimer = 0;
+
+  function currentDayNumberV713() {
+    try { return Number(typeof currentDay !== 'undefined' ? currentDay : 0) || 0; }
+    catch { return 0; }
+  }
+
+  function onNumberedDayV713() {
+    return currentDayNumberV713() > 0 && !!q('#log-view.view.active');
+  }
+
+  function settingsV713() {
+    try { db.settings ||= {}; return db.settings; }
+    catch { return {}; }
+  }
+
+  function dayDataV713(day = currentDayNumberV713()) {
+    if (!day) return null;
+    try {
+      db.days ||= {};
+      db.days[day] ||= { notes:'', phrases:[], tools:[], video:'', checkedParts:{}, customTabLinks:[] };
+      return db.days[day];
+    } catch { return null; }
+  }
+
+  function recommendationConfigsV713() {
+    try {
+      const api = window.__loggyDayComponentsV712;
+      if (api && typeof api === 'object' && typeof api.recommendations === 'function') {
+        return api.recommendations();
+      }
+    } catch {}
+    const s = settingsV713();
+    if (!Array.isArray(s.dayRecommendationButtonsV712)) s.dayRecommendationButtonsV712 = [];
+    return s.dayRecommendationButtonsV712;
+  }
+
+  function recommendationByIdV713(id) {
+    return recommendationConfigsV713().find(row => String(row?.id || '') === String(id || '')) || null;
+  }
+
+  function builtinEntryV713(item, hidden = {}) {
+    return {
+      id:`builtin:${item.key}`,
+      type:'builtin',
+      key:item.key,
+      span:item.span,
+      visible:hidden?.[item.key] !== true
+    };
+  }
+
+  function recommendationEntryV713(id, visible = true) {
+    return {
+      id:`recommendation:${id}`,
+      type:'recommendation',
+      recommendationId:String(id),
+      span:4,
+      visible:visible !== false,
+      presentation:'button'
+    };
+  }
+
+  function buildInitialTemplateV713() {
+    const s = settingsV713();
+    const legacyHidden = s.hiddenSectionsV432 && typeof s.hiddenSectionsV432 === 'object' && !Array.isArray(s.hiddenSectionsV432)
+      ? clone(s.hiddenSectionsV432)
+      : {};
+    return [
+      ...BUILTINS.map(item => builtinEntryV713(item, legacyHidden)),
+      ...recommendationConfigsV713().map(row => recommendationEntryV713(row.id, true))
+    ];
+  }
+
+  function normalizeLayoutV713(raw) {
+    const configs = new Set(recommendationConfigsV713().map(row => String(row?.id || '')).filter(Boolean));
+    const incoming = Array.isArray(raw) ? raw.filter(row => row && typeof row === 'object') : [];
+    const seen = new Set();
+    const out = [];
+
+    incoming.forEach(row => {
+      if (row.type === 'builtin') {
+        const item = BUILTINS.find(def => def.key === row.key);
+        if (!item || seen.has(`builtin:${item.key}`)) return;
+        seen.add(`builtin:${item.key}`);
+        out.push({
+          id:`builtin:${item.key}`,
+          type:'builtin',
+          key:item.key,
+          span:VALID_SPANS.includes(Number(row.span)) ? Number(row.span) : item.span,
+          visible:row.visible !== false
+        });
+        return;
+      }
+      if (row.type === 'recommendation') {
+        const id = String(row.recommendationId || row.recId || '').trim();
+        if (!id || !configs.has(id) || seen.has(`recommendation:${id}`)) return;
+        seen.add(`recommendation:${id}`);
+        const presentation = ['button','compact','full'].includes(row.presentation) ? row.presentation : 'button';
+        out.push({
+          id:`recommendation:${id}`,
+          type:'recommendation',
+          recommendationId:id,
+          span:VALID_SPANS.includes(Number(row.span)) ? Number(row.span) : 4,
+          visible:row.visible !== false,
+          presentation
+        });
+      }
+    });
+
+    BUILTINS.forEach(item => {
+      const id = `builtin:${item.key}`;
+      if (!seen.has(id)) out.push(builtinEntryV713(item, {}));
+    });
+    return out;
+  }
+
+  function ensureLayoutTemplateV713() {
+    const s = settingsV713();
+    if (!Array.isArray(s.dayComponentLayoutTemplateV713)) {
+      s.dayComponentLayoutTemplateV713 = buildInitialTemplateV713();
+      s.dayComponentLayoutMigratedV713 = true;
+      // The old global hide map must stop controlling Day pages after migration.
+      // Its state was copied into the V713 template above.
+      s.hiddenSectionsV432 = {};
+      queueSaveV713();
+    }
+    s.dayComponentLayoutTemplateV713 = normalizeLayoutV713(s.dayComponentLayoutTemplateV713);
+    return s.dayComponentLayoutTemplateV713;
+  }
+
+  function currentLayoutV713() {
+    const day = dayDataV713();
+    if (!day) return [];
+    const template = ensureLayoutTemplateV713();
+    if (!Array.isArray(day.componentLayoutV713)) day.componentLayoutV713 = clone(template);
+    day.componentLayoutV713 = normalizeLayoutV713(day.componentLayoutV713);
+    return day.componentLayoutV713;
+  }
+
+  function entryV713(id) {
+    return currentLayoutV713().find(row => row.id === id) || null;
+  }
+
+  function queueSaveV713() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { try { saveDb?.(); } catch {} }, 90);
+  }
+
+  function saveNowV713() {
+    clearTimeout(saveTimer);
+    try { return saveDb?.(); } catch { return null; }
+  }
+
+  function sectionForBuiltinV713(key) {
+    try {
+      if (typeof dayLogSectionForKeyV433 === 'function') return dayLogSectionForKeyV433(key);
+    } catch {}
+    if (key === 'itemsLearned') return q('#phrases-container')?.closest('#log-view section') || null;
+    if (key === 'logNotes') return q('#log-view .notes-section');
+    if (key === 'tools') return q('#add-tool-to-day-btn')?.closest('section') || null;
+    if (key === 'videoLogs') return q('#log-view .video-section');
+    if (key === 'tabItems') return q('#daily-custom-tab-links-section');
+    if (key === 'mediaResources') return q('#day-resources-section');
+    return null;
+  }
+
+  function ensureStyleV713() {
+    if (q('#loggy-day-component-canvas-v713-style')) return;
+    const style = document.createElement('style');
+    style.id = 'loggy-day-component-canvas-v713-style';
+    style.textContent = `
+      /* V712 grouped recommendation bar is superseded by independent V713 components. */
+      #day-recommendation-components-v712{display:none!important}
+
+      #log-view .log-content.day-layout-host-v713{display:block!important;width:100%!important;max-width:none!important}
+      #log-view .log-content.day-layout-host-v713>.left-column,
+      #log-view .log-content.day-layout-host-v713>.right-column{display:none!important}
+      #day-component-canvas-v713{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-flow:row;align-items:start;gap:16px;width:100%;box-sizing:border-box;margin:0;padding:0}
+      #day-component-canvas-v713>.day-layout-item-v713{position:relative!important;min-width:0!important;width:auto!important;max-width:none!important;margin:0!important;box-sizing:border-box!important;align-self:start}
+      #day-component-canvas-v713>.day-layout-item-v713[hidden],
+      #day-component-canvas-v713>.day-layout-item-v713.day-layout-hidden-v713{display:none!important}
+      #day-component-canvas-v713>.borderless-section{margin-top:0!important}
+      #day-component-canvas-v713 .notes-editable{width:100%;box-sizing:border-box}
+
+      #day-layout-editbar-v713{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:9px 10px;border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);color:var(--black);box-sizing:border-box}
+      #day-layout-editbar-v713.hidden{display:none!important}
+      #day-layout-editbar-v713 .day-layout-edit-copy-v713{flex:1;min-width:180px;display:grid;gap:1px}
+      #day-layout-editbar-v713 .day-layout-edit-copy-v713 small{font-size:.72rem;color:var(--muted-text)}
+
+      .day-layout-editing-v713 #day-component-canvas-v713>.day-layout-item-v713{outline:1px dashed color-mix(in srgb,var(--black) 38%,transparent);outline-offset:3px;padding-top:34px!important;transition:outline-color .12s ease,opacity .12s ease}
+      .day-layout-editing-v713 #day-component-canvas-v713>.day-layout-item-v713.day-layout-dragging-v713{opacity:.42}
+      .day-layout-editing-v713 #day-component-canvas-v713>.day-layout-item-v713.day-layout-drop-before-v713{outline:2px solid var(--black)!important}
+      .day-layout-toolbar-v713{display:none;position:absolute;z-index:50;top:4px;right:4px;left:4px;height:26px;align-items:center;justify-content:flex-end;gap:5px;pointer-events:none}
+      .day-layout-editing-v713 .day-layout-toolbar-v713{display:flex}
+      .day-layout-toolbar-v713 button{pointer-events:auto;min-height:25px!important;height:25px!important;padding:2px 7px!important;font-size:.68rem!important;border-radius:6px!important}
+      .day-layout-drag-handle-v713{cursor:grab!important;margin-right:auto!important}
+      .day-layout-drag-handle-v713:active{cursor:grabbing!important}
+
+      .day-recommendation-component-v713{overflow:visible!important}
+      .day-rec-shell-v713{display:grid;gap:8px;min-width:0}
+      .day-rec-launch-v713{width:100%;min-height:38px;display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 11px;border:var(--thin-border);border-radius:999px;background:var(--white);color:var(--black);font:inherit;font-weight:750;cursor:pointer;box-sizing:border-box}
+      .day-rec-launch-v713 i{font-size:1rem}
+      .day-rec-shell-v713[data-presentation="compact"] .day-rec-launch-v713{justify-content:flex-start;border-radius:var(--border-radius);min-height:52px}
+      .day-rec-shell-v713[data-presentation="full"] .day-rec-launch-v713{justify-content:flex-start;border-radius:var(--border-radius);font-size:.95rem}
+      .day-rec-output-v713{min-width:0}
+      .day-rec-output-v713.hidden{display:none!important}
+      .day-rec-compact-result-v713{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid color-mix(in srgb,var(--black) 16%,transparent);border-radius:var(--border-radius);background:var(--track-bg);color:var(--black);min-width:0}
+      .day-rec-compact-result-v713 .day-rec-compact-main-v713{flex:1;min-width:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit;display:grid;gap:2px}
+      .day-rec-compact-result-v713 .day-rec-compact-main-v713 strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .day-rec-compact-result-v713 .day-rec-compact-main-v713 small{font-size:.7rem;color:var(--muted-text)}
+      .day-rec-empty-v713{padding:10px;border:1px dashed color-mix(in srgb,var(--black) 28%,transparent);border-radius:var(--border-radius);font-size:.76rem;color:var(--muted-text)}
+
+      #day-components-modal-v713 .day-components-box-v713{max-width:760px;width:min(760px,calc(100vw - 30px));max-height:min(82vh,820px);overflow:auto}
+      #day-components-modal-v713 .day-components-top-actions-v713{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+      #day-components-modal-v713 .day-components-grid-v713{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+      #day-components-modal-v713 .day-component-card-v713{display:flex;align-items:center;gap:10px;padding:11px;border:var(--thin-border);border-radius:var(--border-radius);background:var(--white);color:var(--black)}
+      #day-components-modal-v713 .day-component-card-v713>i{font-size:1.2rem;flex:0 0 auto}
+      #day-components-modal-v713 .day-component-copy-v713{display:grid;gap:2px;flex:1;min-width:0}
+      #day-components-modal-v713 .day-component-copy-v713 small{font-size:.71rem;color:var(--muted-text)}
+      #day-components-modal-v713 .day-components-recommendation-head-v713{display:flex;align-items:center;justify-content:space-between;gap:10px}
+      #day-components-modal-v713 .day-components-recommendation-list-v713{display:grid;gap:7px;margin-top:8px}
+      #day-components-modal-v713 .day-components-rec-row-v713{display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid color-mix(in srgb,var(--black) 16%,transparent);border-radius:8px}
+      #day-components-modal-v713 .day-components-rec-row-v713>.day-components-rec-name-v713{flex:1;min-width:0;display:grid;gap:1px}
+      #day-components-modal-v713 .day-components-rec-row-v713>.day-components-rec-name-v713 strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      #day-components-modal-v713 .day-components-rec-row-v713>.day-components-rec-name-v713 small{font-size:.68rem;color:var(--muted-text)}
+      #day-components-modal-v713 .day-components-help-v713{margin:0;color:var(--muted-text);font-size:.74rem;line-height:1.4}
+
+      @media(max-width:760px){
+        #day-component-canvas-v713>.day-layout-item-v713{grid-column:1/-1!important}
+        #day-components-modal-v713 .day-components-grid-v713{grid-template-columns:1fr}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureCanvasV713() {
+    if (!onNumberedDayV713()) return null;
+    ensureStyleV713();
+    try { ensureDailyCustomTabLinksUI?.(); } catch {}
+    const logContent = q('#log-view .log-content');
+    if (!logContent) return null;
+    logContent.classList.add('day-layout-host-v713');
+    let canvas = q('#day-component-canvas-v713');
+    if (!canvas) {
+      canvas = document.createElement('div');
+      canvas.id = 'day-component-canvas-v713';
+      canvas.setAttribute('aria-label','Day Log component layout');
+      logContent.appendChild(canvas);
+    } else if (canvas.parentElement !== logContent) {
+      logContent.appendChild(canvas);
+    }
+    return canvas;
+  }
+
+  function ensureEditBarV713() {
+    const log = q('#log-view');
+    const header = q('#log-view > .log-header-container');
+    if (!log || !header) return null;
+    let bar = q('#day-layout-editbar-v713');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'day-layout-editbar-v713';
+      bar.className = 'hidden';
+      bar.innerHTML = `
+        <div class="day-layout-edit-copy-v713">
+          <strong>Editing Day Log layout</strong>
+          <small>Drag components with the handle. Change widths or hide a component without deleting its data.</small>
+        </div>
+        <button type="button" class="icon-btn" data-layout-apply-future-v713><i class="ph ph-copy"></i> Use for future days</button>
+        <button type="button" class="icon-btn" data-layout-done-v713>Done</button>
+      `;
+      header.insertAdjacentElement('afterend', bar);
+      q('[data-layout-done-v713]',bar)?.addEventListener('click',()=>setLayoutEditModeV713(false));
+      q('[data-layout-apply-future-v713]',bar)?.addEventListener('click',applyCurrentLayoutToFutureV713);
+    }
+    return bar;
+  }
+
+  function componentLabelV713(entry) {
+    if (entry.type === 'builtin') return BUILTINS.find(item => item.key === entry.key)?.label || entry.key;
+    return recommendationByIdV713(entry.recommendationId)?.title || 'Recommendation';
+  }
+
+  function widthLabelV713(span) {
+    return Number(span) === 12 ? 'Full' : Number(span) === 6 ? 'Half' : 'Third';
+  }
+
+  function cycleSpanV713(entry) {
+    const index = VALID_SPANS.indexOf(Number(entry.span));
+    entry.span = VALID_SPANS[(index + 1 + VALID_SPANS.length) % VALID_SPANS.length];
+    queueSaveV713();
+    renderDayLayoutV713();
+  }
+
+  function hideEntryV713(entry) {
+    entry.visible = false;
+    queueSaveV713();
+    renderDayLayoutV713();
+    renderComponentsModalV713();
+  }
+
+  function installEditToolbarV713(el, entry) {
+    q('.day-layout-toolbar-v713', el)?.remove();
+    if (!layoutEditMode) {
+      el.draggable = false;
+      return;
+    }
+    const toolbar = document.createElement('div');
+    toolbar.className = 'day-layout-toolbar-v713';
+    toolbar.innerHTML = `
+      <button type="button" class="small-icon-btn day-layout-drag-handle-v713" draggable="true" title="Drag ${attr(componentLabelV713(entry))}"><i class="ph ph-dots-six-vertical"></i></button>
+      <button type="button" class="small-icon-btn" data-layout-width-v713 title="Change width">${widthLabelV713(entry.span)}</button>
+      <button type="button" class="small-icon-btn" data-layout-hide-v713 title="Hide from this day"><i class="ph ph-eye-slash"></i></button>
+    `;
+    el.prepend(toolbar);
+    q('[data-layout-width-v713]',toolbar)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();cycleSpanV713(entry)});
+    q('[data-layout-hide-v713]',toolbar)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();hideEntryV713(entry)});
+    const handle = q('.day-layout-drag-handle-v713',toolbar);
+    handle?.addEventListener('dragstart', event => {
+      try { event.dataTransfer.effectAllowed='move'; event.dataTransfer.setData('text/plain',entry.id); } catch {}
+      el.classList.add('day-layout-dragging-v713');
+    });
+    handle?.addEventListener('dragend', () => {
+      el.classList.remove('day-layout-dragging-v713');
+      qa('.day-layout-drop-before-v713',q('#day-component-canvas-v713')).forEach(node=>node.classList.remove('day-layout-drop-before-v713'));
+      persistDomOrderV713();
+    });
+  }
+
+  function persistDomOrderV713() {
+    const canvas = q('#day-component-canvas-v713');
+    if (!canvas) return;
+    const layout = currentLayoutV713();
+    const byId = new Map(layout.map(row => [row.id,row]));
+    const visibleOrder = qa(':scope > .day-layout-item-v713',canvas).map(el => el.dataset.dayComponentId).filter(Boolean);
+    const visibleSet = new Set(visibleOrder);
+    const reordered = [
+      ...visibleOrder.map(id => byId.get(id)).filter(Boolean),
+      ...layout.filter(row => !visibleSet.has(row.id))
+    ];
+    const day = dayDataV713();
+    if (day) day.componentLayoutV713 = reordered;
+    queueSaveV713();
+  }
+
+  function installCanvasDnDV713(canvas) {
+    if (!canvas || canvas.dataset.dayLayoutDndV713 === '1') return;
+    canvas.dataset.dayLayoutDndV713 = '1';
+    canvas.addEventListener('dragover', event => {
+      if (!layoutEditMode) return;
+      const dragging = q('.day-layout-dragging-v713',canvas);
+      if (!dragging) return;
+      event.preventDefault();
+      const target = event.target?.closest?.('.day-layout-item-v713');
+      if (!target || target === dragging || target.parentElement !== canvas) return;
+      qa('.day-layout-drop-before-v713',canvas).forEach(node=>node.classList.remove('day-layout-drop-before-v713'));
+      target.classList.add('day-layout-drop-before-v713');
+      const rect = target.getBoundingClientRect();
+      const before = event.clientY < rect.top + rect.height/2 || (Math.abs(event.clientY - (rect.top + rect.height/2)) < rect.height*.18 && event.clientX < rect.left + rect.width/2);
+      canvas.insertBefore(dragging, before ? target : target.nextSibling);
+    });
+    canvas.addEventListener('drop', event => {
+      if (!layoutEditMode) return;
+      event.preventDefault();
+      qa('.day-layout-drop-before-v713',canvas).forEach(node=>node.classList.remove('day-layout-drop-before-v713'));
+      persistDomOrderV713();
+    });
+  }
+
+  function tagsForItemV713(id) {
+    try { if (typeof getKnowledgeItemTagsV55 === 'function') return (getKnowledgeItemTagsV55(id)||[]).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean); } catch {}
+    const meta = db.phrase_meta?.[id] || {};
+    return [...new Set([...(meta.tags||[]),meta.type].map(v=>String(v||'').replace(/^#/,'').trim().toLowerCase()).filter(Boolean))];
+  }
+
+  function learnedSetV713() {
+    const out = new Set();
+    Object.values(db.days || {}).forEach(day => (day?.phrases || []).forEach(id => out.add(String(id))));
+    return out;
+  }
+
+  function fieldValueV713(id,row) {
+    if (row.field === '__title__') return String(id || '');
+    return String(db.phrase_meta?.[id]?.custom_fields?.[row.field] ?? '');
+  }
+
+  function recommendationCandidatesV713(config) {
+    const learned = learnedSetV713();
+    const wantedCats = new Set((config.categories || []).map(String));
+    const wantedTags = (config.tags || []).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean);
+    return (db.phrases || []).filter(rawId => {
+      const id = String(rawId);
+      if (learned.has(id)) return false;
+      const meta = db.phrase_meta?.[id] || {};
+      const category = String(meta.type || '');
+      if (wantedCats.size && !wantedCats.has(category)) return false;
+      const tags = tagsForItemV713(id);
+      if (wantedTags.length) {
+        const ok = String(config.tagMode || 'and').toLowerCase() === 'or'
+          ? wantedTags.some(tag => tags.includes(tag))
+          : wantedTags.every(tag => tags.includes(tag));
+        if (!ok) return false;
+      }
+      const filters = (config.fieldFilters || []).filter(row => !row.category || row.category === category);
+      for (const row of filters) {
+        const value = fieldValueV713(id,row).trim();
+        if (!value) return false;
+        const wanted = String(row.contains || '').trim().toLowerCase();
+        if (wanted && !value.toLowerCase().includes(wanted)) return false;
+      }
+      return true;
+    });
+  }
+
+  function runtimeForRecV713(id) {
+    const key = `${currentDayNumberV713()}:${id}`;
+    if (!recRuntime.has(key)) recRuntime.set(key,{current:'',last:'',expanded:false});
+    return recRuntime.get(key);
+  }
+
+  function recommendationDisplayLabelV713(id) {
+    try { if (typeof getKnowledgeDisplayLabelV162 === 'function') return getKnowledgeDisplayLabelV162(id,'everywhere'); } catch {}
+    return id;
+  }
+
+  function recommendationPatternHtmlV713(id) {
+    try { if (String(id).includes('\\') && typeof placeholderTokenHtmlV56 === 'function') return placeholderTokenHtmlV56(String(id)); } catch {}
+    return esc(recommendationDisplayLabelV713(id));
+  }
+
+  function chooseRecommendationV713(config, forceNext = false) {
+    const state = runtimeForRecV713(config.id);
+    const pool = recommendationCandidatesV713(config);
+    if (forceNext) state.current = '';
+    if (!state.current || !pool.includes(state.current)) {
+      let choices = pool;
+      if (pool.length > 1 && state.last) {
+        const rest = pool.filter(id => String(id) !== String(state.last));
+        if (rest.length) choices = rest;
+      }
+      state.current = choices.length ? String(choices[Math.floor(Math.random()*choices.length)]) : '';
+      if (state.current) state.last = state.current;
+    }
+    return {state,pool,id:state.current};
+  }
+
+  async function acceptRecommendationV713(config, section) {
+    const choice = chooseRecommendationV713(config,false);
+    const id = String(choice.id || '');
+    const day = currentDayNumberV713();
+    if (!id || !day) return;
+    const data = dayDataV713(day);
+    data.phrases ||= [];
+    if (!data.phrases.includes(id)) data.phrases.push(id);
+    const remove = new Set((config.removeTagsOnLearn || []).map(v=>String(v).replace(/^#/,'').trim().toLowerCase()).filter(Boolean));
+    const meta = db.phrase_meta?.[id];
+    if (meta && remove.size && Array.isArray(meta.tags)) meta.tags = meta.tags.filter(tag => !remove.has(String(tag||'').replace(/^#/,'').trim().toLowerCase()));
+    try { renderPhrases?.(data.phrases); } catch {}
+    try { populatePhrasesDatalist?.(); } catch {}
+    try { renderPhrasesLibrary?.(q('#phrases-search-bar')?.value || ''); } catch {}
+    try { await saveDb?.(); } catch {}
+    try { showFeatureToast?.(`Added “${id}” to Items Learned.`); } catch {}
+    const state = runtimeForRecV713(config.id); state.current = '';
+    renderRecommendationOutputV713(section,config,true);
+  }
+
+  function renderRecommendationOutputV713(section, config, forceNext = false) {
+    const entry = entryV713(`recommendation:${config.id}`);
+    const output = q('.day-rec-output-v713',section);
+    if (!output || !entry) return;
+    const {state,pool,id} = chooseRecommendationV713(config,forceNext);
+    const presentation = entry.presentation || 'button';
+    const shouldShow = presentation === 'full' || presentation === 'compact' || state.expanded;
+    output.classList.toggle('hidden',!shouldShow);
+    if (!shouldShow) { output.innerHTML=''; return; }
+    if (!pool.length) {
+      output.innerHTML = `<div class="day-rec-empty-v713">No unlearned Knowledge Base items match these filters. Right-click this component to edit its filters.</div>`;
+      return;
+    }
+    const tagText = (config.tags || []).length ? (config.tags || []).map(tag=>`#${tag}`).join(String(config.tagMode||'and').toLowerCase()==='or'?' OR ':' + ') : 'custom filters';
+    if (presentation === 'compact') {
+      output.innerHTML = `<div class="day-rec-compact-result-v713"><button type="button" class="day-rec-compact-main-v713" data-rec-open-v713><strong>${recommendationPatternHtmlV713(id)}</strong><small>${esc(tagText)} · ${pool.length} available</small></button><button type="button" class="small-icon-btn" data-rec-skip-v713 title="Show another"><i class="ph ph-skip-forward"></i></button><button type="button" class="small-icon-btn" data-rec-learn-v713 title="Add to Items Learned"><i class="ph ph-check"></i></button></div>`;
+    } else {
+      output.innerHTML = `<div class="lazy-day-recommendation-v596" aria-live="polite"><button type="button" class="lazy-day-recommendation-main-v596" data-rec-open-v713><span class="lazy-day-recommendation-icon-v596"><i class="ph ${attr(config.icon)}"></i></span><span class="lazy-day-recommendation-copy-v596"><small>${esc(config.title)}</small><span class="lazy-day-recommendation-value-v596">${recommendationPatternHtmlV713(id)}</span><em class="lazy-day-recommendation-meta-v596">${esc(tagText)} · ${pool.length} unlearned item${pool.length===1?'':'s'} available</em></span></button><div class="lazy-day-recommendation-actions-v597"><button type="button" class="small-icon-btn" data-rec-skip-v713 title="Skip and show another"><i class="ph ph-skip-forward"></i></button><button type="button" class="small-icon-btn" data-rec-learn-v713 title="Add to Items Learned"><i class="ph ph-check"></i></button></div></div>`;
+    }
+    q('[data-rec-open-v713]',output)?.addEventListener('click',()=>{ try { openItemModal?.(id,true,false); } catch {} });
+    q('[data-rec-skip-v713]',output)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();state.current='';renderRecommendationOutputV713(section,config,true)});
+    q('[data-rec-learn-v713]',output)?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();acceptRecommendationV713(config,section).catch(()=>{})});
+  }
+
+  function openRecommendationEditorV713(id) {
+    try {
+      window.__loggyDayComponentsV712?.editRecommendation?.(id);
+      requestAnimationFrame(() => {
+        const save = q('.lazy-recommendation-save-v686');
+        if (save && save.dataset.v713RefreshBound !== '1') {
+          save.dataset.v713RefreshBound = '1';
+          save.addEventListener('click',()=>setTimeout(()=>{renderDayLayoutV713();renderComponentsModalV713()},120));
+        }
+      });
+    } catch {}
+  }
+
+  function setRecommendationPresentationV713(id,presentation) {
+    const entry = entryV713(`recommendation:${id}`);
+    if (!entry) return;
+    entry.presentation = ['button','compact','full'].includes(presentation) ? presentation : 'button';
+    const state = runtimeForRecV713(id);
+    if (presentation === 'full' || presentation === 'compact') state.expanded = true;
+    queueSaveV713();
+    renderDayLayoutV713();
+  }
+
+  function setEntrySpanV713(id,span) {
+    const entry = entryV713(id);
+    if (!entry || !VALID_SPANS.includes(Number(span))) return;
+    entry.span = Number(span);
+    queueSaveV713();
+    renderDayLayoutV713();
+  }
+
+  async function duplicateRecommendationV713(id) {
+    const rows = recommendationConfigsV713();
+    const source = rows.find(row=>String(row?.id||'')===String(id));
+    if (!source) return;
+    const copy = clone(source);
+    copy.id = uid('day-recommendation');
+    copy.title = `${String(source.title || 'Recommendation')} Copy`;
+    const at = rows.indexOf(source);
+    rows.splice(at + 1,0,copy);
+    settingsV713().dayRecommendationButtonsV712 = rows;
+    const layout = currentLayoutV713();
+    const oldIndex = layout.findIndex(row=>row.id===`recommendation:${id}`);
+    const newEntry = recommendationEntryV713(copy.id,true);
+    if (oldIndex >= 0) {
+      const sourceEntry = layout[oldIndex];
+      newEntry.span = sourceEntry.span;
+      newEntry.presentation = sourceEntry.presentation;
+      layout.splice(oldIndex+1,0,newEntry);
+    } else layout.push(newEntry);
+    await saveNowV713();
+    renderDayLayoutV713();renderComponentsModalV713();
+    openRecommendationEditorV713(copy.id);
+  }
+
+  async function removeRecommendationV713(id) {
+    const config = recommendationByIdV713(id);
+    if (!config) return;
+    let ok = true;
+    try { ok = await showAppConfirm?.({title:'Remove Recommendation Component?',message:`Remove “${config.title}” from this Log and all Day Log layouts?`,confirmLabel:'Remove'}) ?? true; } catch {}
+    if (!ok) return;
+    const s = settingsV713();
+    s.dayRecommendationButtonsV712 = recommendationConfigsV713().filter(row=>String(row?.id||'')!==String(id));
+    if (Array.isArray(s.dayComponentLayoutTemplateV713)) s.dayComponentLayoutTemplateV713 = s.dayComponentLayoutTemplateV713.filter(row=>row.id!==`recommendation:${id}`);
+    Object.values(db.days || {}).forEach(day=>{ if(Array.isArray(day?.componentLayoutV713)) day.componentLayoutV713 = day.componentLayoutV713.filter(row=>row.id!==`recommendation:${id}`); });
+    [...recRuntime.keys()].filter(key=>key.endsWith(`:${id}`)).forEach(key=>recRuntime.delete(key));
+    await saveNowV713();
+    renderDayLayoutV713();renderComponentsModalV713();
+  }
+
+  async function addRecommendationV713() {
+    const rows = recommendationConfigsV713();
+    const config = {
+      id:uid('day-recommendation'),
+      title:`Recommendation ${rows.length+1}`,
+      icon:'ph-moon-stars',
+      categories:[],tags:[],tagMode:'and',removeTagsOnLearn:[],fieldFilters:[]
+    };
+    rows.push(config);
+    settingsV713().dayRecommendationButtonsV712 = rows;
+    currentLayoutV713().push(recommendationEntryV713(config.id,true));
+    await saveNowV713();
+    renderDayLayoutV713();renderComponentsModalV713();
+    openRecommendationEditorV713(config.id);
+  }
+
+  function recommendationContextActionsV713(config,entry) {
+    return [
+      {label:'Edit filters / rename',icon:'ph-sliders-horizontal',action:()=>openRecommendationEditorV713(config.id)},
+      {label:'Display: Button',icon:entry.presentation==='button'?'ph-check':'ph-circle',action:()=>setRecommendationPresentationV713(config.id,'button')},
+      {label:'Display: Compact Card',icon:entry.presentation==='compact'?'ph-check':'ph-circle',action:()=>setRecommendationPresentationV713(config.id,'compact')},
+      {label:'Display: Full Component',icon:entry.presentation==='full'?'ph-check':'ph-circle',action:()=>setRecommendationPresentationV713(config.id,'full')},
+      {label:'Width: Full',icon:Number(entry.span)===12?'ph-check':'ph-arrows-out-line-horizontal',action:()=>setEntrySpanV713(entry.id,12)},
+      {label:'Width: Half',icon:Number(entry.span)===6?'ph-check':'ph-arrows-out-line-horizontal',action:()=>setEntrySpanV713(entry.id,6)},
+      {label:'Width: Third',icon:Number(entry.span)===4?'ph-check':'ph-arrows-out-line-horizontal',action:()=>setEntrySpanV713(entry.id,4)},
+      {label:'Duplicate',icon:'ph-copy',action:()=>duplicateRecommendationV713(config.id)},
+      {label:'Hide on this Day',icon:'ph-eye-slash',action:()=>hideEntryV713(entry)},
+      {label:'Remove from Log',icon:'ph-trash',danger:true,action:()=>removeRecommendationV713(config.id)},
+      {label:'Components',icon:'ph-squares-four',action:()=>openComponentsModalV713()},
+      {label:'Edit Layout',icon:'ph-layout',action:()=>setLayoutEditModeV713(true)}
+    ];
+  }
+
+  function createRecommendationComponentV713(entry) {
+    const config = recommendationByIdV713(entry.recommendationId);
+    if (!config) return null;
+    const section = document.createElement('section');
+    section.className = 'borderless-section day-layout-item-v713 day-recommendation-component-v713';
+    section.dataset.dayComponentId = entry.id;
+    section.style.gridColumn = `span ${entry.span}`;
+    section.innerHTML = `<div class="day-rec-shell-v713" data-presentation="${attr(entry.presentation || 'button')}"><button type="button" class="day-rec-launch-v713"><i class="ph ${attr(config.icon || 'ph-moon-stars')}"></i><span>${esc(config.title || 'Recommendation')}</span></button><div class="day-rec-output-v713 hidden"></div></div>`;
+    const state = runtimeForRecV713(config.id);
+    if (entry.presentation === 'full' || entry.presentation === 'compact') state.expanded = true;
+    q('.day-rec-launch-v713',section)?.addEventListener('click',()=>{
+      if (entry.presentation === 'full') { renderRecommendationOutputV713(section,config,false); return; }
+      state.expanded = !state.expanded;
+      renderRecommendationOutputV713(section,config,false);
+    });
+    section.addEventListener('contextmenu',event=>{
+      event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+      try { showCustomItemContextMenu?.(event.clientX,event.clientY,recommendationContextActionsV713(config,entry)); } catch {}
+    });
+    installEditToolbarV713(section,entry);
+    if (entry.presentation === 'full' || entry.presentation === 'compact') requestAnimationFrame(()=>renderRecommendationOutputV713(section,config,false));
+    return section;
+  }
+
+  function prepareBuiltinComponentV713(entry) {
+    const section = sectionForBuiltinV713(entry.key);
+    if (!section) return null;
+    section.classList.add('day-layout-item-v713');
+    section.classList.remove('loggy-section-hidden-v433');
+    section.hidden = false;
+    section.removeAttribute('aria-hidden');
+    section.dataset.dayComponentId = entry.id;
+    section.style.gridColumn = `span ${entry.span}`;
+    installEditToolbarV713(section,entry);
+    return section;
+  }
+
+  function renderDayLayoutV713() {
+    if (!onNumberedDayV713()) return;
+    const canvas = ensureCanvasV713();
+    if (!canvas) return;
+    ensureEditBarV713();
+    installCanvasDnDV713(canvas);
+    const layout = currentLayoutV713();
+    const visibleIds = new Set(layout.filter(row=>row.visible!==false).map(row=>row.id));
+
+    // Remove only V713-created recommendation components. Built-ins are reused.
+    qa(':scope > .day-recommendation-component-v713',canvas).forEach(node=>node.remove());
+
+    layout.forEach(entry=>{
+      if (entry.visible === false) {
+        if (entry.type === 'builtin') {
+          const section = sectionForBuiltinV713(entry.key);
+          if (section) { section.hidden = true; section.setAttribute('aria-hidden','true'); section.classList.add('day-layout-hidden-v713'); }
+        }
+        return;
+      }
+      let node = entry.type === 'builtin' ? prepareBuiltinComponentV713(entry) : createRecommendationComponentV713(entry);
+      if (!node) return;
+      node.hidden = false;
+      node.removeAttribute('aria-hidden');
+      node.classList.remove('day-layout-hidden-v713');
+      node.style.gridColumn = `span ${entry.span}`;
+      canvas.appendChild(node);
+    });
+
+    // Anything not currently visible must remain hidden even if another legacy
+    // renderer tries to reveal it.
+    BUILTINS.forEach(item=>{
+      const id=`builtin:${item.key}`;
+      const section=sectionForBuiltinV713(item.key);
+      if(section && !visibleIds.has(id)){section.hidden=true;section.setAttribute('aria-hidden','true');section.classList.add('day-layout-hidden-v713')}
+    });
+
+    const log = q('#log-view');
+    log?.classList.toggle('day-layout-editing-v713',layoutEditMode);
+    q('#day-layout-editbar-v713')?.classList.toggle('hidden',!layoutEditMode);
+    requestAnimationFrame(()=>{try{syncNotesHeight?.()}catch{}});
+  }
+
+  function setLayoutEditModeV713(enabled) {
+    if (!onNumberedDayV713() && enabled) return;
+    layoutEditMode = !!enabled;
+    renderDayLayoutV713();
+    if (enabled) {
+      try { q('#day-component-canvas-v713')?.scrollIntoView({block:'nearest',behavior:'smooth'}); } catch {}
+    }
+  }
+
+  function setBuiltinVisibleV713(key,visible) {
+    const entry = entryV713(`builtin:${key}`);
+    if (!entry) return;
+    entry.visible = !!visible;
+    queueSaveV713();
+    renderDayLayoutV713();renderComponentsModalV713();
+  }
+
+  function setRecommendationVisibleV713(id,visible) {
+    let entry = entryV713(`recommendation:${id}`);
+    if (!entry && visible) {
+      entry = recommendationEntryV713(id,true);
+      currentLayoutV713().push(entry);
+    }
+    if (entry) entry.visible = !!visible;
+    queueSaveV713();
+    renderDayLayoutV713();renderComponentsModalV713();
+  }
+
+  async function applyCurrentLayoutToFutureV713() {
+    const s = settingsV713();
+    s.dayComponentLayoutTemplateV713 = clone(currentLayoutV713());
+    await saveNowV713();
+    try { showFeatureToast?.('This layout will be used for new Day Logs. Existing customized days stay unchanged.'); } catch {}
+  }
+
+  async function resetCurrentDayLayoutV713() {
+    const day = dayDataV713();
+    if (!day) return;
+    let ok = true;
+    try { ok = await showAppConfirm?.({title:'Reset this Day layout?',message:'Restore this Day to your current default component layout? Your notes, videos, items, and resources will not be deleted.',confirmLabel:'Reset Layout'}) ?? true; } catch {}
+    if (!ok) return;
+    day.componentLayoutV713 = clone(ensureLayoutTemplateV713());
+    await saveNowV713();
+    renderDayLayoutV713();renderComponentsModalV713();
+  }
+
+  function ensureComponentsModalV713() {
+    let modal = q('#day-components-modal-v713');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'day-components-modal-v713';
+    modal.className = 'modal-overlay hidden';
+    modal.innerHTML = `
+      <div class="modal-box day-components-box-v713">
+        <div class="modal-header"><h2>Day Log Components</h2><button type="button" class="small-icon-btn" data-components-close-v713 title="Close"><i class="ph ph-x"></i></button></div>
+        <p class="day-components-help-v713">These controls apply to the numbered Day you currently have open. Hidden components keep all of their saved data.</p>
+        <div class="day-components-top-actions-v713">
+          <button type="button" class="icon-btn" data-edit-layout-v713><i class="ph ph-layout"></i> Edit Layout</button>
+          <button type="button" class="icon-btn" data-apply-future-v713><i class="ph ph-copy"></i> Use for future days</button>
+          <button type="button" class="icon-btn" data-reset-layout-v713><i class="ph ph-arrow-counter-clockwise"></i> Reset this Day</button>
+        </div>
+        <div class="modal-section"><span class="field-label">Built-in Components</span><div class="day-components-grid-v713" data-components-grid-v713></div></div>
+        <div class="modal-section"><div class="day-components-recommendation-head-v713"><div><span class="field-label">Recommendation Components</span><p class="day-components-help-v713">Each one is independent. It can be placed anywhere, resized, duplicated, renamed, and given different filters.</p></div><button type="button" class="icon-btn" data-add-rec-v713><i class="ph ph-plus"></i> Add</button></div><div class="day-components-recommendation-list-v713" data-rec-list-v713></div></div>
+      </div>`;
+    document.body.appendChild(modal);
+    q('[data-components-close-v713]',modal)?.addEventListener('click',()=>modal.classList.add('hidden'));
+    modal.addEventListener('click',event=>{if(event.target===modal)modal.classList.add('hidden')});
+    q('[data-edit-layout-v713]',modal)?.addEventListener('click',()=>{modal.classList.add('hidden');setLayoutEditModeV713(true)});
+    q('[data-apply-future-v713]',modal)?.addEventListener('click',applyCurrentLayoutToFutureV713);
+    q('[data-reset-layout-v713]',modal)?.addEventListener('click',resetCurrentDayLayoutV713);
+    q('[data-add-rec-v713]',modal)?.addEventListener('click',()=>{modal.classList.add('hidden');addRecommendationV713()});
+    return modal;
+  }
+
+  function renderComponentsModalV713() {
+    const modal = q('#day-components-modal-v713');
+    if (!modal || !onNumberedDayV713()) return;
+    const layout = currentLayoutV713();
+    const byId = new Map(layout.map(row=>[row.id,row]));
+    const grid = q('[data-components-grid-v713]',modal);
+    if (grid) {
+      grid.innerHTML = BUILTINS.map(item=>{
+        const entry = byId.get(`builtin:${item.key}`);
+        const visible = entry?.visible !== false;
+        return `<div class="day-component-card-v713"><i class="ph ${item.icon}"></i><div class="day-component-copy-v713"><strong>${esc(item.label)}</strong><small>${visible?`${widthLabelV713(entry?.span||item.span)} width on Day ${currentDayNumberV713()}`:`Hidden on Day ${currentDayNumberV713()}`}</small></div><button type="button" class="icon-btn" data-toggle-builtin-v713="${attr(item.key)}">${visible?'Hide':'Show'}</button></div>`;
+      }).join('');
+      qa('[data-toggle-builtin-v713]',grid).forEach(button=>button.addEventListener('click',()=>{
+        const item=byId.get(`builtin:${button.dataset.toggleBuiltinV713}`);setBuiltinVisibleV713(button.dataset.toggleBuiltinV713,item?.visible===false);
+      }));
+    }
+    const list = q('[data-rec-list-v713]',modal);
+    if (list) {
+      const configs = recommendationConfigsV713();
+      list.innerHTML = configs.map(config=>{
+        const entry=byId.get(`recommendation:${config.id}`);const visible=entry?.visible===true;
+        return `<div class="day-components-rec-row-v713"><i class="ph ${attr(config.icon||'ph-moon-stars')}"></i><div class="day-components-rec-name-v713"><strong>${esc(config.title||'Recommendation')}</strong><small>${visible?`${widthLabelV713(entry?.span||4)} · ${esc(entry?.presentation||'button')}`:'Hidden on this Day'}</small></div><button type="button" class="small-icon-btn" data-toggle-rec-v713="${attr(config.id)}" title="${visible?'Hide from this Day':'Show on this Day'}"><i class="ph ${visible?'ph-eye-slash':'ph-eye'}"></i></button><button type="button" class="small-icon-btn" data-edit-rec-v713="${attr(config.id)}" title="Edit filters / rename"><i class="ph ph-pencil-simple"></i></button><button type="button" class="small-icon-btn" data-duplicate-rec-v713="${attr(config.id)}" title="Duplicate"><i class="ph ph-copy"></i></button><button type="button" class="small-icon-btn" data-remove-rec-v713="${attr(config.id)}" title="Remove from Log"><i class="ph ph-trash"></i></button></div>`;
+      }).join('') || '<p class="day-components-help-v713">No recommendation components yet.</p>';
+      qa('[data-toggle-rec-v713]',list).forEach(button=>button.addEventListener('click',()=>{const entry=byId.get(`recommendation:${button.dataset.toggleRecV713}`);setRecommendationVisibleV713(button.dataset.toggleRecV713,!(entry?.visible===true))}));
+      qa('[data-edit-rec-v713]',list).forEach(button=>button.addEventListener('click',()=>{modal.classList.add('hidden');openRecommendationEditorV713(button.dataset.editRecV713)}));
+      qa('[data-duplicate-rec-v713]',list).forEach(button=>button.addEventListener('click',()=>{modal.classList.add('hidden');duplicateRecommendationV713(button.dataset.duplicateRecV713)}));
+      qa('[data-remove-rec-v713]',list).forEach(button=>button.addEventListener('click',()=>removeRecommendationV713(button.dataset.removeRecV713)));
+    }
+  }
+
+  function openComponentsModalV713() {
+    if (!onNumberedDayV713()) return;
+    renderDayLayoutV713();
+    const modal = ensureComponentsModalV713();
+    renderComponentsModalV713();
+    modal.classList.remove('hidden');
+  }
+
+  function pageContextMenuV713(x,y) {
+    try {
+      showCustomItemContextMenu?.(x,y,[
+        {label:'Components',icon:'ph-squares-four',action:openComponentsModalV713},
+        {label:'Edit Layout',icon:'ph-layout',action:()=>setLayoutEditModeV713(true)},
+        {label:'Edit Theme',icon:'ph-paint-brush',action:()=>{try{window.__loggyThemeBuilderV307OpenEdit?.(String(db?.settings?.theme||'default'))}catch{}}},
+        {label:'Settings',icon:'ph-gear-six',action:()=>{try{openGlobalThemeSettings?.()}catch{try{window.openGlobalThemeSettings?.()}catch{}}}}
+      ]);
+    } catch {}
+  }
+
+  // V713 owns per-day hiding. The old section menu still calls this function,
+  // so replace its implementation rather than letting it write the old global map.
+  try {
+    hideDayLogSectionFromHeadingV434 = async function(target) {
+      const key = typeof hideableDayLogSectionKeyV433 === 'function' ? hideableDayLogSectionKeyV433(target) : '';
+      if (!key) return;
+      const entry = entryV713(`builtin:${key}`);
+      if (!entry) return;
+      entry.visible = false;
+      await saveNowV713();
+      renderDayLayoutV713();renderComponentsModalV713();
+    };
+    window.hideDayLogSectionFromHeadingV434 = hideDayLogSectionFromHeadingV434;
+  } catch {}
+
+  // The old matching-height calculation assumes fixed left/right columns.
+  // In the component canvas, Notes should size naturally instead.
+  try {
+    const syncBeforeV713 = syncNotesHeight;
+    if (typeof syncBeforeV713 === 'function' && !syncBeforeV713.__v713Canvas) {
+      const wrapped = function() {
+        if (onNumberedDayV713() && q('#day-component-canvas-v713')) {
+          const notes=q('#log-notes');if(notes)notes.style.height='auto';return;
+        }
+        return syncBeforeV713.apply(this,arguments);
+      };
+      wrapped.__v713Canvas=true;syncNotesHeight=wrapped;window.syncNotesHeight=wrapped;
+    }
+  } catch {}
+
+  // Blank Day-page context menu from V531 resolves this global at click time.
+  window.__loggyOpenDayComponentsV712 = openComponentsModalV713;
+  window.__loggyOpenDayComponentsV713 = openComponentsModalV713;
+
+  // Section right-clicks are intercepted earlier by the core V434 menu. Replace
+  // V712's Components button listener after that menu is built and add Edit Layout.
+  try {
+    const beforeSectionMenuV713 = openSectionTitleContextMenuV434;
+    if (typeof beforeSectionMenuV713 === 'function' && !beforeSectionMenuV713.__v713Canvas) {
+      const wrapped = function(target,x,y) {
+        const result = beforeSectionMenuV713.apply(this,arguments);
+        const menu=q('#section-title-context-menu-v434');
+        if (!menu) return result;
+        const old=q('.loggy-section-context-components-v712',menu);
+        if (old) {
+          const fresh=old.cloneNode(true);
+          old.replaceWith(fresh);
+          fresh.addEventListener('click',()=>{try{closeSectionTitleContextMenuV434?.()}catch{}openComponentsModalV713()});
+        }
+        let edit=q('.loggy-section-context-edit-layout-v713',menu);
+        if(!edit){edit=document.createElement('button');edit.type='button';edit.className='loggy-section-context-option-v434 loggy-section-context-edit-layout-v713';edit.setAttribute('role','menuitem');edit.innerHTML='<i class="ph ph-layout"></i><span>Edit Layout</span>';edit.addEventListener('click',()=>{try{closeSectionTitleContextMenuV434?.()}catch{}setLayoutEditModeV713(true)});menu.appendChild(edit)}
+        const show=!!target?.closest?.('#log-view')&&onNumberedDayV713();edit.classList.toggle('hidden',!show);
+        return result;
+      };
+      wrapped.__v713Canvas=true;openSectionTitleContextMenuV434=wrapped;window.openSectionTitleContextMenuV434=wrapped;
+    }
+  } catch {}
+
+  // Preserve specialized context menus (Items Learned chips, tools, linked Tab
+  // Items, etc.) and append the Day-level Components / Edit Layout actions.
+  document.addEventListener('contextmenu',event=>{lastContextTarget=event.target},true);
+  try {
+    const beforeCustomMenuV713=showCustomItemContextMenu;
+    if(typeof beforeCustomMenuV713==='function'&&!beforeCustomMenuV713.__v713Canvas){
+      const wrapped=function(x,y,actions){
+        let next=Array.isArray(actions)?[...actions]:[];
+        const target=lastContextTarget instanceof Element?lastContextTarget:null;
+        const valid=onNumberedDayV713()&&target?.closest?.('#log-view')&&!target.closest?.('.modal-overlay,.context-menu,#custom-item-context-menu');
+        if(valid){
+          if(!next.some(def=>String(def?.label||'').toLowerCase()==='components'))next.push({label:'Components',icon:'ph-squares-four',action:openComponentsModalV713});
+          if(!next.some(def=>String(def?.label||'').toLowerCase()==='edit layout'))next.push({label:'Edit Layout',icon:'ph-layout',action:()=>setLayoutEditModeV713(true)});
+        }
+        return beforeCustomMenuV713.call(this,x,y,next);
+      };
+      wrapped.__v713Canvas=true;showCustomItemContextMenu=wrapped;window.showCustomItemContextMenu=wrapped;
+    }
+  } catch {}
+
+  // Protected controls do not reach the section-title context menu and V531
+  // intentionally ignores them. Give those spots the same Day-level menu while
+  // leaving elements with their own specialized context menu alone.
+  document.addEventListener('contextmenu',event=>{
+    if(event.defaultPrevented||!onNumberedDayV713())return;
+    const target=event.target instanceof Element?event.target:null;
+    if(!target?.closest?.('#log-view'))return;
+    if(target.closest('.modal-overlay,#section-title-context-menu-v434,#custom-item-context-menu,.day-recommendation-component-v713'))return;
+    const specialized=target.closest('.phrase-chip,.tool-chip,.note-image,.note-audio,.daily-custom-tab-link,[data-custom-item-id],.kb-item-card,.quiz-card,.flashcard,.anki-card');
+    if(specialized)return;
+    // Ordinary section/background space is already handled by V434/V531 before
+    // this listener. This branch primarily catches buttons, inputs and Notes.
+    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+    pageContextMenuV713(event.clientX,event.clientY);
+  },true);
+
+  // Any old global hidden map is now inert; V713 restores visibility from the
+  // current day's layout after core rendering finishes.
+  function refreshV713() {
+    if (!onNumberedDayV713()) { setLayoutEditModeV713(false); return; }
+    ensureLayoutTemplateV713();
+    try { settingsV713().hiddenSectionsV432 = {}; } catch {}
+    requestAnimationFrame(()=>renderDayLayoutV713());
+  }
+
+  try {
+    const beforeOpenDayV713 = openDayLog;
+    if(typeof beforeOpenDayV713==='function'&&!beforeOpenDayV713.__v713Canvas){
+      const wrapped=function(){const result=beforeOpenDayV713.apply(this,arguments);layoutEditMode=false;requestAnimationFrame(refreshV713);return result};
+      wrapped.__v713Canvas=true;openDayLog=wrapped;window.openDayLog=wrapped;
+    }
+  } catch {}
+
+  window.__loggyDayComponentCanvasV713 = {
+    openComponents:openComponentsModalV713,
+    editLayout:()=>setLayoutEditModeV713(true),
+    render:renderDayLayoutV713,
+    applyToFuture:applyCurrentLayoutToFutureV713
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refreshV713,{once:true});
+  else refreshV713();
+})();
+
+
+// ============================================================================
+// V714 — KB POLAROID SIZE + ALPHABETICAL CUSTOM COMPONENT PALETTE
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyKbPolaroidSizeAndPaletteV714) return;
+  window.__loggyKbPolaroidSizeAndPaletteV714 = true;
+
+  const q = (sel, root=document) => root?.querySelector?.(sel) || null;
+  const normSize = value => ['small','medium','large'].includes(String(value || '')) ? String(value) : 'medium';
+
+  function currentKbSizeV714(){
+    try {
+      db.settings ||= {};
+      db.settings.kbPolaroidSizeV714 = normSize(db.settings.kbPolaroidSizeV714);

@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
         // had when the log was created. Always revalidate shared enhancement
         // bundles so an old cached template-extras-5.js cannot keep a fixed log
         // on the legacy Add Field code path.
-        if (/\/(?:template-extras-(?:[1-6])|template-hotfix-v221|template-notepad(?:-v250)?|widgets-v239|widgets-loader-v241)\.js$/i.test(normalized)) {
+        if (/\/(?:template-extras-(?:[1-6])|template-hotfix-v221|template-notepad(?:-v250)?|widgets-v239|widgets-loader-v241|loggy-screen-recorder)\.js$/i.test(normalized) || /\/loggy-screen-recorder\.css$/i.test(normalized)) {
             res.setHeader('Cache-Control', 'no-cache, must-revalidate');
         }
     }
@@ -41,6 +41,128 @@ const LOG_TRASH_DIR = path.join(__dirname, '.loggy-trash');
 if (!fs.existsSync(LOG_TRASH_DIR)) fs.mkdirSync(LOG_TRASH_DIR, { recursive: true });
 
 const APPS_DB_PATH = path.join(DATA_DIR, 'apps.json');
+
+
+// V1918 — local-only GitHub privacy state for Dashboard logs.
+// Hidden logs are moved out of data/apps.json so even their metadata/name is
+// absent from the committed registry. Their actual files are also written to
+// .git/info/exclude, which is local to this clone and cannot be committed.
+const LOGGY_LOCAL_DIR_V1918 = path.join(__dirname, '.loggy-local');
+const PRIVATE_APPS_PATH_V1918 = path.join(LOGGY_LOCAL_DIR_V1918, 'github-private-apps.json');
+
+function ensureLoggyLocalDirV1918() {
+    if (!fs.existsSync(LOGGY_LOCAL_DIR_V1918)) fs.mkdirSync(LOGGY_LOCAL_DIR_V1918, { recursive: true });
+}
+
+function readAppsFileV1918(filePath) {
+    try {
+        const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        return Array.isArray(parsed) ? parsed.filter(item => item && typeof item === 'object') : [];
+    } catch (_) {
+        return [];
+    }
+}
+
+function writeAppsFileV1918(filePath, apps) {
+    if (filePath === PRIVATE_APPS_PATH_V1918) ensureLoggyLocalDirV1918();
+    fs.writeFileSync(filePath, JSON.stringify(Array.isArray(apps) ? apps : [], null, 2));
+}
+
+function readPrivateAppsV1918() {
+    return readAppsFileV1918(PRIVATE_APPS_PATH_V1918);
+}
+
+function syncGitPrivateExcludeV1918() {
+    try {
+        const gitInfoDir = path.join(__dirname, '.git', 'info');
+        if (!fs.existsSync(gitInfoDir)) return false;
+        fs.mkdirSync(gitInfoDir, { recursive: true });
+        const excludePath = path.join(gitInfoDir, 'exclude');
+        const start = '# >>> LOGGY PRIVATE LOGS (managed locally) >>>';
+        const end = '# <<< LOGGY PRIVATE LOGS (managed locally) <<<';
+        let current = '';
+        try { current = fs.readFileSync(excludePath, 'utf8'); } catch (_) {}
+        const re = new RegExp(`${start.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}[\\s\\S]*?${end.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\n?`, 'g');
+        current = current.replace(re, '').replace(/\s+$/, '');
+        const lines = [start, '/.loggy-local/', '/.loggy-trash/'];
+        for (const appInfo of readPrivateAppsV1918()) {
+            const id = String(appInfo?.id || '').trim();
+            if (!id) continue;
+            const safeId = safeAssetSegment(id);
+            lines.push(
+                `/public/${id}.html`,
+                `/public/${id}.css`,
+                `/public/${id}.js`,
+                `/data/${id}_db.json`,
+                `/public/media/${safeId}/`,
+                `/public/themes/custom-builder-${safeId}/`,
+                `/public/sounds/custom-builder-${safeId}/`,
+                `/public/svg/custom-builder-${safeId}/`
+            );
+        }
+        lines.push(end);
+        const managed = lines.join('\n') + '\n';
+        fs.writeFileSync(excludePath, (current ? current + '\n\n' : '') + managed);
+        return true;
+    } catch (error) {
+        console.warn('[Loggy V1918] Could not update .git/info/exclude:', error?.message || error);
+        return false;
+    }
+}
+
+function publicAppsV1918() { return readAppsFileV1918(APPS_DB_PATH); }
+function privateAppsV1918() { return readPrivateAppsV1918(); }
+function mergeRegisteredAppsV1918(publicApps, privateApps) {
+    const result = publicApps.map(a => ({ ...a, githubHidden:false }));
+    const hidden = privateApps
+        .map((a, index) => ({ ...a, githubHidden:true, __fallback:index }))
+        .sort((a,b) => (Number.isFinite(Number(a._orderV1918)) ? Number(a._orderV1918) : 1e9) - (Number.isFinite(Number(b._orderV1918)) ? Number(b._orderV1918) : 1e9));
+    for (const item of hidden) {
+        const requested = Number.isFinite(Number(item._orderV1918)) ? Number(item._orderV1918) : result.length;
+        const index = Math.max(0, Math.min(result.length, Math.trunc(requested)));
+        delete item.__fallback;
+        result.splice(index, 0, item);
+    }
+    return result;
+}
+
+function allRegisteredAppsV1918() {
+    const hiddenIds = new Set(privateAppsV1918().map(a => String(a.id)));
+    const publicOnly = publicAppsV1918().filter(a => !hiddenIds.has(String(a.id)));
+    return mergeRegisteredAppsV1918(publicOnly, privateAppsV1918());
+}
+
+function writeAppToCorrectRegistryV1918(appInfo, hidden) {
+    const id = String(appInfo?.id || '');
+    if (!id) return;
+    const before = allRegisteredAppsV1918();
+    const previousIndex = before.findIndex(a => String(a.id) === id);
+    const existingPrivate = privateAppsV1918().find(a => String(a.id) === id);
+    const order = Number.isFinite(Number(appInfo?._orderV1918))
+        ? Number(appInfo._orderV1918)
+        : (Number.isFinite(Number(existingPrivate?._orderV1918)) ? Number(existingPrivate._orderV1918) : Math.max(0, previousIndex));
+    const clean = { id, name: appInfo.name, icon: appInfo.icon, category: appInfo.category };
+    const publicApps = publicAppsV1918().filter(a => String(a.id) !== id);
+    const privateApps = privateAppsV1918().filter(a => String(a.id) !== id);
+    if (hidden) {
+        privateApps.push({ ...clean, _orderV1918: order });
+    } else {
+        const insertAt = Math.max(0, Math.min(publicApps.length, Math.trunc(order)));
+        publicApps.splice(insertAt, 0, clean);
+    }
+    writeAppsFileV1918(APPS_DB_PATH, publicApps);
+    writeAppsFileV1918(PRIVATE_APPS_PATH_V1918, privateApps);
+    syncGitPrivateExcludeV1918();
+}
+
+function removeAppFromRegistriesV1918(id) {
+    const key = String(id || '');
+    writeAppsFileV1918(APPS_DB_PATH, publicAppsV1918().filter(a => String(a.id) !== key));
+    writeAppsFileV1918(PRIVATE_APPS_PATH_V1918, privateAppsV1918().filter(a => String(a.id) !== key));
+    syncGitPrivateExcludeV1918();
+}
+
+syncGitPrivateExcludeV1918();
 
 const publicDir = path.join(__dirname, 'public');
 const DASHBOARD_HTML_PATH_V562 = path.join(publicDir, 'dashboard.html');
@@ -94,32 +216,34 @@ const RESERVED_IDS = ['template', 'dashboard', 'theme-studio-host'];
 // Also backfills a category on any older entries that don't have one yet,
 // so nothing silently disappears from a category filter.
 function getCleanAppsList() {
-    const original = JSON.parse(fs.readFileSync(APPS_DB_PATH, 'utf8'));
-    let changed = false;
+    const originalPublic = publicAppsV1918();
+    const originalPrivate = privateAppsV1918();
+    let publicChanged = false;
+    let privateChanged = false;
 
-    const apps = original.filter(app => {
-        const htmlFile = path.join(publicDir, `${app.id}.html`);
-        const keep = fs.existsSync(htmlFile);
-        if (!keep) changed = true;
-        return keep;
-    });
+    const cleanOne = (appInfo, hidden) => {
+        const htmlFile = path.join(publicDir, `${appInfo.id}.html`);
+        if (!fs.existsSync(htmlFile)) return null;
+        const category = String(appInfo.category || '').trim() || 'Non-School';
+        if (appInfo.category !== category) {
+            appInfo = { ...appInfo, category };
+            if (hidden) privateChanged = true; else publicChanged = true;
+        }
+        return { ...appInfo, githubHidden: hidden };
+    };
 
-    apps.forEach(app => {
-        // Custom dashboard categories are valid too. Older builds only allowed
-        // School / Non-School here, which silently moved logs out of user-made
-        // or renamed categories every time /api/apps was read.
-        const category = String(app.category || '').trim();
-        const normalized = category || 'Non-School';
-        if (app.category !== normalized) changed = true;
-        app.category = normalized;
-    });
+    const publicClean = originalPublic.map(a => cleanOne(a, false)).filter(Boolean);
+    const privateClean = originalPrivate.map(a => cleanOne(a, true)).filter(Boolean);
+    if (publicClean.length !== originalPublic.length) publicChanged = true;
+    if (privateClean.length !== originalPrivate.length) privateChanged = true;
 
-    // V188: GET /api/apps is read-mostly. Do not synchronously rewrite apps.json
-    // on every dashboard refresh when nothing changed.
-    if (changed) {
-        fs.writeFileSync(APPS_DB_PATH, JSON.stringify(apps, null, 2));
-    }
-    return apps;
+    if (publicChanged) writeAppsFileV1918(APPS_DB_PATH, publicClean.map(({githubHidden, ...a}) => a));
+    if (privateChanged) writeAppsFileV1918(PRIVATE_APPS_PATH_V1918, privateClean.map(({githubHidden, ...a}) => a));
+    if (privateChanged) syncGitPrivateExcludeV1918();
+    return mergeRegisteredAppsV1918(
+        publicClean.map(({githubHidden, ...a}) => a),
+        privateClean.map(({githubHidden, ...a}) => a)
+    );
 }
 
 app.get('/api/apps', (req, res) => res.json(getCleanAppsList()));
@@ -250,9 +374,25 @@ app.post('/api/apps', (req, res) => {
     fs.writeFileSync(cssPath, cssContent);
     fs.writeFileSync(jsPath, jsContent);
 
-    const apps = getCleanAppsList();
+    // V838: Each brand-new Log gets its own explicitly empty custom-tab state.
+    // Never carry starter/demo tabs or another Log's tab configuration into it.
+    // Only this newly-created Log is affected; existing Log DBs remain untouched.
+    fs.mkdirSync(DATA_DIR, { recursive:true });
+    fs.writeFileSync(staleDataPath, JSON.stringify({
+        days: {}, tools: [], phrases: [], phrase_meta: {}, srs: {},
+        reading_gallery: [], startDate: null,
+        settings: {
+            customTabs: [],
+            // V844: one-time marker. A newly-created Log must not restore a
+            // stale local navbar mirror from an older Log that used this slug.
+            freshLogNavV844: true,
+            navStateUpdatedAtV784: Date.now()
+        }
+    }, null, 2));
+
+    const apps = publicAppsV1918();
     apps.push({ id, name, icon, category });
-    fs.writeFileSync(APPS_DB_PATH, JSON.stringify(apps, null, 2));
+    writeAppsFileV1918(APPS_DB_PATH, apps);
 
     res.json({ status: 'success' });
 });
@@ -283,8 +423,7 @@ app.patch('/api/apps/:id', (req, res) => {
         return res.status(400).json({ status: 'error', message: 'This log cannot be changed.' });
     }
 
-    const apps = getCleanAppsList();
-    const app_ = apps.find(a => a.id === id);
+    const app_ = getCleanAppsList().find(a => a.id === id);
     if (!app_) {
         return res.status(404).json({ status: 'error', message: 'Log not found.' });
     }
@@ -292,9 +431,96 @@ app.patch('/api/apps/:id', (req, res) => {
     if (hasName) app_.name = name;
     if (hasCategory) app_.category = category;
     if (hasIcon) app_.icon = icon;
-    fs.writeFileSync(APPS_DB_PATH, JSON.stringify(apps, null, 2));
+    writeAppToCorrectRegistryV1918(app_, app_.githubHidden === true);
 
     res.json({ status: 'success', app: app_ });
+});
+
+
+// V1918 — move a log in/out of the local-only GitHub privacy registry.
+app.post('/api/apps/:id/github-visibility', (req, res) => {
+    const id = String(req.params.id || '').trim();
+    if (!id || RESERVED_IDS.includes(id)) return res.status(400).json({ status:'error', message:'This log cannot change GitHub visibility.' });
+    const appInfo = getCleanAppsList().find(a => String(a.id) === id);
+    if (!appInfo) return res.status(404).json({ status:'error', message:'Log not found.' });
+    const hidden = req.body?.hidden === true;
+    writeAppToCorrectRegistryV1918(appInfo, hidden);
+    return res.json({ status:'success', app:{ ...appInfo, githubHidden:hidden }, gitExcludeUpdated: syncGitPrivateExcludeV1918() });
+});
+
+function copyDirectoryIfPresentV1918(source, destination) {
+    if (!fs.existsSync(source)) return;
+    fs.mkdirSync(path.dirname(destination), { recursive:true });
+    fs.cpSync(source, destination, { recursive:true, force:false, errorOnExist:false });
+}
+
+function rewriteDuplicateDbPathsV1918(data, oldId, newId) {
+    const oldSafe = safeAssetSegment(oldId), nextSafe = safeAssetSegment(newId);
+    let raw = JSON.stringify(data ?? {});
+    const pairs = [
+        [`/media/${oldSafe}/`, `/media/${nextSafe}/`],
+        [`/themes/custom-builder-${oldSafe}/`, `/themes/custom-builder-${nextSafe}/`],
+        [`/sounds/custom-builder-${oldSafe}/`, `/sounds/custom-builder-${nextSafe}/`],
+        [`/svg/custom-builder-${oldSafe}/`, `/svg/custom-builder-${nextSafe}/`]
+    ];
+    for (const [from, to] of pairs) raw = raw.split(from).join(to);
+    return JSON.parse(raw);
+}
+
+// V1918 — duplicate an entire log, including its DB and log-specific assets.
+app.post('/api/apps/:id/duplicate', (req, res) => {
+    const id = String(req.params.id || '').trim();
+    if (!id || RESERVED_IDS.includes(id)) return res.status(400).json({ status:'error', message:'This log cannot be duplicated.' });
+    const sourceApp = getCleanAppsList().find(a => String(a.id) === id);
+    if (!sourceApp) return res.status(404).json({ status:'error', message:'Log not found.' });
+
+    const existing = getCleanAppsList();
+    const existingIds = new Set(existing.map(a => String(a.id)));
+    const existingNames = new Set(existing.map(a => String(a.name || '').toLowerCase()));
+    const baseId = `${safeAssetSegment(id)}-copy`;
+    let newId = baseId, suffix = 2;
+    while (existingIds.has(newId) || Object.values(getActiveLogPaths(newId)).some(p => fs.existsSync(p))) newId = `${baseId}-${suffix++}`;
+    let newName = `${String(sourceApp.name || id)} Copy`, nameSuffix = 2;
+    while (existingNames.has(newName.toLowerCase())) newName = `${String(sourceApp.name || id)} Copy ${nameSuffix++}`;
+
+    const source = getActiveLogPaths(id), target = getActiveLogPaths(newId);
+    const made = [];
+    try {
+        if (!fs.existsSync(source.html) || !fs.existsSync(source.css) || !fs.existsSync(source.js)) {
+            return res.status(409).json({ status:'error', message:'The source log page files are incomplete.' });
+        }
+        let html = fs.readFileSync(source.html, 'utf8');
+        html = html.split(`/${id}.css`).join(`/${newId}.css`).split(`/${id}.js`).join(`/${newId}.js`);
+        const oldTitle = `${String(sourceApp.name || id).toUpperCase()} LOGS`;
+        const newTitle = `${newName.toUpperCase()} LOGS`;
+        html = html.split(oldTitle).join(newTitle);
+        fs.writeFileSync(target.html, html); made.push(target.html);
+        fs.copyFileSync(source.css, target.css); made.push(target.css);
+        fs.copyFileSync(source.js, target.js); made.push(target.js);
+
+        if (fs.existsSync(source.db)) {
+            const db = JSON.parse(fs.readFileSync(source.db, 'utf8'));
+            fs.writeFileSync(target.db, JSON.stringify(rewriteDuplicateDbPathsV1918(db, id, newId), null, 2));
+        } else {
+            fs.writeFileSync(target.db, JSON.stringify({ days:{}, tools:[], phrases:[], phrase_meta:{}, srs:{}, reading_gallery:[], startDate:null, settings:{} }, null, 2));
+        }
+        made.push(target.db);
+
+        for (const key of ['themeAssets','soundAssets','svgAssets','dailyMediaAssets']) {
+            if (fs.existsSync(source[key])) { copyDirectoryIfPresentV1918(source[key], target[key]); made.push(target[key]); }
+        }
+
+        const sourceIndex = Math.max(0, getCleanAppsList().findIndex(a => String(a.id) === id));
+        const duplicateApp = { id:newId, name:newName, icon:sourceApp.icon, category:sourceApp.category, _orderV1918: sourceIndex + 1 };
+        writeAppToCorrectRegistryV1918(duplicateApp, sourceApp.githubHidden === true);
+        return res.json({ status:'success', app:{ ...duplicateApp, githubHidden: sourceApp.githubHidden === true } });
+    } catch (error) {
+        for (const madePath of made.reverse()) {
+            try { fs.rmSync(madePath, { recursive:true, force:true }); } catch (_) {}
+        }
+        console.error('Failed to duplicate log:', error);
+        return res.status(500).json({ status:'error', message:'Could not duplicate this log.' });
+    }
 });
 
 
@@ -429,18 +655,7 @@ app.post('/api/apps/:id/trash', (req, res) => {
         });
     }
 
-    let rawApps = [];
-
-    try {
-        rawApps = JSON.parse(
-            fs.readFileSync(
-                APPS_DB_PATH,
-                'utf8'
-            )
-        );
-    } catch (error) {
-        rawApps = [];
-    }
+    const rawApps = getCleanAppsList();
 
     const active = getActiveLogPaths(id);
 
@@ -539,7 +754,8 @@ app.post('/api/apps/:id/trash', (req, res) => {
                     'ph-books',
                 category:
                     String(appEntry.category || '').trim() ||
-                    'Non-School'
+                    'Non-School',
+                githubHidden: appEntry.githubHidden === true
             },
             moved:
                 movedKeys
@@ -557,20 +773,7 @@ app.post('/api/apps/:id/trash', (req, res) => {
             )
         );
 
-        const remainingApps =
-            rawApps.filter(
-                app_ =>
-                    app_.id !== id
-            );
-
-        fs.writeFileSync(
-            APPS_DB_PATH,
-            JSON.stringify(
-                remainingApps,
-                null,
-                2
-            )
-        );
+        removeAppFromRegistriesV1918(id);
 
         return res.json({
             status: 'success',
@@ -669,14 +872,12 @@ app.post('/api/apps-trash/:trashId/restore', (req, res) => {
         const nextApps = getCleanAppsList();
 
         if (!nextApps.some(app_ => app_.id === id)) {
-            nextApps.push({
+            writeAppToCorrectRegistryV1918({
                 id: manifest.app.id,
                 name: manifest.app.name,
                 icon: manifest.app.icon,
                 category: manifest.app.category
-            });
-
-            fs.writeFileSync(APPS_DB_PATH, JSON.stringify(nextApps, null, 2));
+            }, manifest.app.githubHidden === true);
         }
 
         fs.rmSync(bundleDir, { recursive: true, force: true });
@@ -751,10 +952,7 @@ app.delete('/api/apps/:id', (req, res) => {
         }
     });
 
-    const apps = JSON.parse(fs.readFileSync(APPS_DB_PATH, 'utf8'))
-        .filter(app => app.id !== id);
-
-    fs.writeFileSync(APPS_DB_PATH, JSON.stringify(apps, null, 2));
+    removeAppFromRegistriesV1918(id);
 
     res.json({ status: 'success' });
 });
@@ -2118,6 +2316,18 @@ app.put('/api/built-in-theme-overrides', (req, res) => {
     });
 });
 
+// --- Loggy Screen Recorder / YouTube integration -------------------------
+require('./recorder-server')({
+    app,
+    express,
+    fs,
+    path,
+    publicDir,
+    getDb,
+    saveDb,
+    projectRoot: __dirname
+});
+
 // --- Routing ---
 app.get('/', (req, res) => {
     // V566: let the browser begin connecting/fetching the icon runtime before
@@ -2236,8 +2446,8 @@ app.get('/app/:hobby', (req, res) => {
         // The synchronized V194 loader below is the sole extras-1..6 owner. A stale
         // direct extras-6 can run first, set version guards, and permanently block
         // the current bundle from installing its Theme Builder/audio fixes.
-        const hotfixTag = '<script src="/template-hotfix-v221.js?v=362"></script>';
-        const widgetsTag = '<script defer src="/widgets-loader-v241.js?v=246"></script>';
+        const hotfixTag = '<script src="/template-hotfix-v221.js?v=1912"></script>';
+        const widgetsTag = '<script defer src="/widgets-loader-v241.js?v=750"></script>';
         if (html.includes('/template-hotfix-v221.js')) {
             html = html.replace(
                 /<script\b[^>]*src=["'][^"']*\/template-hotfix-v221\.js(?:\?[^"']*)?["'][^>]*><\/script>/i,
@@ -2295,6 +2505,61 @@ app.get('/app/:hobby', (req, res) => {
                     /(<link\b[^>]*href=["'])[^"']*\/template\.js(?:\?[^"']*)?(["'][^>]*>)/i,
                     `$1${liveTemplateJsSrc}$2`
                 );
+            }
+
+            // Keep historical log shells on the same current, single graph
+            // renderer as template.html. Previously old ?v=856 graph includes
+            // remained in existing logs even when the public script was replaced.
+            const currentGraphSrcV857 = templateHtml.match(
+                /<script\b[^>]*src=["']([^"']*\/loggy-multiples-graph-v854\.js(?:\?[^"']*)?)["'][^>]*><\/script>/i
+            )?.[1];
+            if (currentGraphSrcV857) {
+                const graphTagV857 = `<script defer src="${currentGraphSrcV857}"></script>`;
+                html = html.replace(
+                    /<script\b[^>]*src=["'][^"']*\/loggy-multiples-graph-v854\.js(?:\?[^"']*)?["'][^>]*><\/script>\s*/gi,
+                    ''
+                );
+                html = /<\/body>/i.test(html)
+                    ? html.replace(/<\/body>/i, `${graphTagV857}\n</body>`)
+                    : `${html}\n${graphTagV857}`;
+            }
+
+            // V730: recorder assets are not part of the V194 extras loader.
+            // Saved Log pages are copied HTML, so synchronize these direct tags
+            // too; otherwise an old shell can silently lose the inline recorder.
+            const liveRecorderCssHref = templateHtml.match(
+                /<link\b[^>]*href=["']([^"']*\/loggy-screen-recorder\.css(?:\?[^"']*)?)["'][^>]*>/i
+            )?.[1];
+            const liveRecorderScriptSrc = templateHtml.match(
+                /<script\b[^>]*src=["']([^"']*\/loggy-screen-recorder\.js(?:\?[^"']*)?)["'][^>]*><\/script>/i
+            )?.[1];
+
+            if (liveRecorderCssHref) {
+                if (/\/loggy-screen-recorder\.css(?:\?[^"']*)?/i.test(html)) {
+                    html = html.replace(
+                        /(<link\b[^>]*href=["'])[^"']*\/loggy-screen-recorder\.css(?:\?[^"']*)?(["'][^>]*>)/i,
+                        `$1${liveRecorderCssHref}$2`
+                    );
+                } else {
+                    const tag = `<link rel="stylesheet" href="${liveRecorderCssHref}">`;
+                    html = /<\/head>/i.test(html)
+                        ? html.replace(/<\/head>/i, `${tag}\n</head>`)
+                        : `${tag}\n${html}`;
+                }
+            }
+
+            if (liveRecorderScriptSrc) {
+                if (/\/loggy-screen-recorder\.js(?:\?[^"']*)?/i.test(html)) {
+                    html = html.replace(
+                        /(<script\b[^>]*src=["'])[^"']*\/loggy-screen-recorder\.js(?:\?[^"']*)?(["'][^>]*><\/script>)/i,
+                        `$1${liveRecorderScriptSrc}$2`
+                    );
+                } else {
+                    const tag = `<script src="${liveRecorderScriptSrc}"></script>`;
+                    html = /<\/body>/i.test(html)
+                        ? html.replace(/<\/body>/i, `${tag}\n</body>`)
+                        : `${html}\n${tag}`;
+                }
             }
 
             const extractScriptBlock = (source, openComment) => {
@@ -2359,6 +2624,20 @@ app.get('/app/:hobby', (req, res) => {
                 ? html.replace(/<\/body>/i, `${widgetsTag}\n</body>`)
                 : `${html}\n${widgetsTag}`;
         }
+        // V715: every historical saved Log shell gets the current recorder
+        // runtime without replacing the Log's own copied HTML. This keeps the
+        // recorder available on old logs as well as new logs made from template.html.
+        const recorderStyleTagV717 = '<link rel="stylesheet" href="/loggy-screen-recorder.css?v=20261009-app-camera">';
+        const recorderScriptTagV717 = '<script src="/loggy-screen-recorder.js?v=20261009-full-hd"></script>';
+        html = html.replace(/<link\b[^>]*href=["'][^"']*\/loggy-screen-recorder\.css(?:\?[^"']*)?["'][^>]*>\s*/gi, '');
+        html = html.replace(/<script\b[^>]*src=["'][^"']*\/loggy-screen-recorder\.js(?:\?[^"']*)?["'][^>]*><\/script>\s*/gi, '');
+        html = /<\/head>/i.test(html)
+            ? html.replace(/<\/head>/i, `${recorderStyleTagV717}\n</head>`)
+            : `${recorderStyleTagV717}\n${html}`;
+        html = /<\/body>/i.test(html)
+            ? html.replace(/<\/body>/i, `${recorderScriptTagV717}\n</body>`)
+            : `${html}\n${recorderScriptTagV717}`;
+
         res.type('html').send(html);
     } else {
         res.status(404).send('Log page not found.');

@@ -1,0 +1,23 @@
+LOGGY SCREEN RECORDER V710 — FILE MAP
+
+PROJECT ROOT
+  server.js                         REPLACE
+  recorder-server.js                NEW
+  package.json                      REPLACE (no new dependencies; adds secret-check script)
+  verify-recorder-secrets.js        NEW
+  .env.example                      NEW, SAFE TO COMMIT
+  .env                              CREATE YOURSELF, PRIVATE, DO NOT COMMIT
+  .gitignore                        MERGE recorder ignore rules if you already have one
+  RECORDER-SETUP.md                 NEW documentation
+
+PUBLIC
+  public/template.html              REPLACE
+  public/loggy-screen-recorder.js   NEW
+  public/loggy-screen-recorder.css  NEW
+  public/loggy-recorder-host.html   NEW
+
+AUTOMATIC PRIVATE/LOCAL DIRECTORIES (created by server; DO NOT COMMIT)
+  .loggy-private/
+  .loggy-recordings/
+
+No template.js / template.css / template-extras-*.js replacement is required for this feature.

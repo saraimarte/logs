@@ -1,0 +1,1307 @@
+/* Loggy Screen Recorder V763 */
+#loggy-recorder-menu-v710,
+#loggy-recorder-dock-v710,
+#loggy-recorder-preview-v710,
+#loggy-recorder-shortcuts-modal-v710,
+#loggy-recorder-recovery-modal-v710 {
+    --rec-border: var(--thin-border, 1px solid rgba(0,0,0,.2));
+    --rec-bg: var(--white, #fff);
+    --rec-fg: var(--black, #111);
+    --rec-muted: var(--muted-text, #666);
+    font-family: inherit;
+    color: var(--rec-fg);
+}
+
+.loggy-recorder-popover-v710 {
+    position: fixed;
+    z-index: 100000;
+    min-width: 220px;
+    padding: 7px;
+    border: var(--rec-border);
+    border-radius: 12px;
+    background: var(--rec-bg);
+    box-shadow: 0 14px 40px rgba(0,0,0,.18);
+    display: grid;
+    gap: 5px;
+}
+.loggy-recorder-popover-v710 button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.loggy-recorder-popover-v710 button:hover { background: var(--track-bg, rgba(0,0,0,.06)); }
+
+#loggy-recorder-dock-v710 {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 99999;
+    width: min(390px, calc(100vw - 28px));
+    max-height: calc(100vh - 36px);
+    overflow: auto;
+    border: var(--rec-border);
+    border-radius: 16px;
+    background: var(--rec-bg);
+    box-shadow: 0 18px 50px rgba(0,0,0,.22);
+}
+#loggy-recorder-dock-v710.hidden { display:none!important; }
+
+.loggy-recorder-controller-v710 { display:grid; gap:10px; padding:12px; }
+.loggy-recorder-controller-head-v710 { display:flex; align-items:flex-start; gap:8px; }
+.loggy-recorder-controller-head-v710 > div { min-width:0; flex:1; }
+.loggy-recorder-controller-head-v710 strong { display:block; font-size:.88rem; }
+.loggy-recorder-destination-v710 { display:block; margin-top:2px; font-size:.7rem; color:var(--rec-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.loggy-recorder-status-v710 { display:inline-flex; align-items:center; gap:6px; font-size:.7rem; font-weight:700; }
+.loggy-recorder-status-dot-v710 { width:8px; height:8px; border-radius:999px; background:#888; }
+.loggy-recorder-controller-v710[data-state="recording"] .loggy-recorder-status-dot-v710 { background:#e11d48; box-shadow:0 0 0 3px rgba(225,29,72,.12); }
+.loggy-recorder-controller-v710[data-state="paused"] .loggy-recorder-status-dot-v710 { background:#d97706; }
+.loggy-recorder-timer-v710 { font-variant-numeric: tabular-nums; }
+
+.loggy-recorder-icon-button-v710,
+.loggy-recorder-action-v710 {
+    border:var(--rec-border);
+    background:var(--rec-bg);
+    color:var(--rec-fg);
+    font:inherit;
+    cursor:pointer;
+}
+.loggy-recorder-icon-button-v710 { width:34px; height:34px; display:inline-grid; place-items:center; border-radius:9px; flex:0 0 auto; }
+.loggy-recorder-icon-button-v710:hover,
+.loggy-recorder-action-v710:hover { background:var(--track-bg, rgba(0,0,0,.06)); }
+.loggy-recorder-icon-button-v710.active { background:var(--rec-fg); color:var(--rec-bg); }
+.loggy-recorder-icon-button-v710:disabled,
+.loggy-recorder-action-v710:disabled { opacity:.4; cursor:not-allowed; }
+
+.loggy-recorder-controls-v710 { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:6px; }
+.loggy-recorder-controls-v710 button { min-width:0; height:38px; border-radius:10px; border:var(--rec-border); background:var(--rec-bg); color:inherit; cursor:pointer; display:grid; place-items:center; font-size:1rem; }
+.loggy-recorder-controls-v710 button:hover { background:var(--track-bg, rgba(0,0,0,.06)); }
+.loggy-recorder-controls-v710 button:disabled { opacity:.35; cursor:not-allowed; }
+.loggy-recorder-controls-v710 .record-v710 { color:#b91c1c; }
+.loggy-recorder-controls-v710 .stop-v710 { color:#b91c1c; }
+.loggy-recorder-controls-v710 button.is-off { opacity:.45; }
+
+.loggy-recorder-layout-preview-v710 {
+    position:relative;
+    width:100%;
+    aspect-ratio:16/9;
+    overflow:hidden;
+    border:var(--rec-border);
+    border-radius:11px;
+    background:linear-gradient(135deg,#e9edf2,#cfd7e2);
+    user-select:none;
+    touch-action:none;
+}
+.loggy-recorder-layout-preview-v710::before {
+    content:'Recorded layout';
+    position:absolute;
+    left:9px;
+    top:7px;
+    font-size:.62rem;
+    opacity:.5;
+}
+.loggy-recorder-camera-bubble-v710 {
+    position:absolute;
+    left:75%;
+    top:69%;
+    width:22%;
+    aspect-ratio:1;
+    transform:translate(-50%,-50%);
+    overflow:hidden;
+    border:2px solid rgba(255,255,255,.95);
+    box-shadow:0 4px 16px rgba(0,0,0,.24);
+    background:#111;
+    cursor:grab;
+}
+.loggy-recorder-camera-bubble-v710.dragging { cursor:grabbing; }
+.loggy-recorder-camera-bubble-v710 video { width:100%; height:100%; object-fit:cover; display:block; transform:scaleX(-1); }
+.loggy-recorder-camera-bubble-v710.shape-circle { border-radius:50%; }
+.loggy-recorder-camera-bubble-v710.shape-rounded { border-radius:22%; }
+.loggy-recorder-camera-bubble-v710.shape-square { border-radius:2px; }
+.loggy-recorder-camera-bubble-v710.shape-portrait { border-radius:18%; aspect-ratio:3/4; }
+.loggy-recorder-camera-bubble-v710.shape-pill { border-radius:999px; aspect-ratio:1.55/1; }
+.loggy-recorder-camera-bubble-v710.shape-blob { border-radius:58% 42% 52% 48% / 44% 56% 40% 60%; }
+.loggy-recorder-camera-placeholder-v710 { position:absolute; inset:0; display:grid; place-items:center; font-size:1.25rem; opacity:.6; }
+.loggy-recorder-camera-bubble-v710 video:not([src]) + .loggy-recorder-camera-placeholder-v710 { display:grid; }
+
+.loggy-recorder-options-v710 { display:grid; gap:8px; }
+.loggy-recorder-option-grid-v710 { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+.loggy-recorder-field-v710 { display:grid; gap:4px; min-width:0; }
+.loggy-recorder-field-v710 > span { font-size:.63rem; font-weight:700; color:var(--rec-muted); }
+.loggy-recorder-field-v710 select,
+.loggy-recorder-field-v710 input[type="range"] {
+    width:100%;
+    min-width:0;
+}
+.loggy-recorder-field-v710 select {
+    border:var(--rec-border);
+    border-radius:8px;
+    padding:7px 8px;
+    background:var(--rec-bg);
+    color:var(--rec-fg);
+    font:inherit;
+    font-size:.72rem;
+}
+.loggy-recorder-device-grid-v710 { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+.loggy-recorder-device-grid-v710.hidden { display:none!important; }
+
+.loggy-recorder-shortcut-strip-v710 { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:.66rem; color:var(--rec-muted); }
+.loggy-recorder-shortcut-strip-v710 button { border:0; background:transparent; color:inherit; font:inherit; text-decoration:underline; cursor:pointer; padding:2px 0; }
+
+.loggy-recorder-inline-message-v710 { min-height:1.1em; font-size:.66rem; color:var(--rec-muted); }
+.loggy-recorder-inline-message-v710.error { color:#b91c1c; }
+.loggy-recorder-inline-message-v710.success { color:#047857; }
+
+.loggy-recorder-shortcut-settings-v710 { margin-top:12px; display:grid; gap:7px; }
+.loggy-recorder-shortcut-row-v710 { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px; }
+.loggy-recorder-shortcut-row-v710 > span { font-size:.76rem; }
+.loggy-recorder-shortcut-capture-v710 {
+    min-width:124px;
+    padding:7px 9px;
+    border:var(--thin-border);
+    border-radius:8px;
+    background:var(--white);
+    color:var(--black);
+    font:inherit;
+    font-size:.69rem;
+    cursor:pointer;
+}
+.loggy-recorder-shortcut-capture-v710.capturing { outline:2px solid currentColor; }
+.loggy-recorder-youtube-settings-v710 { margin-top:14px; display:grid; gap:8px; }
+.loggy-recorder-youtube-settings-v710 .row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.loggy-recorder-youtube-settings-v710 select { min-width:220px; max-width:100%; padding:7px 9px; border:var(--thin-border); border-radius:8px; background:var(--white); color:var(--black); }
+
+.loggy-recorder-modal-v710 {
+    position:fixed;
+    inset:0;
+    z-index:100001;
+    display:grid;
+    place-items:center;
+    padding:18px;
+    background:rgba(0,0,0,.48);
+}
+.loggy-recorder-modal-v710.hidden { display:none!important; }
+.loggy-recorder-modal-box-v710 {
+    width:min(760px, 96vw);
+    max-height:92vh;
+    overflow:auto;
+    border:var(--rec-border);
+    border-radius:16px;
+    background:var(--rec-bg);
+    color:var(--rec-fg);
+    box-shadow:0 20px 70px rgba(0,0,0,.28);
+    padding:16px;
+    display:grid;
+    gap:14px;
+}
+.loggy-recorder-modal-head-v710 { display:flex; align-items:flex-start; gap:10px; }
+.loggy-recorder-modal-head-v710 > div { min-width:0; flex:1; }
+.loggy-recorder-modal-head-v710 h2 { margin:0; font-size:1.05rem; }
+.loggy-recorder-modal-head-v710 p { margin:4px 0 0; color:var(--rec-muted); font-size:.74rem; line-height:1.4; }
+.loggy-recorder-preview-video-v710 { width:100%; max-height:46vh; background:#000; border-radius:10px; }
+.loggy-recorder-preview-form-v710 { display:grid; gap:9px; }
+.loggy-recorder-preview-form-v710 label { display:grid; gap:4px; }
+.loggy-recorder-preview-form-v710 label > span { font-size:.68rem; font-weight:700; color:var(--rec-muted); }
+.loggy-recorder-preview-form-v710 input,
+.loggy-recorder-preview-form-v710 select,
+.loggy-recorder-preview-form-v710 textarea { width:100%; box-sizing:border-box; border:var(--rec-border); border-radius:8px; padding:8px 9px; background:var(--rec-bg); color:var(--rec-fg); font:inherit; }
+.loggy-recorder-preview-actions-v710 { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+.loggy-recorder-action-v710 { padding:8px 12px; border-radius:9px; }
+.loggy-recorder-action-v710.primary { background:var(--rec-fg); color:var(--rec-bg); }
+.loggy-recorder-action-v710.danger { color:#b91c1c; }
+.loggy-recorder-upload-progress-v710 { font-size:.72rem; color:var(--rec-muted); margin-bottom:14px; }
+
+.loggy-recorder-recovery-list-v710 { display:grid; gap:8px; }
+.loggy-recorder-recovery-item-v710 { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:center; padding:10px; border:var(--rec-border); border-radius:10px; }
+.loggy-recorder-recovery-item-v710 strong { display:block; font-size:.8rem; }
+.loggy-recorder-recovery-item-v710 small { display:block; margin-top:2px; color:var(--rec-muted); }
+.loggy-recorder-recovery-actions-v710 { display:flex; gap:6px; }
+
+.loggy-recorder-countdown-v710 {
+    position:fixed;
+    inset:0;
+    z-index:100002;
+    display:grid;
+    place-items:center;
+    pointer-events:none;
+    background:rgba(0,0,0,.18);
+    color:#fff;
+    font:800 clamp(56px,12vw,130px)/1 system-ui,sans-serif;
+    text-shadow:0 6px 26px rgba(0,0,0,.5);
+}
+.loggy-recorder-countdown-v710.hidden { display:none!important; }
+
+@media (max-width: 650px) {
+    .loggy-recorder-controls-v710 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    .loggy-recorder-option-grid-v710,
+    .loggy-recorder-device-grid-v710 { grid-template-columns:1fr; }
+}
+
+/* Dedicated recorder host: this separate same-origin window owns capture so
+   navigating the original Loggy page cannot destroy an active recording. */
+body.loggy-recorder-host-page-v710 {
+    margin: 0;
+    min-width: 330px;
+    background: var(--white, #fff);
+    color: var(--black, #111);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+body.loggy-recorder-host-page-v710 #loggy-recorder-dock-v710 {
+    position: static;
+    inset: auto;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+body.loggy-recorder-host-page-v710 .loggy-recorder-controller-v710 {
+    min-height: 100vh;
+    border-radius: 0;
+}
+.loggy-recorder-mic-meter-v710 {
+    width:44px;
+    height:6px;
+    border-radius:999px;
+    overflow:hidden;
+    background:color-mix(in srgb, var(--black, #111) 12%, transparent);
+}
+.loggy-recorder-mic-meter-v710 > span {
+    display:block;
+    width:0;
+    height:100%;
+    background:#22c55e;
+    transition:width .08s linear;
+}
+
+
+/* ============================================================
+   V717 — INLINE RECORDER BAR
+   The recorder now stays inside the numbered Day Log page. Advanced camera,
+   audio and YouTube controls live behind the gear instead of filling a tab.
+   ============================================================ */
+#loggy-recorder-dock-v710 {
+    width:min(620px, calc(100vw - 24px));
+    max-height:min(78vh, 720px);
+    overflow:visible;
+    border-radius:14px;
+}
+.loggy-recorder-controller-compact-v717 {
+    display:grid;
+    gap:6px;
+    padding:8px;
+}
+.loggy-recorder-compact-bar-v717 {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-height:42px;
+}
+.loggy-recorder-compact-status-v717 {
+    display:flex;
+    align-items:center;
+    gap:6px;
+    min-width:112px;
+    flex:0 1 auto;
+    font-size:.72rem;
+    white-space:nowrap;
+}
+.loggy-recorder-compact-status-v717 strong { font-size:.72rem; }
+.loggy-recorder-compact-controls-v717 {
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:5px;
+    flex-wrap:nowrap;
+}
+.loggy-recorder-compact-controls-v717 button {
+    width:34px;
+    height:34px;
+    flex:0 0 34px;
+    display:grid;
+    place-items:center;
+    border:var(--rec-border);
+    border-radius:9px;
+    background:var(--rec-bg);
+    color:var(--rec-fg);
+    cursor:pointer;
+    font:inherit;
+}
+.loggy-recorder-compact-controls-v717 button:hover { background:var(--track-bg, rgba(0,0,0,.06)); }
+.loggy-recorder-compact-controls-v717 button:disabled { opacity:.30; cursor:not-allowed; }
+.loggy-recorder-compact-controls-v717 button.is-off { opacity:.42; }
+.loggy-recorder-compact-controls-v717 button.active { background:var(--rec-fg); color:var(--rec-bg); }
+.loggy-recorder-compact-controls-v717 .stop-v717 { color:#b91c1c; border-color:currentColor; }
+.loggy-recorder-controller-compact-v717[data-state="recording"] .stop-v717,
+.loggy-recorder-controller-compact-v717[data-state="paused"] .stop-v717 { opacity:1; }
+.loggy-recorder-compact-destination-v717 {
+    font-size:.63rem;
+    color:var(--rec-muted);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.loggy-recorder-controller-compact-v717 .loggy-recorder-inline-message-v710 {
+    min-height:0;
+    margin:0;
+    line-height:1.25;
+}
+.loggy-recorder-settings-drawer-v717 {
+    display:grid;
+    gap:9px;
+    max-height:calc(78vh - 80px);
+    overflow:auto;
+    padding-top:8px;
+    border-top:1px solid color-mix(in srgb, var(--rec-fg) 16%, transparent);
+    scrollbar-width:thin;
+}
+.loggy-recorder-settings-drawer-v717.hidden { display:none!important; }
+.loggy-recorder-settings-drawer-v717 .loggy-recorder-layout-preview-v710 {
+    max-height:210px;
+}
+.loggy-recorder-settings-actions-v717 {
+    display:flex;
+    align-items:center;
+    gap:7px;
+    flex-wrap:wrap;
+    font-size:.67rem;
+    color:var(--rec-muted);
+}
+.screen-recorder-shortcuts-v717 {
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px solid color-mix(in srgb, var(--black) 16%, transparent);
+}
+#global-shortcuts-section > .screen-recorder-shortcuts-v717 .loggy-recorder-shortcut-settings-v710 {
+    margin-top:8px;
+}
+@media (max-width:680px) {
+    #loggy-recorder-dock-v710 { right:8px; bottom:8px; width:calc(100vw - 16px); }
+    .loggy-recorder-compact-bar-v717 { align-items:flex-start; flex-wrap:wrap; }
+    .loggy-recorder-compact-controls-v717 { width:100%; margin-left:0; justify-content:space-between; }
+    .loggy-recorder-compact-controls-v717 button { flex:1 1 32px; }
+}
+.loggy-recorder-compact-controls-v717 [data-rec-action="record"] { color:#b91c1c; }
+
+/* ============================================================
+   V720 — LIVE LOG-PAGE CAMERA + RECORDER RELIABILITY POLISH
+   ============================================================ */
+#loggy-recorder-floating-camera-v720 {
+    position: fixed;
+    left: 78%;
+    top: 72%;
+    z-index: 100001;
+    width: clamp(105px, calc(var(--rec-camera-page-size-v720, 22) * .72vw), 260px);
+    aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    background: #111;
+    border-style: solid;
+    border-color: #fff;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    box-sizing: border-box;
+}
+#loggy-recorder-floating-camera-v720.is-dragging { cursor: grabbing; }
+#loggy-recorder-floating-camera-v720.has-shadow { box-shadow: 0 10px 32px rgba(0,0,0,.28); }
+#loggy-recorder-floating-camera-v720.shape-circle { border-radius: 50%; }
+#loggy-recorder-floating-camera-v720.shape-rounded { border-radius: 22%; }
+#loggy-recorder-floating-camera-v720.shape-square { border-radius: 4px; }
+#loggy-recorder-floating-camera-v720.shape-portrait { border-radius: 18%; aspect-ratio: 3 / 4; }
+#loggy-recorder-floating-camera-v720.shape-pill { border-radius: 999px; aspect-ratio: 1.55 / 1; }
+#loggy-recorder-floating-camera-v720.shape-blob { border-radius: 58% 42% 52% 48% / 44% 56% 40% 60%; }
+#loggy-recorder-floating-camera-v720 > video {
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    pointer-events:none;
+}
+.loggy-recorder-floating-camera-off-v720 {
+    display:none;
+    position:absolute;
+    inset:0;
+    place-items:center;
+    background:color-mix(in srgb,#111 68%,transparent);
+    color:#fff;
+    font-size:1.8rem;
+    pointer-events:none;
+}
+#loggy-recorder-floating-camera-v720.is-off .loggy-recorder-floating-camera-off-v720 { display:grid; }
+#loggy-recorder-floating-camera-v720.is-off > video { opacity:.18; }
+/* Make the gear drawer unambiguously visible above themed Log-page surfaces. */
+#loggy-recorder-dock-v710 .loggy-recorder-settings-drawer-v717:not(.hidden) {
+    display:grid!important;
+    visibility:visible!important;
+    opacity:1!important;
+    position:relative;
+    z-index:2;
+    background:var(--rec-bg);
+}
+@media(max-width:680px){
+    #loggy-recorder-floating-camera-v720{width:clamp(92px,24vw,170px)}
+}
+
+
+/* ============================================================================
+   V721 — RECORDER SCREEN PREVIEW + WORKSPACE VISIBILITY
+   ============================================================================ */
+#loggy-recorder-dock-v710{z-index:2147482800!important;}
+#loggy-recorder-floating-camera-v720{z-index:2147482750!important;}
+#loggy-recorder-menu-v710,.loggy-recorder-popover-v710{z-index:2147482900!important;}
+#loggy-recorder-preview-v710,#loggy-recorder-shortcuts-modal-v710,#loggy-recorder-recovery-modal-v710{z-index:2147483000!important;}
+.loggy-recorder-settings-drawer-v717 .loggy-recorder-layout-preview-v710{max-height:none!important;height:auto!important;aspect-ratio:16/9;}
+.loggy-recorder-layout-preview-v721{background:#111!important;overflow:hidden!important;}
+.loggy-recorder-screen-preview-v721{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:contain;background:#111;z-index:0;pointer-events:none;}
+.loggy-recorder-screen-preview-empty-v721{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:8px;text-align:center;padding:18px;color:#ddd;background:#232323;font-size:.72rem;z-index:0;box-sizing:border-box;}
+.loggy-recorder-screen-preview-empty-v721.hidden{display:none!important;}
+.loggy-recorder-screen-preview-empty-v721 i{font-size:1.6rem;}
+.loggy-recorder-layout-preview-v721 .loggy-recorder-camera-bubble-v710{z-index:2;}
+.loggy-recorder-settings-actions-v717 .loggy-recorder-action-v710{min-height:34px;padding:6px 9px;display:inline-flex;align-items:center;gap:5px;}
+
+
+/* ============================================================================
+   V729 — RECORDER SETTINGS CONTAINMENT + VISIBLE RECOVERY ACTION
+   Keeps every recorder setting inside the floating recorder surface and makes
+   temporary recordings reachable without scrolling to an obscured footer.
+   ============================================================================ */
+#loggy-recorder-dock-v710,
+#loggy-recorder-dock-v710 * {
+    box-sizing:border-box;
+}
+#loggy-recorder-dock-v710 {
+    width:min(410px, calc(100vw - 24px))!important;
+    max-height:calc(100dvh - 24px)!important;
+    overflow:hidden!important;
+    overscroll-behavior:contain;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-controller-v710,
+#loggy-recorder-dock-v710 .loggy-recorder-controller-compact-v717 {
+    min-width:0!important;
+    min-height:0!important;
+    max-height:calc(100dvh - 24px)!important;
+    overflow:hidden!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-settings-drawer-v717 {
+    width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-height:min(68dvh, 640px)!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain;
+    padding:8px 2px 8px 0!important;
+    align-content:start;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-settings-drawer-v717 > * {
+    min-width:0!important;
+    max-width:100%!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-option-grid-v710,
+#loggy-recorder-dock-v710 .loggy-recorder-device-grid-v710 {
+    width:100%!important;
+    min-width:0!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-field-v710,
+#loggy-recorder-dock-v710 .loggy-recorder-field-v710 select,
+#loggy-recorder-dock-v710 .loggy-recorder-field-v710 input {
+    min-width:0!important;
+    max-width:100%!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-layout-preview-v721 {
+    width:100%!important;
+    max-width:100%!important;
+    min-height:0!important;
+    aspect-ratio:16 / 9!important;
+    flex:none!important;
+}
+.loggy-recorder-settings-quick-v729,
+.loggy-recorder-settings-top-v729 {
+    width:100%;
+    min-width:0;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px;
+}
+.loggy-recorder-settings-top-v729 {
+    grid-template-columns:1fr;
+    margin-bottom:10px;
+}
+.loggy-recorder-settings-quick-v729 .loggy-recorder-action-v710,
+.loggy-recorder-settings-top-v729 .loggy-recorder-action-v710 {
+    width:100%;
+    min-width:0;
+    min-height:38px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    white-space:normal;
+    text-align:center;
+}
+.loggy-recorder-recover-prominent-v729 {
+    font-weight:700!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-settings-actions-v717 {
+    width:100%!important;
+    min-width:0!important;
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    align-items:stretch!important;
+    gap:7px!important;
+    padding-bottom:2px!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-settings-actions-v717 > span {
+    display:block;
+    min-width:0;
+    overflow-wrap:anywhere;
+    line-height:1.35;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-settings-actions-v717 .loggy-recorder-action-v710 {
+    width:100%!important;
+    max-width:100%!important;
+    min-height:36px!important;
+    justify-content:center!important;
+}
+.loggy-recorder-modal-v710,
+.loggy-recorder-modal-v710 * {
+    box-sizing:border-box;
+}
+.loggy-recorder-modal-v710 {
+    overflow:hidden!important;
+    padding:14px!important;
+}
+.loggy-recorder-modal-box-v710 {
+    width:min(760px, calc(100vw - 28px))!important;
+    max-width:100%!important;
+    max-height:calc(100dvh - 28px)!important;
+    min-width:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain;
+}
+.loggy-recorder-modal-box-v710 [data-modal-body],
+.loggy-recorder-youtube-settings-v710,
+.loggy-recorder-youtube-settings-v710 .row {
+    min-width:0!important;
+    max-width:100%!important;
+}
+.loggy-recorder-youtube-settings-v710 .row {
+    align-items:flex-start!important;
+}
+.loggy-recorder-youtube-settings-v710 label,
+.loggy-recorder-youtube-settings-v710 select,
+.loggy-recorder-youtube-settings-v710 .loggy-recorder-action-v710 {
+    max-width:100%!important;
+}
+.loggy-recorder-youtube-auth-note-v729 {
+    display:grid;
+    gap:8px;
+    min-width:0;
+}
+@media(max-width:680px){
+    #loggy-recorder-dock-v710{
+        right:8px!important;
+        bottom:8px!important;
+        width:calc(100vw - 16px)!important;
+        max-height:calc(100dvh - 16px)!important;
+    }
+    #loggy-recorder-dock-v710 .loggy-recorder-controller-v710,
+    #loggy-recorder-dock-v710 .loggy-recorder-controller-compact-v717{
+        max-height:calc(100dvh - 16px)!important;
+    }
+    #loggy-recorder-dock-v710 .loggy-recorder-settings-drawer-v717{
+        max-height:64dvh!important;
+    }
+    .loggy-recorder-settings-quick-v729{grid-template-columns:1fr;}
+    .loggy-recorder-modal-v710{padding:8px!important;}
+    .loggy-recorder-modal-box-v710{
+        width:calc(100vw - 16px)!important;
+        max-height:calc(100dvh - 16px)!important;
+    }
+}
+
+/* V730 — visible launch failure if a saved page has stale recorder state. */
+.loggy-recorder-launch-error-v730{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    z-index:2147483646;
+    max-width:min(360px,calc(100vw - 36px));
+    padding:10px 12px;
+    border:1px solid currentColor;
+    border-radius:10px;
+    background:var(--white,#fff);
+    color:var(--black,#111);
+    box-shadow:0 12px 34px rgba(0,0,0,.22);
+    font:600 .8rem/1.35 inherit;
+}
+
+/* ============================================================================
+   V732 — COMPACT RECORDER BAR VISIBILITY
+   Keep every control visible instead of clipping the right-most buttons.
+   ============================================================================ */
+#loggy-recorder-dock-v710{
+    width:min(650px,calc(100vw - 24px))!important;
+    overflow:visible!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-controller-v710,
+#loggy-recorder-dock-v710 .loggy-recorder-controller-compact-v717{
+    overflow:visible!important;
+}
+.loggy-recorder-compact-bar-v717{
+    min-width:0!important;
+}
+.loggy-recorder-compact-status-v717{
+    min-width:108px!important;
+    flex:0 1 150px!important;
+}
+.loggy-recorder-compact-controls-v717{
+    min-width:0!important;
+    flex:1 1 auto!important;
+    justify-content:flex-end!important;
+}
+@media(max-width:680px){
+    #loggy-recorder-dock-v710{
+        width:calc(100vw - 16px)!important;
+    }
+    .loggy-recorder-compact-status-v717{
+        width:100%!important;
+        min-width:0!important;
+        flex:1 1 100%!important;
+    }
+    .loggy-recorder-compact-controls-v717{
+        width:100%!important;
+        margin-left:0!important;
+        display:flex!important;
+        flex-wrap:wrap!important;
+        justify-content:stretch!important;
+    }
+    .loggy-recorder-compact-controls-v717 button{
+        flex:1 1 34px!important;
+        min-width:32px!important;
+        width:auto!important;
+    }
+}
+
+.loggy-youtube-api-warning-v732{display:grid;gap:8px;padding:10px;border:var(--rec-border);border-radius:10px;background:var(--track-bg,rgba(0,0,0,.05));}
+.loggy-youtube-api-warning-v732 strong{font-size:.82rem;}
+.loggy-youtube-api-warning-v732 .loggy-recorder-action-v710{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;width:max-content;max-width:100%;}
+
+/* ============================================================================
+   V733 — RECORDER SETTINGS NORMAL FLOW + INTERNAL SCROLL OWNER
+   The floating recorder remains fixed. Opening the gear keeps the compact bar
+   stationary and gives the settings drawer the remaining height. The preview
+   is a normal-flow flex item, so every setting starts after it instead of
+   painting underneath it.
+   ============================================================================ */
+#loggy-recorder-dock-v710{
+    max-height:calc(100dvh - 24px)!important;
+    overflow:hidden!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-controller-v710,
+#loggy-recorder-dock-v710 .loggy-recorder-controller-compact-v717{
+    min-height:0!important;
+    max-height:calc(100dvh - 24px)!important;
+    overflow:hidden!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-controller-compact-v717:has(.loggy-recorder-settings-drawer-v717:not(.hidden)){
+    height:min(720px,calc(100dvh - 24px))!important;
+    grid-template-rows:auto auto auto minmax(0,1fr)!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-settings-drawer-v717:not(.hidden){
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:9px!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain!important;
+    scrollbar-width:thin;
+    position:relative!important;
+    z-index:2!important;
+    isolation:isolate;
+    padding:8px 4px 10px 0!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-settings-drawer-v717 > *{
+    flex:0 0 auto!important;
+    position:relative;
+    min-width:0!important;
+    max-width:100%!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-settings-drawer-v717 > .loggy-recorder-layout-preview-v721{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    aspect-ratio:16 / 9!important;
+    overflow:hidden!important;
+    position:relative!important;
+    z-index:0!important;
+    margin:0!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-settings-drawer-v717 > .loggy-recorder-layout-preview-v721 + *{
+    margin-top:0!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-screen-preview-v721,
+#loggy-recorder-dock-v710 .loggy-recorder-screen-preview-empty-v721{
+    position:absolute!important;
+    inset:0!important;
+}
+@media(max-width:680px){
+    #loggy-recorder-dock-v710{
+        max-height:calc(100dvh - 16px)!important;
+    }
+    #loggy-recorder-dock-v710 .loggy-recorder-controller-v710,
+    #loggy-recorder-dock-v710 .loggy-recorder-controller-compact-v717{
+        max-height:calc(100dvh - 16px)!important;
+    }
+    #loggy-recorder-dock-v710 .loggy-recorder-controller-compact-v717:has(.loggy-recorder-settings-drawer-v717:not(.hidden)){
+        height:calc(100dvh - 16px)!important;
+    }
+}
+
+
+
+/* V733 — recorder-native confirmation modal; never use browser localhost prompts. */
+#loggy-recorder-confirm-modal-v733 {
+    z-index:2147483640!important;
+}
+.loggy-recorder-confirm-box-v733 {
+    width:min(430px, calc(100vw - 28px))!important;
+    max-height:none!important;
+    overflow:visible!important;
+}
+.loggy-recorder-confirm-actions-v733 {
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:8px;
+    flex-wrap:wrap;
+}
+.loggy-recorder-confirm-actions-v733 .loggy-recorder-action-v710 {
+    min-width:92px;
+    min-height:38px;
+    padding:8px 14px;
+    border-radius:9px;
+}
+
+
+/* ============================================================================
+   V734 — RECORDER CAMERA PARITY + FULLSCREEN SURVIVAL + CUSTOM BAR
+   ============================================================================ */
+
+/* Whiteboard/Notebook fullscreen owners sit at 2147483645. Recorder controls
+   and camera must remain one layer above them instead of disappearing behind. */
+body > #loggy-recorder-dock-v710,
+body > #loggy-recorder-floating-camera-v720 {
+    z-index:2147483646!important;
+    visibility:visible!important;
+    pointer-events:auto!important;
+}
+#loggy-recorder-menu-v710,
+.loggy-recorder-popover-v710,
+#loggy-recorder-preview-v710,
+#loggy-recorder-shortcuts-modal-v710,
+#loggy-recorder-recovery-modal-v710,
+#loggy-recorder-confirm-modal-v733,
+#loggy-recorder-slot-modal-v710 {
+    z-index:2147483647!important;
+}
+
+/* The status area is the drag handle for the whole little recorder bar. */
+.loggy-recorder-compact-status-v717 {
+    cursor:grab;
+    touch-action:none;
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+.loggy-recorder-drag-grip-v734{
+    font-size:14px;
+    opacity:.48;
+    flex:0 0 auto;
+}
+.loggy-recorder-dock-dragging-v734 .loggy-recorder-compact-status-v717 {
+    cursor:grabbing!important;
+}
+
+/* When settings are closed, the recorder bar shrink-wraps the buttons the user
+   actually chose to show. Opening settings restores a comfortable fixed panel. */
+#loggy-recorder-dock-v710:has(.loggy-recorder-settings-drawer-v717.hidden) {
+    width:max-content!important;
+    max-width:calc(100vw - 24px)!important;
+}
+#loggy-recorder-dock-v710:has(.loggy-recorder-settings-drawer-v717:not(.hidden)) {
+    width:min(650px,calc(100vw - 24px))!important;
+}
+#loggy-recorder-dock-v710:has(.loggy-recorder-settings-drawer-v717.hidden)
+    .loggy-recorder-compact-destination-v717 {
+    max-width:360px;
+}
+
+/* Bar customization inside the gear drawer. */
+.loggy-recorder-bar-settings-v734 {
+    display:grid;
+    gap:8px;
+    padding:10px;
+    border:var(--rec-border);
+    border-radius:11px;
+    background:color-mix(in srgb,var(--rec-bg) 94%,var(--rec-fg) 6%);
+}
+.loggy-recorder-bar-settings-title-v734 {
+    font-size:.8rem;
+    font-weight:800;
+}
+.loggy-recorder-bar-settings-subtitle-v734 {
+    font-size:.66rem;
+    font-weight:700;
+    color:var(--rec-muted);
+}
+.loggy-recorder-bar-choices-v734 {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px 10px;
+}
+.loggy-recorder-bar-choice-v734 {
+    min-width:0;
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:.7rem;
+    cursor:pointer;
+}
+.loggy-recorder-bar-choice-v734 input {
+    width:15px!important;
+    height:15px;
+    flex:0 0 15px;
+    margin:0;
+}
+.loggy-recorder-hidden-controls-v734 {
+    display:grid;
+    gap:6px;
+    padding-top:8px;
+    border-top:1px solid color-mix(in srgb,var(--rec-fg) 14%,transparent);
+}
+.loggy-recorder-hidden-controls-v734 > span {
+    font-size:.64rem;
+    color:var(--rec-muted);
+    font-weight:700;
+}
+.loggy-recorder-hidden-controls-v734 > div {
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+}
+.loggy-recorder-hidden-controls-v734 button {
+    min-height:34px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:6px 9px;
+    border:var(--rec-border);
+    border-radius:9px;
+    background:var(--rec-bg);
+    color:var(--rec-fg);
+    font:inherit;
+    cursor:pointer;
+}
+.loggy-recorder-hidden-controls-v734 button:disabled {
+    opacity:.35;
+    cursor:not-allowed;
+}
+.loggy-recorder-hidden-controls-v734 button.is-off {
+    opacity:.5;
+}
+.loggy-recorder-hidden-controls-v734 .stop-v717 {
+    color:#b91c1c;
+}
+
+/* The separate controls window is used only when "Hide bar from recording" is
+   on. It remains fully usable but is not inside the browser window being shared. */
+body.loggy-recorder-detached-host-v734 {
+    --rec-border:1px solid rgba(0,0,0,.2);
+    --rec-bg:#fff;
+    --rec-fg:#111;
+    --rec-muted:#666;
+    --track-bg:#eee;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:#111;
+    background:#fff;
+}
+body.loggy-recorder-detached-host-v734 .loggy-recorder-controller-compact-v717 {
+    width:100%!important;
+    max-width:none!important;
+    overflow:visible!important;
+}
+body.loggy-recorder-detached-host-v734 .loggy-recorder-settings-drawer-v717:not(.hidden) {
+    max-height:calc(100dvh - 95px)!important;
+    overflow-y:auto!important;
+}
+body.loggy-recorder-detached-host-v734 .loggy-recorder-compact-status-v717 {
+    cursor:default;
+}
+
+@media(max-width:680px){
+    #loggy-recorder-dock-v710:has(.loggy-recorder-settings-drawer-v717.hidden){
+        width:calc(100vw - 16px)!important;
+    }
+    .loggy-recorder-bar-choices-v734{
+        grid-template-columns:1fr;
+    }
+}
+
+.loggy-recorder-detached-waiting-v734{
+    padding:14px;
+    border:1px solid rgba(0,0,0,.16);
+    border-radius:10px;
+    background:#fff;
+    color:#555;
+    font:600 12px/1.4 system-ui,sans-serif;
+}
+
+/* ============================================================================
+   V750 — THIN RECORDER BAR + CAMERA FULLSCREEN + MODAL STACK AUTHORITY
+   ============================================================================ */
+#loggy-recorder-dock-v710{
+  width:max-content!important;
+  max-width:calc(100vw - 16px)!important;
+  max-height:none!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:var(--rec-bg,#fff)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.20)!important;
+  padding:0!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-controller-compact-v717{
+  display:block!important;
+  padding:0!important;
+  gap:0!important;
+  width:max-content!important;
+  max-width:calc(100vw - 16px)!important;
+  background:transparent!important;
+  border:0!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-compact-bar-v717{
+  min-height:44px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  padding:4px 6px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:var(--rec-bg,#fff)!important;
+  box-sizing:border-box!important;
+  flex-wrap:nowrap!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-compact-status-v717{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  min-width:0!important;
+  padding:0 4px!important;
+  font-size:.72rem!important;
+  white-space:nowrap!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-compact-status-v717 strong,
+#loggy-recorder-dock-v710 .loggy-recorder-compact-destination-v717,
+#loggy-recorder-dock-v710 .loggy-recorder-inline-message-v710,
+#loggy-recorder-dock-v710 .loggy-recorder-mic-meter-v710,
+#loggy-recorder-dock-v710 .loggy-recorder-settings-drawer-v717{display:none!important}
+#loggy-recorder-dock-v710 .loggy-recorder-compact-controls-v717{
+  display:flex!important;
+  align-items:center!important;
+  gap:2px!important;
+  width:auto!important;
+  margin:0!important;
+  flex-wrap:nowrap!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-compact-controls-v717 button{
+  width:34px!important;
+  min-width:34px!important;
+  height:34px!important;
+  min-height:34px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:transparent!important;
+  color:var(--rec-fg,#111)!important;
+  box-shadow:none!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 34px!important;
+}
+#loggy-recorder-dock-v710 .loggy-recorder-compact-controls-v717 button:hover,
+#loggy-recorder-dock-v710 .loggy-recorder-compact-controls-v717 button:focus-visible{background:var(--track-bg,rgba(0,0,0,.07))!important}
+#loggy-recorder-dock-v710 .loggy-recorder-compact-controls-v717 button.is-off{opacity:.42!important}
+#loggy-recorder-dock-v710 .loggy-recorder-compact-controls-v717 [data-rec-action="record"]{color:#b91c1c!important}
+
+#loggy-recorder-dock-v710 [data-orientation-v750="vertical"] .loggy-recorder-compact-bar-v717{
+  flex-direction:column!important;
+  width:44px!important;
+  min-height:0!important;
+  border-radius:999px!important;
+  padding:6px 4px!important;
+}
+#loggy-recorder-dock-v710 [data-orientation-v750="vertical"] .loggy-recorder-compact-status-v717{
+  flex-direction:column!important;
+  padding:2px 0 4px!important;
+  gap:4px!important;
+}
+#loggy-recorder-dock-v710 [data-orientation-v750="vertical"] .loggy-recorder-timer-v710{
+  writing-mode:vertical-rl!important;
+  transform:rotate(180deg)!important;
+  font-size:.63rem!important;
+  max-height:54px!important;
+}
+#loggy-recorder-dock-v710 [data-orientation-v750="vertical"] .loggy-recorder-compact-controls-v717{flex-direction:column!important}
+
+#loggy-recorder-floating-camera-v720{transition:left .16s ease,top .16s ease,width .16s ease,border-radius .16s ease,transform .16s ease!important}
+#loggy-recorder-floating-camera-v720.is-fullscreen-v750{
+  position:fixed!important;
+  inset:0!important;
+  left:0!important;
+  top:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  aspect-ratio:auto!important;
+  transform:none!important;
+  border:0!important;
+  border-radius:0!important;
+  padding:0!important;
+  box-shadow:none!important;
+  background:#000!important;
+  cursor:default!important;
+  z-index:2147483646!important;
+}
+#loggy-recorder-floating-camera-v720.is-fullscreen-v750>video{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:0!important}
+
+/* Every recorder dialog owns the top application layer. Confirmation dialogs
+   are appended last, so they remain above the settings modal they came from. */
+.loggy-recorder-modal-v710,
+#loggy-recorder-settings-modal-v710,
+#loggy-recorder-bar-settings-modal-v750,
+#loggy-recorder-preview-v710,
+#loggy-recorder-shortcuts-modal-v710,
+#loggy-recorder-recovery-modal-v710,
+#loggy-recorder-confirm-modal-v733,
+#loggy-recorder-slot-modal-v710{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483647!important;
+  isolation:isolate!important;
+}
+#loggy-recorder-bar-settings-modal-v750>.loggy-recorder-modal-box-v710{
+  width:min(940px,calc(100vw - 28px))!important;
+  max-height:min(92dvh,900px)!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  border-radius:18px!important;
+  padding:18px!important;
+}
+.loggy-recorder-settings-grid-v750{display:grid!important;gap:14px!important;min-width:0!important}
+#loggy-recorder-bar-settings-modal-v750 .loggy-recorder-layout-preview-v721{width:100%!important;max-height:min(46dvh,430px)!important;aspect-ratio:16/9!important}
+#loggy-recorder-bar-settings-modal-v750 .loggy-recorder-option-grid-v710{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+#loggy-recorder-bar-settings-modal-v750 .loggy-recorder-settings-quick-v729{display:flex!important;gap:8px!important;flex-wrap:wrap!important}
+#loggy-recorder-confirm-modal-v733>.loggy-recorder-confirm-box-v733{width:min(460px,calc(100vw - 28px))!important;position:relative!important}
+
+@media(max-width:680px){
+  #loggy-recorder-dock-v710{max-width:calc(100vw - 12px)!important}
+  #loggy-recorder-dock-v710 .loggy-recorder-compact-bar-v717{flex-wrap:nowrap!important}
+  #loggy-recorder-dock-v710 .loggy-recorder-compact-controls-v717{width:auto!important;justify-content:flex-start!important}
+  #loggy-recorder-dock-v710 .loggy-recorder-compact-controls-v717 button{flex:0 0 32px!important;width:32px!important;min-width:32px!important}
+  #loggy-recorder-bar-settings-modal-v750 .loggy-recorder-option-grid-v710{grid-template-columns:1fr!important}
+}
+
+
+/* ============================================================================
+   V751 — Recording Preview playlist override / multi-select
+   ============================================================================ */
+.loggy-recorder-preview-playlists-v751{display:grid;gap:6px;position:relative;z-index:3}
+.loggy-recorder-playlist-picker-v751{position:relative;width:100%;min-width:0}
+.loggy-recorder-playlist-toggle-v751{
+    width:100%;min-height:40px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+    border:var(--rec-border);border-radius:8px;background:var(--rec-bg);color:var(--rec-fg);padding:8px 10px;
+    font:inherit;text-align:left;cursor:pointer;box-sizing:border-box
+}
+.loggy-recorder-playlist-toggle-v751>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.loggy-recorder-playlist-menu-v751{
+    position:absolute;z-index:2147483647;left:0;right:0;top:calc(100% + 5px);max-height:min(260px,42vh);
+    overflow-y:auto;overflow-x:hidden;padding:6px;border:var(--rec-border);border-radius:9px;background:var(--rec-bg);
+    color:var(--rec-fg);box-shadow:0 12px 34px rgba(0,0,0,.22);overscroll-behavior:contain
+}
+.loggy-recorder-playlist-menu-v751.hidden{display:none!important}
+.loggy-recorder-playlist-menu-head-v751{display:flex;justify-content:flex-end;padding:2px 2px 6px}
+.loggy-recorder-playlist-menu-head-v751 button{border:0;background:transparent;color:inherit;font:inherit;font-size:.7rem;text-decoration:underline;cursor:pointer;padding:3px 4px}
+.loggy-recorder-playlist-option-v751{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer}
+.loggy-recorder-playlist-option-v751:hover{background:var(--track-bg,rgba(0,0,0,.06))}
+.loggy-recorder-playlist-option-v751 input{width:16px!important;height:16px!important;margin:0!important}
+.loggy-recorder-playlist-option-v751 span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.loggy-recorder-playlist-option-v751 small{font-size:.62rem;color:var(--rec-muted)}
+
+/* ============================================================================
+   V752 — camera fill + opaque centered recorder settings
+   ============================================================================ */
+#loggy-recorder-floating-camera-v720,
+.loggy-recorder-camera-bubble-v710{padding:0!important;position:fixed;}
+#loggy-recorder-floating-camera-v720>video,
+.loggy-recorder-camera-bubble-v710>video,
+#loggy-recorder-bar-settings-modal-v750 [data-rec-camera-preview]{
+  position:absolute!important;inset:0!important;left:0!important;top:0!important;width:100%!important;height:100%!important;
+  min-width:100%!important;min-height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;
+  object-fit:cover!important;object-position:center center!important;display:block!important;box-sizing:border-box!important
+}
+#loggy-recorder-floating-camera-v720>video{border-radius:inherit!important}
+.loggy-recorder-camera-bubble-v710{position:absolute!important}
+#loggy-recorder-bar-settings-modal-v750{
+  background:rgba(0,0,0,.38)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+#loggy-recorder-bar-settings-modal-v750>.loggy-recorder-modal-box-v710{
+  --rec-bg:#ffffff!important;--rec-fg:#111111!important;--rec-muted:#5f6368!important;
+  background:#ffffff!important;background-color:#ffffff!important;background-image:none!important;color:#111111!important;
+  opacity:1!important;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  box-shadow:0 24px 80px rgba(0,0,0,.30)!important;border:2px solid #111!important;
+}
+#loggy-recorder-bar-settings-modal-v750>.loggy-recorder-modal-box-v710 .loggy-recorder-modal-head-v710,
+#loggy-recorder-bar-settings-modal-v750>.loggy-recorder-modal-box-v710 [data-modal-body],
+#loggy-recorder-bar-settings-modal-v750>.loggy-recorder-modal-box-v710 .loggy-recorder-settings-grid-v750{
+  background:#fff!important;background-image:none!important;color:#111!important;opacity:1!important
+}
+#loggy-recorder-bar-settings-modal-v750 input,
+#loggy-recorder-bar-settings-modal-v750 select,
+#loggy-recorder-bar-settings-modal-v750 textarea{
+  background:#fff!important;color:#111!important;border-color:#777!important;opacity:1!important
+}
+#loggy-recorder-bar-settings-modal-v750{opacity:1!important;filter:none!important}
+
+
+/* ============================================================================
+   V753 — recorder readability, playlist density, modal authority
+   ============================================================================ */
+.loggy-recorder-playlist-menu-v751{padding:4px!important;font-size:.92rem!important}
+.loggy-recorder-playlist-menu-head-v751{justify-content:flex-end!important;padding:0 3px 2px!important;margin:0!important;min-height:0!important}
+.loggy-recorder-playlist-menu-head-v751 button{font-size:.82rem!important;padding:2px 4px!important;line-height:1.15!important}
+.loggy-recorder-playlist-option-v751{padding:8px 9px!important;gap:9px!important;font-size:.92rem!important;line-height:1.25!important}
+.loggy-recorder-playlist-option-v751 small{font-size:.74rem!important}.loggy-recorder-playlist-toggle-v751{font-size:.92rem!important}
+
+/* Every recorder modal is opaque and readable above the app, not theme-transparent. */
+#loggy-recorder-settings-modal-v710,#loggy-recorder-bar-settings-modal-v750,#loggy-recorder-preview-v710,#loggy-recorder-shortcuts-modal-v710,#loggy-recorder-recovery-modal-v710,#loggy-recorder-confirm-modal-v733,#loggy-recorder-slot-modal-v710{background:rgba(0,0,0,.42)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:2147483647!important}
+#loggy-recorder-settings-modal-v710>.loggy-recorder-modal-box-v710,#loggy-recorder-bar-settings-modal-v750>.loggy-recorder-modal-box-v710,#loggy-recorder-preview-v710>.loggy-recorder-modal-box-v710,#loggy-recorder-shortcuts-modal-v710>.loggy-recorder-modal-box-v710,#loggy-recorder-recovery-modal-v710>.loggy-recorder-modal-box-v710,#loggy-recorder-slot-modal-v710>.loggy-recorder-modal-box-v710{--rec-bg:#fff!important;--rec-fg:#111!important;--rec-muted:#555!important;background:#fff!important;background-image:none!important;color:#111!important;opacity:1!important;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:2px solid #111!important;box-shadow:0 24px 80px rgba(0,0,0,.3)!important;font-size:15px!important}
+#loggy-recorder-settings-modal-v710 .progress-hint,#loggy-recorder-bar-settings-modal-v750 .progress-hint,#loggy-recorder-preview-v710 .progress-hint,#loggy-recorder-shortcuts-modal-v710 .progress-hint,#loggy-recorder-recovery-modal-v710 .progress-hint{font-size:.82rem!important;line-height:1.45!important;color:#555!important}
+#loggy-recorder-bar-settings-modal-v750 .field-label,#loggy-recorder-settings-modal-v710 .field-label{font-size:.84rem!important}
+.loggy-recorder-settings-quick-v729 .loggy-recorder-action-v710,.loggy-recorder-settings-top-v729 .loggy-recorder-action-v710,#loggy-recorder-bar-settings-modal-v750 .loggy-recorder-settings-quick-v729 .loggy-recorder-action-v710{border:1.5px solid #777!important;border-radius:10px!important;background:#fff!important;color:#111!important;min-height:42px!important;font-weight:700!important;padding:8px 11px!important;box-shadow:none!important}
+.loggy-recorder-settings-quick-v729 .loggy-recorder-action-v710:hover,.loggy-recorder-settings-top-v729 .loggy-recorder-action-v710:hover{background:#f3f3f3!important;border-color:#111!important}
+/* Initial floating camera is intentionally modest; the slider/full-screen control can enlarge it. */
+#loggy-recorder-floating-camera-v720{width:clamp(72px,calc(var(--rec-camera-page-size-v720,14) * 1vw),40vw)!important;max-width:none!important}
+
+/* Recorder controls remain visible in their separate controls window when hidden
+   from captured screen/window pixels. Remove duplicate settings camera preview. */
+.loggy-recorder-playlist-option-v751,
+.loggy-recorder-playlist-option-v751 span{font-size:16px!important;line-height:1.45!important}
+.loggy-recorder-playlist-option-v751 small{font-size:13px!important}
+.loggy-recorder-playlist-toggle-v751{font-size:16px!important}
+#loggy-recorder-confirm-modal-v733>.loggy-recorder-confirm-box-v733{
+  --rec-bg:#fff!important;--rec-fg:#111!important;--rec-muted:#555!important;
+  background:#fff!important;background-image:none!important;color:#111!important;
+  opacity:1!important;filter:none!important;backdrop-filter:none!important;
+  border:2px solid #111!important;box-shadow:0 24px 80px rgba(0,0,0,.3)!important
+}
+
+/* V754 accessible recorder headings and choices */
+#loggy-recorder-dock-v710 .loggy-recorder-field-v710>span,
+.loggy-recorder-field-v710>span,.loggy-recorder-modal-v710 .loggy-recorder-field-v710>span{font-size:1rem!important;font-weight:800!important;line-height:1.45!important}
+#loggy-recorder-dock-v710 .loggy-recorder-field-v710 select,
+.loggy-recorder-field-v710 select,.loggy-recorder-modal-v710 select{font-size:.98rem!important;min-height:42px!important;line-height:1.35!important}
+#loggy-recorder-dock-v710 .loggy-recorder-controller-head-v710 strong{font-size:1.1rem!important}
+.loggy-recorder-field-v710{gap:7px!important}
+
+
+/* V763: live camera-size preview + uncapped proportional floating camera. */
+#loggy-recorder-bar-settings-modal-v750 [data-rec-bubble],#loggy-recorder-settings-modal-v710 [data-rec-bubble],#loggy-recorder-bar-settings-modal-v750 [data-rec-camera-preview],#loggy-recorder-settings-modal-v710 [data-rec-camera-preview]{display:block!important}
+
+/* V843 fullscreen camera keeps recorder bar accessible */
+body:has(#loggy-recorder-floating-camera-v720.is-fullscreen-v750) #loggy-recorder-dock-v710{z-index:2147483647!important;display:block!important;visibility:visible!important;opacity:1!important}
+body:has(#loggy-recorder-floating-camera-v720.is-fullscreen-v750) #loggy-recorder-dock-v710.hidden{display:block!important}
+#loggy-recorder-dock-v710 [data-rec-action="cameraFullscreen"].is-active{background:var(--track-bg,rgba(0,0,0,.08))!important}
+
+
+
+/* ============================================================================
+   V920 — restore the proven V911 page-camera fill behavior
+   The video extends underneath the CSS border so every shape, including Bubble
+   blob, is fully filled with camera pixels and has no extra SVG/background box.
+   ============================================================================ */
+#loggy-recorder-floating-camera-v720 {
+    background:#111!important;
+}
+#loggy-recorder-floating-camera-v720 > video {
+    position:absolute!important;
+    left:calc(-1 * var(--rec-shape-border-size, 0px))!important;
+    top:calc(-1 * var(--rec-shape-border-size, 0px))!important;
+    right:auto!important;
+    bottom:auto!important;
+    width:calc(100% + var(--rec-shape-border-size, 0px) + var(--rec-shape-border-size, 0px))!important;
+    height:calc(100% + var(--rec-shape-border-size, 0px) + var(--rec-shape-border-size, 0px))!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-width:none!important;
+    max-height:none!important;
+    object-fit:cover!important;
+    object-position:50% 50%!important;
+    border-radius:0!important;
+    margin:0!important;
+    padding:0!important;
+}
+/* Fullscreen ignores the selected bubble shape completely. It is simply the
+   camera feed filling the screen as a rectangle. */
+#loggy-recorder-floating-camera-v720.is-fullscreen-v750 {
+    border-radius:0!important;
+    overflow:hidden!important;
+    transition:none!important;
+}
+#loggy-recorder-floating-camera-v720.is-fullscreen-v750 > video {
+    left:0!important;
+    top:0!important;
+    width:100%!important;
+    height:100%!important;
+    min-width:100%!important;
+    min-height:100%!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+    border-radius:0!important;
+    clip-path:none!important;
+    -webkit-clip-path:none!important;
+}
+
+/* Recorder dialogs remain usable above the fullscreen Whiteboard/Notebook. */
+body:is(.whiteboard-tab-active-v198,.notepad-tab-active-v249) > :is(
+    #loggy-recorder-menu-v710,
+    #loggy-recorder-settings-modal-v710,
+    #loggy-recorder-bar-settings-modal-v750,
+    #loggy-recorder-preview-v710,
+    #loggy-recorder-shortcuts-modal-v710,
+    #loggy-recorder-recovery-modal-v710,
+    #loggy-recorder-confirm-modal-v733,
+    #loggy-recorder-slot-modal-v710
+) {
+    visibility:visible!important;
+    pointer-events:auto!important;
+}

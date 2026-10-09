@@ -9134,17 +9134,6 @@ window.__themeCrossNaturalFacingV147 = true;
         };
     }catch{}
 
-    // ------------------------------------------------------------------
-    // Shortcut wording: Shift+W is authoritative in the visible list.
-    // ------------------------------------------------------------------
-    function fixShortcutV161(){
-        document.querySelectorAll('#global-shortcuts-section .global-shortcut-row').forEach(row=>{
-            if(/Open Theme Settings/i.test(row.textContent||'')){
-                const keys=row.querySelectorAll('kbd');if(keys.length)keys[keys.length-1].textContent='W';
-            }
-        });
-    }
-
     // Install/refresh hooks.
     try{
         const populateBeforeV161=populateThemeBuilder;
@@ -9168,12 +9157,8 @@ window.__themeCrossNaturalFacingV147 = true;
         renderThemePicker=function(){const result=renderBeforeV161.apply(this,arguments);ensureThemeSearchPlusV161();return result};
     }catch{}
     try{
-        const shortcutsBeforeV161=ensureGlobalShortcutsSection;
-        ensureGlobalShortcutsSection=function(){const result=shortcutsBeforeV161.apply(this,arguments);fixShortcutV161();return result};
-    }catch{}
-    try{
         const settingsBeforeV161=openGlobalThemeSettings;
-        openGlobalThemeSettings=function(){const result=settingsBeforeV161.apply(this,arguments);requestAnimationFrame(()=>{ensureThemeSearchPlusV161();fixShortcutV161()});return result};
+        openGlobalThemeSettings=function(){const result=settingsBeforeV161.apply(this,arguments);requestAnimationFrame(()=>{ensureThemeSearchPlusV161()});return result};
     }catch{}
 
     // Stop audition + restore actual app cursor when leaving the editor.
@@ -9186,7 +9171,6 @@ window.__themeCrossNaturalFacingV147 = true;
         document.getElementById('theme-ai-entry-v161')?.remove();
         recoverCursorsV161();
         ensureThemeSearchPlusV161();
-        fixShortcutV161();
         const modal=document.getElementById('theme-builder-modal');if(modal){installFontsV161(modal);ensureBuilderAiControlsV161(modal)}
     });
 

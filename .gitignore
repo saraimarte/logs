@@ -1,0 +1,14 @@
+# Loggy Screen Recorder private/local files
+.env
+.env.*
+!.env.example
+.loggy-private/
+.loggy-recordings/
+
+# Common local junk
+.DS_Store
+Thumbs.db
+
+public/media/
+*.zip
+*.mp4

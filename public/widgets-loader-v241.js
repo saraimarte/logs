@@ -16,7 +16,7 @@ applyEarlyThemeSoundPrefsV244();
 function loadWidgetRuntimeV241() {
   if (window.__loggyWidgetsV239 || document.querySelector('script[data-loggy-widgets-runtime-v241]')) return;
   const script = document.createElement('script');
-  script.src = '/widgets-v239.js?v=453';
+  script.src = '/widgets-v239.js?v=749';
   script.async = true;
   script.dataset.loggyWidgetsRuntimeV241 = '1';
   script.addEventListener('load',()=>{
@@ -26,6 +26,15 @@ function loadWidgetRuntimeV241() {
   document.body.appendChild(script);
 }
 window.__loggyLoadWidgetsRuntimeV241 = loadWidgetRuntimeV241;
+
+// V746: Custom Components are a direct user action, so their registry must not
+// wait for the idle loader. This restores Kanban, Dropdown, Alphabet/Practice,
+// Anki, AI Prompt Generator, and the other widget-backed component choices
+// before/while the custom-tab palette is opened.
+document.addEventListener('pointerdown', event => {
+  if (!event.target?.closest?.('#add-custom-tab-btn,.custom-tab-edit-btn,.custom-component-palette')) return;
+  loadWidgetRuntimeV241();
+}, true);
 
 
 // Settings must never depend on idle timing. If the navbar gear is clicked

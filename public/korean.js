@@ -2,6 +2,188 @@
 const pathParts = window.location.pathname.split('/').filter(Boolean);
 const HOBBY = pathParts.pop() || 'log';
 
+
+// V1700 — one simple shortcut owner for Log-page Settings.
+// This intentionally follows the working Dashboard model: one in-memory map,
+// one set of buttons, one capture state, one save path. No DOM adoption,
+// MutationObserver, fallback-label repaint, or competing shortcut editor.
+const loggyShortcutRuntimeV1700=(()=>{
+'use strict';
+if(window.__loggyShortcutRuntimeV1700)return window.__loggyShortcutRuntimeV1700;
+
+const STORAGE='loggy-site-wide-shortcuts-v1700';
+const LEGACY=['loggy-site-wide-shortcuts-v1600','loggy-site-wide-shortcuts-v1500','loggy-site-wide-shortcuts-v1400','loggy-site-wide-shortcuts-v1300','loggy-site-wide-shortcuts-v1200','loggy-site-wide-shortcuts-v1100','loggy-site-wide-shortcuts-v1000'];
+const defs={
+ settings:{title:'Settings',description:'Open global Settings.',fallback:'Shift+W'},
+ search:{title:'Search',description:'Open Loggy search / command palette.',fallback:'Ctrl+P'},
+ developer:{title:'Developer Mode',description:'Open Developer Mode.',fallback:'Ctrl+Shift+D+M'},
+ intro:{title:'Intro Songs',description:'Toggle all intro songs on/off.',fallback:'Ctrl+Alt+I'},
+ 'all-sounds':{title:'Intro + Hover Sounds',description:'Toggle intro songs and hover sounds together.',fallback:'Ctrl+Alt+Shift+S'},
+ primary:{title:'Primary Modal Action',description:'Use the main Save / Create / Done / Add action in supported modals.',fallback:'Enter'}
+};
+const ids=Object.keys(defs);
+const readJson=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
+const tokenFromCode=code=>({Control:'Ctrl',Shift:'Shift',Alt:'Alt',Meta:'Meta',Space:'Space',Enter:'Enter',Period:'.',Comma:',',Slash:'/',Backslash:'\\',Minus:'-',Equal:'='}[code]||(String(code).startsWith('Key')?String(code).slice(3):String(code).startsWith('Digit')?String(code).slice(5):String(code)));
+const fromLegacy=value=>{
+ if(Array.isArray(value))return value.map(tokenFromCode).join('+');
+ if(typeof value==='string'&&value.trim())return value.trim().replace(/\s*\+\s*/g,'+');
+ return '';
+};
+const normalize=value=>{
+ const parts=String(value||'').split('+').map(x=>x.trim()).filter(Boolean);
+ if(!parts.length)return '';
+ const mods=[];for(const m of ['Ctrl','Alt','Shift','Meta'])if(parts.some(x=>x.toLowerCase()===m.toLowerCase()))mods.push(m);
+ const non=parts.filter(x=>!['ctrl','control','alt','shift','meta'].includes(x.toLowerCase())).map(x=>x.length===1?x.toUpperCase():x);
+ if(!non.length)return '';
+ return [...mods,...non].join('+');
+};
+const values={};
+const own=readJson(STORAGE)||{};
+const legacy=LEGACY.map(readJson).filter(x=>x&&typeof x==='object');
+for(const id of ids){
+ let v=normalize(fromLegacy(own[id]));
+ if(!v)for(const store of legacy){v=normalize(fromLegacy(store[id]));if(v)break;}
+ values[id]=v||defs[id].fallback;
+}
+function persist(){localStorage.setItem(STORAGE,JSON.stringify(values));}
+function host(){return document.getElementById('global-shortcuts-section');}
+function ensureSection(){
+ let h=host();
+ if(!h){
+   const box=document.querySelector('#daily-settings-modal .modal-box');
+   if(!box)return null;
+   h=document.createElement('div');h.id='global-shortcuts-section';h.className='modal-section global-shortcuts-section';box.appendChild(h);
+ }
+ // Permanently retire old site-wide shortcut UIs inside this host. Do not touch
+ // other sections such as Screen Recorder shortcuts that append to the same host.
+ h.querySelectorAll('.global-shortcuts-list,#site-wide-shortcuts-owner-v1000,#site-wide-shortcuts-owner-v1100,#site-wide-shortcuts-owner-v1200,#site-wide-shortcuts-owner-v1300,#site-wide-shortcuts-owner-v1400,#site-wide-shortcuts-owner-v1500,#site-wide-shortcuts-owner-v1600').forEach(n=>n.remove());
+ let owner=h.querySelector(':scope > #site-wide-shortcuts-owner-v1700');
+ if(!owner){
+   owner=document.createElement('div');owner.id='site-wide-shortcuts-owner-v1700';owner.className='site-wide-shortcuts-v1700';
+   owner.innerHTML=`<span class="field-label">SITE WIDE SHORTCUTS</span><div class="site-wide-shortcut-list-v1700"></div>`;
+   const list=owner.querySelector('.site-wide-shortcut-list-v1700');
+   for(const id of ids){
+     const row=document.createElement('div');row.className='site-wide-shortcut-row-v1700';
+     row.innerHTML=`<div class="site-wide-shortcut-copy-v1700"><strong></strong><small></small></div><button type="button" class="site-wide-shortcut-key-v1700"></button>`;
+     row.querySelector('strong').textContent=defs[id].title;
+     row.querySelector('small').textContent=defs[id].description;
+     const b=row.querySelector('button');b.dataset.siteShortcutV1700=id;b.setAttribute('aria-label',defs[id].title+' shortcut');
+     list.appendChild(row);
+   }
+   h.prepend(owner);
+ }
+ draw();
+ return h;
+}
+function buttons(){return [...document.querySelectorAll('#site-wide-shortcuts-owner-v1700 [data-site-shortcut-v1700]')];}
+let capture=null;
+function draw(){
+ for(const b of buttons()){
+   const id=b.dataset.siteShortcutV1700;
+   b.textContent=capture?.id===id?(capture.preview||'Press keys…'):(values[id]||defs[id].fallback);
+   b.classList.toggle('capturing',capture?.id===id);
+ }
+}
+function begin(id,button){
+ if(!defs[id])return;
+ capture={id,button,parts:new Set(),preview:''};
+ button?.focus?.({preventScroll:true});
+ draw();
+}
+function cancel(){capture=null;draw();}
+function eventToken(e){
+ if(e.key==='Control')return 'Ctrl';if(e.key==='Alt')return 'Alt';if(e.key==='Shift')return 'Shift';if(e.key==='Meta')return 'Meta';
+ let k=e.key;
+ if(k===' ')k='Space';else if(k==='.')k='.';else if(k===',')k=',';else if(k.length===1)k=k.toUpperCase();else k=k[0].toUpperCase()+k.slice(1);
+ return k;
+}
+function capturePreview(e){
+ const parts=[];if(e.ctrlKey)parts.push('Ctrl');if(e.altKey)parts.push('Alt');if(e.shiftKey)parts.push('Shift');if(e.metaKey)parts.push('Meta');
+ for(const p of capture.parts)if(!['Ctrl','Alt','Shift','Meta'].includes(p)&&!parts.includes(p))parts.push(p);
+ const current=eventToken(e);if(!['Ctrl','Alt','Shift','Meta'].includes(current)&&!parts.includes(current))parts.push(current);
+ return normalize(parts.join('+'));
+}
+function commit(){
+ if(!capture)return;
+ const id=capture.id;const next=normalize(capture.preview);
+ if(!next){cancel();return;}
+ values[id]=next;
+ try{persist();}catch(err){console.error('Could not save Loggy shortcut',err);}
+ capture=null;draw();
+ try{showFeatureToast?.(`Shortcut set: ${next}`)}catch{}
+ window.dispatchEvent(new CustomEvent('loggy-site-shortcut-saved',{detail:{id,label:next}}));
+}
+function visiblePrimaryAction(){
+ const visible=[...document.querySelectorAll('.modal-overlay:not(.hidden),.loggy-recorder-modal-v710:not(.hidden)')].filter(el=>el.getClientRects().length>0);
+ const modal=visible.at(-1);if(!modal)return null;
+ return modal.querySelector('[data-enter-submit="true"]:not(:disabled),.ai-generate-btn:not(:disabled),button[type="submit"]:not(:disabled)');
+}
+function run(id,event){
+ if(id==='settings'){try{openGlobalThemeSettings()}catch{};return true;}
+ if(id==='search'){try{focusInlineGlobalSearchV2()}catch{try{openGlobalCommandPalette?.()}catch{}}return true;}
+ if(id==='developer'){try{openDeveloperMode()}catch{};return true;}
+ if(id==='primary'){const a=visiblePrimaryAction();if(a){a.click();return true;}return false;}
+ // Keep the existing sound actions as the action implementation only. These
+ // synthetic events are ignored by this V1700 trigger listener.
+ const fallback=defs[id]?.fallback||'';
+ const pieces=fallback.split('+');const key=pieces.at(-1)||'';
+ const ev=new KeyboardEvent('keydown',{key:key.length===1?key.toLowerCase():key,code:key.length===1?'Key'+key.toUpperCase():key,bubbles:true,cancelable:true,ctrlKey:pieces.includes('Ctrl'),altKey:pieces.includes('Alt'),shiftKey:pieces.includes('Shift'),metaKey:pieces.includes('Meta')});
+ ev.__loggyShortcutSyntheticV1700=true;(event.target||document).dispatchEvent(ev);return true;
+}
+
+// Exact Dashboard-style click ownership, using delegation so repeated edits work
+// without rebinding or remembering old button elements.
+document.addEventListener('click',e=>{
+ const b=e.target?.closest?.('#site-wide-shortcuts-owner-v1700 [data-site-shortcut-v1700]');
+ if(!b)return;
+ e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+ begin(b.dataset.siteShortcutV1700,b);
+},true);
+document.addEventListener('pointerdown',e=>{
+ if(capture&&!e.target?.closest?.('#site-wide-shortcuts-owner-v1700 [data-site-shortcut-v1700]'))cancel();
+},true);
+
+// Capture supports ordinary shortcuts and held multi-key chords. It commits on
+// release of the first non-modifier, so Ctrl+S and Ctrl+Shift+D+M both work.
+window.addEventListener('keydown',e=>{
+ if(!capture)return;
+ e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+ if(e.key==='Escape'){cancel();return;}
+ if(e.repeat||e.isComposing)return;
+ const token=eventToken(e);
+ if(!['Ctrl','Alt','Shift','Meta'].includes(token))capture.parts.add(token);
+ capture.preview=capturePreview(e)||'Press keys…';draw();
+},true);
+window.addEventListener('keyup',e=>{
+ if(!capture)return;
+ e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+ const token=eventToken(e);
+ if(!['Ctrl','Alt','Shift','Meta'].includes(token)&&capture.parts.size)commit();
+},true);
+
+const held=new Set();
+window.addEventListener('keydown',e=>{
+ if(capture||e.repeat||e.isComposing||e.__loggyShortcutSyntheticV1700)return;
+ if(e.target?.closest?.('input,textarea,select,[contenteditable],[role="textbox"]'))return;
+ const token=eventToken(e);held.add(token);
+ const mods=[];if(e.ctrlKey)mods.push('Ctrl');if(e.altKey)mods.push('Alt');if(e.shiftKey)mods.push('Shift');if(e.metaKey)mods.push('Meta');
+ const non=[...held].filter(x=>!['Ctrl','Alt','Shift','Meta'].includes(x));
+ const combo=normalize([...mods,...non].join('+'));if(!combo)return;
+ const id=ids.find(k=>values[k]===combo);if(!id)return;
+ e.preventDefault();e.stopImmediatePropagation();run(id,e);
+},true);
+window.addEventListener('keyup',e=>{held.delete(eventToken(e));},true);
+window.addEventListener('blur',()=>held.clear());
+
+function boot(){ensureSection();draw();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+const api={ensure:ensureSection,ensureSection,render:draw,values:()=>({...values}),label:id=>values[id]||'',begin,cancel};
+window.__loggyShortcutRuntimeV1700=api;
+window.__loggyShortcutRuntimeV1600=api;window.__loggyShortcutRuntimeV1500=api;window.__loggyShortcutRuntimeV1400=api;window.__loggyShortcutRuntimeV1300=api;window.__loggyShortcutRuntimeV1200=api;window.__loggyShortcutRuntimeV1100=api;window.__loggyShortcutRuntimeV1000=api;
+return api;
+})();
+
+
 let currentDay = null;
 const ENGLISH_STARTER_FIELDS_V451 = {
     Words: [
@@ -19,6 +201,12 @@ const ENGLISH_STARTER_FIELDS_V451 = {
     ],
     Maps: [
         { id: 'starter-map-v485', name: 'Map', kind: 'pinnedImage', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: [], defaultPinColor: '#e53935' }
+    ],
+    Books: [
+        { id: 'starter-book-cover-v722', name: 'Cover', kind: 'image', pronunciation: false, ttsLang: 'en', quiz: false, editable: false, options: [] },
+        { id: 'starter-book-author-v722', name: 'Author', kind: 'text', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: [] },
+        { id: 'starter-book-year-v722', name: 'Published', kind: 'text', pronunciation: false, ttsLang: 'en', quiz: true, editable: false, options: [] },
+        { id: 'starter-book-link-v722', name: 'Book Link', kind: 'text', pronunciation: false, ttsLang: 'en', quiz: false, editable: false, options: [] }
     ]
 };
 
@@ -36,6 +224,136 @@ const ENGLISH_STARTER_MAP_ITEM_V656 = {
         }
     }
 };
+
+// V722 — Books starter category for testing image-field and custom-component flows.
+// V762: starter cover images are bundled locally so they render without a third-party image dependency.
+const ENGLISH_STARTER_BOOK_ITEMS_V722 = [
+    {
+        id: 'Pride and Prejudice',
+        type: 'Books',
+        tags: ['classic', 'fiction'],
+        custom_fields: {
+            'Cover': '/loggy-builtins/books/pride-and-prejudice.png',
+            'Author': 'Jane Austen',
+            'Published': '1813',
+            'Book Link': 'https://openlibrary.org/isbn/9780141439518'
+        }
+    },
+    {
+        id: 'Frankenstein',
+        type: 'Books',
+        tags: ['classic', 'fiction'],
+        custom_fields: {
+            'Cover': '/loggy-builtins/books/frankenstein.png',
+            'Author': 'Mary Shelley',
+            'Published': '1818',
+            'Book Link': 'https://openlibrary.org/isbn/9780141439471'
+        }
+    },
+    {
+        id: 'Jane Eyre',
+        type: 'Books',
+        tags: ['classic', 'fiction'],
+        custom_fields: {
+            'Cover': '/loggy-builtins/books/jane-eyre.png',
+            'Author': 'Charlotte Brontë',
+            'Published': '1847',
+            'Book Link': 'https://openlibrary.org/isbn/9780141441146'
+        }
+    }
+
+    ,{
+        id: 'Dracula',
+        type: 'Books',
+        tags: ['classic', 'fiction'],
+        custom_fields: {
+            'Cover': '/loggy-builtins/books/dracula.png',
+            'Author': 'Bram Stoker',
+            'Published': '1897',
+            'Book Link': 'https://openlibrary.org/search?q=dracula'
+        }
+    }
+    ,{
+        id: 'The Great Gatsby',
+        type: 'Books',
+        tags: ['classic', 'fiction'],
+        custom_fields: {
+            'Cover': '/loggy-builtins/books/the-great-gatsby.png',
+            'Author': 'F. Scott Fitzgerald',
+            'Published': '1925',
+            'Book Link': 'https://openlibrary.org/search?q=the+great+gatsby'
+        }
+    }
+    ,{
+        id: 'Little Women',
+        type: 'Books',
+        tags: ['classic', 'fiction'],
+        custom_fields: {
+            'Cover': '/loggy-builtins/books/little-women.png',
+            'Author': 'Louisa May Alcott',
+            'Published': '1868',
+            'Book Link': 'https://openlibrary.org/search?q=little+women'
+        }
+    }
+    ,{
+        id: 'Moby-Dick',
+        type: 'Books',
+        tags: ['classic', 'fiction'],
+        custom_fields: {
+            'Cover': '/loggy-builtins/books/moby-dick.png',
+            'Author': 'Herman Melville',
+            'Published': '1851',
+            'Book Link': 'https://openlibrary.org/search?q=moby+dick'
+        }
+    }
+    ,{
+        id: 'The Picture of Dorian Gray',
+        type: 'Books',
+        tags: ['classic', 'fiction'],
+        custom_fields: {
+            'Cover': '/loggy-builtins/books/the-picture-of-dorian-gray.png',
+            'Author': 'Oscar Wilde',
+            'Published': '1890',
+            'Book Link': 'https://openlibrary.org/search?q=the+picture+of+dorian+gray'
+        }
+    }
+    ,{
+        id: 'Wuthering Heights',
+        type: 'Books',
+        tags: ['classic', 'fiction'],
+        custom_fields: {
+            'Cover': '/loggy-builtins/books/wuthering-heights.png',
+            'Author': 'Emily Brontë',
+            'Published': '1847',
+            'Book Link': 'https://openlibrary.org/search?q=wuthering+heights'
+        }
+    }
+];
+
+// V762 — built-in book covers are local so image cards do not disappear when a
+// third-party cover host fails. Existing starter saves using the old URLs are
+// migrated without touching any user-customized cover.
+function repairEnglishStarterBookCoversV762() {
+    const localById = {
+        'Pride and Prejudice': '/loggy-builtins/books/pride-and-prejudice.png',
+        'Frankenstein': '/loggy-builtins/books/frankenstein.png',
+        'Jane Eyre': '/loggy-builtins/books/jane-eyre.png'
+    };
+    let changed = false;
+    for (const [itemId, localSrc] of Object.entries(localById)) {
+        const meta = db?.phrase_meta?.[itemId];
+        if (!meta || String(meta.type || '') !== 'Books') continue;
+        meta.custom_fields = (meta.custom_fields && typeof meta.custom_fields === 'object') ? meta.custom_fields : {};
+        const raw = meta.custom_fields.Cover;
+        const current = raw && typeof raw === 'object'
+            ? String(raw.src || raw.url || raw.image || raw.dataUrl || '').trim()
+            : String(raw || '').trim();
+        if (!/^https:\/\/covers\.openlibrary\.org\/b\/isbn\//i.test(current)) continue;
+        meta.custom_fields.Cover = localSrc;
+        changed = true;
+    }
+    return changed;
+}
 
 const ENGLISH_STARTER_ITEMS_V451 = [
     { id: 'apple', type: 'Words', tags: ['noun'], custom_fields: { 'Meaning': 'a round fruit', 'Pronunciation': 'apple', 'Phonetic Spelling': 'AP-uhl', 'Part of Speech': 'Noun', 'Example Sentence': 'I ate an apple.' } },
@@ -73,7 +391,7 @@ const ENGLISH_STARTER_LAZY_ITEMS_V597 = [
 
 function buildEnglishStarterDbV451() {
     const phraseMeta = {};
-    [...ENGLISH_STARTER_ITEMS_V451, ENGLISH_STARTER_MAP_ITEM_V656, ...ENGLISH_STARTER_LAZY_ITEMS_V597].forEach(item => {
+    [...ENGLISH_STARTER_ITEMS_V451, ENGLISH_STARTER_MAP_ITEM_V656, ...ENGLISH_STARTER_BOOK_ITEMS_V722, ...ENGLISH_STARTER_LAZY_ITEMS_V597].forEach(item => {
         phraseMeta[item.id] = {
             type: item.type,
             tags: [...item.tags],
@@ -94,16 +412,17 @@ function buildEnglishStarterDbV451() {
             }
         },
         tools: [],
-        phrases: [...ENGLISH_STARTER_ITEMS_V451, ENGLISH_STARTER_MAP_ITEM_V656, ...ENGLISH_STARTER_LAZY_ITEMS_V597].map(item => item.id),
+        phrases: [...ENGLISH_STARTER_ITEMS_V451, ENGLISH_STARTER_MAP_ITEM_V656, ...ENGLISH_STARTER_BOOK_ITEMS_V722, ...ENGLISH_STARTER_LAZY_ITEMS_V597].map(item => item.id),
         phrase_meta: phraseMeta,
         srs: {},
         startDate: null,
         settings: {
-            categories: ['Words', 'Patterns', 'Maps'],
+            categories: ['Words', 'Patterns', 'Maps', 'Books'],
             categorySettings: {
                 Words: { fields: ENGLISH_STARTER_FIELDS_V451.Words.map(field => ({ ...field, options: [...field.options] })) },
                 Patterns: { fields: ENGLISH_STARTER_FIELDS_V451.Patterns.map(field => ({ ...field, options: [...field.options] })) },
-                Maps: { displayFieldV162: 'Map', displayScopeV162: 'everywhere', fields: ENGLISH_STARTER_FIELDS_V451.Maps.map(field => ({ ...field, options: [...field.options] })) }
+                Maps: { displayFieldV162: 'Map', displayScopeV162: 'everywhere', fields: ENGLISH_STARTER_FIELDS_V451.Maps.map(field => ({ ...field, options: [...field.options] })) },
+                Books: { displayFieldV162: 'Cover', displayScopeV162: 'everywhere', fields: ENGLISH_STARTER_FIELDS_V451.Books.map(field => ({ ...field, options: [...field.options] })) }
             },
             knowledgePlaceholdersEnabledV56: true,
             knowledgePlaceholdersV56: ['noun', 'verb', 'adjective'],
@@ -4507,16 +4826,132 @@ function renderFlyingCompanion(comp, airStage) {
 
 
 
+// V784 — navbar persistence bridge.
+// Custom tabs / deleted built-in tabs are navigation structure, so keep a tiny
+// synchronous local mirror in addition to the normal server save. This prevents
+// a fast reload from resurrecting Toolbox or losing a just-created custom tab
+// when the POST has not finished yet. The timestamp lets a newer server copy win
+// when appropriate instead of blindly preferring localStorage forever.
+function loggyNavMirrorKeyV784() {
+    return `loggy-nav-state-v784:${String(HOBBY || '')}:${location.pathname}`;
+}
+
+function navStatePayloadV784(sourceDb = db) {
+    const settings = sourceDb?.settings || {};
+    return {
+        customTabs: Array.isArray(settings.customTabs)
+            ? JSON.parse(JSON.stringify(settings.customTabs))
+            : [],
+        hiddenBuiltInTabsV52: Array.isArray(settings.hiddenBuiltInTabsV52)
+            ? [...settings.hiddenBuiltInTabsV52]
+            : [],
+        logNavOrderV52: Array.isArray(settings.logNavOrderV52)
+            ? [...settings.logNavOrderV52]
+            : [],
+        sideNavOrderV752: Array.isArray(settings.sideNavOrderV752)
+            ? [...settings.sideNavOrderV752]
+            : []
+    };
+}
+
+function navStateFingerprintV784(payload) {
+    try { return JSON.stringify(payload || navStatePayloadV784()); }
+    catch (_) { return ''; }
+}
+
+function readNavMirrorV784() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(loggyNavMirrorKeyV784()) || 'null');
+        return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch (_) { return null; }
+}
+
+function writeNavMirrorV784({ bumpIfChanged = false } = {}) {
+    try {
+        if (!db.settings) db.settings = {};
+        const payload = navStatePayloadV784();
+        const prior = readNavMirrorV784();
+        const changed = navStateFingerprintV784(prior?.payload) !== navStateFingerprintV784(payload);
+        let updatedAt = Number(db.settings.navStateUpdatedAtV784 || prior?.updatedAt || 0);
+        if (bumpIfChanged && changed) {
+            updatedAt = Date.now();
+            db.settings.navStateUpdatedAtV784 = updatedAt;
+        }
+        const mirror = { updatedAt, payload };
+        localStorage.setItem(loggyNavMirrorKeyV784(), JSON.stringify(mirror));
+        return mirror;
+    } catch (_) { return null; }
+}
+
+function reconcileNavMirrorV784() {
+    try {
+        if (!db.settings) db.settings = {};
+        const mirror = readNavMirrorV784();
+        if (!mirror?.payload) {
+            writeNavMirrorV784();
+            return;
+        }
+        const localTime = Number(mirror.updatedAt || 0);
+        const serverTime = Number(db.settings.navStateUpdatedAtV784 || 0);
+        if (localTime > serverTime) {
+            const payload = mirror.payload;
+            db.settings.customTabs = Array.isArray(payload.customTabs)
+                ? JSON.parse(JSON.stringify(payload.customTabs)) : [];
+            db.settings.hiddenBuiltInTabsV52 = Array.isArray(payload.hiddenBuiltInTabsV52)
+                ? [...payload.hiddenBuiltInTabsV52] : [];
+            if (Array.isArray(payload.logNavOrderV52)) db.settings.logNavOrderV52 = [...payload.logNavOrderV52];
+            if (Array.isArray(payload.sideNavOrderV752)) db.settings.sideNavOrderV752 = [...payload.sideNavOrderV752];
+            db.settings.navStateUpdatedAtV784 = localTime;
+        } else {
+            writeNavMirrorV784();
+        }
+    } catch (_) {}
+}
+
 // Save to backend
+// V740 — serialize/coalesce saves so an older autosave can never finish after a
+// newer Knowledge Base edit and overwrite the newer definition on the server.
+let saveDbInFlightV740 = null;
+let saveDbQueuedV740 = false;
+let saveDbLatestSnapshotV740 = '';
+let saveDbLastSucceededV740 = true;
+
 async function saveDb() {
     try {
-        await fetch(`/api/save/${HOBBY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(db)
+        // V784: persist nav mutations synchronously before any network await.
+        writeNavMirrorV784({ bumpIfChanged: true });
+        saveDbLatestSnapshotV740 = JSON.stringify(db);
+        saveDbQueuedV740 = true;
+
+        if (saveDbInFlightV740) return saveDbInFlightV740;
+
+        saveDbInFlightV740 = (async () => {
+            while (saveDbQueuedV740) {
+                saveDbQueuedV740 = false;
+                const body = saveDbLatestSnapshotV740 || JSON.stringify(db);
+                try {
+                    const response = await fetch(`/api/save/${HOBBY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body
+                    });
+                    if (!response.ok) throw new Error(`Save failed (${response.status})`);
+                    saveDbLastSucceededV740 = true;
+                } catch (err) {
+                    console.error("Failed to save data:", err);
+                    saveDbLastSucceededV740 = false;
+                    // Keep the newest snapshot queued so the next save call retries it.
+                    saveDbQueuedV740 = true;
+                    break;
+                }
+            }
+        })().finally(() => {
+            saveDbInFlightV740 = null;
         });
+
+        return saveDbInFlightV740;
     } catch (err) {
-        console.error("Failed to save data:", err);
+        console.error("Failed to prepare data save:", err);
     }
 }
 
@@ -4728,9 +5163,29 @@ async function loadData() {
         // would silently revert back to defaults on reload.
         if (serverDb && typeof serverDb === 'object') {
             db = serverDb;
+            // V844: a genuinely new Log owns an intentionally empty navbar.
+            // Never let an older localStorage mirror repopulate starter/demo
+            // custom tabs (for example Learning Roadmap / My Tab entries).
+            if (db?.settings?.freshLogNavV844 === true) {
+                try { localStorage.removeItem(loggyNavMirrorKeyV784()); } catch (_) {}
+                if (!db.settings) db.settings = {};
+                db.settings.customTabs = [];
+                db.settings.freshLogNavV844 = false;
+                db.settings.navStateUpdatedAtV784 = Date.now();
+                writeNavMirrorV784();
+                // Persist the consumed marker immediately so later reloads use
+                // normal nav recovery. This affects only this brand-new Log.
+                try { saveDb(); } catch (_) {}
+            } else {
+                // V784: recover any nav mutation that was made immediately before a
+                // reload and therefore may not have reached the server yet.
+                reconcileNavMirrorV784();
+            }
         }
     } catch (err) {
         console.error("Failed to load data, using defaults.", err);
+        // V784: the local navigation mirror is still usable while offline.
+        reconcileNavMirrorV784();
     }
 
     if (!db.phrase_meta) db.phrase_meta = {};
@@ -4761,12 +5216,15 @@ async function loadData() {
     if (db.settings.hideDailyLogSearch === undefined) db.settings.hideDailyLogSearch = false;
     if (db.settings.hideDailyGlobalSearch === undefined) db.settings.hideDailyGlobalSearch = false;
     if (!Array.isArray(db.settings.customTabs)) db.settings.customTabs = [];
+    // Seed Multiples demonstration sections before custom-tab views first render.
+    try { window.__loggyUpgradeMultiplesExamplesV856?.(); } catch (error) { console.warn('Multiples example migration failed',error); }
     const seededEnglishStarterV451 = seedEnglishStarterTemplateV451();
     const extendedEnglishStarterV453 = extendEnglishStarterExamplesV453();
     const seededEnglishStarterDay1V462 = ensureEnglishStarterDay1ItemsV462();
     const seededEnglishStarterLazyV597 = ensureEnglishStarterLazyItemsV597();
     const seededEnglishStarterMapV656 = ensureEnglishStarterMapItemV656();
-    if (seededEnglishStarterV451 || extendedEnglishStarterV453 || seededEnglishStarterDay1V462 || seededEnglishStarterLazyV597 || seededEnglishStarterMapV656) {
+    const repairedEnglishStarterBooksV762 = repairEnglishStarterBookCoversV762();
+    if (seededEnglishStarterV451 || extendedEnglishStarterV453 || seededEnglishStarterDay1V462 || seededEnglishStarterLazyV597 || seededEnglishStarterMapV656 || repairedEnglishStarterBooksV762) {
         try { saveDb(); } catch (_) {}
     }
     if (!db.settings.sectionTitleOverridesV429 || typeof db.settings.sectionTitleOverridesV429 !== 'object' || Array.isArray(db.settings.sectionTitleOverridesV429)) {
@@ -4790,6 +5248,12 @@ async function loadData() {
             db.phrase_meta[p] = { type: db.settings.categories[0], custom_fields: {}, parts: [] };
         }
     });
+
+    // V737: only reconcile a saved Learn session after the real server DB has
+    // loaded. Doing this against DEFAULT_DB during startup could incorrectly
+    // discard valid cards that simply are not part of the starter template.
+    try { reconcileLearnSessionV737({ saveServer:false }); } catch (_) {}
+    try { syncLearnSessionControlsV737(); } catch (_) {}
 
     // Apply the saved theme as soon as server settings are available, before the
     // first visible paint. Theme JS continues asynchronously and never blocks the
@@ -5125,9 +5589,12 @@ function restoreLastTopLevelView() {
 }
 
 function switchView(viewToShow) {
-    // Includes built-in views AND user-created custom tab views.
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    if (viewToShow) viewToShow.classList.add('active');
+    // V850: core navigation must stay O(1) with respect to the number of custom
+    // and nested template views. Only deactivate the view that is currently
+    // visible instead of walking every .view in the application on each click.
+    const previousActiveViewV850 = document.querySelector('.view.active');
+    if (previousActiveViewV850 && previousActiveViewV850 !== viewToShow) previousActiveViewV850.classList.remove('active');
+    if (viewToShow && !viewToShow.classList.contains('active')) viewToShow.classList.add('active');
     try { syncCoreHeadingBackdropV504(); } catch {}
     try { window.__loggySyncHeadingBackdropV501?.(); } catch {}
     // Run once more after late tab renderers finish their synchronous DOM work.
@@ -5144,9 +5611,8 @@ function switchView(viewToShow) {
     rememberCurrentTopLevelView(viewToShow);
 
     // Every side-nav destination uses the same subtle active treatment.
-    document
-        .querySelectorAll('.side-nav .icon-btn')
-        .forEach(button => button.classList.remove('active-nav'));
+    const previousActiveNavV850 = document.querySelector('.side-nav .active-nav');
+    if (previousActiveNavV850) previousActiveNavV850.classList.remove('active-nav');
 
     let activeNavButton = null;
 
@@ -5516,6 +5982,19 @@ function openDailySearchResult(
     });
 }
 
+function dailyStackedNotesPreviewV751(dayData, maxWords = 18) {
+    const full = stripHtmlForDailySearch(dayData?.notes || '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    if (!full) return { preview: '', full: '' };
+    const words = full.split(' ').filter(Boolean);
+    const preview = words.slice(0, Math.max(1, Number(maxWords) || 18)).join(' ');
+    return {
+        full,
+        preview: words.length > maxWords ? `${preview}…` : preview
+    };
+}
+
 function initGrid() {
     ensureDailyLogSearchUI();
 
@@ -5539,9 +6018,19 @@ function initGrid() {
             ? Math.max(500, realMaxDay)
             : realMaxDay;
 
+    // Normalize restored legacy Stack logs BEFORE building day tiles. Previously
+    // the old 52px stacked rows appeared first and the delayed extras bundle
+    // converted them to the current 38px Stack layout a moment later.
+    if (String(db.settings?.dailyViewType || 'default') === 'stacked') {
+        db.settings.dailyViewType = 'default';
+        db.settings.dailyDayLayoutV228 = 'stack';
+        try { saveDb(); } catch (_) {}
+    }
     const viewType =
         db.settings.dailyViewType ||
         'default';
+    const isStackLayoutV775 = viewType === 'default' &&
+        String(db.settings.dailyDayLayoutV228 || 'grid') === 'stack';
 
     const sourceMode =
         db.settings.dailyPolaroidSource ||
@@ -5561,7 +6050,9 @@ function initGrid() {
     daysGrid.className =
         viewType === 'polaroid'
             ? 'polaroid-grid-container'
-            : 'grid-container';
+            : isStackLayoutV775
+                ? 'grid-container daily-day-layout-stack-v228 daily-stack-authority-v764'
+                : 'grid-container';
 
     for (let i = 1; i <= maxDay; i++) {
         const dayData = db.days[i];
@@ -5596,7 +6087,51 @@ function initGrid() {
             }
         };
 
-        if (viewType === 'polaroid') {
+        if (isStackLayoutV775) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'daily-stack-row-wrap-v228 daily-stack-row-wrap-v764';
+            wrapper.dataset.day = String(i);
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'day-box daily-stack-row-v228 daily-stack-row-v764';
+            if (hasData) btn.classList.add('has-data');
+
+            const dayLabel = document.createElement('strong');
+            dayLabel.className = 'daily-stack-day-v228 daily-stack-day-v764';
+            dayLabel.textContent = `Day ${i}`;
+            btn.appendChild(dayLabel);
+
+            const note = dailyStackedNotesPreviewV751(dayData);
+            if (note.preview) {
+                const preview = document.createElement('span');
+                preview.className = 'daily-stack-preview-v228 daily-stack-preview-v764';
+                preview.textContent = note.preview;
+                preview.title = note.full;
+                btn.appendChild(preview);
+            }
+
+            btn.addEventListener('click', openDay);
+            btn.addEventListener('contextmenu', async event => {
+                event.preventDefault();
+                if (!canDelete) {
+                    showFeatureToast('You can only delete future days.');
+                    return;
+                }
+                const confirmed = await showAppConfirm({
+                    title: `Delete Day ${i}?`,
+                    message: `Day ${i} and everything saved inside it will be permanently removed.`,
+                    confirmLabel: 'Delete Day'
+                });
+                if (!confirmed) return;
+                delete db.days[i];
+                saveDb();
+                initGrid();
+            });
+
+            wrapper.appendChild(btn);
+            daysGrid.appendChild(wrapper);
+        } else if (viewType === 'polaroid') {
             const card =
                 document.createElement('div');
 
@@ -5776,6 +6311,14 @@ function initGrid() {
         }
     }
 
+    // Order only Stack rows; keep the add-day control anchored to the end.
+    // Do this synchronously during initial rendering, including restored logs,
+    // rather than waiting for a deferred layout or MutationObserver callback.
+    if (isStackLayoutV775 && String(db.settings.dailyStackOrderV775 || 'ascending') === 'descending') {
+        const rows = Array.from(daysGrid.children).filter(node => node.hasAttribute('data-day'));
+        rows.reverse().forEach(node => daysGrid.appendChild(node));
+    }
+
     const count =
         document.getElementById(
             'daily-log-search-count'
@@ -5835,9 +6378,82 @@ function initGrid() {
     );
 
     daysGrid.appendChild(plusBtn);
+    if (String(db.settings?.dailyDayLayoutV228 || "") === "graph") window.__loggyBuildDailyGraphV854?.();
+}
+
+function closeLoggyNavigationOverlaysV832() {
+    // Navigation is a context change: no modal from the previous tab should remain.
+    const ids = ['roadmap-node-modal-v749','roadmap-skill-editor-v749',
+      'roadmap-settings-modal-v749','roadmap-manual-picker-v785',
+      'phrase-modal','add-item-modal','custom-item-context-menu'];
+    ids.forEach(id => { const node=document.getElementById(id); if(!node)return;
+      if(id==='roadmap-manual-picker-v785'||id==='custom-item-context-menu')node.remove();
+      else node.classList.add('hidden');
+      if(id==='phrase-modal'){node.classList.remove('roadmap-kb-view-front-v785');node.style.removeProperty('z-index');}
+    });
+    document.querySelectorAll('.custom-kb-view-overlay-v785,.roadmap-context-menu-v802').forEach(node=>node.remove());
+}
+window.__closeLoggyNavigationOverlaysV832=closeLoggyNavigationOverlaysV832;
+
+// V870 — Apply saved numbered-day geometry in the core bundle, before paint.
+// The full draggable editor is still owned by deferred extras-6; this small
+// renderer only places existing sections in their saved columns and order.
+function renderSavedDayLayoutAtOpenV870() {
+    if (!currentDay || !db?.days?.[currentDay]) return;
+    // When the deferred editor bundle is already present, its renderer expects
+    // the Log view to be active. During initial/open-day layout we intentionally
+    // arrange the hidden view before reveal, so use the core renderer in that case.
+    const logViewIsActiveV917 = document.getElementById('log-view')?.classList.contains('active');
+    if (logViewIsActiveV917 && typeof window.__loggyDayComponentCanvasV713?.render === 'function') {
+        window.__loggyDayComponentCanvasV713.render();
+        return;
+    }
+    const host=document.querySelector('#log-view .log-content');
+    if (!host) return;
+    const defaults=[
+        ['itemsLearned',12],['tools',6],['logNotes',6],
+        ['videoLogs',6],['tabItems',12],['mediaResources',12]
+    ];
+    const settings=db.settings || {};
+    const day=db.days[currentDay];
+    const raw=Array.isArray(day.componentLayoutV713) ? day.componentLayoutV713 :
+              Array.isArray(settings.dayComponentLayoutTemplateV713) ? settings.dayComponentLayoutTemplateV713 : null;
+    const layouts=Array.isArray(raw) ? raw.filter(row=>row&&row.type==='builtin') : [];
+    const seen=new Set();
+    const ordered=[];
+    const add=(key,entry)=>{
+        if(seen.has(key))return;
+        const def=defaults.find(row=>row[0]===key);
+        if(!def)return;
+        seen.add(key);
+        ordered.push({key,span:[4,6,12].includes(Number(entry?.span))?Number(entry.span):def[1],visible:entry?.visible!==false});
+    };
+    layouts.forEach(row=>add(row.key,row));
+    defaults.forEach(([key])=>add(key,null));
+    let canvas=document.getElementById('day-component-canvas-v713');
+    if(!canvas){
+        canvas=document.createElement('div');
+        canvas.id='day-component-canvas-v713';
+        canvas.setAttribute('aria-label','Day Log component layout');
+    }
+    host.classList.add('day-layout-host-v713');
+    if(canvas.parentElement!==host)host.appendChild(canvas);
+    for(const entry of ordered){
+        const section=dayLogSectionForKeyV433(entry.key);
+        if(!section)continue;
+        section.classList.add('day-layout-item-v713');
+        section.classList.toggle('day-layout-hidden-v713',!entry.visible);
+        section.classList.remove('loggy-section-hidden-v433');
+        section.hidden=!entry.visible;
+        section.setAttribute('aria-hidden',entry.visible?'false':'true');
+        section.dataset.dayComponentId=`builtin:${entry.key}`;
+        section.style.gridColumn=`span ${entry.span}`;
+        canvas.appendChild(section);
+    }
 }
 
 function openDayLog(dayNumber) {
+    closeLoggyNavigationOverlaysV832();
     currentDay = dayNumber;
     document.getElementById('current-day-badge').innerText = dayNumber;
     history.replaceState(null, '', `#day/${dayNumber}`);
@@ -5925,6 +6541,10 @@ function openDayLog(dayNumber) {
     renderDailyCustomTabLinks();
     applyHiddenLoggySectionsV432();
 
+    // V917: build the saved component grid while #log-view is still hidden.
+    // The main stylesheet already contains the structural 12-column CSS, so the
+    // first visible frame has the final order and widths (no full-width flash).
+    renderSavedDayLayoutAtOpenV870();
     switchView(logView);
     requestAnimationFrame(syncNotesHeight);
 }
@@ -6560,10 +7180,12 @@ document.getElementById('new-resource-url').addEventListener('keydown', async (e
 
 function populatePhrasesDatalist() {
     const datalist = document.getElementById('global-phrases-list');
-    datalist.innerHTML = '';
+    // V837: one DOM mutation instead of reparsing the complete list for every item.
+    const fragment = document.createDocumentFragment();
     db.phrases.slice().sort().forEach(phrase => {
-        datalist.innerHTML += `<option value="${phrase}">`;
+        const option=document.createElement('option'); option.value=phrase; fragment.appendChild(option);
     });
+    datalist.replaceChildren(fragment);
 }
 
 document.getElementById('add-phrase-btn').addEventListener('click', () => {
@@ -6670,6 +7292,39 @@ phraseInputV450.setAttribute('role', 'combobox');
 phraseInputV450.setAttribute('aria-autocomplete', 'list');
 phraseInputV450.setAttribute('aria-controls', 'phrase-suggestions-v450');
 
+// V805: capture keyboard selection before older document/global shortcuts.
+// The visible suggestion list and keyboard selection share the same index.
+window.addEventListener('keydown', event => {
+    if (event.target !== phraseInputV450 || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (!['ArrowDown', 'ArrowUp', 'Enter', 'Escape'].includes(event.key)) return;
+    if (phraseInputGroupV450.classList.contains('hidden')) return;
+    if (event.key === 'Escape') {
+        event.preventDefault();event.stopImmediatePropagation();
+        phraseSuggestionIndexV450=-1;
+        ensurePhraseSuggestionsV450().classList.add('hidden');
+        phraseInputV450.setAttribute('aria-expanded','false');
+        return;
+    }
+    const matches=phraseMatchesV450(phraseInputV450.value);
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        if (!matches.length) return;
+        event.preventDefault();event.stopImmediatePropagation();
+        phraseSuggestionIndexV450=event.key==='ArrowDown'
+          ? (phraseSuggestionIndexV450+1)%matches.length
+          : (phraseSuggestionIndexV450<0?matches.length-1:(phraseSuggestionIndexV450-1+matches.length)%matches.length);
+        renderPhraseSuggestionsV450();
+        return;
+    }
+    if(event.key==='Enter'){
+        const typed=phraseInputV450.value.trim();
+        const exact=matches.find(x=>String(x).toLowerCase()===typed.toLowerCase());
+        const chosen=phraseSuggestionIndexV450>=0?matches[phraseSuggestionIndexV450]:(exact|| (matches.length===1?matches[0]:typed));
+        if(!chosen)return;
+        event.preventDefault();event.stopImmediatePropagation();
+        commitPhraseFromInputV450(chosen);
+    }
+},true);
+
 phraseInputV450.addEventListener('keydown', (e) => {
     const matches = phraseMatchesV450(e.target.value);
     const navigationKey = e.key === 'ArrowDown' || e.key === 'ArrowUp';
@@ -6750,7 +7405,8 @@ function computeProgress(itemId, isCumulativeView) {
 // deferred KB enhancement chunks have loaded so reloads cannot flash "\\noun".
 // ============================================================
 function knowledgeVisibleTitleHtmlV212(value) {
-    const source = String(value ?? '');
+    const rawValueV739 = String(value ?? '');
+    const source = String(db?.phrase_meta?.[rawValueV739]?.bulkOriginalTitleV739 || rawValueV739);
     const regex = /\\([a-z0-9_\-\u00C0-\u024F\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]+)/gi;
     let result = '';
     let last = 0;
@@ -6769,7 +7425,7 @@ function knowledgeVisibleTitleHtmlV212(value) {
     }
 
     result += escapeKnowledgeHtml(source.slice(last));
-    return result;
+    return result.replace(/\r?\n/g, '<br class="kb-title-line-break-v735">');
 }
 
 function renderPhrases(phrases) {
@@ -7817,7 +8473,7 @@ document.getElementById('back-btn').addEventListener('click', () => {
     switchView(gridView);
     runAfterNavigationPaintV645(() => initGrid());
 });
-document.getElementById('open-tools-btn').addEventListener('click', () => {
+document.getElementById('open-tools-btn')?.addEventListener('click', () => {
     switchView(toolboxView);
     runAfterNavigationPaintV645(() => renderToolbox());
 });
@@ -7838,12 +8494,628 @@ document.getElementById('close-quiz-learn-btn').addEventListener('click', () => 
 let quizMode = 'anki';
 let selectedQuizDays = new Set();
 let selectedQuizTypes = new Set(['all']);
+// V749 — optional tag filters are shared by Anki, Flashcards and Learn.
+// Empty means no tag restriction. Multiple selected tags can match ALL or ANY
+// according to Quiz Settings.
+let selectedQuizTagsV749 = new Set();
+function quizTagFiltersEnabledV749() {
+    return db?.settings?.quizSettingsV58?.tagFiltersEnabledV749 === true;
+}
+function quizTagMatchModeV749() {
+    return db?.settings?.quizSettingsV58?.tagFilterModeV749 === 'any' ? 'any' : 'all';
+}
+function quizItemTagsV749(id) {
+    const meta = db?.phrase_meta?.[String(id || '')] || {};
+    return [...new Set((Array.isArray(meta.tags) ? meta.tags : [])
+        .map(tag => String(tag || '').replace(/^#/, '').trim().toLowerCase())
+        .filter(Boolean))];
+}
+function quizItemMatchesTagsV749(id, tags = selectedQuizTagsV749, mode = quizTagMatchModeV749()) {
+    if (!quizTagFiltersEnabledV749() || !tags || tags.size === 0) return true;
+    const actual = new Set(quizItemTagsV749(id));
+    const wanted = [...tags].map(tag => String(tag || '').replace(/^#/, '').trim().toLowerCase()).filter(Boolean);
+    return mode === 'any' ? wanted.some(tag => actual.has(tag)) : wanted.every(tag => actual.has(tag));
+}
+function quizSessionItemMatchesSavedFiltersV749(id, session) {
+    const meta = db?.phrase_meta?.[String(id || '')] || {};
+    const types = Array.isArray(session?.selectedTypes) && session.selectedTypes.length ? session.selectedTypes : ['all'];
+    if (!types.includes('all') && !types.includes(String(meta.type || ''))) return false;
+    const tags = new Set(Array.isArray(session?.selectedTags) ? session.selectedTags : []);
+    if (!tags.size) return true;
+    const actual = new Set(quizItemTagsV749(id));
+    const wanted = [...tags].map(tag => String(tag || '').replace(/^#/, '').trim().toLowerCase()).filter(Boolean);
+    return String(session?.tagMode || 'all') === 'any'
+        ? wanted.some(tag => actual.has(tag))
+        : wanted.every(tag => actual.has(tag));
+}
+function setQuizTagFilterV749(tags = []) {
+    selectedQuizTagsV749 = new Set((Array.isArray(tags) ? tags : [tags])
+        .map(tag => String(tag || '').replace(/^#/, '').trim().toLowerCase())
+        .filter(Boolean));
+    try { updateAvailableQuizTypes(); } catch {}
+}
+window.setQuizTagFilterV749 = setQuizTagFilterV749;
+window.quizItemMatchesTagsV749 = quizItemMatchesTagsV749;
 let activeQuizDeck = [];
 let activeQuizIndex = 0;
 let quizCardFlipped = false;
 let learnQueue = []; // Queue for Quizlet Learn mode
 let quizletLearnModesV476 = new Set(['mc']);
 let quizletLearnQuestionCounterV476 = 0;
+
+// V738/V743 — Learn works in small, stable batches instead of exposing the
+// whole deck at once. V743 makes the batch size user-selectable in Quiz Settings
+// while keeping 4 as the default. The active batch keeps its original size until
+// it is finished; a changed setting applies to the next batch/session.
+const LEARN_GROUP_SIZE_V738 = 4;
+const LEARN_GROUP_SIZE_OPTIONS_V743 = Object.freeze([4, 5, 10, 12, 15, 20]);
+let learnGroupSizeActiveV743 = LEARN_GROUP_SIZE_V738;
+let learnGroupIdsV738 = [];
+
+function getLearnGroupSizeV743() {
+    const raw = Number(db?.settings?.quizSettingsV58?.learnGroupSizeV743);
+    return LEARN_GROUP_SIZE_OPTIONS_V743.includes(raw) ? raw : LEARN_GROUP_SIZE_V738;
+}
+window.getLearnGroupSizeV743 = getLearnGroupSizeV743;
+
+function normalizeLearnGroupV738({ forceNextGroup = false } = {}) {
+    if (!Array.isArray(learnQueue) || learnQueue.length === 0) {
+        learnGroupIdsV738 = [];
+        return [];
+    }
+
+    const queueIds = new Set(learnQueue.map(entry => String(entry?.id || '')).filter(Boolean));
+    let group = Array.isArray(learnGroupIdsV738)
+        ? learnGroupIdsV738.map(String).filter((id, index, all) => queueIds.has(id) && all.indexOf(id) === index)
+        : [];
+
+    if (forceNextGroup || group.length === 0) {
+        learnGroupSizeActiveV743 = getLearnGroupSizeV743();
+        group = learnQueue.slice(0, Math.min(learnGroupSizeActiveV743, learnQueue.length)).map(entry => String(entry.id));
+    }
+
+    // Keep every active-group card at the front of the queue. Future groups
+    // remain behind them and cannot leak in as individual cards are learned.
+    const groupSet = new Set(group);
+    const active = learnQueue.filter(entry => groupSet.has(String(entry?.id || '')));
+    const future = learnQueue.filter(entry => !groupSet.has(String(entry?.id || '')));
+    learnQueue = [...active, ...future];
+    learnGroupIdsV738 = active.map(entry => String(entry.id));
+    return learnGroupIdsV738;
+}
+
+// V737 — persistent/resumable Quizlet Learn sessions.
+// A Learn session is saved immediately in localStorage and mirrored into this
+// log's DB so leaving the view (or reloading the page) never throws away an
+// hour-long study session. Knowledge Base deletions / quiz-hidden items are
+// reconciled out of both the deck and queue before a session is resumed.
+const LEARN_SESSION_STORAGE_KEY_V737 = `loggy-learn-session-v737:${String(HOBBY || 'default')}`;
+let learnSessionSaveTimerV737 = null;
+
+function sanitizeLearnSessionV737(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const deck = Array.isArray(raw.deck) ? raw.deck.map(String).filter(Boolean) : [];
+    const seenQueue = new Set();
+    let queue = (Array.isArray(raw.queue) ? raw.queue : []).map(entry => ({
+        id: String(entry?.id || ''),
+        streak: Math.max(0, Math.min(1, Number(entry?.streak) || 0))
+    })).filter(entry => entry.id && !seenQueue.has(entry.id) && seenQueue.add(entry.id));
+    if (!deck.length || !queue.length) return null;
+
+    const queueIds = new Set(queue.map(entry => entry.id));
+    const savedGroupSizeV743 = LEARN_GROUP_SIZE_OPTIONS_V743.includes(Number(raw.groupSize))
+        ? Number(raw.groupSize)
+        : getLearnGroupSizeV743();
+    const seenGroup = new Set();
+    let groupIds = (Array.isArray(raw.groupIds) ? raw.groupIds : [])
+        .map(String)
+        .filter(id => queueIds.has(id) && !seenGroup.has(id) && seenGroup.add(id))
+        .slice(0, savedGroupSizeV743);
+
+    // Old sessions did not save group membership. Migrate them into the first
+    // currently configured batch without losing their existing 0/1 streaks.
+    if (!groupIds.length) {
+        groupIds = queue.slice(0, Math.min(savedGroupSizeV743, queue.length)).map(entry => entry.id);
+    }
+
+    // Group cards must remain at the front so future cards cannot be introduced
+    // until every card in this group has been learned.
+    const groupSet = new Set(groupIds);
+    const active = queue.filter(entry => groupSet.has(entry.id));
+    const future = queue.filter(entry => !groupSet.has(entry.id));
+    queue = [...active, ...future];
+    groupIds = active.map(entry => entry.id);
+
+    return {
+        version: 2,
+        deck,
+        queue,
+        groupIds,
+        groupSize: savedGroupSizeV743,
+        modes: Array.isArray(raw.modes) && raw.modes.length ? raw.modes.filter(mode => mode === 'mc' || mode === 'written') : ['mc'],
+        selectedDays: Array.isArray(raw.selectedDays) ? raw.selectedDays.map(Number).filter(Number.isFinite) : [],
+        selectedTypes: Array.isArray(raw.selectedTypes) && raw.selectedTypes.length ? raw.selectedTypes.map(String) : ['all'],
+        selectedTags: Array.isArray(raw.selectedTags) ? raw.selectedTags.map(tag => String(tag || '').replace(/^#/, '').trim().toLowerCase()).filter(Boolean) : [],
+        tagMode: String(raw.tagMode || 'all') === 'any' ? 'any' : 'all',
+        questionCounter: Math.max(0, Number(raw.questionCounter) || 0),
+        savedAt: String(raw.savedAt || new Date().toISOString())
+    };
+}
+
+function readLearnSessionV737() {
+    let local = null;
+    try { local = sanitizeLearnSessionV737(JSON.parse(localStorage.getItem(LEARN_SESSION_STORAGE_KEY_V737) || 'null')); } catch {}
+    const stored = sanitizeLearnSessionV737(db?.settings?.learnSessionV737 || null);
+    if (local && stored) {
+        const localTime = Date.parse(local.savedAt) || 0;
+        const storedTime = Date.parse(stored.savedAt) || 0;
+        return localTime >= storedTime ? local : stored;
+    }
+    return local || stored || null;
+}
+
+function writeLearnSessionV737(session, { saveServer = true } = {}) {
+    const clean = sanitizeLearnSessionV737(session);
+    db.settings ||= {};
+    if (!clean) {
+        delete db.settings.learnSessionV737;
+        try { localStorage.removeItem(LEARN_SESSION_STORAGE_KEY_V737); } catch {}
+    } else {
+        db.settings.learnSessionV737 = clean;
+        try { localStorage.setItem(LEARN_SESSION_STORAGE_KEY_V737, JSON.stringify(clean)); } catch {}
+    }
+    if (saveServer) {
+        clearTimeout(learnSessionSaveTimerV737);
+        learnSessionSaveTimerV737 = setTimeout(() => { try { saveDb(); } catch {} }, 90);
+    }
+    syncLearnSessionControlsV737();
+    return clean;
+}
+
+function clearLearnSessionV737(options = {}) {
+    return writeLearnSessionV737(null, options);
+}
+
+function learnItemStillEligibleV737(id, session = null) {
+    const key = String(id || '');
+    return !!key && Array.isArray(db?.phrases) && db.phrases.includes(key) && !db.phrase_meta?.[key]?.hideFromQuizzesV59 && (!session || quizSessionItemMatchesSavedFiltersV749(key, session));
+}
+
+function reconcileLearnSessionV737({ syncRuntime = false, saveServer = true } = {}) {
+    const session = readLearnSessionV737();
+    if (!session) {
+        syncLearnSessionControlsV737();
+        return null;
+    }
+
+    const validDeck = session.deck.filter(id => learnItemStillEligibleV737(id, session));
+    const validSet = new Set(validDeck);
+    const queue = session.queue.filter(entry => validSet.has(entry.id));
+    const queueSet = new Set(queue.map(entry => entry.id));
+    const groupIds = (session.groupIds || []).filter(id => queueSet.has(String(id)));
+    const reconciled = sanitizeLearnSessionV737({ ...session, deck: validDeck, queue, groupIds, savedAt: new Date().toISOString() });
+
+    if (!reconciled) {
+        clearLearnSessionV737({ saveServer });
+        if (syncRuntime && quizMode === 'learn') {
+            activeQuizDeck = [];
+            learnQueue = [];
+            learnGroupIdsV738 = [];
+            activeQuizIndex = 0;
+        }
+        return null;
+    }
+
+    const changed = JSON.stringify({ deck:session.deck, queue:session.queue, groupIds:session.groupIds || [] }) !== JSON.stringify({ deck:reconciled.deck, queue:reconciled.queue, groupIds:reconciled.groupIds || [] });
+    if (changed) writeLearnSessionV737(reconciled, { saveServer });
+    else syncLearnSessionControlsV737();
+
+    if (syncRuntime && quizMode === 'learn' && activeQuizDeck.length) {
+        activeQuizDeck = [...reconciled.deck];
+        learnQueue = reconciled.queue.map(entry => ({ ...entry }));
+        learnGroupIdsV738 = [...(reconciled.groupIds || [])];
+        learnGroupSizeActiveV743 = LEARN_GROUP_SIZE_OPTIONS_V743.includes(Number(reconciled.groupSize))
+            ? Number(reconciled.groupSize)
+            : getLearnGroupSizeV743();
+        normalizeLearnGroupV738();
+        activeQuizIndex = Math.max(0, activeQuizDeck.length - learnQueue.length);
+        quizletLearnQuestionCounterV476 = reconciled.questionCounter;
+    }
+    return reconciled;
+}
+
+function persistCurrentLearnSessionV737({ saveServer = true } = {}) {
+    if (quizMode !== 'learn' || !activeQuizDeck.length || !learnQueue.length) {
+        if (quizMode === 'learn' && activeQuizDeck.length && learnQueue.length === 0) clearLearnSessionV737({ saveServer });
+        return null;
+    }
+    return writeLearnSessionV737({
+        version: 2,
+        deck: [...activeQuizDeck],
+        queue: learnQueue.map(entry => ({ id:String(entry.id), streak:Math.max(0, Math.min(1, Number(entry.streak) || 0)) })),
+        groupIds: [...learnGroupIdsV738],
+        groupSize: learnGroupSizeActiveV743,
+        modes: [...quizletLearnModesV476],
+        selectedDays: [...selectedQuizDays],
+        selectedTypes: [...selectedQuizTypes],
+        selectedTags: [...selectedQuizTagsV749],
+        tagMode: quizTagMatchModeV749(),
+        questionCounter: quizletLearnQuestionCounterV476,
+        savedAt: new Date().toISOString()
+    }, { saveServer });
+}
+
+async function refreshKnowledgeForLearnResumeV740() {
+    // V742 — the CURRENT in-memory Knowledge Base is authoritative when resuming.
+    // Every KB edit (field value, quiz-primary/tested field, quiz visibility,
+    // category field configuration, etc.) mutates `db` synchronously before its
+    // save request is sent. Re-fetching the server copy here could therefore put
+    // an older tested-field definition back over the edit the user just made.
+    //
+    // Flush the newest snapshot to disk, but never replace the live KB with a
+    // fetched copy during Resume. A normal page load already hydrates `db` from
+    // the server, so this preserves fresh same-page edits AND fresh reload data.
+    try { await saveDb(); } catch (_) {}
+    try { migrateKnowledgeBaseSettings(); } catch (_) {}
+
+    // Force later renderers to resolve category/field definitions from the live
+    // objects again. Learn sessions persist IDs/streaks/order only, never card
+    // question/answer text or the selected tested field.
+    try {
+        if (db?.settings?.categorySettings && typeof db.settings.categorySettings === 'object') {
+            for (const category of Object.keys(db.settings.categorySettings)) {
+                const config = db.settings.categorySettings[category];
+                if (!config || typeof config !== 'object') continue;
+                if (Array.isArray(config.fields)) config.fields = config.fields.map(field => ({ ...field }));
+            }
+        }
+    } catch (_) {}
+
+    return saveDbLastSucceededV740 !== false;
+}
+
+async function restoreLearnSessionV737() {
+    await refreshKnowledgeForLearnResumeV740();
+    const session = reconcileLearnSessionV737({ saveServer:true });
+    if (!session) return false;
+
+    quizMode = 'learn';
+    document.getElementById('quizzes-view')?.setAttribute('data-quiz-mode', 'learn');
+    document.querySelectorAll('.quiz-mode-btn').forEach(button => button.classList.toggle('active', button.dataset.mode === 'learn'));
+    document.getElementById('quiz-day-picker-section')?.classList.remove('hidden');
+    document.getElementById('anki-summary-box')?.classList.add('hidden');
+    document.getElementById('quizlet-learning-mode-section-v476')?.classList.remove('hidden');
+
+    activeQuizDeck = [...session.deck];
+    learnQueue = session.queue.map(entry => ({ ...entry }));
+    learnGroupIdsV738 = [...(session.groupIds || [])];
+    learnGroupSizeActiveV743 = LEARN_GROUP_SIZE_OPTIONS_V743.includes(Number(session.groupSize))
+        ? Number(session.groupSize)
+        : getLearnGroupSizeV743();
+    normalizeLearnGroupV738();
+    activeQuizIndex = Math.max(0, activeQuizDeck.length - learnQueue.length);
+    quizCardFlipped = false;
+    currentSlideIndex = 0;
+    quizletLearnQuestionCounterV476 = session.questionCounter;
+    selectedQuizDays = new Set(session.selectedDays);
+    selectedQuizTypes = new Set(session.selectedTypes.length ? session.selectedTypes : ['all']);
+    selectedQuizTagsV749 = new Set(session.selectedTags || []);
+    if (db?.settings?.quizSettingsV58) db.settings.quizSettingsV58.tagFilterModeV749 = session.tagMode === 'any' ? 'any' : 'all';
+
+    const mc = document.getElementById('quizlet-mode-mc-v476');
+    const written = document.getElementById('quizlet-mode-written-v476');
+    if (mc) mc.checked = session.modes.includes('mc');
+    if (written) written.checked = session.modes.includes('written');
+    syncQuizletLearnModesV476();
+
+    document.getElementById('quiz-learn-title').innerText = 'LEARN MODE';
+    // The session restores progress only. Throw away any old rendered question so
+    // the resumed card is rebuilt from the freshly loaded Knowledge Base values.
+    document.getElementById('quiz-flashcard-area')?.replaceChildren();
+    showQuizCard();
+    persistCurrentLearnSessionV737({ saveServer:false });
+    switchView(quizLearnView);
+    return true;
+}
+
+function ensureLearnResumeButtonV737() {
+    const start = document.getElementById('start-quiz-btn');
+    if (!start) return null;
+    let resume = document.getElementById('resume-learn-btn-v737');
+    if (!resume) {
+        resume = document.createElement('button');
+        resume.type = 'button';
+        resume.id = 'resume-learn-btn-v737';
+        resume.className = 'icon-btn quiz-learn-resume-v737 quiz-resume-compact-v743 hidden';
+        resume.innerHTML = '<i class="ph ph-arrow-counter-clockwise"></i> Resume Learn';
+        resume.addEventListener('click', async () => {
+            playClickSound();
+            if (resume.dataset.resumingV740 === '1') return;
+            resume.dataset.resumingV740 = '1';
+            try { await restoreLearnSessionV737(); }
+            finally { delete resume.dataset.resumingV740; }
+        });
+        start.insertAdjacentElement('beforebegin', resume);
+    }
+    return resume;
+}
+
+function syncLearnSessionControlsV737() {
+    const start = document.getElementById('start-quiz-btn');
+    const resume = ensureLearnResumeButtonV737();
+    const flashResume = document.getElementById('resume-flashcards-btn-v743');
+    if (flashResume && quizMode !== 'flashcards') flashResume.classList.add('hidden');
+    if (!start || !resume) return;
+    const session = quizMode === 'learn' ? readLearnSessionV737() : null;
+    const canResume = !!session?.queue?.length;
+    resume.classList.toggle('hidden', !canResume);
+    if (quizMode === 'learn' && canResume) {
+        resume.innerHTML = `<i class="ph ph-arrow-counter-clockwise"></i> Resume ${Math.max(0, session.deck.length - session.queue.length)}/${session.deck.length}`;
+        start.innerHTML = '<i class="ph ph-play"></i> Start New';
+        start.title = 'Start a new Learn session and replace the saved Learn progress';
+        return;
+    }
+    if (quizMode === 'flashcards') {
+        resume.classList.add('hidden');
+        syncFlashcardSessionControlsV743();
+        return;
+    }
+    start.innerHTML = '<i class="ph ph-play"></i> Start Quiz';
+    start.removeAttribute('title');
+}
+
+window.reconcileLearnSessionV737 = reconcileLearnSessionV737;
+window.persistCurrentLearnSessionV737 = persistCurrentLearnSessionV737;
+window.restoreLearnSessionV737 = restoreLearnSessionV737;
+
+// ============================================================================
+// V743 — persistent/resumable Flashcards sessions.
+// The session stores only deck IDs/order/current position. Card faces are always
+// rebuilt from the live Knowledge Base so edited fields/quiz ordering are fresh.
+// A = advance but keep the card; D = known/remove the card from this session.
+// ============================================================================
+const FLASHCARD_SESSION_STORAGE_KEY_V743 = `loggy-flashcard-session-v743:${String(HOBBY || 'default')}`;
+let flashcardSessionSaveTimerV743 = null;
+let flashcardKnownCountV743 = 0;
+let flashcardOriginalTotalV743 = 0;
+
+function sanitizeFlashcardSessionV743(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const seen = new Set();
+    const deck = (Array.isArray(raw.deck) ? raw.deck : [])
+        .map(String)
+        .filter(id => id && !seen.has(id) && seen.add(id));
+    if (!deck.length) return null;
+    const knownCount = Math.max(0, Number(raw.knownCount) || 0);
+    const originalTotal = Math.max(deck.length + knownCount, Number(raw.originalTotal) || 0, deck.length);
+    let index = Math.max(0, Number(raw.index) || 0);
+    if (index >= deck.length) index = 0;
+    return {
+        version: 1,
+        deck,
+        index,
+        knownCount,
+        originalTotal,
+        selectedDays: Array.isArray(raw.selectedDays) ? raw.selectedDays.map(Number).filter(Number.isFinite) : [],
+        selectedTypes: Array.isArray(raw.selectedTypes) && raw.selectedTypes.length ? raw.selectedTypes.map(String) : ['all'],
+        selectedTags: Array.isArray(raw.selectedTags) ? raw.selectedTags.map(tag => String(tag || '').replace(/^#/, '').trim().toLowerCase()).filter(Boolean) : [],
+        tagMode: String(raw.tagMode || 'all') === 'any' ? 'any' : 'all',
+        savedAt: String(raw.savedAt || new Date().toISOString())
+    };
+}
+
+function readFlashcardSessionV743() {
+    let local = null;
+    try { local = sanitizeFlashcardSessionV743(JSON.parse(localStorage.getItem(FLASHCARD_SESSION_STORAGE_KEY_V743) || 'null')); } catch {}
+    const stored = sanitizeFlashcardSessionV743(db?.settings?.flashcardSessionV743 || null);
+    if (local && stored) {
+        const localTime = Date.parse(local.savedAt) || 0;
+        const storedTime = Date.parse(stored.savedAt) || 0;
+        return localTime >= storedTime ? local : stored;
+    }
+    return local || stored || null;
+}
+
+function writeFlashcardSessionV743(session, { saveServer = true } = {}) {
+    const clean = sanitizeFlashcardSessionV743(session);
+    db.settings ||= {};
+    if (!clean) {
+        delete db.settings.flashcardSessionV743;
+        try { localStorage.removeItem(FLASHCARD_SESSION_STORAGE_KEY_V743); } catch {}
+    } else {
+        db.settings.flashcardSessionV743 = clean;
+        try { localStorage.setItem(FLASHCARD_SESSION_STORAGE_KEY_V743, JSON.stringify(clean)); } catch {}
+    }
+    if (saveServer) {
+        clearTimeout(flashcardSessionSaveTimerV743);
+        flashcardSessionSaveTimerV743 = setTimeout(() => { try { saveDb(); } catch {} }, 90);
+    }
+    syncFlashcardSessionControlsV743();
+    return clean;
+}
+
+function clearFlashcardSessionV743(options = {}) {
+    return writeFlashcardSessionV743(null, options);
+}
+
+function flashcardItemStillEligibleV743(id, session = null) {
+    const key = String(id || '');
+    return !!key && Array.isArray(db?.phrases) && db.phrases.includes(key) && !db.phrase_meta?.[key]?.hideFromQuizzesV59 && (!session || quizSessionItemMatchesSavedFiltersV749(key, session));
+}
+
+function reconcileFlashcardSessionV743({ syncRuntime = false, saveServer = true } = {}) {
+    const session = readFlashcardSessionV743();
+    if (!session) {
+        syncFlashcardSessionControlsV743();
+        return null;
+    }
+    const currentId = String(session.deck[session.index] || '');
+    const validDeck = session.deck.filter(id => flashcardItemStillEligibleV743(id, session));
+    const removedCount = Math.max(0, session.deck.length - validDeck.length);
+    if (!validDeck.length) {
+        clearFlashcardSessionV743({ saveServer });
+        if (syncRuntime && quizMode === 'flashcards') {
+            activeQuizDeck = [];
+            activeQuizIndex = 0;
+            flashcardKnownCountV743 = session.knownCount;
+            flashcardOriginalTotalV743 = Math.max(session.knownCount, session.originalTotal - removedCount);
+        }
+        return null;
+    }
+    let nextIndex = currentId ? validDeck.indexOf(currentId) : -1;
+    if (nextIndex < 0) nextIndex = Math.min(session.index, validDeck.length - 1);
+    const reconciled = sanitizeFlashcardSessionV743({
+        ...session,
+        deck: validDeck,
+        index: nextIndex,
+        originalTotal: Math.max(validDeck.length + session.knownCount, session.originalTotal - removedCount),
+        savedAt: new Date().toISOString()
+    });
+    const changed = JSON.stringify({deck:session.deck,index:session.index,originalTotal:session.originalTotal}) !==
+        JSON.stringify({deck:reconciled.deck,index:reconciled.index,originalTotal:reconciled.originalTotal});
+    if (changed) writeFlashcardSessionV743(reconciled, { saveServer });
+    else syncFlashcardSessionControlsV743();
+    if (syncRuntime && quizMode === 'flashcards') {
+        activeQuizDeck = [...reconciled.deck];
+        activeQuizIndex = reconciled.index;
+        flashcardKnownCountV743 = reconciled.knownCount;
+        flashcardOriginalTotalV743 = reconciled.originalTotal;
+        quizCardFlipped = false;
+        currentSlideIndex = 0;
+    }
+    return reconciled;
+}
+
+function persistCurrentFlashcardSessionV743({ saveServer = true } = {}) {
+    if (quizMode !== 'flashcards' || !activeQuizDeck.length) {
+        if (quizMode === 'flashcards' && !activeQuizDeck.length) clearFlashcardSessionV743({ saveServer });
+        return null;
+    }
+    return writeFlashcardSessionV743({
+        version: 1,
+        deck: [...activeQuizDeck],
+        index: Math.max(0, Math.min(activeQuizIndex, activeQuizDeck.length - 1)),
+        knownCount: flashcardKnownCountV743,
+        originalTotal: Math.max(flashcardOriginalTotalV743, activeQuizDeck.length + flashcardKnownCountV743),
+        selectedDays: [...selectedQuizDays],
+        selectedTypes: [...selectedQuizTypes],
+        selectedTags: [...selectedQuizTagsV749],
+        tagMode: quizTagMatchModeV749(),
+        savedAt: new Date().toISOString()
+    }, { saveServer });
+}
+
+async function restoreFlashcardSessionV743() {
+    await refreshKnowledgeForLearnResumeV740();
+    const session = reconcileFlashcardSessionV743({ saveServer:true });
+    if (!session) return false;
+
+    quizMode = 'flashcards';
+    document.getElementById('quizzes-view')?.setAttribute('data-quiz-mode', 'flashcards');
+    document.querySelectorAll('.quiz-mode-btn').forEach(button => button.classList.toggle('active', button.dataset.mode === 'flashcards'));
+    document.getElementById('quiz-day-picker-section')?.classList.remove('hidden');
+    document.getElementById('anki-summary-box')?.classList.add('hidden');
+    document.getElementById('quizlet-learning-mode-section-v476')?.classList.add('hidden');
+
+    activeQuizDeck = [...session.deck];
+    activeQuizIndex = session.index;
+    flashcardKnownCountV743 = session.knownCount;
+    flashcardOriginalTotalV743 = session.originalTotal;
+    selectedQuizDays = new Set(session.selectedDays);
+    selectedQuizTypes = new Set(session.selectedTypes.length ? session.selectedTypes : ['all']);
+    selectedQuizTagsV749 = new Set(session.selectedTags || []);
+    if (db?.settings?.quizSettingsV58) db.settings.quizSettingsV58.tagFilterModeV749 = session.tagMode === 'any' ? 'any' : 'all';
+    quizCardFlipped = false;
+    currentSlideIndex = 0;
+
+    document.getElementById('quiz-learn-title').innerText = 'FLASHCARDS MODE';
+    document.getElementById('quiz-flashcard-area')?.replaceChildren();
+    showQuizCard();
+    persistCurrentFlashcardSessionV743({ saveServer:false });
+    switchView(quizLearnView);
+    return true;
+}
+
+function ensureFlashcardResumeButtonV743() {
+    const start = document.getElementById('start-quiz-btn');
+    if (!start) return null;
+    let resume = document.getElementById('resume-flashcards-btn-v743');
+    if (!resume) {
+        resume = document.createElement('button');
+        resume.type = 'button';
+        resume.id = 'resume-flashcards-btn-v743';
+        resume.className = 'icon-btn quiz-resume-compact-v743 hidden';
+        resume.innerHTML = '<i class="ph ph-arrow-counter-clockwise"></i> Resume';
+        resume.addEventListener('click', async () => {
+            playClickSound();
+            if (resume.dataset.resumingV743 === '1') return;
+            resume.dataset.resumingV743 = '1';
+            try { await restoreFlashcardSessionV743(); }
+            finally { delete resume.dataset.resumingV743; }
+        });
+        start.insertAdjacentElement('beforebegin', resume);
+    }
+    return resume;
+}
+
+function syncFlashcardSessionControlsV743() {
+    const start = document.getElementById('start-quiz-btn');
+    const resume = ensureFlashcardResumeButtonV743();
+    const learnResume = document.getElementById('resume-learn-btn-v737');
+    if (learnResume && quizMode === 'flashcards') learnResume.classList.add('hidden');
+    if (!start || !resume) return;
+    const session = quizMode === 'flashcards' ? readFlashcardSessionV743() : null;
+    const canResume = !!session?.deck?.length;
+    resume.classList.toggle('hidden', !(quizMode === 'flashcards' && canResume));
+    if (quizMode === 'flashcards' && canResume) {
+        resume.innerHTML = `<i class="ph ph-arrow-counter-clockwise"></i> Resume · ${session.deck.length} left`;
+        start.innerHTML = '<i class="ph ph-play"></i> Start New';
+        start.title = 'Start a new Flashcards session and replace the saved Flashcards progress';
+    } else if (quizMode === 'flashcards') {
+        start.innerHTML = '<i class="ph ph-play"></i> Start Quiz';
+        start.removeAttribute('title');
+    }
+}
+
+function flashcardKeepCurrentV743() {
+    if (quizMode !== 'flashcards' || !activeQuizDeck.length) return;
+    try { window.__loggyResetCurrentFlashcardMapV743?.(); } catch {}
+    activeQuizIndex = (activeQuizIndex + 1) % activeQuizDeck.length;
+    quizCardFlipped = false;
+    currentSlideIndex = 0;
+    persistCurrentFlashcardSessionV743();
+    showQuizCard();
+}
+
+function flashcardPreviousV743() {
+    if (quizMode !== 'flashcards' || !activeQuizDeck.length) return;
+    try { window.__loggyResetCurrentFlashcardMapV743?.(); } catch {}
+    activeQuizIndex = (activeQuizIndex - 1 + activeQuizDeck.length) % activeQuizDeck.length;
+    quizCardFlipped = false;
+    currentSlideIndex = 0;
+    persistCurrentFlashcardSessionV743();
+    showQuizCard();
+}
+
+function flashcardKnowCurrentV743() {
+    if (quizMode !== 'flashcards' || !activeQuizDeck.length) return;
+    try { window.__loggyResetCurrentFlashcardMapV743?.(); } catch {}
+    activeQuizDeck.splice(activeQuizIndex, 1);
+    flashcardKnownCountV743 += 1;
+    if (activeQuizIndex >= activeQuizDeck.length) activeQuizIndex = 0;
+    quizCardFlipped = false;
+    currentSlideIndex = 0;
+    if (activeQuizDeck.length) persistCurrentFlashcardSessionV743();
+    else clearFlashcardSessionV743();
+    showQuizCard();
+}
+
+window.reconcileFlashcardSessionV743 = reconcileFlashcardSessionV743;
+window.persistCurrentFlashcardSessionV743 = persistCurrentFlashcardSessionV743;
+window.restoreFlashcardSessionV743 = restoreFlashcardSessionV743;
+window.flashcardKeepCurrentV743 = flashcardKeepCurrentV743;
+window.flashcardPreviousV743 = flashcardPreviousV743;
+window.flashcardKnowCurrentV743 = flashcardKnowCurrentV743;
 
 function syncQuizletLearnModesV476(changed = null) {
     const mc = document.getElementById('quizlet-mode-mc-v476');
@@ -7874,6 +9146,9 @@ document.querySelectorAll('.quiz-mode-btn').forEach(btn => {
         
         if (quizMode !== 'anki' && selectedQuizDays.size === 0) renderQuizDayPicker();
         updateAvailableQuizTypes();
+        reconcileLearnSessionV737({ saveServer:false });
+        reconcileFlashcardSessionV743({ saveServer:false });
+        syncLearnSessionControlsV737();
     });
 });
 
@@ -8067,9 +9342,60 @@ function getDueSrsItems() {
     });
 }
 
+function quizAvailableTagCountsV749(items = []) {
+    const counts = new Map();
+    (items || []).forEach(id => quizItemTagsV749(id).forEach(tag => counts.set(tag, (counts.get(tag) || 0) + 1)));
+    return [...counts.entries()].sort((a,b) => a[0].localeCompare(b[0]));
+}
+
+function renderQuizTagFiltersV749(sourceItems = []) {
+    const section = document.getElementById('quiz-tag-filter-section-v749');
+    const host = document.getElementById('quiz-tag-filters-v749');
+    if (!section || !host) return;
+    const enabled = quizTagFiltersEnabledV749();
+    section.classList.toggle('hidden', !enabled);
+    if (!enabled) return;
+
+    const rows = quizAvailableTagCountsV749(sourceItems);
+    // Remove selected tags that no longer exist in the currently available pool.
+    const possible = new Set(rows.map(([tag]) => tag));
+    selectedQuizTagsV749 = new Set([...selectedQuizTagsV749].filter(tag => possible.has(tag)));
+    host.innerHTML = '';
+
+    const all = document.createElement('button');
+    all.type = 'button';
+    all.className = `filter-tab${selectedQuizTagsV749.size === 0 ? ' active' : ''}`;
+    all.textContent = 'All Tags';
+    all.addEventListener('click', () => { selectedQuizTagsV749.clear(); updateAvailableQuizTypes(); });
+    host.appendChild(all);
+
+    rows.forEach(([tag,count]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `filter-tab${selectedQuizTagsV749.has(tag) ? ' active' : ''}`;
+        btn.dataset.quizTagV749 = tag;
+        btn.textContent = `#${tag} (${count})`;
+        btn.addEventListener('click', () => {
+            if (selectedQuizTagsV749.has(tag)) selectedQuizTagsV749.delete(tag);
+            else selectedQuizTagsV749.add(tag);
+            updateAvailableQuizTypes();
+        });
+        host.appendChild(btn);
+    });
+
+    const mode = document.getElementById('quiz-tag-match-label-v749');
+    if (mode) mode.textContent = selectedQuizTagsV749.size > 1
+        ? (quizTagMatchModeV749() === 'any' ? 'Matching any selected tag' : 'Matching all selected tags')
+        : '';
+}
+window.renderQuizTagFiltersV749 = renderQuizTagFiltersV749;
+
 function updateQuizUI() {
     renderQuizDayPicker();
     updateAvailableQuizTypes();
+    reconcileLearnSessionV737({ saveServer:false });
+    reconcileFlashcardSessionV743({ saveServer:false });
+    syncLearnSessionControlsV737();
 }
 
 function updateAvailableQuizTypes() {
@@ -8106,6 +9432,9 @@ function updateAvailableQuizTypes() {
     availableItems = availableItems.filter(id =>
         !db.phrase_meta?.[id]?.hideFromQuizzesV59
     );
+    const tagSourceItemsV749 = [...availableItems];
+    renderQuizTagFiltersV749(tagSourceItemsV749);
+    availableItems = availableItems.filter(id => quizItemMatchesTagsV749(id));
 
     const typeCounts = { 'all': availableItems.length };
     db.settings.categories.forEach(c => typeCounts[c] = 0);
@@ -8145,10 +9474,27 @@ function updateAvailableQuizTypes() {
 
     document.getElementById('start-quiz-btn').disabled = availableItems.length === 0;
     document.getElementById('start-quiz-btn').classList.toggle('disabled-btn', availableItems.length === 0);
+    syncLearnSessionControlsV737();
 }
 
-document.getElementById('start-quiz-btn').addEventListener('click', () => {
+document.getElementById('start-quiz-btn').addEventListener('click', async () => {
     playClickSound();
+    if (quizMode === 'learn' && readLearnSessionV737()) {
+        const replaceSaved = await showAppConfirm({
+            title: 'Start a new Learn session?',
+            message: 'Your saved Learn progress will be replaced. Use Resume if you want to continue where you left off.',
+            confirmLabel: 'Start New'
+        });
+        if (!replaceSaved) return;
+    }
+    if (quizMode === 'flashcards' && readFlashcardSessionV743()) {
+        const replaceSaved = await showAppConfirm({
+            title: 'Start a new Flashcards session?',
+            message: 'Your saved Flashcards progress will be replaced. Use Resume if you want to continue the current deck.',
+            confirmLabel: 'Start New'
+        });
+        if (!replaceSaved) return;
+    }
     if (quizMode !== 'anki' && selectedQuizDays.size === 0) return alert('Pick at least one day.');
 
     let rawItems = quizMode === 'anki' ? getDueSrsItems() : [];
@@ -8160,6 +9506,7 @@ document.getElementById('start-quiz-btn').addEventListener('click', () => {
 
     let filtered = rawItems.filter(id => {
         if (db.phrase_meta?.[id]?.hideFromQuizzesV59) return false;
+        if (!quizItemMatchesTagsV749(id)) return false;
         if (selectedQuizTypes.has('all')) return true;
         return selectedQuizTypes.has(db.phrase_meta[id]?.type);
     });
@@ -8179,15 +9526,26 @@ document.getElementById('start-quiz-btn').addEventListener('click', () => {
     activeQuizIndex = 0;
     quizCardFlipped = false;
     
-    // Initialize Learn Mode Queue
+    // Initialize Learn Mode Queue. Clicking Start New intentionally replaces
+    // any previous saved Learn session; Resume Learn is the separate safe path.
     if (quizMode === 'learn') {
+        clearLearnSessionV737({ saveServer:false });
         syncQuizletLearnModesV476();
         quizletLearnQuestionCounterV476 = 0;
         learnQueue = activeQuizDeck.map(id => ({ id, streak: 0 }));
+        learnGroupIdsV738 = [];
+        learnGroupSizeActiveV743 = getLearnGroupSizeV743();
+        normalizeLearnGroupV738({ forceNextGroup:true });
+    } else if (quizMode === 'flashcards') {
+        clearFlashcardSessionV743({ saveServer:false });
+        flashcardKnownCountV743 = 0;
+        flashcardOriginalTotalV743 = activeQuizDeck.length;
     }
 
     document.getElementById('quiz-learn-title').innerText = quizMode.toUpperCase() + ' MODE';
     showQuizCard();
+    if (quizMode === 'learn') persistCurrentLearnSessionV737();
+    if (quizMode === 'flashcards') persistCurrentFlashcardSessionV743();
     switchView(quizLearnView);
 });
 
@@ -8196,23 +9554,57 @@ document.getElementById('start-quiz-btn').addEventListener('click', () => {
 let currentSlideIndex = 0;
 
 function processLearnAnswer(isCorrect) {
-    let current = learnQueue[0];
+    if (!learnQueue.length) {
+        learnGroupIdsV738 = [];
+        clearLearnSessionV737();
+        showQuizCard();
+        return;
+    }
+
+    normalizeLearnGroupV738();
+    const current = learnQueue[0];
+    if (!current) return;
+    const currentId = String(current.id);
+
     if (isCorrect) {
         current.streak++;
         if (current.streak >= 2) {
-            learnQueue.shift(); 
+            // Learned cards leave this group permanently. Do NOT pull a card
+            // from the next group into the vacancy; finish the whole batch first.
+            learnQueue.shift();
+            learnGroupIdsV738 = learnGroupIdsV738.filter(id => id !== currentId);
             activeQuizIndex++;
+
+            if (learnGroupIdsV738.length === 0 && learnQueue.length) {
+                normalizeLearnGroupV738({ forceNextGroup:true });
+            }
         } else {
-            learnQueue.push(learnQueue.shift());
+            // One correct: rotate the card to the back of the CURRENT group,
+            // immediately before all not-yet-unlocked future cards.
+            const item = learnQueue.shift();
+            const activeIds = new Set(learnGroupIdsV738);
+            const firstFuture = learnQueue.findIndex(entry => !activeIds.has(String(entry?.id || '')));
+            const insertAt = firstFuture === -1 ? learnQueue.length : firstFuture;
+            learnQueue.splice(insertAt, 0, item);
         }
     } else {
         current.streak = 0;
-        let item = learnQueue.shift();
-        learnQueue.splice(Math.min(2, learnQueue.length), 0, item);
+        const item = learnQueue.shift();
+        const activeIds = new Set(learnGroupIdsV738);
+        const activeOthers = learnQueue.filter(entry => activeIds.has(String(entry?.id || ''))).length;
+        // Re-show a missed card soon, but still mix it with up to two other
+        // cards from the same small group so it is not pure immediate repetition.
+        learnQueue.splice(Math.min(2, activeOthers), 0, item);
     }
+
     quizCardFlipped = false;
     currentSlideIndex = 0;
     showQuizCard();
+    if (learnQueue.length) persistCurrentLearnSessionV737();
+    else {
+        learnGroupIdsV738 = [];
+        clearLearnSessionV737();
+    }
 }
 
 let currentCardSlideCount = 1;
@@ -8364,13 +9756,476 @@ function hasPinnedQuizMapV483(meta, itemId = '') {
     return false;
 }
 
-function normalizeWrittenQuizAnswerV476(value) {
-    return String(value ?? '')
-        .normalize('NFKC')
-        .trim()
-        .toLocaleLowerCase()
-        .replace(/\s+/g, ' ');
+// ============================================================================
+// V740 — Written quiz symbol picker + keyboard exponent formatting
+// ============================================================================
+const WRITTEN_SUPERSCRIPT_TO_NORMAL_V740 = Object.freeze({
+    '⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁺':'+','⁻':'-'
+});
+const WRITTEN_NORMAL_TO_SUPERSCRIPT_V740 = Object.freeze({
+    '0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','+':'⁺','-':'⁻'
+});
+const WRITTEN_DEFAULT_SYMBOLS_V740 = Object.freeze([
+    '÷','×','°','±','√','π','<','>','≤','≥','≠','≈','∞','∝','∑','∆','Δ','θ','λ','µ',
+    '→','←','↔','²','³','⁴','⁵','⁶','⁷','⁸','⁹','⁰','½','¼','¾'
+]);
+
+function canonicalizeWrittenPowersV740(value) {
+    let source = String(value ?? '');
+
+    // V742 — all common exponent representations share one canonical form.
+    // This intentionally covers raw KB text (10^23), the Written input's visual
+    // superscripts (10²³), and HTML-style superscripts that may come from a
+    // formatted field renderer (<sup>23</sup>).
+    source = source
+        .replace(/<sup\b[^>]*>([\s\S]*?)<\/sup>/gi, (_, exponent) =>
+            '^' + String(exponent || '').replace(/<[^>]*>/g, '')
+        )
+        .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]+/g, run =>
+            '^' + Array.from(run).map(ch => WRITTEN_SUPERSCRIPT_TO_NORMAL_V740[ch] || ch).join('')
+        )
+        .replace(/[−–—]/g, '-')
+        .replace(/[\u200B-\u200D\u2060\uFEFF]/g, '');
+
+    // If a caret was already present before a Unicode superscript run, the two
+    // transforms above can briefly produce ^^. Collapse that and normalize
+    // optional spaces/signs inside the exponent.
+    source = source
+        .replace(/\^+/g, '^')
+        .replace(/\^\s*([+\-]?)\s*(\d+)/g, (_, sign, digits) =>
+            '^' + (sign === '+' ? '' : sign) + digits
+        );
+
+    return source;
 }
+
+function normalizeWrittenQuizAnswerV476(value) {
+    // Typed quiz answers are intentionally forgiving about capitalization,
+    // whitespace, commas, invisible formatting characters, and exponent display.
+    // Examples that MUST compare equal: 10^23, 10²³, 10 ^ 23.
+    return canonicalizeWrittenPowersV740(value)
+        .normalize('NFKC')
+        .toLocaleLowerCase()
+        .replace(/[\u200B-\u200D\u2060\uFEFF]/g, '')
+        .replace(/[,，]/g, '')
+        .replace(/\s+/g, '');
+}
+
+function writtenAnswerVariantsV743(value) {
+    const raw = canonicalizeWrittenPowersV740(value).normalize('NFKC');
+    const variants = new Set();
+    const add = candidate => {
+        const normalized = normalizeWrittenQuizAnswerV476(candidate);
+        if (normalized) variants.add(normalized);
+    };
+    add(raw);
+
+    // If the saved answer contains a parenthetical alias, accept either side.
+    // Example: "acid (A)" accepts "acid", "A", or the full saved answer.
+    const parenthetical = [...raw.matchAll(/\(([^()]+)\)/g)];
+    if (parenthetical.length) {
+        const withoutParenthetical = raw.replace(/\s*\([^()]+\)\s*/g, ' ').trim();
+        add(withoutParenthetical);
+        parenthetical.forEach(match => add(match[1]));
+    }
+    return variants;
+}
+
+function writtenQuizAnswersMatchV743(given, expected) {
+    const givenVariants = writtenAnswerVariantsV743(given);
+    const expectedVariants = writtenAnswerVariantsV743(expected);
+    for (const candidate of givenVariants) if (expectedVariants.has(candidate)) return true;
+    return false;
+}
+
+function quizWrittenReviewModeV743() {
+    return db?.settings?.quizSettingsV58?.writtenReviewStyleV743 === 'stacked' ? 'stacked' : 'flip';
+}
+function quizWrittenStackedReviewEnabledV743() {
+    return quizWrittenReviewModeV743() === 'stacked';
+}
+function renderWrittenResultCardV743(card, expected) {
+    if (!card) return;
+    if (typeof card.__loggyWrittenQuestionHtmlV743 !== 'string') {
+        card.__loggyWrittenQuestionHtmlV743 =
+            card.dataset.quizFrontShownV668 === '1' && typeof card.__loggyBackHtmlV668 === 'string'
+                ? card.__loggyBackHtmlV668
+                : card.innerHTML;
+    }
+    const answerHtml = `<div class="quizlet-written-answer-value-v477">${escapeKnowledgeHtml(expected)}</div>`;
+    if (quizWrittenStackedReviewEnabledV743()) {
+        card.dataset.quizWrittenStackedV743 = '1';
+        card.classList.add('quiz-written-stacked-v743');
+        card.innerHTML = `<div class="quiz-written-stacked-question-v743">${card.__loggyWrittenQuestionHtmlV743}</div>${answerHtml}`;
+    } else {
+        delete card.dataset.quizWrittenStackedV743;
+        card.classList.remove('quiz-written-stacked-v743');
+        card.innerHTML = answerHtml;
+    }
+}
+
+window.normalizeWrittenQuizAnswerV476 = normalizeWrittenQuizAnswerV476;
+window.canonicalizeWrittenPowersV740 = canonicalizeWrittenPowersV740;
+window.writtenAnswerVariantsV743 = writtenAnswerVariantsV743;
+window.writtenQuizAnswersMatchV743 = writtenQuizAnswersMatchV743;
+window.quizWrittenReviewModeV743 = quizWrittenReviewModeV743;
+window.quizWrittenStackedReviewEnabledV743 = quizWrittenStackedReviewEnabledV743;
+
+function writtenKbSymbolsV740() {
+    const symbols = new Set(WRITTEN_DEFAULT_SYMBOLS_V740);
+    const seen = new Set();
+    const inspect = value => {
+        if (value == null) return;
+        if (typeof value === 'string' || typeof value === 'number') {
+            const text = String(value).normalize('NFC');
+            for (const ch of Array.from(text)) {
+                const cp = ch.codePointAt(0) || 0;
+                if (cp <= 0x7e || /\s/u.test(ch)) continue; // normal US-keyboard ASCII / whitespace
+                if (ch === '\u200d' || ch === '\ufe0f' || /\p{Mark}/u.test(ch)) continue;
+                symbols.add(ch);
+            }
+            return;
+        }
+        if (typeof value !== 'object' || seen.has(value)) return;
+        seen.add(value);
+        if (Array.isArray(value)) value.forEach(inspect);
+        else Object.values(value).forEach(inspect);
+    };
+    try {
+        (db?.phrases || []).forEach(id => {
+            const meta = db?.phrase_meta?.[id] || {};
+            inspect(meta.bulkOriginalTitleV739 || id);
+            inspect(meta.custom_fields || {});
+        });
+    } catch {}
+    return [...symbols];
+}
+window.writtenKbSymbolsV740 = writtenKbSymbolsV740;
+
+function writtenInsertAtCaretV740(input, text) {
+    if (!input || input.disabled) return;
+    const start = Number.isFinite(input.selectionStart) ? input.selectionStart : input.value.length;
+    const end = Number.isFinite(input.selectionEnd) ? input.selectionEnd : start;
+    input.setRangeText(String(text), start, end, 'end');
+    input.dispatchEvent(new Event('input', { bubbles:true }));
+    input.focus({ preventScroll:true });
+}
+
+function writtenBackspaceAtCaretV740(input) {
+    if (!input || input.disabled) return;
+    const start = Number.isFinite(input.selectionStart) ? input.selectionStart : input.value.length;
+    const end = Number.isFinite(input.selectionEnd) ? input.selectionEnd : start;
+    if (start !== end) {
+        input.setRangeText('', start, end, 'end');
+    } else if (start > 0) {
+        const prefix = input.value.slice(0, start);
+        const chars = Array.from(prefix);
+        const last = chars.pop() || '';
+        input.setRangeText('', start - last.length, start, 'end');
+    }
+    input.dispatchEvent(new Event('input', { bubbles:true }));
+    input.focus({ preventScroll:true });
+}
+
+function closeWrittenSymbolPickerV740() {
+    document.getElementById('written-symbol-picker-v740')?.remove();
+}
+window.closeWrittenSymbolPickerV740 = closeWrittenSymbolPickerV740;
+
+function positionWrittenSymbolPickerV740(picker, anchor) {
+    if (!picker || !anchor) return;
+    const rect = anchor.getBoundingClientRect();
+    const gap = 7;
+    picker.style.left = `${Math.max(8, Math.min(window.innerWidth - picker.offsetWidth - 8, rect.left))}px`;
+    let top = rect.bottom + gap;
+    if (top + picker.offsetHeight > window.innerHeight - 8) top = Math.max(8, rect.top - picker.offsetHeight - gap);
+    picker.style.top = `${top}px`;
+}
+
+function openWrittenSymbolPickerV740(input, anchor) {
+    const existing = document.getElementById('written-symbol-picker-v740');
+    if (existing?.dataset.forInputV740 === (input.id || input.dataset.writtenSymbolInputV740 || '')) {
+        existing.remove();
+        input.focus({ preventScroll:true });
+        return;
+    }
+    closeWrittenSymbolPickerV740();
+
+    const picker = document.createElement('div');
+    picker.id = 'written-symbol-picker-v740';
+    picker.className = 'written-symbol-picker-v740';
+    picker.dataset.forInputV740 = input.id || input.dataset.writtenSymbolInputV740 || '';
+    picker.setAttribute('role','dialog');
+    picker.setAttribute('aria-label','Written answer symbols');
+
+    const head = document.createElement('div');
+    head.className = 'written-symbol-picker-head-v740';
+    const title = document.createElement('strong');
+    title.textContent = 'Symbols';
+    const erase = document.createElement('button');
+    erase.type = 'button';
+    erase.className = 'written-symbol-erase-v740';
+    erase.title = 'Backspace';
+    erase.setAttribute('aria-label','Backspace');
+    erase.innerHTML = '<i class="ph ph-backspace"></i>';
+    erase.addEventListener('click', event => {
+        event.preventDefault();
+        writtenBackspaceAtCaretV740(input);
+    });
+    head.append(title, erase);
+
+    const grid = document.createElement('div');
+    grid.className = 'written-symbol-grid-v740';
+    writtenKbSymbolsV740().forEach(symbol => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'written-symbol-option-v740';
+        button.textContent = symbol;
+        button.title = `Insert ${symbol}`;
+        button.setAttribute('aria-label', `Insert ${symbol}`);
+        button.addEventListener('click', event => {
+            event.preventDefault();
+            writtenInsertAtCaretV740(input, symbol);
+        });
+        grid.appendChild(button);
+    });
+    picker.append(head, grid);
+    document.body.appendChild(picker);
+    positionWrittenSymbolPickerV740(picker, anchor);
+}
+
+function formatCaretPowersInWrittenInputV740(input) {
+    if (!input || input.disabled) return;
+    const oldValue = input.value;
+    const caret = Number.isFinite(input.selectionStart) ? input.selectionStart : oldValue.length;
+    const convert = text => text.replace(/\^([+\-]?\d+)/g, (_, exponent) =>
+        Array.from(exponent).map(ch => WRITTEN_NORMAL_TO_SUPERSCRIPT_V740[ch] || ch).join('')
+    );
+    const nextValue = convert(oldValue);
+    if (nextValue === oldValue) return;
+    const nextCaret = convert(oldValue.slice(0, caret)).length;
+    input.value = nextValue;
+    try { input.setSelectionRange(nextCaret, nextCaret); } catch {}
+}
+
+function attachWrittenSymbolPickerV740(input) {
+    if (!(input instanceof HTMLInputElement) || input.dataset.writtenSymbolsV740 === '1') return;
+    input.dataset.writtenSymbolsV740 = '1';
+    if (!input.id) input.dataset.writtenSymbolInputV740 = `written-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'icon-btn written-symbol-toggle-v740';
+    button.title = 'Symbols';
+    button.setAttribute('aria-label','Symbols');
+    button.textContent = 'Ω';
+    input.insertAdjacentElement('afterend', button);
+    button.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        openWrittenSymbolPickerV740(input, button);
+    });
+
+    let exponentMode = false;
+    input.addEventListener('keydown', event => {
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        if (event.key === '^') {
+            event.preventDefault();
+            exponentMode = true;
+            return;
+        }
+        if (exponentMode && /^[0-9]$/.test(event.key)) {
+            event.preventDefault();
+            writtenInsertAtCaretV740(input, WRITTEN_NORMAL_TO_SUPERSCRIPT_V740[event.key]);
+            return;
+        }
+        if (exponentMode && (event.key === '-' || event.key === '+')) {
+            event.preventDefault();
+            writtenInsertAtCaretV740(input, WRITTEN_NORMAL_TO_SUPERSCRIPT_V740[event.key]);
+            return;
+        }
+        if (!['Shift','Control','Alt','Meta'].includes(event.key)) exponentMode = false;
+    }, true);
+
+    // Pasted caret notation such as x^2 is formatted too.
+    input.addEventListener('input', () => formatCaretPowersInWrittenInputV740(input));
+}
+window.attachWrittenSymbolPickerV740 = attachWrittenSymbolPickerV740;
+
+// V743 — optional browser voice typing for Written Learn answers.
+function quizVoiceTypingEnabledV743() {
+    return db?.settings?.quizSettingsV58?.voiceTypingV743 !== false;
+}
+
+function writtenSpeechRecognitionCtorV743() {
+    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function setWrittenVoiceButtonStateV743(button, listening) {
+    if (!button) return;
+    button.classList.toggle('is-listening-v743', !!listening);
+    button.setAttribute('aria-pressed', listening ? 'true' : 'false');
+    button.title = listening ? 'Stop voice typing' : 'Voice type';
+    button.innerHTML = `<i class="ph ${listening ? 'ph-stop' : 'ph-microphone'}"></i>`;
+}
+
+function stopWrittenVoiceRecognitionV743(button) {
+    try { button?.__loggyRecognitionV743?.stop?.(); } catch {}
+}
+
+function toggleWrittenVoiceRecognitionV743(input, button) {
+    if (!quizVoiceTypingEnabledV743()) return;
+    const Ctor = writtenSpeechRecognitionCtorV743();
+    if (!Ctor) {
+        try { showFeatureToast?.('Voice typing is not supported by this browser.'); }
+        catch { alert('Voice typing is not supported by this browser.'); }
+        return;
+    }
+    if (button?.dataset.listeningV743 === '1') {
+        stopWrittenVoiceRecognitionV743(button);
+        return;
+    }
+
+    const recognition = new Ctor();
+    button.__loggyRecognitionV743 = recognition;
+    const start = Number.isFinite(input.selectionStart) ? input.selectionStart : input.value.length;
+    const end = Number.isFinite(input.selectionEnd) ? input.selectionEnd : start;
+    const prefix = input.value.slice(0, start);
+    const suffix = input.value.slice(end);
+    let transcript = '';
+
+    recognition.lang = document.documentElement.lang || navigator.language || 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+        button.dataset.listeningV743 = '1';
+        setWrittenVoiceButtonStateV743(button, true);
+    };
+    recognition.onresult = event => {
+        transcript = '';
+        for (let i = 0; i < event.results.length; i += 1) {
+            transcript += String(event.results[i]?.[0]?.transcript || '');
+        }
+        const spoken = transcript.trim();
+        const spacer = prefix && spoken && !/\s$/.test(prefix) ? ' ' : '';
+        input.value = `${prefix}${spacer}${spoken}${suffix}`;
+        const caret = (prefix + spacer + spoken).length;
+        try { input.setSelectionRange(caret, caret); } catch {}
+        input.dispatchEvent(new Event('input', { bubbles:true }));
+    };
+    recognition.onerror = event => {
+        if (event?.error && event.error !== 'aborted' && event.error !== 'no-speech') {
+            try { showFeatureToast?.(`Voice typing: ${event.error}`); } catch {}
+        }
+    };
+    recognition.onend = () => {
+        delete button.dataset.listeningV743;
+        setWrittenVoiceButtonStateV743(button, false);
+        button.__loggyRecognitionV743 = null;
+        requestAnimationFrame(() => input.focus({ preventScroll:true }));
+    };
+
+    try { recognition.start(); }
+    catch {
+        delete button.dataset.listeningV743;
+        setWrittenVoiceButtonStateV743(button, false);
+    }
+}
+
+function attachWrittenVoiceTypingV743(input) {
+    if (!(input instanceof HTMLInputElement)) return;
+    let button = input.parentElement?.querySelector?.('.written-voice-toggle-v743');
+    if (!button) {
+        button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'icon-btn written-voice-toggle-v743';
+        button.setAttribute('aria-label', 'Voice type');
+        button.setAttribute('aria-pressed', 'false');
+        setWrittenVoiceButtonStateV743(button, false);
+        const symbolButton = input.parentElement?.querySelector?.('.written-symbol-toggle-v740');
+        (symbolButton || input).insertAdjacentElement('afterend', button);
+        button.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleWrittenVoiceRecognitionV743(input, button);
+        });
+    }
+    button.classList.toggle('hidden', !quizVoiceTypingEnabledV743());
+    button.dataset.voiceInputIdV743 = input.id || input.dataset.writtenSymbolInputV740 || '';
+}
+
+function syncWrittenVoiceTypingControlsV743(root = document) {
+    const selector = [
+        '#quizlet-written-answer-v476',
+        '#quiz-learn-view .map-written-v621 input[type="text"]',
+        '#quiz-learn-view .map-written-v617 input[type="text"]',
+        '#quiz-learn-view .map-study-answer-v172 input[type="text"]'
+    ].join(',');
+    root.querySelectorAll?.(selector).forEach(input => attachWrittenVoiceTypingV743(input));
+    root.querySelectorAll?.('.written-voice-toggle-v743').forEach(button => {
+        button.classList.toggle('hidden', !quizVoiceTypingEnabledV743());
+        if (!quizVoiceTypingEnabledV743() && button.dataset.listeningV743 === '1') stopWrittenVoiceRecognitionV743(button);
+    });
+}
+window.syncWrittenVoiceTypingControlsV743 = syncWrittenVoiceTypingControlsV743;
+window.quizVoiceTypingEnabledV743 = quizVoiceTypingEnabledV743;
+
+function bindWrittenSymbolInputsV740(root = document) {
+    const selector = [
+        '#quizlet-written-answer-v476',
+        '#quiz-learn-view .map-written-v621 input[type="text"]',
+        '#quiz-learn-view .map-written-v617 input[type="text"]',
+        '#quiz-learn-view .map-study-answer-v172 input[type="text"]'
+    ].join(',');
+    root.querySelectorAll?.(selector).forEach(input => {
+        attachWrittenSymbolPickerV740(input);
+        attachWrittenVoiceTypingV743(input);
+    });
+}
+window.bindWrittenSymbolInputsV740 = bindWrittenSymbolInputsV740;
+
+function bootWrittenSymbolsV740() {
+    const area = document.getElementById('quiz-flashcard-area');
+    if (!area || area.dataset.writtenSymbolObserverV740 === '1') return;
+    area.dataset.writtenSymbolObserverV740 = '1';
+    bindWrittenSymbolInputsV740(area);
+    new MutationObserver(() => bindWrittenSymbolInputsV740(area)).observe(area, { childList:true, subtree:true });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootWrittenSymbolsV740, { once:true });
+else bootWrittenSymbolsV740();
+
+document.addEventListener('pointerdown', event => {
+    const picker = document.getElementById('written-symbol-picker-v740');
+    if (!picker) return;
+    if (picker.contains(event.target) || event.target?.closest?.('.written-symbol-toggle-v740')) return;
+    closeWrittenSymbolPickerV740();
+}, true);
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeWrittenSymbolPickerV740();
+}, true);
+
+// M toggles voice typing while the quiz card itself has focus. If the answer
+// input is focused, Shift+M is the safe equivalent so ordinary letter "m" can
+// still be typed as part of an answer.
+document.addEventListener('keydown', event => {
+    if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+    let mode = '';
+    try { mode = String(quizMode || ''); } catch {}
+    if (mode !== 'learn' || !quizVoiceTypingEnabledV743()) return;
+    const input = document.querySelector('#quiz-learn-view.view.active #quizlet-written-answer-v476:not(:disabled), #quiz-learn-view.view.active .map-written-v621 input[type="text"]:not(:disabled), #quiz-learn-view.view.active .map-written-v617 input[type="text"]:not(:disabled), #quiz-learn-view.view.active .map-study-answer-v172 input[type="text"]:not(:disabled)');
+    if (!input) return;
+    const typingTarget = event.target?.closest?.('input,textarea,[contenteditable="true"]');
+    const wantsVoice = String(event.key || '').toLowerCase() === 'm' && (!typingTarget || event.shiftKey);
+    if (!wantsVoice) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const button = input.parentElement?.querySelector?.('.written-voice-toggle-v743');
+    button?.click();
+}, true);
+window.addEventListener('resize', closeWrittenSymbolPickerV740);
+window.addEventListener('scroll', closeWrittenSymbolPickerV740, true);
 
 function chooseQuizletLearnQuestionTypeV476(meta) {
     syncQuizletLearnModesV476();
@@ -8397,7 +10252,7 @@ function revealWrittenLearnCorrectionV654(expected, { fromIdk = false } = {}) {
     const card = document.querySelector('.quizlet-written-wrap-v476 .quiz-learn-prompt-card-v38');
     if (card) {
         card.classList.add('quizlet-written-reveal-v477');
-        card.innerHTML = `<div class="quizlet-written-answer-value-v477">${escapeKnowledgeHtml(expected)}</div>`;
+        renderWrittenResultCardV743(card, expected);
     }
 
     let feedback = document.getElementById('quizlet-written-feedback-v477');
@@ -8409,7 +10264,20 @@ function revealWrittenLearnCorrectionV654(expected, { fromIdk = false } = {}) {
     }
     feedback.classList.remove('is-correct-v477');
     feedback.classList.add('is-incorrect-v477');
-    feedback.innerHTML = `<strong>${fromIdk ? 'Answer revealed' : 'Incorrect'}</strong><span>Correct answer: <b>${escapeKnowledgeHtml(expected)}</b>. Type it to continue.</span>`;
+    feedback.innerHTML = `<strong>${fromIdk ? 'Answer revealed' : 'Incorrect'}</strong><span>Correct answer: <b>${escapeKnowledgeHtml(expected)}</b>. Type it to continue.</span>${fromIdk ? '' : '<button type="button" class="icon-btn written-mark-correct-v744" data-written-mark-correct-v744>Mark Correct</button>'}`;
+
+    if (!fromIdk) {
+        feedback.querySelector('[data-written-mark-correct-v744]')?.addEventListener('click', event => {
+            const button = event.currentTarget;
+            button.disabled = true;
+            // A manual pass replaces the wrong typed attempt before the Learn
+            // queue is graded, so it counts exactly like a correct answer.
+            form.dataset.firstAttemptCorrectV478 = 'true';
+            form.dataset.readyToContinueV478 = 'true';
+            input.disabled = true;
+            try { processLearnAnswer(true); } catch (_) { button.disabled = false; }
+        }, { once:true });
+    }
 
     const submit = form.querySelector('button[type="submit"]');
     const idk = form.querySelector('[data-written-idk-v654]');
@@ -8433,7 +10301,7 @@ function submitWrittenLearnAnswerV478(expected, fieldName = 'Answer') {
         return;
     }
 
-    const correct = normalizeWrittenQuizAnswerV476(input.value) === normalizeWrittenQuizAnswerV476(expected);
+    const correct = writtenQuizAnswersMatchV743(input.value, expected);
     const hadWrongAttempt = form.dataset.hadWrongAttemptV478 === 'true';
     if (!('firstAttemptCorrectV478' in form.dataset)) {
         form.dataset.firstAttemptCorrectV478 = correct ? 'true' : 'false';
@@ -8447,7 +10315,7 @@ function submitWrittenLearnAnswerV478(expected, fieldName = 'Answer') {
     const card = document.querySelector('.quizlet-written-wrap-v476 .quiz-learn-prompt-card-v38');
     if (card) {
         card.classList.add('quizlet-written-reveal-v477');
-        card.innerHTML = `<div class="quizlet-written-answer-value-v477">${escapeKnowledgeHtml(expected)}</div>`;
+        renderWrittenResultCardV743(card, expected);
     }
 
     let feedback = document.getElementById('quizlet-written-feedback-v477');
@@ -8658,11 +10526,11 @@ function showQuizCard() {
         });
         
         document.getElementById('fc-prev').addEventListener('click', () => {
-            if (activeQuizIndex > 0) { activeQuizIndex--; quizCardFlipped = false; currentSlideIndex = 0; showQuizCard(); }
+            flashcardPreviousV743();
         });
         
         document.getElementById('fc-next').addEventListener('click', () => {
-            activeQuizIndex++; quizCardFlipped = false; currentSlideIndex = 0; showQuizCard();
+            flashcardKeepCurrentV743();
         });
         attachAudioPlayButtons(area);
         return;
@@ -8732,6 +10600,8 @@ function processAnkiAnswer(rating) {
 }
 
 function showFinishScreen(area) {
+    if (quizMode === 'learn' && learnQueue.length === 0) clearLearnSessionV737();
+    if (quizMode === 'flashcards' && activeQuizDeck.length === 0) clearFlashcardSessionV743();
     area.innerHTML = `
         <div class="set-complete-box quiz-finish-box-v476">
             <h2><i class="ph ph-confetti"></i> Finished!</h2>
@@ -10837,6 +12707,14 @@ document.addEventListener(
         window.__loggyShowHiddenKbItemsV597 =
             window.__loggyShowHiddenKbItemsV597 !== true;
 
+        // Hidden-item visibility is independent of tag visibility. The KB default
+        // remains tags hidden unless the user explicitly changed that setting.
+        try {
+            db.settings ||= {};
+            if (db.settings.knowledgeHideTagsV557 === undefined) db.settings.knowledgeHideTagsV557 = true;
+            document.documentElement.classList.toggle('kb-hide-item-tags-v557', !!db.settings.knowledgeHideTagsV557);
+        } catch (_) {}
+
         const search = document.getElementById('phrases-search-bar')?.value || '';
         try { renderPhrasesLibrary(search); } catch (_) {}
         requestAnimationFrame(() => {
@@ -10952,151 +12830,10 @@ function hideDailyOnlyControlsFromGlobalSettings() {
     }
 }
 
+// All Settings shortcut capturing, saving, display and remapping belong to
+// __loggyShortcutRuntimeV1000. No older modal-specific capture owner remains.
 function ensureGlobalShortcutsSection() {
-    if (!dailySettingsModal) return;
-
-    let section =
-        document.getElementById(
-            'global-shortcuts-section'
-        );
-
-    if (section) return;
-
-    section =
-        document.createElement('div');
-
-    section.id =
-        'global-shortcuts-section';
-
-    section.className =
-        'modal-section global-shortcuts-section';
-
-    section.innerHTML = `
-        <span class="field-label">
-            Shortcuts
-        </span>
-
-        <div class="global-shortcuts-list">
-            <div class="global-shortcut-row">
-                <kbd>Ctrl</kbd>
-                <span>+</span>
-                <kbd>K</kbd>
-                <p>
-                    Open or close the multilingual keyboard in a text field.
-                </p>
-            </div>
-
-            <div class="global-shortcut-row">
-                <kbd>Ctrl</kbd>
-                <span>+</span>
-                <kbd>P</kbd>
-                <p>
-                    Search the entire log and run quick commands.
-                </p>
-            </div>
-
-            <div class="global-shortcut-row">
-                <kbd>Shift</kbd>
-                <span>+</span>
-                <kbd>L</kbd>
-                <span>+</span>
-                <kbd>D</kbd>
-                <p>
-                    Jump to the most recent saved Daily Log.
-                </p>
-            </div>
-
-            <div class="global-shortcut-row" data-shortcut-v232="new-day">
-                <kbd>Ctrl</kbd>
-                <span>+</span>
-                <kbd>.</kbd>
-                <p>
-                    Jump to the New Day (+) tile in Daily Logs.
-                </p>
-            </div>
-
-            <div class="global-shortcut-row">
-                <kbd>Shift</kbd>
-                <span>+</span>
-                <kbd>W</kbd>
-                <p>
-                    Open Theme Settings.
-                </p>
-            </div>
-
-            <div class="global-shortcut-row" data-shortcut-v664="kb-hidden">
-                <kbd>Shift</kbd>
-                <span>+</span>
-                <kbd>H</kbd>
-                <p>
-                    Show or hide Knowledge Base items tagged #hide.
-                </p>
-            </div>
-
-            <div class="global-shortcut-row" data-shortcut-v664="kb-select">
-                <kbd>Shift</kbd>
-                <span>+</span>
-                <kbd>S</kbd>
-                <p>
-                    Multi Select Knowledge Base items.
-                </p>
-            </div>
-
-            <div class="global-shortcut-row">
-                <kbd>Ctrl</kbd>
-                <span>+</span>
-                <kbd>Shift</kbd>
-                <span>+</span>
-                <kbd>D</kbd>
-                <span>+</span>
-                <kbd>M</kbd>
-                <p>
-                    Open Developer Mode.
-                </p>
-            </div>
-
-            <div class="global-shortcut-row">
-                <kbd>Enter</kbd>
-                <p>
-                    Use the main Save, Create, Done, or Add action in supported forms and modals.
-                </p>
-            </div>
-
-            <div class="global-shortcut-row">
-                <kbd>\\</kbd>
-                <p>
-                    In Daily Log Notes, open the link-insert popup.
-                </p>
-            </div>
-        </div>
-    `;
-
-    const modalBox =
-        dailySettingsModal.querySelector(
-            '.modal-box'
-        );
-
-    if (modalBox) {
-        const footerCandidate =
-            Array.from(
-                modalBox.children
-            ).find(
-                child =>
-                    child.id ===
-                    'daily-settings-close'
-            );
-
-        if (footerCandidate) {
-            modalBox.insertBefore(
-                section,
-                footerCandidate
-            );
-        } else {
-            modalBox.appendChild(
-                section
-            );
-        }
-    }
+    return loggyShortcutRuntimeV1700.ensureSection();
 }
 
 function openGlobalThemeSettings() {
@@ -11301,44 +13038,8 @@ function openGlobalThemeSettings() {
 
 // ============================================================
 // THEME SETTINGS SHORTCUT
-// Shift + W opens the global Theme / Companion / Cursor settings.
-// Do not steal Shift+W while the user is typing in a text field.
+// Owned exclusively by __loggyShortcutRuntimeV1300 so remapping Settings works.
 // ============================================================
-
-document.addEventListener('keydown', event => {
-    if (
-        event.repeat ||
-        !event.shiftKey ||
-        event.ctrlKey ||
-        event.altKey ||
-        event.metaKey ||
-        event.code !== 'KeyW'
-    ) {
-        return;
-    }
-
-    const target = event.target;
-
-    const isTypingTarget =
-        target instanceof HTMLElement &&
-        (
-            target.matches(
-                'input, textarea, select'
-            ) ||
-            target.isContentEditable
-        );
-
-    if (isTypingTarget) {
-        return;
-    }
-
-    event.preventDefault();
-    // V566: core owns Shift+W in capture phase so historical theme-builder
-    // observers/promoters do not run first and delay the Settings reveal.
-    event.stopImmediatePropagation();
-    openGlobalThemeSettings();
-}, true);
-
 
 function ensureDailyLogsSettingsModal() {
     let modal =
@@ -11871,7 +13572,8 @@ function showAppConfirm({
 function showAppFormModal({
     title = 'Edit',
     fields = [],
-    submitLabel = 'Done'
+    submitLabel = 'Done',
+    subtitle = ''
 } = {}) {
     const modal = ensureAppPromptModal();
     const titleEl = modal.querySelector('#app-prompt-title');
@@ -11881,6 +13583,17 @@ function showAppFormModal({
     const close = modal.querySelector('#app-prompt-close');
 
     titleEl.textContent = title;
+    let componentTypeHint = modal.querySelector('.component-type-hint-v807');
+    const promptHeader = titleEl?.closest('.modal-header');
+    if (!componentTypeHint) {
+        componentTypeHint = document.createElement('div');
+        componentTypeHint.className = 'component-type-hint-v807';
+    }
+    if (promptHeader && componentTypeHint.previousElementSibling !== promptHeader) {
+        promptHeader.insertAdjacentElement('afterend', componentTypeHint);
+    }
+    componentTypeHint.textContent = subtitle;
+    componentTypeHint.hidden = !subtitle;
     submit.textContent = submitLabel;
     fieldsEl.innerHTML = '';
 
@@ -11923,12 +13636,14 @@ function showAppFormModal({
 
         input.dataset.fieldName = field.name;
         if (field.className) input.classList.add(...String(field.className).split(/\s+/).filter(Boolean));
-        input.value = field.value ?? '';
+        if(input.type==='checkbox') input.checked=field.value===true||field.value==='true';
+        else input.value = field.value ?? '';
         input.placeholder = field.placeholder || '';
 
         if (field.min !== undefined) input.min = field.min;
         if (field.max !== undefined) input.max = field.max;
         if (field.step !== undefined) input.step = field.step;
+        if (field.accept) input.accept = field.accept;
 
         section.appendChild(input);
         fieldsEl.appendChild(section);
@@ -11956,13 +13671,20 @@ function showAppFormModal({
             resolve(value);
         };
 
-        const onSubmit = () => {
+        let savingFiles = false;
+        const onSubmit = async () => {
+            if (savingFiles) return;
+            savingFiles = true;
             const result = {};
-
-            inputs.forEach((input, key) => {
-                result[key] = input.value;
-            });
-
+            for (const [key,input] of inputs.entries()) {
+                if (input.type === 'file') {
+                    const file = input.files?.[0];
+                    if (file && file.type.startsWith('image/') && file.size <= 4*1024*1024) {
+                        result[key] = await new Promise(resolve => {const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>resolve('');reader.readAsDataURL(file)});
+                    } else result[key] = '';
+                } else if(input.type==='checkbox') result[key]=input.checked;
+                else result[key] = input.value;
+            }
             finish(result);
         };
 
@@ -12110,7 +13832,6 @@ const CUSTOM_TAB_ICON_CHOICES = [
     ['ph-football', 'Football'],
     ['ph-volleyball', 'Volleyball'],
     ['ph-bicycle', 'Bike'],
-    ['custom-skateboard', 'Skateboard'],
     ['ph-airplane', 'Airplane'],
     ['ph-car', 'Car'],
     ['ph-train', 'Train'],
@@ -12170,8 +13891,9 @@ const CUSTOM_TAB_ICON_CHOICES = [
     ['ph-hammer', 'Build'],
     ['ph-sliders-horizontal', 'Settings'],
     ['ph-sliders', 'Controls'],
-    ['ph-layout', 'Layout']
-]
+    ['ph-layout', 'Layout'],
+    ['custom-skateboard', 'Skateboard']
+];
 
 const CUSTOM_TAB_SKATEBOARD_SVG = `
     <svg class="custom-tab-skateboard-svg" viewBox="0 0 32 32" aria-hidden="true">
@@ -12255,9 +13977,251 @@ function initCustomTabs() {
     ensureCustomTabCreateModal();
     ensureCustomSideNavControls();
     renderCustomTabNavigation();
+    // V772: main + custom tab reordering is a core navbar behavior. Initialize
+    // it immediately with the navbar instead of waiting for deferred extras-6.
+    ensureImmediateUnifiedTabReorderV772();
     renderAllCustomTabViews();
     ensureDailyCustomTabLinksUI();
     markSitePrimaryModalActions();
+}
+
+// V772 — immediate unified side-nav ordering. This deliberately lives in the
+// core template bundle so Daily Logs / KB / Quizzes / Toolbox and custom tabs
+// are draggable the moment their icons appear. The older deferred V754/V757
+// implementations in template-extras-6 see these authority flags and stand down.
+function ensureImmediateUnifiedTabReorderV772() {
+    if (window.__loggyImmediateUnifiedNavV772) {
+        window.__loggyImmediateUnifiedNavV772.refresh?.();
+        return;
+    }
+
+    window.__loggyUnifiedNavV754 = true;
+    window.__loggyCustomTabActionsV757 = true;
+
+    const orderKey = 'loggy-unified-tab-order-v754:' + location.pathname;
+    const baseIds = [
+        'open-daily-logs-nav-btn',
+        'open-phrases-btn',
+        'open-quizzes-btn',
+        'open-tools-btn'
+    ];
+    let draggedId = '';
+    let rebuilding = false;
+    let queued = false;
+
+    const identify = button => {
+        if (!button) return '';
+        if (button.dataset?.customTabId) return 'custom:' + button.dataset.customTabId;
+        return button.id ? 'base:' + button.id : '';
+    };
+
+    const getOrder = () => {
+        try {
+            const value = JSON.parse(localStorage.getItem(orderKey) || '[]');
+            return Array.isArray(value) ? value : [];
+        } catch (_) {
+            return [];
+        }
+    };
+
+    const persist = host => {
+        try {
+            localStorage.setItem(
+                orderKey,
+                JSON.stringify(Array.from(host.children).map(identify).filter(Boolean))
+            );
+        } catch (_) {}
+    };
+
+    const clearDragState = () => {
+        draggedId = '';
+        document.documentElement.classList.remove('loggy-nav-reordering-v757');
+        document.querySelectorAll(
+            '#side-nav-unified-v754 .nav-drop-v754,' +
+            '#side-nav-unified-v754 .nav-drop-v757,' +
+            '#side-nav-unified-v754 .custom-tab-nav-drop-target,' +
+            '#side-nav-unified-v754 .custom-tab-nav-dragging'
+        ).forEach(el => el.classList.remove(
+            'nav-drop-v754',
+            'nav-drop-v757',
+            'custom-tab-nav-drop-target',
+            'custom-tab-nav-dragging'
+        ));
+    };
+
+    const refresh = () => {
+        if (rebuilding) return;
+        const nav = document.querySelector('.side-nav');
+        if (!nav) return;
+
+        rebuilding = true;
+        try {
+            let host = document.getElementById('side-nav-unified-v754');
+            if (!host) {
+                host = document.createElement('div');
+                host.id = 'side-nav-unified-v754';
+                const add = document.getElementById('add-custom-tab-btn');
+                if (add?.parentElement === nav) nav.insertBefore(host, add);
+                else nav.appendChild(host);
+            }
+
+            // V776: one authoritative DOM button per saved tab. Re-rendered
+            // factory buttons must never appear beside the already-mounted icon.
+            const savedTabs = getCustomTabs();
+            const validIds = new Set(savedTabs.filter(tab => !tab.nestedParentV753).map(tab => String(tab.id)));
+            const allCustomButtons = Array.from(document.querySelectorAll('.custom-tab-nav-btn[data-custom-tab-id]'));
+            const uniqueCustom = new Map();
+            allCustomButtons.forEach(button => {
+                const id = String(button.dataset.customTabId || '');
+                if (!validIds.has(id)) { button.remove(); return; }
+                const prior = uniqueCustom.get(id);
+                if (!prior) { uniqueCustom.set(id, button); return; }
+                // Prefer the icon currently mounted in the unified navbar:
+                // its click/context listeners and drag state remain intact.
+                if (prior.parentElement !== host && button.parentElement === host) {
+                    prior.remove(); uniqueCustom.set(id, button);
+                } else {
+                    button.remove();
+                }
+            });
+            const originals = [
+                ...baseIds.map(id => document.getElementById(id)),
+                ...uniqueCustom.values()
+            ];
+            const buttons = originals.filter(Boolean);
+            // Toolbox removal is stored in the log DB. Respect that state
+            // immediately instead of waiting for a deferred extras handler.
+            const toolboxHidden = Array.isArray(db?.settings?.hiddenBuiltInTabsV52) &&
+                db.settings.hiddenBuiltInTabsV52.includes('tools');
+            const toolbox = document.getElementById('open-tools-btn');
+            if (toolbox) {
+                toolbox.classList.toggle('log-nav-hidden-v52', toolboxHidden);
+                toolbox.hidden = toolboxHidden;
+                toolbox.setAttribute('aria-hidden', String(toolboxHidden));
+            }
+            document.documentElement.classList.toggle('toolbox-tab-deleted-v362', toolboxHidden);
+            document.documentElement.classList.toggle('loggy-toolbox-prehidden-v785', toolboxHidden);
+
+            const savedOrder = getOrder();
+            buttons.sort((a, b) => {
+                let ai = savedOrder.indexOf(identify(a));
+                let bi = savedOrder.indexOf(identify(b));
+                if (ai < 0) ai = 10000 + originals.indexOf(a);
+                if (bi < 0) bi = 10000 + originals.indexOf(b);
+                return ai - bi;
+            });
+
+            if (host.children.length !== buttons.length ||
+                buttons.some((button, index) => host.children[index] !== button)) {
+                host.replaceChildren(...buttons);
+            }
+
+            buttons.forEach(button => {
+                button.draggable = true;
+                button.dataset.v772UnifiedDrag = '1';
+            });
+
+            // V841: grow naturally through six custom tabs, then scroll the middle area.
+            const mountedCustomV841 = buttons.filter(button => button.matches?.('.custom-tab-nav-btn[data-custom-tab-id]'));
+            if (mountedCustomV841.length > 6) {
+                const sixthV841 = mountedCustomV841[5];
+                const maxV841 = Math.max(230, (sixthV841?.offsetTop || 0) + (sixthV841?.offsetHeight || 42) + 8);
+                host.style.setProperty('--loggy-unified-max-v841', `${Math.ceil(maxV841)}px`);
+                host.classList.add('loggy-unified-scroll-v841');
+            } else {
+                host.style.removeProperty('--loggy-unified-max-v841'); host.classList.remove('loggy-unified-scroll-v841'); host.scrollTop = 0;
+            }
+
+            document.querySelectorAll('.custom-tab-nav-btn[data-custom-tab-id]').forEach(button => {
+                try {
+                    if (getCustomTab(button.dataset.customTabId)?.nestedParentV753) button.remove();
+                } catch (_) {}
+            });
+
+            const home = nav.querySelector('a[title="Back to Dashboard"]');
+            if (home && nav.firstElementChild !== home) nav.prepend(home);
+            const add = document.getElementById('add-custom-tab-btn');
+            if (add && add.parentElement === nav && nav.lastElementChild !== add) nav.appendChild(add);
+        } finally {
+            rebuilding = false;
+        }
+    };
+
+    const schedule = () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => { queued = false; refresh(); });
+    };
+
+    // Capture phase beats the legacy custom-tab-only drag listeners that are
+    // attached while each custom button is created.
+    window.addEventListener('dragstart', event => {
+        const button = event.target?.closest?.('#side-nav-unified-v754 > button, #side-nav-unified-v754 > a');
+        if (!button) return;
+        const id = identify(button);
+        if (!id) return;
+        draggedId = id;
+        event.stopImmediatePropagation();
+        button.classList.add('custom-tab-nav-dragging');
+        document.documentElement.classList.add('loggy-nav-reordering-v757');
+        try {
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/loggy-unified-v754', id);
+            const blank = document.createElement('canvas');
+            blank.width = 1; blank.height = 1;
+            event.dataTransfer.setDragImage(blank, 0, 0);
+        } catch (_) {}
+    }, true);
+
+    window.addEventListener('dragover', event => {
+        if (!draggedId) return;
+        const button = event.target?.closest?.('#side-nav-unified-v754 > button, #side-nav-unified-v754 > a');
+        if (!button) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const host = document.getElementById('side-nav-unified-v754');
+        host?.querySelectorAll('.nav-drop-v757').forEach(el => el.classList.remove('nav-drop-v757'));
+        if (identify(button) !== draggedId) button.classList.add('nav-drop-v757');
+        if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    }, true);
+
+    window.addEventListener('drop', event => {
+        if (!draggedId) return;
+        const button = event.target?.closest?.('#side-nav-unified-v754 > button, #side-nav-unified-v754 > a');
+        if (!button) { clearDragState(); return; }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const host = document.getElementById('side-nav-unified-v754');
+        const dragged = Array.from(host?.children || []).find(el => identify(el) === draggedId);
+        if (dragged && dragged !== button) {
+            const rect = button.getBoundingClientRect();
+            host.insertBefore(
+                dragged,
+                event.clientY > rect.top + rect.height / 2 ? button.nextSibling : button
+            );
+            persist(host);
+        }
+        clearDragState();
+    }, true);
+
+    window.addEventListener('dragend', clearDragState, true);
+
+    const observer = new MutationObserver(records => {
+        if (rebuilding) return;
+        const relevant = records.some(record =>
+            Array.from(record.addedNodes).some(node =>
+                node.nodeType === 1 && (
+                    node.matches?.('.custom-tab-nav-btn,#open-daily-logs-nav-btn,#open-phrases-btn,#open-quizzes-btn,#open-tools-btn,#add-custom-tab-btn') ||
+                    node.querySelector?.('.custom-tab-nav-btn')
+                )
+            )
+        );
+        if (relevant) schedule();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    window.__loggyImmediateUnifiedNavV772 = { refresh, schedule };
+    refresh();
 }
 
 
@@ -12279,8 +14243,10 @@ function ensureDailyLogsNavButton() {
         button.addEventListener('click', () => {
             activeCustomTabId = null;
             customTabEditMode = false;
-            initGrid();
+            // V850: reveal Daily Logs immediately. Rebuilding potentially large
+            // restored-day grids happens only after the browser has painted it.
             switchView(gridView);
+            runAfterNavigationPaintV645(() => initGrid());
         });
 
         const home =
@@ -12420,7 +14386,7 @@ function updateLogSpecificSideNavScrollState() {
         );
 
     const shouldScroll =
-        customButtons.length > 3;
+        customButtons.length > 6;
 
     scrollRegion.classList.toggle(
         'is-scrollable',
@@ -12684,16 +14650,38 @@ function renderCustomTabNavigation() {
     const pinnedHost = document.getElementById('custom-tab-pinned-host');
     if (!host) return;
 
-    host.innerHTML = '';
-    if (pinnedHost) pinnedHost.innerHTML = '';
-
-    getCustomTabs().forEach(tab => {
-        const destination = tab.pinned && pinnedHost ? pinnedHost : host;
-        createCustomTabNavButton(tab, destination);
+    // V776: nav icons may already live in #side-nav-unified-v754.
+    // Clearing just the factory host and recreating all icons made duplicate
+    // buttons after refresh, and repeatedly re-triggered the nav observer.
+    const tabs = getCustomTabs().filter(tab => !tab?.nestedParentV753);
+    const validIds = new Set(tabs.map(tab => String(tab.id)));
+    document.querySelectorAll('.custom-tab-nav-btn[data-custom-tab-id]').forEach(button => {
+        if (!validIds.has(String(button.dataset.customTabId || ''))) button.remove();
+    });
+    tabs.forEach(tab => {
+        const matching = Array.from(document.querySelectorAll('.custom-tab-nav-btn[data-custom-tab-id]'))
+            .filter(button => button.dataset.customTabId === String(tab.id));
+        let button = matching.find(button => button.parentElement?.id === 'side-nav-unified-v754') || matching[0];
+        if (!button) {
+            const destination = tab.pinned && pinnedHost ? pinnedHost : host;
+            createCustomTabNavButton(tab, destination);
+            return;
+        }
+        matching.forEach(other => { if (other !== button) other.remove(); });
+        button.title = `${tab.name} — drag to reorder${tab.pinned ? ' · pinned' : ''}`;
+        button.setAttribute('aria-label', tab.name);
+        button.classList.toggle('custom-tab-nav-pinned', !!tab.pinned);
+        button.innerHTML = renderCustomTabIcon(tab.icon || 'ph-squares-four');
+        if (button.parentElement?.id !== 'side-nav-unified-v754') {
+            (tab.pinned && pinnedHost ? pinnedHost : host).appendChild(button);
+        }
     });
 
     pinnedHost?.classList.toggle('hidden', !pinnedHost.children.length);
     updateLogSpecificSideNavScrollState();
+    // V772: newly rendered custom icons join the unified sortable navbar
+    // immediately, with no dependency on template-extras-6 loading later.
+    window.__loggyImmediateUnifiedNavV772?.schedule?.();
 }
 
 function renderAllCustomTabViews() {
@@ -12709,6 +14697,8 @@ function buildCustomTabView(tab) {
     view.id = `custom-tab-view-${tab.id}`;
     view.className = 'view custom-tab-view';
     view.dataset.customTabId = tab.id;
+    tab.pageWidthV724 = String(tab.pageWidthV724 || 'standard') === 'wide' ? 'wide' : 'standard';
+    view.classList.toggle('custom-tab-wide-v724', tab.pageWidthV724 === 'wide');
 
     view.innerHTML = `
         <div class="custom-tab-header">
@@ -12717,9 +14707,6 @@ function buildCustomTabView(tab) {
             </div>
 
             <div class="custom-tab-header-actions">
-                <button type="button" class="small-icon-btn custom-tab-edit-btn" title="Edit tab">
-                    <i class="ph ph-pencil-simple"></i>
-                </button>
                 <button type="button" class="small-icon-btn custom-tab-settings-btn" title="Tab settings">
                     <i class="ph ph-sliders-horizontal"></i>
                 </button>
@@ -12730,12 +14717,6 @@ function buildCustomTabView(tab) {
 
         <div class="custom-tab-canvas"></div>
     `;
-
-    view.querySelector('.custom-tab-edit-btn').addEventListener('click', () => {
-        activeCustomTabId = tab.id;
-        customTabEditMode = !customTabEditMode;
-        renderCustomTabView(tab.id);
-    });
 
     view.querySelector('.custom-tab-settings-btn').addEventListener('click', () => {
         openCustomTabSettingsModal(tab.id);
@@ -12748,6 +14729,14 @@ function openCustomTab(tabId) {
     const tab = getCustomTab(tabId);
     const view = document.getElementById(`custom-tab-view-${tabId}`);
     if (!tab || !view) return;
+
+    // V765: custom tabs may contain components registered by the deferred extras.
+    // Start those bundles immediately on tab open instead of waiting up to 12s.
+    try {
+        window.ensureLoggyExtras?.({ urgent:true })?.then?.(() => {
+            if (String(activeCustomTabId || '') === String(tabId)) renderCustomTabView(tabId);
+        }).catch?.(() => {});
+    } catch (_) {}
 
     activeCustomTabId = tabId;
     customTabEditMode = false;
@@ -12787,17 +14776,50 @@ function renderCustomTabView(tabId) {
     const palette = view.querySelector('.custom-component-palette');
     const canvas = view.querySelector('.custom-tab-canvas');
     const editBtn = view.querySelector('.custom-tab-edit-btn');
+    if (!palette || !canvas) return;
+
+    tab.pageWidthV724 = String(tab.pageWidthV724 || 'standard') === 'wide' ? 'wide' : 'standard';
+    view.classList.toggle('custom-tab-wide-v724', tab.pageWidthV724 === 'wide');
 
     const titleWrap = view.querySelector('.custom-tab-title-wrap');
     const pageTitle = view.querySelector('.custom-tab-title');
     if (pageTitle) pageTitle.textContent = tab.name;
     if (titleWrap) titleWrap.classList.remove('hidden');
-    // Keep the pencil legible while editing: indicate edit mode with an outline,
-    // never by inverting the icon/background colors.
-    editBtn.classList.remove('active-builder-control');
-    editBtn.classList.toggle('custom-tab-edit-active-v245', customTabEditMode);
+    // The legacy pencil is intentionally removed from custom-tab headers by the
+    // newer one-settings-button chrome. Layout editing must NOT depend on that
+    // retired button still existing.
+    if (editBtn) {
+        editBtn.classList.remove('active-builder-control');
+        editBtn.classList.toggle('custom-tab-edit-active-v245', customTabEditMode);
+    }
+    view.classList.toggle('custom-tab-layout-editing-v759', customTabEditMode);
     palette.classList.toggle('hidden', !customTabEditMode);
     canvas.classList.toggle('is-editing', customTabEditMode);
+
+    // V760: Edit Layout gets an explicit X beside Tab Settings so the user can
+    // leave layout mode without reopening a menu. Keep it out of normal mode.
+    const headerActions = view.querySelector('.custom-tab-header-actions');
+    let exitEditBtn = headerActions?.querySelector('.custom-tab-exit-edit-v760');
+    if (customTabEditMode) {
+        if (headerActions && !exitEditBtn) {
+            exitEditBtn = document.createElement('button');
+            exitEditBtn.type = 'button';
+            exitEditBtn.className = 'small-icon-btn custom-tab-exit-edit-v760';
+            exitEditBtn.title = 'Done editing tab layout';
+            exitEditBtn.setAttribute('aria-label', 'Done editing tab layout');
+            exitEditBtn.innerHTML = '<i class="ph ph-x"></i>';
+            exitEditBtn.addEventListener('click', () => {
+                if (activeCustomTabId !== tab.id) activeCustomTabId = tab.id;
+                customTabEditMode = false;
+                renderCustomTabView(tab.id);
+            });
+            const settingsBtn = headerActions.querySelector('.custom-tab-settings-btn');
+            if (settingsBtn?.nextSibling) headerActions.insertBefore(exitEditBtn, settingsBtn.nextSibling);
+            else headerActions.appendChild(exitEditBtn);
+        }
+    } else if (exitEditBtn) {
+        exitEditBtn.remove();
+    }
 
     renderCustomComponentPalette(palette);
     renderCustomCanvas(tab, canvas);
@@ -12832,6 +14854,29 @@ function renderCustomComponentPalette(palette) {
         palette.appendChild(item);
     });
 }
+
+// V746 — FULL CUSTOM COMPONENT PALETTE READINESS
+// The component library is intentionally extended by template extras and by
+// widgets-v239. If the user opens a custom tab while those deferred bundles are
+// still loading, rerender the palette when each registry becomes available.
+// This is non-destructive: saved tab components/order are never touched.
+function refreshOpenCustomComponentPaletteV746() {
+    try {
+        if (!customTabEditMode || !activeCustomTabId) return;
+        const view = document.getElementById(`custom-tab-view-${activeCustomTabId}`);
+        const palette = view?.querySelector?.('.custom-component-palette');
+        if (!palette || palette.classList.contains('hidden')) return;
+        renderCustomComponentPalette(palette);
+    } catch {}
+}
+
+window.addEventListener('loggy-features-ready', () => {
+    requestAnimationFrame(refreshOpenCustomComponentPaletteV746);
+});
+window.addEventListener('loggy-widgets-ready-v243', () => {
+    requestAnimationFrame(refreshOpenCustomComponentPaletteV746);
+});
+window.__loggyRefreshCustomComponentPaletteV746 = refreshOpenCustomComponentPaletteV746;
 
 
 const CUSTOM_TITLE_BACKGROUND_TYPES = new Set([
@@ -13214,6 +15259,7 @@ function renderCustomCanvas(tab, canvas) {
         const content = document.createElement('div');
         content.className = 'custom-component-content';
         renderCustomComponentContent(tab, component, content);
+        try { window.__loggyApplyCustomComponentButtonVisibilityV763?.(tab, component, content); } catch {}
         wrapper.appendChild(content);
 
         addCustomDropHandlers(wrapper, tab.id, index);
@@ -13253,6 +15299,28 @@ function addCustomDropHandlers(wrapper, tabId, index) {
 function handleCustomDrop(event, tabId, targetIndex) {
     const newType = event.dataTransfer.getData('text/custom-component-type');
     const existingId = event.dataTransfer.getData('text/custom-existing-component');
+    const groupedRaw = event.dataTransfer.getData('text/custom-group-child');
+
+    if (groupedRaw) {
+        const tab = getCustomTab(tabId);
+        if (!tab || !Array.isArray(tab.components)) return;
+        try {
+            const grouped = JSON.parse(groupedRaw);
+            const group = tab.components.find(component =>
+                String(component.id) === String(grouped.groupId) &&
+                component.type === 'containerGroupV788'
+            );
+            if (!group || !Array.isArray(group.childrenV788)) return;
+            const childIndex = group.childrenV788.findIndex(child => String(child.id) === String(grouped.childId));
+            if (childIndex < 0) return;
+            const [child] = group.childrenV788.splice(childIndex, 1);
+            targetIndex = Math.max(0, Math.min(targetIndex, tab.components.length));
+            tab.components.splice(targetIndex, 0, child);
+            saveDb();
+            renderCustomTabView(tabId);
+        } catch (_) {}
+        return;
+    }
 
     if (newType) {
         addCustomComponent(tabId, newType, targetIndex);
@@ -13400,7 +15468,9 @@ function renderCustomComponentContent(tab, component, content) {
             break;
 
         default:
-            content.textContent = 'Unsupported component';
+            content.textContent = '';
+            content.classList.add('custom-component-awaiting-runtime-v765');
+            try { window.ensureLoggyExtras?.({ urgent:true })?.catch?.(() => {}); } catch (_) {}
     }
 }
 
@@ -13446,6 +15516,7 @@ function renderCustomCards(tab, component, content) {
     items.forEach(item => {
         const card = document.createElement('article');
         card.className = 'custom-user-card custom-searchable-item custom-content-editable';
+        card.setAttribute('data-card-entry-v809','true');
         card.dataset.searchText = `${item.title || ''} ${item.body || ''}`.toLowerCase();
         card.dataset.customItemId = item.id;
         card.title = 'Right-click to edit or remove';
@@ -13457,6 +15528,8 @@ function renderCustomCards(tab, component, content) {
 
         card.addEventListener('contextmenu', event => {
             event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
             showCustomItemContextMenu(event.clientX, event.clientY, [
                 {
                     label: 'Edit card',
@@ -14123,7 +16196,7 @@ function renderPracticeLog(tab, component, content) {
     if(!Array.isArray(component.entries))component.entries=[];
     content.innerHTML=`${learningSectionHeader(component,'add-practice-entry','Add practice session')}<div class="learning-practice-log"></div>`;
     const list=content.querySelector('.learning-practice-log');
-    component.entries.slice().reverse().forEach(entry=>{const row=document.createElement('article');row.className='learning-log-entry custom-searchable-item custom-content-editable';row.dataset.searchText=`${entry.date||''} ${entry.minutes||''} ${entry.focus||''} ${entry.notes||''}`.toLowerCase();row.dataset.customItemId=entry.id;row.title='Right-click to edit or remove';row.innerHTML=`<div class="learning-log-main"><strong>${escapeCustomHtml(entry.focus||'Practice')}</strong><span>${escapeCustomHtml(entry.date||'')}</span></div><div class="learning-log-meta">${Number(entry.minutes)||0} min</div>${entry.notes?`<p>${escapeCustomHtml(entry.notes)}</p>`:''}`;row.addEventListener('contextmenu',e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit session',icon:'ph-pencil-simple',action:()=>editPracticeEntry(tab,component,entry)},{label:'Delete session',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Practice Session',message:'Delete this practice session?',confirmLabel:'Delete'});if(!ok)return;component.entries=component.entries.filter(x=>x.id!==entry.id);saveDb();renderCustomTabView(tab.id)}}])});list.appendChild(row)});
+    component.entries.slice().reverse().forEach(entry=>{const row=document.createElement('article');row.className='learning-log-entry custom-searchable-item custom-content-editable';row.dataset.searchText=`${entry.date||''} ${entry.minutes||''} ${entry.focus||''} ${entry.notes||''}`.toLowerCase();row.dataset.customItemId=entry.id;row.title='Right-click to edit or remove';row.innerHTML=`<div class="learning-log-main"><strong>${escapeCustomHtml(entry.focus||'Practice')}</strong><span>${escapeCustomHtml(entry.date||'')}</span></div><div class="learning-log-meta">${Number(entry.minutes)||0} min</div>${entry.notes?`<p>${escapeCustomHtml(entry.notes)}</p>`:''}`;row.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit session',icon:'ph-pencil-simple',action:()=>editPracticeEntry(tab,component,entry)},{label:'Delete session',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Practice Session',message:'Delete this practice session?',confirmLabel:'Delete'});if(!ok)return;component.entries=component.entries.filter(x=>x.id!==entry.id);saveDb();renderCustomTabView(tab.id)}}])});list.appendChild(row)});
     content.querySelector('.add-practice-entry').addEventListener('click',async()=>{const v=await showAppFormModal({title:'Add Practice Session',submitLabel:'Add',fields:[{name:'focus',label:'What did you practice?',placeholder:'Scales, vocabulary, sketching…'},{name:'minutes',label:'Minutes',type:'number',value:'30',min:0},{name:'notes',label:'Notes (optional)',type:'textarea'}]});if(!v)return;component.entries.push({id:customId('practice'),date:new Date().toISOString().slice(0,10),minutes:Math.max(0,Number(v.minutes)||0),focus:String(v.focus||'').trim()||'Practice',notes:v.notes||''});saveDb();renderCustomTabView(tab.id)});
 }
 
@@ -14139,7 +16212,7 @@ function renderProgressMeter(tab, component, content) {
 }
 
 function renderSkillRatings(tab, component, content) {
-    if(!Array.isArray(component.items))component.items=[];content.innerHTML=`${learningSectionHeader(component,'add-skill-rating','Add skill')}<div class="learning-skill-list"></div>`;const list=content.querySelector('.learning-skill-list');component.items.forEach(item=>{const row=document.createElement('div');row.className='learning-skill-row custom-searchable-item custom-content-editable';row.dataset.searchText=String(item.name||'').toLowerCase();row.dataset.customItemId=item.id;row.title='Right-click to edit or remove';const rating=Math.max(1,Math.min(5,Number(item.rating)||1));row.innerHTML=`<span>${escapeCustomHtml(item.name||'Skill')}</span><div class="learning-stars" aria-label="${rating} out of 5">${Array.from({length:5},(_,i)=>`<i class="ph ${i<rating?'ph-star-fill':'ph-star'}"></i>`).join('')}</div>`;row.addEventListener('contextmenu',e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit rating',icon:'ph-pencil-simple',action:async()=>{const v=await showAppFormModal({title:'Edit Skill Rating',submitLabel:'Save',fields:[{name:'name',label:'Skill',value:item.name||''},{name:'rating',label:'Confidence (1–5)',type:'number',value:String(rating),min:1,max:5}]});if(!v)return;item.name=String(v.name||'').trim()||'Skill';item.rating=Math.max(1,Math.min(5,Number(v.rating)||1));saveDb();renderCustomTabView(tab.id)}},{label:'Delete skill',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Skill',message:'Delete this skill rating?',confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x.id!==item.id);saveDb();renderCustomTabView(tab.id)}}])});list.appendChild(row)});content.querySelector('.add-skill-rating').onclick=async()=>{const v=await showAppFormModal({title:'Add Skill Rating',submitLabel:'Add',fields:[{name:'name',label:'Skill name'},{name:'rating',label:'Confidence (1–5)',type:'number',value:'1',min:1,max:5}]});if(!v||!String(v.name||'').trim())return;component.items.push({id:customId('skill'),name:String(v.name).trim(),rating:Math.max(1,Math.min(5,Number(v.rating)||1))});saveDb();renderCustomTabView(tab.id)};
+    if(!Array.isArray(component.items))component.items=[];content.innerHTML=`${learningSectionHeader(component,'add-skill-rating','Add skill')}<div class="learning-skill-list"></div>`;const list=content.querySelector('.learning-skill-list');component.items.forEach(item=>{const row=document.createElement('div');row.className='learning-skill-row custom-searchable-item custom-content-editable';row.dataset.searchText=String(item.name||'').toLowerCase();row.dataset.customItemId=item.id;row.title='Right-click to edit or remove';const rating=Math.max(1,Math.min(5,Number(item.rating)||1));row.innerHTML=`<span>${escapeCustomHtml(item.name||'Skill')}</span><div class="learning-stars" aria-label="${rating} out of 5">${Array.from({length:5},(_,i)=>`<i class="ph ${i<rating?'ph-star-fill':'ph-star'}"></i>`).join('')}</div>`;row.addEventListener('contextmenu',e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit rating',icon:'ph-pencil-simple',action:async()=>{const v=await showAppFormModal({title:'Edit Skill Rating',submitLabel:'Save',fields:[{name:'name',label:'Skill',value:item.name||''},{name:'rating',label:'Confidence (1–5)',type:'number',value:String(rating),min:1,max:5,className:'skill-rating-confidence-input-v798'}]});if(!v)return;item.name=String(v.name||'').trim()||'Skill';item.rating=Math.max(1,Math.min(5,Number(v.rating)||1));saveDb();renderCustomTabView(tab.id)}},{label:'Delete skill',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Skill',message:'Delete this skill rating?',confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x.id!==item.id);saveDb();renderCustomTabView(tab.id)}}])});list.appendChild(row)});content.querySelector('.add-skill-rating').onclick=async()=>{const v=await showAppFormModal({title:'Add Skill Rating',submitLabel:'Add',fields:[{name:'name',label:'Skill name'},{name:'rating',label:'Confidence (1–5)',type:'number',value:'1',min:1,max:5,className:'skill-rating-confidence-input-v798'}]});if(!v||!String(v.name||'').trim())return;component.items.push({id:customId('skill'),name:String(v.name).trim(),rating:Math.max(1,Math.min(5,Number(v.rating)||1))});saveDb();renderCustomTabView(tab.id)};
 }
 
 function renderVocabulary(tab, component, content) {
@@ -14383,6 +16456,121 @@ function showCustomItemContextMenu(x, y, actions) {
     window.addEventListener('blur', close, { once: true });
 }
 
+// V759 — Custom-tab layout editing is core functionality. The header pencil is
+// retired, so entering layout mode cannot rely on that DOM node existing.
+function enterCustomTabLayoutEditorV759(tabId) {
+    const id = String(tabId || '');
+    const tab = id ? getCustomTab(id) : null;
+    const view = id ? document.getElementById(`custom-tab-view-${id}`) : null;
+    if (!tab || !view) return false;
+
+    // Make the requested tab active without routing through openCustomTab(),
+    // because openCustomTab() deliberately clears customTabEditMode.
+    activeCustomTabId = id;
+    customTabEditMode = true;
+    switchView(view);
+    renderCustomTabView(id);
+
+    // Reassert once after the current event/render stack. Deferred feature bundles
+    // may polish the header, but they are not allowed to turn layout mode back off.
+    requestAnimationFrame(() => {
+        const liveView = document.getElementById(`custom-tab-view-${id}`);
+        if (!liveView || activeCustomTabId !== id) return;
+        customTabEditMode = true;
+        if (!liveView.querySelector('.custom-tab-canvas')?.classList.contains('is-editing') ||
+            liveView.querySelector('.custom-component-palette')?.classList.contains('hidden')) {
+            renderCustomTabView(id);
+        }
+        try { window.__loggyRefreshCustomComponentPaletteV746?.(); } catch (_) {}
+    });
+
+    // Enhancers are optional and may load after edit mode is already visible.
+    try { window.ensureLoggyExtras?.({ urgent: true }); } catch (_) {}
+    try { window.__loggyLoadWidgetsRuntimeV241?.(); } catch (_) {}
+    return true;
+}
+window.__loggyOpenLayoutEditorV759 = enterCustomTabLayoutEditorV759;
+window.__loggyOpenLayoutEditorV758 = enterCustomTabLayoutEditorV759;
+window.__loggyEnterCustomTabEditV752 = enterCustomTabLayoutEditorV759;
+
+// V802 — roadmap modal context-menu authority.
+// Register this in the core bundle before the general custom-tab/page context
+// menus so right-clicks inside an open roadmap node/section modal can never be
+// swallowed by Edit Theme / Edit Tab Layout / Settings handlers loaded later.
+window.addEventListener('contextmenu', event => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const modal = target.closest('#roadmap-node-modal-v749');
+    if (!modal || modal.classList.contains('hidden')) return;
+    // KB rows keep their own item menu, and form controls keep normal editing.
+    if (target.closest('[data-road-kb-item-v749], [data-road-section-kb-v753], input, textarea, select, [contenteditable="true"]')) return;
+    if (typeof window.__loggyShowRoadmapModalContextMenuV802 !== 'function') return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    window.__loggyShowRoadmapModalContextMenuV802(event, modal);
+}, true);
+
+// V816: run individual component item menus before the tab-level context menu.
+// Bubble handlers are already installed on these cards. Intercept only the
+// competing window-capture menu and directly dispatch their own context handler.
+window.addEventListener('contextmenu', event => {
+    const item=event.target instanceof Element ? event.target.closest('.writer-scene-card-v804,.writer-character-card-v804,.writer-beat-card-v804,.writer-world-card-v804') : null;
+    if (!item || typeof item.oncontextmenu!=='function') return;
+    event.preventDefault();event.stopImmediatePropagation();
+    item.oncontextmenu({clientX:event.clientX,clientY:event.clientY,preventDefault(){},stopPropagation(){},stopImmediatePropagation(){}});
+},true);
+
+// V815: A component's visible title opens its own editor even outside layout mode.
+// This precedes the generic tab context menu, including on nested Pages tabs.
+window.addEventListener('contextmenu', event => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const heading = target.closest('.custom-tab-component .custom-collection-header > h2, .custom-tab-component .writer-header-v804 > h2, .custom-tab-component .writer-draft-head-v808 h2, .custom-tab-component .skill-roadmap-head-v749 h2, .custom-tab-component .writer-draft-head-v808 h2, .custom-tab-component > .custom-component-content > h2, .custom-tab-component .custom-component-heading h2');
+    if (!heading || target.closest('input,textarea,select,[contenteditable="true"]')) return;
+    const component = heading.closest('.custom-tab-component');
+    const view = heading.closest('.custom-tab-view');
+    if (!component?.dataset.componentId || !view?.dataset.customTabId) return;
+    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+    const tabId=view.dataset.customTabId, componentId=component.dataset.componentId;
+    showCustomItemContextMenu(event.clientX,event.clientY,[{
+        label:'Edit Component',icon:'ph-pencil-simple',
+        action:()=>window.editCustomComponent?.(tabId,componentId)
+    }]);
+},true);
+
+// Window capture runs before later document/bundle context-menu handlers.
+window.addEventListener('contextmenu', event => {
+    const active = document.querySelector('.custom-tab-view.view.active');
+    if (!active || !active.dataset.customTabId) return;
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    if (target.closest('input, textarea, select, [contenteditable="true"], .side-nav, .modal-overlay, #custom-item-context-menu, .loggy-recorder-dock-v710, .page-card-v761, .skill-roadmap-node-v749, #roadmap-section-orbit-v755, .roadmap-section-orbit-v753, #roadmap-section-orbit-v801, .roadmap-section-orbit-v801, .roadmap-node-drawer-v749, .custom-kb-card-v461, .writer-scene-card-v804, .writer-beat-card-v804, .writer-character-card-v804, .writer-world-card-v804, .writer-session-row-v804, .learning-skill-row, .qa-row-v163, .qa-card-v162')) return;
+    if (!active.contains(target) && target !== document.body && target !== document.documentElement) return;
+    const id = String(active.dataset.customTabId);
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    showCustomItemContextMenu(event.clientX, event.clientY, [
+        { label: 'Edit Tab Layout', icon: 'ph-layout', action: () => enterCustomTabLayoutEditorV759(id) },
+        { label: 'Edit Theme', icon: 'ph-paint-brush', action: () => window.__loggyThemeBuilderV307OpenEdit?.(String(db?.settings?.theme || 'default')) },
+        { label: 'Settings', icon: 'ph-sliders-horizontal', action: () => openCustomTabSettingsModal(id) }
+    ]);
+}, true);
+
+// Capture-level delegation keeps the Settings action alive even if another
+// enhancement wrapper rebuilds the modal after it opens.
+document.addEventListener('click', event => {
+    const button = event.target?.closest?.('#custom-tab-settings-modal [data-custom-tab-action="edit-layout"], #custom-tab-settings-modal [data-custom-tab-layout-edit-v758]');
+    if (!button) return;
+    const modal = button.closest('#custom-tab-settings-modal');
+    const id = String(modal?.dataset?.customTabId || activeCustomTabId || '');
+    if (!id) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    modal?.classList.add('hidden');
+    enterCustomTabLayoutEditorV759(id);
+}, true);
+
 function customImageFileToDataUrl(file) {
     return new Promise(resolve => {
         if (!file || !file.type?.startsWith('image/')) {
@@ -14499,6 +16687,7 @@ async function editCustomComponent(tabId, componentId) {
 
     const result = await showAppFormModal({
         title,
+        subtitle: `Component: ${({cards:'Cards',polaroids:'Polaroids',checklist:'Checklist',progressMeter:'Progress Meter',skillRatings:'Skill Ratings',resources:'Resources',milestones:'Milestones',text:'Text',heading:'Heading',search:'Search Box'})[component.type] || component.type}`,
         submitLabel: 'Save',
         fields: [field]
     });
@@ -14686,29 +16875,6 @@ function ensureCustomTabCreateModal() {
                 <div id="custom-tab-icon-picker" class="custom-tab-icon-picker"></div>
             </div>
 
-            <div class="modal-section custom-tab-daily-source-section">
-                <span class="field-label">Start with Daily Log content</span>
-                <p class="custom-tab-create-hint">Optional — automatically collect things you have saved across Daily Logs into this tab.</p>
-                <div class="custom-tab-daily-source-grid">
-                    <label><input type="checkbox" value="resources"> <i class="ph ph-link"></i> Media Resources</label>
-                    <label><input type="checkbox" value="videos"> <i class="ph ph-video"></i> Videos</label>
-                    <label><input type="checkbox" value="images"> <i class="ph ph-image"></i> Images</label>
-                    <label><input type="checkbox" value="pdfs"> <i class="ph ph-file-pdf"></i> PDFs</label>
-                    <label><input type="checkbox" value="notes"> <i class="ph ph-note-pencil"></i> Notes</label>
-                    <label><input type="checkbox" value="textFields"> <i class="ph ph-textbox"></i> Other Text Fields</label>
-                    <label><input type="checkbox" value="audio"> <i class="ph ph-waveform"></i> Audio</label>
-                    <label><input type="checkbox" value="knowledge"> <i class="ph ph-books"></i> Knowledge Items</label>
-                </div>
-            </div>
-
-            <div class="modal-section custom-tab-connections-option-v32">
-                <span class="field-label">Daily Log Connections</span>
-                <p class="custom-tab-create-hint">Optional — add a visual map of how your Daily Logs connect to one another.</p>
-                <label class="custom-tab-connections-toggle-v32">
-                    <input type="checkbox" id="custom-tab-add-connections-map">
-                    <span><i class="ph ph-graph"></i> Add Daily Log Connections Map</span>
-                </label>
-            </div>
 
             <button type="button" id="custom-tab-create-confirm" data-enter-submit="true" class="icon-btn custom-tab-primary-btn">
                 <i class="ph ph-plus"></i>
@@ -14785,14 +16951,6 @@ function openCustomTabCreateModal() {
     const choices = modal.querySelectorAll('.custom-tab-icon-choice');
     choices.forEach(choice => choice.classList.remove('selected'));
 
-    modal.querySelectorAll('.custom-tab-daily-source-grid input[type="checkbox"]').forEach(input => {
-        input.checked = false;
-    });
-
-    
-    const connectionMapToggleV32 =
-        modal.querySelector('#custom-tab-add-connections-map');
-    if (connectionMapToggleV32) connectionMapToggleV32.checked = false;
 
     modal.classList.remove('hidden');
     setTimeout(() => input.focus(), 0);
@@ -14810,9 +16968,6 @@ function createCustomTabFromModal() {
     const name = input.value.trim() || 'My Tab';
     const icon = modal.querySelector('.custom-tab-icon-choice.selected')?.dataset.icon || 'ph-squares-four';
 
-    const chosenDailySources = Array.from(
-        modal.querySelectorAll('.custom-tab-daily-source-grid input[type="checkbox"]:checked')
-    ).map(input => input.value);
 
     const tab = {
         id: customId('tab'),
@@ -14821,21 +16976,6 @@ function createCustomTabFromModal() {
         components: []
     };
 
-    if (chosenDailySources.length) {
-        tab.components.push({
-            ...defaultCustomComponent('dailyLogCollection'),
-            sources: chosenDailySources
-        });
-    }
-
-    if (modal.querySelector('#custom-tab-add-connections-map')?.checked) {
-        tab.components.push({
-            id: customId('component'),
-            type: 'dailyConnectionsGraph',
-            title: 'Daily Log Connections',
-            titleBackground: 'none'
-        });
-    }
 
     getCustomTabs().push(tab);
     saveDb();
@@ -14882,6 +17022,15 @@ function openCustomTabSettingsModal(tabId) {
             </div>
 
             <div class="modal-section">
+                <span class="field-label">Page Width</span>
+                <select id="custom-tab-settings-width-v724">
+                    <option value="standard" ${String(tab.pageWidthV724 || 'standard') === 'wide' ? '' : 'selected'}>Standard</option>
+                    <option value="wide" ${String(tab.pageWidthV724 || 'standard') === 'wide' ? 'selected' : ''}>Wide / Use More of the Page</option>
+                </select>
+                <p class="progress-hint" style="margin-top:5px;">Wide gives components more horizontal room on this tab.</p>
+            </div>
+
+            <div class="modal-section">
                 <span class="field-label">Icon</span>
                 <div class="theme-search-wrap custom-icon-search-box">
                     <i class="ph ph-magnifying-glass"></i>
@@ -14898,6 +17047,11 @@ function openCustomTabSettingsModal(tabId) {
             <button type="button" class="icon-btn custom-tab-save-settings">
                 <i class="ph ph-check"></i>
                 Save
+            </button>
+
+            <button type="button" class="icon-btn custom-tab-edit-layout-v752" data-custom-tab-action="edit-layout" data-custom-tab-layout-edit-v758>
+                <i class="ph ph-layout"></i>
+                Edit Tab Layout
             </button>
 
             <button type="button" class="icon-btn custom-tab-duplicate-tab">
@@ -14947,12 +17101,23 @@ function openCustomTabSettingsModal(tabId) {
 
     const close = () => modal.classList.add('hidden');
 
+    // V758: Bind to the actual button in the modal, not to a deferred extra
+    // bundle that may not have loaded when Settings is opened.
+    modal.dataset.customTabId = String(tabId);
+    modal.querySelector('[data-custom-tab-layout-edit-v758]')?.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        close();
+        enterCustomTabLayoutEditorV759(tabId);
+    });
+
     modal.querySelector('.custom-tab-settings-close').addEventListener('click', close);
 
     modal.querySelector('.custom-tab-save-settings').addEventListener('click', () => {
         const name = modal.querySelector('#custom-tab-settings-name').value.trim();
         tab.name = name || tab.name;
         tab.icon = modal.querySelector('.custom-tab-icon-choice.selected')?.dataset.icon || tab.icon;
+        tab.pageWidthV724 = modal.querySelector('#custom-tab-settings-width-v724')?.value === 'wide' ? 'wide' : 'standard';
         tab.showPageTitle = true;
 
         saveDb();
@@ -14979,13 +17144,32 @@ function openCustomTabSettingsModal(tabId) {
         });
         if (!confirmed) return;
 
+        const nestedParentId = String(tab?.nestedParentV753?.tabId || '');
+        const parentTab = nestedParentId ? getCustomTab(nestedParentId) : null;
+        let parentView = parentTab ? document.getElementById(`custom-tab-view-${nestedParentId}`) : null;
+        if (parentTab && !parentView && typeof buildCustomTabView === 'function') {
+            parentView = buildCustomTabView(parentTab);
+            document.body.insertBefore(parentView, document.getElementById('companion-stage') || null);
+        }
+        if (parentTab && parentView) {
+            activeCustomTabId = nestedParentId;
+            customTabEditMode = false;
+            renderCustomTabView(nestedParentId);
+            switchView(parentView);
+        }
+
         moveCustomTabToTrash(tabId);
         saveDb();
         document.getElementById(`custom-tab-view-${tabId}`)?.remove();
         renderCustomTabNavigation();
-        activeCustomTabId = null;
         customTabEditMode = false;
-        switchView(gridView);
+        if (parentTab && parentView) {
+            activeCustomTabId = nestedParentId;
+            renderCustomTabView(nestedParentId);
+        } else {
+            activeCustomTabId = null;
+            switchView(gridView);
+        }
         close();
     });
 
@@ -15482,7 +17666,7 @@ async function createCustomItemFromDailyView(tab, component) {
       case 'polaroids':{const v=await form('Add Polaroid',[{name:'media',label:'Media type',type:'select',options:[{value:'photo',label:'Photo upload'},{value:'youtube',label:'YouTube link'},{value:'mp4',label:'MP4 link'}]},{name:'url',label:'Media URL (for YouTube/MP4)',placeholder:'https://...'},{name:'caption',label:'Caption'}]);if(!v)return null;if(v.media==='photo'){const picked=await pickDailyImageFile();if(!picked)return null;item={id:customId('polaroid'),mediaType:'image',image:picked.image,youtubeUrl:'',mp4Url:'',caption:String(v.caption||'').trim()||picked.file.name.replace(/\.[^.]+$/,'')||'Untitled'}}else if(v.media==='youtube'){if(!String(v.url||'').trim())return null;item={id:customId('polaroid'),mediaType:'youtube',image:'',youtubeUrl:String(v.url).trim(),mp4Url:'',caption:String(v.caption||'').trim()||'YouTube Video'}}else{if(!String(v.url||'').trim())return null;item={id:customId('polaroid'),mediaType:'mp4',image:'',youtubeUrl:'',mp4Url:String(v.url).trim(),caption:String(v.caption||'').trim()||'Video'}}break}
       case 'checklist':{const v=await showAppPrompt({title:'Add Checklist Item',label:'Checklist item',submitLabel:'Add'});if(v===null||!v.trim())return null;item={id:customId('check'),text:v.trim(),done:false,completedAt:null};break}
       case 'practiceLog':{const v=await form('Add Practice Session',[{name:'focus',label:'What did you practice?'},{name:'minutes',label:'Minutes',type:'number',value:'30',min:0},{name:'notes',label:'Notes (optional)',type:'textarea'}]);if(!v||!String(v.focus||'').trim())return null;item={id:customId('practice'),date:new Date().toISOString().slice(0,10),minutes:Math.max(0,Number(v.minutes)||0),focus:String(v.focus).trim(),notes:v.notes||''};break}
-      case 'skillRatings':{const v=await form('Add Skill Rating',[{name:'name',label:'Skill name'},{name:'rating',label:'Confidence 1–5',type:'number',value:'1',min:1,max:5}]);if(!v||!String(v.name||'').trim())return null;item={id:customId('skill'),name:String(v.name).trim(),rating:Math.max(1,Math.min(5,Number(v.rating)||1))};break}
+      case 'skillRatings':{const v=await form('Add Skill Rating',[{name:'name',label:'Skill name'},{name:'rating',label:'Confidence (1–5)',type:'number',value:'1',min:1,max:5,className:'skill-rating-confidence-input-v798'}]);if(!v||!String(v.name||'').trim())return null;item={id:customId('skill'),name:String(v.name).trim(),rating:Math.max(1,Math.min(5,Number(v.rating)||1))};break}
       case 'vocabulary':{const v=await form('Add Vocabulary',[{name:'term',label:'Word / phrase'},{name:'meaning',label:'Meaning / translation'},{name:'note',label:'Pronunciation, example, or note',type:'textarea'}]);if(!v||!String(v.term||'').trim())return null;item={id:customId('vocab'),term:String(v.term).trim(),meaning:v.meaning||'',note:v.note||''};break}
       case 'resources':{const v=await form('Add Resource',[{name:'title',label:'Resource name'},{name:'url',label:'URL',type:'url',value:'https://'},{name:'note',label:'Note (optional)',type:'textarea'}]);if(!v||!String(v.title||'').trim())return null;item={id:customId('resource'),title:String(v.title).trim(),url:String(v.url||'').trim(),note:v.note||''};break}
       case 'milestones':{const v=await showAppPrompt({title:'Add Milestone',label:'Milestone',submitLabel:'Add'});if(v===null||!v.trim())return null;item={id:customId('milestone'),text:v.trim(),done:false,completedAt:null};break}
@@ -15577,13 +17761,9 @@ document.addEventListener('keydown', event => {
 // Hold Ctrl + Shift + D + M at the same time.
 // ============================================================
 
-const developerChordState = {
-    ctrl: false,
-    shift: false,
-    d: false,
-    m: false,
-    openedForCurrentHold: false
-};
+// Developer Mode shortcut is owned by __loggyShortcutRuntimeV1000.
+// The editor and its old document key listeners were removed to prevent
+// duplicate captures and the saved chord reverting to its legacy default.
 
 function ensureDeveloperModeModal() {
     if (document.getElementById('developer-mode-modal')) return;
@@ -15679,49 +17859,6 @@ function openDeveloperMode() {
 
     modal?.classList.remove('hidden');
 }
-
-function updateDeveloperChordState(event, isDown) {
-    if (event.key === 'Control') developerChordState.ctrl = isDown;
-    if (event.key === 'Shift') developerChordState.shift = isDown;
-
-    if (event.code === 'KeyD') developerChordState.d = isDown;
-    if (event.code === 'KeyM') developerChordState.m = isDown;
-
-    const chordActive =
-        developerChordState.ctrl &&
-        developerChordState.shift &&
-        developerChordState.d &&
-        developerChordState.m;
-
-    if (chordActive && !developerChordState.openedForCurrentHold) {
-        developerChordState.openedForCurrentHold = true;
-        event.preventDefault();
-        openDeveloperMode();
-    }
-
-    if (!chordActive && !isDown) {
-        developerChordState.openedForCurrentHold = false;
-    }
-}
-
-document.addEventListener('keydown', event => {
-    updateDeveloperChordState(event, true);
-});
-
-document.addEventListener('keyup', event => {
-    updateDeveloperChordState(event, false);
-});
-
-window.addEventListener('blur', () => {
-    developerChordState.ctrl = false;
-    developerChordState.shift = false;
-    developerChordState.d = false;
-    developerChordState.m = false;
-    developerChordState.openedForCurrentHold = false;
-});
-
-
-
 
 // ============================================================
 // KNOWLEDGE BASE SETTINGS — FIELD-CENTRIC REDESIGN
@@ -15844,6 +17981,10 @@ function categoryHasStoredFieldData(categoryName, fieldNames = []) {
 
 function migrateKnowledgeBaseSettings() {
     if (!db.settings) db.settings = {};
+
+    // V683: restored backups carry DATA only. Normalize any historical KB view
+    // values so old saved settings cannot resurrect retired layout engines.
+    db.settings.libraryView = db.settings.libraryView === 'polaroid' ? 'polaroid' : 'list';
 
     if (!Array.isArray(db.settings.categories)) {
         db.settings.categories = ['Category'];
@@ -17690,6 +19831,7 @@ function buildKnowledgeFieldInputHtml(
             </div>
         `;
     } else if (field.kind === 'image') {
+        const imageUrlValue = /^(?:https?:|blob:|\/)/i.test(safeValue) ? safeValue : '';
         inputHtml = `
             <input
                 type="hidden"
@@ -17698,7 +19840,7 @@ function buildKnowledgeFieldInputHtml(
                 value="${escapeKnowledgeAttr(safeValue)}"
             >
 
-            <div class="kb-image-field-editor">
+            <div class="kb-image-field-editor kb-image-field-editor-v721">
                 <div
                     class="kb-image-click-box"
                     tabindex="0"
@@ -17712,6 +19854,28 @@ function buildKnowledgeFieldInputHtml(
                             : `<span>Click to upload image</span>`
                     }
                 </div>
+
+                <div class="kb-image-field-actions-v721">
+                    <button type="button" class="small-icon-btn kb-image-upload-button-v721">
+                        <i class="ph ph-upload-simple"></i>
+                        <span>${safeValue ? 'Replace upload' : 'Upload image'}</span>
+                    </button>
+                    <button type="button" class="small-icon-btn kb-image-remove-button-v721" ${safeValue ? '' : 'disabled'}>
+                        <i class="ph ph-trash"></i>
+                        <span>Remove</span>
+                    </button>
+                </div>
+
+                <label class="kb-image-url-field-v721">
+                    <span class="field-label">Or use an image URL</span>
+                    <input
+                        type="url"
+                        class="kb-image-url-input-v721"
+                        value="${escapeKnowledgeAttr(imageUrlValue)}"
+                        placeholder="https://example.com/image.jpg"
+                        autocomplete="off"
+                    >
+                </label>
 
                 <input
                     type="file"
@@ -17831,42 +19995,38 @@ function bindKnowledgeItemFieldBehavior(
 
     container.querySelectorAll('.kb-image-file-input')
         .forEach(fileInput => {
-            const section =
-                fileInput.closest('.kb-item-field');
-
-            const hidden =
-                section?.querySelector('.kb-image-value');
-
-            const box =
-                section?.querySelector('.kb-image-click-box');
-
+            const section = fileInput.closest('.kb-item-field');
+            const hidden = section?.querySelector('.kb-image-value');
+            const box = section?.querySelector('.kb-image-click-box');
+            const urlInput = section?.querySelector('.kb-image-url-input-v721');
+            const uploadButton = section?.querySelector('.kb-image-upload-button-v721');
+            const removeButton = section?.querySelector('.kb-image-remove-button-v721');
             if (!hidden || !box) return;
 
-            const persistImageValue = value => {
-                hidden.value = value || '';
-
-                box.innerHTML = value
-                    ? `<img src="${escapeKnowledgeAttr(value)}" alt="">`
+            const paintImageValueV721 = value => {
+                const clean = String(value || '').trim();
+                hidden.value = clean;
+                box.innerHTML = clean
+                    ? `<img src="${escapeKnowledgeAttr(clean)}" alt="">`
                     : '<span>Click to upload image</span>';
-
-                box.setAttribute(
-                    'aria-label',
-                    value ? 'Replace image' : 'Upload image'
-                );
-
-                box.title = value
+                box.setAttribute('aria-label', clean ? 'Replace image' : 'Upload image');
+                box.title = clean
                     ? 'Click to replace. Right-click for options.'
                     : 'Click to upload an image.';
+                if (removeButton) removeButton.disabled = !clean;
+            };
+
+            const persistImageValue = value => {
+                const clean = String(value || '').trim();
+                paintImageValueV721(clean);
+                if (urlInput && !/^data:/i.test(clean)) urlInput.value = clean;
+                if (urlInput && /^data:/i.test(clean)) urlInput.value = '';
 
                 if (mode === 'edit' && itemId) {
                     if (!db.phrase_meta[itemId].custom_fields) {
                         db.phrase_meta[itemId].custom_fields = {};
                     }
-
-                    db.phrase_meta[itemId].custom_fields[
-                        hidden.dataset.key
-                    ] = value || '';
-
+                    db.phrase_meta[itemId].custom_fields[hidden.dataset.key] = clean;
                     saveDb();
                 }
             };
@@ -17877,12 +20037,11 @@ function bindKnowledgeItemFieldBehavior(
             };
 
             box.addEventListener('click', pickImage);
+            uploadButton?.addEventListener('click', pickImage);
+            removeButton?.addEventListener('click', () => persistImageValue(''));
 
             box.addEventListener('keydown', event => {
-                if (
-                    event.key === 'Enter' ||
-                    event.key === ' '
-                ) {
+                if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
                     pickImage();
                 }
@@ -17890,17 +20049,11 @@ function bindKnowledgeItemFieldBehavior(
 
             box.addEventListener('contextmenu', event => {
                 event.preventDefault();
-
-                const actions = [
-                    {
-                        label: hidden.value
-                            ? 'Replace image'
-                            : 'Add image',
-                        icon: 'ph-image',
-                        action: pickImage
-                    }
-                ];
-
+                const actions = [{
+                    label: hidden.value ? 'Replace image' : 'Add image',
+                    icon: 'ph-image',
+                    action: pickImage
+                }];
                 if (hidden.value) {
                     actions.push({
                         label: 'Remove image',
@@ -17909,27 +20062,30 @@ function bindKnowledgeItemFieldBehavior(
                         action: () => persistImageValue('')
                     });
                 }
-
-                showCustomItemContextMenu(
-                    event.clientX,
-                    event.clientY,
-                    actions
-                );
+                showCustomItemContextMenu(event.clientX, event.clientY, actions);
             });
 
             fileInput.addEventListener('change', async () => {
-                const file =
-                    fileInput.files?.[0];
-
+                const file = fileInput.files?.[0];
                 if (!file) return;
-
-                const image =
-                    await customImageFileToDataUrl(file);
-
+                const image = await customImageFileToDataUrl(file);
                 if (!image) return;
-
                 persistImageValue(image);
             });
+
+            if (urlInput) {
+                const updateUrlPreview = () => {
+                    const value = String(urlInput.value || '').trim();
+                    paintImageValueV721(value);
+                };
+                urlInput.addEventListener('input', updateUrlPreview);
+                urlInput.addEventListener('change', () => persistImageValue(urlInput.value));
+                urlInput.addEventListener('blur', () => {
+                    if (String(urlInput.value || '').trim() !== String(hidden.value || '').trim()) {
+                        persistImageValue(urlInput.value);
+                    }
+                });
+            }
         });
 
     container.querySelectorAll('.kb-video-field-input')
@@ -18389,14 +20545,16 @@ function buildKnowledgeFieldDisplayHtml(
             : '';
 
     return `
-        <div class="modal-section mt-10 kb-item-field kb-display-field">
+        <div class="modal-section mt-10 kb-item-field kb-display-field${audioButton ? ' has-audio-v696' : ''}">
             <div class="kb-item-field-label-row">
                 <span class="field-label">
                     ${escapeKnowledgeHtml(field.name)}
                 </span>
+            </div>
+            <div class="kb-display-value-wrap-v696">
+                ${content}
                 ${audioButton}
             </div>
-            ${content}
         </div>
     `;
 }
@@ -18641,9 +20799,12 @@ function openItemModal(
     const audioText =
         getItemAudioText(itemId);
 
+    const itemTitleHtmlV689 = String(itemId).includes('\\') && typeof placeholderTokenHtmlV56 === 'function'
+        ? placeholderTokenHtmlV56(String(itemId))
+        : escapeKnowledgeHtml(itemId);
     titleEl.innerHTML = `
         <span class="phrase-modal-title-main-row">
-            <span>${escapeKnowledgeHtml(itemId)}</span>
+            <span>${itemTitleHtmlV689}</span>
         </span>
         <span class="phrase-modal-category-subtitle">
             ${escapeKnowledgeHtml(categoryName)}
@@ -18936,6 +21097,10 @@ function renderPhrasesLibrary(
                 libraryFilter === 'all' ||
                 db.phrase_meta[id]?.type ===
                     libraryFilter
+            )
+            .filter(id =>
+                window.__loggyShowQuizHiddenOnlyV736 !== true ||
+                !!db.phrase_meta?.[id]?.hideFromQuizzesV59
             )
             .filter(id =>
                 id
@@ -19277,63 +21442,14 @@ function initializeKnowledgeBaseSettingsRedesign() {
 
 
 // ============================================================
-// ENTER = PRIMARY MODAL ACTION
-// Enter behaves like the modal's Done / Save / Create button.
-// Textareas and contenteditable areas keep normal line breaks.
+// PRIMARY MODAL ACTION MARKERS
+// Runtime activation is owned exclusively by loggyShortcutRuntimeV1100.
 // ============================================================
-
 function markSitePrimaryModalActions() {
-    [
-        'add-item-save',
-        'custom-tab-create-confirm',
-        'custom-tab-settings-save'
-    ].forEach(id => {
-        document.getElementById(id)?.setAttribute('data-enter-submit', 'true');
+    ['add-item-save','custom-tab-create-confirm','custom-tab-settings-save'].forEach(id => {
+        document.getElementById(id)?.setAttribute('data-enter-submit','true');
     });
 }
-
-document.addEventListener('keydown', event => {
-    if (
-        event.key !== 'Enter' ||
-        event.repeat ||
-        event.defaultPrevented ||
-        event.shiftKey ||
-        event.ctrlKey ||
-        event.metaKey ||
-        event.altKey
-    ) {
-        return;
-    }
-
-    const target = event.target;
-
-    if (
-        target?.tagName === 'TEXTAREA' ||
-        target?.isContentEditable
-    ) {
-        return;
-    }
-
-    const modal =
-        target?.closest?.('.modal-overlay:not(.hidden)') ||
-        Array.from(
-            document.querySelectorAll('.modal-overlay:not(.hidden)')
-        ).pop();
-
-    if (!modal) return;
-
-    const primary =
-        modal.querySelector(
-            '[data-enter-submit="true"]:not(:disabled)'
-        );
-
-    if (!primary) return;
-
-    event.preventDefault();
-    primary.click();
-});
-
-
 
 // ============================================================
 // PERSONAL LEARNING SUITE — FEATURE PACK
@@ -19639,6 +21755,7 @@ function moveKnowledgeItemToTrash(itemId) {
 
     db.phrases.splice(index, 1);
     delete db.phrase_meta[itemId];
+    try { reconcileLearnSessionV737({ syncRuntime:true, saveServer:false }); } catch {}
     saveDb();
 
     showFeatureToast(`Moved “${itemId}” to Trash.`, 'Undo', () => {
@@ -20259,17 +22376,9 @@ function openDailyLogCollectionSettings(tabId, componentId) {
 
 function loggyDayHasUserContentV532(dayData) {
     if (!dayData || typeof dayData !== 'object') return false;
-    const ignore = new Set(['day','dayNumber','date','createdAt','updatedAt','id']);
-    const meaningful = (value, key = '') => {
-        if (ignore.has(key)) return false;
-        if (value == null || value === false) return false;
-        if (typeof value === 'string') return featureStripHtml(value).trim().length > 0;
-        if (typeof value === 'number') return Number.isFinite(value) && value !== 0;
-        if (Array.isArray(value)) return value.some(item => meaningful(item));
-        if (typeof value === 'object') return Object.entries(value).some(([k,v]) => meaningful(v,k));
-        return value === true;
-    };
-    return Object.entries(dayData).some(([key,value]) => meaningful(value,key));
+    const hasText=value=>typeof value==='string'&&featureStripHtml(value).replace(/\u200b/g,'').trim().length>0;
+    const learned=Array.isArray(dayData.phrases)&&dayData.phrases.some(v=>v!=null&&String(v).trim()!=='');
+    return learned||hasText(dayData.notes)||hasText(dayData.video)||hasText(dayData.video2);
 }
 window.__loggyDayHasUserContentV532 = loggyDayHasUserContentV532;
 
@@ -20491,7 +22600,7 @@ function ensureBackupRestoreModal() {
                 <button type="button" class="backup-action-card backup-export-current">
                     <i class="ph ph-download-simple"></i>
                     <strong>Export Current Log</strong>
-                    <span>Download Daily Logs, Knowledge Base, tabs, themes, settings, and Trash as JSON.</span>
+                    <span>Download Daily Logs, Knowledge Base, tabs, themes, settings, and Trash as JSON. App HTML/JS/CSS are not stored; restores always use the current runtime.</span>
                 </button>
 
                 <button type="button" class="backup-action-card backup-import-current">
@@ -20519,7 +22628,8 @@ function ensureBackupRestoreModal() {
             `${safeBackupFilename(HOBBY)}-backup-${stamp}.json`,
             {
                 format: 'loggy-log-backup',
-                version: 1,
+                version: 2,
+                runtimeLayout: 'kb-v683',
                 hobby: HOBBY,
                 exportedAt: new Date().toISOString(),
                 data: db
@@ -21352,22 +23462,9 @@ function closeGlobalCommandPalette() {
     document.getElementById('global-command-palette')?.classList.add('hidden');
 }
 
-function bindGlobalCommandShortcut() {
-    if (document.documentElement.dataset.globalCommandShortcutBound) return;
-    document.documentElement.dataset.globalCommandShortcutBound = 'true';
-
-    document.addEventListener('keydown', event => {
-        if (event.repeat || !event.ctrlKey || event.shiftKey || event.altKey || event.metaKey || event.code !== 'KeyP') return;
-
-        const target = event.target;
-        const typing = target instanceof HTMLElement && (target.matches('textarea, [contenteditable="true"], [contenteditable=""]') || target.isContentEditable);
-        if (typing) return;
-
-        event.preventDefault();
-        const modal = ensureGlobalCommandPalette();
-        if (modal.classList.contains('hidden')) openGlobalCommandPalette();
-        else closeGlobalCommandPalette();
-    });
+function bindGlobalCommandShortcut(){
+    // V1100: fixed Ctrl+P listeners were removed; the saved shortcut runtime is authoritative.
+    return;
 }
 
 // ============================================================
@@ -21390,7 +23487,13 @@ function initializeFeatureSuiteAfterLoad() {
 
 
 initializeKnowledgeBaseSettingsRedesign();
-loadData();
+loadData().then(()=>{
+    // If the late deferred Multiples module was not ready during loadData,
+    // complete the idempotent starter migration once it is registered.
+    const finish=()=>{ try { window.__loggyUpgradeMultiplesExamplesV856?.(); } catch(error) { console.warn(error); } };
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',finish,{once:true});
+    else finish();
+});
 if ('requestIdleCallback' in window) requestIdleCallback(() => discoverThemesForPicker(), { timeout: 2600 });
 else setTimeout(() => discoverThemesForPicker(), 1400);
 // ============================================================
@@ -22341,19 +24444,9 @@ function focusInlineGlobalSearchV2() {
     });
 }
 
-function bindGlobalCommandShortcut() {
-    if (document.documentElement.dataset.globalCommandShortcutBoundV2) return;
-    document.documentElement.dataset.globalCommandShortcutBoundV2 = 'true';
-
-    document.addEventListener('keydown', event => {
-        if (event.repeat || !event.ctrlKey || event.shiftKey || event.altKey || event.metaKey || event.code !== 'KeyP') return;
-        const target = event.target;
-        const typing = target instanceof HTMLElement &&
-            (target.matches('textarea, [contenteditable="true"], [contenteditable=""]') || target.isContentEditable);
-        if (typing) return;
-        event.preventDefault();
-        focusInlineGlobalSearchV2();
-    });
+function bindGlobalCommandShortcut(){
+    // V1100: fixed Ctrl+P listeners were removed; the saved shortcut runtime is authoritative.
+    return;
 }
 
 // ============================================================
@@ -22567,8 +24660,11 @@ function restoreLastTopLevelView() {
 }
 
 function switchView(viewToShow) {
-    document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-    if (viewToShow) viewToShow.classList.add('active');
+    // V850: do not scan/remove classes from every custom/nested view on a core
+    // tab click. The app has exactly one visible top-level view, so only touch it.
+    const previousActiveViewV850 = document.querySelector('.view.active');
+    if (previousActiveViewV850 && previousActiveViewV850 !== viewToShow) previousActiveViewV850.classList.remove('active');
+    if (viewToShow && !viewToShow.classList.contains('active')) viewToShow.classList.add('active');
     try { window.__loggySyncHeadingBackdropV501?.(); } catch {}
 
     // V206: keep Daily Logs at its final width from the very first paint instead
@@ -22580,7 +24676,8 @@ function switchView(viewToShow) {
 
     rememberCurrentTopLevelView(viewToShow);
 
-    document.querySelectorAll('.side-nav .icon-btn').forEach(button => button.classList.remove('active-nav'));
+    const previousActiveNavV850 = document.querySelector('.side-nav .active-nav');
+    if (previousActiveNavV850) previousActiveNavV850.classList.remove('active-nav');
     let activeNavButton = null;
     if (viewToShow === gridView || viewToShow === logView) activeNavButton = document.getElementById('open-daily-logs-nav-btn');
     else if (viewToShow === toolboxView) activeNavButton = document.getElementById('open-tools-btn');
@@ -23018,6 +25115,12 @@ function ensureSectionTitleContextMenuV434() {
         <button type="button" class="loggy-section-context-option-v434 loggy-section-context-hide-v434 hidden" role="menuitem">
             <i class="ph ph-eye-slash"></i><span>Remove</span>
         </button>
+        <button type="button" class="loggy-section-context-option-v434 loggy-section-context-components-v745 hidden" role="menuitem">
+            <i class="ph ph-squares-four"></i><span>Components</span>
+        </button>
+        <button type="button" class="loggy-section-context-option-v434 loggy-section-context-edit-layout-v745 hidden" role="menuitem">
+            <i class="ph ph-layout"></i><span>Edit Layout</span>
+        </button>
     `;
     document.body.appendChild(menu);
 
@@ -23031,6 +25134,18 @@ function ensureSectionTitleContextMenuV434() {
         const target = menu._targetV434;
         closeSectionTitleContextMenuV434();
         if (target?.isConnected) await hideDayLogSectionFromHeadingV434(target);
+    });
+
+    // V745: these are native numbered-Day actions, not optional wrapper extras.
+    // They stay hidden everywhere else, including KB/custom-tab section menus.
+    menu.querySelector('.loggy-section-context-components-v745')?.addEventListener('click', () => {
+        closeSectionTitleContextMenuV434();
+        try { window.__loggyDayComponentCanvasV713?.openComponents?.(); }
+        catch { try { window.__loggyOpenDayComponentsV713?.(); } catch { try { window.__loggyOpenDayComponentsV712?.(); } catch {} } }
+    });
+    menu.querySelector('.loggy-section-context-edit-layout-v745')?.addEventListener('click', () => {
+        closeSectionTitleContextMenuV434();
+        try { window.__loggyDayComponentCanvasV713?.editLayout?.(); } catch {}
     });
 
     menu.addEventListener('contextmenu', event => event.preventDefault());
@@ -23048,6 +25163,15 @@ function openSectionTitleContextMenuV434(target, clientX, clientY) {
     const hideButton = menu.querySelector('.loggy-section-context-hide-v434');
     const hideKey = hideableDayLogSectionKeyV433(target);
     hideButton?.classList.toggle('hidden', !hideKey);
+
+    // V745: every section context menu on a numbered Day Log gets the same
+    // Day-level Components + Edit Layout entries. They never appear elsewhere.
+    let numberedDayV745 = false;
+    try {
+        numberedDayV745 = !!target?.closest?.('#log-view') && Number(currentDay || 0) > 0;
+    } catch {}
+    menu.querySelector('.loggy-section-context-components-v745')?.classList.toggle('hidden', !numberedDayV745);
+    menu.querySelector('.loggy-section-context-edit-layout-v745')?.classList.toggle('hidden', !numberedDayV745);
 
     menu.classList.remove('hidden');
     menu.style.left = '0px';
@@ -23227,4 +25351,320 @@ function openSectionTitleContextMenuV434(target, clientX, clientY) {
         event.preventDefault();
         openMatrixSolverV667();
     },true);
+})();
+
+
+// ============================================================
+// V804 — WRITER'S ROOM / STORY PLANNING COMPONENTS
+// Character Profiles, World Bible, Story Beats, Scene Planner,
+// and Writing Tracker are reusable custom components. The Writer's
+// Room built-in template is assembled from these plus existing Loggy tools.
+// ============================================================
+(() => {
+    'use strict';
+    if (window.__loggyWriterRoomV804) return;
+    window.__loggyWriterRoomV804 = true;
+
+    const TYPES = {
+        characters: 'characterProfilesV804',
+        world: 'worldBibleV804',
+        beats: 'storyBeatsV804',
+        scenes: 'scenePlannerV804',
+        tracker: 'writingTrackerV804'
+    };
+    const defs = [
+        {type:TYPES.characters,label:'People',icon:'ph-users-three',description:'Create reusable profiles for people. Choose your own fields, add images, links or files, and control how each person appears on cards. Relationship Board uses entries from this component.'},
+        {type:TYPES.world,label:'World Bible',icon:'ph-globe-hemisphere-west',description:'Keep places, factions, lore, rules, culture, history, and other worldbuilding in one searchable reference.'},
+        {type:TYPES.beats,label:'Story Beats',icon:'ph-path',description:'Plan the major beats of a story by act, purpose, status, and scene reference.'},
+        {type:TYPES.scenes,label:'Scene Planner',icon:'ph-film-strip',description:'Plan every scene with POV, location, purpose, conflict, outcome, status, and notes.'},
+        {type:TYPES.tracker,label:'Writing Tracker',icon:'ph-pencil-line',description:'Log writing sessions and track words written toward a manuscript or script target.'}
+    ];
+    const esc = value => {
+        try { return escapeCustomHtml(String(value ?? '')); }
+        catch { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    };
+    const uid = prefix => {
+        try { return customId(prefix); }
+        catch { return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`; }
+    };
+    const clone = value => { try { return JSON.parse(JSON.stringify(value)); } catch { return value; } };
+    const saveAndRender = (tab) => { try { saveDb(); } catch {} try { renderCustomTabView(tab.id); } catch {} };
+
+    function installDefs() {
+        try {
+            defs.forEach(def => {
+                const existing = CUSTOM_COMPONENT_LIBRARY.find(x => x?.type === def.type);
+                if (existing) Object.assign(existing, def);
+                else CUSTOM_COMPONENT_LIBRARY.push({...def});
+                try { CUSTOM_TITLE_BACKGROUND_TYPES?.add?.(def.type); } catch {}
+            });
+            window.__loggyRefreshCustomComponentPaletteV746?.();
+        } catch {}
+    }
+    installDefs();
+
+    function characterDefault() {
+        return {id:uid('component'),type:TYPES.characters,title:'People',titleBackground:'none',items:[],peopleViewV840:'cards',peopleCardFieldsV840:['role']};
+    }
+    function worldDefault() {
+        return {id:uid('component'),type:TYPES.world,title:'World Bible',titleBackground:'none',items:[],activeCategory:'All'};
+    }
+    function beatsDefault() {
+        return {id:uid('component'),type:TYPES.beats,title:'Story Beats',titleBackground:'none',items:[]};
+    }
+    function scenesDefault() {
+        return {id:uid('component'),type:TYPES.scenes,title:'Scene Planner',titleBackground:'none',items:[],statusFilter:'All'};
+    }
+    function trackerDefault() {
+        return {id:uid('component'),type:TYPES.tracker,title:'Writing Tracker',titleBackground:'none',targetWords:70000,entries:[]};
+    }
+
+    try {
+        const before = defaultCustomComponent;
+        if (typeof before === 'function' && !before.__v804Writer) {
+            const wrapped = function(type) {
+                if (type === TYPES.characters) return characterDefault();
+                if (type === TYPES.world) return worldDefault();
+                if (type === TYPES.beats) return beatsDefault();
+                if (type === TYPES.scenes) return scenesDefault();
+                if (type === TYPES.tracker) return trackerDefault();
+                return before.apply(this, arguments);
+            };
+            wrapped.__v804Writer = true;
+            defaultCustomComponent = wrapped;
+            window.defaultCustomComponent = wrapped;
+        }
+    } catch {}
+
+    function header(title, addClass, addTitle='Add') {
+        return `<div class="custom-collection-header writer-header-v804"><h2>${esc(title)}</h2><button type="button" class="small-icon-btn ${addClass}" title="${esc(addTitle)}"><i class="ph ph-plus"></i></button></div>`;
+    }
+
+    function showDetail(title, html) {
+        document.getElementById('writer-detail-overlay-v804')?.remove();
+        const overlay = document.createElement('div');
+        overlay.id = 'writer-detail-overlay-v804';
+        overlay.className = 'modal-overlay writer-detail-overlay-v804';
+        overlay.innerHTML = `<div class="modal-box writer-detail-box-v804"><div class="modal-header"><h2>${esc(title)}</h2><button type="button" class="small-icon-btn writer-detail-close-v804"><i class="ph ph-x"></i></button></div><div class="writer-detail-body-v804">${html}</div></div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('.writer-detail-close-v804').onclick = () => overlay.remove();
+        overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+        return overlay;
+    }
+
+    function detailSection(label, value) {
+        const text = String(value || '').trim();
+        if (!text) return '';
+        return `<section><small>${esc(label)}</small><p>${esc(text).replace(/\n/g,'<br>')}</p></section>`;
+    }
+
+    // V836: reusable per-component field schemas for Character Profiles / World Bible.
+    const profileDefaultsV836=[['name','Name','text'],['image','Photo','image'],['role','Role / relationship','text'],['age','Age / life stage','text'],['pronouns','Pronouns','text'],['website','Link','url'],['goal','Goal','textarea'],['notes','Notes','textarea']];
+    const worldDefaultsV836=[['title','Name','text'],['category','Type','text'],['summary','Summary','text'],['image','Reference image','image'],['link','Link','url'],['details','Details','textarea'],['rules','Rules / constraints','textarea'],['connections','Connections','textarea']];
+    function profileSchemaV840(component,kind){const base=kind==='world'?worldDefaultsV836:profileDefaultsV836;return (Array.isArray(component.fieldSchemaV836)?component.fieldSchemaV836:base.map(([name,label,type])=>({name,label,type}))).map(x=>({...x}));}
+    function profileFieldsV836(component,kind,current){const defs=profileSchemaV840(component,kind);return defs.map(f=>{const type=String(f.type||'text');const common={name:f.name,label:f.label,value:current?.[f.name]||''};if(type==='textarea')return {...common,type:'textarea',rows:4};if(type==='url')return {...common,type:'url',placeholder:'https://…'};if(type==='date')return {...common,type:'date'};if(type==='image')return {...common,type:'file',accept:'image/*'};if(type==='file')return {...common,type:'file'};return {...common,type:'text'};});}
+    async function fileToDataV840(file){if(!(file instanceof File))return file;return await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve({dataUrl:String(r.result||''),fileName:file.name,mime:file.type||''});r.onerror=reject;r.readAsDataURL(file)});}
+    async function applyProfileValuesV840(current,values,schema){for(const f of schema){let v=values?.[f.name];if((f.type==='image'||f.type==='file')&&v instanceof File){const data=await fileToDataV840(v);current[f.name]=f.type==='image'?data.dataUrl:data;}else if(v!==undefined&&!(v instanceof FileList))current[f.name]=v;}return current;}
+    async function editProfileSchemaV836(tab,component){
+      const isPeople=component.type==='characterProfilesV804', base=isPeople?profileDefaultsV836:worldDefaultsV836;
+      let fields=profileSchemaV840(component,isPeople?'character':'world');
+      const overlay=document.createElement('div');overlay.className='modal-overlay profile-schema-overlay-v836';overlay.style.zIndex='2147483646';
+      overlay.innerHTML=`<div class="modal-box profile-schema-box-v836 profile-schema-box-v840"><div class="modal-header"><div><h2>Edit ${isPeople?'People':'World Bible'}</h2><small>Component: ${isPeople?'People':'World Bible'}</small></div><button type="button" class="small-icon-btn schema-close-v836" aria-label="Close"><i class="ph ph-x"></i></button></div><label class="profile-setting-v840"><span>Component name</span><input class="profile-title-v840" type="text"></label>${isPeople?`<div class="profile-display-settings-v840"><label><span>Card style</span><select class="profile-view-v840"><option value="cards">Photo cards</option><option value="compact">Compact cards</option><option value="list">List</option></select></label><div><strong>Fields shown on cards</strong><div class="profile-card-fields-v840"></div></div></div>`:''}<div class="profile-schema-intro-v840"><strong>Fields</strong><span>Add, rename, reorder, or remove fields used when adding and editing entries.</span></div><div class="profile-schema-list-v836"></div><div class="profile-schema-actions-v836"><button type="button" class="small-icon-btn schema-add-v836"><i class="ph ph-plus"></i> Add field</button><button type="button" class="small-icon-btn schema-save-v836"><i class="ph ph-floppy-disk"></i> Save</button></div></div>`;
+      document.body.appendChild(overlay);const titleInput=overlay.querySelector('.profile-title-v840');titleInput.value=component.title|| (isPeople?'People':'World Bible');
+      if(isPeople){overlay.querySelector('.profile-view-v840').value=component.peopleViewV840||'cards';}
+      const close=()=>overlay.remove(),list=overlay.querySelector('.profile-schema-list-v836');
+      const cardFields=()=>{if(!isPeople)return;const box=overlay.querySelector('.profile-card-fields-v840');box.replaceChildren();const selected=new Set(component.peopleCardFieldsV840||['role']);for(const f of fields.filter(f=>f.name!=='name'&&f.type!=='image'&&f.type!=='file')){const label=document.createElement('label');label.className='profile-card-field-option-v840';label.innerHTML=`<input type="checkbox" value="${esc(f.name)}"><span>${esc(f.label)}</span>`;label.querySelector('input').checked=selected.has(f.name);box.append(label)}};
+      const paint=()=>{list.replaceChildren();fields.forEach((field,i)=>{const row=document.createElement('div');row.className='profile-schema-row-v836';row.innerHTML=`<input type="text" aria-label="Field name" placeholder="Field label"><select aria-label="Field type"><option value="text">Text</option><option value="textarea">Long text</option><option value="image">Image upload</option><option value="url">Link / URL</option><option value="file">File upload</option><option value="date">Date</option></select><div class="profile-field-order-v840"><button type="button" class="small-icon-btn" aria-label="Move field up"><i class="ph ph-arrow-up"></i></button><button type="button" class="small-icon-btn" aria-label="Move field down"><i class="ph ph-arrow-down"></i></button><button type="button" class="small-icon-btn danger" aria-label="Delete field"><i class="ph ph-trash"></i></button></div>`;const inp=row.querySelector('input'),sel=row.querySelector('select'),buttons=row.querySelectorAll('button');inp.value=field.label;sel.value=field.type||'text';inp.oninput=()=>field.label=inp.value;sel.onchange=()=>{field.type=sel.value;cardFields()};buttons[0].onclick=()=>{if(i){[fields[i-1],fields[i]]=[fields[i],fields[i-1]];paint()}};buttons[1].onclick=()=>{if(i<fields.length-1){[fields[i+1],fields[i]]=[fields[i],fields[i+1]];paint()}};buttons[2].onclick=()=>{if(['name','title'].includes(field.name))return;fields.splice(i,1);paint()};list.append(row)});cardFields()};paint();
+      overlay.querySelector('.schema-close-v836').onclick=close;overlay.querySelector('.schema-add-v836').onclick=()=>{fields.push({name:'custom'+Date.now().toString(36),label:'New field',type:'text'});paint();list.lastElementChild?.querySelector('input')?.focus()};
+      overlay.querySelector('.schema-save-v836').onclick=()=>{component.title=titleInput.value.trim()||(isPeople?'People':'World Bible');component.fieldSchemaV836=fields.filter(f=>f.label.trim()).map(f=>({...f,label:f.label.trim()}));if(isPeople){component.peopleViewV840=overlay.querySelector('.profile-view-v840').value;component.peopleCardFieldsV840=Array.from(overlay.querySelectorAll('.profile-card-fields-v840 input:checked')).map(x=>x.value)}saveDb();close();renderCustomTabView(tab.id)};overlay.onclick=e=>{if(e.target===overlay)close()};
+    }
+    window.__editProfileSchemaV836=editProfileSchemaV836;
+    async function editCharacter(tab, component, item=null) {
+        const current = item || {id:uid('person')}; const schema=profileSchemaV840(component,'character');
+        const v = await showAppFormModal({title:item?'Edit Person':'Add Person',submitLabel:item?'Save':'Add Person',fields:profileFieldsV836(component,'character',current)});
+        if (!v || !String(v.name||current.name||'').trim()) return;
+        await applyProfileValuesV840(current,v,schema);current.name=String(v.name||current.name||'').trim();
+        component.items ||= []; if (!item) component.items.push(current); saveAndRender(tab);
+    }
+
+    function characterDetail(item,component) { const schema=profileSchemaV840(component,'character');
+        const rows=schema.filter(f=>f.name!=='name').map(f=>{const v=item[f.name];if(!v)return'';if(f.type==='image')return `<section><small>${esc(f.label)}</small><img class="people-detail-image-v840" src="${esc(typeof v==='string'?v:v?.dataUrl||'')}" alt=""></section>`;if(f.type==='url')return `<section><small>${esc(f.label)}</small><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></section>`;if(f.type==='file'){const o=typeof v==='object'?v:null;return o?.dataUrl?`<section><small>${esc(f.label)}</small><a href="${esc(o.dataUrl)}" download="${esc(o.fileName||'file')}">${esc(o.fileName||'Download file')}</a></section>`:''}return detailSection(f.label,v)}).join('');
+        return `<div class="writer-character-hero-v804"><strong>${esc(item.name||'Person')}</strong></div><div class="writer-detail-grid-v804">${rows}</div>`;
+    }
+
+    function renderCharacters(tab, component, content) {
+        component.items = Array.isArray(component.items) ? component.items : []; if(component.title==='Character Profiles')component.title='People';
+        const schema=profileSchemaV840(component,'character'),view=component.peopleViewV840||'cards',display=new Set(component.peopleCardFieldsV840||['role']);const imageField=schema.find(f=>f.type==='image');
+        content.innerHTML = `${header(component.title||'People','writer-character-add-v804','Add person')}<p class="people-helper-v840">Add people here, then use components such as Relationship Board to connect them.</p><div class="writer-character-grid-v804 people-view-${view}-v840"></div>`;
+        content.querySelector('.writer-character-add-v804').onclick = () => editCharacter(tab,component); const host=content.querySelector('.writer-character-grid-v804');
+        component.items.forEach(item => {const card=document.createElement('article');card.className='writer-character-card-v804 people-card-v840 custom-searchable-item custom-content-editable';card.dataset.customItemId=item.id;card.dataset.searchText=Object.values(item).map(v=>typeof v==='object'?v?.fileName||'':v).join(' ').toLowerCase();const img=imageField?item[imageField.name]:item.image;const imgsrc=typeof img==='string'?img:img?.dataUrl||'';const details=schema.filter(f=>display.has(f.name)&&item[f.name]&&f.name!=='name'&&f.type!=='image'&&f.type!=='file').map(f=>`<p><b>${esc(f.label)}</b><span>${esc(String(item[f.name]))}</span></p>`).join('');card.innerHTML=`${imgsrc?`<img class="writer-portrait-v809 people-card-image-v840" src="${esc(imgsrc)}" alt="${esc(item.name||'Person')}" loading="lazy">`:''}<div class="people-card-copy-v840"><h3>${esc(item.name||'Unnamed person')}</h3>${details}</div>`;card.onclick=e=>{if(e.button===0)showDetail(item.name||'Person',characterDetail(item,component))};card.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit person',icon:'ph-pencil-simple',action:()=>editCharacter(tab,component,item)},{label:'Duplicate person',icon:'ph-copy',action:()=>{const copy=clone(item);copy.id=uid('person');copy.name=`${item.name||'Person'} Copy`;component.items.push(copy);saveAndRender(tab)}},{label:'Delete person',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Person',message:`Delete “${item.name||'this person'}”?`,confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x!==item);saveAndRender(tab)}}])};host.appendChild(card)});
+        if(!component.items.length)host.innerHTML='<div class="writer-empty-v804">No people yet. Add a person to start building profiles and relationships.</div>';
+    }
+
+    const WORLD_CATEGORIES = ['Place','Faction','Culture','Lore','Rule / System','History','Object','Other'];
+    async function editWorld(tab, component, item=null) {
+        const current = item || {id:uid('world-entry'),category:'Place'};
+        const v = await showAppFormModal({title:item?'Edit World Entry':'Add World Entry',submitLabel:item?'Save':'Add Entry',fields:profileFieldsV836(component,'world',current)});
+        if(!v||!String(v.title||'').trim())return;
+        Object.assign(current,v,{title:String(v.title).trim(),image:v.imageUpload||v.image||current.image||''});delete current.imageUpload;component.items||=[];if(!item)component.items.push(current);saveAndRender(tab);
+    }
+    function worldDetail(item,component){return `<div class="writer-world-detail-type-v804">${esc(item.category||'Entry')}</div><div class="writer-detail-grid-v804">${profileFieldsV836(component,'world',item).filter(f=>f.name!=='title').map(f=>detailSection(f.label,item[f.name])).join('')}</div>`}
+    function renderWorld(tab,component,content){
+        component.items=Array.isArray(component.items)?component.items:[];component.activeCategory=component.activeCategory||'All';const cats=['All',...new Set(component.items.map(x=>x.category).filter(Boolean))];if(!cats.includes(component.activeCategory))component.activeCategory='All';
+        content.innerHTML=`${header(component.title||'World Bible','writer-world-add-v804','Add world entry')}<div class="writer-world-filter-v804"></div><div class="writer-world-grid-v804"></div>`;
+        content.querySelector('.writer-world-add-v804').onclick=()=>editWorld(tab,component);
+        const filters=content.querySelector('.writer-world-filter-v804');cats.forEach(cat=>{const b=document.createElement('button');b.type='button';b.className=`filter-tab${component.activeCategory===cat?' active':''}`;b.textContent=cat;b.onclick=()=>{component.activeCategory=cat;saveAndRender(tab)};filters.appendChild(b)});
+        const host=content.querySelector('.writer-world-grid-v804');component.items.filter(x=>component.activeCategory==='All'||x.category===component.activeCategory).forEach(item=>{const card=document.createElement('article');card.className='writer-world-card-v804 custom-searchable-item custom-content-editable';card.dataset.customItemId=item.id;card.dataset.searchText=Object.values(item).join(' ').toLowerCase();card.innerHTML=`${item.image?`<img class="writer-portrait-v809" src="${esc(item.image)}" alt="${esc(item.title||'World')} illustration" loading="lazy">`:''}<div class="writer-card-eyebrow-v804">${esc(item.category||'World')}</div><h3>${esc(item.title||'Untitled')}</h3>${item.summary?`<p>${esc(item.summary)}</p>`:''}${item.storyUse?`<small><b>Story use:</b> ${esc(item.storyUse)}</small>`:''}`;card.onclick=e=>{if(e.button===0)showDetail(item.title||'World Entry',worldDetail(item,component))};card.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit entry',icon:'ph-pencil-simple',action:()=>editWorld(tab,component,item)},{label:'Delete entry',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete World Entry',message:`Delete “${item.title||'this entry'}”?`,confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x!==item);saveAndRender(tab)}}])};host.appendChild(card)});if(!host.children.length)host.innerHTML='<div class="writer-empty-v804">No worldbuilding entries in this category yet.</div>';
+    }
+
+    const ACTS=['Act I','Act II','Act III','Other'];
+    const BEAT_STATUS=['Idea','Planned','Drafted','Revised'];
+    async function editBeat(tab,component,item=null){const current=item||{id:uid('story-beat'),act:'Act I',status:'Planned'};const v=await showAppFormModal({title:item?'Edit Story Beat':'Add Story Beat',submitLabel:item?'Save':'Add Beat',fields:[{name:'name',label:'Beat name',value:current.name||''},{name:'act',label:'Act / section',type:'select',value:current.act||'Act I',options:ACTS},{name:'status',label:'Status',type:'select',value:current.status||'Planned',options:BEAT_STATUS},{name:'summary',label:'What happens',type:'textarea',rows:3,value:current.summary||''},{name:'purpose',label:'Why this beat matters',type:'textarea',rows:3,value:current.purpose||''},{name:'sceneRef',label:'Scene / chapter reference',value:current.sceneRef||''},{name:'stakes',label:'Stakes / change',type:'textarea',rows:2,value:current.stakes||''}]});if(!v||!String(v.name||'').trim())return;Object.assign(current,v,{name:String(v.name).trim()});component.items||=[];if(!item)component.items.push(current);saveAndRender(tab)}
+    function renderBeats(tab,component,content){component.items=Array.isArray(component.items)?component.items:[];content.innerHTML=`${header(component.title||'Story Beats','writer-beat-add-v804','Add story beat')}<div class="writer-beats-board-v804"></div>`;content.querySelector('.writer-beat-add-v804').onclick=()=>editBeat(tab,component);const board=content.querySelector('.writer-beats-board-v804');const groups=[...new Set([...ACTS,...component.items.map(x=>x.act).filter(Boolean)])];groups.filter(act=>component.items.some(x=>x.act===act)||['Act I','Act II','Act III'].includes(act)).forEach(act=>{const col=document.createElement('section');col.className='writer-beat-column-v804';const rows=component.items.filter(x=>x.act===act);col.innerHTML=`<div class="writer-beat-column-head-v804"><strong>${esc(act)}</strong><span>${rows.length}</span></div><div></div>`;const host=col.lastElementChild;rows.forEach(item=>{const card=document.createElement('article');card.className='writer-beat-card-v804 custom-searchable-item custom-content-editable';card.dataset.customItemId=item.id;card.dataset.searchText=Object.values(item).join(' ').toLowerCase();card.innerHTML=`<div class="writer-beat-card-top-v804"><strong>${esc(item.name||'Beat')}</strong><span>${esc(item.status||'')}</span></div>${item.summary?`<p>${esc(item.summary)}</p>`:''}${item.purpose?`<small>${esc(item.purpose)}</small>`:''}${item.sceneRef?`<em>${esc(item.sceneRef)}</em>`:''}`;card.onclick=e=>{if(e.button===0)showDetail(item.name||'Story Beat',`<div class="writer-detail-grid-v804">${detailSection('Act / section',item.act)}${detailSection('Status',item.status)}${detailSection('What happens',item.summary)}${detailSection('Purpose',item.purpose)}${detailSection('Stakes / change',item.stakes)}${detailSection('Scene / chapter',item.sceneRef)}</div>`)};card.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit beat',icon:'ph-pencil-simple',action:()=>editBeat(tab,component,item)},{label:'Delete beat',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Beat',message:`Delete “${item.name||'this beat'}”?`,confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x!==item);saveAndRender(tab)}}])};host.appendChild(card)});board.appendChild(col)});}
+
+    const SCENE_STATUS=['Idea','Outlined','Drafting','Drafted','Revising','Done'];
+    async function editScene(tab,component,item=null){const current=item||{id:uid('scene'),number:String((component.items?.length||0)+1),status:'Outlined'};const v=await showAppFormModal({title:item?'Edit Scene':'Add Scene',submitLabel:item?'Save':'Add Scene',fields:[{name:'number',label:'Scene #',value:current.number||''},{name:'title',label:'Scene title',value:current.title||''},{name:'chapter',label:'Chapter / sequence',value:current.chapter||''},{name:'pov',label:'POV / focus character',value:current.pov||''},{name:'location',label:'Location',value:current.location||''},{name:'status',label:'Status',type:'select',value:current.status||'Outlined',options:SCENE_STATUS},{name:'purpose',label:'Scene purpose',type:'textarea',rows:2,value:current.purpose||''},{name:'conflict',label:'Conflict / obstacle',type:'textarea',rows:2,value:current.conflict||''},{name:'turn',label:'Turn / reveal',type:'textarea',rows:2,value:current.turn||''},{name:'outcome',label:'Outcome / what changes',type:'textarea',rows:2,value:current.outcome||''},{name:'notes',label:'Drafting notes',type:'textarea',rows:4,value:current.notes||''}]});if(!v||!String(v.title||'').trim())return;await applyProfileValuesV840(current,v,profileSchemaV840(component,'world'));current.title=String(v.title||current.title||'').trim();component.items||=[];if(!item)component.items.push(current);saveAndRender(tab)}
+    function sceneDetail(item){return `<div class="writer-scene-detail-head-v804"><span>Scene ${esc(item.number||'')}</span><strong>${esc(item.title||'Scene')}</strong><small>${esc([item.chapter,item.pov,item.location,item.status].filter(Boolean).join(' · '))}</small></div><div class="writer-detail-grid-v804">${detailSection('Purpose',item.purpose)}${detailSection('Conflict / obstacle',item.conflict)}${detailSection('Turn / reveal',item.turn)}${detailSection('Outcome / what changes',item.outcome)}${detailSection('Drafting notes',item.notes)}</div>`}
+    function renderScenes(tab,component,content){component.items=Array.isArray(component.items)?component.items:[];component.statusFilter=component.statusFilter||'All';content.innerHTML=`${header(component.title||'Scene Planner','writer-scene-add-v804','Add scene')}<div class="writer-scene-toolbar-v804"></div><div class="writer-scene-list-v804"></div>`;content.querySelector('.writer-scene-add-v804').onclick=()=>editScene(tab,component);const toolbar=content.querySelector('.writer-scene-toolbar-v804');['All',...SCENE_STATUS].forEach(status=>{const b=document.createElement('button');b.type='button';b.className=`filter-tab${component.statusFilter===status?' active':''}`;b.textContent=status;b.onclick=()=>{component.statusFilter=status;saveAndRender(tab)};toolbar.appendChild(b)});const list=content.querySelector('.writer-scene-list-v804');const ordered=component.items.slice().sort((a,b)=>(parseFloat(a.number)||9999)-(parseFloat(b.number)||9999));ordered.filter(x=>component.statusFilter==='All'||x.status===component.statusFilter).forEach(item=>{const card=document.createElement('article');card.className='writer-scene-card-v804 custom-searchable-item custom-content-editable';card.dataset.customItemId=item.id;card.dataset.searchText=Object.values(item).join(' ').toLowerCase();card.innerHTML=`<span class="writer-scene-number-v804">${esc(item.number||'—')}</span><div><div class="writer-scene-title-row-v804"><strong>${esc(item.title||'Untitled scene')}</strong><span>${esc(item.status||'')}</span></div><small>${esc([item.chapter,item.pov,item.location].filter(Boolean).join(' · '))}</small>${item.purpose?`<p>${esc(item.purpose)}</p>`:''}</div>`;card.onclick=e=>{if(e.button===0)showDetail(`Scene ${item.number||''}`,sceneDetail(item))};card.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit scene',icon:'ph-pencil-simple',action:()=>editScene(tab,component,item)},{label:'Duplicate scene',icon:'ph-copy',action:()=>{const copy=clone(item);copy.id=uid('scene');copy.number=String(component.items.length+1);copy.title=`${item.title||'Scene'} Copy`;component.items.push(copy);saveAndRender(tab)}},{label:'Delete scene',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Scene',message:`Delete “${item.title||'this scene'}”?`,confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x!==item);saveAndRender(tab)}}])};list.appendChild(card)});if(!list.children.length)list.innerHTML='<div class="writer-empty-v804">No scenes match this filter yet.</div>'}
+
+    async function editWritingSession(tab,component,item=null){const current=item||{id:uid('writing-session'),date:new Date().toISOString().slice(0,10),words:'0'};const v=await showAppFormModal({title:item?'Edit Writing Session':'Log Writing Session',submitLabel:item?'Save':'Add Session',fields:[{name:'date',label:'Date',type:'date',value:current.date||''},{name:'words',label:'Words added',type:'number',min:0,step:1,value:String(current.words||0),className:'writer-number-input-v804'},{name:'part',label:'Chapter / scene / section',value:current.part||''},{name:'note',label:'What you worked on',type:'textarea',rows:3,value:current.note||''}]});if(!v)return;Object.assign(current,v,{words:Math.max(0,Number(v.words)||0)});component.entries||=[];if(!item)component.entries.push(current);saveAndRender(tab)}
+    function renderTracker(tab,component,content){component.entries=Array.isArray(component.entries)?component.entries:[];component.targetWords=Math.max(1,Number(component.targetWords)||70000);const total=component.entries.reduce((sum,e)=>sum+Math.max(0,Number(e.words)||0),0),pct=Math.min(100,Math.round(total/component.targetWords*100)),avg=component.entries.length?Math.round(total/component.entries.length):0;content.innerHTML=`${header(component.title||'Writing Tracker','writer-session-add-v804','Log writing session')}<div class="writer-tracker-summary-v804"><div><small>Words logged</small><strong>${total.toLocaleString()}</strong></div><div><small>Target</small><strong>${component.targetWords.toLocaleString()}</strong></div><div><small>Sessions</small><strong>${component.entries.length}</strong></div><div><small>Average / session</small><strong>${avg.toLocaleString()}</strong></div></div><div class="writer-progress-track-v804"><span style="width:${pct}%"></span></div><div class="writer-progress-caption-v804"><span>${pct}%</span><span>${Math.max(0,component.targetWords-total).toLocaleString()} words remaining</span></div><div class="writer-session-list-v804"></div>`;content.querySelector('.writer-session-add-v804').onclick=()=>editWritingSession(tab,component);const list=content.querySelector('.writer-session-list-v804');component.entries.slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).forEach(item=>{const row=document.createElement('article');row.className='writer-session-row-v804 custom-searchable-item custom-content-editable';row.dataset.customItemId=item.id;row.dataset.searchText=Object.values(item).join(' ').toLowerCase();row.innerHTML=`<div><strong>+${Number(item.words||0).toLocaleString()} words</strong><span>${esc(item.part||'Writing session')}</span></div><small>${esc(item.date||'')}</small>${item.note?`<p>${esc(item.note)}</p>`:''}`;row.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit session',icon:'ph-pencil-simple',action:()=>editWritingSession(tab,component,item)},{label:'Delete session',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Writing Session',message:'Delete this writing session?',confirmLabel:'Delete'});if(!ok)return;component.entries=component.entries.filter(x=>x!==item);saveAndRender(tab)}}])};list.appendChild(row)});if(!component.entries.length)list.innerHTML='<div class="writer-empty-v804">No writing sessions yet. Log a session whenever you draft or revise.</div>'}
+
+    try {
+        const before = renderCustomComponentContent;
+        if (typeof before === 'function' && !before.__v804Writer) {
+            const wrapped = function(tab,component,content){
+                if(component?.type===TYPES.characters)return renderCharacters(tab,component,content);
+                if(component?.type===TYPES.world)return renderWorld(tab,component,content);
+                if(component?.type===TYPES.beats)return renderBeats(tab,component,content);
+                if(component?.type===TYPES.scenes)return renderScenes(tab,component,content);
+                if(component?.type===TYPES.tracker)return renderTracker(tab,component,content);
+                return before.apply(this,arguments);
+            };
+            wrapped.__v804Writer=true;renderCustomComponentContent=wrapped;window.renderCustomComponentContent=wrapped;
+        }
+    } catch {}
+
+    async function editWriterComponent(tab,component){
+        if(component.type===TYPES.tracker){const v=await showAppFormModal({title:'Writing Tracker Settings',subtitle:'Component: Writing Tracker',submitLabel:'Save',fields:[{name:'title',label:'Title',value:component.title||'Writing Tracker'},{name:'target',label:'Word target',type:'number',min:1,step:100,value:String(component.targetWords||70000),className:'writer-number-input-v804'}]});if(!v)return;component.title=String(v.title||'').trim()||'Writing Tracker';component.targetWords=Math.max(1,Number(v.target)||1);saveAndRender(tab);return}
+        const labels={[TYPES.characters]:'People',[TYPES.world]:'World Bible',[TYPES.beats]:'Story Beats',[TYPES.scenes]:'Scene Planner'};const v=await showAppFormModal({title:`Edit ${labels[component.type]||'Writer Component'}`,subtitle:`Component: ${labels[component.type]||'Writer Component'}`,submitLabel:'Save',fields:[{name:'title',label:'Section title',value:component.title||labels[component.type]||''}]});if(!v)return;component.title=String(v.title||'').trim()||labels[component.type];saveAndRender(tab);
+    }
+    try{
+        const before=editCustomComponent;
+        if(typeof before==='function'&&!before.__v804Writer){const wrapped=async function(tabId,componentId){const tab=getCustomTab?.(tabId),component=tab?.components?.find(x=>String(x.id)===String(componentId));if(component&&Object.values(TYPES).includes(component.type))return editWriterComponent(tab,component);return before.apply(this,arguments)};wrapped.__v804Writer=true;editCustomComponent=wrapped;window.editCustomComponent=wrapped}
+    }catch{}
+
+    function makeChecklist(title,labels){const c=defaultCustomComponent('checklist');c.title=title;c.items=labels.map(text=>({id:uid('check'),text,done:false,completedAt:null}));return c}
+    function makeCards(title,items){const c=defaultCustomComponent('cards');c.title=title;c.items=items.map(x=>({id:uid('card'),title:x.title,body:x.body}));return c}
+    function writerTemplate(){
+        let search=defaultCustomComponent('globalSearchV163');if(search?.type!=='globalSearchV163')search={id:uid('component'),type:'globalSearchV163',placeholder:'Search every component below...'};search.placeholder='Search characters, places, scenes, beats, notes, and resources...';
+        const chars=characterDefault();chars.items=[
+            {id:uid('character'),name:'Mara Vale',role:'Protagonist',age:'19',pronouns:'she/her',goal:'Map the districts that disappear from Glass Harbor before her younger brother is erased from everyone’s memory.',motivation:'She believes a perfect map can preserve what the city is trying to forget.',conflict:'She treats certainty as safety and struggles to trust people when the map contradicts them.',flaw:'Control through over-planning',fear:'Forgetting someone she loves',secret:'She remembers one vanished street that nobody else does.',arcStart:'Believes truth only counts if she can prove it.',arcEnd:'Learns memory can be shared, incomplete, and still worth trusting.',voice:'Precise, observant, avoids saying what she feels directly.',relationships:'Elias challenges her certainty; Sera pushes her to question the Archive.',appearance:'Ink-stained fingers, weatherproof notebook, old brass compass.',notes:'Her cartography skill should solve practical problems but also create emotional choices.'},
+            {id:uid('character'),name:'Elias Venn',role:'Rival → Ally',age:'20',pronouns:'he/him',goal:'Expose the Tide Archive before it erases his family history.',motivation:'His mother vanished from the public record years ago.',conflict:'He assumes institutions always lie, even when cooperation would help.',flaw:'Suspicion',fear:'Being manipulated again',secret:'He has been altering public maps to test who notices.',arcStart:'Trusts nobody but himself.',arcEnd:'Learns strategic trust is not the same as surrender.',voice:'Dry humor, fast answers, deflects personal questions.',relationships:'Initially sees Mara as an Archive loyalist; later becomes her best source inside the old tunnels.'},
+            {id:uid('character'),name:'Archivist Sera Noll',role:'Mentor / possible antagonist',age:'Late 40s',pronouns:'she/her',goal:'Keep the city stable even if that means controlling which memories survive.',motivation:'She witnessed a previous collapse caused by uncontrolled memory maps.',conflict:'She genuinely cares about people but makes choices for them without consent.',flaw:'Paternalism',fear:'Chaos repeating itself',secret:'She approved the first erasure connected to Mara’s family.',arcStart:'Believes stability justifies secrecy.',arcEnd:'Must choose between control and letting the city know the truth.',voice:'Calm, formal, never raises her voice.',relationships:'Mentored Mara; sees Elias as dangerous but understands why he is angry.'}
+        ];
+        const world=worldDefault();world.items=[
+            {id:uid('world-entry'),category:'Place',title:'Glass Harbor',summary:'A coastal city whose streets subtly redraw themselves after midnight tides.',details:'Old neighborhoods sit on layered foundations. Some streets only exist at certain tide levels, while newer maps quietly omit places that have been “retired.”',rules:'Physical changes become harder to remember after three nights unless recorded by hand.',storyUse:'The city itself creates the mystery and forces Mara to choose what is worth preserving.',connections:'Mara maps it; Elias uses old service tunnels; the Tide Archive controls official maps.'},
+            {id:uid('world-entry'),category:'Faction',title:'The Tide Archive',image:'/loggy-builtins/writers-room/archive.svg',summary:'The institution that maintains official maps, civic records, and sanctioned memory ledgers.',details:'Publicly it is a boring municipal archive. Secretly it tracks unstable districts and authorizes controlled erasures.',rules:'Only hand-inked “anchor maps” can preserve a disappearing location beyond three tide cycles.',storyUse:'Provides institutional pressure, resources, secrets, and the moral argument for controlled forgetting.',connections:'Sera leads one division; Mara is an apprentice; Elias is investigating it.'},
+            {id:uid('world-entry'),category:'Rule / System',title:'Memory Maps',summary:'Hand-drawn maps can anchor a place in collective memory if they are made while the cartographer is physically there.',details:'Accuracy matters less than witnessed detail. A map copied from another map has almost no anchoring power.',rules:'One person can maintain only a limited number of active anchors before memories begin bleeding together.',storyUse:'Turns mapping into a cost-bearing magic system and creates hard choices about which places Mara can save.',connections:'Explains the disappearing districts and the Archive’s obsession with trained cartographers.'}
+        ];
+        const beats=beatsDefault();beats.items=[
+            {id:uid('story-beat'),act:'Act I',name:'Opening Image',status:'Planned',summary:'Mara redraws a street sign that has changed overnight while everyone around her insists it has always been that way.',purpose:'Show her need for certainty and establish that the city can change unnoticed.',sceneRef:'Scene 1',stakes:'If Mara cannot trust the city, she doubles down on trusting maps.'},
+            {id:uid('story-beat'),act:'Act I',name:'Inciting Incident',status:'Planned',summary:'Her brother’s school disappears from every official map, but Mara still remembers walking him there.',purpose:'Turn the strange city rule into a personal emergency.',sceneRef:'Scene 3',stakes:'Saving a place becomes saving a person.'},
+            {id:uid('story-beat'),act:'Act II',name:'Midpoint Reveal',status:'Idea',summary:'Mara discovers the Archive is not merely documenting disappearances; it has been choosing which districts to let vanish.',purpose:'Flip the story from natural mystery to human responsibility.',sceneRef:'Scene 18',stakes:'Mara must decide whether to expose the only institution capable of stabilizing the city.'},
+            {id:uid('story-beat'),act:'Act III',name:'Final Choice',status:'Idea',summary:'Mara can preserve the Archive, her brother, or the erased districts, but not all three with the anchors she has left.',purpose:'Force the theme into a concrete choice instead of a speech.',sceneRef:'Final sequence',stakes:'Her definition of what deserves to be remembered changes.'}
+        ];
+        const scenes=scenesDefault();scenes.items=[
+            {id:uid('scene'),number:'1',title:'The Street That Wasn’t There',chapter:'Chapter 1',pov:'Mara',location:'Lower Harbor',status:'Outlined',purpose:'Establish Mara’s mapping ritual and the city’s memory instability.',conflict:'A shopkeeper insists Mara invented the alley she has mapped for years.',turn:'The alley’s street sign changes while she is looking away.',outcome:'Mara secretly keeps both versions of the map.',notes:'Open on action, not explanation. Let the reader notice the contradiction with Mara.'},
+            {id:uid('scene'),number:'2',title:'A Map With Yesterday Missing',chapter:'Chapter 1',pov:'Mara',location:'Tide Archive',status:'Outlined',purpose:'Introduce Sera and the institutional explanation.',conflict:'Sera orders Mara to destroy an “obsolete” hand map.',turn:'Mara sees her own childhood neighborhood on the destruction list.',outcome:'She hides the map instead of destroying it.'},
+            {id:uid('scene'),number:'3',title:'No School at the End of the Tram Line',chapter:'Chapter 2',pov:'Mara',location:'North Tram',status:'Idea',purpose:'Trigger the main personal plot.',conflict:'Nobody remembers the school or why Mara is panicking.',turn:'Her brother’s name starts disappearing from Mara’s phone and notebooks.',outcome:'Mara decides to build an anchor map before midnight.'},
+            {id:uid('scene'),number:'4',title:'The Boy Who Notices Bad Maps',chapter:'Chapter 2',pov:'Mara',location:'Closed ferry terminal',status:'Idea',purpose:'Bring Elias into the central plot.',conflict:'Mara thinks he caused the map changes; Elias thinks she works for the people causing them.',turn:'They realize they both remember the same erased street.',outcome:'Temporary alliance.'}
+        ];
+        const tracker=trackerDefault();tracker.targetWords=70000;tracker.entries=[
+            {id:uid('writing-session'),date:'2026-10-01',words:1450,part:'Chapter 1',note:'Drafted the opening street-map scene and found Mara’s voice.'},
+            {id:uid('writing-session'),date:'2026-10-03',words:2120,part:'Chapter 2',note:'Drafted the Archive scene and sketched the first Elias confrontation.'}
+        ];
+        const resources=defaultCustomComponent('resources');resources.title='Research, Drafts & Visual References';resources.items=[];
+        const mood=defaultCustomComponent('polaroids');mood.title='Moodboard';mood.items=[];
+        let questions=defaultCustomComponent('qaV162');if(questions?.type!=='qaV162')questions={id:uid('component'),type:'qaV162',title:'Questions & Answers',titleBackground:'none',items:[]};questions.title='Open Story Questions';questions.items=[
+            {id:uid('question'),question:'Why does the Archive believe selective forgetting is necessary?',answer:'It should have a defensible reason tied to a previous civic collapse, not just “because they are evil.”',references:[],createdAt:new Date().toISOString()},
+            {id:uid('question'),question:'What does Mara lose every time she anchors a place?',answer:'Decide on a concrete memory cost so the magic system pressures character choices.',references:[],createdAt:new Date().toISOString()}
+        ];
+        let priorities=defaultCustomComponent('priorityMatrixV788');if(priorities?.type!=='priorityMatrixV788')priorities={id:uid('component'),type:'priorityMatrixV788',title:'Priority Matrix',titleBackground:'none',quadrants:[{id:'ui',label:'Urgent / Important'},{id:'un',label:'Urgent / Not Important'},{id:'ni',label:'Not Urgent / Important'},{id:'nn',label:'Not Urgent / Not Important'}],items:[]};priorities.title='Revision Priorities';priorities.items=[{id:uid('priority'),title:'Clarify why the Archive erases districts',note:'The antagonist logic needs to feel defensible before the midpoint reveal.',quadrant:'ui',done:false,completedAt:''},{id:uid('priority'),title:'Seed Elias earlier',note:'Give him one indirect presence before Scene 4.',quadrant:'ni',done:false,completedAt:''}];
+        const milestones=defaultCustomComponent('milestones');milestones.title='Manuscript Milestones';milestones.items=[
+            {id:uid('milestone'),text:'Finish story outline',done:false,completedAt:null},
+            {id:uid('milestone'),text:'Complete first act draft',done:false,completedAt:null},
+            {id:uid('milestone'),text:'Finish first draft',done:false,completedAt:null},
+            {id:uid('milestone'),text:'Complete structural revision',done:false,completedAt:null}
+        ];
+        const revision=makeChecklist('Revision Pass',[
+            'Every scene changes something meaningful',
+            'Character choices drive the major turns',
+            'World rules stay consistent and create consequences',
+            'Setups have payoffs or are intentionally removed',
+            'Each POV voice feels distinct',
+            'Cut exposition the reader already understands'
+        ]);
+        const continuityCols=['Scene','Story time','Who knows what?','Prop / clue','Continuity notes'].map(name=>({id:uid('col'),name}));
+        const continuity={id:uid('component'),type:'tableV162',title:'Continuity Tracker',titleBackground:'none',columns:continuityCols,rows:[
+            {id:uid('row'),cells:{[continuityCols[0].id]:'Scene 1',[continuityCols[1].id]:'Night 1',[continuityCols[2].id]:'Mara alone notices the changed alley sign.',[continuityCols[3].id]:'Brass compass + old map',[continuityCols[4].id]:'The old map must still show the alley in Scene 2.'}},
+            {id:uid('row'),cells:{[continuityCols[0].id]:'Scene 3',[continuityCols[1].id]:'Morning 2',[continuityCols[2].id]:'Mara remembers the school; everyone else does not.',[continuityCols[3].id]:'Brother’s notebook',[continuityCols[4].id]:'His name begins fading only after the school disappears.'}}
+        ]};
+        const promptWheel={id:uid('component'),type:'wheelPickerV788',title:"Writer's Block Wheel",titleBackground:'none',sourceModeV788:'manual',items:['Reveal a secret','Force a difficult choice','Add a time limit','Complicate a relationship','Let the setting create a problem','Change what the character wants']};
+        const compass=makeCards('Story Compass',[
+            {title:'Premise',body:'A young cartographer in a city that forgets its own streets must preserve disappearing districts before her brother is erased from collective memory.'},
+            {title:'Theme',body:'What deserves to be remembered, and who gets to decide?'},
+            {title:'Tone',body:'Atmospheric mystery with emotional stakes, strange civic bureaucracy, and quiet magical realism.'},
+            {title:'POV & tense',body:'Close third person · Mara · past tense.'}
+        ]);
+        const workflow=makeCards('Drafting Workflow',[
+            {title:'Plan',body:'Use Character Profiles, World Bible, Story Beats, and Scene Planner until you know what each major sequence is doing.'},
+            {title:'Draft',body:'Link Notebook pages in Resources for chapter drafts, research notes, and scene fragments. Link a Whiteboard when you need a visual plot or relationship map.'},
+            {title:'Revise',body:'Use Revision Priorities, Revision Pass, Open Story Questions, and Manuscript Milestones to turn feedback into concrete work.'}
+        ]);
+        return [
+            search,
+            {id:uid('component'),type:'heading',text:"WRITER'S ROOM",titleBackground:'none'},
+            {id:uid('component'),type:'text',title:'Sample story · The Glass Harbor',text:'This template is a complete story-planning workspace. The sample content is here so you can see how every section connects; replace it with your own story as you go.'},
+            compass,
+            workflow,
+            chars,
+            world,
+            mood,
+            beats,
+            scenes,
+            tracker,
+            resources,
+            questions,
+            continuity,
+            promptWheel,
+            priorities,
+            revision,
+            milestones
+        ];
+    }
+    window.__loggyBuildWritersRoomV804 = writerTemplate;
+
+    // Writer component help: keep the ? descriptions short and practical.
+    const HELP = {
+        [TYPES.characters]:['Character Profiles','Plan characters, their goals, conflicts, relationships, voice, and development.','Click a character to view the full profile; right-click to edit or delete.','Example: protagonist arc from guarded → trusting.'],
+        [TYPES.world]:['World Bible','Keep searchable worldbuilding for places, factions, lore, rules, history, culture, and objects.','Filter entries by type and click one to read the full reference.','Example: a magic rule and how it affects the plot.'],
+        [TYPES.beats]:['Story Beats','Lay out the important story turns by act and track whether they are ideas, planned, drafted, or revised.','Use each beat to record what happens and why it matters.','Example: Inciting Incident → Midpoint → Final Choice.'],
+        [TYPES.scenes]:['Scene Planner','Plan scenes before or while drafting.','Track scene number, POV, location, purpose, conflict, turn, outcome, and status.','Example: Scene 7 · Mara · Archive · Drafting.'],
+        [TYPES.tracker]:['Writing Tracker','Log writing sessions and words added toward a target.','Use it to see total words, sessions, average output, and remaining words.','Example: +1,450 words · Chapter 3.']
+    };
+    function decorateWriterHelp(tab,canvas){
+        try{
+            (tab.components||[]).forEach(component=>{
+                const def=HELP[component.type];if(!def)return;
+                const wrap=canvas?.querySelector?.(`.custom-tab-component[data-component-id="${CSS.escape(String(component.id))}"]`);if(!wrap)return;
+                let b=wrap.querySelector('.custom-component-help-v163');
+                if(!b){b=document.createElement('button');b.type='button';b.className='custom-component-help-v163';b.textContent='?';wrap.appendChild(b)}
+                b.setAttribute('aria-label',`About ${def[0]}`);
+                let tip=b.querySelector('.custom-component-help-tooltip-v163');if(!tip){tip=document.createElement('div');tip.className='custom-component-help-tooltip-v163';b.appendChild(tip)}
+                tip.innerHTML=`<strong>${esc(def[0])}</strong><span>${esc(def[1])}</span><span>${esc(def[2])}</span><small>${esc(def[3])}</small>`;
+            });
+        }catch{}
+    }
+    try{const before=renderCustomCanvas;if(typeof before==='function'&&!before.__v804WriterHelp){const wrapped=function(tab,canvas){const r=before.apply(this,arguments);decorateWriterHelp(tab,canvas);requestAnimationFrame(()=>decorateWriterHelp(tab,canvas));return r};wrapped.__v804WriterHelp=true;renderCustomCanvas=wrapped;window.renderCustomCanvas=wrapped}}catch{}
 })();

@@ -2524,16 +2524,6 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
                     </button>
                 </div>
                 <div class="icon-grid" id="icon-picker">
-                    <div class="icon-option selected" data-icon="custom-skateboard">
-                        <svg class="dashboard-custom-icon-svg dashboard-skateboard-svg" viewBox="0 0 32 32" aria-hidden="true">
-                            <path d="M4.5 13.2c2.6 2.2 5.2 2.8 11.5 2.8s8.9-.6 11.5-2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M5.2 13.2h21.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M9.2 16.1l-1.1 3.2m14.7-3.2 1.1 3.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M6.7 19.3h3.1m12.4 0h3.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            <circle cx="7.2" cy="22.1" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="24.8" cy="22.1" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                    </div>
                     <div class="icon-option" data-icon="ph-yarn"><i class="ph ph-yarn"></i></div>
                     <div class="icon-option" data-icon="ph-cooking-pot"><i class="ph ph-cooking-pot"></i></div>
                     <div class="icon-option" data-icon="ph-bowl-food"><i class="ph ph-bowl-food"></i></div>
@@ -2637,6 +2627,16 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
                     <div class="icon-option" data-icon="ph-smiley"><i class="ph ph-smiley"></i></div>
                     <div class="icon-option" data-icon="ph-rabbit"><i class="ph ph-rabbit"></i></div>
                     <div class="icon-option" data-icon="ph-bug"><i class="ph ph-bug"></i></div>
+                    <div class="icon-option selected" data-icon="custom-skateboard">
+                        <svg class="dashboard-custom-icon-svg dashboard-skateboard-svg" viewBox="0 0 32 32" aria-hidden="true">
+                            <path d="M4.5 13.2c2.6 2.2 5.2 2.8 11.5 2.8s8.9-.6 11.5-2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5.2 13.2h21.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M9.2 16.1l-1.1 3.2m14.7-3.2 1.1 3.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M6.7 19.3h3.1m12.4 0h3.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="7.2" cy="22.1" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="24.8" cy="22.1" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
@@ -2751,6 +2751,8 @@ body #rename-modal #rename-log-input:focus,body #rename-modal #rename-log-input:
     <!-- Right-click context menu for a log tile -->
     <div id="tile-context-menu" class="context-menu hidden" style="left:0; top:0;">
         <button id="context-rename-btn"><i class="ph ph-pencil-simple"></i> Edit Info</button>
+        <button id="context-duplicate-btn"><i class="ph ph-copy"></i> Duplicate</button>
+        <button id="context-github-privacy-btn"><i class="ph ph-eye-slash"></i> Hide from GitHub</button>
         <hr>
         <button id="context-export-btn"><i class="ph ph-download-simple"></i> Export Log</button>
         <button id="context-restore-btn"><i class="ph ph-upload-simple"></i> Restore Log</button>
@@ -5478,8 +5480,15 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
             // V188: avoid getBoundingClientRect() here. A synchronous layout read
             // during animated themes was one of the most noticeable right-click
             // stalls. These bounds are intentionally a little generous.
+            const privacyButton = document.getElementById('context-github-privacy-btn');
+            if (privacyButton) {
+                const hidden = app?.githubHidden === true;
+                privacyButton.innerHTML = hidden
+                    ? '<i class="ph ph-eye"></i> Show on GitHub'
+                    : '<i class="ph ph-eye-slash"></i> Hide from GitHub';
+            }
             const menuWidth = 220;
-            const menuHeight = 290;
+            const menuHeight = 350;
             contextMenu.style.left = Math.max(8, Math.min(x, window.innerWidth - menuWidth - 8)) + 'px';
             contextMenu.style.top = Math.max(8, Math.min(y, window.innerHeight - menuHeight - 8)) + 'px';
             contextMenu.classList.remove('hidden');
@@ -5537,6 +5546,36 @@ document.getElementById('new-log-name').addEventListener('keydown', (e) => {
             requestAnimationFrame(syncDashboardModalContrast);
             renameInput.focus();
             renameInput.select();
+        });
+
+
+        document.getElementById('context-duplicate-btn')?.addEventListener('click', async () => {
+            if (!contextApp) return;
+            const app = contextApp;
+            closeTileContextMenu();
+            const res = await fetch(`/api/apps/${encodeURIComponent(app.id)}/duplicate`, { method:'POST' });
+            const result = await res.json().catch(() => ({}));
+            if (!res.ok) return alert(result.message || 'Could not duplicate this log.');
+            await refreshDashboardAppsAuthoritativeV236();
+            showDashboardToast(`Duplicated “${app.name}” as “${result.app?.name || `${app.name} Copy`}”.`);
+        });
+
+        document.getElementById('context-github-privacy-btn')?.addEventListener('click', async () => {
+            if (!contextApp) return;
+            const app = contextApp;
+            const nextHidden = app.githubHidden !== true;
+            closeTileContextMenu();
+            const res = await fetch(`/api/apps/${encodeURIComponent(app.id)}/github-visibility`, {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({ hidden: nextHidden })
+            });
+            const result = await res.json().catch(() => ({}));
+            if (!res.ok) return alert(result.message || 'Could not change GitHub visibility.');
+            await refreshDashboardAppsAuthoritativeV236();
+            showDashboardToast(nextHidden
+                ? `“${app.name}” is hidden from GitHub commits on this computer.`
+                : `“${app.name}” can be included in GitHub commits again.`);
         });
 
         document
@@ -24212,6 +24251,161 @@ body #add-modal #new-log-name {
     picker.appendChild(option);
   }
 
+
+  // V429 — built-in ASL/hand + math/number log icons.
+  // These use the same custom-SVG pipeline as user-added icons so they also
+  // render correctly on dashboard tiles, in Edit Info, search, themes, and Trash.
+  [
+    {
+      id:'builtin-asl-open-hand-v429',
+      name:'ASL Open Hand',
+      svg:`<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 31V13.5a4 4 0 0 1 8 0V29"/><path d="M31 27V9.5a4 4 0 0 1 8 0V29"/><path d="M39 29V13a4 4 0 0 1 8 0v20"/><path d="M47 33V19a4 4 0 0 1 8 0v18c0 12-7.7 20-19 20h-4c-7.4 0-12.4-3.4-16-9.2L9.2 37.2a4.5 4.5 0 0 1 7.2-5.3L23 39"/></svg>`
+    },
+    {
+      id:'builtin-asl-two-hands-v429',
+      name:'ASL Two Hands',
+      svg:`<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 34V19a3.3 3.3 0 0 1 6.6 0v11"/><path d="M18.6 30V15.5a3.3 3.3 0 0 1 6.6 0V30"/><path d="M25.2 30V19a3.3 3.3 0 0 1 6.6 0v16c0 9-5.5 15-14 15h-2.2C9.5 50 6 46.5 6 41V31.5a3.5 3.5 0 0 1 6 2.5"/><path d="M52 34V19a3.3 3.3 0 0 0-6.6 0v11"/><path d="M45.4 30V15.5a3.3 3.3 0 0 0-6.6 0V30"/><path d="M38.8 30V19a3.3 3.3 0 0 0-6.6 0v16c0 9 5.5 15 14 15h2.2C54.5 50 58 46.5 58 41V31.5a3.5 3.5 0 0 0-6 2.5"/></svg>`
+    },
+    {
+      id:'builtin-asl-pointing-hand-v429',
+      name:'ASL Pointing Hand',
+      svg:`<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M29 31V10a4.5 4.5 0 0 1 9 0v22"/><path d="M38 31v-8a4 4 0 0 1 8 0v11"/><path d="M46 34v-6a4 4 0 0 1 8 0v12c0 10-7 17-17 17h-3c-7 0-12-3-16-9l-7-10.5a4 4 0 0 1 6.3-4.8L29 43"/><path d="M20 25c2.8-3.5 5.8-5.2 9-5.2"/></svg>`
+    },
+    {
+      id:'builtin-asl-gesture-v429',
+      name:'ASL Hand Gesture',
+      svg:`<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 34V17a4 4 0 0 1 8 0v13"/><path d="M28 30V11a4 4 0 0 1 8 0v19"/><path d="M36 30V15a4 4 0 0 1 8 0v17"/><path d="M44 32V21a4 4 0 0 1 8 0v15c0 12-7 21-19 21h-2c-8 0-13-4-17-10l-5-8a4 4 0 0 1 6.5-4.7L20 40"/><path d="M13 17l-5-5M14 9V3M7 24H2"/></svg>`
+    },
+    {
+      id:'builtin-math-123-v429',
+      name:'Math 123 Numbers',
+      svg:`<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 22l6-5v30M10 47h13"/><path d="M29 24c0-5 3.3-8 8-8 4.5 0 7.5 2.8 7.5 6.8 0 3.5-2 5.6-5.6 8.1L29 38v9h17"/><path d="M50 19c2-2 4.2-3 6.7-3 4.2 0 7.3 2.4 7.3 6 0 3.1-2.2 5.4-5.8 6.2 4.2.6 6.8 3.2 6.8 7 0 5-3.8 8.2-9.2 8.2-3 0-5.5-.9-7.8-2.8" transform="translate(-5 3) scale(.86)"/></svg>`
+    },
+    {
+      id:'builtin-math-plus-minus-v429',
+      name:'Math Plus Minus',
+      svg:`<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><path d="M19 12v20M9 22h20M38 18h17M10 48h44"/></svg>`
+    },
+    {
+      id:'builtin-math-pi-v429',
+      name:'Math Pi',
+      svg:`<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 19h44M24 19c0 18-2 27-8 31M43 19v23c0 6 2 9 7 9"/></svg>`
+    },
+    {
+      id:'builtin-math-equation-v429',
+      name:'Math Equation',
+      svg:`<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18l12 16M20 18L8 34M29 26h14M50 20h7M53.5 16.5v7M29 40h25M29 49h25"/></svg>`
+    },
+    {
+      id:'builtin-math-geometry-v429',
+      name:'Math Geometry',
+      svg:`<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 51L29 12l22 39H8Z"/><path d="M18 51a10 10 0 0 1 5-8.7"/><circle cx="45" cy="20" r="7"/></svg>`
+    },
+    {
+      id:'builtin-math-graph-v429',
+      name:'Math Graph',
+      svg:`<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 53V10M11 53h43"/><path d="M17 43l9-10 8 5 14-19"/><circle cx="17" cy="43" r="2.5" fill="currentColor" stroke="none"/><circle cx="26" cy="33" r="2.5" fill="currentColor" stroke="none"/><circle cx="34" cy="38" r="2.5" fill="currentColor" stroke="none"/><circle cx="48" cy="19" r="2.5" fill="currentColor" stroke="none"/></svg>`
+    }
+
+  ].forEach(appendOption);
+
+  // V430 — expanded built-in log icon library.
+  // Only adds concepts that are not already represented by the existing picker
+  // or the V429 ASL/math set. Each entry also checks likely equivalent icon ids
+  // so this block will not create duplicates if the base picker grows later.
+  const svgV430 = body => `<svg class="dashboard-custom-icon-svg dashboard-user-icon-svg-v428" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
+  const addMissingV430 = entry => {
+    const picker=q('#icon-picker');
+    const equivalents=Array.isArray(entry.equivalents)?entry.equivalents:[];
+    if (picker && equivalents.some(id=>picker.querySelector(`[data-icon="${CSS.escape(id)}"]`))) return;
+    if (picker) {
+      const wanted=String(entry.name||'').trim().toLocaleLowerCase();
+      const duplicate=Array.from(picker.querySelectorAll('.icon-option')).some(option=>
+        String(option.dataset.label||option.title||'').trim().toLocaleLowerCase()===wanted
+      );
+      if (duplicate) return;
+    }
+    appendOption({id:entry.id,name:entry.name,svg:svgV430(entry.body)});
+  };
+
+  [
+    // Language / communication
+    {id:'builtin-language-speech-v430',name:'Language Speech Bubble',equivalents:['ph-chat-circle','ph-chats-circle'],body:`<path d="M10 13h44v30H29l-12 9v-9h-7z"/><path d="M19 24h26M19 32h18"/>`},
+    {id:'builtin-language-az-v430',name:'Language A-Z Alphabet',equivalents:['ph-text-aa','ph-alphabet'],body:`<path d="M8 47l9-30 9 30M11 37h12M35 18h20L36 47h20"/>`},
+    {id:'builtin-language-ear-v430',name:'Language Listening Ear',equivalents:['ph-ear'],body:`<path d="M39 45c0 7-4 11-10 11-7 0-11-5-11-12 0-10 9-10 9-20 0-8 5-14 13-14 9 0 15 6 15 14 0 8-5 11-10 14-4 2-5 4-5 7"/><path d="M30 31c0-5 3-8 7-8 4 0 7 3 7 7"/>`},
+    {id:'builtin-language-lips-v430',name:'Language Mouth Lips',equivalents:['ph-mouth'],body:`<path d="M8 32c8-3 14-10 24-10s16 7 24 10c-8 3-14 10-24 10S16 35 8 32Z"/><path d="M8 32c10 1 17 2 24 2s14-1 24-2"/>`},
+    {id:'builtin-language-writing-hand-v430',name:'Language Writing Hand',equivalents:['ph-hand-writing'],body:`<path d="M10 48c6-7 10-11 15-13l14-14 8 8-14 14c-2 5-6 9-13 13l-8 1z"/><path d="M37 23l8 8M14 51l7 5M43 17l4-4c2-2 5-2 7 0l1 1c2 2 2 5 0 7l-4 4"/>`},
+
+    // Additional ASL / hand options not already covered by V429
+    {id:'builtin-asl-fingerspelling-v430',name:'ASL Fingerspelling Hand',body:`<path d="M19 50V29c0-4 6-4 6 0v8M25 37V18c0-5 7-5 7 0v18M32 36V15c0-5 7-5 7 0v22M39 37V20c0-5 7-5 7 0v21M46 41V29c0-5 7-5 7 0v13c0 10-7 16-18 16h-3c-9 0-15-4-19-11l-4-7c-3-5 4-9 7-5l3 4"/>`},
+    {id:'builtin-asl-wave-v430',name:'ASL Hand Wave',body:`<path d="M20 47V24c0-5 7-5 7 0v10M27 34V15c0-5 7-5 7 0v19M34 34V13c0-5 7-5 7 0v22M41 35V18c0-5 7-5 7 0v20M48 38V25c0-5 7-5 7 0v14c0 12-8 19-20 19h-2c-9 0-15-4-19-11l-5-8c-3-5 4-9 7-5l4 5"/><path d="M8 18l-4-4M10 10V5M5 26H1M54 10l4-4M57 19h5"/>`},
+
+    // Math
+    {id:'builtin-math-ruler-v430',name:'Math Ruler',equivalents:['ph-ruler'],body:`<path d="M9 43L43 9l12 12-34 34z"/><path d="M37 15l6 6M31 21l4 4M25 27l6 6M19 33l4 4M13 39l6 6"/>`},
+    {id:'builtin-math-compass-tool-v430',name:'Math Compass Tool',equivalents:['ph-compass-tool'],body:`<circle cx="32" cy="12" r="5"/><path d="M29 17L17 53M35 17l12 36M23 35h18M18 53h8M40 53h14"/>`},
+    {id:'builtin-math-abacus-v430',name:'Math Abacus',equivalents:['ph-abacus'],body:`<rect x="8" y="10" width="48" height="44" rx="3"/><path d="M15 20h34M15 32h34M15 44h34"/><circle cx="25" cy="20" r="4"/><circle cx="40" cy="20" r="4"/><circle cx="20" cy="32" r="4"/><circle cx="34" cy="32" r="4"/><circle cx="46" cy="32" r="4"/><circle cx="29" cy="44" r="4"/><circle cx="43" cy="44" r="4"/>`},
+    {id:'builtin-math-fraction-v430',name:'Math Fraction',body:`<path d="M16 18h9M20 15v16M15 47h14M41 18h8M45 15v16M38 49h14"/><path d="M18 52L47 12"/>`},
+    {id:'builtin-math-square-root-v430',name:'Math Square Root',body:`<path d="M7 34h8l7 17L34 15h23"/><path d="M39 28h14M46 21v14"/>`},
+    {id:'builtin-math-infinity-v430',name:'Math Infinity',equivalents:['ph-infinity'],body:`<path d="M32 32c-7-10-12-15-18-15-7 0-11 6-11 15s4 15 11 15c6 0 11-5 18-15 7 10 12 15 18 15 7 0 11-6 11-15s-4-15-11-15c-6 0-11 5-18 15Z"/>`},
+    {id:'builtin-math-sigma-v430',name:'Math Sigma',body:`<path d="M49 12H17l17 20-17 20h32M20 12l-6 8M20 52l-6-8"/>`},
+    {id:'builtin-math-coordinate-plane-v430',name:'Math Coordinate Plane',body:`<path d="M32 6v52M6 32h52"/><path d="M29 10l3-4 3 4M54 29l4 3-4 3"/><path d="M14 14l36 36M14 50l36-36" stroke-width="1.7" opacity=".55"/>`},
+    {id:'builtin-math-cube-v430',name:'Math Cube',equivalents:['ph-cube'],body:`<path d="M15 20l17-9 17 9v24l-17 9-17-9z"/><path d="M15 20l17 9 17-9M32 29v24"/>`},
+
+    // Science
+    {id:'builtin-science-molecule-v430',name:'Science Molecule',body:`<circle cx="16" cy="34" r="7"/><circle cx="34" cy="17" r="7"/><circle cx="49" cy="39" r="8"/><path d="M21 29l8-8M39 21l7 11M23 36l18 2"/>`},
+    {id:'builtin-science-planet-v430',name:'Science Planet',equivalents:['ph-planet'],body:`<circle cx="32" cy="32" r="14"/><path d="M10 39c6-1 16-7 26-13 10-5 18-7 20-4 3 5-9 15-27 23-16 7-25 7-27 3-1-3 2-6 8-9Z"/>`},
+    {id:'builtin-science-magnet-v430',name:'Science Magnet',equivalents:['ph-magnet'],body:`<path d="M15 12v24c0 11 7 18 17 18s17-7 17-18V12H37v24c0 4-2 7-5 7s-5-3-5-7V12z"/><path d="M15 22h12M37 22h12"/>`},
+
+    // Computer science
+    {id:'builtin-cs-terminal-v430',name:'Computer Science Terminal',equivalents:['ph-terminal-window','ph-terminal'],body:`<rect x="7" y="10" width="50" height="44" rx="4"/><path d="M7 20h50M16 30l7 6-7 6M30 43h14"/>`},
+    {id:'builtin-cs-binary-v430',name:'Computer Science Binary 01',body:`<path d="M13 18v28M9 18h8M9 46h8"/><ellipse cx="30" cy="32" rx="7" ry="15"/><path d="M47 18v28M43 18h8M43 46h8"/>`},
+    {id:'builtin-cs-chip-v430',name:'Computer Science Chip',equivalents:['ph-cpu'],body:`<rect x="17" y="17" width="30" height="30" rx="3"/><rect x="25" y="25" width="14" height="14" rx="2"/><path d="M23 7v10M32 7v10M41 7v10M23 47v10M32 47v10M41 47v10M7 23h10M7 32h10M7 41h10M47 23h10M47 32h10M47 41h10"/>`},
+    {id:'builtin-cs-database-v430',name:'Computer Science Database',equivalents:['ph-database'],body:`<ellipse cx="32" cy="15" rx="20" ry="7"/><path d="M12 15v17c0 4 9 7 20 7s20-3 20-7V15M12 31v17c0 4 9 7 20 7s20-3 20-7V31"/><path d="M12 31c0 4 9 7 20 7s20-3 20-7"/>`},
+    {id:'builtin-cs-network-v430',name:'Computer Science Network Nodes',equivalents:['ph-share-network'],body:`<circle cx="14" cy="32" r="6"/><circle cx="34" cy="14" r="6"/><circle cx="50" cy="34" r="6"/><circle cx="31" cy="51" r="6"/><path d="M19 28l10-10M39 18l7 11M45 38L36 47M25 47L19 36M20 32h24"/>`},
+
+    // Finance
+    {id:'builtin-finance-dollar-v430',name:'Finance Dollar Sign',equivalents:['ph-currency-dollar'],body:`<path d="M32 8v48M45 17c-3-4-8-6-13-6-8 0-14 4-14 10 0 14 28 6 28 22 0 6-6 10-14 10-6 0-12-2-16-7"/>`},
+    {id:'builtin-finance-coins-v430',name:'Finance Coins',equivalents:['ph-coins'],body:`<ellipse cx="23" cy="18" rx="13" ry="6"/><path d="M10 18v10c0 3 6 6 13 6s13-3 13-6V18M10 28v9c0 3 6 6 13 6 4 0 8-1 10-2"/><ellipse cx="43" cy="39" rx="12" ry="6"/><path d="M31 39v10c0 3 5 6 12 6s12-3 12-6V39"/>`},
+    {id:'builtin-finance-bank-v430',name:'Finance Bank',equivalents:['ph-bank'],body:`<path d="M7 22L32 9l25 13H7Z"/><path d="M12 25h40M14 49h36M8 55h48M17 25v24M27 25v24M37 25v24M47 25v24"/>`},
+    {id:'builtin-finance-wallet-v430',name:'Finance Wallet',equivalents:['ph-wallet'],body:`<path d="M10 18h40c4 0 7 3 7 7v25H14c-4 0-7-3-7-7V21c0-5 4-9 9-9h29"/><path d="M42 30h15v13H42c-4 0-7-3-7-7s3-6 7-6Z"/><circle cx="44" cy="36" r="1.5" fill="currentColor" stroke="none"/>`},
+    {id:'builtin-finance-stock-v430',name:'Finance Stock Chart',equivalents:['ph-chart-line-up'],body:`<path d="M9 53V11M9 53h46"/><path d="M15 44l10-12 9 7 15-20"/><path d="M43 19h6v6"/>`},
+    {id:'builtin-finance-candles-v430',name:'Finance Candlestick Chart',body:`<path d="M11 54h45M17 12v36M12 22h10v15H12zM32 9v42M27 18h10v19H27zM47 14v35M42 28h10v13H42z"/>`},
+    {id:'builtin-finance-percent-v430',name:'Finance Percentage',equivalents:['ph-percent'],body:`<circle cx="19" cy="20" r="7"/><circle cx="45" cy="44" r="7"/><path d="M49 14L15 50"/>`},
+    {id:'builtin-finance-receipt-v430',name:'Finance Receipt',equivalents:['ph-receipt'],body:`<path d="M15 8h34v48l-6-4-6 4-5-4-6 4-5-4-6 4z"/><path d="M22 20h20M22 29h20M22 38h12"/>`},
+    {id:'builtin-finance-briefcase-v430',name:'Finance Briefcase',equivalents:['ph-briefcase'],body:`<rect x="8" y="20" width="48" height="33" rx="4"/><path d="M23 20v-6h18v6M8 34h48M27 34v6h10v-6"/>`},
+
+    // Reading / writing
+    {id:'builtin-reading-bookmark-v430',name:'Reading Bookmark',equivalents:['ph-bookmark'],body:`<path d="M18 9h28v47L32 46 18 56z"/>`},
+    {id:'builtin-writing-pencil-v430',name:'Writing Pencil',equivalents:['ph-pencil-simple','ph-pencil'],body:`<path d="M12 46l4-13L43 6l15 15-27 27-13 4z"/><path d="M16 33l15 15M39 10l15 15M12 46l7 7"/>`},
+    {id:'builtin-reading-newspaper-v430',name:'Reading Newspaper',equivalents:['ph-newspaper'],body:`<path d="M10 12h38v40H14c-2 0-4-2-4-4z"/><path d="M48 21h7v27c0 2-2 4-4 4h-3M18 21h22M18 29h9M31 29h9M18 37h22M18 44h22"/>`},
+    {id:'builtin-writing-quotes-v430',name:'Writing Quotation Marks',equivalents:['ph-quotes'],body:`<path d="M12 18h15v15c0 9-5 15-14 17M37 18h15v15c0 9-5 15-14 17"/>`},
+
+    // Fitness
+    {id:'builtin-fitness-dumbbell-v430',name:'Fitness Dumbbell',body:`<path d="M20 32h24M9 23v18M15 19v26M49 19v26M55 23v18M15 32h5M44 32h5"/>`},
+    {id:'builtin-fitness-yoga-v430',name:'Fitness Yoga Pose',body:`<circle cx="32" cy="11" r="5"/><path d="M32 16v16M18 23l14 9 14-9M32 32L19 48M32 32l13 16M12 49h40"/>`},
+
+    // Life skills
+    {id:'builtin-life-utensils-v430',name:'Life Skills Utensils',equivalents:['ph-fork-knife'],body:`<path d="M17 8v18M11 8v10c0 5 12 5 12 0V8M17 26v30M43 8v48M43 8c8 7 8 17 0 25"/>`},
+    {id:'builtin-life-sewing-v430',name:'Life Skills Sewing Needle',equivalents:['ph-needle'],body:`<path d="M12 51L48 15M44 11l9-5 5 5-5 9M18 45c8 8 17 10 27 6 7-3 10-8 10-14"/><circle cx="49" cy="14" r="2"/>`},
+    {id:'builtin-life-house-v430',name:'Life Skills House',equivalents:['ph-house'],body:`<path d="M8 30L32 9l24 21M14 27v28h36V27M27 55V39h10v16"/>`},
+
+    // School / civics
+    {id:'builtin-school-scroll-v430',name:'School History Scroll',equivalents:['ph-scroll'],body:`<path d="M17 11h32c4 0 7 3 7 7s-3 7-7 7h-4v28H17c-5 0-9-4-9-9s4-9 9-9h28"/><path d="M17 11c-5 0-9 4-9 9s4 9 9 9h28M17 35v18"/>`},
+    {id:'builtin-school-government-v430',name:'School Government Building',body:`<path d="M7 23L32 9l25 14H7Z"/><path d="M11 27h42M14 50h36M9 56h46M18 27v23M28 27v23M38 27v23M48 27v23"/><circle cx="32" cy="18" r="2"/>`},
+
+    // Progress / tracking
+    {id:'builtin-progress-check-v430',name:'Progress Checkmark',equivalents:['ph-check','ph-check-circle'],body:`<circle cx="32" cy="32" r="24"/><path d="M20 32l8 8 17-19"/>`},
+    {id:'builtin-progress-flame-v430',name:'Progress Flame',equivalents:['ph-fire'],body:`<path d="M35 7c2 11-7 13-4 22 4-4 8-7 12-13 7 9 11 17 11 25 0 10-9 18-22 18S10 51 10 40c0-9 6-17 17-29-1 9 1 14 8 19"/>`},
+    {id:'builtin-progress-calendar-v430',name:'Progress Calendar',equivalents:['ph-calendar'],body:`<rect x="9" y="13" width="46" height="42" rx="4"/><path d="M9 24h46M20 7v12M44 7v12M19 34h5M30 34h5M41 34h5M19 44h5M30 44h5M41 44h5"/>`},
+    {id:'builtin-progress-clock-v430',name:'Progress Clock',equivalents:['ph-clock'],body:`<circle cx="32" cy="32" r="24"/><path d="M32 18v15l11 7"/>`},
+
+    // General
+    {id:'builtin-general-lightbulb-v430',name:'General Lightbulb',equivalents:['ph-lightbulb'],body:`<path d="M20 29c0-8 5-15 12-15s12 7 12 15c0 6-3 9-7 13H27c-4-4-7-7-7-13Z"/><path d="M27 42h10M27 48h10M29 54h6M32 5V1M12 12l-4-4M52 12l4-4M8 31H3M56 31h5"/>`},
+    {id:'builtin-general-folder-v430',name:'General Folder',equivalents:['ph-folder'],body:`<path d="M7 17h20l6 7h24v30H7z"/><path d="M7 17v-7h17l6 7"/>`},
+    {id:'builtin-general-pin-v430',name:'General Map Pin',equivalents:['ph-map-pin'],body:`<path d="M32 58s18-17 18-34a18 18 0 1 0-36 0c0 17 18 34 18 34Z"/><circle cx="32" cy="24" r="6"/>`},
+    {id:'builtin-general-binoculars-v430',name:'General Binoculars',equivalents:['ph-binoculars'],body:`<circle cx="18" cy="42" r="10"/><circle cx="46" cy="42" r="10"/><path d="M9 39l7-23h10l6 22M55 39l-7-23H38l-6 22M26 21h12M26 31h12"/>`}
+  ].forEach(addMissingV430);
+
   async function loadLibrary(){
     try{
       const response=await fetch('/api/dashboard-custom-icons',{cache:'no-store'});
@@ -25547,5 +25741,91 @@ html body #rename-modal #edit-icon-picker {
   window.addEventListener('storage',e=>{if(e.key===REGISTRY_KEY)read();if(e.key&&/theme/i.test(e.key))setTimeout(seed,0)});
   window.__dashboardDecorationSourceRegistryV682Api={hydrateTheme,repair,seed};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',seed,{once:true});else seed();
+})();
+</script>
+
+
+<!-- =====================================================================
+     V714 — DEFAULT THEME: CREATE NEW LOG CONTROL BORDERS
+     Keep the already-fixed icon hover behavior, but restore crisp black
+     borders for the default theme's Create New Log controls.
+     ===================================================================== -->
+<style id="dashboard-default-create-log-borders-v714">
+body.dashboard-default-create-log-v714 #add-modal #new-log-name,
+body.dashboard-default-create-log-v714 #add-modal #new-log-name:hover,
+body.dashboard-default-create-log-v714 #add-modal #new-log-name:focus,
+body.dashboard-default-create-log-v714 #add-modal #new-log-name:focus-visible,
+body.dashboard-default-create-log-v714 #add-modal .dashboard-icon-search-box,
+body.dashboard-default-create-log-v714 #add-modal .dashboard-icon-search-box:hover,
+body.dashboard-default-create-log-v714 #add-modal .dashboard-icon-search-box:focus-within,
+body.dashboard-default-create-log-v714 #add-modal .dashboard-icon-search-add-v428,
+body.dashboard-default-create-log-v714 #add-modal .dashboard-icon-search-add-v428:hover,
+body.dashboard-default-create-log-v714 #add-modal .dashboard-icon-search-add-v428:focus-visible,
+body.dashboard-default-create-log-v714 #add-modal #icon-picker,
+body.dashboard-default-create-log-v714 #add-modal #icon-picker .icon-option,
+body.dashboard-default-create-log-v714 #add-modal #icon-picker .icon-option:hover,
+body.dashboard-default-create-log-v714 #add-modal #icon-picker .icon-option:focus-visible,
+body.dashboard-default-create-log-v714 #add-modal #add-item-category-filter > button[data-category],
+body.dashboard-default-create-log-v714 #add-modal #add-item-category-filter > button[data-category]:hover,
+body.dashboard-default-create-log-v714 #add-modal #add-item-category-filter > button[data-category]:focus-visible {
+  border-color:#111111!important;
+}
+</style>
+<script id="dashboard-default-create-log-borders-v714-runtime">
+(()=>{
+  'use strict';
+  if(window.__dashboardDefaultCreateLogBordersV714)return;
+  window.__dashboardDefaultCreateLogBordersV714=true;
+  const norm=v=>String(v||'default').trim().toLowerCase().replace(/^theme-/,'')||'default';
+  const sync=value=>{
+    const id=norm(value ?? localStorage.getItem('dashboard-theme') ?? 'default');
+    document.body?.classList.toggle('dashboard-default-create-log-v714',id==='default');
+  };
+  const boot=()=>sync();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+  try{
+    const before=window.applyDashboardTheme;
+    if(typeof before==='function'&&!before.__defaultCreateLogBordersV714){
+      const wrapped=async function(themeValue,...rest){
+        sync(themeValue);
+        const result=await before.call(this,themeValue,...rest);
+        sync(themeValue);
+        return result;
+      };
+      wrapped.__defaultCreateLogBordersV714=true;
+      window.applyDashboardTheme=wrapped;
+      try{applyDashboardTheme=wrapped}catch{}
+    }
+  }catch{}
+  window.addEventListener('storage',e=>{if(e.key==='dashboard-theme')sync(e.newValue)});
+})();
+</script>
+
+<!-- V749 — random Dashboard theme button between search and Create -->
+<style id="dashboard-random-theme-v749-style">
+#dashboard-theme-modal .dashboard-theme-search-row-v161>.dashboard-theme-random-v749{
+  flex:0 0 46px;width:46px;min-width:46px;box-sizing:border-box;border:1px solid var(--dashboard-settings-button-border-v380,var(--border,#d8d8de));border-radius:12px;background:var(--dashboard-settings-button-bg-v380,var(--card,#fff));color:var(--dashboard-settings-button-text-v380,var(--text,#171717));display:grid;place-items:center;cursor:pointer;transition:transform .12s ease,background-color .12s ease,color .12s ease;
+}
+#dashboard-theme-modal .dashboard-theme-search-row-v161>.dashboard-theme-random-v749:hover{transform:translateY(-1px);background:var(--dashboard-settings-hover-bg-v380,color-mix(in srgb,currentColor 7%,transparent));color:var(--dashboard-settings-hover-text-v380,currentColor)}
+#dashboard-theme-modal .dashboard-theme-random-v749 i{font-size:1.15rem}
+</style>
+<script id="dashboard-random-theme-v749-runtime">
+(()=>{
+ 'use strict';if(window.__dashboardRandomThemeV749)return;window.__dashboardRandomThemeV749=true;
+ function install(){
+   const input=document.getElementById('dashboard-theme-search');const box=input?.closest('.dashboard-theme-search-box');const row=box?.closest('.dashboard-theme-search-row-v161');if(!row)return;
+   let button=row.querySelector('.dashboard-theme-random-v749');if(button)return;
+   button=document.createElement('button');button.type='button';button.className='dashboard-theme-random-v749';button.title='Apply a random theme';button.setAttribute('aria-label','Apply a random theme');button.innerHTML='<i class="ph ph-shuffle"></i>';
+   const plus=row.querySelector('.dashboard-theme-create-search-v161');row.insertBefore(button,plus||null);
+   button.onclick=async()=>{
+     const cards=Array.from(document.querySelectorAll('#dashboard-theme-grid .dashboard-theme-card[data-theme]')).filter(card=>!card.classList.contains('dashboard-theme-search-hidden')&&getComputedStyle(card).display!=='none');if(!cards.length)return;
+     const current=String(localStorage.getItem('dashboard-theme')||'default');const pool=cards.filter(card=>String(card.dataset.theme)!==current);const choices=pool.length?pool:cards;const chosen=choices[Math.floor(Math.random()*choices.length)];if(!chosen)return;
+     chosen.scrollIntoView({block:'nearest'});
+     const theme=String(chosen.dataset.theme||'');
+     try{await applyDashboardTheme(theme)}catch{chosen.click?.()}
+   };
+ }
+ new MutationObserver(install).observe(document.documentElement,{childList:true,subtree:true});
+ document.addEventListener('click',e=>{if(e.target.closest?.('#dashboard-theme-button'))requestAnimationFrame(install)},true);requestAnimationFrame(install);
 })();
 </script>

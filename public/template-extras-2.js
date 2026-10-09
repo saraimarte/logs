@@ -17496,10 +17496,8 @@ const LOG_NAV_BUILTINS_V52 = {
         buttonId: 'open-daily-logs-nav-btn',
         label: 'Daily Logs'
     },
-    tools: {
-        buttonId: 'open-tools-btn',
-        label: 'Toolbox'
-    },
+    // Legacy key retained for old saved nav settings; no default Toolbox tab exists.
+    tools: { buttonId:'open-tools-btn', label:'Toolbox' },
     knowledge: {
         buttonId: 'open-phrases-btn',
         label: 'Knowledge Base'
@@ -17516,7 +17514,6 @@ const LOG_NAV_BUILTINS_V52 = {
 
 const LOG_NAV_DEFAULT_ORDER_V52 = [
     'daily',
-    'tools',
     'knowledge',
     'quizzes',
     'weekly-review'
@@ -17534,6 +17531,25 @@ function ensureLogNavSettingsV52() {
     ) {
         db.settings.logNavOrderV52 =
             [];
+    }
+
+    if (
+        db.settings.logNavOrderV52.length === 0 &&
+        Array.isArray(
+            db.settings.sideNavOrderV752
+        )
+    ) {
+        const migrated = db.settings.sideNavOrderV752
+            .map(
+                key => {
+                    if (key === 'kb') return 'knowledge';
+                    if (key === 'toolbox') return 'tools';
+                    return String(key || '');
+                }
+            )
+            .filter(Boolean);
+
+        db.settings.logNavOrderV52 = migrated;
     }
 
     if (
@@ -17633,6 +17649,10 @@ function elementForLogNavKeyV52(
 function currentAvailableLogNavKeysV52() {
     const customKeys =
         getCustomTabs()
+            .filter(
+                tab =>
+                    !tab?.nestedParentV753
+            )
             .map(
                 tab =>
                     `custom:${tab.id}`
@@ -17830,199 +17850,170 @@ function saveLogNavOrderFromDomV52() {
     saveDb();
 }
 
+let logNavPointerDragV754 = null;
+
 function clearLogNavDragUiV52() {
-    document
-        .querySelectorAll(
-            '.log-nav-dragging-v52, .log-nav-drop-before-v52, .log-nav-drop-after-v52'
-        )
-        .forEach(
-            element => {
-                element.classList.remove(
-                    'log-nav-dragging-v52',
-                    'log-nav-drop-before-v52',
-                    'log-nav-drop-after-v52'
-                );
-            }
-        );
+    const state = logNavPointerDragV754;
+    if (state?.button) {
+        state.button.classList.remove('log-nav-pointer-dragging-v54');
+    }
+    document.body.classList.remove('log-nav-pointer-drag-active-v54');
+    logNavPointerDragV754 = null;
 }
 
 function bindUnifiedLogNavDragV52(
     button,
     key
 ) {
-    if (
-        !button ||
-        button.dataset
-            .unifiedNavDragV52 ===
-            'true'
-    ) {
-        return;
-    }
+    if (!button) return;
 
-    button.dataset
-        .unifiedNavDragV52 =
-        'true';
+    button.dataset.logNavKeyV52 = key;
+    button.draggable = false;
+    button.setAttribute('draggable', 'false');
 
-    button.dataset
-        .logNavKeyV52 =
-        key;
+    const host = button.parentElement;
+    if (!host || host.id !== 'log-tab-order-host-v52') return;
+    installUnifiedLogNavPointerReorderV754(host);
+}
 
-    button.draggable =
-        true;
+function installUnifiedLogNavPointerReorderV754(host) {
+    if (!host || host.dataset.pointerReorderV754 === '1') return;
+    host.dataset.pointerReorderV754 = '1';
 
-    button.addEventListener(
-        'dragstart',
+    const orderedButtons = () =>
+        Array.from(
+            host.querySelectorAll(
+                ':scope > .icon-btn[data-log-nav-key-v52]:not(.log-nav-hidden-v52)'
+            )
+        );
+
+    host.addEventListener(
+        'pointerdown',
         event => {
-            event.dataTransfer
-                .setData(
-                    'text/log-nav-key-v52',
-                    key
-                );
+            if (event.button !== 0 || logNavPointerDragV754) return;
 
-            event.dataTransfer
-                .setData(
-                    'text/plain',
-                    key
-                );
-
-            event.dataTransfer.effectAllowed =
-                'move';
-
-            button.classList.add(
-                'log-nav-dragging-v52'
+            const button = event.target.closest(
+                ':scope > .icon-btn[data-log-nav-key-v52]'
             );
-        }
+
+            if (!button || button.parentElement !== host) return;
+
+            logNavPointerDragV754 = {
+                host,
+                button,
+                pointerId: event.pointerId,
+                startX: event.clientX,
+                startY: event.clientY,
+                startIndex: orderedButtons().indexOf(button),
+                dragging: false,
+                changed: false
+            };
+        },
+        true
     );
 
-    button.addEventListener(
-        'dragend',
-        clearLogNavDragUiV52
-    );
-
-    button.addEventListener(
-        'dragover',
+    host.addEventListener(
+        'click',
         event => {
-            const draggedKey =
-                event.dataTransfer
-                    .getData(
-                        'text/log-nav-key-v52'
-                    ) ||
-                event.dataTransfer
-                    .getData(
-                        'text/plain'
-                    );
+            const button = event.target.closest(
+                ':scope > .icon-btn[data-log-nav-key-v52]'
+            );
+            if (!button) return;
 
-            if (
-                !draggedKey ||
-                draggedKey ===
-                    key
-            ) {
-                return;
+            if (performance.now() < Number(button._logNavSuppressClickUntilV754 || 0)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+        },
+        true
+    );
+
+    document.addEventListener(
+        'pointermove',
+        event => {
+            const state = logNavPointerDragV754;
+            if (!state || state.host !== host || event.pointerId !== state.pointerId) return;
+
+            const distance = Math.hypot(
+                event.clientX - state.startX,
+                event.clientY - state.startY
+            );
+
+            if (!state.dragging && distance < 7) return;
+
+            if (!state.dragging) {
+                state.dragging = true;
+                state.button.classList.add('log-nav-pointer-dragging-v54');
+                document.body.classList.add('log-nav-pointer-drag-active-v54');
+                try { state.button.setPointerCapture?.(event.pointerId); } catch {}
             }
 
             event.preventDefault();
 
-            const rect =
-                button.getBoundingClientRect();
+            const buttons = orderedButtons().filter(button => button !== state.button);
+            if (!buttons.length) return;
 
-            const after =
-                event.clientY >
-                rect.top +
-                    rect.height /
-                        2;
+            let target = null;
+            let bestDistance = Infinity;
 
-            button.classList.toggle(
-                'log-nav-drop-before-v52',
-                !after
-            );
+            buttons.forEach(button => {
+                const rect = button.getBoundingClientRect();
+                const center = rect.top + rect.height / 2;
+                const distanceToCenter = Math.abs(event.clientY - center);
+                if (distanceToCenter < bestDistance) {
+                    bestDistance = distanceToCenter;
+                    target = button;
+                }
+            });
 
-            button.classList.toggle(
-                'log-nav-drop-after-v52',
-                after
-            );
+            if (!target) return;
+
+            const rect = target.getBoundingClientRect();
+            const after = event.clientY > rect.top + rect.height / 2;
+            const beforeSibling = after ? target.nextElementSibling : target;
+
+            if (beforeSibling === state.button || (!beforeSibling && state.button === host.lastElementChild)) return;
+
+            host.insertBefore(state.button, beforeSibling);
+            state.changed = true;
+        },
+        {
+            capture: true,
+            passive: false
         }
     );
 
-    button.addEventListener(
-        'dragleave',
-        () => {
-            button.classList.remove(
-                'log-nav-drop-before-v52',
-                'log-nav-drop-after-v52'
-            );
-        }
-    );
+    const finish = event => {
+        const state = logNavPointerDragV754;
+        if (!state || state.host !== host || event.pointerId !== state.pointerId) return;
 
-    button.addEventListener(
-        'drop',
-        event => {
-            const draggedKey =
-                event.dataTransfer
-                    .getData(
-                        'text/log-nav-key-v52'
-                    ) ||
-                event.dataTransfer
-                    .getData(
-                        'text/plain'
-                    );
-
-            if (
-                !draggedKey ||
-                draggedKey ===
-                    key
-            ) {
-                return;
-            }
-
+        if (state.dragging) {
             event.preventDefault();
             event.stopPropagation();
 
-            const dragged =
-                elementForLogNavKeyV52(
-                    draggedKey
-                );
+            state.button._logNavSuppressClickUntilV754 = performance.now() + 300;
 
-            const host =
-                document.getElementById(
-                    'log-tab-order-host-v52'
-                );
-
-            if (
-                !dragged ||
-                !host ||
-                button.parentElement !==
-                    host
-            ) {
-                clearLogNavDragUiV52();
-
-                return;
+            const finalIndex = orderedButtons().indexOf(state.button);
+            if (state.changed && finalIndex !== state.startIndex) {
+                saveLogNavOrderFromDomV52();
+                updateUnifiedLogNavScrollV52();
             }
 
-            const rect =
-                button.getBoundingClientRect();
-
-            const after =
-                event.clientY >
-                rect.top +
-                    rect.height /
-                        2;
-
-            if (after) {
-                button.after(
-                    dragged
-                );
-            } else {
-                button.before(
-                    dragged
-                );
-            }
-
-            clearLogNavDragUiV52();
-
-            saveLogNavOrderFromDomV52();
-
-            updateUnifiedLogNavScrollV52();
+            try { state.button.releasePointerCapture?.(event.pointerId); } catch {}
         }
+
+        clearLogNavDragUiV52();
+    };
+
+    document.addEventListener('pointerup', finish, true);
+    document.addEventListener(
+        'pointercancel',
+        event => {
+            const state = logNavPointerDragV754;
+            if (!state || state.host !== host || event.pointerId !== state.pointerId) return;
+            clearLogNavDragUiV52();
+        },
+        true
     );
 }
 
@@ -18219,6 +18210,12 @@ function bindBuiltInTabDeleteV52(
 }
 
 function applyUnifiedLogNavOrderV52() {
+    // V776: The core unified navbar owns icon placement and drag order.
+    // The V52 mover must not steal icons back into its secondary host.
+    if (window.__loggyImmediateUnifiedNavV772) {
+        window.__loggyImmediateUnifiedNavV772.refresh?.();
+        return;
+    }
     const host =
         ensureUnifiedLogNavHostV52();
 
@@ -18303,6 +18300,10 @@ function applyUnifiedLogNavOrderV52() {
     );
 
     getCustomTabs()
+        .filter(
+            tab =>
+                !tab?.nestedParentV753
+        )
         .forEach(
             tab => {
                 const key =
@@ -18341,19 +18342,32 @@ function applyUnifiedLogNavOrderV52() {
         normalizedLogNavOrderV52();
 
     order.forEach(
-        key => {
+        (key, index) => {
             const element =
                 elementForLogNavKeyV52(
                     key
                 );
 
             if (
-                element &&
-                element.parentElement ===
-                    host
+                !element ||
+                element.parentElement !== host
             ) {
-                host.appendChild(
+                return;
+            }
+
+            const current =
+                host.children[
+                    index
+                ] ||
+                null;
+
+            if (
+                current !==
                     element
+            ) {
+                host.insertBefore(
+                    element,
+                    current
                 );
             }
         }
@@ -18509,61 +18523,63 @@ requestAnimationFrame(
 // Eight optional starter tabs now live inside Create Tab.
 // ============================================================
 
+// Canonical custom-tab context menu, registered before late extras handlers.
+document.addEventListener('contextmenu', function loggyCustomTabContextMenu(event){
+  const tabButton=event.target?.closest?.('.custom-tab-nav-btn[data-custom-tab-id], [data-custom-tab-id].custom-tab-nav-btn');
+  if(!tabButton)return;
+  const id=String(tabButton.dataset.customTabId||'');
+  if(!id)return;
+  event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+  const actions=[
+    {label:'Edit Tab Layout',icon:'ph-layout',action:()=>{
+      try{
+        if(typeof window.__loggyEnterCustomTabEditV752==='function')window.__loggyEnterCustomTabEditV752(id);
+        else if(typeof enterCustomTabEditMode==='function')enterCustomTabEditMode(id);
+      }catch(error){console.error('Edit Tab Layout',error)}
+    }},
+    {label:'Edit Theme',icon:'ph-paint-brush',action:()=>{try{window.__loggyThemeBuilderV307OpenEdit?.(String(db?.settings?.theme||'default'))}catch{}}},
+    {label:'Settings',icon:'ph-sliders-horizontal',action:()=>{try{openCustomTabSettingsModal(id)}catch{}}}
+  ];
+  try{showCustomItemContextMenu(event.clientX,event.clientY,actions)}catch(error){console.error(error)}
+},true);
+
 const CUSTOM_TAB_TEMPLATES_V53 = [
-    {
-        id: 'whiteboard-v197',
-        name: 'Whiteboard',
-        icon: 'ph-selection-background',
-        description: 'A full-screen multi-board canvas for notes, images, drawing, connections, and visual planning.'
-    },
-    {
-        id: 'notepad-v249',
-        name: 'Notebook',
-        icon: 'ph-notebook',
-        description: 'A full-screen multi-page notebook with page categories, paper styles, movable images, drawing tools, and exact-page links from Daily Logs.'
-    },
-    {
-        id: 'personal-dashboard-v328',
-        name: 'Personal Dashboard',
-        icon: 'ph-gauge',
-        description: 'Goals, priorities, quick notes, progress, and recent Daily Log activity in one home base.'
-    },
-    {
-        id: 'study-center-v328',
-        name: 'Study Center',
-        icon: 'ph-graduation-cap',
-        description: 'Searchable study material, a study queue, key terms, questions, and resources.'
-    },
-    {
-        id: 'project-workspace-v328',
-        name: 'Project Workspace',
-        icon: 'ph-kanban',
-        description: 'Goals, next actions, milestones, a project table, references, and visual project work.'
-    },
-    {
-        id: 'habit-practice-v328',
-        name: 'Habit & Practice',
-        icon: 'ph-repeat',
-        description: 'Track a target, practice sessions, skill ratings, routines, and milestone wins.'
-    },
-    {
-        id: 'milestones-goals-v329',
-        name: 'Milestones & Goals',
-        icon: 'ph-target',
-        description: 'Track goals, progress, milestones, next actions, target dates, and status in one focused tracker.'
-    },
-    {
-        id: 'media-board-v328',
-        name: 'Media & Inspiration',
-        icon: 'ph-images-square',
-        description: 'A searchable moodboard with polaroids, project images, saved links, and Daily Log media.'
-    },
-    {
-        id: 'logs-review-v536',
-        name: 'Logs Review',
-        icon: 'ph-chart-bar',
-        description: 'Weekly, Monthly, and Yearly log review sections. Reorder or hide the sections in Edit Mode.'
-    }
+  {
+    "id": "whiteboard-v197",
+    "name": "Whiteboard",
+    "icon": "ph-selection-background",
+    "description": "Draw and organize ideas on a visual canvas."
+  },
+  {
+    "id": "notepad-v249",
+    "name": "Notebook",
+    "icon": "ph-notebook",
+    "description": "Write and organize notes across multiple pages."
+  },
+  {
+    "id": "logs-review-v536",
+    "name": "Logs Review",
+    "icon": "ph-chart-bar",
+    "description": "Review your activity across weeks, months, and years."
+  },
+  {
+    "id": "writers-room-v804",
+    "name": "Writer's Room",
+    "icon": "ph-pen-nib",
+    "description": "Plan and write your story."
+  },
+  {
+    "id": "curriculum-v813",
+    "name": "Curriculum",
+    "icon": "ph-books",
+    "description": "Build a chapter-and-section curriculum connected to your Knowledge Base."
+  },
+  {
+    "id": "learning-roadmap-2-v813",
+    "name": "Multiples",
+    "icon": "ph-path",
+    "description": "Explore several skills within one Log."
+  }
 ];
 
 function customTemplateV53(
@@ -18642,22 +18658,6 @@ function buildPrebuiltTabComponentsV53(
     switch (
         templateId
     ) {
-        case 'logs-review-v536':
-            return [
-                {
-                    id: customId('component'),
-                    type: 'logsReviewV536',
-                    title: 'Logs Review',
-                    titleBackground: 'none',
-                    keepBackdropV61: true,
-                    reviewSectionsV536: [
-                        { id: 'weekly', label: 'Weekly Review', hidden: false },
-                        { id: 'monthly', label: 'Monthly Review', hidden: false },
-                        { id: 'yearly', label: 'Yearly Review', hidden: false }
-                    ]
-                }
-            ];
-
         case 'weekly-review':
             return [
                 {
@@ -18949,6 +18949,14 @@ function buildPrebuiltTabComponentsV53(
                     reviewState: {}
                 }
             ];
+
+        case 'writers-room-v804':
+            try {
+                if (typeof window.__loggyBuildWritersRoomV804 === 'function') {
+                    return window.__loggyBuildWritersRoomV804();
+                }
+            } catch {}
+            return [];
 
         case 'whiteboard-v197':
             return [{
@@ -19845,301 +19853,137 @@ function renderKnowledgeSentenceBuilderV53(
 
 
 // ------------------------------------------------------------
-// Early custom-tab components needed before the later lazy bundles finish.
-// Keep legacy Weekly Review render support for old saved tabs, but new tabs use
-// Logs Review. Knowledge Base is registered here so it never disappears from
-// the Custom Components palette while extras 5 is still hydrating.
+// Make the two template-only sections behave like normal components.
 // ------------------------------------------------------------
 
-// Weekly Review is legacy-only in the palette; existing saved components still
-// render below. Remove stale palette entries so Logs Review is the visible choice.
-for (let index = CUSTOM_COMPONENT_LIBRARY.length - 1; index >= 0; index--) {
-    if (CUSTOM_COMPONENT_LIBRARY[index]?.type === 'weeklyReviewV53') {
-        CUSTOM_COMPONENT_LIBRARY.splice(index, 1);
-    }
-}
-
-if (!CUSTOM_COMPONENT_LIBRARY.some(item => item.type === 'knowledgeSentenceBuilderV53')) {
-    CUSTOM_COMPONENT_LIBRARY.push({
-        type: 'knowledgeSentenceBuilderV53',
-        label: 'Sentence Builder',
-        icon: 'ph-text-aa'
-    });
-}
-
-if (!CUSTOM_COMPONENT_LIBRARY.some(item => item.type === 'logsReviewV536')) {
-    CUSTOM_COMPONENT_LIBRARY.push({
-        type: 'logsReviewV536',
-        label: 'Logs Review',
-        icon: 'ph-chart-bar'
-    });
-}
-
-if (!CUSTOM_COMPONENT_LIBRARY.some(item => item.type === 'customKnowledgeBaseV453')) {
-    const knowledgeAnchorV497 = CUSTOM_COMPONENT_LIBRARY.findIndex(item => item?.type === 'search');
-    CUSTOM_COMPONENT_LIBRARY.splice(
-        knowledgeAnchorV497 >= 0 ? knowledgeAnchorV497 + 1 : CUSTOM_COMPONENT_LIBRARY.length,
-        0,
+if (
+    !CUSTOM_COMPONENT_LIBRARY.some(
+        item =>
+            item.type ===
+            'weeklyReviewV53'
+    )
+) {
+    CUSTOM_COMPONENT_LIBRARY.push(
         {
-            type: 'customKnowledgeBaseV453',
-            label: 'Knowledge Base',
-            icon: 'ph-books'
+            type:
+                'weeklyReviewV53',
+            label:
+                'Weekly Review',
+            icon:
+                'ph-calendar-check'
+        },
+        {
+            type:
+                'knowledgeSentenceBuilderV53',
+            label:
+                'Sentence Builder',
+            icon:
+                'ph-text-aa'
         }
     );
 }
 
-CUSTOM_TITLE_BACKGROUND_TYPES.add('weeklyReviewV53');
-CUSTOM_TITLE_BACKGROUND_TYPES.add('knowledgeSentenceBuilderV53');
-CUSTOM_TITLE_BACKGROUND_TYPES.add('logsReviewV536');
-CUSTOM_TITLE_BACKGROUND_TYPES.add('customKnowledgeBaseV453');
+CUSTOM_TITLE_BACKGROUND_TYPES.add(
+    'weeklyReviewV53'
+);
 
-const defaultCustomComponentBeforeTemplatesV53 = defaultCustomComponent;
+CUSTOM_TITLE_BACKGROUND_TYPES.add(
+    'knowledgeSentenceBuilderV53'
+);
 
-defaultCustomComponent = function(type) {
-    if (type === 'weeklyReviewV53') {
-        return {
-            id: customId('component'),
-            type,
-            title: 'Weekly Review',
-            titleBackground: 'none',
-            focusByRange: {}
-        };
-    }
+const defaultCustomComponentBeforeTemplatesV53 =
+    defaultCustomComponent;
 
-    if (type === 'knowledgeSentenceBuilderV53') {
-        return {
-            id: customId('component'),
-            type,
-            title: 'Sentence Builder',
-            titleBackground: 'none',
-            tokens: [],
-            savedSentences: []
-        };
-    }
-
-    if (type === 'logsReviewV536') {
-        return {
-            id: customId('component'),
-            type,
-            title: 'Logs Review',
-            titleBackground: 'none',
-            keepBackdropV61: true,
-            reviewSectionsV536: [
-                { id: 'weekly', label: 'Weekly Review', hidden: false },
-                { id: 'monthly', label: 'Monthly Review', hidden: false },
-                { id: 'yearly', label: 'Yearly Review', hidden: false }
-            ]
-        };
-    }
-
-    if (type === 'customKnowledgeBaseV453') {
-        return {
-            id: customId('component'),
-            type,
-            title: 'Knowledge Base',
-            titleBackground: 'none',
-            categories: [],
-            fields: [],
-            items: []
-        };
-    }
-
-    return defaultCustomComponentBeforeTemplatesV53(type);
-};
-
-function logsReviewRangeBaseV497(kind) {
-    let end = 1;
-    try {
-        end = Math.max(1, Number(getTodayCalculatedDayNumber?.()) || 1);
-    } catch {
-        const keys = Object.keys(db?.days || {}).map(Number).filter(Number.isFinite);
-        end = Math.max(1, ...(keys.length ? keys : [1]));
-    }
-
-    if (kind === 'weekly') return { start: Math.max(1, end - 6), end };
-
-    try {
-        const endDate = dateForDay(end);
-        let start = end;
-        for (let day = end; day >= 1; day--) {
-            const date = dateForDay(day);
-            const samePeriod = kind === 'monthly'
-                ? date.getFullYear() === endDate.getFullYear() && date.getMonth() === endDate.getMonth()
-                : date.getFullYear() === endDate.getFullYear();
-            if (!samePeriod) break;
-            start = day;
+defaultCustomComponent =
+    function(
+        type
+    ) {
+        if (
+            type ===
+            'weeklyReviewV53'
+        ) {
+            return {
+                id:
+                    customId(
+                        'component'
+                    ),
+                type,
+                title:
+                    'Weekly Review',
+                titleBackground:
+                    'none',
+                focusByRange:
+                    {}
+            };
         }
-        return { start, end };
-    } catch {
-        return {
-            start: Math.max(1, end - (kind === 'monthly' ? 29 : 364)),
-            end
-        };
-    }
-}
 
-function logsReviewSummaryBaseV497(kind) {
-    const { start, end } = logsReviewRangeBaseV497(kind);
-    const dayNumbers = Array.from({ length: end - start + 1 }, (_, index) => start + index);
-    let logged = 0;
-    let noteWords = 0;
-    let media = 0;
-    const learned = new Set();
+        if (
+            type ===
+            'knowledgeSentenceBuilderV53'
+        ) {
+            return {
+                id:
+                    customId(
+                        'component'
+                    ),
+                type,
+                title:
+                    'Sentence Builder',
+                titleBackground:
+                    'none',
+                tokens:
+                    [],
+                savedSentences:
+                    []
+            };
+        }
 
-    dayNumbers.forEach(day => {
-        const data = db?.days?.[day] || {};
-        let hasContent = false;
-        try { hasContent = !!featureDayHasContent(data); } catch { hasContent = !!Object.keys(data).length; }
-        if (hasContent) logged += 1;
-
-        let noteText = String(data.notes || '');
-        try { noteText = featureStripHtml(noteText); } catch { noteText = noteText.replace(/<[^>]+>/g, ' '); }
-        if (noteText.trim()) noteWords += noteText.trim().split(/\s+/).filter(Boolean).length;
-
-        media += (data.resources || []).length + (data.noteImages || []).length + (data.noteAudios || []).length;
-        if (data.video) media += 1;
-        if (data.video2) media += 1;
-        try { media += collectPdfValuesFromDay(data).length; } catch {}
-        (data.phrases || []).forEach(item => learned.add(String(item)));
-    });
-
-    return { start, end, dayNumbers, logged, noteWords, media, learned: learned.size };
-}
-
-function renderLogsReviewBaseV497(tab, component, content) {
-    const defaults = [
-        { id: 'weekly', label: 'Weekly Review', hidden: false },
-        { id: 'monthly', label: 'Monthly Review', hidden: false },
-        { id: 'yearly', label: 'Yearly Review', hidden: false }
-    ];
-    const saved = Array.isArray(component.reviewSectionsV536) ? component.reviewSectionsV536 : [];
-    const savedMap = new Map(saved.map(item => [String(item?.id || ''), item]));
-    component.reviewSectionsV536 = defaults.map(def => ({
-        id: def.id,
-        label: def.label,
-        hidden: savedMap.get(def.id)?.hidden === true
-    }));
-
-    const editing = !!content.closest?.('.custom-tab-canvas')?.classList.contains('is-editing');
-    const formatDay = day => {
-        try { return formatDate(day); } catch { return `Day ${day}`; }
+        return defaultCustomComponentBeforeTemplatesV53(
+            type
+        );
     };
 
-    content.innerHTML = `
-        <div class="logs-review-root-v536 logs-review-base-v497">
-            ${component.reviewSectionsV536.map(section => {
-                if (section.hidden && !editing) return '';
-                const summary = logsReviewSummaryBaseV497(section.id);
-                const recentDays = summary.dayNumbers
-                    .slice()
-                    .reverse()
-                    .filter(day => {
-                        try { return featureDayHasContent(db?.days?.[day]); } catch { return !!db?.days?.[day]; }
-                    })
-                    .slice(0, section.id === 'weekly' ? 7 : section.id === 'monthly' ? 10 : 12);
+const renderCustomComponentContentBeforeTemplatesV53 =
+    renderCustomComponentContent;
 
-                return `
-                    <section class="logs-review-section-v536${section.hidden ? ' is-hidden-v536' : ''}">
-                        <header>
-                            <div>
-                                <span class="logs-review-eyebrow-v536">${escapeCustomHtml(formatDay(summary.start))} — ${escapeCustomHtml(formatDay(summary.end))}</span>
-                                <h2>${escapeCustomHtml(section.label)}</h2>
-                            </div>
-                        </header>
-                        <div class="weekly-review-stats logs-review-stats-v536">
-                            <article><strong>${summary.logged}/${summary.dayNumbers.length}</strong><span>Days logged</span></article>
-                            <article><strong>${summary.noteWords}</strong><span>Note words</span></article>
-                            <article><strong>${summary.media}</strong><span>Media</span></article>
-                            <article><strong>${summary.learned}</strong><span>Learned</span></article>
-                        </div>
-                        <div class="logs-review-days-v536">
-                            ${recentDays.length
-                                ? recentDays.map(day => `<article class="logs-review-day-v536"><strong>${escapeCustomHtml(formatDay(day))}</strong></article>`).join('')
-                                : '<div class="logs-review-empty-v536">No logged days in this period yet.</div>'}
-                        </div>
-                    </section>
-                `;
-            }).join('')}
-        </div>
-    `;
-}
-
-const renderCustomComponentContentBeforeTemplatesV53 = renderCustomComponentContent;
-
-renderCustomComponentContent = function(tab, component, content) {
-    if (component?.type === 'weeklyReviewV53') {
-        renderWeeklyReviewTemplateV53(tab, component, content);
-        return;
-    }
-
-    if (component?.type === 'logsReviewV536') {
-        if (typeof window.renderLogsReviewV536 === 'function') {
-            window.renderLogsReviewV536(tab, component, content);
-        } else {
-            renderLogsReviewBaseV497(tab, component, content);
-            if (typeof window.ensureLoggyExtras === 'function') {
-                window.ensureLoggyExtras({ urgent: true })
-                    .then(() => { try { renderCustomTabView(tab.id); } catch {} })
-                    .catch(error => console.warn('Logs Review runtime failed to load', error));
-            }
-        }
-        return;
-    }
-
-    if (component?.type === 'knowledgeSentenceBuilderV53') {
-        renderKnowledgeSentenceBuilderV53(tab, component, content);
-        return;
-    }
-
-    if (component?.type === 'customKnowledgeBaseV453') {
-        // The full independent Knowledge Base runtime lives in extras 5. The
-        // palette entry is intentionally available earlier, so hydrate it now
-        // instead of ever showing "Unsupported component".
-        content.innerHTML = `
-            <div class="custom-feature-empty-v162 custom-kb-loading-v497">
-                <i class="ph ph-books"></i>
-                <strong>Opening Knowledge Base…</strong>
-            </div>
-        `;
-        if (!window.__loggyCustomKnowledgeComponentV453 && typeof window.ensureLoggyExtras === 'function') {
-            window.ensureLoggyExtras({ urgent: true })
-                .then(() => {
-                    try { renderCustomTabView(tab.id); } catch {}
-                })
-                .catch(error => console.warn('Custom Knowledge Base runtime failed to load', error));
-        }
-        return;
-    }
-
-    renderCustomComponentContentBeforeTemplatesV53(tab, component, content);
-};
-
-// Clicking or dropping the early Knowledge Base palette card waits for extras 5
-// and then delegates to its real addCustomComponent implementation. This keeps
-// the component visible immediately without creating a fake text component.
-const addCustomComponentBeforeKnowledgeBaseV497 = addCustomComponent;
-function addCustomComponentKnowledgeBaseV497(tabId, type, index = null) {
-    if (
-        type === 'customKnowledgeBaseV453' &&
-        !window.__loggyCustomKnowledgeComponentV453 &&
-        typeof window.ensureLoggyExtras === 'function'
+renderCustomComponentContent =
+    function(
+        tab,
+        component,
+        content
     ) {
-        window.ensureLoggyExtras({ urgent: true })
-            .then(() => {
-                const live = window.addCustomComponent;
-                if (typeof live === 'function' && live !== addCustomComponentKnowledgeBaseV497) {
-                    live(tabId, type, index);
-                } else {
-                    addCustomComponentBeforeKnowledgeBaseV497(tabId, type, index);
-                }
-            })
-            .catch(error => console.warn('Could not add Knowledge Base component', error));
-        return;
-    }
-    return addCustomComponentBeforeKnowledgeBaseV497(tabId, type, index);
-}
-addCustomComponent = addCustomComponentKnowledgeBaseV497;
-window.addCustomComponent = addCustomComponentKnowledgeBaseV497;
+        if (
+            component?.type ===
+            'weeklyReviewV53'
+        ) {
+            renderWeeklyReviewTemplateV53(
+                tab,
+                component,
+                content
+            );
+
+            return;
+        }
+
+        if (
+            component?.type ===
+            'knowledgeSentenceBuilderV53'
+        ) {
+            renderKnowledgeSentenceBuilderV53(
+                tab,
+                component,
+                content
+            );
+
+            return;
+        }
+
+        renderCustomComponentContentBeforeTemplatesV53(
+            tab,
+            component,
+            content
+        );
+    };
 
 const editCustomComponentBeforeTemplatesV53 =
     editCustomComponent;
@@ -20217,45 +20061,21 @@ editCustomComponent =
 // PRE-BUILT TAB PICKER INSIDE CREATE TAB
 // ------------------------------------------------------------
 
-function renderPrebuiltTabCardsV53(
-    section
-) {
-    const grid =
-        section.querySelector(
-            '.custom-tab-template-grid-v53'
-        );
-
-    if (!grid) {
-        return;
-    }
-
-    grid.innerHTML =
-        CUSTOM_TAB_TEMPLATES_V53
-            .map(
-                template => `
-                    <button
-                        type="button"
-                        class="custom-tab-template-card-v53"
-                        data-custom-tab-template-v53="${template.id}"
-                    >
-                        <span class="custom-tab-template-icon-v53">
-                            <i class="ph ${template.icon}"></i>
-                        </span>
-
-                        <span class="custom-tab-template-copy-v53">
-                            <strong>${escapeCustomHtml(
-                                template.name
-                            )}</strong>
-                            <small>${escapeCustomHtml(
-                                template.description
-                            )}</small>
-                        </span>
-
-                        <i class="ph ph-check-circle custom-tab-template-check-v53"></i>
-                    </button>
-                `
-            )
-            .join('');
+function renderPrebuiltTabCardsV53(section) {
+    if(!section)return;
+    window.__loggySyncTemplateRegistryV855?.();
+    const grid=section.querySelector('.custom-tab-template-grid-v53');
+    if(!grid)return;
+    const list=window.__loggyTemplateCatalogV831 || CUSTOM_TAB_TEMPLATES_V53;
+    const nodes=Array.from(grid.querySelectorAll('[data-custom-tab-template-v53]'));
+    const changed=nodes.length!==list.length||nodes.some((node,i)=>{
+      const t=list[i];return node.dataset.customTabTemplateV53!==t.id
+        ||node.querySelector('strong')?.textContent!==t.name
+        ||node.querySelector('small')?.textContent!==t.description;
+    });
+    if(!changed)return;
+    const selected=String(section.closest('#custom-tab-create-modal')?.dataset.selectedTemplateV53||'');
+    grid.innerHTML=list.map(t=>`<button type="button" class="custom-tab-template-card-v53 ${selected===t.id?'selected':''}" data-custom-tab-template-v53="${escapeCustomHtml(t.id)}" data-template-name-v330="${escapeCustomHtml(t.name)}" data-template-icon-v330="${escapeCustomHtml(t.icon)}"><span class="custom-tab-template-icon-v53"><i class="ph ${escapeCustomHtml(t.icon)}"></i></span><span class="custom-tab-template-copy-v53"><strong>${escapeCustomHtml(t.name)}</strong><small>${escapeCustomHtml(t.description)}</small></span><i class="ph ph-check-circle custom-tab-template-check-v53"></i></button>`).join('');
 }
 
 function selectTemplateIconV53(
@@ -20338,14 +20158,25 @@ function ensurePrebuiltTabSectionV53() {
             <div class="custom-tab-template-grid-v53"></div>
         `;
 
-        const iconSection =
-            modal.querySelector('#custom-tab-icon-picker')?.closest('.modal-section');
+        const daily =
+            modal.querySelector(
+                '.custom-tab-daily-source-section'
+            );
 
-        if (iconSection) {
-            iconSection.insertAdjacentElement('afterend', section);
+        if (daily) {
+            daily.insertAdjacentElement(
+                'afterend',
+                section
+            );
         } else {
-            modal.querySelector('#custom-tab-create-confirm')
-                ?.insertAdjacentElement('beforebegin', section);
+            modal
+                .querySelector(
+                    '#custom-tab-create-confirm'
+                )
+                ?.insertAdjacentElement(
+                    'beforebegin',
+                    section
+                );
         }
 
         renderPrebuiltTabCardsV53(
@@ -20448,141 +20279,6 @@ function ensurePrebuiltTabSectionV53() {
     return section;
 }
 
-
-// ------------------------------------------------------------
-// EARLY FULL-SCREEN OWNER FOR WHITEBOARD / NOTEBOOK.
-// Extras 5 contains the full runtimes, but it is lazy-loaded. Core template.js
-// must never get a chance to render these two saved tabs as ordinary custom-tab
-// pages while that runtime is still loading.
-// ------------------------------------------------------------
-function isDedicatedWorkspaceTabV497(tab) {
-    return !!tab && (
-        tab.templateIdV53 === 'whiteboard-v197' ||
-        tab.templateIdV53 === 'notepad-v249' ||
-        (Array.isArray(tab.components) && tab.components.some(component =>
-            component?.type === 'miroWhiteboardV197' || component?.type === 'fullNotepadV249'
-        ))
-    );
-}
-
-function dedicatedWorkspaceKindV497(tab) {
-    if (!tab) return '';
-    if (
-        tab.templateIdV53 === 'whiteboard-v197' ||
-        tab.components?.some?.(component => component?.type === 'miroWhiteboardV197')
-    ) return 'whiteboard';
-    if (
-        tab.templateIdV53 === 'notepad-v249' ||
-        tab.components?.some?.(component => component?.type === 'fullNotepadV249')
-    ) return 'notebook';
-    return '';
-}
-
-function forceDedicatedWorkspaceFullscreenV497(element) {
-    if (!element) return;
-    [
-        ['position','fixed'],['inset','0'],['left','0'],['top','0'],['right','0'],['bottom','0'],
-        ['width','100vw'],['height','100dvh'],['min-width','100vw'],['min-height','100dvh'],
-        ['max-width','none'],['max-height','none'],['margin','0'],['padding','0'],
-        ['transform','none'],['border-radius','0'],['overflow','hidden'],
-        ['box-sizing','border-box'],['visibility','visible'],['pointer-events','auto']
-    ].forEach(([property,value]) => element.style.setProperty(property,value,'important'));
-}
-
-function ensureDedicatedWorkspaceViewV497(tab) {
-    if (!isDedicatedWorkspaceTabV497(tab)) return null;
-    const kind = dedicatedWorkspaceKindV497(tab);
-    const id = `custom-tab-view-${tab.id}`;
-    let view = document.getElementById(id);
-    const requiredClass = kind === 'whiteboard' ? 'whiteboard-tab-view-v198' : 'notepad-tab-view-v249';
-
-    if (!view?.classList?.contains(requiredClass)) {
-        view?.remove();
-        view = document.createElement('div');
-        view.id = id;
-        view.dataset.customTabId = String(tab.id);
-        view.className = `view custom-tab-view ${requiredClass}`;
-        const hostClass = kind === 'whiteboard' ? 'whiteboard-runtime-host-v198' : 'notepad-runtime-host-v249';
-        const loadingClass = kind === 'whiteboard' ? 'whiteboard-runtime-loading-v198' : 'notepad-runtime-loading-v249';
-        const loadingText = kind === 'whiteboard' ? 'Opening whiteboard…' : 'Opening notebook…';
-        if (kind === 'whiteboard') view.dataset.whiteboardV198 = '1';
-        else view.dataset.notepadV249 = '1';
-        view.innerHTML = `<div class="${hostClass}"><div class="${loadingClass}">${loadingText}</div></div>`;
-        document.body.insertBefore(view, document.getElementById('companion-stage') || null);
-    }
-
-    forceDedicatedWorkspaceFullscreenV497(view);
-    const host = view.firstElementChild;
-    forceDedicatedWorkspaceFullscreenV497(host);
-    host?.style?.setProperty('z-index','auto','important');
-    view.style.setProperty('z-index','2147480000','important');
-    return view;
-}
-
-function syncDedicatedWorkspaceClassesV497(tab) {
-    const kind = dedicatedWorkspaceKindV497(tab);
-    const whiteboard = kind === 'whiteboard';
-    const notebook = kind === 'notebook';
-    document.body.classList.toggle('whiteboard-tab-active-v198', whiteboard);
-    document.documentElement.classList.toggle('whiteboard-tab-active-v198', whiteboard);
-    document.body.classList.toggle('notepad-tab-active-v249', notebook);
-    document.documentElement.classList.toggle('notepad-tab-active-v249', notebook);
-}
-
-const buildCustomTabViewBeforeDedicatedWorkspaceV497 = buildCustomTabView;
-buildCustomTabView = function(tab) {
-    if (isDedicatedWorkspaceTabV497(tab)) return ensureDedicatedWorkspaceViewV497(tab);
-    return buildCustomTabViewBeforeDedicatedWorkspaceV497.apply(this, arguments);
-};
-window.buildCustomTabView = buildCustomTabView;
-
-const renderCustomTabViewBeforeDedicatedWorkspaceV497 = renderCustomTabView;
-renderCustomTabView = function(tabId) {
-    const tab = getCustomTab(tabId);
-    if (!isDedicatedWorkspaceTabV497(tab)) {
-        return renderCustomTabViewBeforeDedicatedWorkspaceV497.apply(this, arguments);
-    }
-    const view = ensureDedicatedWorkspaceViewV497(tab);
-    if (view?.classList.contains('active')) syncDedicatedWorkspaceClassesV497(tab);
-    if (typeof window.ensureLoggyExtras === 'function') {
-        try { window.ensureLoggyExtras({ urgent: true }).catch(() => {}); } catch {}
-    }
-    return view;
-};
-window.renderCustomTabView = renderCustomTabView;
-
-const openCustomTabBeforeDedicatedWorkspaceV497 = openCustomTab;
-function openCustomTabDedicatedWorkspaceV497(tabId) {
-    const tab = getCustomTab(tabId);
-    if (!isDedicatedWorkspaceTabV497(tab)) {
-        return openCustomTabBeforeDedicatedWorkspaceV497.apply(this, arguments);
-    }
-
-    const view = ensureDedicatedWorkspaceViewV497(tab);
-    activeCustomTabId = tabId;
-    customTabEditMode = false;
-    syncDedicatedWorkspaceClassesV497(tab);
-    try { switchView(view); } catch { view?.classList.add('active'); }
-
-    if (typeof window.ensureLoggyExtras === 'function') {
-        window.ensureLoggyExtras({ urgent: true }).then(() => {
-            const liveOpen = window.openCustomTab;
-            if (typeof liveOpen === 'function' && liveOpen !== openCustomTabDedicatedWorkspaceV497) {
-                try { liveOpen(tabId); } catch (error) { console.warn('Workspace runtime open failed', error); }
-            }
-        }).catch(error => console.warn('Workspace runtime hydration failed', error));
-    }
-    return view;
-}
-openCustomTab = openCustomTabDedicatedWorkspaceV497;
-window.openCustomTab = openCustomTabDedicatedWorkspaceV497;
-
-requestAnimationFrame(() => {
-    try {
-        getCustomTabs().filter(isDedicatedWorkspaceTabV497).forEach(tab => ensureDedicatedWorkspaceViewV497(tab));
-    } catch {}
-});
-
 function patchCustomTabCreateButtonV53() {
     const modal =
         document.getElementById(
@@ -20641,181 +20337,118 @@ function patchCustomTabCreateButtonV53() {
     }
 }
 
-async function createCustomTabFromModalV53() {
-    const modal = document.getElementById('custom-tab-create-modal');
-    const input = modal?.querySelector('#custom-tab-name-input');
-    if (!modal || !input) return;
+function createCustomTabFromModalV53() {
+    const modal =
+        document.getElementById(
+            'custom-tab-create-modal'
+        );
 
-    const templateId = String(modal.dataset.selectedTemplateV53 || '');
-    const isSpecialWorkspace = templateId === 'whiteboard-v197' || templateId === 'notepad-v249';
-    const confirmButton = modal.querySelector('#custom-tab-create-confirm');
+    const input =
+        modal?.querySelector(
+            '#custom-tab-name-input'
+        );
 
-    // The final reusable templates/components live in the later extras bundles.
-    // If somebody clicks a normal template before those lazy bundles have finished,
-    // finish hydration first instead of creating an empty/unsupported tab.
+    // V496: Whiteboard/Notebook creation must never block on lazy feature boot.
+    // V484 waited for a readiness flag and recursively re-entered this function;
+    // if the flag lagged or never flipped, the tab was never inserted. The tab's
+    // built-in component is enough to persist immediately. Trigger the lazy
+    // runtime in parallel and let its normal renderer attach when available.
+    const requestedTemplateV496 = String(modal?.dataset?.selectedTemplateV53 || '');
+    const isSpecialWorkspaceV496 =
+        requestedTemplateV496 === 'whiteboard-v197' ||
+        requestedTemplateV496 === 'notepad-v249';
+    if (isSpecialWorkspaceV496 && typeof window.ensureLoggyExtras === 'function') {
+        try { window.ensureLoggyExtras({ urgent: true }).catch(() => {}); } catch {}
+    }
+
     if (
-        templateId &&
-        !isSpecialWorkspace &&
-        typeof window.ensureLoggyExtras === 'function' &&
-        !window.__loggyV339TemplateCreationConnections
+        !modal ||
+        !input
     ) {
-        const oldText = confirmButton?.textContent || '';
-        if (confirmButton) {
-            confirmButton.disabled = true;
-            confirmButton.textContent = 'Creating…';
-        }
-        try {
-            await window.ensureLoggyExtras({ urgent: true });
-        } catch (error) {
-            console.warn('Create Tab extras hydration failed', error);
-        } finally {
-            if (confirmButton?.isConnected) {
-                confirmButton.disabled = false;
-                confirmButton.textContent = oldText || 'Create Tab';
-            }
-        }
-    }
-
-    const template = customTemplateV53(templateId);
-    const name = input.value.trim() || template?.name || 'My Tab';
-    const icon = modal.querySelector('.custom-tab-icon-choice.selected')?.dataset.icon || template?.icon || 'ph-squares-four';
-
-    const tab = {
-        id: customId('tab'),
-        name,
-        icon,
-        templateIdV53: templateId || '',
-        components: template ? buildPrebuiltTabComponentsV53(template.id) : []
-    };
-
-    // Give the two full-screen apps valid native state immediately. This means
-    // their runtimes never need to infer a half-created ordinary custom tab.
-    if (templateId === 'whiteboard-v197') {
-        const boardId = customId('board');
-        tab.whiteboardV198 = {
-            version: 198,
-            theme: 'light',
-            activeBoardId: boardId,
-            folders: [],
-            boards: [{
-                id: boardId,
-                name: 'Board 1',
-                camera: { x: 160, y: 120, zoom: .72 },
-                notes: [], images: [], texts: [], strokes: [], connections: [],
-                folderId: '', tags: [], createdAt: Date.now(), updatedAt: Date.now()
-            }]
-        };
-    } else if (templateId === 'notepad-v249') {
-        const categoryId = customId('notepad-category');
-        const pageId = customId('notepad-page');
-        tab.notepadV249 = {
-            version: 249,
-            activeCategoryId: categoryId,
-            activePageId: pageId,
-            categories: [{ id: categoryId, name: 'Notebook 1' }],
-            pages: [{
-                id: pageId,
-                title: 'Page 1',
-                categoryId,
-                paper: 'lined',
-                html: '',
-                images: [],
-                createdAt: Date.now(),
-                updatedAt: Date.now()
-            }]
-        };
-    }
-
-    getCustomTabs().push(tab);
-    saveDb();
-    closeCustomTabCreateModal();
-    renderCustomTabNavigation();
-
-    activeCustomTabId = tab.id;
-    customTabEditMode = false;
-
-    if (isSpecialWorkspace) {
-        // DO NOT build or render the normal custom-tab header/canvas at all.
-        // Put a real full-viewport app host on screen immediately, then finish
-        // loading the Whiteboard/Notebook runtime in the background.
-        document.getElementById(`custom-tab-view-${tab.id}`)?.remove();
-        const view = document.createElement('div');
-        view.id = `custom-tab-view-${tab.id}`;
-        view.dataset.customTabId = String(tab.id);
-        view.className = templateId === 'whiteboard-v197'
-            ? 'view custom-tab-view whiteboard-tab-view-v198'
-            : 'view custom-tab-view notepad-tab-view-v249';
-        if (templateId === 'whiteboard-v197') view.dataset.whiteboardV198 = '1';
-        else view.dataset.notepadV249 = '1';
-
-        const hostClass = templateId === 'whiteboard-v197'
-            ? 'whiteboard-runtime-host-v198'
-            : 'notepad-runtime-host-v249';
-        const loadingClass = templateId === 'whiteboard-v197'
-            ? 'whiteboard-runtime-loading-v198'
-            : 'notepad-runtime-loading-v249';
-        const loadingText = templateId === 'whiteboard-v197'
-            ? 'Opening whiteboard…'
-            : 'Opening notebook…';
-        view.innerHTML = `<div class="${hostClass}"><div class="${loadingClass}">${loadingText}</div></div>`;
-
-        const forceFullScreen = element => {
-            if (!element) return;
-            [
-                ['position','fixed'],['inset','0'],['left','0'],['top','0'],['right','0'],['bottom','0'],
-                ['width','100vw'],['height','100dvh'],['min-width','100vw'],['min-height','100dvh'],
-                ['max-width','none'],['max-height','none'],['margin','0'],['padding','0'],
-                ['transform','none'],['border-radius','0'],['overflow','hidden'],
-                ['box-sizing','border-box'],['z-index','2147480000'],['visibility','visible'],
-                ['pointer-events','auto']
-            ].forEach(([property,value]) => element.style.setProperty(property,value,'important'));
-        };
-        forceFullScreen(view);
-        const host = view.firstElementChild;
-        forceFullScreen(host);
-        host.style.setProperty('z-index','auto','important');
-
-        document.body.insertBefore(view, document.getElementById('companion-stage') || null);
-
-        if (templateId === 'whiteboard-v197') {
-            document.body.classList.add('whiteboard-tab-active-v198');
-            document.documentElement.classList.add('whiteboard-tab-active-v198');
-            document.body.classList.remove('notepad-tab-active-v249');
-            document.documentElement.classList.remove('notepad-tab-active-v249');
-        } else {
-            document.body.classList.add('notepad-tab-active-v249');
-            document.documentElement.classList.add('notepad-tab-active-v249');
-            document.body.classList.remove('whiteboard-tab-active-v198');
-            document.documentElement.classList.remove('whiteboard-tab-active-v198');
-        }
-
-        try { switchView(view); } catch { view.classList.add('active'); }
-
-        const mountRealWorkspace = async () => {
-            try {
-                if (typeof window.ensureLoggyExtras === 'function') {
-                    await window.ensureLoggyExtras({ urgent: true });
-                }
-                // Extras 5 installs the actual Whiteboard/Notebook open wrappers.
-                // Calling only AFTER hydration prevents core openCustomTab from
-                // replacing this app host with the ordinary custom-tab canvas.
-                if (typeof window.openCustomTab === 'function') {
-                    window.openCustomTab(tab.id);
-                } else if (typeof openCustomTab === 'function') {
-                    openCustomTab(tab.id);
-                }
-            } catch (error) {
-                console.error('Could not mount full-screen workspace', error);
-            }
-        };
-        mountRealWorkspace();
         return;
     }
 
-    const view = buildCustomTabView(tab);
-    document.body.insertBefore(view, document.getElementById('companion-stage') || null);
-    renderCustomTabView(tab.id);
-    switchView(view);
+    const templateId =
+        modal.dataset
+            .selectedTemplateV53 ||
+        '';
+
+    const template =
+        customTemplateV53(
+            templateId
+        );
+
+    const name =
+        input.value
+            .trim() ||
+        template?.name ||
+        'My Tab';
+
+    const icon =
+        modal
+            .querySelector(
+                '.custom-tab-icon-choice.selected'
+            )
+            ?.dataset.icon ||
+        template?.icon ||
+        'ph-squares-four';
+
+
+    const tab = {
+        id:
+            customId(
+                'tab'
+            ),
+        name,
+        icon,
+        templateIdV53:
+            templateId ||
+            '',
+        components:
+            template
+                ? buildPrebuiltTabComponentsV53(
+                    template.id
+                )
+                : []
+    };
+
+
+    getCustomTabs().push(
+        tab
+    );
+
+    saveDb();
+
+    closeCustomTabCreateModal();
+
+    renderCustomTabNavigation();
+
+    const view =
+        buildCustomTabView(
+            tab
+        );
+
+    document.body.insertBefore(
+        view,
+        document.getElementById(
+            'companion-stage'
+        ) ||
+        null
+    );
+
+    activeCustomTabId =
+        tab.id;
+
+    customTabEditMode =
+        false;
+
+    renderCustomTabView(
+        tab.id
+    );
+
+    switchView(
+        view
+    );
 }
 
 const ensureCustomTabCreateModalBeforeTemplatesV53 =
@@ -20864,8 +20497,6 @@ openCustomTabCreateModal =
         }
 
         openCustomTabCreateModalBeforeTemplatesV53();
-        try { renderBlueprintCardsV162?.(); } catch (_) {}
-        try { window.ensureCustomTabPromptButtonV328?.(); } catch (_) {}
     };
 
 
@@ -20967,688 +20598,6 @@ requestAnimationFrame(
 
 
 // ============================================================
-// V54 — DAILY LOG HIDDEN SCROLLBAR + PRESS/DRAG TAB REORDERING
-// Click/release in place = open tab.
-// Press, move above/below another tab, then release = reorder.
-// ============================================================
-
-
-// ------------------------------------------------------------
-// DAILY LOG PAGE: keep wheel/trackpad scrolling, hide scrollbars.
-// ------------------------------------------------------------
-
-function syncDailyLogScrollbarV54(
-    view
-) {
-    const onDailyLog =
-        view ===
-            logView ||
-        document
-            .getElementById(
-                'log-view'
-            )
-            ?.classList
-            .contains(
-                'active'
-            );
-
-    document.documentElement
-        .classList.toggle(
-            'daily-log-scrollbar-hidden-v54',
-            !!onDailyLog
-        );
-
-    document.body
-        .classList.toggle(
-            'daily-log-scrollbar-hidden-v54',
-            !!onDailyLog
-        );
-}
-
-const switchViewBeforeScrollbarV54 =
-    switchView;
-
-switchView =
-    function(
-        viewToShow
-    ) {
-        const result =
-            switchViewBeforeScrollbarV54(
-                viewToShow
-            );
-
-        syncDailyLogScrollbarV54(
-            viewToShow
-        );
-
-        return result;
-    };
-
-requestAnimationFrame(
-    () =>
-        syncDailyLogScrollbarV54(
-            document.querySelector(
-                '.view.active'
-            )
-        )
-);
-
-
-// ------------------------------------------------------------
-// NEW DEFAULT TAB ORDER:
-// Daily Logs → Knowledge Base → Quizzes → Toolbox.
-// Weekly Review remains optional through the V53 pre-built tab picker.
-// ------------------------------------------------------------
-
-const LOG_NAV_DEFAULT_ORDER_V54 = [
-    'daily',
-    'knowledge',
-    'quizzes',
-    'tools'
-];
-
-const currentAvailableLogNavKeysBeforeV54 =
-    currentAvailableLogNavKeysV52;
-
-currentAvailableLogNavKeysV52 =
-    function() {
-        const customKeys =
-            getCustomTabs()
-                .map(
-                    tab =>
-                        `custom:${tab.id}`
-                );
-
-        return [
-            ...LOG_NAV_DEFAULT_ORDER_V54,
-            ...customKeys
-        ];
-    };
-
-const normalizedLogNavOrderBeforeV54 =
-    normalizedLogNavOrderV52;
-
-normalizedLogNavOrderV52 =
-    function() {
-        const settings =
-            ensureLogNavSettingsV52();
-
-        const rawBefore =
-            Array.isArray(
-                settings.logNavOrderV52
-            )
-                ? [
-                    ...settings.logNavOrderV52
-                ]
-                : [];
-
-        let order =
-            normalizedLogNavOrderBeforeV54();
-
-        if (
-            !settings
-                .logNavDefaultOrderV54Migrated
-        ) {
-            const customKeys =
-                getCustomTabs()
-                    .map(
-                        tab =>
-                            `custom:${tab.id}`
-                    );
-
-            const available =
-                new Set([
-                    ...LOG_NAV_DEFAULT_ORDER_V54,
-                    ...customKeys
-                ]);
-
-            const oldDefault =
-                [
-                    'daily',
-                    'tools',
-                    'knowledge',
-                    'quizzes',
-                    ...customKeys
-                ];
-
-            const cleanedRaw =
-                rawBefore
-                    .filter(
-                        key =>
-                            key !==
-                                'weekly-review' &&
-                            available.has(
-                                key
-                            )
-                    );
-
-            const looksExactlyLikeOldDefault =
-                cleanedRaw.length ===
-                    oldDefault.length &&
-                cleanedRaw.every(
-                    (
-                        key,
-                        index
-                    ) =>
-                        key ===
-                        oldDefault[
-                            index
-                        ]
-                );
-
-            // New logs, or logs still using the untouched old default,
-            // receive the requested Toolbox-below-Quizzes order.
-            if (
-                !cleanedRaw.length ||
-                looksExactlyLikeOldDefault
-            ) {
-                order = [
-                    ...LOG_NAV_DEFAULT_ORDER_V54,
-                    ...customKeys
-                ];
-
-                settings.logNavOrderV52 =
-                    [
-                        ...order
-                    ];
-            }
-
-            settings
-                .logNavDefaultOrderV54Migrated =
-                true;
-
-            setTimeout(
-                saveDb,
-                0
-            );
-        }
-
-        return order;
-    };
-
-
-// ------------------------------------------------------------
-// PRESS + DRAG REORDERING.
-// Replaces browser-native HTML5 dragging with direct pointer movement.
-// ------------------------------------------------------------
-
-let logNavPointerDragV54 =
-    null;
-
-function visibleOrderedNavButtonsV54(
-    host
-) {
-    return Array.from(
-        host?.children ||
-        []
-    ).filter(
-        element =>
-            element.matches?.(
-                '.icon-btn[data-log-nav-key-v52]'
-            ) &&
-            !element.classList
-                .contains(
-                    'log-nav-hidden-v52'
-                )
-    );
-}
-
-function clearPressDragStateV54() {
-    const state =
-        logNavPointerDragV54;
-
-    if (
-        state?.button
-    ) {
-        state.button.classList.remove(
-            'log-nav-pointer-dragging-v54'
-        );
-    }
-
-    document.body.classList.remove(
-        'log-nav-pointer-drag-active-v54'
-    );
-
-    logNavPointerDragV54 =
-        null;
-}
-
-function reorderDraggedTabAtPointerV54(
-    state,
-    clientY
-) {
-    const host =
-        state.host;
-
-    const button =
-        state.button;
-
-    if (
-        !host ||
-        !button
-    ) {
-        return;
-    }
-
-    const candidates =
-        visibleOrderedNavButtonsV54(
-            host
-        ).filter(
-            item =>
-                item !==
-                button
-        );
-
-    if (
-        !candidates.length
-    ) {
-        return;
-    }
-
-    let closest =
-        null;
-
-    let closestDistance =
-        Infinity;
-
-    candidates.forEach(
-        candidate => {
-            const rect =
-                candidate
-                    .getBoundingClientRect();
-
-            const center =
-                rect.top +
-                rect.height /
-                    2;
-
-            const distance =
-                Math.abs(
-                    clientY -
-                    center
-                );
-
-            if (
-                distance <
-                closestDistance
-            ) {
-                closest =
-                    candidate;
-
-                closestDistance =
-                    distance;
-            }
-        }
-    );
-
-    if (!closest) {
-        return;
-    }
-
-    const rect =
-        closest
-            .getBoundingClientRect();
-
-    const after =
-        clientY >
-        rect.top +
-            rect.height /
-                2;
-
-    const beforeIndex =
-        visibleOrderedNavButtonsV54(
-            host
-        ).indexOf(
-            button
-        );
-
-    if (after) {
-        closest.after(
-            button
-        );
-    } else {
-        closest.before(
-            button
-        );
-    }
-
-    const afterIndex =
-        visibleOrderedNavButtonsV54(
-            host
-        ).indexOf(
-            button
-        );
-
-    if (
-        afterIndex !==
-        beforeIndex
-    ) {
-        state.changed =
-            true;
-    }
-}
-
-function installPressDragTabReorderV54() {
-    const host =
-        document.getElementById(
-            'log-tab-order-host-v52'
-        );
-
-    if (!host) {
-        return;
-    }
-
-    // Disable the browser's old ghost-image drag behavior.
-    visibleOrderedNavButtonsV54(
-        host
-    ).forEach(
-        button => {
-            button.draggable =
-                false;
-
-            button.setAttribute(
-                'draggable',
-                'false'
-            );
-        }
-    );
-
-    if (
-        host.dataset
-            .pressDragTabsV54 ===
-            'true'
-    ) {
-        return;
-    }
-
-    host.dataset
-        .pressDragTabsV54 =
-        'true';
-
-    host.addEventListener(
-        'pointerdown',
-        event => {
-            if (
-                event.button !==
-                    0
-            ) {
-                return;
-            }
-
-            const button =
-                event.target.closest(
-                    '.icon-btn[data-log-nav-key-v52]'
-                );
-
-            if (
-                !button ||
-                button.parentElement !==
-                    host ||
-                button.classList
-                    .contains(
-                        'log-nav-hidden-v52'
-                    )
-            ) {
-                return;
-            }
-
-            const ordered =
-                visibleOrderedNavButtonsV54(
-                    host
-                );
-
-            logNavPointerDragV54 = {
-                host,
-                button,
-                pointerId:
-                    event.pointerId,
-                startX:
-                    event.clientX,
-                startY:
-                    event.clientY,
-                startIndex:
-                    ordered.indexOf(
-                        button
-                    ),
-                dragging:
-                    false,
-                changed:
-                    false
-            };
-        },
-        true
-    );
-
-    host.addEventListener(
-        'click',
-        event => {
-            const button =
-                event.target.closest(
-                    '.icon-btn[data-log-nav-key-v52]'
-                );
-
-            if (
-                !button ||
-                button.parentElement !==
-                    host
-            ) {
-                return;
-            }
-
-            const until =
-                Number(
-                    button
-                        ._suppressTabClickUntilV54 ||
-                    0
-                );
-
-            if (
-                performance.now() <
-                until
-            ) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-            }
-        },
-        true
-    );
-}
-
-document.addEventListener(
-    'pointermove',
-    event => {
-        const state =
-            logNavPointerDragV54;
-
-        if (
-            !state ||
-            event.pointerId !==
-                state.pointerId
-        ) {
-            return;
-        }
-
-        const distance =
-            Math.hypot(
-                event.clientX -
-                    state.startX,
-                event.clientY -
-                    state.startY
-            );
-
-        if (
-            !state.dragging &&
-            distance >=
-                6
-        ) {
-            state.dragging =
-                true;
-
-            state.button.classList.add(
-                'log-nav-pointer-dragging-v54'
-            );
-
-            document.body.classList.add(
-                'log-nav-pointer-drag-active-v54'
-            );
-        }
-
-        if (
-            !state.dragging
-        ) {
-            return;
-        }
-
-        event.preventDefault();
-
-        reorderDraggedTabAtPointerV54(
-            state,
-            event.clientY
-        );
-    },
-    {
-        capture:
-            true,
-        passive:
-            false
-    }
-);
-
-function finishPressDragTabsV54(
-    event
-) {
-    const state =
-        logNavPointerDragV54;
-
-    if (
-        !state ||
-        event.pointerId !==
-            state.pointerId
-    ) {
-        return;
-    }
-
-    if (
-        !state.dragging
-    ) {
-        // No movement: do not interfere. The button's normal click handler
-        // fires and opens the tab exactly like a regular click.
-        clearPressDragStateV54();
-
-        return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    state.button
-        ._suppressTabClickUntilV54 =
-        performance.now() +
-        450;
-
-    const finalIndex =
-        visibleOrderedNavButtonsV54(
-            state.host
-        ).indexOf(
-            state.button
-        );
-
-    const moved =
-        state.changed &&
-        finalIndex !==
-            state.startIndex;
-
-    if (moved) {
-        saveLogNavOrderFromDomV52();
-
-        ensureLogNavSettingsV52()
-            .logNavUserReorderedV54 =
-            true;
-
-        saveDb();
-    }
-
-    clearPressDragStateV54();
-
-    updateUnifiedLogNavScrollV52();
-}
-
-document.addEventListener(
-    'pointerup',
-    finishPressDragTabsV54,
-    true
-);
-
-document.addEventListener(
-    'pointercancel',
-    event => {
-        const state =
-            logNavPointerDragV54;
-
-        if (
-            !state ||
-            event.pointerId !==
-                state.pointerId
-        ) {
-            return;
-        }
-
-        clearPressDragStateV54();
-    },
-    true
-);
-
-
-// ------------------------------------------------------------
-// Reinstall pointer behavior every time V52/V53 rebuilds the nav.
-// ------------------------------------------------------------
-
-const applyUnifiedLogNavOrderBeforePressDragV54 =
-    applyUnifiedLogNavOrderV52;
-
-applyUnifiedLogNavOrderV52 =
-    function() {
-        applyUnifiedLogNavOrderBeforePressDragV54();
-
-        installPressDragTabReorderV54();
-    };
-
-const renderCustomTabNavigationBeforePressDragV54 =
-    renderCustomTabNavigation;
-
-renderCustomTabNavigation =
-    function() {
-        renderCustomTabNavigationBeforePressDragV54();
-
-        requestAnimationFrame(
-            () => {
-                applyUnifiedLogNavOrderV52();
-
-                installPressDragTabReorderV54();
-            }
-        );
-    };
-
-requestAnimationFrame(
-    () => {
-        applyUnifiedLogNavOrderV52();
-
-        installPressDragTabReorderV54();
-
-        setTimeout(
-            () => {
-                applyUnifiedLogNavOrderV52();
-
-                installPressDragTabReorderV54();
-            },
-            100
-        );
-    }
-);
-
-
-
-// ============================================================
 // V55 — TABS APPEND AT BOTTOM / CONNECTION MAP FROM @DAY
 // KNOWLEDGE BASE TAGS + DROPDOWN FIELDS + PATTERN SENTENCE BUILDER
 // ============================================================
@@ -21664,6 +20613,10 @@ function ensureNewCustomTabsAtBottomV55() {
 
     const customKeys =
         getCustomTabs()
+            .filter(
+                tab =>
+                    !tab?.nestedParentV753
+            )
             .map(
                 tab =>
                     `custom:${tab.id}`
@@ -22517,7 +21470,7 @@ function normalizeKnowledgeTagV55(
             '-'
         )
         .replace(
-            /[^a-z0-9_\-\u00C0-\u024F\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/gi,
+            /[^a-z0-9_.\-\u00C0-\u024F\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/gi,
             ''
         );
 }

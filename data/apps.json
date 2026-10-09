@@ -1,14 +1,14 @@
 [
   {
+    "id": "test",
+    "name": "test",
+    "icon": "custom-skateboard",
+    "category": "School"
+  },
+  {
     "id": "korean",
     "name": "Korean",
     "icon": "ph-translate",
-    "category": "Non-School"
-  },
-  {
-    "id": "asl",
-    "name": "ASL",
-    "icon": "ph-books",
     "category": "Non-School"
   }
 ]

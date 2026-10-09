@@ -66,21 +66,22 @@
     }
     function getKnowledgeDisplayLabelV162(itemId, context = 'everywhere') {
         const id = String(itemId ?? '');
+        const originalTitleV739 = String(db.phrase_meta?.[id]?.bulkOriginalTitleV739 || id);
         const config = configForItemV162(id);
         const fieldName = String(config?.displayFieldV162 || '').trim();
         const scope = config?.displayScopeV162 === 'kb' ? 'kb' : 'everywhere';
-        if (!fieldName || fieldName === '__title__') return id;
-        if (scope === 'kb' && context !== 'kb') return id;
+        if (!fieldName || fieldName === '__title__') return originalTitleV739;
+        if (scope === 'kb' && context !== 'kb') return originalTitleV739;
         const value = db.phrase_meta?.[id]?.custom_fields?.[fieldName];
-        if (value == null) return id;
+        if (value == null) return originalTitleV739;
         try {
             const fieldDef = getKnowledgeFieldDefs(categoryForItemV162(id)).find(field => field?.name === fieldName);
-            // A pinned-image primary display is rendered visually on the card
-            // by V171; never expose its JSON payload as the visible label.
-            if (fieldDef?.kind === 'pinnedImage' || window.__loggyPinnedImageV169?.isPinnedValue?.(value)) return id;
+            // Image-based primary displays are rendered visually on the KB card.
+            // Never leak a data URL, file URL, or pinned-image JSON payload as text.
+            if (fieldDef?.kind === 'image' || fieldDef?.kind === 'pinnedImage' || window.__loggyPinnedImageV169?.isPinnedValue?.(value)) return id;
         } catch {}
         const text = String(value).trim();
-        return text || id;
+        return text || originalTitleV739;
     }
     window.getKnowledgeDisplayLabelV162 = getKnowledgeDisplayLabelV162;
 
@@ -341,10 +342,33 @@
     // ------------------------------------------------------------
     // Generic KB filters shared by Goals, collections, recommendations.
     // ------------------------------------------------------------
+    // V696: Knowledge Base identity is case-insensitive for duplicate/learned checks.
+    // Keep the original stored title/casing for display, but compare a normalized key.
+    function knowledgeIdentityV696(value) {
+        let text = String(value ?? '');
+        try { text = text.normalize('NFKC'); } catch {}
+        return text.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+    }
     function learnedItemSetV162() {
         const learned = new Set();
         Object.values(db.days || {}).forEach(day => (day?.phrases || []).forEach(id => learned.add(String(id))));
         return learned;
+    }
+    function learnedItemIdentitySetV696() {
+        const learned = new Set();
+        Object.values(db.days || {}).forEach(day => (day?.phrases || []).forEach(id => {
+            const key = knowledgeIdentityV696(id);
+            if (key) learned.add(key);
+        }));
+        return learned;
+    }
+    function isKnowledgeItemLearnedV696(id, learnedExact = null, learnedIdentity = null) {
+        const raw = String(id ?? '');
+        const exact = learnedExact || learnedItemSetV162();
+        if (exact.has(raw)) return true;
+        const identity = learnedIdentity || learnedItemIdentitySetV696();
+        const key = knowledgeIdentityV696(raw);
+        return !!key && identity.has(key);
     }
     function tagsForItemV162(id) {
         try { if (typeof getKnowledgeItemTagsV55 === 'function') return getKnowledgeItemTagsV55(id).map(v => String(v).toLowerCase()); } catch {}
@@ -370,8 +394,9 @@
                 : desiredTags.every(tag => itemTags.includes(tag));
             if (!tagMatch) return false;
         }
-        if (filter.learnedState === 'learned' && !learnedSet.has(String(id))) return false;
-        if (filter.learnedState === 'unlearned' && learnedSet.has(String(id))) return false;
+        const learnedEquivalentV696 = isKnowledgeItemLearnedV696(id, learnedSet);
+        if (filter.learnedState === 'learned' && !learnedEquivalentV696) return false;
+        if (filter.learnedState === 'unlearned' && learnedEquivalentV696) return false;
         const hasParts = Array.isArray(meta.parts) && meta.parts.length > 0;
         if (filter.partsState === 'with' && !hasParts) return false;
         if (filter.partsState === 'without' && hasParts) return false;
@@ -477,12 +502,13 @@
     function lazyDayCandidatesV596() {
         const settings = lazyRecommendationSettingsV686();
         const learned = learnedItemSetV162();
+        const learnedIdentity = learnedItemIdentitySetV696();
         const wantedCategories = new Set(settings.categories.map(String));
         const wantedTags = settings.tags.map(tag => String(tag).replace(/^#/, '').trim().toLowerCase()).filter(Boolean);
 
         return (db.phrases || []).filter(id => {
             const key = String(id);
-            if (learned.has(key)) return false;
+            if (isKnowledgeItemLearnedV696(key, learned, learnedIdentity)) return false;
 
             const meta = db.phrase_meta?.[key] || {};
             const category = String(meta.type || '');
@@ -688,11 +714,12 @@
 
         function matchingCountForDraftV686(draft) {
             const learned = learnedItemSetV162();
+            const learnedIdentity = learnedItemIdentitySetV696();
             const categoriesSet = new Set(draft.categories);
             const tags = draft.tags.map(tag => tag.toLowerCase());
             return (db.phrases || []).filter(id => {
                 const key = String(id);
-                if (learned.has(key)) return false;
+                if (isKnowledgeItemLearnedV696(key, learned, learnedIdentity)) return false;
                 const meta = db.phrase_meta?.[key] || {};
                 const category = String(meta.type || '');
                 if (categoriesSet.size && !categoriesSet.has(category)) return false;
@@ -993,7 +1020,7 @@
         CUSTOM_COMPONENT_LIBRARY.splice(index >= 0 ? index + 1 : CUSTOM_COMPONENT_LIBRARY.length, 0, def);
     }
     try {
-        addComponentDefV162('qaV162', 'Q&A', 'ph-question', 'text');
+        addComponentDefV162('qaV162', 'Questions & Answers', 'ph-question', 'text');
         addComponentDefV162('goalsV162', 'Goals', 'ph-target', 'progressMeter');
         addComponentDefV162('tableV162', 'Table', 'ph-table', 'goalsV162');
         addComponentDefV162('kbDynamicCollectionV162', 'Dynamic Collection', 'ph-stack', 'tableV162');
@@ -1002,7 +1029,7 @@
     try {
         const before = defaultCustomComponent;
         defaultCustomComponent = function(type) {
-            if (type === 'qaV162') return {id:uid('component'), type, title:'Q&A', titleBackground:'none', items:[]};
+            if (type === 'qaV162') return {id:uid('component'), type, title:'Questions & Answers', titleBackground:'none', items:[]};
             if (type === 'goalsV162') return {id:uid('component'), type, title:'Goals', titleBackground:'none', goals:[]};
             if (type === 'tableV162') {
                 const c1 = uid('col'), c2 = uid('col');
@@ -1048,7 +1075,7 @@
     function renderQaV162(tab, component, content) {
         component.items ||= [];
         content.innerHTML = `
-            <div class="custom-collection-header qa-header-v162"><h2>${esc(component.title || 'Q&A')}</h2><button type="button" class="small-icon-btn qa-add-v162"><i class="ph ph-plus"></i> Question</button></div>
+            <div class="custom-collection-header qa-header-v162"><h2>${esc(component.title || 'Questions & Answers')}</h2><button type="button" class="small-icon-btn qa-add-v162"><i class="ph ph-plus"></i> Question</button></div>
             <div class="qa-list-v162"></div>`;
         content.querySelector('.qa-add-v162').addEventListener('click', () => addQuestionV162(tab, component));
         const list = content.querySelector('.qa-list-v162');
@@ -1390,12 +1417,9 @@
                 row.classList.add('daily-qa-link-v162');
                 const main = row.querySelector('.daily-custom-tab-link-main');
                 main?.querySelector('strong') && (main.querySelector('strong').textContent = resolved.item.question || 'Question');
-                let answer = row.querySelector('.daily-qa-answer-v162');
-                if (!answer) { answer = document.createElement('textarea'); answer.className='daily-qa-answer-v162'; answer.placeholder='Answer this question in today\'s log...'; row.appendChild(answer); }
-                answer.value = resolved.item.answer || '';
-                answer.addEventListener('click', e => e.stopPropagation());
-                answer.addEventListener('input', () => { resolved.item.answer = answer.value; addQaReferenceV162(resolved.item, currentDay, answer.value.trim() ? 'answered' : 'discussed'); scheduleSaveV162(); });
-                answer.addEventListener('blur', () => saveDb());
+                // Q&A tab items stay compact in Daily Logs. Answering is owned by
+                // the Q&A component itself after the linked card is opened.
+                row.querySelectorAll('.daily-qa-answer-v162').forEach(node => node.remove());
             });
             return result;
         };
@@ -1405,9 +1429,6 @@
     // Q&A + improved Goals built-in blueprints.
     // ------------------------------------------------------------
     try {
-        if (Array.isArray(CUSTOM_TAB_TEMPLATES_V53) && !CUSTOM_TAB_TEMPLATES_V53.some(t => t.id === 'q-and-a-v162')) {
-            CUSTOM_TAB_TEMPLATES_V53.push({id:'q-and-a-v162',name:'Q&A',icon:'ph-question',description:'Keep questions and answer them from this tab or from Daily Logs.'});
-        }
         const before = buildPrebuiltTabComponentsV53;
         buildPrebuiltTabComponentsV53 = function(templateId) {
             if (templateId === 'q-and-a-v162') return [defaultCustomComponent('qaV162')];
@@ -1481,7 +1502,13 @@
         const built=document.createElement('section');built.className='blueprint-manager-section-v162';built.innerHTML='<h3>Hidden Built-in Templates</h3><div></div>';const host=built.querySelector('div');
         const hidden=(CUSTOM_TAB_TEMPLATES_V53||[]).filter(t=>builtInStateV162(t.id)!=='active'); if(!hidden.length)host.innerHTML='<small>None</small>'; hidden.forEach(t=>{const row=document.createElement('div');row.className='blueprint-manager-row-v162';row.innerHTML=`<span><i class="ph ${attr(t.icon||'ph-tabs')}"></i><strong>${esc(t.name)}</strong><small>${esc(builtInStateV162(t.id))}</small></span><div><button type="button"><i class="ph ph-arrow-counter-clockwise"></i> Restore</button></div>`;row.querySelector('button').onclick=()=>{setBuiltInStateV162(t.id,'active');renderBlueprintManagerV162()};host.appendChild(row)});list.appendChild(built);
     }
-    function openBlueprintManagerV162(){renderBlueprintManagerV162();document.getElementById('blueprint-manager-v162').classList.remove('hidden')}
+    function openBlueprintManagerV162(){
+        renderBlueprintManagerV162();
+        const modal=document.getElementById('blueprint-manager-v162');
+        if(!modal)return;
+        if(modal.parentElement!==document.body || modal!==document.body.lastElementChild) document.body.appendChild(modal);
+        modal.classList.remove('hidden');
+    }
 
     function renderBlueprintCardsV162() {
         ensureSettingsV162();
@@ -1529,6 +1556,7 @@
         const modal=document.getElementById('kb-bulk-modal-v162'); if(!modal)return;
         const mode=bulkModeV464(modal); const wrap=modal.querySelector('.kb-bulk-fields-wrap-v464');
         wrap.classList.toggle('hidden',mode!=='fields');
+        modal.querySelector('.kb-bulk-second-line-wrap-v735')?.classList.toggle('hidden',mode!=='fields');
         const label=modal.querySelector('.kb-bulk-items-label-v464');
         const hint=modal.querySelector('.kb-bulk-format-hint-v464');
         if(mode==='fields'){
@@ -1538,7 +1566,7 @@
             const host=modal.querySelector('.kb-bulk-field-choices-v464');
             host.innerHTML=fields.length?fields.map((f,i)=>`<label class="kb-bulk-field-choice-row-v464"><input type="checkbox" class="kb-bulk-field-choice-v464" value="${attr(f.name)}" ${previous.has(f.name)||(!previous.size&&i<2)?'checked':''}><span>${esc(f.name)}</span><small>${esc(f.type||'text')}</small></label>`).join(''):'<small>This category has no custom fields yet.</small>';
             label.textContent='Records';
-            hint.innerHTML='<strong>Format:</strong> one record per line (or separate records with <code>;</code>). Use commas between columns. The first column is the item name; checked fields follow in the order shown below. Put a value in double quotes if it contains a comma. Example: <code>teacher,"a person who teaches","The teacher helps students."</code>';
+            hint.innerHTML='<strong>Format:</strong> one record per line (or separate records with <code>;</code>). Use commas between columns. The first column is the item/question; checked fields follow in the order shown below. Put a value in double quotes if it contains a comma. When the second-line option is on, use <code> | </code> inside the first column to put the text after it on the next display line. Example: <code>Kilograms (kg) to decigrams (dg) | x kg = y dg,1 kg = 10000 dg</code>';
             modal.querySelector('.kb-bulk-text-v162').placeholder='teacher,"a person who teaches","The teacher helps students."\nstudent,"a person who learns","The student studies every day."';
             host.querySelectorAll('input').forEach(el=>el.addEventListener('change',()=>invalidateBulkPreviewV464(modal)));
         }else{
@@ -1630,19 +1658,32 @@
     }
     function ensureBulkImportV162() {
         if(document.getElementById('kb-bulk-modal-v162'))return;
-        const modal=document.createElement('div');modal.id='kb-bulk-modal-v162';modal.className='modal-overlay hidden';modal.innerHTML=`<div class="modal-box kb-bulk-box-v162"><div class="modal-header"><h2>Bulk Add Knowledge Base Items</h2><button type="button" class="small-icon-btn kb-bulk-close-v162"><i class="ph ph-x"></i></button></div>
+        const host=document.getElementById('kb-bulk-pane-host-v842');if(!host)return;
+        if(!document.getElementById('kb-bulk-label-spacing-v1904')){
+            const style=document.createElement('style');
+            style.id='kb-bulk-label-spacing-v1904';
+            style.textContent=`
+                #kb-bulk-modal-v162 .kb-bulk-box-v162 > .modal-section + .modal-section { margin-top: 10px; }
+                #kb-bulk-modal-v162 .kb-bulk-format-hint-v464 + .kb-bulk-copy-prompt-v466 { margin-top: 10px; }
+                #kb-bulk-modal-v162 .kb-bulk-copy-prompt-v466 + .modal-section { margin-top: 12px; }
+            `;
+            document.head.appendChild(style);
+        }
+        const modal=document.createElement('section');modal.id='kb-bulk-modal-v162';modal.className='kb-bulk-inline-v842 hidden';modal.innerHTML=`<div class="kb-bulk-box-v162">
         <div class="modal-section"><span class="field-label">Bulk Add Mode</span><select class="kb-bulk-mode-v464"><option value="items">Items Only</option><option value="fields">Items + Fields</option></select></div>
         <div class="modal-section"><span class="field-label">Category</span><select class="kb-bulk-category-v162"></select></div>
         <div class="modal-section kb-bulk-fields-wrap-v464 hidden"><span class="field-label">Fields to Include</span><div class="kb-bulk-field-choices-v464"></div><small class="kb-bulk-field-order-note-v464">The checked fields are imported in the order shown here.</small></div>
+        <div class="modal-section kb-bulk-second-line-wrap-v735 hidden"><label class="kb-bulk-second-line-row-v735"><input type="checkbox" class="kb-bulk-second-line-v735" checked><span>Use <code>|</code> for a second line in the item/question</span></label><small>Example: <code>Kilograms (kg) to decigrams (dg) | x kg = y dg,1 kg = 10000 dg</code></small></div>
         <div class="modal-section"><span class="field-label">Shared Tags <small>(applied to every imported item)</small></span><input type="text" class="kb-bulk-tags-v162" placeholder="lazy, noun, beginner"></div>
         <div class="modal-section kb-bulk-delimiter-wrap-v464"><span class="field-label">Delimiter</span><select class="kb-bulk-delimiter-v162"><option value="auto">Auto detect</option><option value="newline">One item per line</option><option value="comma">Comma</option><option value="semicolon">Semicolon</option><option value="tab">Tab</option></select></div>
         <div class="kb-bulk-format-hint-v464"></div>
-        <button type="button" class="icon-btn kb-bulk-copy-prompt-v466"><i class="ph ph-copy"></i> Copy AI Prompt</button>
+        <button type="button" class="icon-btn kb-bulk-copy-prompt-v466"><i class="ph ph-copy"></i><span>Copy AI Prompt</span></button>
         <div class="modal-section"><span class="field-label kb-bulk-items-label-v464">Items / Patterns</span><textarea class="kb-bulk-text-v162" rows="10"></textarea><div class="kb-bulk-count-v465"><strong>0</strong> items detected</div></div>
-        <button type="button" class="icon-btn kb-bulk-preview-btn-v162">Preview Import</button><div class="kb-bulk-preview-v162"></div><button type="button" class="icon-btn kb-bulk-commit-v162" disabled><i class="ph ph-check"></i> Add Items</button></div>`;
-        document.body.appendChild(modal);ensureBulkDaysV684(modal);modal.querySelector('.kb-bulk-close-v162').onclick=()=>modal.classList.add('hidden');modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.add('hidden')});
+        <button type="button" class="icon-btn kb-bulk-preview-btn-v162"><i class="ph ph-eye"></i><span>Preview Import</span></button><div class="kb-bulk-preview-v162"></div><button type="button" class="kb-bulk-commit-v162 hidden" disabled>Save</button></div>`;
+        host.appendChild(modal);modal.dataset.bulkAtomicDaysV736='1';ensureBulkDaysV684(modal);
         modal.querySelector('.kb-bulk-copy-prompt-v466').onclick=()=>copyBulkAiPromptV466(modal);
-        modal.querySelector('.kb-bulk-preview-btn-v162').onclick=previewBulkV162;modal.querySelector('.kb-bulk-commit-v162').onclick=commitBulkV162;
+        modal.querySelector('.kb-bulk-preview-btn-v162').onclick=previewBulkV162;
+        modal.querySelector('.kb-bulk-commit-v162').onclick=commitBulkV162;
         modal.querySelector('.kb-bulk-mode-v464').addEventListener('change',()=>{modal.querySelector('.kb-bulk-delimiter-wrap-v464').classList.toggle('hidden',bulkModeV464(modal)==='fields');renderBulkFieldChoicesV464();updateBulkCountV465(modal)});
         modal.querySelector('.kb-bulk-category-v162').addEventListener('change',()=>{renderBulkFieldChoicesV464();updateBulkCountV465(modal)});
         modal.querySelectorAll('textarea,input,select').forEach(input=>{if(!input.classList.contains('kb-bulk-mode-v464')&&!input.classList.contains('kb-bulk-category-v162'))input.addEventListener('input',()=>invalidateBulkPreviewV464(modal))});
@@ -1664,7 +1705,9 @@
             const columns=['Item Name',...fields];
             const example=['teacher',...fields.map((f,i)=>i===0?'a person who teaches':i===1?'The teacher helps students.':`example ${f}`)];
             const csvExample=example.map(v=>/[",;\n]/.test(v)?`"${String(v).replace(/"/g,'""')}"`:v).join(',');
-            return `Take the image, screenshot, PDF page, or other source I gave you and format the information so I can paste it directly into Loggy's Knowledge Base Bulk Add records box.\n\nCategory: ${category}\nColumns, in this EXACT order: ${columns.join(', ')}\n\nOUTPUT RULES:\n- Output ONLY the paste-ready records. Do not add an introduction, explanation, bullets, numbering, markdown, or code fences.\n- Put exactly ONE record per line.\n- Separate columns with commas.\n- The first column must always be the item name.\n- Then output the selected fields in exactly this order: ${fields.join(', ')}.\n- If a value contains a comma, semicolon, double quote, or line break, wrap that value in double quotes. Escape a double quote inside a quoted value by doubling it.\n- If a selected field is missing from the source, leave that field empty but KEEP its column/comma so every row has exactly ${columns.length} columns.\n- Do not invent definitions, examples, pronunciations, or other missing information. Use only information actually visible in the source.\n- Preserve the source wording unless a tiny OCR spacing error is obvious.\n- Include every applicable item you can clearly read from the source.\n\nFORMAT EXAMPLE (${columns.join(' | ')}):\n${csvExample}\n\nNow read the source I provided and return only the correctly formatted records.`;
+            const secondLineEnabled=modal?.querySelector('.kb-bulk-second-line-v735')?.checked!==false;
+            const secondLineRule=secondLineEnabled?'\n- If the item/question has a second line, keep both parts in the FIRST column and put ` | ` between them. Do NOT insert a real line break inside the record. Example first column: Kilograms (kg) to decigrams (dg) | x kg = y dg.':'';
+            return `Take the image, screenshot, PDF page, or other source I gave you and format the information so I can paste it directly into Loggy's Knowledge Base Bulk Add records box.\n\nCategory: ${category}\nColumns, in this EXACT order: ${columns.join(', ')}\n\nOUTPUT RULES:\n- Output ONLY the paste-ready records. Do not add an introduction, explanation, bullets, numbering, markdown, or code fences.\n- Put exactly ONE record per line.\n- Separate columns with commas.\n- The first column must always be the item name/question.${secondLineRule}\n- Then output the selected fields in exactly this order: ${fields.join(', ')}.\n- If a value contains a comma, semicolon, double quote, or line break, wrap that value in double quotes. Escape a double quote inside a quoted value by doubling it.\n- If a selected field is missing from the source, leave that field empty but KEEP its column/comma so every row has exactly ${columns.length} columns.\n- Do not invent definitions, examples, pronunciations, or other missing information. Use only information actually visible in the source.\n- Preserve the source wording unless a tiny OCR spacing error is obvious.\n- Include every applicable item you can clearly read from the source.\n\nFORMAT EXAMPLE (${columns.join(' | ')}):\n${csvExample}\n\nNow read the source I provided and return only the correctly formatted records.`;
         }
         const sep=bulkItemsOnlySeparatorV466(modal);
         return `Take the image, screenshot, PDF page, or other source I gave you and extract the Knowledge Base item names for Loggy.\n\nCategory: ${category}\n\nOUTPUT RULES:\n- Output ONLY the paste-ready item names. Do not add an introduction, explanation, bullets, numbering, markdown, or code fences.\n- Use ${sep.name}.\n- Do not include definitions, notes, tags, labels, or extra commentary.\n- Do not invent items that are not visible in the source.\n- Preserve the source wording unless a tiny OCR spacing error is obvious.\n- Include every applicable item you can clearly read.\n\nFORMAT EXAMPLE:\n${sep.sample}\n\nNow read the source I provided and return only the correctly formatted items.`;
@@ -1683,17 +1726,37 @@
         if(delimiter==='newline')parts=raw.split(/\r?\n/);else if(delimiter==='comma')parts=raw.split(',');else if(delimiter==='semicolon')parts=raw.split(';');else if(delimiter==='tab')parts=raw.split('\t');else { parts=raw.split(/[\r\n,;\t]+/); }
         return parts.map(v=>v.trim()).filter(Boolean);
     }
+    // V736: record boundaries are conservative so valid field text is not
+    // silently chopped up. If the paste contains real line breaks, ONLY those
+    // line breaks separate records. Semicolon remains a legacy record separator
+    // only for a one-line paste. Quoted line breaks/semicolons always stay inside
+    // their field.
     function splitRecordsV464(text){
-        const raw=String(text||''); const out=[]; let cur=''; let quoted=false;
+        const raw=String(text||'');
+        let quoted=false, hasUnquotedLineBreak=false;
+        for(let i=0;i<raw.length;i++){
+            const ch=raw[i];
+            if(ch==='"'){
+                if(quoted&&raw[i+1]==='"'){i++;continue;}
+                quoted=!quoted;continue;
+            }
+            if(!quoted&&(ch==='\n'||ch==='\r')){hasUnquotedLineBreak=true;break;}
+        }
+
+        const out=[]; let cur=''; quoted=false;
         for(let i=0;i<raw.length;i++){
             const ch=raw[i];
             if(ch==='"'){
                 if(quoted&&raw[i+1]==='"'){cur+='"';i++;continue;}
                 quoted=!quoted;cur+=ch;continue;
             }
-            if(!quoted&&(ch===';'||ch==='\n'||ch==='\r')){
+            const lineBreak=!quoted&&(ch==='\n'||ch==='\r');
+            const legacySemicolon=!quoted&&!hasUnquotedLineBreak&&ch===';';
+            if(lineBreak||legacySemicolon){
                 if(ch==='\r'&&raw[i+1]==='\n')i++;
-                if(cur.trim())out.push(cur.trim());cur='';continue;
+                if(cur.trim())out.push(cur.trim());
+                cur='';
+                continue;
             }
             cur+=ch;
         }
@@ -1714,41 +1777,333 @@
         cols.push(cur.trim());
         return {cols,unclosedQuote:quoted};
     }
+    // V735: optional two-line first column for bulk Items + Fields imports.
+    // The stored item uses a real newline so every normal KB/quiz renderer can
+    // display the second part below the first while duplicate matching still
+    // treats harmless whitespace differences as the same item.
+    function formatBulkFirstColumnV735(value, modal){
+        const source=String(value??'').trim();
+        const enabled=modal?.querySelector('.kb-bulk-second-line-v735')?.checked!==false;
+        if(!enabled || !source.includes('|'))return source;
+        return source.split('|').map(part=>part.trim()).join('\n').trim();
+    }
+    function bulkPreviewItemHtmlV735(value){
+        if(typeof knowledgeVisibleTitleHtmlV212==='function')return knowledgeVisibleTitleHtmlV212(value);
+        return esc(value).replace(/\r?\n/g,'<br class="kb-title-line-break-v735">');
+    }
     function malformedBulkV162(value){let depth=0;for(const ch of value){if(ch==='{')depth++;if(ch==='}')depth--;if(depth<0)return true;}return depth!==0||value.length>500;}
+    // V696: bulk import treats titles case-insensitively (and ignores harmless
+    // Unicode/whitespace differences) while preserving the user's original casing.
+    function bulkIdentityV696(value){
+        return typeof knowledgeIdentityV696==='function'
+            ? knowledgeIdentityV696(value)
+            : String(value??'').trim().replace(/\s+/g,' ').toLocaleLowerCase();
+    }
+    function existingBulkIdentityMapV738(){
+        const map=new Map();
+        (db.phrases||[]).forEach(id=>{
+            const meta=db.phrase_meta?.[id]||{};
+            const visibleTitle=String(meta.bulkOriginalTitleV739 || id);
+            const identity=bulkIdentityV696(visibleTitle);
+            if(!identity)return;
+            let hidden=false;
+            try{hidden=(typeof getKnowledgeItemTagsV55==='function'?getKnowledgeItemTagsV55(id):(meta.tags||[])).map(v=>String(v).replace(/^#/,'').toLowerCase()).includes('hide')}catch{}
+            if(!map.has(identity))map.set(identity,[]);
+            map.get(identity).push({id:String(id),title:visibleTitle,category:String(meta.type||''),hidden});
+        });
+        return map;
+    }
+    function existingBulkIdentitySetV696(){
+        return new Set(existingBulkIdentityMapV738().keys());
+    }
+    function bulkExistingStatusV738(match){
+        if(!match)return 'already exists';
+        const where=match.category?` in ${match.category}`:'';
+        const hidden=match.hidden?' · hidden in KB':'';
+        return `already exists${where} as “${match.title||match.id}”${hidden}`;
+    }
+    function bulkExistingMatchV739(existingMap, identity, targetCategory){
+        const matches=existingMap.get(identity)||[];
+        const target=String(targetCategory||'').trim().toLocaleLowerCase();
+        const same=matches.find(match=>String(match.category||'').trim().toLocaleLowerCase()===target)||null;
+        return {same,other:matches.find(match=>match!==same)||matches[0]||null,matches};
+    }
+    function makeBulkOverrideIdV739(title){
+        const base=String(title??'');
+        let n=1;
+        while(n<5000){
+            // Invisible suffix keeps legacy raw-ID renderers visually identical while
+            // bulkOriginalTitleV739 remains the authoritative display title.
+            const candidate=base+'\u2063'+'\u200B'.repeat(n);
+            if(!(db.phrases||[]).includes(candidate)&&!db.phrase_meta?.[candidate])return candidate;
+            n++;
+        }
+        return `${base}\u2063${Date.now()}`;
+    }
+    function bulkRowStatusCountsV736(rows){
+        const counts={ready:0,existing:0,crossCategory:0,overrides:0,duplicate:0,fix:0};
+        (rows||[]).forEach(row=>{
+            if(row.status==='ready')counts.ready++;
+            else if(row.status==='already exists'){
+                counts.existing++;
+                if(row.canOverrideCategoryV739)counts.crossCategory++;
+                if(row.overrideExistingV739)counts.overrides++;
+            }
+            else if(row.status==='duplicate in paste')counts.duplicate++;
+            else counts.fix++;
+        });
+        counts.addable=counts.ready+counts.overrides;
+        return counts;
+    }
+    function bulkStatusSummaryHtmlV736(rows){
+        const c=bulkRowStatusCountsV736(rows);
+        const parts=[];
+        if(c.existing)parts.push(`${c.existing} already in KB${c.crossCategory?` · ${c.crossCategory} in another category`:''}`);
+        if(c.overrides)parts.push(`${c.overrides} override${c.overrides===1?'':'s'} selected`);
+        if(c.duplicate)parts.push(`${c.duplicate} duplicate${c.duplicate===1?'':'s'} in paste`);
+        if(c.fix)parts.push(`${c.fix} need${c.fix===1?'s':''} fixing`);
+        return `<div class="kb-bulk-summary-v162"><strong>${c.addable} ready to add</strong><span>${parts.length?parts.join(' · '):'All detected records are ready.'}</span></div>`;
+    }
+    function bulkHasBlockingRowsV736(rows){
+        return (rows||[]).some(row=>row.status!=='ready'&&row.status!=='already exists'&&row.status!=='duplicate in paste');
+    }
+    function bulkExpectedColumnsStatusV736(parsed,expected){
+        if(parsed.unclosedQuote)return 'unclosed quote';
+        if(parsed.cols.length===expected)return '';
+        if(parsed.cols.length>expected)return `too many columns (${parsed.cols.length}; expected ${expected}) — quote values that contain commas`;
+        return `missing columns (${parsed.cols.length}; expected ${expected})`;
+    }
+    function renderBulkPreviewRowsV739(modal){
+        if(!modal||!bulkPreviewV162)return;
+        const rows=bulkPreviewV162.rows||[];
+        const fields=bulkPreviewV162.fields||[];
+        const counts=bulkRowStatusCountsV736(rows);
+        updateBulkCountV465(modal,counts.addable);
+        const rowHtml=(r,index)=>{
+            const isReady=r.status==='ready'||r.overrideExistingV739;
+            const statusText=r.status==='already exists'?bulkExistingStatusV738(r.existingMatch):r.status;
+            const record=bulkPreviewV162.mode==='fields'
+                ? `<span class="kb-bulk-preview-record-v464"><strong>${bulkPreviewItemHtmlV735(r.value||'(no item)')}</strong>${fields.map((f,i)=>`<em>${esc(f)}: ${esc(r.values?.[i]??'')}</em>`).join('')}</span>`
+                : `<span>${esc(r.value)}</span>`;
+            const override=r.canOverrideCategoryV739
+                ? `<button type="button" class="kb-bulk-override-v739${r.overrideExistingV739?' selected':''}" data-bulk-override-v739="${index}">${r.overrideExistingV739?'Adding anyway':'Add anyway'}</button>`
+                : '';
+            return `<div class="${isReady?'ready':'warning'}">${record}<span class="kb-bulk-row-status-v739"><small>${esc(statusText)}</small>${override}</span></div>`;
+        };
+        modal.querySelector('.kb-bulk-preview-v162').innerHTML=`${bulkStatusSummaryHtmlV736(rows)}<div class="kb-bulk-preview-list-v162">${rows.slice(0,250).map(rowHtml).join('')}${rows.length>250?`<div><small>+ ${rows.length-250} more</small></div>`:''}</div>`;
+        modal.querySelectorAll('[data-bulk-override-v739]').forEach(button=>button.addEventListener('click',()=>{
+            const row=rows[Number(button.dataset.bulkOverrideV739)];
+            if(!row?.canOverrideCategoryV739)return;
+            row.overrideExistingV739=!row.overrideExistingV739;
+            renderBulkPreviewRowsV739(modal);
+            syncBulkDaysV684(modal);
+        }));
+        const commit=modal.querySelector('.kb-bulk-commit-v162');
+        if(commit)commit.disabled=!counts.addable||bulkHasBlockingRowsV736(rows);
+    }
     function previewBulkV162(){
-        const modal=document.getElementById('kb-bulk-modal-v162'); const mode=bulkModeV464(modal); const category=modal.querySelector('.kb-bulk-category-v162').value; const tags=splitList(modal.querySelector('.kb-bulk-tags-v162').value);
+        const modal=document.getElementById('kb-bulk-modal-v162');
+        const mode=bulkModeV464(modal);
+        const category=modal.querySelector('.kb-bulk-category-v162').value;
+        const tags=splitList(modal.querySelector('.kb-bulk-tags-v162').value);
+        const rawText=modal.querySelector('.kb-bulk-text-v162').value;
+
         if(mode==='fields'){
-            const fields=bulkSelectedFieldsV464(modal); const records=splitRecordsV464(modal.querySelector('.kb-bulk-text-v162').value); const seen=new Set();
+            const fields=bulkSelectedFieldsV464(modal);
+            const records=splitRecordsV464(rawText);
+            const seen=new Set();
+            const existingMap=existingBulkIdentityMapV738();
             const rows=records.map(record=>{
-                const parsed=parseCsvRowV464(record); const item=String(parsed.cols[0]||'').trim(); const values=parsed.cols.slice(1); let status='ready';
+                const parsed=parseCsvRowV464(record);
+                const item=formatBulkFirstColumnV735(parsed.cols[0],modal);
+                const identity=bulkIdentityV696(item);
+                const values=parsed.cols.slice(1);
+                let status='ready';
+                let existingMatch=null;
+                let canOverrideCategoryV739=false;
                 if(!fields.length)status='choose at least one field';
-                else if(parsed.unclosedQuote)status='unclosed quote';
                 else if(!item)status='missing item name';
-                else if(parsed.cols.length!==fields.length+1)status=`expected ${fields.length+1} columns`;
-                else if(db.phrases.includes(item))status='already exists';
-                else if(seen.has(item))status='duplicate in paste';
-                else if(malformedBulkV162(item))status='check formatting';
-                seen.add(item);
-                const custom={}; fields.forEach((name,i)=>custom[name]=values[i]??'');
-                return{value:item,values,custom,status,record};
+                else {
+                    const columnStatus=bulkExpectedColumnsStatusV736(parsed,fields.length+1);
+                    if(columnStatus)status=columnStatus;
+                    else if(identity&&seen.has(identity))status='duplicate in paste';
+                    else if(identity&&existingMap.has(identity)){
+                        const match=bulkExistingMatchV739(existingMap,identity,category);
+                        status='already exists';
+                        existingMatch=match.same||match.other;
+                        canOverrideCategoryV739=!match.same&&!!match.other;
+                    }
+                    else if(malformedBulkV162(item))status='check formatting';
+                }
+                if(identity)seen.add(identity);
+                const custom={};
+                fields.forEach((name,i)=>custom[name]=values[i]??'');
+                return{value:item,values,custom,status,record,existingMatch,canOverrideCategoryV739,overrideExistingV739:false};
             });
-            bulkPreviewV162={mode,signature:modal.querySelector('.kb-bulk-text-v162').value,category,tags,fields,rows};
-            const ready=rows.filter(r=>r.status==='ready'), warning=rows.filter(r=>r.status!=='ready');
-            updateBulkCountV465(modal,ready.length);
-            modal.querySelector('.kb-bulk-preview-v162').innerHTML=`<div class="kb-bulk-summary-v162"><strong>${ready.length} ready</strong><span>${warning.length} skipped / needs review</span></div><div class="kb-bulk-preview-list-v162">${rows.slice(0,250).map(r=>`<div class="${r.status==='ready'?'ready':'warning'}"><span class="kb-bulk-preview-record-v464"><strong>${esc(r.value||'(no item)')}</strong>${fields.map((f,i)=>`<em>${esc(f)}: ${esc(r.values?.[i]??'')}</em>`).join('')}</span><small>${esc(r.status)}</small></div>`).join('')}${rows.length>250?`<div><small>+ ${rows.length-250} more</small></div>`:''}</div>`;
-            modal.querySelector('.kb-bulk-commit-v162').disabled=!ready.length||warning.some(r=>['unclosed quote','missing item name','choose at least one field','check formatting'].includes(r.status));
+            bulkPreviewV162={mode,signature:rawText,category,tags,fields,rows};
+            renderBulkPreviewRowsV739(modal);
             syncBulkDaysV684(modal);
             return;
         }
-        const values=parseBulkV162(modal.querySelector('.kb-bulk-text-v162').value,modal.querySelector('.kb-bulk-delimiter-v162').value);const seen=new Set();const rows=values.map(value=>{let status='ready';if(db.phrases.includes(value))status='already exists';else if(seen.has(value))status='duplicate in paste';else if(malformedBulkV162(value))status='check formatting';seen.add(value);return{value,status}});bulkPreviewV162={mode:'items',signature:modal.querySelector('.kb-bulk-text-v162').value,category,tags,rows};const ready=rows.filter(r=>r.status==='ready');const warning=rows.filter(r=>r.status!=='ready');updateBulkCountV465(modal,ready.length);modal.querySelector('.kb-bulk-preview-v162').innerHTML=`<div class="kb-bulk-summary-v162"><strong>${ready.length} ready</strong><span>${warning.length} skipped / needs review</span></div><div class="kb-bulk-preview-list-v162">${rows.slice(0,250).map(r=>`<div class="${r.status==='ready'?'ready':'warning'}"><span>${esc(r.value)}</span><small>${esc(r.status)}</small></div>`).join('')}${rows.length>250?`<div><small>+ ${rows.length-250} more</small></div>`:''}</div>`;modal.querySelector('.kb-bulk-commit-v162').disabled=!ready.length||warning.some(r=>r.status==='check formatting');syncBulkDaysV684(modal);
+
+        const values=parseBulkV162(rawText,modal.querySelector('.kb-bulk-delimiter-v162').value);
+        const seen=new Set();
+        const existingMap=existingBulkIdentityMapV738();
+        const rows=values.map(value=>{
+            const identity=bulkIdentityV696(value);
+            let status='ready';
+            let existingMatch=null;
+            let canOverrideCategoryV739=false;
+            if(identity&&seen.has(identity))status='duplicate in paste';
+            else if(identity&&existingMap.has(identity)){
+                const match=bulkExistingMatchV739(existingMap,identity,category);
+                status='already exists';
+                existingMatch=match.same||match.other;
+                canOverrideCategoryV739=!match.same&&!!match.other;
+            }
+            else if(malformedBulkV162(value))status='check formatting';
+            if(identity)seen.add(identity);
+            return{value,status,existingMatch,canOverrideCategoryV739,overrideExistingV739:false};
+        });
+        bulkPreviewV162={mode:'items',signature:rawText,category,tags,rows};
+        renderBulkPreviewRowsV739(modal);
+        syncBulkDaysV684(modal);
     }
-    function commitBulkV162(){
-        const modal=document.getElementById('kb-bulk-modal-v162');if(!syncBulkDaysV684(modal))return;if(!bulkPreviewV162||bulkPreviewV162.signature!==modal.querySelector('.kb-bulk-text-v162').value)return previewBulkV162();const category=bulkPreviewV162.category||db.settings.categories?.[0]||'Category';const tags=(typeof normalizeKnowledgeTagsV55==='function'?normalizeKnowledgeTagsV55(bulkPreviewV162.tags):bulkPreviewV162.tags.map(v=>v.replace(/^#/,'')));let added=0;bulkPreviewV162.rows.filter(r=>r.status==='ready').forEach(row=>{if(db.phrases.includes(row.value))return;db.phrases.push(row.value);const cfg=getCategoryConfig(category);const custom={};(cfg.fields||[]).forEach((raw,i)=>{const f=normalizeKnowledgeField(raw,i,cfg);custom[f.name]=''});if(bulkPreviewV162.mode==='fields')Object.entries(row.custom||{}).forEach(([name,value])=>{if(Object.prototype.hasOwnProperty.call(custom,name))custom[name]=value});db.phrase_meta[row.value]={...(db.phrase_meta[row.value]||{}),type:category,tags:[...tags],custom_fields:custom,enableParts:false,parts:[]};added++});saveDb();try{populatePhrasesDatalist();renderLibraryTabs();renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value||'')}catch{}modal.classList.add('hidden');bulkPreviewV162=null;try{showFeatureToast(`Added ${added} Knowledge Base item${added===1?'':'s'}.`)}catch{}
+    async function commitBulkV162(){
+        const modal=document.getElementById('kb-bulk-modal-v162');
+        if(!syncBulkDaysV684(modal))return;
+        const rawText=modal.querySelector('.kb-bulk-text-v162').value;
+        if(!bulkPreviewV162||bulkPreviewV162.signature!==rawText){previewBulkV162();return;}
+        if(bulkHasBlockingRowsV736(bulkPreviewV162.rows)){
+            previewBulkV162();
+            try{showFeatureToast('Fix the highlighted bulk-import rows before adding items.')}catch{}
+            return;
+        }
+
+        const commitButton=modal.querySelector('.kb-bulk-commit-v162');
+        if(commitButton?.dataset.savingV736==='1')return;
+        if(commitButton){commitButton.dataset.savingV736='1';commitButton.disabled=true;}
+
+        // V738: snapshot the pre-import KB state. If persistence/verification fails,
+        // restore this snapshot so unsaved rows cannot linger in memory and then be
+        // falsely reported as “already exists” on the next preview.
+        const rollbackV738={
+            phrases:[...(db.phrases||[])],
+            phraseMeta:JSON.parse(JSON.stringify(db.phrase_meta||{})),
+            dayPhrases:Object.fromEntries(Object.entries(db.days||{}).map(([dayNumber,day])=>[dayNumber,Array.isArray(day?.phrases)?[...day.phrases]:null]))
+        };
+        const category=bulkPreviewV162.category||db.settings.categories?.[0]||'Category';
+        const tags=(typeof normalizeKnowledgeTagsV55==='function'?normalizeKnowledgeTagsV55(bulkPreviewV162.tags):bulkPreviewV162.tags.map(v=>v.replace(/^#/,'')));
+        const existing=existingBulkIdentitySetV696();
+        const readyRows=bulkPreviewV162.rows.filter(r=>r.status==='ready'||r.overrideExistingV739);
+        const addedIds=[];
+        let duplicateAtCommit=0;
+
+        readyRows.forEach(row=>{
+            const identity=bulkIdentityV696(row.value);
+            const isOverride=!!row.overrideExistingV739&&!!row.canOverrideCategoryV739;
+            if(!identity){duplicateAtCommit++;return;}
+            if(!isOverride&&existing.has(identity)){duplicateAtCommit++;return;}
+            const storageId=isOverride?makeBulkOverrideIdV739(row.value):row.value;
+            existing.add(identity);
+            db.phrases.push(storageId);
+            const cfg=getCategoryConfig(category);
+            const custom={};
+            (cfg.fields||[]).forEach((raw,i)=>{const f=normalizeKnowledgeField(raw,i,cfg);custom[f.name]=''});
+            if(bulkPreviewV162.mode==='fields')Object.entries(row.custom||{}).forEach(([name,value])=>{if(Object.prototype.hasOwnProperty.call(custom,name))custom[name]=value});
+            db.phrase_meta[storageId]={...(db.phrase_meta[storageId]||{}),type:category,tags:[...tags],custom_fields:custom,enableParts:false,parts:[],...(isOverride?{bulkOriginalTitleV739:String(row.value),bulkDuplicateOverrideV739:true}:{})};
+            addedIds.push(storageId);
+        });
+
+        // V736: attach optional Items Learned targets BEFORE the one authoritative
+        // save so a second racing /api/save request cannot overwrite part of the import.
+        const {days}=parseBulkDaysV684(modal);
+        let dayLinks=0;
+        if(days.length&&addedIds.length){
+            days.forEach(dayNum=>{
+                const day=db.days?.[dayNum];
+                if(!day)return;
+                if(!Array.isArray(day.phrases))day.phrases=[];
+                addedIds.forEach(id=>{if(!day.phrases.includes(id)){day.phrases.push(id);dayLinks++;}});
+            });
+        }
+
+        let saveVerified=true;
+        try{
+            await Promise.resolve(saveDb());
+            // Verify the persisted KB after a bulk operation. If the first save was
+            // interrupted, retry once rather than closing the modal and pretending
+            // every item was safely stored.
+            if(addedIds.length&&typeof HOBBY!=='undefined'){
+                const verify=async()=>{
+                    const response=await fetch(`/api/data/${encodeURIComponent(HOBBY)}?bulkVerifyV736=${Date.now()}`,{cache:'no-store'});
+                    if(!response.ok)return null;
+                    const saved=await response.json();
+                    const ids=new Set((saved?.phrases||[]).map(bulkIdentityV696).filter(Boolean));
+                    return addedIds.filter(id=>!ids.has(bulkIdentityV696(id)));
+                };
+                let missing=await verify();
+                if(Array.isArray(missing)&&missing.length){await Promise.resolve(saveDb());missing=await verify();}
+                if(Array.isArray(missing)&&missing.length)saveVerified=false;
+            }
+        }catch(error){
+            console.error('Bulk Knowledge Base save failed:',error);
+            saveVerified=false;
+        }
+
+        try{populatePhrasesDatalist();renderLibraryTabs();renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value||'')}catch{}
+        try{
+            if(typeof currentDay!=='undefined'&&days.includes(Number(currentDay))&&db.days?.[currentDay])renderPhrases(db.days[currentDay].phrases||[]);
+        }catch{}
+
+        if(!saveVerified){
+            // V738: rollback the whole attempted import locally and try to persist
+            // the rollback. This prevents ghost rows from poisoning duplicate checks.
+            db.phrases=[...rollbackV738.phrases];
+            db.phrase_meta=JSON.parse(JSON.stringify(rollbackV738.phraseMeta));
+            Object.entries(rollbackV738.dayPhrases).forEach(([dayNumber,phrases])=>{
+                if(!db.days?.[dayNumber])return;
+                if(phrases===null)delete db.days[dayNumber].phrases;
+                else db.days[dayNumber].phrases=[...phrases];
+            });
+            try{await Promise.resolve(saveDb());}catch{}
+            try{populatePhrasesDatalist();renderLibraryTabs();renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value||'')}catch{}
+            try{if(typeof currentDay!=='undefined'&&db.days?.[currentDay])renderPhrases(db.days[currentDay].phrases||[])}catch{}
+            previewBulkV162();
+            if(commitButton){delete commitButton.dataset.savingV736;commitButton.disabled=bulkHasBlockingRowsV736(bulkPreviewV162?.rows||[])||!bulkRowStatusCountsV736(bulkPreviewV162?.rows||[]).addable;}
+            try{showFeatureToast('Nothing was imported because Loggy could not verify the save. The attempted rows were rolled back, so they will not be falsely marked as already existing.')}catch{}
+            return;
+        }
+
+        const counts=bulkRowStatusCountsV736(bulkPreviewV162.rows);
+        const skippedExisting=counts.existing+counts.duplicate+duplicateAtCommit;
+        modal.classList.add('hidden');
+        bulkPreviewV162=null;
+        if(commitButton)delete commitButton.dataset.savingV736;
+        try{
+            const total=addedIds.length+skippedExisting;
+            const addedText=`Added ${addedIds.length}${total?` of ${total}`:''} Knowledge Base item${addedIds.length===1?'':'s'}`;
+            const skipText=skippedExisting?` · ${skippedExisting} duplicate${skippedExisting===1?'':'s'} skipped`:'';
+            const dayText=dayLinks?` · linked to ${days.length===1?`Day ${days[0]}`:`Days ${days.join(', ')}`}`:'';
+            showFeatureToast(`${addedText}${skipText}${dayText}.`);
+        }catch{}
+    }
+    function prepareBulkPaneV842(){
+        ensureBulkImportV162();const modal=document.getElementById('kb-bulk-modal-v162');if(!modal)return;
+        const select=modal.querySelector('.kb-bulk-category-v162');select.innerHTML=(db.settings.categories||[]).map(c=>`<option value="${attr(c)}">${esc(c)}</option>`).join('');select.value=libraryFilter&&libraryFilter!=='all'?libraryFilter:(db.settings.categories?.[0]||'');
+        renderBulkFieldChoicesV464();updateBulkCountV465(modal);syncBulkDaysV684(modal);
+    }
+    function setKbAddModeV842(mode='single',reset=false){
+        const outer=document.getElementById('add-item-modal');if(!outer)return;prepareBulkPaneV842();mode=mode==='bulk'?'bulk':'single';outer.dataset.kbAddModeV842=mode;
+        outer.querySelectorAll('[data-kb-add-mode-v842]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.kbAddModeV842===mode)));
+        document.getElementById('kb-individual-pane-v842')?.classList.toggle('hidden',mode!=='single');document.getElementById('kb-bulk-modal-v162')?.classList.toggle('hidden',mode!=='bulk');
+        if(mode==='bulk'&&reset){const bulk=document.getElementById('kb-bulk-modal-v162');bulk.querySelector('.kb-bulk-text-v162').value='';const d=bulk.querySelector('.kb-bulk-days-input-v684');if(d)d.value='';bulk.querySelector('.kb-bulk-preview-v162').innerHTML='';bulk.querySelector('.kb-bulk-commit-v162').disabled=true;bulkPreviewV162=null;updateBulkCountV465(bulk)}
     }
     function ensureBulkButtonV162(){
-        const header=document.querySelector('#phrases-library-view .log-header-container > div:last-child');if(!header||document.getElementById('kb-bulk-add-btn-v162'))return;const btn=document.createElement('button');btn.id='kb-bulk-add-btn-v162';btn.className='icon-btn';btn.title='Bulk add items';btn.innerHTML='<i class="ph ph-stack-plus"></i>';btn.onclick=()=>{ensureBulkImportV162();const modal=document.getElementById('kb-bulk-modal-v162');const select=modal.querySelector('.kb-bulk-category-v162');select.innerHTML=(db.settings.categories||[]).map(c=>`<option value="${attr(c)}">${esc(c)}</option>`).join('');select.value=libraryFilter&&libraryFilter!=='all'?libraryFilter:(db.settings.categories?.[0]||'');modal.querySelector('.kb-bulk-text-v162').value='';const dayInput=modal.querySelector('.kb-bulk-days-input-v684');if(dayInput)dayInput.value='';modal.querySelector('.kb-bulk-preview-v162').innerHTML='';modal.querySelector('.kb-bulk-commit-v162').disabled=true;bulkPreviewV162=null;renderBulkFieldChoicesV464();updateBulkCountV465(modal);syncBulkDaysV684(modal);modal.classList.remove('hidden')};header.insertBefore(btn,document.getElementById('add-phrase-library-btn'));
+        const header=document.querySelector('#phrases-library-view .log-header-container > div:last-child');if(!header||document.getElementById('kb-bulk-add-btn-v162'))return;const btn=document.createElement('button');btn.id='kb-bulk-add-btn-v162';btn.className='icon-btn';btn.title='Bulk add items';btn.innerHTML='<i class="ph ph-stack-plus"></i>';btn.onclick=()=>{document.getElementById('add-phrase-library-btn')?.click();requestAnimationFrame(()=>setKbAddModeV842('bulk',true))};header.insertBefore(btn,document.getElementById('add-phrase-library-btn'));
     }
-
+    document.addEventListener('click',e=>{const mode=e.target.closest?.('[data-kb-add-mode-v842]')?.dataset.kbAddModeV842;if(mode){e.preventDefault();setKbAddModeV842(mode)}if(e.target.closest?.('#add-phrase-library-btn'))requestAnimationFrame(()=>setKbAddModeV842('single',false))},true);
+    document.addEventListener('click',e=>{if(!e.target.closest?.('#add-item-save'))return;const outer=document.getElementById('add-item-modal');if(outer?.dataset.kbAddModeV842!=='bulk')return;e.preventDefault();e.stopImmediatePropagation();const bulk=document.getElementById('kb-bulk-modal-v162');if(!bulk)return;previewBulkV162();const commit=bulk.querySelector('.kb-bulk-commit-v162');if(commit&&!commit.disabled){Promise.resolve(commitBulkV162()).finally(()=>{if(bulk.classList.contains('hidden'))outer.classList.add('hidden')})}},true);
     // ------------------------------------------------------------
     // Daily Knowledge Base recommendations.
     // ------------------------------------------------------------
@@ -1803,6 +2158,7 @@
         if(!cfg.enabled||cfg.paused)return{state:cfg.paused?'paused':'disabled'};
         const phrases=db.phrases||[];
         const learned=learnedItemSetV162();
+        const learnedIdentity=learnedItemIdentitySetV696();
         if(cfg.mode==='ordered'){
             const list=Array.isArray(cfg.orderedItems)?cfg.orderedItems:[];
             if(!list.length)return{state:'empty'};
@@ -1810,13 +2166,13 @@
             if(index>=list.length){if(cfg.endBehavior==='loop')index=index%list.length;else return{state:'complete'}}
             for(let offset=0;offset<list.length;offset++){
                 const candidate=String(list[(index+offset)%list.length]||'').trim();
-                if(phrases.includes(candidate) && !learned.has(candidate)) return{state:'item',id:candidate,index:index+offset};
+                if(phrases.includes(candidate) && !isKnowledgeItemLearnedV696(candidate,learned,learnedIdentity)) return{state:'item',id:candidate,index:index+offset};
                 if(cfg.endBehavior!=='loop'&&index+offset>=list.length-1)break;
             }
             return{state:'missing'};
         }
         // Recommendations are always for items not yet present in Items Learned.
-        const matches=phrases.filter(id=>!learned.has(String(id)) && kbItemMatchesV162(id,{...cfg,learnedState:'unlearned'},learned));
+        const matches=phrases.filter(id=>!isKnowledgeItemLearnedV696(id,learned,learnedIdentity) && kbItemMatchesV162(id,{...cfg,learnedState:'unlearned'},learned));
         if(!matches.length)return{state:'empty'};
         const index=(Math.max(1,Number(day||1))-1)%matches.length;
         return{state:'item',id:matches[index],index};
@@ -2095,9 +2451,9 @@
     }
     async function editQaAnswerV163(tab,component,item){const v=await showAppFormModal({title:'Answer Question',submitLabel:'Save Answer',fields:[{name:'answer',label:'Answer',value:item.answer||'',type:'textarea',rows:7}]});if(!v)return;item.answer=String(v.answer||'');saveDb();renderCustomTabView(tab.id)}
     function renderQaV163(tab,component,content){
-        component.items=Array.isArray(component.items)?component.items:[];content.innerHTML=`<div class="custom-collection-header qa-header-v163"><h2>${esc(component.title||'Q&A')}</h2><button type="button" class="small-icon-btn qa-add-v163" title="Add question" aria-label="Add question"><i class="ph ph-plus"></i></button></div><div class="qa-list-v163"></div>`;$('.qa-add-v163',content).onclick=()=>addQaV163(tab,component);const list=$('.qa-list-v163',content);
+        component.items=Array.isArray(component.items)?component.items:[];content.innerHTML=`<div class="custom-collection-header qa-header-v163"><h2>${esc(component.title||'Questions & Answers')}</h2><button type="button" class="small-icon-btn qa-add-v163" title="Add question" aria-label="Add question"><i class="ph ph-plus"></i></button></div><div class="qa-list-v163"></div>`;$('.qa-add-v163',content).onclick=()=>addQaV163(tab,component);const list=$('.qa-list-v163',content);
         component.items.forEach(item=>{const open=qaOpenV163.has(item.id),refs=Array.isArray(item.references)?item.references:[];const row=document.createElement('article');row.className=`qa-row-v163 custom-searchable-item${open?' open':''}`;row.dataset.searchText=`${item.question||''} ${item.answer||''}`.toLowerCase();row.dataset.customItemId=item.id;row.innerHTML=`<button type="button" class="qa-summary-v163" aria-expanded="${open?'true':'false'}"><i class="ph ph-caret-right qa-caret-v163"></i><span class="qa-question-text-v163">${esc(item.question||'Untitled question')}</span><span class="qa-answer-state-v163">${item.answer?'<i class="ph ph-check-circle"></i>':'<i class="ph ph-chat-circle"></i>'}</span></button><div class="qa-detail-v163 ${open?'':'hidden'}"><div class="qa-full-question-v163">${esc(item.question||'')}</div><div class="qa-answer-copy-v163">${item.answer?esc(item.answer).replace(/\n/g,'<br>'):'<span class="qa-empty-answer-v163">No answer yet.</span>'}</div><div class="qa-detail-actions-v163"><button type="button" class="small-icon-btn qa-answer-edit-v163"><i class="ph ph-pencil-simple"></i> ${item.answer?'Edit Answer':'Add Answer'}</button></div><div class="qa-references-v163">${refs.length?refs.map(r=>`<button type="button" class="qa-day-ref-v163" data-day="${Number(r.day)||0}"><i class="ph ph-calendar-blank"></i> Day ${Number(r.day)||0}</button>`).join(''):'<span>No Daily Log references yet.</span>'}</div></div>`;
-            $('.qa-summary-v163',row).onclick=()=>{qaOpenV163.has(item.id)?qaOpenV163.delete(item.id):qaOpenV163.add(item.id);renderCustomTabView(tab.id)};$('.qa-answer-edit-v163',row)?.addEventListener('click',()=>editQaAnswerV163(tab,component,item));$$('.qa-day-ref-v163',row).forEach(b=>b.onclick=()=>{try{openDayLog(Number(b.dataset.day))}catch{}});row.oncontextmenu=e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:item.answer?'Edit answer':'Add answer',icon:'ph-chat-text',action:()=>editQaAnswerV163(tab,component,item)},{label:'Edit question',icon:'ph-pencil-simple',action:()=>addQaV163(tab,component,item)},{label:'Delete question',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Question',message:'Delete this question and its Daily Log references?',confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x.id!==item.id);removeQaLinksV163(item.id);saveDb();renderCustomTabView(tab.id)}}])};list.appendChild(row)});
+            $('.qa-summary-v163',row).onclick=()=>{qaOpenV163.has(item.id)?qaOpenV163.delete(item.id):qaOpenV163.add(item.id);renderCustomTabView(tab.id)};$('.qa-answer-edit-v163',row)?.addEventListener('click',()=>editQaAnswerV163(tab,component,item));$$('.qa-day-ref-v163',row).forEach(b=>b.onclick=()=>{try{openDayLog(Number(b.dataset.day))}catch{}});row.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:item.answer?'Edit answer':'Add answer',icon:'ph-chat-text',action:()=>editQaAnswerV163(tab,component,item)},{label:'Edit question',icon:'ph-pencil-simple',action:()=>addQaV163(tab,component,item)},{label:'Delete question',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Question',message:'Delete this question and its Daily Log references?',confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x.id!==item.id);removeQaLinksV163(item.id);saveDb();renderCustomTabView(tab.id)}}])};list.appendChild(row)});
         if(!component.items.length)list.innerHTML='<div class="custom-feature-empty-v162">No questions yet.</div>';
     }
 
@@ -2127,7 +2483,7 @@
 
     // ---------------- Contextual help for every component ----------------
     const HELP={
-      heading:['Heading','Adds a visual section title.','Use it to divide a tab into clear sections.','Example: “Weekly Review”'],text:['Text','Freeform notes or instructions.','Good for summaries, directions, or reference text.','Example: “Remember to review verbs.”'],search:['Local Search','Searches only the component directly below it.','Place it immediately above a large list, cards, checklist, or collection.','Example: type “Korean” to filter the list below.'],globalSearchV163:['Global Search','Searches every component below it in this tab.','Best near the top of a long custom tab.','Example: one search filters cards + checklist + resources below.'],categoryBar:['Category Bar','Groups small items into switchable categories.','Right-click a category to rename it; use the folder-plus and plus buttons to add categories/items.','Example: Grammar | Vocabulary | Listening'],cards:['Cards','Flexible title + body cards.','Store short notes, ideas, facts, or mini records.','Example: “Concept” / “What it means…”'],polaroids:['Polaroids','Visual cards for images and supported media.','Useful for memories, references, moodboards, or progress photos.','Example: photo + caption'],checklist:['Checklist','Track tasks with completion dates.','Add, edit, check off, and delete items.','Example: □ Review 10 flashcards'],practiceLog:['Practice Log','Stores dated practice sessions and minutes.','Use it for music, language, art, fitness skills, etc.','Example: Scales · 30 min'],progressMeter:['Progress Meter','Manual numeric progress toward a target.','Use +/− and edit the target/unit by right-clicking.','Example: 7 / 20 lessons'],skillRatings:['Skill Ratings','Rates skills from 1–5 stars.','Track confidence across several sub-skills.','Example: Pronunciation ★★★★☆'],vocabulary:['Vocabulary','Stores terms, meanings, and notes.','Useful for language or subject-specific terms.','Example: casa → house'],resources:['Resources','Stores named links with notes.','Keep videos, articles, docs, and reference sites together.','Example: “Lesson 4 video” ↗'],dailyLogCollection:['Daily Log Collection','Surfaces selected Daily Log content.','Use it to review recurring activity across days.','Example: recent logs'],milestones:['Milestones','Checklist-style major achievements.','Completed milestones retain their completion date.','Example: “Finish Unit 1”'],projectGallery:['Project Gallery','Stores project images with titles and notes.','Useful for before/after or portfolio snapshots.','Example: sketch image + note'],recipeTracker:['Recipe Tracker','Stores repeatable recipe/project records.','Useful for recipes and structured creations.','Example: Bread · baked twice'],tableV162:['Table','Editable rows, columns, and cells.','Use it for structured comparisons or trackers.','Example: Date | Topic | Score'],qaV162:['Q&A','Stores questions and synced answers.','Expand a question, answer it here or from a Daily Log, and follow Daily Log references.','Example: “Why does this chord work?” ▸'],goalsV162:['Goals','Tracks manual and automatic progress.','Automatic progress can count matching KB categories/tags added to Daily Logs.','Example: 22 / 50 Korean nouns'],customKnowledgeBaseV453:['Knowledge Base','An independent Knowledge Base stored only inside this custom tab.','It has its own categories, fields, placeholders, and items and does not read or change the log page Knowledge Base.','Example: a separate research glossary'],kbDynamicCollectionV162:['Dynamic Collection','Automatically shows matching Knowledge Base items.','Filter by category/tags/metadata and display as cards or polaroids.','Example: all “Chord” items tagged jazz'],divider:['Divider','Adds visual separation.','Use between sections without adding content.','Example: ─────────'],spacer:['Spacer','Adds empty breathing room.','Use to visually separate groups of components.','Example: 36px blank space']
+      heading:['Heading','Adds a visual section title.','Use it to divide a tab into clear sections.','Example: “Weekly Review”'],text:['Text','Freeform notes or instructions.','Good for summaries, directions, or reference text.','Example: “Remember to review verbs.”'],search:['Local Search','Searches only the component directly below it.','Place it immediately above a large list, cards, checklist, or collection.','Example: type “Korean” to filter the list below.'],globalSearchV163:['Global Search','Searches every component below it in this tab.','Best near the top of a long custom tab.','Example: one search filters cards + checklist + resources below.'],categoryBar:['Category Bar','Groups small items into switchable categories.','Right-click a category to rename it; use the folder-plus and plus buttons to add categories/items.','Example: Grammar | Vocabulary | Listening'],cards:['Cards','Flexible title + body cards.','Store short notes, ideas, facts, or mini records.','Example: “Concept” / “What it means…”'],polaroids:['Polaroids','Visual cards for images and supported media.','Useful for memories, references, moodboards, or progress photos.','Example: photo + caption'],checklist:['Checklist','Track tasks with completion dates.','Add, edit, check off, and delete items.','Example: □ Review 10 flashcards'],practiceLog:['Practice Log','Stores dated practice sessions and minutes.','Use it for music, language, art, fitness skills, etc.','Example: Scales · 30 min'],progressMeter:['Progress Meter','Track progress manually or automatically from compatible components in the same custom tab.','It can count checked Checklist items, completed Milestones, Kanban cards in a chosen column, completed roadmap sections/modules, answered Q&A items, Resources, or completed Priority Matrix items.','Example: 7 / 20 lessons or 5 / 8 roadmap sections'],skillRatings:['Skill Ratings','Rates skills from 1–5 stars.','Track confidence across several sub-skills.','Example: Pronunciation ★★★★☆'],vocabulary:['Vocabulary','Stores terms, meanings, and notes.','Useful for language or subject-specific terms.','Example: casa → house'],resources:['Resources','A visual media-style resource grid for links, videos, PDFs, uploaded files, Notebook pages, and Whiteboards.','Use it in a custom tab or inside a Learning Roadmap node/section modal to keep the exact resources for that area together.','Example: PDF + lecture video + linked notebook page'],dailyLogCollection:['Daily Log Collection','Surfaces selected Daily Log content.','Use it to review recurring activity across days.','Example: recent logs'],milestones:['Milestones','Checklist-style major achievements.','Completed milestones retain their completion date.','Example: “Finish Unit 1”'],projectGallery:['Project Gallery','Stores project images with titles and notes.','Useful for before/after or portfolio snapshots.','Example: sketch image + note'],recipeTracker:['Recipe Tracker','Stores repeatable recipe/project records.','Useful for recipes and structured creations.','Example: Bread · baked twice'],tableV162:['Table','Editable rows, columns, and cells.','Use it for structured comparisons or trackers.','Example: Date | Topic | Score'],qaV162:['Questions & Answers','Stores questions and synced answers.','Expand a question, answer it here or from a Daily Log, and follow Daily Log references.','Example: “Why does this chord work?” ▸'],goalsV162:['Goals','Tracks manual and automatic progress.','Automatic progress can count matching KB categories/tags added to Daily Logs.','Example: 22 / 50 Korean nouns'],customKnowledgeBaseV453:['Knowledge Base','An independent Knowledge Base stored only inside this custom tab.','It has its own categories, fields, placeholders, and items and does not read or change the log page Knowledge Base.','Example: a separate research glossary'],kbDynamicCollectionV162:['Dynamic Collection','Automatically shows matching Knowledge Base items.','Filter by category/tags/metadata and display as cards or polaroids.','Example: all “Chord” items tagged jazz'],divider:['Divider','Adds visual separation.','Use between sections without adding content.','Example: ─────────'],spacer:['Spacer','Adds empty breathing room.','Use to visually separate groups of components.','Example: 36px blank space'],pageNavigatorV753:['Pages','Create a collection of tabs or pages only accessible from this component.','Each page uses the normal custom-tab component and layout system but stays out of the main side navigation.','Example: Notes | Practice | Resources']
     };
     function decorateComponentHelpV163(tab,canvas){
         $$('.custom-tab-component',canvas).forEach((wrap,i)=>{if($('.custom-component-help-v163',wrap))return;const component=tab.components?.[i]||tab.components?.find(x=>x.id===wrap.dataset.componentId);if(!component)return;const def=HELP[component.type]||[CUSTOM_COMPONENT_LIBRARY.find(x=>x.type===component.type)?.label||'Component','Reusable custom-tab component.','Configure it in edit mode.','Example: customize this component'];const b=document.createElement('button');b.type='button';b.className='custom-component-help-v163';b.textContent='?';b.setAttribute('aria-label',`About ${def[0]}`);const tip=document.createElement('div');tip.className='custom-component-help-tooltip-v163';tip.innerHTML=`<strong>${esc(def[0])}</strong><span>${esc(def[1])}</span><span>${esc(def[2])}</span><small>${esc(def[3])}</small>`;b.appendChild(tip);wrap.appendChild(b)})
@@ -2158,6 +2514,7 @@
         db.settings.kbShortcutsV467||={};
         if(!db.settings.kbShortcutsV467.bulkAdd)db.settings.kbShortcutsV467.bulkAdd='Shift+=';
         if(!db.settings.kbShortcutsV467.bulkHidden)db.settings.kbShortcutsV467.bulkHidden='Shift+H';
+        if(!db.settings.kbShortcutsV467.quizHidden)db.settings.kbShortcutsV467.quizHidden='Shift+Q';
         const legacySelect=String(db.settings.kbShortcutsV467.bulkSelect||'').replace(/\s+/g,'').toLowerCase();
         if(!db.settings.kbShortcutsV467.bulkSelect || legacySelect==='shift+delete' || legacySelect==='shift+del') db.settings.kbShortcutsV467.bulkSelect='Shift+S';
         if('bulkDelete' in db.settings.kbShortcutsV467) delete db.settings.kbShortcutsV467.bulkDelete;
@@ -2227,10 +2584,23 @@
         let section=document.getElementById('kb-shortcuts-v467');
         if(!section){section=document.createElement('div');section.id='kb-shortcuts-v467';section.className='modal-section kb-shortcuts-v467';box.appendChild(section)}
         else if(section.parentElement!==box)box.appendChild(section);
-        section.innerHTML=`<span class="field-label">Knowledge Base Page Shortcuts</span><div class="kb-shortcut-editor-list-v667"><div class="kb-shortcut-editor-row-v667"><span>Bulk Add Knowledge Base Items</span><button type="button" class="kb-shortcut-capture-v667" data-kb-shortcut-v667="bulkAdd"></button></div><div class="kb-shortcut-editor-row-v667"><span>Show or hide #hide items</span><button type="button" class="kb-shortcut-capture-v667" data-kb-shortcut-v667="bulkHidden"></button></div><div class="kb-shortcut-editor-row-v667"><span>Multi Select</span><button type="button" class="kb-shortcut-capture-v667" data-kb-shortcut-v667="bulkSelect"></button></div></div>`;
+        const clearRowV780=box.querySelector('.kb-clear-out-setting-v780');
+        if(clearRowV780 && clearRowV780.nextElementSibling!==section)clearRowV780.insertAdjacentElement('afterend',section);
+        section.innerHTML=`<span class="field-label">Knowledge Base Page Shortcuts</span><div class="kb-shortcut-editor-list-v667"><div class="kb-shortcut-editor-row-v667"><span>Bulk Add Knowledge Base Items</span><button type="button" class="kb-shortcut-capture-v667" data-kb-shortcut-v667="bulkAdd"></button></div><div class="kb-shortcut-editor-row-v667"><span>Show or hide #hide items</span><button type="button" class="kb-shortcut-capture-v667" data-kb-shortcut-v667="bulkHidden"></button></div><div class="kb-shortcut-editor-row-v667"><span>Show items hidden from quizzes in the current category</span><button type="button" class="kb-shortcut-capture-v667" data-kb-shortcut-v667="quizHidden"></button></div><div class="kb-shortcut-editor-row-v667"><span>Multi Select</span><button type="button" class="kb-shortcut-capture-v667" data-kb-shortcut-v667="bulkSelect"></button></div></div>`;
         bindKbShortcutCaptureV667(section);
     }
     ensureKbShortcutDefaultsV467();
+    ensureKbShortcutsSectionV467();
+    if(typeof window.__loggyShowQuizHiddenOnlyV736!=='boolean') window.__loggyShowQuizHiddenOnlyV736=false;
+    function toggleQuizHiddenOnlyV736(){
+        window.__loggyShowQuizHiddenOnlyV736 = window.__loggyShowQuizHiddenOnlyV736 !== true;
+        const search=document.getElementById('phrases-search-bar')?.value||'';
+        try{renderPhrasesLibrary(search)}catch{}
+        requestAnimationFrame(()=>{try{renderPhrasesLibrary(search)}catch{}});
+        let category='All categories';
+        try{if(typeof libraryFilter!=='undefined'&&libraryFilter!=='all')category=String(libraryFilter)}catch{}
+        try{showFeatureToast?.(window.__loggyShowQuizHiddenOnlyV736 ? `Showing items hidden from quizzes in ${category}.` : 'Showing normal Knowledge Base items.')}catch{}
+    }
     document.addEventListener('keydown',event=>{
         if(!kbViewVisibleV467())return;
 
@@ -2255,6 +2625,16 @@
             event.stopPropagation();
             event.stopImmediatePropagation();
             setShowHiddenKbItemsV597(!window.__loggyShowHiddenKbItemsV597);
+            return;
+        }
+
+        // V736: category-aware view of items marked Hide from Quizzes. This is
+        // a KB-view command, so it still works while the search box has focus.
+        if(!event.repeat && kbShortcutMatchesV667(event,db.settings?.kbShortcutsV467?.quizHidden)){
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            toggleQuizHiddenOnlyV736();
             return;
         }
 
@@ -2288,7 +2668,7 @@
         });
         kbSettingsObserverV596.observe(kbSettingsModalV596,{attributes:true,attributeFilter:['class']});
     }
-    document.addEventListener('click',event=>{if(event.target.closest?.('#open-settings-btn,#knowledge-settings-btn,#open-kb-settings-btn'))setTimeout(ensureKbShortcutsSectionV467,0)},true);
+    document.addEventListener('click',event=>{if(event.target.closest?.('#open-settings-btn,#knowledge-settings-btn,#open-kb-settings-btn'))ensureKbShortcutsSectionV467()},true);
     function toggleKbSelectionV164(id,shiftKey,cards){const ordered=cards.map(card=>card.dataset.kbItemIdV163).filter(Boolean);if(shiftKey&&kbLastSelectedIdV164&&ordered.includes(kbLastSelectedIdV164)&&ordered.includes(id)){const a=ordered.indexOf(kbLastSelectedIdV164),b=ordered.indexOf(id);ordered.slice(Math.min(a,b),Math.max(a,b)+1).forEach(itemId=>kbSelectionV163.add(itemId))}else{kbSelectionV163.has(id)?kbSelectionV163.delete(id):kbSelectionV163.add(id)}kbLastSelectedIdV164=id}
     function decorateKbCardsV163(){ensureKbSelectionToolbarV163();const grid=$('#phrases-library-grid');if(!grid)return;const cards=$$('.phrase-card,.polaroid-card',grid);const filterText=$('#phrases-search-bar')?.value||'';const visibleIds=(db.phrases||[]).filter(id=>window.__loggyShowHiddenKbItemsV597===true||!((db.phrase_meta?.[id]?.tags||[]).map(t=>String(t||'').replace(/^#/,'').toLowerCase()).some(t=>t==='hide'||t==='lazy'))).filter(id=>libraryFilter==='all'||db.phrase_meta?.[id]?.type===libraryFilter).filter(id=>String(id).toLowerCase().includes(String(filterText).toLowerCase())).sort();cards.forEach((card,cardIndex)=>{let id=card.dataset.kbItemIdV162||card.dataset.itemId||card.dataset.phrase||card.dataset.id||visibleIds[cardIndex];if(!id){const txt=(card.querySelector('strong,.phrase-card-title,.polaroid-caption,.chip-text')?.textContent||card.textContent||'').trim();id=(db.phrases||[]).find(x=>{try{return window.__loggyV162?.getKnowledgeDisplayLabel?.(x,'kb')===txt||x===txt}catch{return x===txt}})}if(id)card.dataset.kbItemIdV163=id});cards.forEach(card=>{const id=card.dataset.kbItemIdV163;if(!id)return;card.classList.toggle('kb-selected-v163',kbSelectionV163.has(id));if(kbSelectModeV163){let c=$('.kb-select-check-v163',card);if(!c){c=document.createElement('span');c.className='kb-select-check-v163';c.innerHTML='<i class="ph ph-check"></i>';card.appendChild(c)}c.classList.toggle('selected',kbSelectionV163.has(id));if(!card.dataset.kbSelectBoundV164){card.dataset.kbSelectBoundV164='1';card.addEventListener('click',e=>{if(!kbSelectModeV163)return;e.preventDefault();e.stopImmediatePropagation();const itemId=card.dataset.kbItemIdV163;if(!itemId)return;toggleKbSelectionV164(itemId,!!e.shiftKey,cards);decorateKbCardsV163()},true)}}else $('.kb-select-check-v163',card)?.remove();card.oncontextmenu=e=>{e.preventDefault();if(kbSelectModeV163){if(!kbSelectionV163.has(id)){kbSelectionV163.add(id);kbLastSelectedIdV164=id;decorateKbCardsV163()}const ids=[...kbSelectionV163];showCustomItemContextMenu(e.clientX,e.clientY,[{label:`Delete ${ids.length} selected`,icon:'ph-trash',danger:true,action:()=>deleteKbIdsV163(ids)}]);return}showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Open item',icon:'ph-eye',action:()=>openItemModal(id,true)},{label:'Delete item',icon:'ph-trash',danger:true,action:()=>deleteKbIdsV163([id])}])}});const view=db.settings?.libraryView||'list';if(view==='polaroid'){const active=(libraryFilter&&libraryFilter!=='all'?libraryFilter:null);const cfg=active?db.settings?.categorySettings?.[active]:null;const count=Math.max(1,Math.min(8,Number(cfg?.polaroidsPerRowV163||db.settings.polaroidsPerRowV163||4)));grid.style.setProperty('--kb-polaroids-per-row-v163',String(count));grid.classList.toggle('kb-polaroid-horizontal-v163',(cfg?.polaroidOrientationV163||db.settings.polaroidOrientationV163)==='horizontal');cards.forEach(card=>{if(cfg?.hideTagsInPolaroidV163||db.settings.hideTagsInPolaroidV163){$('.kb-tags-v163',card)?.remove();return}const id=card.dataset.kbItemIdV163;let tags=[];try{tags=getKnowledgeItemTagsV55(id)||[]}catch{tags=db.phrase_meta?.[id]?.tags||[]}if(tags.length&&!$('.kb-tags-v163',card)){const t=document.createElement('div');t.className='kb-tags-v163';t.innerHTML=tags.map(x=>`<span>#${esc(String(x).replace(/^#/,''))}</span>`).join('');card.appendChild(t)}})}}
     try{const beforeLibrary=renderPhrasesLibrary;renderPhrasesLibrary=function(){const r=beforeLibrary.apply(this,arguments);requestAnimationFrame(decorateKbCardsV163);return r}}catch{}
@@ -2351,7 +2731,7 @@
     // Misc requested UI polish.
     function polishV163(){installAccessoriesV163();try{renderCursorPicker()}catch{}try{renderCompanionPicker()}catch{}cleanCustomTabUiV163();ensureKbPolaroidSettingsV163();polishPlaceholderSettingsV163();ensureKbSelectionToolbarV163();decorateKbCardsV163();removeThemeCreateCardsV163();ensureRecommendationToggleV163();$$('.kb-bulk-preview-btn-v162,.kb-bulk-commit-v162,.goal-save-v162,.rec-save-v162').forEach(b=>b.classList.add('padded-action-v163'))}
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(polishV163,0));else setTimeout(polishV163,0);setTimeout(polishV163,700);
-    try{const beforeSettings=renderSettings;renderSettings=function(){const r=beforeSettings.apply(this,arguments);requestAnimationFrame(()=>{ensureKbPolaroidSettingsV163();polishPlaceholderSettingsV163()});return r}}catch{}
+    try{const beforeSettings=renderSettings;renderSettings=function(){const r=beforeSettings.apply(this,arguments);ensureKbPolaroidSettingsV163();polishPlaceholderSettingsV163();return r}}catch{}
     window.__loggyV163={polish:polishV163,addCursor:()=>ensureAccessoryModalV163('cursor'),addCompanion:()=>ensureAccessoryModalV163('companion'),editGoal:editGoalV163,addQuestion:addQaV163};
 })();
 
@@ -2550,14 +2930,74 @@
     // already-placed components.
     // ------------------------------------------------------------
     const HELP_V164={
-      searchBar:'Search only the component directly below this bar. Example: place it above a Vocabulary component to filter that vocabulary list.',globalSearchV163:'Search every searchable component below this bar in the same tab. Example: find “Korean” across notes, cards, Q&A, and collections.',categoryGroup:'Organize items into named categories. Add categories/items, rename categories by right-clicking, and display compact item cards.',qaV162:'Store reusable questions and answers. Answers can sync with Daily Logs and each question can show the days where it was discussed.',goalsV162:'Track a target manually with +/− or automatically from matching Knowledge Base activity.',tableV162:'Create an editable table and add/remove rows or columns.',customKnowledgeBaseV453:'An independent empty Knowledge Base. It stores its own categories, fields, placeholders, and items. A normal reusable Search Bar can filter it when you choose to add one.',kbDynamicCollectionV162:'Automatically shows Knowledge Base items matching selected categories, tags, placeholder type, learned state, parts state, or metadata.',checklist:'Track a list of things to complete. Example: a study routine or packing list.',cards:'A flexible set of small cards for facts, ideas, or grouped notes.',polaroids:'Visual cards with an image and caption. Example: artwork, vocabulary pictures, or inspiration.',text:'A freeform text block for notes or instructions.',heading:'A section heading used to divide a tab into readable areas.',dailyLog:'Display Daily Log content inside the custom tab.',practiceLog:'Record practice sessions and notes.',progressMeter:'Track progress toward a numeric target.',skillRatings:'Give skills a 1–5 confidence rating.',vocabulary:'Keep words/phrases with meanings and notes.',resources:'Save useful links and references.',milestones:'Track important achievements or checkpoints.',projectGallery:'Display projects with images and notes.',recipeTracker:'Keep recipes or repeatable procedures.'
+      writerDraftV808:'Write and save longer documents with a live word count and an optional distraction-free view. Put documents inside Pages to organize drafts by topic, chapter, or project.',
+      writerRelationshipsV812:'Requires a People component. Add people there first, then connect any two people with a relationship label and notes. People can come from this tab or its nested Pages.',
+      writerReferencesV812:'Link existing items, nested pages, documents, KB records, or external resources so one entry opens another without duplicating the source.',
+      writerStoryCalendarV812:'Keep an in-story or project-event schedule with dates, times, related chapters/stages, and notes, separate from your real Day Logs.',
+      writerManuscriptV812:'Combine Writing Documents from nested chapter Pages into a read-only full manuscript that you can export; edit each original Writing Document to make changes.',
+
+      heading:'Add a title to separate parts of your custom tab.',
+      text:'Add a freeform text box for notes, instructions, or explanations.',
+      search:'Search the component directly below this search bar.',
+      searchBar:'Search the component directly below this search bar.',
+      globalSearchV163:'Search all compatible components below this bar in the same custom tab.',
+      cards:'Create simple cards for facts, ideas, examples, or notes.',
+      polaroids:'Create a visual gallery of image cards with captions.',
+      checklist:'Make a checklist you can check off as you go.',
+      practiceLog:'Keep a record of practice sessions and what you worked on.',
+      progressMeter:'Show progress toward a target manually, or connect it to compatible components so it updates automatically.',
+      skillRatings:'Rate skills so you can see what feels strong or needs more practice.',
+      vocabulary:'Keep words or phrases together with their meanings and notes.',
+      resources:'Add links, videos, PDFs, uploaded files, Notebook pages, and Whiteboards in a visual resource grid. Right-click a resource to edit or delete it.',
+      dailyLogCollection:'Bring selected Daily Log content into this custom tab.',
+      milestones:'Keep important achievements or checkpoints in one place.',
+      projectGallery:'Show projects with images and notes in a visual gallery.',
+      recipeTracker:'Save recipes or other repeatable step-by-step processes.',
+      divider:'Add a line to visually separate sections.',
+      spacer:'Add blank space between components.',
+      categoryGroup:'Organize your own items into named categories.',
+      qaV162:'Keep useful questions and their answers together in one expandable reference.',
+      goalsV162:'Track a goal and your progress toward it.',
+      tableV162:'Organize information in editable rows and columns.',
+      kbDynamicCollectionV162:'Automatically show Knowledge Base items that match filters you choose.',
+      customKnowledgeBaseV453:'Create a separate Knowledge Base inside this tab with its own categories, fields, and items. Add a Search Bar above it if you want to filter it.',
+      knowledgeBaseV431:'Create a separate Knowledge Base inside this tab with its own categories, fields, and items. Add a Search Bar above it if you want to filter it.',
+      dailyConnectionsGraph:'See which Daily Log days are connected through @Day links.',
+      weeklyReviewV53:'Review what you logged recently and see your recent progress in one place.',
+      knowledgeSentenceBuilderV53:'Build and save sentences using items from your Knowledge Base.',
+      alphabetV244:'Make an alphabet or character reference with cards, images, and optional audio.',
+      practiceCategoryV244:'Place this under a card-based component to practice those items as questions and answers.',
+      ankiReviewV244:'Place this under a card-based component to review those items as Anki-style flashcards.',
+      dailyLogsV245:'Show your Daily Logs grid inside a custom tab.',
+      dailyLogV245:'Show your Daily Logs grid inside a custom tab.',
+      dailyLog:'Show Daily Log content inside this custom tab.',
+      aiPromptGeneratorV245:'Create an AI prompt using content you choose from Loggy, such as Knowledge Base or Daily Log items.',
+      kanbanV239:'Organize cards into columns and drag them between stages.',
+      monthlyCalendarV341:'Add a monthly calendar for creating and viewing events.',
+      logsReviewV536:'Review your logs by week, month, or year in one place.',
+      timelineV700:'Place events on a timeline so you can see how things happened over time.',
+      tierMakerV718:'Rank your own items or items from your Knowledge Base by dragging them into tiers such as S, A, B, C, and D.',
+      kbSortBoardV720:'Take items from a Knowledge Base category and sort copies of them into boxes you create.',
+      pageNavigatorV753:'Create a collection of tabs or pages only accessible from this component. Each page is a real nested custom tab that stays out of the main side navigation.',
+      lazyRecommendationV747:'Add a button that recommends matching items from the main Knowledge Base, a custom Knowledge Base on this tab, or a Knowledge Base component on another tab. Filter by category, tags, and fields; preview or skip suggestions, then accept them into a Day Log or a compatible component such as a custom Knowledge Base or item collection. Choose the destination in Recommendation settings.',
+      skillRoadmapV749:'Build either a Standard Roadmap or Module → Section curriculum guide. Nodes can recommend matching Knowledge Base references and practice problems by tag/category, be marked complete, and optionally link to Day Logs. When the source is the Real Knowledge Base, the existing Quizzes tab can use the same roadmap tags.',
+      miroWhiteboardV197:'Open a full-screen whiteboard for drawing, notes, images, and visual planning.',
+      fullNotepadV249:'Open a full-screen notebook for writing, images, and organized pages.',
+      characterProfilesV804:'Create reusable People profiles with your own fields. Add text, long notes, images, links, files, or dates, choose how profiles are displayed, and choose which fields appear on cards.',
+      worldBibleV804:'Create a searchable reference library of places, groups, systems, rules, history, and important objects. Useful for fictional worlds, research topics, or project documentation.',
+      storyBeatsV804:'Map major events or turning points in stages. Record what happened, why it matters, its status, and how it connects to other events.',
+      scenePlannerV804:'Plan and track individual scenes, activities, or steps in a sequence. Record their order, participants, location, purpose, outcome, notes, and progress.',
+      writingTrackerV804:'Log work sessions and word counts toward a target. Track when you worked, what you worked on, and how much you completed.',
+      priorityMatrixV788:'Sort items into four priority boxes. Check them off, or right-click to edit, move, or delete them.',
+      wheelPickerV788:'Put options in the wheel manually or pull them from a Knowledge Base or Checklist, then spin to select one.',
+      containerGroupV788:'Drag existing tab components into one group so they can be organized and moved together.'
     };
     function decoratePaletteHelpV164(palette){
         $$('.custom-component-palette-item',palette).forEach(card=>{
             if(card.querySelector('.custom-palette-help-v164'))return;
             const type=card.dataset.componentType,label=card.querySelector('span')?.textContent?.trim()||'Component';
             const help=document.createElement('span');help.className='custom-palette-help-v164';help.tabIndex=0;help.setAttribute('role','button');help.setAttribute('aria-label',`About ${label}`);help.textContent='?';
-            const tooltip=document.createElement('span');tooltip.className='custom-palette-tooltip-v164';tooltip.textContent=HELP_V164[type]||`${label} component. Add it to your tab, then use Edit mode to configure its content and settings.`;help.appendChild(tooltip);
+            const tooltip=document.createElement('span');tooltip.className='custom-palette-tooltip-v164';tooltip.textContent=HELP_V164[type]||`${label} adds its own reusable workspace and controls to this custom tab.`;help.appendChild(tooltip);
             ['pointerdown','mousedown','click'].forEach(name=>help.addEventListener(name,e=>{e.preventDefault();e.stopPropagation()}));help.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();help.classList.toggle('keyboard-open-v164')}});card.appendChild(help);
         });
     }
@@ -2641,7 +3081,7 @@
     // late-created UI gets its V164 polish.
     function polishV164(){installStyledToolboxAddV164();polishPlaceholderV164();syncPolaroidSettingsVisibilityV164();alignAccessoryHeadingsV164();$$('.quiz-transformation-rules-v58 .quiz-settings-empty-v58,.quiz-settings-empty-v58[data-v58-empty]').forEach(node=>{if(/add a rule if you want field to field practice/i.test(node.textContent||''))node.remove()});}
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',polishV164,{once:true});else polishV164();
-    document.addEventListener('click',e=>{if(e.target.closest?.('#open-settings-btn,#open-tools-btn,.theme-search-create-v161,#open-daily-settings-btn'))setTimeout(polishV164,0)},true);
+    document.addEventListener('click',e=>{if(e.target.closest?.('#open-settings-btn,#open-tools-btn,.theme-search-create-v161,#open-daily-settings-btn'))polishV164()},true);
     window.__loggyV164={enhanceRecommendationDropdownsV164,polishV164,openBrandNewThemeV164};
 })();
 
@@ -2807,9 +3247,9 @@
 
     function normalizedAnswerV169(value) {
         return String(value ?? '')
-            .trim()
-            .replace(/\s+/g, ' ')
-            .toLocaleLowerCase();
+            .normalize('NFKC')
+            .toLocaleLowerCase()
+            .replace(/\s+/g, '');
     }
 
     function answersMatchV169(typed, answer) {
@@ -3728,7 +4168,7 @@
                 </div>
                 <div class="quiz-pinned-status-v169">
                     <span>${correctCount} / ${total} pins correct</span>
-                    <small>Click a pin, type its label, then press Enter. Capitalization does not matter.</small>
+                    <small>Click a pin, type its label, then press Enter. Capitalization and spaces do not matter.</small>
                 </div>
                 ${mode === 'learn' && complete ? `<button type="button" class="icon-btn quiz-pinned-continue-v169"><i class="ph ph-check"></i> Continue</button>` : ''}
                 ${mode === 'anki' ? `<button type="button" class="icon-btn quiz-pinned-show-answer-v169"><i class="ph ph-eye"></i> Show labeled pins</button>` : ''}
@@ -4181,7 +4621,7 @@
         </div>`;
         document.body.appendChild(modal);
         modal.querySelector('.recipe-close-v170').onclick=()=>modal.classList.add('hidden');
-        modal.addEventListener('pointerdown',e=>{if(e.target===modal)modal.classList.add('hidden')});
+        modal.addEventListener('pointerdown',e=>{if(e.target===modal){delete modal.dataset.layoutEditV785;modal.classList.add('hidden');}});
         return modal;
     }
 
@@ -4352,6 +4792,16 @@
                     <select class="kb-primary-field-v171"></select>
                     <p class="progress-hint">Choose what represents items from this category. Pinned Image fields show the actual labeled map/image on Knowledge Base cards.</p>
                 </div>
+                <div class="modal-section kb-primary-image-layout-section-v752 hidden">
+                    <span class="field-label">Image Card Shape</span>
+                    <p class="progress-hint">Pick the card shape visually. Portrait works well for book covers; landscape/wide works well for maps and diagrams.</p>
+                    <div class="kb-primary-image-layout-choices-v752" role="radiogroup" aria-label="Image card shape">
+                        <button type="button" data-primary-image-layout-v752="portrait"><span class="kb-primary-layout-mini-v752 portrait"><i></i></span><small>Portrait</small></button><button type="button" data-primary-image-layout-v752="portrait-small"><span class="kb-primary-layout-mini-v752 portrait-small"><i></i></span><small>Compact Portrait</small></button>
+                        <button type="button" data-primary-image-layout-v752="square"><span class="kb-primary-layout-mini-v752 square"><i></i></span><small>Square</small></button>
+                        <button type="button" data-primary-image-layout-v752="landscape"><span class="kb-primary-layout-mini-v752 landscape"><i></i></span><small>Landscape</small></button>
+                        <button type="button" data-primary-image-layout-v752="wide"><span class="kb-primary-layout-mini-v752 wide"><i></i></span><small>Wide</small></button>
+                    </div>
+                </div>
                 <div class="modal-section">
                     <span class="field-label">Display Scope</span>
                     <select class="kb-primary-scope-v171">
@@ -4379,15 +4829,40 @@
             return field?.name ? `<option value="${attrV171(field.name)}">${escV171(field.name + suffix)}</option>` : '';
         }).join('');
         select.value = cfg?.displayFieldV162 || '__title__';
+        const imageLayoutSectionV752 = qV171('.kb-primary-image-layout-section-v752', modal);
+        const syncImageLayoutChoicesV752 = () => {
+            const selectedField = fields.find(field => field?.name === select.value);
+            const isImagePrimary = selectedField?.kind === 'image' || selectedField?.kind === 'pinnedImage';
+            imageLayoutSectionV752?.classList.toggle('hidden', !isImagePrimary);
+            const savedLayout = String(getCategoryConfig(category)?.primaryImageLayoutV752 || (selectedField?.kind === 'pinnedImage' ? 'landscape' : 'portrait'));
+            qaV171('[data-primary-image-layout-v752]', imageLayoutSectionV752).forEach(button => {
+                const on = button.dataset.primaryImageLayoutV752 === savedLayout;
+                button.classList.toggle('selected', on);
+                button.setAttribute('aria-checked', on ? 'true' : 'false');
+            });
+        };
+        qaV171('[data-primary-image-layout-v752]', imageLayoutSectionV752).forEach(button => {
+            button.onclick = () => {
+                qaV171('[data-primary-image-layout-v752]', imageLayoutSectionV752).forEach(other => {
+                    other.classList.toggle('selected', other === button);
+                    other.setAttribute('aria-checked', other === button ? 'true' : 'false');
+                });
+            };
+        });
+        select.onchange = syncImageLayoutChoicesV752;
+        syncImageLayoutChoicesV752();
         qV171('.kb-primary-scope-v171', modal).value = cfg?.displayScopeV162 === 'kb' ? 'kb' : 'everywhere';
         qV171('.kb-primary-save-v171', modal).onclick = () => {
             const liveCfg = getCategoryConfig(category);
             liveCfg.displayFieldV162 = select.value || '__title__';
             liveCfg.displayScopeV162 = qV171('.kb-primary-scope-v171', modal).value === 'kb' ? 'kb' : 'everywhere';
+            const chosenImageLayoutV752 = qV171('[data-primary-image-layout-v752].selected', modal)?.dataset.primaryImageLayoutV752;
+            if (chosenImageLayoutV752) liveCfg.primaryImageLayoutV752 = chosenImageLayoutV752;
             db.settings.categorySettings ||= {};
             db.settings.categorySettings[category] ||= liveCfg;
             db.settings.categorySettings[category].displayFieldV162 = liveCfg.displayFieldV162;
             db.settings.categorySettings[category].displayScopeV162 = liveCfg.displayScopeV162;
+            if (liveCfg.primaryImageLayoutV752) db.settings.categorySettings[category].primaryImageLayoutV752 = liveCfg.primaryImageLayoutV752;
             saveDb();
             modal.classList.add('hidden');
             try { renderPhrasesLibrary(qV171('#phrases-search-bar')?.value || ''); } catch {}
@@ -4395,10 +4870,11 @@
         };
         modal.classList.remove('hidden');
     }
+    window.__loggyOpenPrimaryDisplayV171 = openPrimaryDisplayModalV171;
     document.addEventListener('contextmenu', event => {
-        const button = event.target.closest?.('#settings-category-tabs .kb-category-grid-item:not(.kb-category-grid-add)');
+        const button = event.target.closest?.('#settings-category-tabs .kb-category-grid-item:not(.kb-category-grid-add), #library-filter-tabs .filter-tab[data-filter]:not([data-filter="all"])');
         if (!button) return;
-        const category = String(button.textContent || '').trim();
+        const category = String(button.dataset?.filter || button.textContent || '').trim();
         if (!category) return;
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -4437,6 +4913,33 @@
             return data?.image ? { field, data } : null;
         } catch { return null; }
     }
+    function primaryImageDataV721(itemId) {
+        try {
+            const category = db.phrase_meta?.[itemId]?.type;
+            if (!category) return null;
+            const cfg = db.settings?.categorySettings?.[category];
+            const fieldName = String(cfg?.displayFieldV162 || '');
+            if (!fieldName || fieldName === '__title__') return null;
+            const field = getKnowledgeFieldDefs(category).find(entry => entry?.name === fieldName && entry?.kind === 'image');
+            if (!field) return null;
+            const raw = db.phrase_meta?.[itemId]?.custom_fields?.[fieldName];
+            // Image uploads are data URLs, while URL fields may be plain strings.
+            // Some restored KB exports contain the serialized image descriptor;
+            // do not pass that JSON string straight to <img src>.
+            let value = typeof raw === 'object' && raw !== null
+                ? String(raw.src || raw.url || raw.image || raw.dataUrl || '')
+                : String(raw || '').trim();
+            if (value.startsWith('{')) {
+                try {
+                    const parsed = JSON.parse(value);
+                    value = String(parsed?.src || parsed?.url || parsed?.image || parsed?.dataUrl || '').trim();
+                } catch {}
+            }
+            if (!value) return null;
+            return { field, src:value };
+        } catch { return null; }
+    }
+
     function primaryMapHtmlV171(data) {
         return window.__loggyPinnedImageV169?.renderStage?.(data, {
             labeled:true,
@@ -4451,16 +4954,61 @@
         qaV171('.phrase-card,.polaroid-card', grid).forEach(card => {
             const itemId = card.dataset.kbItemIdV163 || card.dataset.kbItemIdV162 || card.dataset.itemId || '';
             qV171(':scope > .kb-primary-map-v171', card)?.remove();
-            if (!itemId) return;
+            // Keep a still-valid image element mounted: recreating data-URL book
+            // covers on every KB layout pass can restart decoding/flicker.
+            const oldPrimaryImageV758 = qV171(':scope > .kb-primary-image-v721', card);
+            card.classList.remove('has-primary-image-v721');
+            card.removeAttribute('data-primary-image-layout-v752');
+            if (!itemId) { oldPrimaryImageV758?.remove(); return; }
+
             const pinned = primaryPinnedDataV171(itemId);
-            if (!pinned) return;
-            const wrap = document.createElement('div');
-            wrap.className = 'kb-primary-map-v171';
-            wrap.innerHTML = primaryMapHtmlV171(pinned.data);
-            card.insertBefore(wrap, card.firstChild);
-            // V621: a map polaroid uses the map itself as its one media panel.
-            // The generic polaroid media slot used to remain underneath it,
-            // which produced the duplicate second image/placeholder.
+            if (pinned) {
+                oldPrimaryImageV758?.remove();
+                try {
+                    const categoryV752 = db.phrase_meta?.[itemId]?.type;
+                    const layoutV752 = String(db.settings?.categorySettings?.[categoryV752]?.primaryImageLayoutV752 || 'landscape');
+                    card.dataset.primaryImageLayoutV752 = ['portrait','portrait-small','square','landscape','wide'].includes(layoutV752) ? layoutV752 : 'landscape';
+                } catch {}
+                const wrap = document.createElement('div');
+                wrap.className = 'kb-primary-map-v171';
+                wrap.innerHTML = primaryMapHtmlV171(pinned.data);
+                card.insertBefore(wrap, card.firstChild);
+                if (card.classList.contains('polaroid-card')) {
+                    qV171(':scope > .polaroid-video', card)?.remove();
+                }
+                return;
+            }
+
+            const image = primaryImageDataV721(itemId);
+            if (!image) { oldPrimaryImageV758?.remove(); return; }
+            try {
+                const categoryV752 = db.phrase_meta?.[itemId]?.type;
+                const layoutV752 = String(db.settings?.categorySettings?.[categoryV752]?.primaryImageLayoutV752 || 'portrait');
+                card.dataset.primaryImageLayoutV752 = ['portrait','portrait-small','square','landscape','wide'].includes(layoutV752) ? layoutV752 : 'portrait';
+            } catch {}
+            const wrap = oldPrimaryImageV758 || document.createElement('div');
+            wrap.className = 'kb-primary-image-v721';
+            let picture = wrap.querySelector('img');
+            if (!picture) {
+                picture = document.createElement('img');
+                picture.alt = '';
+                picture.loading = 'lazy';
+                wrap.replaceChildren(picture);
+            }
+            // Set the exact stored URL via the DOM property (not HTML string
+            // interpolation). Preserve working uploaded covers between redraws.
+            if (picture.getAttribute('src') !== image.src) picture.setAttribute('src', image.src);
+            card.classList.add('has-primary-image-v721');
+            if (wrap.parentElement !== card || card.firstChild !== wrap) card.insertBefore(wrap, card.firstChild);
+            const shapeV758 = card.dataset.primaryImageLayoutV752;
+            const widthV758 = { 'portrait-small':92,portrait:210,square:235,landscape:315,wide:330 }[shapeV758];
+            if (widthV758 && !card.classList.contains('polaroid-card')) {
+                const width = `min(${widthV758}px, 100%)`;
+                card.style.setProperty('width',width,'important');
+                card.style.setProperty('max-width',`${widthV758}px`,'important');
+                card.style.setProperty('flex',`0 1 ${widthV758}px`,'important');
+                card.style.setProperty('min-width','0','important');
+            }
             if (card.classList.contains('polaroid-card')) {
                 qV171(':scope > .polaroid-video', card)?.remove();
             }
@@ -4927,7 +5475,7 @@
         catch { return ''; }
     }
     function pinFieldV172(itemId) { return window.__loggyPinnedImageV169?.fieldForItem?.(itemId) || null; }
-    function answerMatchesV172(a, b) { return window.__loggyPinnedImageV169?.answersMatch?.(a, b) ?? (String(a).trim().toLowerCase() === String(b).trim().toLowerCase()); }
+    function answerMatchesV172(a, b) { return window.__loggyPinnedImageV169?.answersMatch?.(a, b) ?? (String(a).normalize('NFKC').toLocaleLowerCase().replace(/\s+/g,'') === String(b).normalize('NFKC').toLocaleLowerCase().replace(/\s+/g,'')); }
     function pinStageV172(data, state = {}, opts = {}) {
         const reveal = state.reveal || new Set();
         const correct = state.correct || new Set();
@@ -4971,7 +5519,7 @@
         const st=studyStateV172.get(key)||{correct:new Set(),reveal:new Set(),index:0,active:''}; studyStateV172.set(key,st);
         if(parts) st.active=String(pins[Math.max(0,Math.min(st.index,pins.length-1))]?.id||'');
         const complete=st.correct.size>=pins.length&&pins.length>0;
-        area.innerHTML=`<div class="map-study-wrap-v172"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>${parts?'Label this pin':'Label the pins'}</strong><span>${parts?`${Math.min(st.index+1,pins.length)} / ${pins.length}`:`${st.correct.size} / ${pins.length} correct`}</span></div>${pinStageV172(pinned.data,st,{active:st.active})}${!complete?`<div class="map-study-answer-v172"><span>${st.active?'Selected pin':'Click a pin to answer'}</span><div><input type="text" class="map-study-input-v172" placeholder="Type label…" autocomplete="off" spellcheck="false" ${st.active?'':'disabled'}><button type="button" class="icon-btn map-study-submit-v172" ${st.active?'':'disabled'}><i class="ph ph-arrow-return-left"></i> Enter</button></div><small class="map-study-status-v172">Capitalization does not matter.</small></div>`:''}</div>${complete?(mode==='learn'?`<button type="button" class="icon-btn map-study-continue-v172"><i class="ph ph-check"></i> Continue</button>`:`<div class="quiz-pinned-anki-actions-v169"><button class="icon-btn still-learning-btn map-study-again-v172"><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button><button class="icon-btn got-it-btn map-study-good-v172"><i class="ph ph-check"></i> Got It!</button></div>`):''}</div>`;
+        area.innerHTML=`<div class="map-study-wrap-v172"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>${parts?'Label this pin':'Label the pins'}</strong><span>${parts?`${Math.min(st.index+1,pins.length)} / ${pins.length}`:`${st.correct.size} / ${pins.length} correct`}</span></div>${pinStageV172(pinned.data,st,{active:st.active})}${!complete?`<div class="map-study-answer-v172"><span>${st.active?'Selected pin':'Click a pin to answer'}</span><div><input type="text" class="map-study-input-v172" placeholder="Type label…" autocomplete="off" spellcheck="false" ${st.active?'':'disabled'}><button type="button" class="icon-btn map-study-submit-v172" ${st.active?'':'disabled'}><i class="ph ph-arrow-return-left"></i> Enter</button></div><small class="map-study-status-v172">Capitalization and spaces do not matter.</small></div>`:''}</div>${complete?(mode==='learn'?`<button type="button" class="icon-btn map-study-continue-v172"><i class="ph ph-check"></i> Continue</button>`:`<div class="quiz-pinned-anki-actions-v169"><button class="icon-btn still-learning-btn map-study-again-v172"><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button><button class="icon-btn got-it-btn map-study-good-v172"><i class="ph ph-check"></i> Got It!</button></div>`):''}</div>`;
         qa('[data-map-pin-v172]',area).forEach(btn=>btn.onclick=e=>{e.preventDefault();e.stopPropagation();const id=btn.dataset.mapPinV172;if(parts&&id!==st.active)return;if(st.correct.has(id))return;st.active=id;renderMapTypedStudyV172(area,itemId,pinned,mode)});
         const submit=()=>{const input=q('.map-study-input-v172',area);if(!input||!st.active)return;const pin=pins.find(p=>String(p.id)===st.active);if(!pin||!input.value.trim())return;const status=q('.map-study-status-v172',area);if(answerMatchesV172(input.value,pin.label)){st.correct.add(st.active);st.reveal.add(st.active);if(parts){st.index++;if(st.index<pins.length)st.active=String(pins[st.index].id);else st.active='';}else st.active='';setTimeout(()=>renderMapTypedStudyV172(area,itemId,pinned,mode),120)}else{if(status){status.textContent='Try again.';status.classList.add('is-wrong-v172')}input.select()}};
         q('.map-study-submit-v172',area)?.addEventListener('click',submit);
@@ -7549,9 +8097,8 @@ DASHBOARD TITLE NOTE:
         };
     } catch {}
 
-    // V222: right-clicking a custom tab icon exposes exactly one action:
-    // delete/move the tab to Trash. Tab Settings remains available elsewhere,
-    // but never appears in this context menu.
+    // V752: custom-tab right-click menu owns Theme, Layout, and Settings.
+    // Deletion remains inside Tab Settings so the nav menu stays focused.
     document.addEventListener('contextmenu', event => {
         const button = event.target?.closest?.('.custom-tab-nav-btn[data-custom-tab-id]');
         if (!button) return;
@@ -7563,40 +8110,11 @@ DASHBOARD TITLE NOTE:
         event.stopImmediatePropagation();
 
         const tabForMenuV249 = typeof getCustomTab === 'function' ? getCustomTab(tabId) : null;
-        const specialTabV249 = !!tabForMenuV249 && (
-            tabForMenuV249.templateIdV53 === 'whiteboard-v197' ||
-            tabForMenuV249.templateIdV53 === 'notepad-v249' ||
-            (Array.isArray(tabForMenuV249.components) && tabForMenuV249.components.some(component => component?.type === 'miroWhiteboardV197' || component?.type === 'fullNotepadV249'))
-        );
-        const menuItemsV249 = [];
-        if (specialTabV249 && typeof openCustomTabSettingsModal === 'function') {
-            menuItemsV249.push({ label:'Tab Settings', icon:'ph-sliders-horizontal', action:() => openCustomTabSettingsModal(tabId) });
-        }
-        menuItemsV249.push({
-            label: 'Delete tab',
-            icon: 'ph-trash',
-            danger: true,
-            action: async () => {
-                const tab = typeof getCustomTab === 'function' ? getCustomTab(tabId) : null;
-                const confirmed = typeof showAppConfirm === 'function'
-                    ? await showAppConfirm({
-                        title: 'Move this tab to Trash?',
-                        message: tab?.name
-                            ? `“${tab.name}” and everything inside it can be restored later from Trash.`
-                            : 'This tab and everything inside it can be restored later from Trash.',
-                        confirmLabel: 'Move to Trash'
-                    })
-                    : false;
-                if (!confirmed) return;
-                if (typeof moveCustomTabToTrash === 'function') moveCustomTabToTrash(tabId);
-                try { saveDb(); } catch {}
-                document.getElementById(`custom-tab-view-${tabId}`)?.remove();
-                try { renderCustomTabNavigation(); } catch {}
-                try { activeCustomTabId = null; } catch {}
-                try { customTabEditMode = false; } catch {}
-                try { switchView(gridView); } catch {}
-            }
-        });
+        const menuItemsV249 = [
+            {label:'Edit Theme',icon:'ph-paint-brush',action:()=>{try{window.__loggyThemeBuilderV307OpenEdit?.(String(db?.settings?.theme||'default'))}catch{}}},
+            {label:'Edit Tab Layout',icon:'ph-layout',action:()=>{try{window.__loggyEnterCustomTabEditV752?.(tabId)}catch{}}},
+            {label:'Settings',icon:'ph-sliders-horizontal',action:()=>{try{openCustomTabSettingsModal?.(tabId)}catch{}}}
+        ];
         showCustomItemContextMenu(event.clientX, event.clientY, menuItemsV249);
     }, true);
 
@@ -8308,7 +8826,7 @@ DASHBOARD TITLE NOTE:
             .whiteboard-tab-view-v198,
             .whiteboard-tab-view-v198.custom-tab-view.view.active{position:fixed!important;inset:0!important;left:0!important;right:0!important;top:0!important;bottom:0!important;transform:none!important;width:100vw!important;height:100dvh!important;min-width:100vw!important;min-height:100dvh!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;z-index:2147480000!important;background:#F9F9F9!important;pointer-events:auto!important;visibility:visible!important}
             .whiteboard-runtime-host-v198{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;overflow:hidden!important;background:#F9F9F9!important;pointer-events:auto!important;visibility:visible!important}
-            body.whiteboard-tab-active-v198>*:not(.whiteboard-tab-view-v198):not(script):not(style){visibility:hidden!important;pointer-events:none!important}
+            body.whiteboard-tab-active-v198>*:not(.whiteboard-tab-view-v198):not(script):not(style):not([id^="loggy-recorder-"]){visibility:hidden!important;pointer-events:none!important}
             body.whiteboard-tab-active-v198>.whiteboard-tab-view-v198{visibility:visible!important;pointer-events:auto!important;display:block!important}
             .whiteboard-runtime-loading-v198{position:fixed;inset:0;display:grid;place-items:center;font:600 14px/1.4 system-ui,sans-serif;color:#1A1A1A;background:#F9F9F9}
 
@@ -8348,7 +8866,7 @@ DASHBOARD TITLE NOTE:
             document.querySelector('link[data-loggy-whiteboard-css-v197]')?.remove();
             link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = '/template-whiteboard.css?v=523';
+            link.href = '/template-whiteboard.css?v=734';
             link.dataset.loggyWhiteboardCssV198 = '1';
             document.head.appendChild(link);
         }
@@ -8363,7 +8881,7 @@ DASHBOARD TITLE NOTE:
                 return;
             }
             const script = document.createElement('script');
-            script.src = '/template-whiteboard.js?v=523';
+            script.src = '/template-whiteboard.js?v=734';
             script.async = true;
             script.dataset.loggyWhiteboardJsV198 = '1';
             script.addEventListener('load', () => resolve(window.LoggyWhiteboardV198), { once: true });
@@ -8416,11 +8934,11 @@ DASHBOARD TITLE NOTE:
                 id: WHITEBOARD_TEMPLATE_ID_V198,
                 name: 'Whiteboard',
                 icon: 'ph-selection-background',
-                description: 'A full-screen multi-board canvas with sticky notes, movable images, text boxes, drawing, lasso, erasers, connections, and visual board previews.'
+                description: 'Draw and organize ideas on a visual canvas.'
             });
         } else {
             const item = CUSTOM_TAB_TEMPLATES_V53?.find?.(t => t.id === WHITEBOARD_TEMPLATE_ID_V198);
-            if (item) item.description = 'A full-screen multi-board canvas with sticky notes, movable images, text boxes, drawing, lasso, erasers, connections, and visual board previews.';
+            if (item) item.description = 'Draw and organize ideas on a visual canvas.';
         }
 
         const buildBeforeWhiteboardV198 = buildPrebuiltTabComponentsV53;
@@ -9075,6 +9593,8 @@ DASHBOARD TITLE NOTE:
             if(host && window.LoggyWhiteboardV198) window.LoggyWhiteboardV198.openBoard(host,boardId);
         });
     }
+
+    window.__loggyOpenWhiteboardV198 = openExactWhiteboardV198;
 
     function ensureDailyWhiteboardLinksV198() {
         ensureWhiteboardBootstrapStyleV198();
@@ -10632,17 +11152,35 @@ DASHBOARD TITLE NOTE:
     } catch {}
 
     const HELP_V245 = {
-        divider:'A simple visual divider. Drop it anywhere you want a clean section break; it has no required settings.',
-        spacer:'Adds empty vertical breathing room between components. Its only purpose is spacing.',
-        text:'A freeform text area. Type directly into it; use it for instructions, notes, explanations, or context.',
-        heading:'Adds a section heading so you can visually group the components below it.',
-        alphabetV244:'Character/alphabet cards with categories and optional image/audio. Click a card to hear it; right-click a card to edit it.',
-        practiceCategoryV244:'Place directly below Alphabet Cards, Cards, Vocabulary, or Polaroids. In Edit mode choose which field is the question and which is the answer; image fields are supported.',
-        ankiReviewV244:'Place directly below Alphabet Cards, Cards, Vocabulary, or Polaroids. In Edit mode choose the flashcard front/back fields. Review uses Still Learning and Got It.',
-        dailyLogsV245:'Embeds an interactive Daily Logs day grid in a custom tab. Click a day to open it or + to add the next day.',
-        aiPromptGeneratorV245:'Build an AI prompt that makes one thing (video, worksheet, story, image, etc.) from selected Daily Log items, Knowledge Base items, or another custom component.',
-        dropdownV239:'Expandable container that can hold other components. Text inside a Dropdown is editable directly in place.',
-        kanbanV239:'Drag cards between columns. Right-click cards or column menus to edit/remove them.'
+      writerDraftV808:'Write and save longer documents with a live word count and an optional distraction-free view. Put documents inside Pages to organize drafts by topic, chapter, or project.',
+      writerRelationshipsV812:'Requires a People component. Add people there first, then connect any two people with a relationship label and notes. People can come from this tab or its nested Pages.',
+      writerReferencesV812:'Link existing items, nested pages, documents, KB records, or external resources so one entry opens another without duplicating the source.',
+      writerStoryCalendarV812:'Keep an in-story or project-event schedule with dates, times, related chapters/stages, and notes, separate from your real Day Logs.',
+      writerManuscriptV812:'Combine Writing Documents from nested chapter Pages into a read-only full manuscript that you can export; edit each original Writing Document to make changes.',
+
+        divider:'Add a line to visually separate sections.',
+        spacer:'Add blank space between components.',
+        text:'Add a freeform text box for notes, instructions, or explanations.',
+        heading:'Add a title to separate parts of your custom tab.',
+        alphabetV244:'Make an alphabet or character reference with cards, images, and optional audio.',
+        practiceCategoryV244:'Place this under a card-based component to practice those items as questions and answers.',
+        ankiReviewV244:'Place this under a card-based component to review those items as Anki-style flashcards.',
+        dailyLogsV245:'Show your Daily Logs grid inside a custom tab.',
+        aiPromptGeneratorV245:'Create an AI prompt using content you choose from Loggy, such as Knowledge Base or Daily Log items.',
+          kanbanV239:'Organize cards into columns and drag them between stages.',
+        monthlyCalendarV341:'Add a monthly calendar for creating and viewing events.',
+        timelineV700:'Place events on a timeline so you can see how things happened over time.',
+        tierMakerV718:'Rank your own items or items from your Knowledge Base by dragging them into tiers such as S, A, B, C, and D.',
+        kbSortBoardV720:'Take items from a Knowledge Base category and sort copies of them into boxes you create.',
+      pageNavigatorV753:'Create a collection of tabs or pages only accessible from this component. Each page is a real nested custom tab that stays out of the main side navigation.',
+        lazyRecommendationV747:'Add a button that recommends matching items from the main Knowledge Base, a custom Knowledge Base on this tab, or a Knowledge Base component on another tab. Filter by category, tags, and fields; preview or skip suggestions, then accept them into a Day Log or a compatible component such as a custom Knowledge Base or item collection. Choose the destination in Recommendation settings.',
+        skillRoadmapV749:'Build a Standard Roadmap or Module → Section curriculum guide with completion tracking, recommended Knowledge Base references/practice by tag, and optional Day Log links. Real-KB roadmaps can hand the same tags to the existing Quizzes tab.',
+        logsReviewV536:'Review your logs by week, month, or year in one place.',
+        customKnowledgeBaseV453:'Create a separate Knowledge Base inside this tab with its own categories, fields, and items. Add a Search Bar above it if you want to filter it.',
+        kbDynamicCollectionV162:'Automatically show Knowledge Base items that match filters you choose.',
+        dailyConnectionsGraph:'See which Daily Log days are connected through @Day links.',
+        weeklyReviewV53:'Review what you logged recently and see your recent progress in one place.',
+        knowledgeSentenceBuilderV53:'Build and save sentences using items from your Knowledge Base.'
     };
     try {
         const beforePaletteV245 = renderCustomComponentPalette;
@@ -10652,12 +11190,20 @@ DASHBOARD TITLE NOTE:
                 const tip = q('.custom-palette-tooltip-v164', card);
                 const type = card.dataset.componentType;
                 if (tip && HELP_V245[type]) tip.textContent = HELP_V245[type];
+                const writerHelpV806 = {
+                    characterProfilesV804:'Create reusable People profiles with your own fields. Add text, long notes, images, links, files, or dates, choose how profiles are displayed, and choose which fields appear on cards.',
+                    worldBibleV804:'Create a searchable reference library of places, groups, systems, rules, history, and important objects. Useful for fictional worlds, research topics, or project documentation.',
+                    storyBeatsV804:'Map major events or turning points in stages. Record what happened, why it matters, its status, and how it connects to other events.',
+                    scenePlannerV804:'Plan and track individual scenes, activities, or steps in a sequence. Record their order, participants, location, purpose, outcome, notes, and progress.',
+                    writingTrackerV804:'Log work sessions and word counts toward a target. Track when you worked, what you worked on, and how much you completed.'
+                };
+                if (tip && writerHelpV806[type]) tip.textContent = writerHelpV806[type];
                 // Never leave the old one-size-fits-all "use Edit mode" sentence on
                 // components where it is inaccurate (Spacer/Divider are the obvious
                 // examples, but this also protects future zero-config components).
                 if (tip && /use edit mode to configure/i.test(tip.textContent)) {
                     const label = card.querySelector('span')?.textContent?.trim() || 'This component';
-                    tip.textContent = `${label} adds its matching content block to the custom tab. Its controls appear directly on the component when that component supports them.`;
+                    tip.textContent = `${label} adds its own reusable workspace and controls to this custom tab.`;
                 }
             });
             return result;
@@ -10666,7 +11212,7 @@ DASHBOARD TITLE NOTE:
 
     // ------------------------------------------------------------
     // Q&A/Dropdown-style accordion: do not repeat the question inside;
-    // show the whole summary, and use an icon-only edit button bottom-right.
+    // keep the whole summary and a single centered edit-answer pencil in the question row.
     // ------------------------------------------------------------
     const qaOpenV245 = new Set();
     async function editAnswerV245(tab, component, item) {
@@ -10681,7 +11227,7 @@ DASHBOARD TITLE NOTE:
     }
     function renderQaV245(tab, component, content) {
         component.items = Array.isArray(component.items) ? component.items : [];
-        content.innerHTML = `<div class="custom-collection-header qa-header-v163"><h2>${esc245(component.title||'Q&A')}</h2><button type="button" class="small-icon-btn qa-add-v245" title="Add question"><i class="ph ph-plus"></i></button></div><div class="qa-list-v163"></div>`;
+        content.innerHTML = `<div class="custom-collection-header qa-header-v163"><h2>${esc245(component.title||'Questions & Answers')}</h2><button type="button" class="small-icon-btn qa-add-v245" title="Add question"><i class="ph ph-plus"></i></button></div><div class="qa-list-v163"></div>`;
         q('.qa-add-v245',content).onclick=async()=>{
             const v=await showAppFormModal({title:'New Question',submitLabel:'Add',fields:[{name:'question',label:'Question',type:'textarea',rows:3},{name:'answer',label:'Answer (optional)',type:'textarea',rows:5}]});
             if(!v||!String(v.question||'').trim())return;
@@ -10692,11 +11238,14 @@ DASHBOARD TITLE NOTE:
         component.items.forEach(item=>{
             const open=qaOpenV245.has(item.id),refs=Array.isArray(item.references)?item.references:[];
             const row=document.createElement('article');row.className=`qa-row-v163 custom-searchable-item${open?' open':''}`;row.dataset.searchText=`${item.question||''} ${item.answer||''}`.toLowerCase();
-            row.innerHTML=`<button type="button" class="qa-summary-v163 qa-summary-v245" aria-expanded="${open?'true':'false'}"><i class="ph ph-caret-right qa-caret-v163"></i><span class="qa-question-text-v163">${esc245(item.question||'Untitled question')}</span><span class="qa-answer-state-v163">${item.answer?'<i class="ph ph-check-circle"></i>':'<i class="ph ph-chat-circle"></i>'}</span></button><div class="qa-detail-v163 ${open?'':'hidden'}"><div class="qa-answer-copy-v163">${item.answer?esc245(item.answer).replace(/\n/g,'<br>'):'<span class="qa-empty-answer-v163">No answer yet.</span>'}</div><div class="qa-detail-actions-v163 qa-detail-actions-v245"><button type="button" class="small-icon-btn qa-answer-edit-v245" title="Edit answer" aria-label="Edit answer"><i class="ph ph-pencil-simple"></i></button></div><div class="qa-references-v163">${refs.length?refs.map(r=>`<button type="button" class="qa-day-ref-v163" data-day="${Number(r.day)||0}"><i class="ph ph-calendar-blank"></i> Day ${Number(r.day)||0}</button>`).join(''):'<span>No Daily Log references yet.</span>'}</div></div>`;
-            q('.qa-summary-v163',row).onclick=()=>{qaOpenV245.has(item.id)?qaOpenV245.delete(item.id):qaOpenV245.add(item.id);renderCustomTabView(tab.id)};
-            q('.qa-answer-edit-v245',row).onclick=()=>editAnswerV245(tab,component,item);
+            row.innerHTML=`<div class="qa-summary-v163 qa-summary-v245" role="button" tabindex="0" aria-expanded="${open?'true':'false'}"><i class="ph ph-caret-right qa-caret-v163"></i><span class="qa-question-text-v163">${esc245(item.question||'Untitled question')}</span><button type="button" class="qa-summary-edit-v684" title="${item.answer?'Edit answer':'Add answer'}" aria-label="${item.answer?'Edit answer':'Add answer'}"><i class="ph ph-pencil-simple"></i></button></div><div class="qa-detail-v163 ${open?'':'hidden'}"><div class="qa-answer-copy-v163">${item.answer?esc245(item.answer).replace(/\n/g,'<br>'):'<span class="qa-empty-answer-v163">No answer yet.</span>'}</div><div class="qa-references-v163">${refs.length?refs.map(r=>`<button type="button" class="qa-day-ref-v163" data-day="${Number(r.day)||0}"><i class="ph ph-calendar-blank"></i> Day ${Number(r.day)||0}</button>`).join(''):'<span>No Daily Log references yet.</span>'}</div></div>`;
+            const summaryV684=q('.qa-summary-v163',row);
+            const toggleQaV684=()=>{qaOpenV245.has(item.id)?qaOpenV245.delete(item.id):qaOpenV245.add(item.id);renderCustomTabView(tab.id)};
+            summaryV684.onclick=e=>{if(e.target.closest('.qa-summary-edit-v684'))return;toggleQaV684()};
+            summaryV684.onkeydown=e=>{if(e.target.closest('.qa-summary-edit-v684'))return;if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleQaV684()}};
+            q('.qa-summary-edit-v684',row).onclick=e=>{e.preventDefault();e.stopPropagation();editAnswerV245(tab,component,item)};
             qa('.qa-day-ref-v163',row).forEach(b=>b.onclick=()=>{try{openDayLog(Number(b.dataset.day))}catch{}});
-            row.oncontextmenu=e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit answer',icon:'ph-chat-text',action:()=>editAnswerV245(tab,component,item)},{label:'Delete question',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Question',message:'Delete this question?',confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x.id!==item.id);await saveDb();renderCustomTabView(tab.id)}}])};
+            row.oncontextmenu=e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit answer',icon:'ph-pencil-simple',action:()=>editAnswerV245(tab,component,item)},{label:'Delete question',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Question',message:'Delete this question?',confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x.id!==item.id);await saveDb();renderCustomTabView(tab.id)}}])};
             list.appendChild(row);
         });
         if(!component.items.length)list.innerHTML='<div class="custom-feature-empty-v162">No questions yet.</div>';
@@ -11149,7 +11698,7 @@ DASHBOARD TITLE NOTE:
             html.notepad-tab-active-v249,body.notepad-tab-active-v249{overflow:hidden!important;width:100%!important;height:100%!important}
             .notepad-tab-view-v249,.notepad-tab-view-v249.custom-tab-view.view.active{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-width:100vw!important;min-height:100dvh!important;margin:0!important;padding:0!important;overflow:hidden!important;z-index:2147480000!important;background:#f2f0ea!important;pointer-events:auto!important;visibility:visible!important}
             .notepad-runtime-host-v249{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;overflow:hidden!important;background:#f2f0ea!important;pointer-events:auto!important;visibility:visible!important}
-            body.notepad-tab-active-v249>*:not(.notepad-tab-view-v249):not(script):not(style){visibility:hidden!important;pointer-events:none!important}
+            body.notepad-tab-active-v249>*:not(.notepad-tab-view-v249):not(script):not(style):not([id^="loggy-recorder-"]){visibility:hidden!important;pointer-events:none!important}
             body.notepad-tab-active-v249>.notepad-tab-view-v249{visibility:visible!important;pointer-events:auto!important;display:block!important}
             .notepad-runtime-loading-v249{position:fixed;inset:0;display:grid;place-items:center;background:#f2f0ea;color:#202124;font:600 14px/1.4 system-ui,sans-serif}
             .daily-notepad-links-v249{margin-top:18px}.daily-notepad-links-list-v249{display:grid;gap:10px;margin-top:10px}
@@ -11180,7 +11729,7 @@ DASHBOARD TITLE NOTE:
         if (!document.querySelector('link[data-loggy-notepad-v250-css]')) {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = '/template-notepad-v250.css?v=503';
+            link.href = '/template-notepad-v250.css?v=734';
             link.dataset.loggyNotepadV250Css = '1';
             document.head.appendChild(link);
         }
@@ -11194,7 +11743,7 @@ DASHBOARD TITLE NOTE:
                 return;
             }
             const script = document.createElement('script');
-            script.src = '/template-notepad-v250.js?v=503';
+            script.src = '/template-notepad-v250.js?v=734';
             script.async = true;
             script.dataset.loggyNotepadV250Js = '1';
             script.addEventListener('load', resolve, {once:true});
@@ -11214,7 +11763,7 @@ DASHBOARD TITLE NOTE:
             if (!document.querySelector('link[data-loggy-notepad-css-v249]')) {
                 const link = document.createElement('link');
                 link.rel = 'stylesheet';
-                link.href = '/template-notepad.css?v=503';
+                link.href = '/template-notepad.css?v=734';
                 link.dataset.loggyNotepadCssV249 = '1';
                 document.head.appendChild(link);
             }
@@ -11227,7 +11776,7 @@ DASHBOARD TITLE NOTE:
                     return;
                 }
                 const script = document.createElement('script');
-                script.src = '/template-notepad.js?v=503';
+                script.src = '/template-notepad.js?v=734';
                 script.async = true;
                 script.dataset.loggyNotepadJsV249 = '1';
                 script.addEventListener('load',() => resolve(window.LoggyNotepadV249),{once:true});
@@ -11318,13 +11867,6 @@ DASHBOARD TITLE NOTE:
                     if (!component?.id) return;
                     targets.push({kind:'component',label:componentLabelV249(component),subtitle:`${tab.name || 'Tab'} · component`,icon:'ph-layout',tabId:String(tab.id),componentId:String(component.id)});
                     collectComponentItemsV249(tab,component,targets);
-                    if (component.type === 'dropdownV239' && Array.isArray(component.children)) {
-                        component.children.forEach(child => {
-                            if (!child?.id) return;
-                            targets.push({kind:'component',label:componentLabelV249(child),subtitle:`${tab.name || 'Tab'} · ${componentLabelV249(component)}`,icon:'ph-layout',tabId:String(tab.id),componentId:String(child.id),parentComponentId:String(component.id)});
-                            collectComponentItemsV249(tab,child,targets);
-                        });
-                    }
                 });
             });
         } catch (error) { console.warn('Notepad link catalog failed',error); }
@@ -11358,7 +11900,7 @@ DASHBOARD TITLE NOTE:
     // Register the built-in blueprint through + Create Tab.
     try {
         if (Array.isArray(CUSTOM_TAB_TEMPLATES_V53) && !CUSTOM_TAB_TEMPLATES_V53.some(template => template.id === NOTEPAD_TEMPLATE_ID_V249)) {
-            CUSTOM_TAB_TEMPLATES_V53.push({id:NOTEPAD_TEMPLATE_ID_V249,name:'Notebook',icon:'ph-notebook',description:'A full-screen multi-page notebook with page categories, paper styles, movable images, drawing tools, and exact-page links from Daily Logs.'});
+            CUSTOM_TAB_TEMPLATES_V53.push({id:NOTEPAD_TEMPLATE_ID_V249,name:'Notebook',icon:'ph-notebook',description:'Write and organize notes across multiple pages.'});
         }
         const buildBeforeNotepadV249 = buildPrebuiltTabComponentsV53;
         buildPrebuiltTabComponentsV53 = function(templateId) {
@@ -11820,6 +12362,7 @@ DASHBOARD TITLE NOTE:
     }
     component.fields.forEach((field, index) => {
       formFields.push({name:`field_${index}`,label:field,value:String(current.values?.[field] || ''),type:'textarea'});
+      if (/image|photo|picture|portrait/i.test(field)) formFields.push({name:`upload_${index}`,label:`Upload ${field} (optional)`,type:'file',accept:'image/*'});
     });
     const values = await showAppFormModal({
       title:item ? 'Edit Knowledge Base Item' : 'Add Knowledge Base Item',
@@ -11830,7 +12373,7 @@ DASHBOARD TITLE NOTE:
     current.title = String(values.title).trim();
     current.category = String(values.category || '').trim();
     current.values ||= {};
-    component.fields.forEach((field,index) => { current.values[field] = String(values[`field_${index}`] || ''); });
+    component.fields.forEach((field,index) => { current.values[field] = String(values[`upload_${index}`] || values[`field_${index}`] || ''); });
     if (!item) component.items.push(current);
     try { await saveDb(); } catch {}
     renderCustomTabView(tab.id);
@@ -11862,7 +12405,7 @@ DASHBOARD TITLE NOTE:
         article.dataset.searchText = `${item.title || ''} ${item.category || ''} ${fieldText}`.toLowerCase();
         const valuesHtml = component.fields
           .filter(field => String(item.values?.[field] || '').trim())
-          .map(field => `<div class="custom-kb-field-v453"><strong>${esc(field)}</strong><span>${esc(item.values[field])}</span></div>`)
+          .map(field => `<div class="custom-kb-field-v453"><strong>${esc(field)}</strong>${/image|photo|picture|portrait/i.test(field)&&/^(data:image\/|https?:\/\/|\/)/i.test(String(item.values[field]))?`<img class="custom-kb-reference-image-v811" src="${esc(item.values[field])}" alt="${esc(item.title||'Reference image')}" loading="lazy">`:`<span>${esc(item.values[field])}</span>`}</div>`)
           .join('');
         article.innerHTML = `
           <div class="custom-kb-card-head-v453">
@@ -11872,7 +12415,7 @@ DASHBOARD TITLE NOTE:
           ${valuesHtml ? `<div class="custom-kb-values-v453">${valuesHtml}</div>` : ''}`;
         article.addEventListener('dblclick', () => editItem(tab, component, item));
         article.addEventListener('contextmenu', event => {
-          event.preventDefault();
+          event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
           showCustomItemContextMenu(event.clientX,event.clientY,[
             {label:'Edit item',icon:'ph-pencil-simple',action:()=>editItem(tab,component,item)},
             {label:'Delete item',icon:'ph-trash',danger:true,action:async()=>{
@@ -12218,6 +12761,15 @@ DASHBOARD TITLE NOTE:
     overlay.querySelector('[data-close]').onclick=()=>{overlay.remove();renderCustomTabView(tab.id)};overlay.addEventListener('click',e=>{if(e.target===overlay){overlay.remove();renderCustomTabView(tab.id)}});draw();
   }
 
+  function openCustomKbViewV785(tab,c,item){
+    if(!item)return;document.getElementById('custom-kb-view-v785')?.remove();
+    const defs=fieldsFor(c,item.category),overlay=document.createElement('div');overlay.id='custom-kb-view-v785';overlay.className='custom-kb-view-overlay-v785';
+    const rows=defs.filter(f=>String(item.values?.[f.name]||'').trim()).map(f=>`<div class="custom-kb-view-field-v785"><strong>${esc(f.name)}</strong><div>${esc(item.values?.[f.name]||'')}</div></div>`).join('');
+    overlay.innerHTML=`<div class="custom-kb-view-card-v785"><div class="modal-header"><div><h2>${patternHtml(c,item.title)}</h2>${item.category?`<span>${esc(item.category)}</span>`:''}</div><button type="button" class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div>${item.tags?.length?`<div class="custom-kb-view-tags-v785">${item.tags.map(t=>`<span>#${esc(t)}</span>`).join('')}</div>`:''}<div class="custom-kb-view-fields-v785">${rows||'<p class="progress-hint">No additional fields.</p>'}</div></div>`;
+    document.body.appendChild(overlay);const close=()=>overlay.remove();overlay.querySelector('[data-close]').onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
+    overlay.querySelector('.custom-kb-view-card-v785').oncontextmenu=e=>{e.preventDefault();e.stopPropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit item',icon:'ph-pencil-simple',action:()=>{close();openItemEditor(tab,c,item)}}])};
+  }
+
   function render(tab,c,content){
     normalize(c);const active=c.activeCategory||'all';const items=c.items.filter(i=>active==='all'||i.category===active);
     content.innerHTML=`<div class="custom-kb-parity-v461">
@@ -12253,6 +12805,174 @@ DASHBOARD TITLE NOTE:
   'use strict';
   if (window.__loggyCustomKbFullParityV463) return;
   window.__loggyCustomKbFullParityV463 = true;
+
+  // V685 — Custom KB modal spacing/padding polish.
+  // Scope everything to the custom-tab KB modals only; normal Loggy modals are untouched.
+  function ensureCustomKbModalStylesV685(){
+    if(document.getElementById('custom-kb-modal-styles-v685')) return;
+    const style=document.createElement('style');
+    style.id='custom-kb-modal-styles-v685';
+    style.textContent=`
+      #custom-kb-item-modal-v463 .custom-kb-item-box-v463,
+      #custom-kb-settings-v463 .custom-kb-settings-box-v463{
+        padding:28px 30px 30px!important;
+      }
+      #custom-kb-item-modal-v463 .modal-header,
+      #custom-kb-settings-v463 .modal-header{
+        margin-bottom:24px!important;
+      }
+
+      /* Add / Edit Knowledge Base Item */
+      #custom-kb-item-modal-v463 .custom-kb-item-box-v463>.modal-section,
+      #custom-kb-item-modal-v463 .ckb-item-fields-v463>.modal-section{
+        display:flex!important;
+        flex-direction:column!important;
+        gap:9px!important;
+        margin:0 0 20px!important;
+      }
+      #custom-kb-item-modal-v463 .ckb-item-fields-v463{
+        display:flex!important;
+        flex-direction:column!important;
+        gap:0!important;
+      }
+      #custom-kb-item-modal-v463 input:not([type="checkbox"]):not([type="color"]),
+      #custom-kb-item-modal-v463 select,
+      #custom-kb-item-modal-v463 textarea{
+        width:100%!important;
+        min-height:48px!important;
+        padding:11px 14px!important;
+        line-height:1.35!important;
+        box-sizing:border-box!important;
+      }
+      #custom-kb-item-modal-v463 textarea{
+        min-height:96px!important;
+        padding-top:12px!important;
+        padding-bottom:12px!important;
+      }
+      #custom-kb-item-modal-v463 select{
+        padding-right:42px!important;
+      }
+      #custom-kb-item-modal-v463 .ckb-placeholder-shortcuts-v463{
+        display:flex!important;
+        flex-wrap:wrap!important;
+        gap:8px!important;
+        margin-top:2px!important;
+      }
+      #custom-kb-item-modal-v463 .kb-item-field-label-row{
+        display:flex!important;
+        align-items:center!important;
+        justify-content:space-between!important;
+        gap:10px!important;
+      }
+      #custom-kb-item-modal-v463 .ckb-item-save-v463{
+        width:100%!important;
+        min-height:50px!important;
+        margin-top:2px!important;
+      }
+
+      /* Knowledge Base Settings */
+      #custom-kb-settings-v463 .custom-kb-settings-body-v461{
+        display:flex!important;
+        flex-direction:column!important;
+        gap:28px!important;
+      }
+      #custom-kb-settings-v463 .custom-kb-settings-body-v461>.modal-section{
+        display:flex!important;
+        flex-direction:column!important;
+        gap:12px!important;
+        margin:0!important;
+      }
+      #custom-kb-settings-v463 input:not([type="checkbox"]):not([type="color"]),
+      #custom-kb-settings-v463 select,
+      #custom-kb-settings-v463 textarea{
+        min-height:48px!important;
+        padding:11px 14px!important;
+        line-height:1.35!important;
+        box-sizing:border-box!important;
+      }
+      #custom-kb-settings-v463 .ckb-title-v463{
+        width:100%!important;
+      }
+      #custom-kb-settings-v463 .ckb-placeholders-v463{
+        gap:14px!important;
+      }
+      #custom-kb-settings-v463 .kb-placeholder-settings-heading-v56{
+        gap:18px!important;
+        margin:0!important;
+      }
+      #custom-kb-settings-v463 .kb-placeholder-copy-v451{
+        display:flex!important;
+        flex-direction:column!important;
+        gap:5px!important;
+      }
+      #custom-kb-settings-v463 .kb-placeholder-chips-v56{
+        display:flex!important;
+        flex-wrap:wrap!important;
+        gap:10px!important;
+        margin:0!important;
+      }
+      #custom-kb-settings-v463 .kb-placeholder-add-v56{
+        display:grid!important;
+        grid-template-columns:minmax(0,1fr) auto!important;
+        gap:12px!important;
+        align-items:stretch!important;
+        margin:0!important;
+      }
+      #custom-kb-settings-v463 .kb-placeholder-add-v56.hidden{
+        display:none!important;
+      }
+      #custom-kb-settings-v463 .kb-placeholder-add-v56 .icon-btn{
+        min-height:48px!important;
+        padding-left:18px!important;
+        padding-right:18px!important;
+      }
+      #custom-kb-settings-v463 .section-header{
+        min-height:44px!important;
+        margin:0 0 2px!important;
+        gap:14px!important;
+      }
+      #custom-kb-settings-v463 .custom-kb-settings-tabs-v461{
+        display:flex!important;
+        flex-wrap:wrap!important;
+        gap:10px!important;
+        margin:0!important;
+      }
+      #custom-kb-settings-v463 .custom-kb-fields-v461{
+        display:flex!important;
+        flex-direction:column!important;
+        gap:12px!important;
+      }
+      #custom-kb-settings-v463 .kb-field-summary-card{
+        padding:14px 16px!important;
+        gap:14px!important;
+        align-items:center!important;
+      }
+      #custom-kb-settings-v463 .kb-field-summary-card>div:first-child{
+        display:flex!important;
+        flex-direction:column!important;
+        gap:4px!important;
+        min-width:0!important;
+      }
+      #custom-kb-settings-v463 .kb-field-summary-card>div:last-child{
+        display:flex!important;
+        align-items:center!important;
+        gap:8px!important;
+        flex:0 0 auto!important;
+      }
+
+      @media(max-width:650px){
+        #custom-kb-item-modal-v463 .custom-kb-item-box-v463,
+        #custom-kb-settings-v463 .custom-kb-settings-box-v463{
+          padding:22px 18px 24px!important;
+        }
+        #custom-kb-settings-v463 .kb-placeholder-add-v56{
+          grid-template-columns:1fr!important;
+        }
+      }
+    `;
+    (document.head||document.documentElement).appendChild(style);
+  }
+  ensureCustomKbModalStylesV685();
 
   const TYPE = 'customKnowledgeBaseV453';
   const FIELD_KINDS = [
@@ -12437,11 +13157,25 @@ DASHBOARD TITLE NOTE:
     content.innerHTML=`<div class="custom-kb-parity-v461 custom-kb-full-v463"><div class="log-header-container custom-kb-header-v461"><h1>${esc(c.title)}</h1><div class="custom-kb-header-actions-v461"><button class="icon-btn ckb-settings-v463" title="Knowledge Base Settings"><i class="ph ph-sliders-horizontal"></i></button><button class="icon-btn ckb-add-v463" title="Add New Item"><i class="ph ph-plus"></i></button></div></div><div class="filter-tabs custom-kb-tabs-v461"><button class="filter-tab ${active==='all'?'active':''}" data-filter="all">All</button>${c.categories.map(cat=>`<button class="filter-tab ${active===cat?'active':''}" data-filter="${attr(cat)}">${esc(cat)}</button>`).join('')}</div><div class="phrases-grid custom-kb-grid-v461">${items.map(item=>{const defs=fieldsFor(c,item.category);const search=[item.title,item.category,(item.tags||[]).join(' '),...defs.map(f=>item.values?.[f.name]||'')].join(' ').toLowerCase();return `<article class="phrase-card custom-searchable-item custom-content-editable custom-kb-card-v461" data-id="${attr(item.id)}" data-search-text="${attr(search)}"><span class="chip-text"><strong>${patternHtml(c,item.title)}</strong>${item.category?`<small class="custom-kb-card-category-v461">${esc(item.category)}</small>`:''}</span></article>`}).join('')||'<div class="custom-feature-empty-v162 custom-kb-empty-v461">No items here yet. Use + to add one.</div>'}</div></div>`;
     content.querySelector('.ckb-settings-v463').onclick=()=>openSettings(tab,c);content.querySelector('.ckb-add-v463').onclick=()=>openItemEditor(tab,c);
     content.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{c.activeCategory=b.dataset.filter;saveDb();renderCustomTabView(tab.id)});
-    content.querySelectorAll('.custom-kb-card-v461').forEach(card=>{const item=c.items.find(i=>i.id===card.dataset.id);card.onclick=()=>openItemEditor(tab,c,item);card.oncontextmenu=e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit item',icon:'ph-pencil-simple',action:()=>openItemEditor(tab,c,item)},{label:'Delete item',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Knowledge Base Item',message:`Delete “${item.title}”?`,confirmLabel:'Delete'});if(ok){c.items=c.items.filter(x=>x.id!==item.id);await saveDb();renderCustomTabView(tab.id)}}}])}});
+    content.querySelectorAll('.custom-kb-card-v461').forEach(card=>{const item=c.items.find(i=>i.id===card.dataset.id);card.onclick=()=>openCustomKbViewV785(tab,c,item);card.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit item',icon:'ph-pencil-simple',action:()=>openItemEditor(tab,c,item)},{label:'Delete item',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Knowledge Base Item',message:`Delete “${item.title}”?`,confirmLabel:'Delete'});if(ok){c.items=c.items.filter(x=>x.id!==item.id);await saveDb();renderCustomTabView(tab.id)}}}])}});
   }
 
   try{const prev=renderCustomComponentContent;renderCustomComponentContent=function(tab,c,content){if(c?.type===TYPE)return render(tab,normalize(c),content);return prev.apply(this,arguments)}}catch{}
   try{const prev=editCustomComponent;editCustomComponent=async function(tabId,componentId){const tab=getCustomTab(tabId),c=tab?.components?.find(x=>x.id===componentId);if(c?.type===TYPE){openSettings(tab,normalize(c));return;}return prev.apply(this,arguments)}}catch{}
+  try{
+    window.__loggyOpenCustomKbItemV748=function(tabId,componentId,itemId){
+      const tab=getCustomTab(tabId),c=tab?.components?.find(x=>String(x?.id||'')===String(componentId||''));
+      if(c?.type!==TYPE)return false;normalize(c);
+      const item=c.items.find(x=>String(x?.id||'')===String(itemId||''));
+      if(!item)return false;openCustomKbViewV785(tab,c,item);return true;
+    };
+    window.__loggyEditCustomKbItemV786=function(tabId,componentId,itemId){
+      const tab=getCustomTab(tabId),c=tab?.components?.find(x=>String(x?.id||'')===String(componentId||''));
+      if(c?.type!==TYPE)return false;normalize(c);
+      const item=c.items.find(x=>String(x?.id||'')===String(itemId||''));
+      if(!item)return false;openItemEditor(tab,c,item);return true;
+    };
+  }catch{}
 })();
 
 // ============================================================================
@@ -12456,7 +13190,7 @@ DASHBOARD TITLE NOTE:
 
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const attr = esc;
-  const norm = value => String(value ?? '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+  const norm = value => typeof window.normalizeWrittenQuizAnswerV476 === 'function' ? window.normalizeWrittenQuizAnswerV476(value) : String(value ?? '').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g,'');
   const mapSessions = new Map();
 
   function currentItemId() {
@@ -12485,7 +13219,7 @@ DASHBOARD TITLE NOTE:
   function renderPinnedFlashcard(area,itemId,pinned) {
     setCounter();
     const meta=db.phrase_meta?.[itemId] || {custom_fields:{}};
-    const content=quizCardFlipped ? renderCardBackContent(meta) : `<span style="font-size:2.8rem">${esc(itemId)}</span>`;
+    const content=quizCardFlipped ? renderCardBackContent(meta) : `<span style="font-size:2.8rem">${typeof knowledgeVisibleTitleHtmlV212==='function'?knowledgeVisibleTitleHtmlV212(itemId):esc(itemId).replace(/\r?\n/g,'<br>')}</span>`;
     area.innerHTML=`<div class="flashcard-mode-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" id="quiz-flip-front-v480" style="padding:${quizCardFlipped?'0':'20px'}">${content}</div><div class="flashcard-nav-container"><button class="flashcard-nav-btn" data-prev-v480 ${activeQuizIndex===0?'disabled':''}><i class="ph ph-arrow-left"></i></button><button class="flashcard-nav-btn" data-next-v480><i class="ph ph-arrow-right"></i></button></div></div>`;
     area.querySelector('#quiz-flip-front-v480')?.addEventListener('click', e=>{
       if(e.target.closest('button,.card-dot,.card-slide-arrow,a,input,video,iframe,audio')) return;
@@ -12501,7 +13235,7 @@ DASHBOARD TITLE NOTE:
     setCounter();
     const meta=db.phrase_meta?.[itemId] || {custom_fields:{}};
     if(!quizCardFlipped){
-      area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" data-anki-flip-v480><span style="font-size:2.8rem">${esc(itemId)}</span></div></div>`;
+      area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" data-anki-flip-v480><span style="font-size:2.8rem">${typeof knowledgeVisibleTitleHtmlV212==='function'?knowledgeVisibleTitleHtmlV212(itemId):esc(itemId).replace(/\r?\n/g,'<br>')}</span></div></div>`;
       area.querySelector('[data-anki-flip-v480]')?.addEventListener('click',()=>{quizCardFlipped=true;currentSlideIndex=0;showQuizCard();});
     } else {
       area.innerHTML=`<div class="flashcard-wrap pinned-standard-flashcard-v480"><div class="flashcard-mode-card pinned-flashcard-card-v480" data-anki-back-flip-v669 style="padding:0">${renderCardBackContent(meta)}</div><div class="quiz-pinned-anki-actions-v169"><button class="icon-btn still-learning-btn" data-anki-again-v480><i class="ph ph-arrow-counter-clockwise"></i> Still Learning</button><button class="icon-btn got-it-btn" data-anki-good-v480><i class="ph ph-check"></i> Got It!</button></div></div>`;
@@ -12561,7 +13295,7 @@ DASHBOARD TITLE NOTE:
     if(!pins.length) return finishMapLearn(state,true);
     state.index=Math.max(0,Math.min(state.index,pins.length-1));
     const active=pins[state.index], activeId=String(active.id);
-    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-written-v480"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>Type the label for the highlighted pin</strong><span>${state.index+1} / ${pins.length}</span></div>${pinStage(pinned.data,{active:activeId,revealed:state.revealed})}<form class="map-study-answer-v172 map-written-form-v480"><div><input type="text" class="map-study-input-v172" autocomplete="off" spellcheck="false" placeholder="Type your answer…"><button type="submit" class="icon-btn">Check Answer</button></div><small class="map-study-status-v172" aria-live="polite">Capitalization does not matter.</small></form></div></div>`;
+    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-written-v480"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>Type the label for the highlighted pin</strong><span>${state.index+1} / ${pins.length}</span></div>${pinStage(pinned.data,{active:activeId,revealed:state.revealed})}<form class="map-study-answer-v172 map-written-form-v480"><div><input type="text" class="map-study-input-v172" autocomplete="off" spellcheck="false" placeholder="Type your answer…"><button type="submit" class="icon-btn">Check Answer</button></div><small class="map-study-status-v172" aria-live="polite">Capitalization and spaces do not matter.</small></form></div></div>`;
     const form=area.querySelector('.map-written-form-v480'), input=form?.querySelector('input'), status=form?.querySelector('.map-study-status-v172'), button=form?.querySelector('button');
     form?.addEventListener('submit',e=>{
       e.preventDefault();
@@ -12628,7 +13362,7 @@ DASHBOARD TITLE NOTE:
 
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const attr = esc;
-  const norm = value => String(value ?? '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+  const norm = value => typeof window.normalizeWrittenQuizAnswerV476 === 'function' ? window.normalizeWrittenQuizAnswerV476(value) : String(value ?? '').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g,'');
   const sessions = new Map();
 
   function itemIdV482() {
@@ -12732,10 +13466,10 @@ DASHBOARD TITLE NOTE:
   function renderMapWrittenV482(area,id,pinned,s){
     setCountV482(); const pins=pinsV482(pinned); if(!pins.length)return finishV482(s,true);
     s.index=Math.max(0,Math.min(s.index,pins.length-1)); const pin=pins[s.index], pid=String(pin.id||s.index), answer=labelV482(pin);
-    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-final-v482"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>Type the label for the highlighted pin</strong><span>${s.index+1} / ${pins.length}</span></div>${stageV482(pinned.data,{active:pid,revealed:s.revealed})}<form class="map-study-answer-v172 map-written-final-v482"><div><input type="text" autocomplete="off" spellcheck="false" placeholder="Type your answer…"><button type="submit" class="icon-btn">Check Answer</button></div><small aria-live="polite">Capitalization does not matter.</small></form></div></div>`;
+    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-final-v482"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>Type the label for the highlighted pin</strong><span>${s.index+1} / ${pins.length}</span></div>${stageV482(pinned.data,{active:pid,revealed:s.revealed})}<form class="map-study-answer-v172 map-written-final-v482"><div><input type="text" autocomplete="off" spellcheck="false" placeholder="Type your answer…"><button type="submit" class="icon-btn">Check Answer</button></div><small aria-live="polite">Capitalization and spaces do not matter.</small></form></div></div>`;
     const form=area.querySelector('.map-written-final-v482'),input=form?.querySelector('input'),button=form?.querySelector('button'),status=form?.querySelector('small');
     const advance=()=>{s.ready=false;s.revealed.clear();if(s.index>=pins.length-1)finishV482(s,!s.wrong);else{s.index++;renderMapWrittenV482(area,id,pinned,s)}};
-    form?.addEventListener('submit',e=>{e.preventDefault();if(s.ready){advance();return}if(!input?.value.trim())return;const ok=norm(input.value)===norm(answer);if(!ok){s.wrong=true;s.revealed.add(pid);status.innerHTML='<strong>Incorrect</strong> · Type the correct answer to continue.';input.value='';button.textContent='Check Again';layoutV482(area);input.focus();return}s.revealed.add(pid);s.ready=true;status.innerHTML='<strong>Correct</strong>';input.disabled=true;button.textContent=s.index>=pins.length-1?'Continue':'Next';layoutV482(area)});
+    form?.addEventListener('submit',e=>{e.preventDefault();if(s.ready){advance();return}if(!input?.value.trim())return;const ok=(typeof window.writtenQuizAnswersMatchV743==='function'?window.writtenQuizAnswersMatchV743(input.value,answer):norm(input.value)===norm(answer));if(!ok){s.wrong=true;s.revealed.add(pid);status.innerHTML='<strong>Incorrect</strong> · Type the correct answer to continue.';input.value='';button.textContent='Check Again';layoutV482(area);input.focus();return}s.revealed.add(pid);s.ready=true;status.innerHTML='<strong>Correct</strong>';input.disabled=true;button.textContent=s.index>=pins.length-1?'Continue':'Next';layoutV482(area)});
     // Second Enter continues even after the now-disabled input can no longer submit the form.
     const key=e=>{if(e.key!=='Enter'||!s.ready||!document.body.contains(form))return;e.preventDefault();e.stopImmediatePropagation();document.removeEventListener('keydown',key,true);advance()};
     document.addEventListener('keydown',key,true); layoutV482(area); requestAnimationFrame(()=>input?.focus({preventScroll:true}));
@@ -12800,7 +13534,7 @@ DASHBOARD TITLE NOTE:
 
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const attr = esc;
-  const norm = v => String(v ?? '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+  const norm = v => typeof window.normalizeWrittenQuizAnswerV476 === 'function' ? window.normalizeWrittenQuizAnswerV476(v) : String(v ?? '').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g,'');
   const sessions = new Map();
 
   function itemId(){
@@ -12952,7 +13686,7 @@ DASHBOARD TITLE NOTE:
     if(!pin){s.activeId='';return renderWritten(area,id,p,s)}
     const pid=String(pin.id||s.index),answer=label(pin);
     const title=whole?'Whole image round · Written':'Test by part · Written';
-    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-v483"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>${title}</strong><span>${whole?s.results.size+1:s.index+1} / ${ps.length}</span></div>${stage(p.data,s,pid)}<form class="map-study-answer-v172 map-written-v483"><div><input type="text" autocomplete="off" spellcheck="false" placeholder="Type the pin label…"><button type="submit" class="icon-btn">Check Answer</button></div><small aria-live="polite">Capitalization does not matter.</small></form></div></div>`;
+    area.innerHTML=`<div class="map-study-wrap-v172 map-learn-v483"><div class="map-study-card-v172"><div class="map-study-prompt-v172"><strong>${title}</strong><span>${whole?s.results.size+1:s.index+1} / ${ps.length}</span></div>${stage(p.data,s,pid)}<form class="map-study-answer-v172 map-written-v483"><div><input type="text" autocomplete="off" spellcheck="false" placeholder="Type the pin label…"><button type="submit" class="icon-btn">Check Answer</button></div><small aria-live="polite">Capitalization and spaces do not matter.</small></form></div></div>`;
     const form=area.querySelector('.map-written-v483'),input=form?.querySelector('input'),button=form?.querySelector('button');
     const redraw=(message,ready)=>{
       area.querySelector('.map-study-stage-v172')?.replaceWith((()=>{const box=document.createElement('div');box.innerHTML=stage(p.data,s,pid);return box.firstElementChild})());
@@ -12967,7 +13701,7 @@ DASHBOARD TITLE NOTE:
         return;
       }
       if(!input?.value.trim())return;
-      const ok=norm(input.value)===norm(answer);
+      const ok=(typeof window.writtenQuizAnswersMatchV743==='function'?window.writtenQuizAnswersMatchV743(input.value,answer):norm(input.value)===norm(answer));
       if(!ok){
         s.hadWrong=true; s.firstWrong.add(pid); s.results.set(pid,'wrong'); s.revealed.add(pid);
         redraw('<strong>Incorrect</strong> · Type the correct answer to continue.',false);
@@ -13163,6 +13897,92 @@ DASHBOARD TITLE NOTE:
             const t = document.querySelector('.kb-hide-cat-tabs-toggle-v558');
             if (t) t.checked = !!db.settings.hideCategoriesInPolaroid;
         };
+        ensureClearOutKbSettingV780(box, catRow);
+    }
+
+    function ensureClearOutKbSettingV780(box, catRow){
+        if(!box)return;
+        let row=box.querySelector('.kb-clear-out-setting-v780');
+        if(!row){
+            row=document.createElement('div');
+            row.className='modal-section mt-10 kb-clear-out-setting-v780';
+            row.innerHTML=`<div class="kb-clear-out-copy-v780"><strong>Clear Out Knowledge Base</strong></div><button type="button" class="icon-btn kb-clear-out-btn-v780">Clear Out Knowledge Base</button>`;
+            row.querySelector('.kb-clear-out-btn-v780')?.addEventListener('click',async()=>{
+                const ids=[...(db.phrases||[])];
+                // Categories and field definitions must still be cleared when there are no items.
+                const ok=await showAppConfirm({title:'Clear Out Knowledge Base?',message:`Move all ${ids.length} Knowledge Base item${ids.length===1?'':'s'} to Trash? This includes built-in starter items. You can restore items from Trash.`,confirmLabel:'Move All to Trash'});
+                if(!ok)return;
+                db.settings ||= {};
+                // Prevent starter migrations from immediately reseeding built-in content.
+                if(db.settings.englishStarterTemplateV451===true){
+                    db.settings.englishStarterExamplesV453=true;
+                    db.settings.englishStarterDay1V462=true;
+                    db.settings.englishStarterLazyItemsV597=true;
+                    db.settings.englishStarterMapItemV656=true;
+                }
+                const moved=[];
+                for(const itemId of ids){
+                    const index=(db.phrases||[]).indexOf(itemId); if(index<0)continue;
+                    const meta=JSON.parse(JSON.stringify(db.phrase_meta?.[itemId]||{}));
+                    const loggedDays=[];
+                    Object.entries(db.days||{}).forEach(([dayNumber,dayData])=>{
+                        if(!Array.isArray(dayData?.phrases))return;
+                        const positions=[];dayData.phrases.forEach((value,position)=>{if(String(value)===String(itemId))positions.push(position)});
+                        if(!positions.length)return;
+                        loggedDays.push({dayNumber,positions});
+                        dayData.phrases=dayData.phrases.filter(value=>String(value)!==String(itemId));
+                    });
+                    const entry={deletedAt:new Date().toISOString(),originalIndex:index,itemId,meta,loggedDays};
+                    try{getFeatureTrash().kbItems.unshift(entry)}catch{}
+                    moved.push(entry);
+                    db.phrases.splice(index,1);delete db.phrase_meta[itemId];
+                }
+                // Clearing the real KB also clears its category schemas. All remains a virtual view.
+                db.settings.categories=[];
+                db.settings.categorySettings={};
+                try{activeCategorySettingTab=''}catch{}
+                try{libraryFilter='all'}catch{}
+
+                // V1906: clear category UI synchronously in the same click. Previously
+                // the data was empty immediately, but the already-rendered category
+                // buttons stayed on screen until another navigation/render happened.
+                // Remove those stale buttons first, then run the normal renderers so
+                // both the KB page and the still-open Settings modal reflect the empty
+                // category state before the save request or modal close.
+                try {
+                    const settingsTabs=document.getElementById('settings-category-tabs');
+                    if(settingsTabs) settingsTabs.innerHTML='';
+                    const libraryTabs=document.getElementById('library-filter-tabs');
+                    if(libraryTabs) libraryTabs.innerHTML='<button class="filter-tab active" data-filter="all">All</button>';
+                    document.querySelectorAll('#library-filter-tabs .filter-tab[data-filter]:not([data-filter="all"])').forEach(node=>node.remove());
+                    document.querySelectorAll('#settings-category-tabs .filter-tab, #settings-category-tabs .kb-category-grid-item:not(.kb-category-grid-add)').forEach(node=>node.remove());
+                } catch {}
+                try{renderLibraryTabs?.()}catch{}
+                try{renderSettings?.()}catch{}
+                // Reset Knowledge Base pattern/placeholder definitions along with its items.
+                // Do not clear unrelated app-wide tools, notebooks, or custom-tab knowledge bases.
+                try {
+                    if (db.settings && typeof db.settings === 'object') {
+                        for (const key of Object.keys(db.settings)) {
+                            if (/^(kb|knowledge|phrase)(?:[A-Z_-]|$)/i.test(key) && /(?:patterns?|parts?|placeholders?)/i.test(key)) {
+                                const value=db.settings[key];
+                                if (Array.isArray(value)) db.settings[key]=[];
+                                else if(value && typeof value==='object') db.settings[key]={};
+                            }
+                        }
+                    }
+                } catch (error) { console.warn('KB patterns reset',error); }
+                try{reconcileLearnSessionV737?.({syncRuntime:true,saveServer:false})}catch{}
+                try{saveDb()}catch{}
+                try{renderPhrasesLibrary('')}catch{}
+                try{if(currentDay&&db.days?.[currentDay])renderPhrases(db.days[currentDay].phrases||[])}catch{}
+                try{showFeatureToast?.(`Moved ${moved.length} Knowledge Base item${moved.length===1?'':'s'} to Trash.`)}catch{}
+                document.getElementById('settings-modal')?.classList.add('hidden');
+            });
+        }
+        if(catRow && catRow.nextElementSibling!==row)catRow.insertAdjacentElement('afterend',row);
+        const shortcuts=box.querySelector('#kb-shortcuts-v467');
+        if(shortcuts && row.nextElementSibling!==shortcuts)row.insertAdjacentElement('afterend',shortcuts);
     }
 
     // Add a stylesheet guard too, so tags never flash back during rerenders.
@@ -13179,18 +13999,19 @@ DASHBOARD TITLE NOTE:
             html.kb-hide-item-tags-v557 #phrases-library-grid [class*="kb-item-tag-row"] {
                 display: none !important;
             }
-            .kb-hide-tags-setting-v557 {
-                display:inline-flex !important;
+            .kb-hide-tags-setting-v557,
+            .kb-hide-cat-tabs-setting-v558 {
+                display:flex !important;
                 flex-direction:row !important;
                 align-items:center !important;
-                justify-content:flex-start !important;
-                align-self:flex-start !important;
-                gap:8px !important;
-                width:auto !important;
+                justify-content:space-between !important;
+                align-self:stretch !important;
+                gap:18px !important;
+                width:100% !important;
                 max-width:100% !important;
                 text-align:left !important;
                 margin-left:0 !important;
-                margin-right:auto !important;
+                margin-right:0 !important;
                 padding-left:0 !important;
             }
             .kb-hide-tags-copy-v557 {
@@ -13205,9 +14026,24 @@ DASHBOARD TITLE NOTE:
                 text-align:left !important;
             }
             .kb-hide-tags-switch-v557 {
-                margin:0 !important;
-                flex:0 0 auto !important;
+                margin:0 0 0 auto !important;
+                flex:0 0 46px !important;
             }
+            /* V1905: destructive action and KB shortcut editor are always the
+               final two Settings sections from the very first hidden/prewarmed paint. */
+            #settings-modal .kb-clear-out-setting-v780 { order:9998 !important; }
+            #settings-modal #kb-shortcuts-v467 { order:9999 !important; }
+            .kb-clear-out-setting-v780 {
+                display:flex !important;
+                align-items:center !important;
+                justify-content:space-between !important;
+                gap:18px !important;
+                padding:12px 0 !important;
+                width:100% !important;
+            }
+            .kb-clear-out-copy-v780 { display:flex; flex-direction:column; gap:3px; min-width:0; }
+            .kb-clear-out-copy-v780 small { opacity:.68; line-height:1.3; }
+            .kb-clear-out-btn-v780 { flex:0 0 auto; }
         `;
         document.head.appendChild(style);
     }
@@ -13217,10 +14053,8 @@ DASHBOARD TITLE NOTE:
         const beforeV557 = renderSettings;
         renderSettings = function(){
             const result = beforeV557.apply(this, arguments);
-            requestAnimationFrame(() => {
-                ensureHideTagsSettingV557();
-                applyKbTagVisibilityV557();
-            });
+            ensureHideTagsSettingV557();
+            applyKbTagVisibilityV557();
             return result;
         };
     } catch {}
@@ -13241,10 +14075,8 @@ DASHBOARD TITLE NOTE:
             event.target.closest?.('[data-view="phrases"],[data-tab="phrases"],#settings-btn,.settings-btn') ||
             event.target.closest?.('#settings-category-tabs')
         ) {
-            requestAnimationFrame(() => {
-                ensureHideTagsSettingV557();
-                applyKbTagVisibilityV557();
-            });
+            ensureHideTagsSettingV557();
+            applyKbTagVisibilityV557();
         }
     }, true);
 
@@ -13553,19 +14385,18 @@ DASHBOARD TITLE NOTE:
     }).observe(document.body,{childList:true,subtree:true});
   } catch {}
 
-  // Knowledge Base layout — V683 single authoritative owner.
-  // All previous masonry/flex/packed-grid owners were removed. Every render,
-  // restore, category change, image load and resize now converges on this one
-  // deterministic layout path.
+  // Knowledge Base All layout — V718 stable native grid.
+  // The previous All view used absolute coordinates and measured every card in
+  // chunks. During image loads/restores/observer callbacks that made old and new
+  // coordinates overlap on screen before the next pass settled. All mode now
+  // uses one native CSS Grid flow: no absolute positioning, no hidden measuring,
+  // no lane math, and no self-triggering height updates.
   let kbLayoutRafV683 = 0;
-  let kbLayoutEpochV683 = 0;
-  const KB_GAP_V683 = 12;
   const KB_LARGE_THRESHOLD_V683 = 160;
-  const KB_CHUNK_V683 = 48;
   const LEGACY_LAYOUT_CLASSES_V683 = [
     'kb-primary-map-flow-v172','kb-masonry-v175','kb-layout-pending-v215',
     'kb-all-grid-v614','kb-packed-all-v616','kb-packed-all-v620',
-    'kb-pack-pending-v620','kb-large-pack-v644'
+    'kb-pack-pending-v620','kb-large-pack-v644','kb-all-fallback-v696'
   ];
 
   function kbCardsV683(grid){
@@ -13579,105 +14410,93 @@ DASHBOARD TITLE NOTE:
     [
       'position','left','right','top','bottom','inset','width','max-width','min-width',
       'height','max-height','min-height','grid-row','grid-row-end','grid-column',
-      'grid-column-end','transform','visibility','pointer-events','margin','flex'
+      'grid-column-end','transform','visibility','pointer-events','margin','flex',
+      'align-self','justify-self'
     ].forEach(prop => card.style.removeProperty(prop));
+  }
+
+  function clearGridGeometryV718(grid){
+    [
+      'display','position','height','min-height','max-height','visibility','overflow','overflow-y','overflow-x',
+      'grid-template-columns','grid-auto-flow','grid-auto-rows','gap','align-items',
+      'align-content','justify-items'
+    ].forEach(prop => grid.style.removeProperty(prop));
   }
 
   function resetLegacyKbLayoutV683(grid){
     if(!grid) return;
     LEGACY_LAYOUT_CLASSES_V683.forEach(name => grid.classList.remove(name));
-    grid.classList.remove('kb-layout-v683-all','kb-layout-v683-category','kb-layout-v683-polaroid','kb-layout-v683-pending');
-    grid.style.removeProperty('height');
+    grid.classList.remove(
+      'kb-layout-v683-all','kb-layout-v683-category','kb-layout-v683-polaroid',
+      'kb-layout-v683-pending','kb-layout-v718-all-stable','kb-layout-v721-clean'
+    );
+    delete grid.dataset.kbAllFallbackV696;
+    clearGridGeometryV718(grid);
     kbCardsV683(grid).forEach(clearCardGeometryV683);
   }
 
-  function bestLaneV683(bottoms, span){
-    let bestStart=0, bestY=Infinity;
-    for(let start=0; start<=bottoms.length-span; start++){
-      let y=0;
-      for(let i=start;i<start+span;i++) y=Math.max(y,bottoms[i]);
-      if(y<bestY-.5){ bestY=y; bestStart=start; }
-    }
-    return {start:bestStart,y:bestY};
-  }
-
-  function layoutPackedAllV683(grid,cards,width){
-    const epoch=++kbLayoutEpochV683;
-    const gap=KB_GAP_V683;
-    const lanes=Math.max(2,Math.min(9,Math.floor((width+gap)/150)));
-    const laneWidth=(width-gap*(lanes-1))/lanes;
-    const bottoms=new Array(lanes).fill(0);
-    let index=0;
-    let maxBottom=0;
-
-    grid.classList.add('kb-layout-v683-all','kb-layout-v683-pending');
+  function layoutNaturalKbV735(grid,cards){
+    LEGACY_LAYOUT_CLASSES_V683.forEach(name=>grid.classList.remove(name));
+    grid.classList.remove(
+      'kb-layout-v683-polaroid','kb-layout-v683-pending','kb-layout-v718-all-stable',
+      'kb-layout-v721-clean','kb-layout-v724-category-stable'
+    );
+    grid.classList.add('kb-layout-v735-natural');
     grid.classList.toggle('kb-large-library-v644',cards.length>=KB_LARGE_THRESHOLD_V683);
+    delete grid.dataset.kbAllFallbackV696;
 
-    // Start each pass from a clean geometry state. This is critical for restored
-    // logs because old versions may have left inline absolute/grid measurements.
-    cards.forEach(clearCardGeometryV683);
+    // V735: List view is intentionally NOT a uniform-card grid. Text cards size
+    // to their own content; map/image cards get a sensible visual width. The KB
+    // item viewport still owns vertical scrolling, so large libraries remain
+    // contained without stretching every card to the same width/height.
+    grid.style.setProperty('display','flex','important');
+    grid.style.setProperty('position','relative','important');
+    grid.style.setProperty('flex-wrap','wrap','important');
+    grid.style.setProperty('height','auto','important');
+    grid.style.setProperty('min-height','1px','important');
+    grid.style.setProperty('visibility','visible','important');
+    grid.style.setProperty('overflow-y','auto','important');
+    grid.style.setProperty('overflow-x','hidden','important');
+    grid.style.setProperty('gap','12px','important');
+    grid.style.setProperty('align-items','flex-start','important');
+    grid.style.setProperty('align-content','flex-start','important');
 
-    const run = deadline => {
-      if(epoch!==kbLayoutEpochV683 || !grid.isConnected) return;
-      const started=performance.now();
-      let processed=0;
-      while(index<cards.length && processed<KB_CHUNK_V683){
-        if(processed && performance.now()-started>8 && !deadline?.didTimeout) break;
-        if(processed && typeof deadline?.timeRemaining==='function' && deadline.timeRemaining()<1.2) break;
+    cards.forEach(card=>{
+      clearCardGeometryV683(card);
+      const isMap=card.classList.contains('has-primary-map-v172') || !!card.querySelector(':scope > .kb-primary-map-v171');
+      const isImage=card.classList.contains('has-primary-image-v721') || !!card.querySelector(':scope > .kb-primary-image-v721');
 
-        const card=cards[index++];
-        const isMap=card.classList.contains('has-primary-map-v172');
+      card.style.setProperty('position','relative','important');
+      card.style.setProperty('inset','auto','important');
+      card.style.setProperty('left','auto','important');
+      card.style.setProperty('top','auto','important');
+      card.style.setProperty('height','auto','important');
+      card.style.setProperty('min-height','0','important');
+      card.style.setProperty('visibility','visible','important');
+      card.style.setProperty('pointer-events','auto','important');
+      card.style.setProperty('margin','0','important');
+      card.style.setProperty('transform','none','important');
+      card.style.setProperty('align-self','flex-start','important');
 
-        card.style.setProperty('position','absolute','important');
-        card.style.setProperty('left','-10000px','important');
-        card.style.setProperty('top','0','important');
-        card.style.setProperty('height','auto','important');
+      if(isMap){
+        card.style.setProperty('width','min(310px,100%)','important');
+        card.style.setProperty('max-width','310px','important');
+        card.style.setProperty('min-width','220px','important');
+        card.style.setProperty('flex','0 1 310px','important');
+      }else if(isImage){
+        const shape=String(card.dataset.primaryImageLayoutV752||'');
+        const imageWidth=shape==='portrait-small'?92:(shape==='portrait'?210:(shape==='square'?235:(shape==='landscape'?315:(shape==='wide'?330:280))));
+        card.style.setProperty('width',`min(${imageWidth}px,100%)`,'important');
+        card.style.setProperty('max-width',`${imageWidth}px`,'important');
         card.style.setProperty('min-width','0','important');
-        card.style.setProperty('visibility','hidden','important');
-
-        let span;
-        if(isMap){
-          span=Math.max(2,Math.min(lanes,Math.ceil(lanes*.34)));
-        }else{
-          card.style.setProperty('width','max-content','important');
-          card.style.setProperty('max-width',`${Math.min(width,laneWidth*2+gap)}px`,'important');
-          const natural=Math.max(laneWidth,Math.ceil(card.getBoundingClientRect().width));
-          span=Math.max(1,Math.min(2,Math.ceil((natural+gap)/(laneWidth+gap))));
-        }
-        span=Math.min(span,lanes);
-        const slot=bestLaneV683(bottoms,span);
-        const finalWidth=laneWidth*span+gap*(span-1);
-
-        card.style.setProperty('left',`${Math.round(slot.start*(laneWidth+gap))}px`,'important');
-        card.style.setProperty('top',`${Math.round(slot.y)}px`,'important');
-        card.style.setProperty('width',`${Math.floor(finalWidth)}px`,'important');
-        card.style.setProperty('max-width',`${Math.floor(finalWidth)}px`,'important');
-        card.style.setProperty('visibility','visible','important');
-        card.dataset.kbLayoutPlacedV683='1';
-
-        const h=Math.max(1,Math.ceil(card.getBoundingClientRect().height));
-        const bottom=slot.y+h+gap;
-        for(let i=slot.start;i<slot.start+span;i++) bottoms[i]=bottom;
-        maxBottom=Math.max(maxBottom,bottom-gap);
-        processed++;
+        card.style.setProperty('flex',`0 0 ${imageWidth}px`,'important');
+      }else{
+        card.style.setProperty('width','max-content','important');
+        card.style.setProperty('max-width','min(100%,420px)','important');
+        card.style.setProperty('min-width','0','important');
+        card.style.setProperty('flex','0 1 auto','important');
       }
-
-      grid.style.setProperty('height',`${Math.ceil(maxBottom)}px`,'important');
-      if(index<cards.length){
-        if('requestIdleCallback' in window) requestIdleCallback(run,{timeout:50});
-        else setTimeout(()=>run({timeRemaining:()=>6,didTimeout:true}),0);
-        return;
-      }
-
-      grid.classList.remove('kb-layout-v683-pending');
-      cards.forEach(card=>card.querySelectorAll('img').forEach(img=>{
-        if(img.dataset.kbLayoutLoadV683==='1') return;
-        img.dataset.kbLayoutLoadV683='1';
-        img.addEventListener('load',queueKbLayoutV683,{passive:true});
-      }));
-    };
-
-    requestAnimationFrame(()=>run({timeRemaining:()=>8,didTimeout:true}));
+    });
   }
 
   function layoutKbV683(){
@@ -13687,19 +14506,16 @@ DASHBOARD TITLE NOTE:
 
     const cards=kbCardsV683(grid);
     const isPolaroid=(db?.settings?.libraryView==='polaroid') || grid.classList.contains('polaroid-grid-container');
-    const isAll=(typeof libraryFilter==='undefined') || String(libraryFilter||'all')==='all';
+    const isAll=(typeof libraryFilter==='undefined') || String(libraryFilter||'all').toLowerCase()==='all';
 
-    // Developer stress preview deliberately owns its own cheap native grid.
-    if(grid.classList.contains('kb-developer-fast-grid-v643')){
-      resetLegacyKbLayoutV683(grid);
-      grid.classList.add('kb-developer-fast-grid-v643');
-      return;
-    }
+    // V731: retire the old Developer-only layout owner. Developer preview cards
+    // now flow through the exact same KB layout as real cards, so enabling the
+    // stress preview cannot switch the page into a different grid system.
+    grid.classList.remove('kb-developer-fast-grid-v643');
 
-    LEGACY_LAYOUT_CLASSES_V683.forEach(name=>grid.classList.remove(name));
-    grid.classList.remove('kb-layout-v683-all','kb-layout-v683-category','kb-layout-v683-polaroid','kb-layout-v683-pending');
-    grid.style.removeProperty('height');
-    cards.forEach(clearCardGeometryV683);
+    // Every mode starts clean, so old absolute coordinates can never survive a
+    // switch from All -> category/polaroid or a restored backup.
+    resetLegacyKbLayoutV683(grid);
 
     if(isPolaroid){
       grid.classList.add('kb-layout-v683-polaroid');
@@ -13708,41 +14524,43 @@ DASHBOARD TITLE NOTE:
     }
 
     if(!isAll){
+      layoutNaturalKbV735(grid,cards);
+      grid.classList.remove('kb-layout-v683-all');
       grid.classList.add('kb-layout-v683-category');
-      grid.classList.toggle('kb-large-library-v644',cards.length>=KB_LARGE_THRESHOLD_V683);
       return;
     }
 
-    if(!cards.length){
-      grid.classList.add('kb-layout-v683-all');
-      return;
-    }
-
-    const width=Math.max(0,grid.clientWidth);
-    if(width<40){ queueKbLayoutV683(); return; }
-    layoutPackedAllV683(grid,cards,width);
+    layoutNaturalKbV735(grid,cards);
   }
 
-  function queueKbLayoutV683(){
+  function queueKbLayoutV683(force=false){
+    const grid=document.getElementById('phrases-library-grid');
+
+    // V731: while Developer Mode streams hundreds of temporary cards into the
+    // DOM, do not rebuild the entire KB layout after every batch. That repeated
+    // full-card pass was the source of the jumping/frozen/mangled layout.
+    if(!force && grid?.dataset?.developerKbBuildingV731==='1') return;
+
     if(kbLayoutRafV683) cancelAnimationFrame(kbLayoutRafV683);
-    kbLayoutRafV683=requestAnimationFrame(()=>requestAnimationFrame(layoutKbV683));
+    kbLayoutRafV683=requestAnimationFrame(layoutKbV683);
   }
 
   try{
     const before=renderPhrasesLibrary;
     renderPhrasesLibrary=function(){
-      const grid=document.getElementById('phrases-library-grid');
-      if(grid) grid.classList.add('kb-layout-v683-pending');
       const result=before.apply(this,arguments);
-      queueKbLayoutV683();
+      // One immediate authoritative pass is allowed even if Developer Mode has
+      // begun batching; later batch mutations are suppressed until completion.
+      queueKbLayoutV683(true);
       return result;
     };
     window.renderPhrasesLibrary=renderPhrasesLibrary;
   }catch{}
 
   window.addEventListener('resize',queueKbLayoutV683,{passive:true});
-  document.addEventListener('kb-preview-batch-v620',queueKbLayoutV683);
-  document.addEventListener('kb-preview-complete-v643',queueKbLayoutV683);
+  // Historical per-batch repacks are intentionally ignored in V731.
+  document.addEventListener('kb-preview-batch-v620',()=>{});
+  document.addEventListener('kb-preview-complete-v643',()=>queueKbLayoutV683(true));
   document.addEventListener('click',event=>{
     if(event.target?.closest?.('#library-filter-tabs,.kb-view-btn')) queueKbLayoutV683();
   },true);
@@ -13750,17 +14568,58 @@ DASHBOARD TITLE NOTE:
   try{
     const grid=document.getElementById('phrases-library-grid');
     if(grid){
-      new ResizeObserver(queueKbLayoutV683).observe(grid);
-      new MutationObserver(records=>{
-        if(records.some(r=>r.type==='childList' || (r.type==='attributes' && r.attributeName==='class'))){
+      let observedWidth=Math.round(grid.clientWidth||0);
+      new ResizeObserver(entries=>{
+        for(const entry of entries){
+          const width=Math.round(entry.contentRect?.width||entry.target?.clientWidth||0);
+          if(width<40 || Math.abs(width-observedWidth)<=1) continue;
+          observedWidth=width;
           queueKbLayoutV683();
         }
-      }).observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+      }).observe(grid);
+      new MutationObserver(records=>{
+        if(grid.dataset.developerKbBuildingV731==='1') return;
+        if(records.some(r=>r.type==='childList')) queueKbLayoutV683();
+      }).observe(grid,{childList:true,subtree:false});
+    }
+  }catch{}
+
+  // Restore/reload can render Knowledge Base before its view is active. If the
+  // data says All has items but the DOM is still empty, rerender once when the
+  // view becomes visible; the native grid then needs no repair pass.
+  let repairingRestoredAllV696=false;
+  function visibleAllIdsV696(){
+    const search=String(document.getElementById('phrases-search-bar')?.value||'').toLocaleLowerCase();
+    return (db?.phrases||[]).filter(id=>{
+      try{if(typeof kbItemHiddenByTagV597==='function'&&kbItemHiddenByTagV597(id))return false}catch{}
+      return !search||String(id).toLocaleLowerCase().includes(search);
+    });
+  }
+  function repairRestoredAllV696(){
+    const view=document.getElementById('phrases-library-view');
+    const grid=document.getElementById('phrases-library-grid');
+    if(!view?.classList.contains('active')||!grid)return;
+    const isAll=(typeof libraryFilter==='undefined')||String(libraryFilter||'all').toLowerCase()==='all';
+    if(!isAll)return;
+    const expected=visibleAllIdsV696();
+    if(expected.length&&!kbCardsV683(grid).length&&!repairingRestoredAllV696){
+      repairingRestoredAllV696=true;
+      try{renderPhrasesLibrary(document.getElementById('phrases-search-bar')?.value||'')}catch{}
+      repairingRestoredAllV696=false;
+    }
+    queueKbLayoutV683();
+  }
+  try{
+    const view=document.getElementById('phrases-library-view');
+    if(view){
+      new MutationObserver(()=>{if(view.classList.contains('active'))requestAnimationFrame(repairRestoredAllV696)})
+        .observe(view,{attributes:true,attributeFilter:['class']});
+      if(view.classList.contains('active'))requestAnimationFrame(repairRestoredAllV696);
     }
   }catch{}
 
   window.__loggyLayoutKnowledgeBaseV683=queueKbLayoutV683;
-  queueKbLayoutV683();
+  window.__loggyRepairKnowledgeBaseAllV696=repairRestoredAllV696;
 })();
 
 // ============================================================================
@@ -13772,7 +14631,7 @@ DASHBOARD TITLE NOTE:
   window.__loggyPinnedQuizV617 = true;
 
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const norm = v => String(v ?? '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+  const norm = v => typeof window.normalizeWrittenQuizAnswerV476 === 'function' ? window.normalizeWrittenQuizAnswerV476(v) : String(v ?? '').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g,'');
   const sessions = new Map();
 
   function syncHideTagsV617(){
@@ -14015,11 +14874,11 @@ DASHBOARD TITLE NOTE:
     }
     const pin=activePin(p,s); if(!pin){s.active='';return renderLearnWritten(area,id,p,s)}
     const index=ps.indexOf(pin),pid=pinId(pin,index),answer=label(pin);
-    baseLearnShell(area,p,s,`<div class="map-study-prompt-v172"><strong>Type the label for the highlighted pin</strong><span>${whole?s.results.size+1:s.index+1} / ${ps.length}</span></div>${canonicalStage(p.data,{active:pid,revealed:s.revealed,results:s.results})}<form class="map-study-answer-v172 map-written-v617"><div><input type="text" autocomplete="off" spellcheck="false" placeholder="Type the pin label…"><button type="submit" class="icon-btn">Check Answer</button></div><small aria-live="polite">Capitalization does not matter.</small></form>`,{active:pid,revealed:s.revealed,results:s.results});
+    baseLearnShell(area,p,s,`<div class="map-study-prompt-v172"><strong>Type the label for the highlighted pin</strong><span>${whole?s.results.size+1:s.index+1} / ${ps.length}</span></div>${canonicalStage(p.data,{active:pid,revealed:s.revealed,results:s.results})}<form class="map-study-answer-v172 map-written-v617"><div><input type="text" autocomplete="off" spellcheck="false" placeholder="Type the pin label…"><button type="submit" class="icon-btn">Check Answer</button></div><small aria-live="polite">Capitalization and spaces do not matter.</small></form>`,{active:pid,revealed:s.revealed,results:s.results});
     const form=area.querySelector('.map-written-v617'),input=form?.querySelector('input'),small=form?.querySelector('small');
     form?.addEventListener('submit',e=>{
       e.preventDefault(); if(s.ready)return advanceLearn(area,id,p,s,renderLearnWritten); if(!input?.value.trim())return;
-      const ok=norm(input.value)===norm(answer); if(!ok){s.hadWrong=true;s.results.set(pid,'wrong');s.revealed.add(pid);if(small)small.innerHTML='<strong>Incorrect</strong> · Type the correct label to continue.';input.value='';queueDecorate(area,{active:pid,revealed:s.revealed,results:s.results});input.focus();return;}
+      const ok=(typeof window.writtenQuizAnswersMatchV743==='function'?window.writtenQuizAnswersMatchV743(input.value,answer):norm(input.value)===norm(answer)); if(!ok){s.hadWrong=true;s.results.set(pid,'wrong');s.revealed.add(pid);if(small)small.innerHTML='<strong>Incorrect</strong> · Type the correct label to continue.';input.value='';queueDecorate(area,{active:pid,revealed:s.revealed,results:s.results});input.focus();return;}
       if(!s.results.has(pid)||s.results.get(pid)!=='wrong')s.results.set(pid,'correct'); s.revealed.add(pid); s.ready=true; input.disabled=true;
       const button=form.querySelector('button'); if(button)button.textContent=(whole?s.results.size>=ps.length:s.index>=ps.length-1)?'Finish Round':'Next'; if(small)small.innerHTML='<strong>Correct</strong>'; queueDecorate(area,{active:pid,revealed:s.revealed,results:s.results});
     }); requestAnimationFrame(()=>input?.focus({preventScroll:true}));
@@ -14049,7 +14908,7 @@ DASHBOARD TITLE NOTE:
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[char]));
-  const norm = value => String(value ?? '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+  const norm = value => typeof window.normalizeWrittenQuizAnswerV476 === 'function' ? window.normalizeWrittenQuizAnswerV476(value) : String(value ?? '').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g,'');
   const stateByKey = new Map();
   let runSerial = 1;
   let learnRoundSerial = 0;
@@ -14092,6 +14951,7 @@ DASHBOARD TITLE NOTE:
         hadWrong:false,
         ready:false,
         completed:new Set(),
+        writtenWrongPins:new Set(),
         learnRound:++learnRoundSerial
       };
       stateByKey.set(key, state);
@@ -14099,6 +14959,15 @@ DASHBOARD TITLE NOTE:
     return state;
   }
   function dropStateV621(state) { if (state?.key) stateByKey.delete(state.key); }
+  window.__loggyResetCurrentFlashcardMapV743 = () => {
+    try {
+      const id=currentIdV621();
+      const pinned=id?pinnedV621(id):null;
+      if(!id||!pinned)return;
+      const state=stateV621('flashcards',id,pinned);
+      state.revealed=false;
+    } catch {}
+  };
 
   function visibleStageDataV621(pinned, { partIndex = null, revealed = null } = {}) {
     const sourcePins = labeledPinsV621(pinned);
@@ -14166,6 +15035,12 @@ DASHBOARD TITLE NOTE:
     if (el) el.textContent = '';
   }
   function goCardV621(delta) {
+    // V743: Flashcards navigation is session-aware. Advancing keeps the card in
+    // the deck; going back preserves the saved position/order.
+    if (String(typeof quizMode !== 'undefined' ? quizMode : '') === 'flashcards') {
+      if (delta > 0 && typeof window.flashcardKeepCurrentV743 === 'function') return window.flashcardKeepCurrentV743();
+      if (delta < 0 && typeof window.flashcardPreviousV743 === 'function') return window.flashcardPreviousV743();
+    }
     activeQuizIndex = Math.max(0, (activeQuizIndex || 0) + delta);
     quizCardFlipped = false;
     currentSlideIndex = 0;
@@ -14383,7 +15258,7 @@ DASHBOARD TITLE NOTE:
       <div class="map-v621-stage-shell">${stageHtmlV621(pinned,{partIndex,revealed})}</div>
       <form class="map-written-v621">
         <div class="map-written-row-v621"><input type="text" autocomplete="off" spellcheck="false" placeholder="Type the pin label…"><button type="button" class="icon-btn map-written-idk-v654" data-map-written-idk-v654>Idk</button><button type="submit" class="icon-btn" data-map-written-submit-v654>Check Answer</button></div>
-        <small aria-live="polite">Capitalization does not matter.</small>
+        <small aria-live="polite">Capitalization and spaces do not matter.</small>
       </form>`,{active:parts?'':pid});
     const form=area.querySelector('.map-written-v621');
     const input=form?.querySelector('input');
@@ -14391,8 +15266,10 @@ DASHBOARD TITLE NOTE:
     const button=form?.querySelector('[data-map-written-submit-v654]');
     const idk=form?.querySelector('[data-map-written-idk-v654]');
     const revealCorrection=(fromIdk=false)=>{
-      state.hadWrong=true;
-      if(note)note.innerHTML=`<strong>${fromIdk?'Answer revealed':'Incorrect'}</strong> · Correct answer: <strong>${esc(answer)}</strong>. Type it to continue.`;
+      if(!(state.writtenWrongPins instanceof Set))state.writtenWrongPins=new Set();
+      state.writtenWrongPins.add(pid);
+      state.hadWrong=state.writtenWrongPins.size>0;
+      if(note)note.innerHTML=`<span><strong>${fromIdk?'Answer revealed':'Incorrect'}</strong> · Correct answer: <strong>${esc(answer)}</strong>. Type it to continue.</span>${fromIdk?'':'<button type="button" class="icon-btn written-mark-correct-v744" data-map-written-mark-correct-v744>Mark Correct</button>'}`;
       const shell=area.querySelector('.map-v621-stage-shell');
       if(shell)shell.innerHTML=stageHtmlV621(pinned,{partIndex,revealed:revealForV621(pinned,state,true)});
       queueDecorateV621(area,{active:parts?'':pid,status:'wrong'});
@@ -14400,6 +15277,19 @@ DASHBOARD TITLE NOTE:
       if(idk)idk.disabled=true;
       input.disabled=false;
       input.value='';
+      if(!fromIdk){
+        note?.querySelector?.('[data-map-written-mark-correct-v744]')?.addEventListener('click',event=>{
+          const pass=event.currentTarget;
+          pass.disabled=true;
+          state.writtenWrongPins.delete(pid);
+          state.hadWrong=state.writtenWrongPins.size>0;
+          state.completed.add(pid);
+          state.ready=true;
+          input.disabled=true;
+          if(idk)idk.disabled=true;
+          continueLearnV621(area,id,pinned,state);
+        },{once:true});
+      }
       requestAnimationFrame(()=>input?.focus({preventScroll:true}));
     };
     idk?.addEventListener('click',()=>{ if(!state.ready)revealCorrection(true); });
@@ -14407,7 +15297,7 @@ DASHBOARD TITLE NOTE:
       event.preventDefault();
       if(state.ready){continueLearnV621(area,id,pinned,state);return;}
       if(!input?.value.trim())return;
-      const correct=norm(input.value)===norm(answer);
+      const correct=(typeof window.writtenQuizAnswersMatchV743==='function'?window.writtenQuizAnswersMatchV743(input.value,answer):norm(input.value)===norm(answer));
       if(!correct){ revealCorrection(false); return; }
       state.completed.add(pid);
       state.ready=true;
@@ -14669,6 +15559,9 @@ DASHBOARD TITLE NOTE:
     if(!button)return;
     const modal=button.closest('#kb-bulk-modal-v162');
     if(!modal||!syncBulkDaysV684(modal))return;
+    // V736 bulk commit now attaches Items Learned targets atomically before its
+    // single save. Do not run the older delayed second-save path for that modal.
+    if(modal.dataset.bulkAtomicDaysV736==='1')return;
     const {days}=parseBulkDaysV684(modal);
     if(!days.length)return;
     const before=new Set(db.phrases||[]);
@@ -14691,4 +15584,2573 @@ DASHBOARD TITLE NOTE:
   const obs=new MutationObserver(patchShortcutTextV664);
   if(document.body)obs.observe(document.body,{childList:true,subtree:true});
   patchShortcutTextV664();
+})();
+
+// ============================================================================
+// V714 — Custom Tabs: Timeline component
+// Preserves horizontal scroll/wrap + V701 vertical layouts. Same-label ticks
+// on the same visual side now share one timeline position and can be browsed
+// with arrows or a touch swipe. Opposite-side ticks stay separate.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyCustomTimelineV714) return;
+  window.__loggyCustomTimelineV714 = true;
+  window.__loggyCustomTimelineV700 = true;
+
+  const TYPE = 'timelineV700';
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+  const attr = esc;
+
+  function makeId(prefix = 'timeline') {
+    try { return customId(prefix); } catch (_) {
+      return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+    }
+  }
+
+  function normalize(component) {
+    if (!component || typeof component !== 'object') return component;
+    component.title = String(component.title || 'Timeline').trim() || 'Timeline';
+    component.layoutV700 = ['scroll','wrap','vertical'].includes(component.layoutV700)
+      ? component.layoutV700
+      : 'scroll';
+    component.verticalAlignV701 = ['left','center','right'].includes(component.verticalAlignV701)
+      ? component.verticalAlignV701
+      : 'center';
+    component.lineColorV701 = /^#[0-9a-f]{6}$/i.test(String(component.lineColorV701 || ''))
+      ? String(component.lineColorV701)
+      : '#111111';
+    if (!Array.isArray(component.items)) component.items = [];
+    component.items = component.items.filter(item => item && typeof item === 'object').map(item => {
+      item.id ||= makeId('timeline-tick');
+      item.label = String(item.label || '').trim();
+      item.side = item.side === 'bottom' ? 'bottom' : 'top';
+      item.contentType = item.contentType === 'image' ? 'image' : 'text';
+      item.text = String(item.text || '');
+      item.image = String(item.image || '');
+      return item;
+    });
+    return component;
+  }
+
+  function normalizedLabelKey(label) {
+    return String(label || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+  }
+
+  function sideIsMeaningful(component) {
+    return component.layoutV700 !== 'vertical' || component.verticalAlignV701 === 'center';
+  }
+
+  function groupedItems(component) {
+    normalize(component);
+    const groups = [];
+    const byKey = new Map();
+    const keepSide = sideIsMeaningful(component);
+    component.items.forEach((item, index) => {
+      const sideKey = keepSide ? item.side : 'open-side';
+      const key = `${normalizedLabelKey(item.label)}\u0000${sideKey}`;
+      let group = byKey.get(key);
+      if (!group) {
+        group = {
+          key,
+          label: item.label,
+          side: item.side,
+          firstIndex: index,
+          items: []
+        };
+        byKey.set(key, group);
+        groups.push(group);
+      }
+      group.items.push(item);
+    });
+    return groups;
+  }
+
+  function injectStyles() {
+    if (document.getElementById('custom-timeline-v700-style')) return;
+    const style = document.createElement('style');
+    style.id = 'custom-timeline-v700-style';
+    style.textContent = `
+      .custom-timeline-v700{min-width:0;width:100%}
+      .custom-timeline-header-v700{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+      .custom-timeline-header-v700 h2{min-width:0;margin:0}
+      .custom-timeline-actions-v700{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+      .custom-timeline-actions-v700 .timeline-settings-v700{height:34px!important;min-height:34px!important}
+      .custom-timeline-actions-v700 .custom-timeline-add-v700{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;height:34px!important;min-height:34px!important;padding:0 10px!important;line-height:1!important}
+
+      .custom-timeline-shell-v700{width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;padding:10px 2px 16px;overscroll-behavior-x:contain;scrollbar-gutter:stable;--timeline-line-color-v701:#111111}
+      .custom-timeline-track-v700{display:flex;align-items:stretch;min-width:max-content;width:max-content;padding:0 12px}
+      .custom-timeline-shell-v700[data-layout="wrap"]{overflow-x:visible;overflow-y:visible}
+      .custom-timeline-shell-v700[data-layout="wrap"] .custom-timeline-track-v700{width:100%;min-width:0;max-width:100%;flex-wrap:wrap;justify-content:flex-start;row-gap:24px;padding:0}
+
+      .custom-timeline-event-v700{position:relative;flex:0 0 250px;width:250px;min-width:0;display:grid;grid-template-rows:190px 42px 190px;box-sizing:border-box}
+      .custom-timeline-shell-v700[data-layout="wrap"] .custom-timeline-event-v700{flex:1 1 250px;max-width:320px;min-width:min(220px,100%)}
+      .custom-timeline-slot-v700{min-width:0;padding:8px 10px;display:flex;justify-content:center;box-sizing:border-box}
+      .custom-timeline-slot-v700.is-top{align-items:flex-end}
+      .custom-timeline-slot-v700.is-bottom{align-items:flex-start}
+      .custom-timeline-slot-v700:empty{pointer-events:none}
+
+      .custom-timeline-axis-v700{position:relative;height:42px;min-width:0;color:var(--timeline-line-color-v701)}
+      .custom-timeline-axis-v700::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;transform:translateY(-50%);background:var(--timeline-line-color-v701);opacity:1}
+      .custom-timeline-stick-v700{position:absolute;left:50%;top:4px;bottom:4px;width:2px;transform:translateX(-50%);background:var(--timeline-line-color-v701);border-radius:999px;z-index:1}
+      .custom-timeline-dot-v700{position:absolute;left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%);border:2px solid var(--timeline-line-color-v701);border-radius:50%;background:var(--white,#fff);z-index:2;box-sizing:border-box}
+
+      .custom-timeline-card-v700{position:relative;width:100%;max-width:230px;max-height:174px;overflow:auto;padding:12px;border:var(--thin-border,2px solid currentColor);border-radius:var(--border-radius,12px);background:var(--white,#fff);color:var(--black,#111);box-sizing:border-box;scrollbar-width:thin}
+      .custom-timeline-card-head-v700{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;min-height:30px}
+      .custom-timeline-card-head-v700 strong{min-width:0;line-height:1.15;overflow-wrap:anywhere}
+      .custom-timeline-card-actions-v700{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+      .custom-timeline-card-actions-v700 button{width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;padding:0!important}.custom-timeline-card-actions-v700 .timeline-edit-tick-v700,.custom-timeline-card-actions-v700 .timeline-delete-tick-v700{display:inline-flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;vertical-align:middle}.custom-timeline-card-actions-v700 .timeline-edit-tick-v700 i,.custom-timeline-card-actions-v700 .timeline-delete-tick-v700 i{display:block!important;margin:0!important;padding:0!important;line-height:1!important;font-size:16px!important}
+      .custom-timeline-group-counter-v714{min-width:32px;text-align:center;font-size:.76rem;font-weight:700;color:var(--muted-text,rgba(0,0,0,.6));font-variant-numeric:tabular-nums}
+      .custom-timeline-group-pane-v714.hidden{display:none!important}
+      .custom-timeline-group-stage-v714{min-width:0;touch-action:pan-y}
+      .custom-timeline-text-v700{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.35}
+      .custom-timeline-image-v700{display:block;width:100%;max-height:118px;object-fit:contain;border-radius:8px;background:color-mix(in srgb,currentColor 4%,transparent)}
+      .custom-timeline-content-empty-v700{font-size:.9rem;color:var(--muted-text,rgba(0,0,0,.55));font-style:italic}
+      .custom-timeline-empty-v700{width:100%;padding:20px;border:2px dashed color-mix(in srgb,currentColor 32%,transparent);border-radius:12px;text-align:center;color:var(--muted-text,rgba(0,0,0,.55));box-sizing:border-box}
+
+      /* V701 vertical timeline: page scroll owns vertical growth. */
+      .custom-timeline-shell-v700[data-layout="vertical"]{overflow:visible;padding:8px 0 18px;scrollbar-gutter:auto}
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-track-v700{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:0;width:100%;min-width:0;padding:10px 0 18px}
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-track-v700::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:var(--timeline-line-color-v701);z-index:0;pointer-events:none}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="left"] .custom-timeline-track-v700::before{left:21px}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="center"] .custom-timeline-track-v700::before{left:50%;transform:translateX(-50%)}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="right"] .custom-timeline-track-v700::before{right:21px}
+
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-event-v700{position:relative;z-index:1;display:grid;grid-template-rows:none;flex:none;width:100%;min-height:170px;min-width:0;padding:15px 0;align-items:center;box-sizing:border-box}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="center"] .custom-timeline-event-v700{grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr)}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="left"] .custom-timeline-event-v700{grid-template-columns:42px minmax(0,1fr)}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="right"] .custom-timeline-event-v700{grid-template-columns:minmax(0,1fr) 42px}
+
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-slot-v700{padding:10px 16px;align-items:center;min-width:0}
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-slot-v700:empty{display:none}
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-slot-v700.is-top,
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-slot-v700.is-bottom{align-items:center}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="center"] .custom-timeline-slot-v700.is-top{grid-column:1;justify-content:flex-end}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="center"] .custom-timeline-axis-v700{grid-column:2}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="center"] .custom-timeline-slot-v700.is-bottom{grid-column:3;justify-content:flex-start}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="left"] .custom-timeline-axis-v700{grid-column:1}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="left"] .custom-timeline-slot-v700.is-top,
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="left"] .custom-timeline-slot-v700.is-bottom{grid-column:2;justify-content:flex-start}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="right"] .custom-timeline-slot-v700.is-top,
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="right"] .custom-timeline-slot-v700.is-bottom{grid-column:1;justify-content:flex-end}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="right"] .custom-timeline-axis-v700{grid-column:2}
+
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-axis-v700{position:relative;width:42px;height:100%;min-height:140px;color:var(--timeline-line-color-v701)}
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-axis-v700::before{display:none}
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-stick-v700{top:50%;bottom:auto;height:2px;width:28px;background:var(--timeline-line-color-v701);z-index:1}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="center"] .timeline-side-top .custom-timeline-stick-v700{left:50%;transform:translate(-100%,-50%)}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="center"] .timeline-side-bottom .custom-timeline-stick-v700{left:50%;transform:translate(0,-50%)}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="left"] .custom-timeline-stick-v700{left:50%;transform:translate(0,-50%)}
+      .custom-timeline-shell-v700[data-layout="vertical"][data-vertical-align="right"] .custom-timeline-stick-v700{left:50%;transform:translate(-100%,-50%)}
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-dot-v700{left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%);border:2px solid var(--timeline-line-color-v701)}
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-card-v700{width:min(100%,460px);max-width:460px;max-height:none;overflow:visible;padding:14px}
+      .custom-timeline-shell-v700[data-layout="vertical"] .custom-timeline-image-v700{max-height:320px;object-fit:contain}
+      .custom-timeline-vertical-bottom-v701{display:flex;justify-content:center;padding-top:6px}
+      .custom-timeline-vertical-bottom-v701 .custom-timeline-add-v700{min-width:0!important;height:34px!important;min-height:34px!important;padding:0 10px!important}
+
+      .timeline-modal-v700{z-index:2147483500!important}
+      .timeline-modal-v700 .timeline-modal-box-v700{width:min(620px,calc(100vw - 28px));max-height:calc(100dvh - 28px);overflow:auto;padding:24px!important;box-sizing:border-box}
+      .timeline-modal-v700 .timeline-modal-header-v700{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px}
+      .timeline-modal-v700 .timeline-modal-header-v700 h2{margin:0;line-height:1.1}
+      .timeline-modal-v700 .timeline-modal-form-v700{display:grid;gap:18px}
+      .timeline-modal-v700 .timeline-field-v700{display:grid;gap:8px;min-width:0;margin:0}
+      .timeline-modal-v700 .timeline-field-v700>span{font-weight:700}
+      .timeline-modal-v700 .timeline-field-v700 input,
+      .timeline-modal-v700 .timeline-field-v700 select,
+      .timeline-modal-v700 .timeline-field-v700 textarea{width:100%;min-width:0;min-height:46px;padding:11px 13px!important;border:var(--thin-border,2px solid currentColor);border-radius:10px;background:var(--white,#fff);color:var(--black,#111);font:inherit;box-sizing:border-box;outline:none}
+      .timeline-modal-v700 .timeline-field-v700 textarea{min-height:120px;resize:vertical;line-height:1.4}
+      .timeline-modal-v700 .timeline-field-v700 input:focus,
+      .timeline-modal-v700 .timeline-field-v700 select:focus,
+      .timeline-modal-v700 .timeline-field-v700 textarea:focus{outline:2px solid currentColor;outline-offset:2px}
+      .timeline-modal-v700 .timeline-help-v700{font-size:.88rem;color:var(--muted-text,rgba(0,0,0,.55));line-height:1.35}
+      .timeline-modal-v700 .timeline-modal-actions-v700{display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px;padding-top:4px}
+      .timeline-modal-v700 .timeline-modal-actions-v700 .timeline-cancel-v700,
+      .timeline-modal-v700 .timeline-modal-actions-v700 .timeline-submit-v700{height:40px!important;min-height:40px!important;padding:0 14px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;box-sizing:border-box!important}
+      .timeline-image-editor-v700{display:grid;gap:12px;padding:14px;border:1px solid color-mix(in srgb,currentColor 24%,transparent);border-radius:12px}
+      .timeline-image-actions-v700{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+      .timeline-image-preview-v700{display:grid;place-items:center;min-height:110px;padding:10px;border:1px dashed color-mix(in srgb,currentColor 32%,transparent);border-radius:10px;background:color-mix(in srgb,currentColor 3%,transparent);box-sizing:border-box}
+      .timeline-image-preview-v700 img{display:block;max-width:100%;max-height:210px;object-fit:contain;border-radius:8px}
+      .timeline-image-preview-v700 span{color:var(--muted-text,rgba(0,0,0,.55));font-size:.9rem}
+      .timeline-modal-error-v700{min-height:1.2em;color:#b42318;font-size:.9rem;font-weight:700}
+
+      @media(max-width:620px){
+        .custom-timeline-event-v700{flex-basis:220px;width:220px;grid-template-rows:174px 42px 174px}
+        .custom-timeline-card-v700{max-width:204px;max-height:160px}
+        .timeline-modal-v700 .timeline-modal-box-v700{padding:18px!important}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function closeModal(modal) {
+    try { modal?.remove(); } catch (_) {}
+  }
+
+  function modalShell(title, submitLabel) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay timeline-modal-v700';
+    overlay.innerHTML = `
+      <div class="modal-box timeline-modal-box-v700" role="dialog" aria-modal="true" aria-label="${attr(title)}">
+        <div class="timeline-modal-header-v700">
+          <h2>${esc(title)}</h2>
+          <button type="button" class="small-icon-btn timeline-close-v700" aria-label="Close"><i class="ph ph-x"></i></button>
+        </div>
+        <form class="timeline-modal-form-v700">
+          <div class="timeline-modal-fields-v700"></div>
+          <div class="timeline-modal-error-v700" aria-live="polite"></div>
+          <div class="timeline-modal-actions-v700">
+            <button type="button" class="icon-btn timeline-cancel-v700">Cancel</button>
+            <button type="submit" class="icon-btn timeline-submit-v700"><i class="ph ph-check"></i> ${esc(submitLabel)}</button>
+          </div>
+        </form>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('.timeline-close-v700').onclick = () => closeModal(overlay);
+    overlay.querySelector('.timeline-cancel-v700').onclick = () => closeModal(overlay);
+    overlay.addEventListener('pointerdown', event => {
+      if (event.target === overlay) closeModal(overlay);
+    });
+    return overlay;
+  }
+
+  function setModalError(modal, message = '') {
+    const out = modal?.querySelector('.timeline-modal-error-v700');
+    if (out) out.textContent = String(message || '');
+  }
+
+  function readImageFile(file) {
+    try {
+      if (typeof customImageFileToDataUrl === 'function') return customImageFileToDataUrl(file);
+    } catch (_) {}
+    return new Promise(resolve => {
+      if (!file || !String(file.type || '').startsWith('image/')) return resolve('');
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ''));
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function openSettings(tab, component) {
+    normalize(component);
+    const modal = modalShell('Timeline Settings', 'Save');
+    const fields = modal.querySelector('.timeline-modal-fields-v700');
+    fields.innerHTML = `
+      <div class="timeline-modal-form-v700">
+        <label class="timeline-field-v700">
+          <span>Timeline Title</span>
+          <input type="text" name="title" value="${attr(component.title)}" placeholder="Timeline">
+        </label>
+        <label class="timeline-field-v700">
+          <span>Layout</span>
+          <select name="layout">
+            <option value="scroll" ${component.layoutV700 === 'scroll' ? 'selected' : ''}>Horizontal scroll</option>
+            <option value="wrap" ${component.layoutV700 === 'wrap' ? 'selected' : ''}>Horizontal wrap / zigzag</option>
+            <option value="vertical" ${component.layoutV700 === 'vertical' ? 'selected' : ''}>Clean vertical timeline</option>
+          </select>
+          <small class="timeline-help-v700">Horizontal keeps the original route. Vertical creates one continuous line that grows downward with the page.</small>
+        </label>
+        <label class="timeline-field-v700 timeline-vertical-align-setting-v701">
+          <span>Vertical Line Position</span>
+          <select name="verticalAlign">
+            <option value="left" ${component.verticalAlignV701 === 'left' ? 'selected' : ''}>Left</option>
+            <option value="center" ${component.verticalAlignV701 === 'center' ? 'selected' : ''}>Middle</option>
+            <option value="right" ${component.verticalAlignV701 === 'right' ? 'selected' : ''}>Right</option>
+          </select>
+          <small class="timeline-help-v700">With a middle line, individual ticks can alternate left and right. A left line keeps cards on its right; a right line keeps cards on its left.</small>
+        </label>
+        <label class="timeline-field-v700">
+          <span>Line Color</span>
+          <input type="color" name="lineColor" value="${attr(component.lineColorV701)}" aria-label="Timeline line color">
+          <small class="timeline-help-v700">Used for the timeline line, tick sticks, and pin outlines.</small>
+        </label>
+      </div>`;
+
+    const layoutSelect = fields.querySelector('[name="layout"]');
+    const verticalAlignField = fields.querySelector('.timeline-vertical-align-setting-v701');
+    const syncSettings = () => verticalAlignField?.classList.toggle('hidden', layoutSelect?.value !== 'vertical');
+    layoutSelect?.addEventListener('change', syncSettings);
+    syncSettings();
+
+    modal.querySelector('form').onsubmit = async event => {
+      event.preventDefault();
+      const title = String(fields.querySelector('[name="title"]')?.value || '').trim();
+      const requestedLayout = String(fields.querySelector('[name="layout"]')?.value || 'scroll');
+      const requestedAlign = String(fields.querySelector('[name="verticalAlign"]')?.value || 'center');
+      const requestedColor = String(fields.querySelector('[name="lineColor"]')?.value || '#111111');
+      component.title = title || 'Timeline';
+      component.layoutV700 = ['scroll','wrap','vertical'].includes(requestedLayout) ? requestedLayout : 'scroll';
+      component.verticalAlignV701 = ['left','center','right'].includes(requestedAlign) ? requestedAlign : 'center';
+      component.lineColorV701 = /^#[0-9a-f]{6}$/i.test(requestedColor) ? requestedColor : '#111111';
+      try { await saveDb(); } catch (_) {}
+      closeModal(modal);
+      try { renderCustomTabView(tab.id); } catch (_) {}
+    };
+    requestAnimationFrame(() => fields.querySelector('[name="title"]')?.focus());
+  }
+
+  function openTickEditor(tab, component, existing = null) {
+    normalize(component);
+    const editing = !!existing;
+    const item = existing || {
+      id: makeId('timeline-tick'), label:'', side:'top', contentType:'text', text:'', image:''
+    };
+    const modal = modalShell(editing ? 'Edit Timeline Tick' : 'Add Timeline Tick', editing ? 'Save Tick' : 'Add Tick');
+    const fields = modal.querySelector('.timeline-modal-fields-v700');
+    let draftImage = String(item.image || '');
+    const verticalMode = component.layoutV700 === 'vertical';
+    const centeredVertical = verticalMode && component.verticalAlignV701 === 'center';
+
+    fields.innerHTML = `
+      <div class="timeline-modal-form-v700">
+        <label class="timeline-field-v700">
+          <span>Label</span>
+          <input type="text" name="label" value="${attr(item.label || '')}" placeholder="e.g. 2004">
+        </label>
+        <label class="timeline-field-v700 timeline-tick-side-v701 ${verticalMode && !centeredVertical ? 'hidden' : ''}">
+          <span>${verticalMode ? 'Side of line' : 'Show this tick'}</span>
+          <select name="side">
+            <option value="top" ${item.side !== 'bottom' ? 'selected' : ''}>${verticalMode ? 'Left of the line' : 'Above the timeline'}</option>
+            <option value="bottom" ${item.side === 'bottom' ? 'selected' : ''}>${verticalMode ? 'Right of the line' : 'Below the timeline'}</option>
+          </select>
+          ${verticalMode && !centeredVertical ? `<small class="timeline-help-v700">The line is pinned to the ${component.verticalAlignV701}; cards stay on the open side automatically.</small>` : ''}
+        </label>
+        <label class="timeline-field-v700">
+          <span>Content Type</span>
+          <select name="contentType">
+            <option value="text" ${item.contentType !== 'image' ? 'selected' : ''}>Text</option>
+            <option value="image" ${item.contentType === 'image' ? 'selected' : ''}>Image</option>
+          </select>
+        </label>
+        <label class="timeline-field-v700 timeline-text-section-v700">
+          <span>Text</span>
+          <textarea name="text" placeholder="Write the text for this point on the timeline...">${esc(item.text || '')}</textarea>
+        </label>
+        <div class="timeline-field-v700 timeline-image-section-v700">
+          <span>Image</span>
+          <div class="timeline-image-editor-v700">
+            <div class="timeline-image-preview-v700"></div>
+            <div class="timeline-image-actions-v700">
+              <button type="button" class="icon-btn timeline-choose-image-v700"><i class="ph ph-image"></i> Choose Image</button>
+              <button type="button" class="icon-btn timeline-remove-image-v700"><i class="ph ph-trash"></i> Remove Image</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    const typeSelect = fields.querySelector('[name="contentType"]');
+    const textSection = fields.querySelector('.timeline-text-section-v700');
+    const imageSection = fields.querySelector('.timeline-image-section-v700');
+    const preview = fields.querySelector('.timeline-image-preview-v700');
+    const removeImage = fields.querySelector('.timeline-remove-image-v700');
+
+    const drawImage = () => {
+      preview.innerHTML = draftImage
+        ? `<img src="${attr(draftImage)}" alt="Timeline image preview">`
+        : '<span>No image selected yet.</span>';
+      removeImage.disabled = !draftImage;
+    };
+    const syncType = () => {
+      const imageMode = typeSelect.value === 'image';
+      textSection.classList.toggle('hidden', imageMode);
+      imageSection.classList.toggle('hidden', !imageMode);
+      setModalError(modal, '');
+    };
+
+    typeSelect.onchange = syncType;
+    fields.querySelector('.timeline-choose-image-v700').onclick = () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.className = 'hidden';
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (file) {
+          const value = await readImageFile(file);
+          if (value) draftImage = value;
+          drawImage();
+        }
+        input.remove();
+      };
+      document.body.appendChild(input);
+      input.click();
+    };
+    removeImage.onclick = () => { draftImage = ''; drawImage(); };
+
+    modal.querySelector('form').onsubmit = async event => {
+      event.preventDefault();
+      const label = String(fields.querySelector('[name="label"]')?.value || '').trim();
+      if (!label) {
+        setModalError(modal, 'Add a label for this timeline tick.');
+        fields.querySelector('[name="label"]')?.focus();
+        return;
+      }
+      item.label = label;
+      item.side = fields.querySelector('[name="side"]')?.value === 'bottom' ? 'bottom' : 'top';
+      item.contentType = typeSelect.value === 'image' ? 'image' : 'text';
+      item.text = String(fields.querySelector('[name="text"]')?.value || '');
+      item.image = draftImage;
+      if (!editing) component.items.push(item);
+      try { await saveDb(); } catch (_) {}
+      closeModal(modal);
+      try { renderCustomTabView(tab.id); } catch (_) {}
+    };
+
+    drawImage();
+    syncType();
+    requestAnimationFrame(() => fields.querySelector('[name="label"]')?.focus());
+  }
+
+  async function deleteTick(tab, component, item) {
+    let ok = true;
+    try {
+      ok = await showAppConfirm({
+        title:'Delete Timeline Tick',
+        message:`Delete “${item.label || 'this tick'}”?`,
+        confirmLabel:'Delete'
+      });
+    } catch (_) {
+      ok = window.confirm(`Delete “${item.label || 'this tick'}”?`);
+    }
+    if (!ok) return;
+    component.items = component.items.filter(entry => entry.id !== item.id);
+    try { await saveDb(); } catch (_) {}
+    try { renderCustomTabView(tab.id); } catch (_) {}
+  }
+
+  function moveGroup(tab, component, groupKey, direction) {
+    const groups = groupedItems(component);
+    const index = groups.findIndex(group => group.key === groupKey);
+    if (index < 0) return;
+    const next = Math.max(0, Math.min(groups.length - 1, index + direction));
+    if (next === index) return;
+    const [moved] = groups.splice(index, 1);
+    groups.splice(next, 0, moved);
+    component.items = groups.flatMap(group => group.items);
+    try { saveDb(); } catch (_) {}
+    try { renderCustomTabView(tab.id); } catch (_) {}
+  }
+
+  function itemBodyHtml(item) {
+    return item.contentType === 'image'
+      ? (item.image
+          ? `<img class="custom-timeline-image-v700" src="${attr(item.image)}" alt="${attr(item.label || 'Timeline image')}">`
+          : '<div class="custom-timeline-content-empty-v700">No image selected.</div>')
+      : (String(item.text || '').trim()
+          ? `<div class="custom-timeline-text-v700">${esc(item.text).replace(/\n/g,'<br>')}</div>`
+          : '<div class="custom-timeline-content-empty-v700">No extra text.</div>');
+  }
+
+  function groupCardHtml(group) {
+    const multiple = group.items.length > 1;
+    const panes = group.items.map((item, index) => `
+      <div class="custom-timeline-group-pane-v714${index ? ' hidden' : ''}" data-timeline-pane-v714="${index}" data-timeline-item-id-v714="${attr(item.id)}">
+        ${itemBodyHtml(item)}
+      </div>`).join('');
+    return `
+      <div class="custom-timeline-card-v700 custom-timeline-group-card-v714" data-timeline-group-card-v714 data-active-index-v714="0">
+        <div class="custom-timeline-card-head-v700">
+          <strong>${esc(group.label || 'Timeline tick')}</strong>
+          <div class="custom-timeline-card-actions-v700">
+            ${multiple ? `<button type="button" class="small-icon-btn timeline-group-prev-v714" title="Previous event" aria-label="Previous ${attr(group.label || 'timeline')} event"><i class="ph ph-caret-left"></i></button><span class="custom-timeline-group-counter-v714">1/${group.items.length}</span><button type="button" class="small-icon-btn timeline-group-next-v714" title="Next event" aria-label="Next ${attr(group.label || 'timeline')} event"><i class="ph ph-caret-right"></i></button>` : ''}
+            <button type="button" class="small-icon-btn timeline-edit-tick-v700" title="Edit tick" aria-label="Edit ${attr(group.label || 'timeline tick')}"><i class="ph ph-pencil-simple"></i></button>
+            <button type="button" class="small-icon-btn timeline-delete-tick-v700" title="Delete tick" aria-label="Delete ${attr(group.label || 'timeline tick')}"><i class="ph ph-trash"></i></button>
+          </div>
+        </div>
+        <div class="custom-timeline-group-stage-v714">${panes}</div>
+      </div>`;
+  }
+
+  function bindGroupCarousel(tab, component, eventEl, group) {
+    const card = eventEl.querySelector('[data-timeline-group-card-v714]');
+    if (!card) return;
+    const panes = Array.from(card.querySelectorAll('[data-timeline-pane-v714]'));
+    const counter = card.querySelector('.custom-timeline-group-counter-v714');
+    let active = Math.max(0, Math.min(group.items.length - 1, Number(card.dataset.activeIndexV714) || 0));
+
+    const currentItem = () => group.items[active] || group.items[0];
+    const sync = () => {
+      panes.forEach((pane, index) => pane.classList.toggle('hidden', index !== active));
+      card.dataset.activeIndexV714 = String(active);
+      eventEl.dataset.timelineActiveItemV714 = String(currentItem()?.id || '');
+      if (counter) counter.textContent = `${active + 1}/${group.items.length}`;
+    };
+    const step = delta => {
+      if (group.items.length < 2) return;
+      active = (active + delta + group.items.length) % group.items.length;
+      sync();
+    };
+
+    card.querySelector('.timeline-group-prev-v714')?.addEventListener('click', event => {
+      event.preventDefault(); event.stopPropagation(); step(-1);
+    });
+    card.querySelector('.timeline-group-next-v714')?.addEventListener('click', event => {
+      event.preventDefault(); event.stopPropagation(); step(1);
+    });
+    card.querySelector('.timeline-edit-tick-v700')?.addEventListener('click', event => {
+      event.preventDefault(); event.stopPropagation();
+      const item = currentItem(); if (item) openTickEditor(tab, component, item);
+    });
+    card.querySelector('.timeline-delete-tick-v700')?.addEventListener('click', event => {
+      event.preventDefault(); event.stopPropagation();
+      const item = currentItem(); if (item) deleteTick(tab, component, item);
+    });
+
+    const stage = card.querySelector('.custom-timeline-group-stage-v714');
+    let startX = null, startY = null;
+    stage?.addEventListener('pointerdown', event => {
+      if (event.pointerType === 'mouse') return;
+      startX = event.clientX; startY = event.clientY;
+    }, {passive:true});
+    stage?.addEventListener('pointerup', event => {
+      if (startX == null || startY == null) return;
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      startX = startY = null;
+      if (Math.abs(dx) >= 42 && Math.abs(dx) > Math.abs(dy)) step(dx < 0 ? 1 : -1);
+    }, {passive:true});
+
+    eventEl.addEventListener('contextmenu', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const item = currentItem();
+      if (!item) return;
+      try {
+        const vertical = component.layoutV700 === 'vertical';
+        showCustomItemContextMenu(event.clientX, event.clientY, [
+          {label:'Edit tick', icon:'ph-pencil-simple', action:() => openTickEditor(tab, component, item)},
+          {label:vertical ? 'Move group up' : 'Move group left', icon:vertical ? 'ph-arrow-up' : 'ph-arrow-left', action:() => moveGroup(tab, component, group.key, -1)},
+          {label:vertical ? 'Move group down' : 'Move group right', icon:vertical ? 'ph-arrow-down' : 'ph-arrow-right', action:() => moveGroup(tab, component, group.key, 1)},
+          {label:'Delete tick', icon:'ph-trash', danger:true, action:() => deleteTick(tab, component, item)}
+        ]);
+      } catch (_) {}
+    });
+    sync();
+  }
+
+  function renderTimeline(tab, component, content) {
+    injectStyles();
+    normalize(component);
+    const groups = groupedItems(component);
+    const events = groups.map((group, groupIndex) => {
+      const search = group.items.map(item => `${item.label || ''} ${item.text || ''}`).join(' ').toLowerCase();
+      const card = groupCardHtml(group);
+      return `
+        <article class="custom-timeline-event-v700 timeline-side-${group.side} custom-searchable-item" data-timeline-group-index-v714="${groupIndex}" data-timeline-id-v700="${attr(group.items[0]?.id || '')}" data-search-text="${attr(search)}">
+          <div class="custom-timeline-slot-v700 is-top">${group.side === 'top' ? card : ''}</div>
+          <div class="custom-timeline-axis-v700" aria-hidden="true"><span class="custom-timeline-stick-v700"></span><span class="custom-timeline-dot-v700"></span></div>
+          <div class="custom-timeline-slot-v700 is-bottom">${group.side === 'bottom' ? card : ''}</div>
+        </article>`;
+    }).join('');
+
+    content.innerHTML = `
+      <section class="custom-timeline-v700">
+        <div class="custom-collection-header custom-timeline-header-v700">
+          <h2>${esc(component.title)}</h2>
+          <div class="custom-timeline-actions-v700">
+            <button type="button" class="small-icon-btn timeline-settings-v700" title="Timeline settings" aria-label="Timeline settings"><i class="ph ph-sliders-horizontal"></i></button>
+            <button type="button" class="icon-btn custom-timeline-add-v700"><i class="ph ph-plus"></i> Add Tick</button>
+          </div>
+        </div>
+        ${component.items.length ? `
+          <div class="custom-timeline-shell-v700" data-layout="${component.layoutV700}" data-vertical-align="${component.verticalAlignV701}" style="--timeline-line-color-v701:${attr(component.lineColorV701)}">
+            <div class="custom-timeline-track-v700">${events}</div>
+            ${component.layoutV700 === 'vertical' ? `<div class="custom-timeline-vertical-bottom-v701"><button type="button" class="icon-btn custom-timeline-add-v700 timeline-bottom-add-v701"><i class="ph ph-plus"></i> Add Tick</button></div>` : ''}
+          </div>` : `
+          <button type="button" class="custom-timeline-empty-v700 timeline-empty-add-v700">No timeline ticks yet. Add your first tick.</button>`}
+      </section>`;
+
+    content.querySelector('.timeline-settings-v700')?.addEventListener('click', () => openSettings(tab, component));
+    content.querySelectorAll('.custom-timeline-add-v700').forEach(button => {
+      button.addEventListener('click', () => openTickEditor(tab, component));
+    });
+    content.querySelector('.timeline-empty-add-v700')?.addEventListener('click', () => openTickEditor(tab, component));
+    content.querySelectorAll('[data-timeline-group-index-v714]').forEach(eventEl => {
+      const group = groups[Number(eventEl.dataset.timelineGroupIndexV714)];
+      if (group) bindGroupCarousel(tab, component, eventEl, group);
+    });
+  }
+
+  injectStyles();
+
+  try {
+    for (let i = CUSTOM_COMPONENT_LIBRARY.length - 1; i >= 0; i--) {
+      if (CUSTOM_COMPONENT_LIBRARY[i]?.type === TYPE) CUSTOM_COMPONENT_LIBRARY.splice(i, 1);
+    }
+    const anchor = CUSTOM_COMPONENT_LIBRARY.findIndex(def => def?.type === 'projectGallery');
+    CUSTOM_COMPONENT_LIBRARY.splice(anchor >= 0 ? anchor + 1 : CUSTOM_COMPONENT_LIBRARY.length, 0, {
+      type:TYPE,
+      label:'Timeline',
+      icon:'ph-git-commit'
+    });
+  } catch (_) {}
+
+  try { CUSTOM_TITLE_BACKGROUND_TYPES?.add?.(TYPE); } catch (_) {}
+
+  try {
+    const previousDefault = defaultCustomComponent;
+    defaultCustomComponent = function(type) {
+      if (type === TYPE) {
+        return {
+          id: makeId('component'),
+          type: TYPE,
+          title: 'Timeline',
+          titleBackground: 'none',
+          layoutV700: 'scroll',
+          verticalAlignV701: 'center',
+          lineColorV701: '#111111',
+          items: []
+        };
+      }
+      return previousDefault.apply(this, arguments);
+    };
+  } catch (_) {}
+
+  try {
+    const previousRender = renderCustomComponentContent;
+    renderCustomComponentContent = function(tab, component, content) {
+      if (component?.type === TYPE) return renderTimeline(tab, normalize(component), content);
+      return previousRender.apply(this, arguments);
+    };
+  } catch (_) {}
+
+  try {
+    const previousEdit = editCustomComponent;
+    editCustomComponent = async function(tabId, componentId) {
+      const tab = getCustomTab(tabId);
+      const component = tab?.components?.find(entry => entry.id === componentId);
+      if (component?.type === TYPE) {
+        openSettings(tab, normalize(component));
+        return;
+      }
+      return previousEdit.apply(this, arguments);
+    };
+  } catch (_) {}
+
+  try {
+    const previousItems = getCustomComponentItemArray;
+    getCustomComponentItemArray = function(component) {
+      if (component?.type === TYPE) return normalize(component).items;
+      return previousItems.apply(this, arguments);
+    };
+  } catch (_) {}
+
+  try {
+    const previousLabel = getCustomItemLabel;
+    getCustomItemLabel = function(component, item) {
+      if (component?.type === TYPE) return String(item?.label || 'Timeline Tick');
+      return previousLabel.apply(this, arguments);
+    };
+  } catch (_) {}
+})();
+
+// ============================================================================
+// V748 — LAZY DAY RECOMMENDATION SOURCES
+// The reusable recommendation component can now pull from the real Knowledge
+// Base OR any independent Knowledge Base component on this tab/another tab.
+// Source and destination stay independent. Tab-KB sources retain their own
+// categories/tags/fields and never masquerade as real-KB Items Learned records.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyLazyRecommendationComponentV748) return;
+  window.__loggyLazyRecommendationComponentV748 = true;
+  window.__loggyLazyRecommendationComponentV747 = true; // compatibility flag for the original component runtime
+
+  const TYPE = 'lazyRecommendationV747';
+  const CUSTOM_KB_TYPE = 'customKnowledgeBaseV453';
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const attr = value => esc(value).replace(/`/g, '&#096;');
+  const id = prefix => {
+    try { return customId(prefix); }
+    catch { return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`; }
+  };
+  const unique = values => [...new Set((values || []).map(v => String(v ?? '').trim()).filter(Boolean))];
+  const split = value => unique(String(value || '').split(/[\n,;]+/));
+
+  const ICONS = [
+    'ph-moon-stars','ph-lightning','ph-star','ph-sparkle','ph-fire','ph-target','ph-brain','ph-book-open',
+    'ph-graduation-cap','ph-pencil-simple','ph-note-pencil','ph-calculator','ph-function','ph-sigma','ph-pi',
+    'ph-flask','ph-atom','ph-globe','ph-translate','ph-question','ph-lightbulb','ph-puzzle-piece','ph-cards',
+    'ph-stack','ph-list-checks','ph-check-circle','ph-shuffle','ph-dice-five','ph-magic-wand','ph-trophy','ph-heart'
+  ];
+  const DESTINATION_TYPES = new Set([
+    'checklist','cards','vocabulary','milestones',CUSTOM_KB_TYPE,'tableV162','qaV162','kanbanV239','text'
+  ]);
+
+  function normalize(component) {
+    if (!component) return component;
+    component.type = TYPE;
+    component.title = String(component.title || 'Recommendation Button').trim() || 'Recommendation Button';
+    component.titleBackground = component.titleBackground || 'none';
+    component.iconV747 = String(component.iconV747 || 'ph-moon-stars').replace(/^ph\s+/, '').trim() || 'ph-moon-stars';
+    component.categoriesV747 = unique(component.categoriesV747 || []);
+    component.tagsV747 = unique(component.tagsV747 ?? ['lazy']).map(tag => tag.replace(/^#/, '')).filter(Boolean);
+    component.tagModeV747 = String(component.tagModeV747 || 'and').toLowerCase() === 'or' ? 'or' : 'and';
+    component.removeTagsV747 = unique(component.removeTagsV747 ?? ['lazy','hide']).map(tag => tag.replace(/^#/, '')).filter(Boolean);
+    component.fieldFiltersV747 = Array.isArray(component.fieldFiltersV747) ? component.fieldFiltersV747.map(row => ({
+      category:String(row?.category || '').trim(),
+      field:String(row?.field || '').trim(),
+      contains:String(row?.contains || '').trim()
+    })).filter(row => row.category && row.field) : [];
+    component.destinationModeV747 = component.destinationModeV747 === 'component' ? 'component' : 'day';
+    component.dayDestinationV747 = String(component.dayDestinationV747 || 'current');
+    component.destinationComponentIdV747 = String(component.destinationComponentIdV747 || '');
+
+    component.sourceModeV748 = component.sourceModeV748 === 'component' ? 'component' : 'global';
+    component.sourceTabIdV748 = String(component.sourceTabIdV748 || '');
+    component.sourceComponentIdV748 = String(component.sourceComponentIdV748 || '');
+
+    const legacyAccepted = unique(component.acceptedItemIdsV747 || []).map(itemId => `global:${itemId}`);
+    component.acceptedSourceKeysV748 = unique([...(component.acceptedSourceKeysV748 || []), ...legacyAccepted]);
+    component.acceptedItemIdsV747 = unique(component.acceptedItemIdsV747 || []); // legacy compatibility only
+
+    if (!component.currentSourceKeyV748 && component.currentItemIdV747) component.currentSourceKeyV748 = `global:${component.currentItemIdV747}`;
+    if (!component.lastSourceKeyV748 && component.lastItemIdV747) component.lastSourceKeyV748 = `global:${component.lastItemIdV747}`;
+    component.currentSourceKeyV748 = String(component.currentSourceKeyV748 || '');
+    component.lastSourceKeyV748 = String(component.lastSourceKeyV748 || '');
+    component.currentItemIdV747 = String(component.currentItemIdV747 || '');
+    component.lastItemIdV747 = String(component.lastItemIdV747 || '');
+    return component;
+  }
+
+  function tabLabel(tab) {
+    return String(tab?.name || tab?.title || 'Custom Tab').trim() || 'Custom Tab';
+  }
+
+  function customKbSources(currentTab) {
+    const rows = [];
+    let tabs = [];
+    try { tabs = typeof getCustomTabs === 'function' ? getCustomTabs() : (db?.settings?.customTabs || []); }
+    catch { tabs = db?.settings?.customTabs || []; }
+    tabs.forEach(tab => {
+      (tab?.components || []).forEach(component => {
+        if (component?.type !== CUSTOM_KB_TYPE) return;
+        rows.push({
+          tab,
+          component,
+          sameTab:String(tab.id || '') === String(currentTab?.id || ''),
+          label:`${tabLabel(tab)} · ${String(component.title || 'Knowledge Base').trim() || 'Knowledge Base'}`
+        });
+      });
+    });
+    rows.sort((a,b) => Number(b.sameTab) - Number(a.sameTab) || a.label.localeCompare(b.label));
+    return rows;
+  }
+
+  function globalCategoryList() {
+    return unique([
+      ...(db?.settings?.categories || []),
+      ...Object.keys(db?.settings?.categorySettings || {}),
+      ...(db?.phrases || []).map(itemId => db?.phrase_meta?.[itemId]?.type || '')
+    ]);
+  }
+
+  function globalFieldNames(category) {
+    const out = [];
+    try {
+      (getKnowledgeFieldDefs(category) || []).forEach(field => { if (field?.name) out.push(String(field.name)); });
+    } catch {}
+    try {
+      const cfg = db?.settings?.categorySettings?.[category];
+      (cfg?.fields || []).forEach((raw, index) => {
+        let field = raw;
+        try { if (typeof normalizeKnowledgeField === 'function') field = normalizeKnowledgeField(raw, index, cfg); } catch {}
+        if (field?.name) out.push(String(field.name));
+      });
+    } catch {}
+    return unique(out);
+  }
+
+  function globalDisplayLabel(itemId) {
+    try { return String(window.getKnowledgeDisplayLabelV162?.(itemId, 'everywhere') || itemId); }
+    catch { return String(itemId || ''); }
+  }
+
+  function globalItemTags(itemId) {
+    try {
+      if (typeof getKnowledgeItemTagsV55 === 'function') {
+        return unique(getKnowledgeItemTagsV55(itemId)).map(v => String(v).replace(/^#/, '').toLowerCase());
+      }
+    } catch {}
+    const meta = db?.phrase_meta?.[itemId] || {};
+    return unique([...(meta.tags || []), meta.type]).map(v => String(v).replace(/^#/, '').toLowerCase());
+  }
+
+  function globallyLearnedIds() {
+    const learned = new Set();
+    Object.values(db?.days || {}).forEach(day => (day?.phrases || []).forEach(itemId => learned.add(String(itemId))));
+    return learned;
+  }
+
+  function resolveSource(tab, component) {
+    component = normalize(component);
+    if (component.sourceModeV748 !== 'component') {
+      return {mode:'global', key:'global', label:'Real Knowledge Base', sameTab:false, tab:null, component:null};
+    }
+    const wantedTabId = String(component.sourceTabIdV748 || tab?.id || '');
+    const source = customKbSources(tab).find(row =>
+      String(row.tab?.id || '') === wantedTabId &&
+      String(row.component?.id || '') === component.sourceComponentIdV748
+    );
+    if (!source) {
+      return {mode:'missing', key:'missing', label:'Selected tab Knowledge Base (missing)', sameTab:false, tab:null, component:null};
+    }
+    return {
+      mode:'component', key:`component:${source.tab.id}:${source.component.id}`,
+      label:source.label, sameTab:source.sameTab, tab:source.tab, component:source.component
+    };
+  }
+
+  function sourceCategories(source) {
+    if (source.mode === 'global') return globalCategoryList();
+    if (source.mode !== 'component') return [];
+    return unique([
+      ...(source.component?.categories || []),
+      ...Object.keys(source.component?.categorySettings || {}),
+      ...(source.component?.items || []).map(item => item?.category || '')
+    ]);
+  }
+
+  function sourceFieldNames(source, category) {
+    if (source.mode === 'global') return globalFieldNames(category);
+    if (source.mode !== 'component') return [];
+    const cfg = source.component?.categorySettings?.[category];
+    const configured = (cfg?.fields || []).map(field => typeof field === 'string' ? field : field?.name).filter(Boolean);
+    const observed = (source.component?.items || [])
+      .filter(item => String(item?.category || '') === String(category || ''))
+      .flatMap(item => Object.keys(item?.values || {}));
+    return unique([...configured, ...observed]);
+  }
+
+  function sourceRecords(tab, component) {
+    const source = resolveSource(tab, component);
+    if (source.mode === 'global') {
+      return (db?.phrases || []).map(itemId => {
+        itemId = String(itemId);
+        const meta = db?.phrase_meta?.[itemId] || {};
+        return {
+          key:`global:${itemId}`, id:itemId, globalId:itemId, sourceMode:'global', sourceLabel:source.label,
+          sourceTabId:'', sourceComponentId:'', title:globalDisplayLabel(itemId), category:String(meta.type || ''),
+          tags:globalItemTags(itemId), values:{...(meta.custom_fields || {})}, rawMeta:meta, rawItem:null
+        };
+      });
+    }
+    if (source.mode !== 'component') return [];
+    return (source.component?.items || []).map(item => {
+      const itemId = String(item?.id || '');
+      const globalId = String(item?.sourceKbIdV747 || '');
+      return {
+        key:`component:${source.tab.id}:${source.component.id}:${itemId}`,
+        id:itemId, globalId, sourceMode:'component', sourceLabel:source.label,
+        sourceTabId:String(source.tab.id || ''), sourceComponentId:String(source.component.id || ''),
+        title:String(item?.title || 'Untitled Item'), category:String(item?.category || ''),
+        tags:unique(item?.tags || []).map(tag => String(tag).replace(/^#/, '').toLowerCase()),
+        values:{...(item?.values || {})}, rawMeta:null, rawItem:item
+      };
+    }).filter(record => record.id);
+  }
+
+  function candidateRecords(tab, component) {
+    component = normalize(component);
+    const learned = globallyLearnedIds();
+    const accepted = new Set(component.acceptedSourceKeysV748.map(String));
+    const categories = new Set(component.categoriesV747.map(String));
+    const requiredTags = component.tagsV747.map(tag => String(tag).replace(/^#/, '').toLowerCase());
+
+    return sourceRecords(tab, component).filter(record => {
+      if (accepted.has(record.key)) return false;
+      if (record.globalId && learned.has(record.globalId)) return false;
+      if (categories.size && !categories.has(record.category)) return false;
+      if (requiredTags.length) {
+        const tags = record.tags || [];
+        const ok = component.tagModeV747 === 'or'
+          ? requiredTags.some(tag => tags.includes(tag))
+          : requiredTags.every(tag => tags.includes(tag));
+        if (!ok) return false;
+      }
+      for (const row of component.fieldFiltersV747) {
+        if (record.category !== row.category) return false;
+        const value = row.field === '__title__' ? record.title : String(record.values?.[row.field] ?? '');
+        if (!value.trim()) return false;
+        if (row.contains && !value.toLowerCase().includes(row.contains.toLowerCase())) return false;
+      }
+      return true;
+    });
+  }
+
+  function chooseNext(tab, component) {
+    component = normalize(component);
+    const candidates = candidateRecords(tab, component);
+    if (!candidates.length) {
+      component.currentSourceKeyV748 = '';
+      component.currentItemIdV747 = '';
+      return null;
+    }
+    let pool = candidates;
+    if (candidates.length > 1 && component.lastSourceKeyV748) {
+      const withoutLast = candidates.filter(record => record.key !== component.lastSourceKeyV748);
+      if (withoutLast.length) pool = withoutLast;
+    }
+    const picked = pool[Math.floor(Math.random() * pool.length)];
+    component.lastSourceKeyV748 = picked.key;
+    component.currentSourceKeyV748 = picked.key;
+    component.lastItemIdV747 = picked.sourceMode === 'global' ? picked.id : '';
+    component.currentItemIdV747 = picked.sourceMode === 'global' ? picked.id : '';
+    return picked;
+  }
+
+  function ensureCurrent(tab, component) {
+    component = normalize(component);
+    const candidates = candidateRecords(tab, component);
+    const current = candidates.find(record => record.key === component.currentSourceKeyV748);
+    if (current) return current;
+    return chooseNext(tab, component);
+  }
+
+  function recordSummary(record) {
+    const entries = Object.entries(record?.values || {})
+      .filter(([,value]) => String(value ?? '').trim())
+      .slice(0, 3)
+      .map(([key,value]) => `${key}: ${String(value).trim()}`);
+    return entries.length ? entries.join(' · ') : String(record?.category || '').trim();
+  }
+
+  function firstFieldValue(record) {
+    return Object.values(record?.values || {}).map(v => String(v ?? '').trim()).find(Boolean) || '';
+  }
+
+  function compatibleDestinations(tab, selfId, source = null) {
+    const sourceId = source?.mode === 'component' && String(source.tab?.id || '') === String(tab?.id || '')
+      ? String(source.component?.id || '') : '';
+    return (tab?.components || []).filter(component =>
+      component?.id !== selfId && String(component?.id || '') !== sourceId && DESTINATION_TYPES.has(String(component?.type || ''))
+    );
+  }
+
+  function destinationName(component) {
+    try { return getCustomComponentLabel(component); }
+    catch { return String(component?.title || component?.text || component?.type || 'Component'); }
+  }
+
+  function sourceMarker(record) {
+    return String(record?.key || '');
+  }
+
+  function itemHasMarker(item, marker, globalId = '') {
+    if (!item) return false;
+    if (String(item.sourceRecommendationKeyV748 || '') === marker) return true;
+    return !!globalId && String(item.sourceKbIdV747 || '') === globalId;
+  }
+
+  function stampSource(target, record) {
+    target.sourceRecommendationKeyV748 = sourceMarker(record);
+    if (record.globalId) target.sourceKbIdV747 = record.globalId;
+    target.sourceRecommendationOriginV748 = record.sourceLabel;
+    return target;
+  }
+
+  function ensureCustomKbDestinationFields(destination, record) {
+    destination.categories = Array.isArray(destination.categories) ? destination.categories : [];
+    destination.categorySettings = destination.categorySettings && typeof destination.categorySettings === 'object' ? destination.categorySettings : {};
+    const category = String(record.category || '').trim();
+    if (category && !destination.categories.includes(category)) destination.categories.push(category);
+    if (category) {
+      const cfg = destination.categorySettings[category] && typeof destination.categorySettings[category] === 'object'
+        ? destination.categorySettings[category] : (destination.categorySettings[category] = {fields:[]});
+      cfg.fields = Array.isArray(cfg.fields) ? cfg.fields : [];
+      Object.keys(record.values || {}).forEach(name => {
+        if (cfg.fields.some(field => String(typeof field === 'string' ? field : field?.name || '').toLowerCase() === name.toLowerCase())) return;
+        cfg.fields.push({id:id('kb-field'),name,kind:'text',pronunciation:false,ttsLang:'en',options:[],maxRating:5,defaultPinColor:'#e53935',numberStyle:'number',decimals:2,currencySymbol:'$',dateMode:'single'});
+      });
+    }
+  }
+
+  function insertIntoComponent(destination, record) {
+    if (!destination) return {ok:false, message:'The destination component no longer exists.'};
+    const label = record.title || 'Untitled Item';
+    const summary = recordSummary(record);
+    const marker = sourceMarker(record);
+    const globalId = record.globalId || '';
+    const existingArrays = [destination.items, destination.entries].filter(Array.isArray);
+    if (existingArrays.some(list => list.some(entry => itemHasMarker(entry, marker, globalId)))) {
+      return {ok:true, duplicate:true, message:`“${label}” is already in ${destinationName(destination)}.`};
+    }
+
+    if (destination.type === 'checklist') {
+      destination.items ||= [];
+      destination.items.push(stampSource({id:id('check'), text:label, done:false, completedAt:null}, record));
+    } else if (destination.type === 'cards') {
+      destination.items ||= [];
+      destination.items.push(stampSource({id:id('card'), title:label, body:summary}, record));
+    } else if (destination.type === 'vocabulary') {
+      destination.items ||= [];
+      destination.items.push(stampSource({id:id('vocab'), term:label, meaning:firstFieldValue(record), note:String(record.category || '')}, record));
+    } else if (destination.type === 'milestones') {
+      destination.items ||= [];
+      destination.items.push(stampSource({id:id('milestone'), text:label, done:false, completedAt:null}, record));
+    } else if (destination.type === CUSTOM_KB_TYPE) {
+      destination.items ||= [];
+      ensureCustomKbDestinationFields(destination, record);
+      const item = stampSource({
+        id:id('kb-item'), title:label, category:String(record.category || ''), values:{...(record.values || {})}, tags:[...(record.tags || [])]
+      }, record);
+      destination.items.push(item);
+    } else if (destination.type === 'tableV162') {
+      destination.columns ||= [];
+      destination.rows ||= [];
+      if (!destination.columns.length) destination.columns.push({id:id('col'),name:'Item'},{id:id('col'),name:'Details'});
+      const cells = {};
+      destination.columns.forEach((column, index) => {
+        const name = String(column.name || '').trim();
+        const low = name.toLowerCase();
+        let value = '';
+        if (/^(item|title|name|term|topic)$/.test(low)) value = label;
+        else if (low === 'category' || low === 'type') value = String(record.category || '');
+        else {
+          const matchingField = Object.keys(record.values || {}).find(key => key.toLowerCase() === low);
+          if (matchingField) value = String(record.values?.[matchingField] ?? '');
+          else if (index === 0) value = label;
+          else if (index === 1) value = summary;
+        }
+        cells[column.id] = value;
+      });
+      destination.rows.push(stampSource({id:id('row'), cells}, record));
+    } else if (destination.type === 'qaV162') {
+      destination.items ||= [];
+      destination.items.push(stampSource({id:id('qa'), question:label, answer:summary, references:[]}, record));
+    } else if (destination.type === 'kanbanV239') {
+      destination.columns = Array.isArray(destination.columns) ? destination.columns : [];
+      if (!destination.columns.length) destination.columns.push({id:id('kanban-col'), title:'To Do', cards:[]});
+      destination.columns.forEach(column => { column.cards = Array.isArray(column.cards) ? column.cards : []; });
+      if (destination.columns.some(column => column.cards.some(card => itemHasMarker(card, marker, globalId)))) {
+        return {ok:true, duplicate:true, message:`“${label}” is already in ${destinationName(destination)}.`};
+      }
+      destination.columns[0].cards.push(stampSource({id:id('kanban-card'), title:label, body:summary, label:String(record.category || '')}, record));
+    } else if (destination.type === 'text') {
+      const existing = String(destination.text || '').trim();
+      const textMarker = `[REC:${marker}]`;
+      if (existing.includes(textMarker) || (globalId && existing.includes(`[KB:${globalId}]`))) {
+        return {ok:true, duplicate:true, message:`“${label}” is already in ${destinationName(destination)}.`};
+      }
+      destination.text = `${existing}${existing ? '\n' : ''}${label} ${textMarker}`.trim();
+    } else {
+      return {ok:false, message:'That component cannot receive recommendation items.'};
+    }
+    return {ok:true, message:`Added “${label}” to ${destinationName(destination)}.`};
+  }
+
+  function removeConfiguredTags(component, record) {
+    if (!record || !component.removeTagsV747.length) return;
+    const remove = new Set(component.removeTagsV747.map(tag => String(tag).replace(/^#/, '').toLowerCase()));
+    if (record.sourceMode === 'global') {
+      const meta = db?.phrase_meta?.[record.id];
+      if (meta) meta.tags = (Array.isArray(meta.tags) ? meta.tags : []).filter(tag => !remove.has(String(tag || '').replace(/^#/, '').toLowerCase()));
+      return;
+    }
+    if (record.rawItem) {
+      record.rawItem.tags = (Array.isArray(record.rawItem.tags) ? record.rawItem.tags : [])
+        .filter(tag => !remove.has(String(tag || '').replace(/^#/, '').toLowerCase()));
+    }
+  }
+
+  async function resolveDayDestination(component) {
+    const choice = String(component.dayDestinationV747 || 'current');
+    if (choice.startsWith('day:')) {
+      const day = Number(choice.slice(4));
+      return Number.isFinite(day) && db?.days?.[day] ? day : null;
+    }
+    if (choice === 'current' && Number(currentDay) && db?.days?.[currentDay]) return Number(currentDay);
+    const values = await showAppFormModal({
+      title:'Add to Items Learned', submitLabel:'Add',
+      fields:[{name:'day',label:'Day number',type:'number',value:String(Number(currentDay) || ''),min:1}]
+    });
+    if (!values) return null;
+    const day = Number(values.day);
+    if (!Number.isInteger(day) || !db?.days?.[day]) {
+      try { showFeatureToast?.('That numbered Day Log does not exist.'); } catch {}
+      return null;
+    }
+    return day;
+  }
+
+  async function acceptRecommendation(tab, component) {
+    component = normalize(component);
+    const record = ensureCurrent(tab, component);
+    if (!record) return;
+    let result = {ok:false, message:''};
+
+    if (component.destinationModeV747 === 'component') {
+      const source = resolveSource(tab, component);
+      const destination = compatibleDestinations(tab, component.id, source)
+        .find(entry => String(entry.id) === String(component.destinationComponentIdV747));
+      result = insertIntoComponent(destination, record);
+    } else {
+      if (record.sourceMode !== 'global') {
+        try { showFeatureToast?.('Numbered Day Log Items Learned can only receive items from the real Knowledge Base. Choose a component destination for a tab Knowledge Base source.'); } catch {}
+        return;
+      }
+      const day = await resolveDayDestination(component);
+      if (!day) return;
+      db.days[day].phrases = Array.isArray(db.days[day].phrases) ? db.days[day].phrases : [];
+      if (!db.days[day].phrases.includes(record.id)) db.days[day].phrases.push(record.id);
+      result = {ok:true, message:`Added “${record.title}” to Day ${day} Items Learned.`};
+      try { if (Number(currentDay) === Number(day)) renderPhrases?.(db.days[day].phrases); } catch {}
+    }
+
+    if (!result.ok) {
+      try { showFeatureToast?.(result.message || 'Choose a valid recommendation destination.'); } catch {}
+      return;
+    }
+
+    if (!component.acceptedSourceKeysV748.includes(record.key)) component.acceptedSourceKeysV748.push(record.key);
+    if (record.sourceMode === 'global' && !component.acceptedItemIdsV747.includes(record.id)) component.acceptedItemIdsV747.push(record.id);
+    removeConfiguredTags(component, record);
+    component.currentSourceKeyV748 = '';
+    component.currentItemIdV747 = '';
+    chooseNext(tab, component);
+    try { await saveDb(); } catch {}
+    try { renderPhrasesLibrary?.(document.getElementById('phrases-search-bar')?.value || ''); } catch {}
+    try { renderCustomTabView(tab.id); } catch {}
+    try { showFeatureToast?.(result.message || `Accepted “${record.title}”.`); } catch {}
+  }
+
+  function openSourceItem(record) {
+    if (!record) return;
+    if (record.sourceMode === 'global') {
+      try { openItemModal(record.id, true, false); } catch {}
+      return;
+    }
+    try {
+      const opened = window.__loggyOpenCustomKbItemV748?.(record.sourceTabId, record.sourceComponentId, record.id);
+      if (opened) return;
+    } catch {}
+    try { showFeatureToast?.('Open that tab Knowledge Base to edit this item.'); } catch {}
+  }
+
+  function render(tab, component, content) {
+    component = normalize(component);
+    const current = ensureCurrent(tab, component);
+    const candidates = candidateRecords(tab, component);
+    const source = resolveSource(tab, component);
+    const rawPattern = current && current.sourceMode === 'global' && current.title === current.id && current.id.includes('\\');
+
+    content.innerHTML = `
+      <div class="custom-collection-header lazy-recommendation-component-head-v747">
+        <h2>${esc(component.title)}</h2>
+      </div>
+      <div class="lazy-recommendation-component-v747${current ? '' : ' is-empty'}">
+        <button type="button" class="lazy-recommendation-component-main-v747" ${current ? '' : 'disabled'}>
+          <span class="lazy-recommendation-component-icon-v747"><i class="ph ${attr(component.iconV747)}"></i></span>
+          <span class="lazy-recommendation-component-copy-v747">
+            <small>${current ? `Recommended from ${esc(source.label)}` : source.mode === 'missing' ? 'Recommendation source is missing' : 'No recommendation available'}</small>
+            <strong class="lazy-recommendation-component-value-v747"></strong>
+            <em>${current ? `${esc(current.category || source.label)} · ${candidates.length} matching item${candidates.length === 1 ? '' : 's'} left` : source.mode === 'missing' ? 'Open Recommendation settings and choose an available Knowledge Base source.' : 'No available items currently match this component’s filters.'}</em>
+          </span>
+        </button>
+        <div class="lazy-recommendation-component-actions-v747">
+          <button type="button" class="small-icon-btn lazy-recommendation-skip-v747" title="Skip and show another" aria-label="Skip recommendation" ${current ? '' : 'disabled'}><i class="ph ph-skip-forward"></i></button>
+          <button type="button" class="small-icon-btn lazy-recommendation-accept-v747" title="Accept recommendation" aria-label="Accept recommendation" ${current ? '' : 'disabled'}><i class="ph ph-check"></i></button>
+        </div>
+      </div>`;
+
+    const value = content.querySelector('.lazy-recommendation-component-value-v747');
+    if (value && current) {
+      if (rawPattern && typeof placeholderTokenHtmlV56 === 'function') value.innerHTML = placeholderTokenHtmlV56(current.id);
+      else value.textContent = current.title;
+    }
+    content.querySelector('.lazy-recommendation-component-main-v747')?.addEventListener('click', () => openSourceItem(current));
+    content.querySelector('.lazy-recommendation-skip-v747')?.addEventListener('click', async () => {
+      if (!current) return;
+      component.currentSourceKeyV748 = '';
+      component.currentItemIdV747 = '';
+      chooseNext(tab, component);
+      try { await saveDb(); } catch {}
+      renderCustomTabView(tab.id);
+    });
+    content.querySelector('.lazy-recommendation-accept-v747')?.addEventListener('click', () => acceptRecommendation(tab, component));
+    content.querySelector('.lazy-recommendation-component-v747')?.addEventListener('contextmenu', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      try {
+        showCustomItemContextMenu(event.clientX, event.clientY, [
+          {label:'Recommendation settings',icon:'ph-sliders-horizontal',action:()=>openSettings(tab, component)}
+        ]);
+      } catch { openSettings(tab, component); }
+    });
+  }
+
+  function buildFieldFilterRow(row, index, source, categories) {
+    const fields = row.category ? sourceFieldNames(source, row.category) : [];
+    const fieldOptions = ['__title__', ...fields].map(name => `<option value="${attr(name)}" ${name === row.field ? 'selected' : ''}>${name === '__title__' ? 'Item title' : esc(name)}</option>`).join('');
+    return `<div class="lazy-tab-filter-row-v747" data-filter-index="${index}">
+      <select class="lazy-tab-filter-category-v747">${categories.map(category => `<option value="${attr(category)}" ${category === row.category ? 'selected' : ''}>${esc(category)}</option>`).join('')}</select>
+      <select class="lazy-tab-filter-field-v747">${fieldOptions}</select>
+      <input type="text" class="lazy-tab-filter-value-v747" value="${attr(row.contains)}" placeholder="Contains… (optional)">
+      <button type="button" class="small-icon-btn lazy-tab-filter-remove-v747" title="Remove field filter"><i class="ph ph-x"></i></button>
+    </div>`;
+  }
+
+  function sourceSelectHtml(tab, component) {
+    const sources = customKbSources(tab);
+    const current = sources.filter(row => row.sameTab);
+    const others = sources.filter(row => !row.sameTab);
+    const selectedGlobal = component.sourceModeV748 !== 'component';
+    const options = [`<option value="global" ${selectedGlobal ? 'selected' : ''}>Real Knowledge Base</option>`];
+    if (current.length) {
+      options.push(`<optgroup label="Knowledge Bases on this tab">${current.map(row => `<option value="component" data-tab-id="${attr(row.tab.id)}" data-component-id="${attr(row.component.id)}" ${!selectedGlobal && String(component.sourceTabIdV748 || tab?.id || '') === String(row.tab.id) && component.sourceComponentIdV748 === String(row.component.id) ? 'selected' : ''}>${esc(String(row.component.title || 'Knowledge Base'))}</option>`).join('')}</optgroup>`);
+    }
+    if (others.length) {
+      options.push(`<optgroup label="Knowledge Bases on other tabs">${others.map(row => `<option value="component" data-tab-id="${attr(row.tab.id)}" data-component-id="${attr(row.component.id)}" ${!selectedGlobal && String(component.sourceTabIdV748 || tab?.id || '') === String(row.tab.id) && component.sourceComponentIdV748 === String(row.component.id) ? 'selected' : ''}>${esc(row.label)}</option>`).join('')}</optgroup>`);
+    }
+    return options.join('');
+  }
+
+  function openSettings(tab, component) {
+    component = normalize(component);
+    document.getElementById('lazy-tab-recommendation-settings-v747')?.remove();
+    const existingDays = Object.keys(db?.days || {}).map(Number).filter(Number.isInteger).sort((a,b)=>a-b);
+    const allSourceOptions = customKbSources(tab);
+    const modal = document.createElement('div');
+    modal.id = 'lazy-tab-recommendation-settings-v747';
+    modal.className = 'modal-overlay lazy-tab-recommendation-settings-v747';
+    modal.innerHTML = `<div class="modal-box lazy-tab-recommendation-settings-box-v747" role="dialog" aria-modal="true" aria-label="Recommendation Settings">
+      <div class="modal-header"><h2>Recommendation Settings</h2><button type="button" class="small-icon-btn lazy-tab-rec-close-v747"><i class="ph ph-x"></i></button></div>
+      <div class="modal-section"><span class="field-label">Component title</span><input type="text" class="lazy-tab-rec-title-v747" value="${attr(component.title)}"></div>
+      <div class="modal-section"><span class="field-label">Icon</span><select class="lazy-tab-rec-icon-v747">${ICONS.map(icon => `<option value="${attr(icon)}" ${icon === component.iconV747 ? 'selected' : ''}>${esc(icon.replace(/^ph-/, '').replace(/-/g, ' '))}</option>`).join('')}</select></div>
+      <div class="modal-section lazy-tab-rec-source-section-v748"><span class="field-label">Recommendation source</span><select class="lazy-tab-rec-source-v748">${sourceSelectHtml(tab, component)}</select><p class="progress-hint lazy-tab-rec-source-hint-v748">Choose the real Knowledge Base, a Knowledge Base on this tab, or one from another custom tab.</p></div>
+      <div class="modal-section"><span class="field-label">Categories <small>(optional)</small></span><p class="progress-hint lazy-tab-rec-category-hint-v748">Leave all unchecked to allow every category from the selected source.</p><div class="lazy-tab-rec-category-grid-v747"></div></div>
+      <div class="modal-section"><span class="field-label">Required tags <small>(optional)</small></span><div class="lazy-tab-rec-tag-row-v747"><input type="text" class="lazy-tab-rec-tags-v747" value="${attr(component.tagsV747.join(', '))}" placeholder="lazy, review"><select class="lazy-tab-rec-tag-mode-v747"><option value="and" ${component.tagModeV747 === 'and' ? 'selected' : ''}>AND</option><option value="or" ${component.tagModeV747 === 'or' ? 'selected' : ''}>OR</option></select></div></div>
+      <div class="modal-section"><span class="field-label">Remove tags after ✓ <small>(optional)</small></span><input type="text" class="lazy-tab-rec-remove-tags-v747" value="${attr(component.removeTagsV747.join(', '))}" placeholder="lazy, hide"><p class="progress-hint">Only these tags are removed from the source item after the recommendation is accepted.</p></div>
+      <div class="modal-section"><div class="lazy-tab-rec-filter-head-v747"><div><span class="field-label">Field filters <small>(optional)</small></span><p class="progress-hint">Fields come from the selected Knowledge Base source.</p></div><button type="button" class="small-icon-btn lazy-tab-rec-add-filter-v747" title="Add field filter"><i class="ph ph-plus"></i></button></div><div class="lazy-tab-rec-filter-list-v747"></div></div>
+      <div class="modal-section lazy-tab-rec-destination-section-v747"><span class="field-label">When I press ✓</span><select class="lazy-tab-rec-destination-mode-v747"><option value="day" ${component.destinationModeV747 === 'day' ? 'selected' : ''}>Add to a numbered Day Log → Items Learned</option><option value="component" ${component.destinationModeV747 === 'component' ? 'selected' : ''}>Add to another component on this tab</option></select>
+        <p class="progress-hint lazy-tab-rec-day-source-note-v748 hidden">A tab Knowledge Base item is independent from the real Knowledge Base, so it cannot be linked directly into numbered Day Log Items Learned. Choose a component destination instead.</p>
+        <div class="lazy-tab-rec-day-destination-v747"><span class="field-label">Day destination</span><select class="lazy-tab-rec-day-target-v747"><option value="current" ${component.dayDestinationV747 === 'current' ? 'selected' : ''}>Current / most recently opened numbered Day Log</option><option value="ask" ${component.dayDestinationV747 === 'ask' ? 'selected' : ''}>Ask me each time</option>${existingDays.map(day => `<option value="day:${day}" ${component.dayDestinationV747 === `day:${day}` ? 'selected' : ''}>Day ${day}</option>`).join('')}</select></div>
+        <div class="lazy-tab-rec-component-destination-v747"><span class="field-label">Component destination</span><select class="lazy-tab-rec-component-target-v747"></select><p class="progress-hint">Cards, Checklists, Vocabulary, Milestones, Tables, Q&A, Kanban, Text, and an independent tab Knowledge Base can receive recommendations.</p></div>
+      </div>
+      <div class="modal-section lazy-tab-rec-history-v747"><span><strong>${component.acceptedSourceKeysV748.length}</strong> recommendation${component.acceptedSourceKeysV748.length === 1 ? '' : 's'} accepted by this component.</span><button type="button" class="filter-tab lazy-tab-rec-reset-v747" ${component.acceptedSourceKeysV748.length ? '' : 'disabled'}>Reset accepted history</button></div>
+      <div class="lazy-tab-rec-match-count-v747"></div>
+      <div class="modal-actions"><button type="button" class="icon-btn lazy-tab-rec-save-v747"><i class="ph ph-check"></i> Save</button></div>
+    </div>`;
+    document.body.appendChild(modal);
+
+    let draft = normalize({
+      ...component,
+      categoriesV747:[...component.categoriesV747], tagsV747:[...component.tagsV747], removeTagsV747:[...component.removeTagsV747],
+      fieldFiltersV747:component.fieldFiltersV747.map(row => ({...row})), acceptedSourceKeysV748:[...component.acceptedSourceKeysV748]
+    });
+    let draftFilters = draft.fieldFiltersV747.map(row => ({...row}));
+
+    const sourceSelect = modal.querySelector('.lazy-tab-rec-source-v748');
+    const categoryGrid = modal.querySelector('.lazy-tab-rec-category-grid-v747');
+    const filterList = modal.querySelector('.lazy-tab-rec-filter-list-v747');
+    const destinationMode = modal.querySelector('.lazy-tab-rec-destination-mode-v747');
+    const destinationTarget = modal.querySelector('.lazy-tab-rec-component-target-v747');
+
+    const syncDraftSourceFromSelect = () => {
+      const option = sourceSelect.selectedOptions?.[0];
+      if (!option || option.value === 'global') {
+        draft.sourceModeV748 = 'global'; draft.sourceTabIdV748 = ''; draft.sourceComponentIdV748 = '';
+      } else {
+        draft.sourceModeV748 = 'component';
+        draft.sourceTabIdV748 = String(option.dataset.tabId || '');
+        draft.sourceComponentIdV748 = String(option.dataset.componentId || '');
+      }
+    };
+
+    const draftSource = () => resolveSource(tab, draft);
+    const categoriesNow = () => sourceCategories(draftSource());
+
+    const drawCategories = () => {
+      const categories = categoriesNow();
+      draft.categoriesV747 = draft.categoriesV747.filter(category => categories.includes(category));
+      categoryGrid.innerHTML = categories.length
+        ? categories.map(category => `<label><input type="checkbox" value="${attr(category)}" ${draft.categoriesV747.includes(category) ? 'checked' : ''}><span>${esc(category)}</span></label>`).join('')
+        : '<small>No categories exist in this Knowledge Base source yet.</small>';
+      categoryGrid.querySelectorAll('input').forEach(input => input.onchange = () => {
+        draft.categoriesV747 = [...categoryGrid.querySelectorAll('input:checked')].map(box => box.value);
+        updateCount();
+      });
+    };
+
+    const drawFilters = () => {
+      const source = draftSource();
+      const categories = sourceCategories(source);
+      draftFilters = draftFilters.filter(row => categories.includes(row.category));
+      filterList.innerHTML = draftFilters.length
+        ? draftFilters.map((row,index) => buildFieldFilterRow(row,index,source,categories)).join('')
+        : '<div class="progress-hint">No field filters.</div>';
+      filterList.querySelectorAll('.lazy-tab-filter-row-v747').forEach(rowEl => {
+        const index = Number(rowEl.dataset.filterIndex);
+        const category = rowEl.querySelector('.lazy-tab-filter-category-v747');
+        const field = rowEl.querySelector('.lazy-tab-filter-field-v747');
+        const contains = rowEl.querySelector('.lazy-tab-filter-value-v747');
+        category.onchange = () => {
+          draftFilters[index].category = category.value;
+          draftFilters[index].field = sourceFieldNames(source, category.value)[0] || '__title__';
+          drawFilters(); updateCount();
+        };
+        field.onchange = () => { draftFilters[index].field = field.value; updateCount(); };
+        contains.oninput = () => { draftFilters[index].contains = contains.value; updateCount(); };
+        rowEl.querySelector('.lazy-tab-filter-remove-v747').onclick = () => { draftFilters.splice(index,1); drawFilters(); updateCount(); };
+      });
+    };
+
+    const syncDestinationOptions = () => {
+      const source = draftSource();
+      const destinations = compatibleDestinations(tab, component.id, source);
+      destinationTarget.innerHTML = destinations.length
+        ? destinations.map(dest => `<option value="${attr(dest.id)}" ${String(dest.id) === String(draft.destinationComponentIdV747) ? 'selected' : ''}>${esc(destinationName(dest))}</option>`).join('')
+        : '<option value="">No compatible component is on this tab yet</option>';
+      if (!destinations.some(dest => String(dest.id) === String(draft.destinationComponentIdV747))) {
+        draft.destinationComponentIdV747 = String(destinations[0]?.id || '');
+        destinationTarget.value = draft.destinationComponentIdV747;
+      }
+
+      const dayOption = destinationMode.querySelector('option[value="day"]');
+      const customSource = source.mode === 'component';
+      if (dayOption) dayOption.disabled = customSource;
+      modal.querySelector('.lazy-tab-rec-day-source-note-v748').classList.toggle('hidden', !customSource);
+      if (customSource && destinationMode.value === 'day') destinationMode.value = 'component';
+      draft.destinationModeV747 = destinationMode.value === 'component' ? 'component' : 'day';
+      modal.querySelector('.lazy-tab-rec-day-destination-v747').classList.toggle('hidden', draft.destinationModeV747 !== 'day');
+      modal.querySelector('.lazy-tab-rec-component-destination-v747').classList.toggle('hidden', draft.destinationModeV747 !== 'component');
+    };
+
+    const readSimpleControls = () => {
+      draft.title = modal.querySelector('.lazy-tab-rec-title-v747').value.trim() || 'Recommendation Button';
+      draft.iconV747 = modal.querySelector('.lazy-tab-rec-icon-v747').value;
+      draft.tagsV747 = split(modal.querySelector('.lazy-tab-rec-tags-v747').value).map(tag => tag.replace(/^#/,''));
+      draft.tagModeV747 = modal.querySelector('.lazy-tab-rec-tag-mode-v747').value === 'or' ? 'or' : 'and';
+      draft.removeTagsV747 = split(modal.querySelector('.lazy-tab-rec-remove-tags-v747').value).map(tag => tag.replace(/^#/,''));
+      draft.fieldFiltersV747 = draftFilters.map(row => ({...row}));
+      draft.destinationModeV747 = destinationMode.value === 'component' ? 'component' : 'day';
+      draft.dayDestinationV747 = modal.querySelector('.lazy-tab-rec-day-target-v747').value;
+      draft.destinationComponentIdV747 = destinationTarget.value;
+      return draft;
+    };
+
+    const updateCount = () => {
+      readSimpleControls();
+      const source = draftSource();
+      const count = candidateRecords(tab, draft).length;
+      const sourceLabel = source.label || 'selected source';
+      modal.querySelector('.lazy-tab-rec-match-count-v747').innerHTML = `<strong>${count}</strong> available item${count === 1 ? '' : 's'} from ${esc(sourceLabel)} currently match.`;
+    };
+
+    sourceSelect.onchange = () => {
+      syncDraftSourceFromSelect();
+      draft.categoriesV747 = [];
+      draftFilters = [];
+      draft.currentSourceKeyV748 = '';
+      draft.lastSourceKeyV748 = '';
+      drawCategories(); drawFilters(); syncDestinationOptions(); updateCount();
+    };
+    modal.querySelector('.lazy-tab-rec-add-filter-v747').onclick = () => {
+      const source = draftSource();
+      const categories = sourceCategories(source);
+      const category = categories[0] || '';
+      if (!category) return;
+      draftFilters.push({category, field:sourceFieldNames(source, category)[0] || '__title__', contains:''});
+      drawFilters(); updateCount();
+    };
+    destinationMode.onchange = () => { draft.destinationModeV747 = destinationMode.value === 'component' ? 'component' : 'day'; syncDestinationOptions(); updateCount(); };
+    destinationTarget.onchange = () => { draft.destinationComponentIdV747 = destinationTarget.value; updateCount(); };
+    modal.querySelector('.lazy-tab-rec-day-target-v747').onchange = updateCount;
+    modal.querySelectorAll('.lazy-tab-rec-title-v747,.lazy-tab-rec-icon-v747,.lazy-tab-rec-tags-v747,.lazy-tab-rec-tag-mode-v747,.lazy-tab-rec-remove-tags-v747').forEach(control => {
+      control.addEventListener(control.tagName === 'SELECT' ? 'change' : 'input', updateCount);
+    });
+
+    modal.querySelector('.lazy-tab-rec-reset-v747').onclick = async () => {
+      const ok = await showAppConfirm({title:'Reset accepted history?',message:'Items accepted into another tab component can be recommended again after this reset. Real Knowledge Base items already in a Day Log’s Items Learned will still stay excluded.',confirmLabel:'Reset'});
+      if (!ok) return;
+      component.acceptedSourceKeysV748 = [];
+      component.acceptedItemIdsV747 = [];
+      component.currentSourceKeyV748 = '';
+      component.currentItemIdV747 = '';
+      try { await saveDb(); } catch {}
+      modal.remove();
+      renderCustomTabView(tab.id);
+      openSettings(tab, component);
+    };
+
+    const close = () => modal.remove();
+    modal.querySelector('.lazy-tab-rec-close-v747').onclick = close;
+    modal.addEventListener('click', event => { if (event.target === modal) close(); });
+    modal.querySelector('.lazy-tab-rec-save-v747').onclick = async () => {
+      syncDraftSourceFromSelect();
+      readSimpleControls();
+      const next = normalize(draft);
+      const sourceChanged = component.sourceModeV748 !== next.sourceModeV748 || component.sourceTabIdV748 !== next.sourceTabIdV748 || component.sourceComponentIdV748 !== next.sourceComponentIdV748;
+      Object.assign(component, next);
+      if (sourceChanged) {
+        component.currentSourceKeyV748 = '';
+        component.lastSourceKeyV748 = '';
+        component.currentItemIdV747 = '';
+        component.lastItemIdV747 = '';
+      }
+      const source = resolveSource(tab, component);
+      const destinations = compatibleDestinations(tab, component.id, source);
+      if (source.mode === 'component' && component.destinationModeV747 === 'day') component.destinationModeV747 = 'component';
+      if (component.destinationModeV747 === 'component' && !destinations.some(dest => String(dest.id) === component.destinationComponentIdV747)) {
+        component.destinationComponentIdV747 = String(destinations[0]?.id || '');
+      }
+      component.currentSourceKeyV748 = '';
+      component.currentItemIdV747 = '';
+      chooseNext(tab, component);
+      try { await saveDb(); } catch {}
+      close();
+      renderCustomTabView(tab.id);
+    };
+
+    syncDraftSourceFromSelect();
+    drawCategories();
+    drawFilters();
+    syncDestinationOptions();
+    updateCount();
+  }
+
+  try {
+    // Expose the real custom-KB item editor to recommendation cards without
+    // duplicating a second editor. This hook is filled below when V463 exists.
+    if (!window.__loggyOpenCustomKbItemV748) window.__loggyOpenCustomKbItemV748 = null;
+  } catch {}
+
+  try {
+    for (let i = CUSTOM_COMPONENT_LIBRARY.length - 1; i >= 0; i--) {
+      if (CUSTOM_COMPONENT_LIBRARY[i]?.type === TYPE) CUSTOM_COMPONENT_LIBRARY.splice(i, 1);
+    }
+    const after = CUSTOM_COMPONENT_LIBRARY.findIndex(def => def?.type === 'kbDynamicCollectionV162');
+    const fallback = CUSTOM_COMPONENT_LIBRARY.findIndex(def => def?.type === 'dailyLogCollection');
+    const anchor = after >= 0 ? after : fallback;
+    CUSTOM_COMPONENT_LIBRARY.splice(anchor >= 0 ? anchor + 1 : CUSTOM_COMPONENT_LIBRARY.length, 0, {
+      type:TYPE, label:'Recommendation Button', icon:'ph-moon-stars'
+    });
+  } catch {}
+
+  try { CUSTOM_TITLE_BACKGROUND_TYPES?.add?.(TYPE); } catch {}
+
+  try {
+    const before = defaultCustomComponent;
+    defaultCustomComponent = function(type) {
+      if (type === TYPE) return normalize({
+        id:id('component'), type:TYPE, title:'Recommendation Button', titleBackground:'none', iconV747:'ph-moon-stars',
+        categoriesV747:[], tagsV747:['lazy'], tagModeV747:'and', removeTagsV747:['lazy','hide'], fieldFiltersV747:[],
+        sourceModeV748:'global', sourceTabIdV748:'', sourceComponentIdV748:'',
+        destinationModeV747:'day', dayDestinationV747:'current', destinationComponentIdV747:'',
+        acceptedItemIdsV747:[], acceptedSourceKeysV748:[], currentItemIdV747:'', lastItemIdV747:'', currentSourceKeyV748:'', lastSourceKeyV748:''
+      });
+      return before.apply(this, arguments);
+    };
+  } catch {}
+
+  try {
+    const before = renderCustomComponentContent;
+    renderCustomComponentContent = function(tab, component, content) {
+      if (component?.type === TYPE) return render(tab, normalize(component), content);
+      return before.apply(this, arguments);
+    };
+  } catch {}
+
+  try {
+    const before = editCustomComponent;
+    editCustomComponent = async function(tabId, componentId) {
+      const tab = getCustomTab(tabId);
+      const component = tab?.components?.find(entry => entry.id === componentId);
+      if (component?.type === TYPE) return openSettings(tab, normalize(component));
+      return before.apply(this, arguments);
+    };
+  } catch {}
+
+  try { window.__loggyRefreshCustomComponentPaletteV746?.(); } catch {}
+})();
+
+// ============================================================================
+// V749 — Gamified Learning Roadmap custom component
+// Connected skill nodes + per-node KB tag view + Day Log links + XP/rewards.
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggySkillRoadmapV749) return;
+  window.__loggySkillRoadmapV749 = true;
+
+  const TYPE = 'skillRoadmapV749';
+  const esc = value => String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  const uid = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+  const clamp = (n,min,max) => Math.max(min,Math.min(max,Number(n)||0));
+  const cleanTag = value => String(value || '').trim().replace(/^#+/,'').toLowerCase();
+  const cleanTagsV752 = value => [...new Set((Array.isArray(value)?value:String(value||'').split(/[\s,]+/)).map(cleanTag).filter(Boolean))];
+  const displayTag = value => cleanTag(value) ? `#${cleanTag(value)}` : '';
+  const array = value => Array.isArray(value) ? value : [];
+  const tabs = () => { try { return getCustomTabs(); } catch { return []; } };
+
+  function normalizeSubsection(entry,index=0){
+    const source=typeof entry==='string'?{title:entry}:entry||{};
+    const original=String(source?.rawTitle || source?.title || `Subsection ${index+1}`).trim() || `Subsection ${index+1}`;
+    const leading=original.match(/^([A-Za-z]?\d+(?:\.\d+)+)(?:\s*[-–—:]\s*|\s+)?(.*)$/);
+    const label=String(leading?.[1] || source?.label || '').trim();
+    const cleanTitle=String(leading ? (leading[2] || original) : (source?.displayTitle || source?.title || original)).trim() || original;
+    const wasAutoTagged=String(source?.kbTagV753||'')===cleanTag(source?.label||'');
+    const tags=cleanTagsV752(wasAutoTagged?label:(source?.kbTagsV753?.length?source.kbTagsV753:(source?.kbTagV753 || label)));
+    return {
+      id:String(source?.id || uid('road-sub')),
+      title:cleanTitle,
+      rawTitle:original,
+      label,
+      kbTagV753:tags[0]||cleanTag(label),
+      kbTagsV753:tags,
+      description:String(source?.description||''),
+      done:!!source?.done,
+      manualItemKeysV785:Array.isArray(source?.manualItemKeysV785)?[...new Set(source.manualItemKeysV785.map(String))]:[],
+      modalLayoutV785:source?.modalLayoutV785&&typeof source.modalLayoutV785==='object'?source.modalLayoutV785:null,
+      completedAt:String(source?.completedAt||''),
+      autoCompleteRuleV788:source?.autoCompleteRuleV788&&typeof source.autoCompleteRuleV788==='object'?{mode:String(source.autoCompleteRuleV788.mode||'manual'),tags:cleanTagsV752(source.autoCompleteRuleV788.tags||[]),target:Math.max(1,Number(source.autoCompleteRuleV788.target)||1)}:{mode:'manual',tags:[],target:1}
+    };
+  }
+  function normalizeNode(node,index=0){
+    const label=String(node?.label || `${Math.floor(index/5)+1}.${(index%5)+1}`).trim();
+    return {
+      id:String(node?.id || uid('road-node')),
+      label,
+      title:String(node?.title || `Skill ${label}`).trim() || `Skill ${label}`,
+      kbTag:cleanTagsV752(node?.kbTagsV752?.length ? node.kbTagsV752 : (node?.kbTag || label))[0] || cleanTag(label),
+      kbTagsV752:cleanTagsV752(node?.kbTagsV752?.length ? node.kbTagsV752 : (node?.kbTag || label)),
+      description:String(node?.description || ''),
+      subsections:array(node?.subsections).map(normalizeSubsection),
+      linkedDays:[...new Set(array(node?.linkedDays).map(Number).filter(n=>Number.isInteger(n)&&n>0))].sort((a,b)=>a-b),
+      completed:!!node?.completed,
+      completedAt:String(node?.completedAt || ''),
+      manualItemKeysV785:Array.isArray(node?.manualItemKeysV785)?[...new Set(node.manualItemKeysV785.map(String))]:[],
+      modalLayoutV785:node?.modalLayoutV785&&typeof node.modalLayoutV785==='object'?node.modalLayoutV785:null,
+      autoCompleteRuleV788:node?.autoCompleteRuleV788&&typeof node.autoCompleteRuleV788==='object'?{mode:String(node.autoCompleteRuleV788.mode||'manual'),tags:cleanTagsV752(node.autoCompleteRuleV788.tags||[]),target:Math.max(1,Number(node.autoCompleteRuleV788.target)||1)}:{mode:'manual',tags:[],target:1}
+    };
+  }
+  function normalizeReward(reward,index=0){
+    return {
+      id:String(reward?.id || uid('road-reward')),
+      xp:Math.max(1,Math.round(Number(reward?.xp) || ((index+1)*100))),
+      title:String(reward?.title || `Reward ${index+1}`).trim() || `Reward ${index+1}`,
+      message:String(reward?.message || 'You reached a new roadmap milestone!'),
+      icon:String(reward?.icon || 'ph-gift')
+    };
+  }
+  function normalize(component){
+    component.title=String(component.title || 'Learning Roadmap');
+    // Normalize in place. Replacing every node on render invalidated open-editor
+    // references: Save Skill updated the discarded object instead of persisted data.
+    const persistentNodes=array(component.nodes);
+    persistentNodes.forEach((node,index)=>{
+      const normalized=normalizeNode(node,index);
+      const persistentSections=array(node.subsections);
+      normalized.subsections=persistentSections.map((section,i)=>Object.assign(section,normalizeSubsection(section,i)));
+      Object.assign(node,normalized);
+    });
+    component.nodes=persistentNodes;
+    component.xpPerSkillV749=Math.max(1,Math.round(Number(component.xpPerSkillV749)||25));
+    component.nodesPerRowV749=clamp(Math.round(Number(component.nodesPerRowV749)||4),2,6);
+    component.sequentialV749=component.sequentialV749 !== false;
+    component.autoCompleteSubsectionsV749=!!component.autoCompleteSubsectionsV749;
+    component.showTitlesV749=component.showTitlesV749 !== false;
+    component.showAddSkillOutsideEditV752=!!component.showAddSkillOutsideEditV752;
+    component.showFocusOutsideEditV785=component.showFocusOutsideEditV785 !== false;
+    component.sectionContentModeV785=['tagged','learned','manual'].includes(component.sectionContentModeV785)?component.sectionContentModeV785:(component.roadmapKbSourceModeV750==='component'?'tagged':'learned');
+    component.structureModeV753=component.structureModeV753==='linear'?'linear':'chapters';
+    component.autoLinkSectionsToCurrentDayV753=component.autoLinkSectionsToCurrentDayV753 !== false;
+    component.pathModeV749=['rainbow','single'].includes(component.pathModeV749)?component.pathModeV749:'rainbow';
+    component.pathColorV749=String(component.pathColorV749||'#6f4bd8');
+    component.completedColorV749=String(component.completedColorV749||'#3fbf8f');
+    component.completedTextColorV749=String(component.completedTextColorV749||'#ffffff');
+    component.currentColorV749=String(component.currentColorV749||'#ffffff');
+    component.currentBorderV749=String(component.currentBorderV749||'#6f4bd8');
+    component.lockedColorV749=String(component.lockedColorV749||'#eeeeee');
+    component.rewardSoundV749=component.rewardSoundV749 !== false;
+    component.nodeClickSoundV756=['off','soft','pop','chime','tap'].includes(component.nodeClickSoundV756)?component.nodeClickSoundV756:'soft';
+    component.confettiV749=component.confettiV749 !== false;
+    component.roadmapKbSourceModeV750 = component.roadmapKbSourceModeV750 === 'component' ? 'component' : 'global';
+    component.roadmapKbSourceTabIdV750 = String(component.roadmapKbSourceTabIdV750 || '');
+    component.roadmapKbSourceComponentIdV750 = String(component.roadmapKbSourceComponentIdV750 || '');
+    component.rewardsV749=array(component.rewardsV749).map(normalizeReward).sort((a,b)=>a.xp-b.xp);
+    component.claimedRewardIdsV749=[...new Set(array(component.claimedRewardIdsV749).map(String))];
+    return component;
+  }
+  function locate(tabId,componentId){
+    const tab=getCustomTab?.(tabId);
+    const component=tab?.components?.find(entry=>String(entry.id)===String(componentId));
+    return {tab,component:component?.type===TYPE?normalize(component):null};
+  }
+  function nodeById(component,nodeId){ return component?.nodes?.find(node=>String(node.id)===String(nodeId)) || null; }
+  function completedCount(component){ return array(component?.nodes).filter(node=>node.completed).length; }
+  function xp(component){
+    const unit=Math.max(1,Number(component.xpPerSkillV749)||25);
+    // In Chapter → Sections, each completed section is an individual skill.
+    // A chapter with no subsections still earns XP when completed.
+    if(component?.structureModeV753==='chapters') return array(component.nodes).reduce((total,node)=>
+      total+(node.subsections.length?node.subsections.filter(sub=>sub.done).length:(node.completed?1:0)),0)*unit;
+    return completedCount(component)*unit;
+  }
+  function nextReward(component){ const amount=xp(component); return array(component.rewardsV749).find(r=>r.xp>amount) || null; }
+  function currentIndex(component){ const i=array(component.nodes).findIndex(node=>!node.completed); return i<0?Math.max(0,component.nodes.length-1):i; }
+  function isUnlocked(component,index){ return !component.sequentialV749 || index===0 || component.nodes.slice(0,index).every(node=>node.completed); }
+
+  function roadmapCustomKbSourcesV750(currentTabId=''){
+    const rows=[];
+    for(const tab of tabs()){
+      for(const component of array(tab?.components)){
+        if(String(component?.type||'')!=='customKnowledgeBaseV453') continue;
+        rows.push({
+          mode:'component',
+          tabId:String(tab.id||''),
+          componentId:String(component.id||''),
+          tabName:String(tab.name||'Custom Tab'),
+          label:String(component.title||'Knowledge Base'),
+          current:String(tab.id||'')===String(currentTabId||''),
+          component
+        });
+      }
+    }
+    return rows;
+  }
+  function resolveRoadmapSourceV750(component,currentTabId=''){
+    normalize(component);
+    if(component.roadmapKbSourceModeV750==='component'){
+      const wantedTabId=String(component.roadmapKbSourceTabIdV750||currentTabId||'');
+      const found=roadmapCustomKbSourcesV750(currentTabId).find(row =>
+        row.tabId===wantedTabId &&
+        row.componentId===String(component.roadmapKbSourceComponentIdV750||'')
+      );
+      if(found){
+        const items=array(found.component?.items).map(item=>({
+          key:`component:${found.tabId}:${found.componentId}:${String(item?.id||'')}`,
+          id:String(item?.id||''),
+          title:String(item?.title||'Untitled Item'),
+          tags:array(item?.tags).map(cleanTag).filter(Boolean),
+          kind:'component',
+          sourceTabId:found.tabId,
+          sourceComponentId:found.componentId,
+          category:String(item?.category||'')
+        }));
+        return {...found,items,canQuiz:false,sourceLabel:`${found.label} · ${found.tabName}`};
+      }
+    }
+    const items=array(db?.phrases).map(id=>({
+      key:`global:${String(id)}`,
+      id:String(id),
+      title:visibleTitleV750(id),
+      tags:itemTagsV750(id),
+      kind:'global',
+      category:String(db?.phrase_meta?.[id]?.type||''),
+      learnedDays:Object.keys(db?.days||{}).map(Number).filter(day=>Array.isArray(db?.days?.[day]?.phrases)&&db.days[day].phrases.some(x=>String(x)===String(id))).sort((a,b)=>a-b)
+    }));
+    return {mode:'global',items,canQuiz:true,sourceLabel:'Real Knowledge Base',label:'Real Knowledge Base'};
+  }
+  function roadmapSourceOptionsHtmlV750(component,currentTabId=''){
+    normalize(component);
+    const selectedGlobal=component.roadmapKbSourceModeV750!=='component';
+    const rows=roadmapCustomKbSourcesV750(currentTabId);
+    const current=rows.filter(row=>row.current);
+    const other=rows.filter(row=>!row.current);
+    const selectedTabId=String(component.roadmapKbSourceTabIdV750||currentTabId||'');
+    const option=(row)=>`<option value="component|${esc(row.tabId)}|${esc(row.componentId)}" ${!selectedGlobal&&row.tabId===selectedTabId&&row.componentId===component.roadmapKbSourceComponentIdV750?'selected':''}>${esc(row.label)} · ${esc(row.tabName)}</option>`;
+    return `<option value="global" ${selectedGlobal?'selected':''}>Real Knowledge Base</option>`+
+      (current.length?`<optgroup label="Knowledge Bases on this tab">${current.map(option).join('')}</optgroup>`:'')+
+      (other.length?`<optgroup label="Knowledge Bases on other tabs">${other.map(option).join('')}</optgroup>`:'');
+  }
+
+  function pathPoints(component){
+    const per=Math.max(2,component.nodesPerRowV749);
+    const count=component.nodes.length;
+    const rows=Math.max(1,Math.ceil(count/per));
+    const H=Math.max(240,rows*165+40);
+    const points=[];
+    for(let i=0;i<count;i++){
+      const row=Math.floor(i/per), col=i%per, inRow=Math.min(per,count-row*per);
+      const rawX=inRow===1?50:(10+(col*(80/(inRow-1))));
+      const x=row%2===0?rawX:100-rawX;
+      const y=90+row*165;
+      points.push({x:x*10,y});
+    }
+    return {points,H};
+  }
+  function segmentPath(a,b){
+    const dx=b.x-a.x, dy=b.y-a.y;
+    if(Math.abs(dy)<20){
+      const bend=Math.max(35,Math.abs(dx)*.22);
+      const sign=dx>=0?1:-1;
+      return `M ${a.x} ${a.y} C ${a.x+sign*bend} ${a.y}, ${b.x-sign*bend} ${b.y}, ${b.x} ${b.y}`;
+    }
+    const turnX=a.x;
+    const c1y=a.y+dy*.42, c2y=b.y-dy*.42;
+    return `M ${a.x} ${a.y} C ${turnX} ${c1y}, ${b.x} ${c2y}, ${b.x} ${b.y}`;
+  }
+  const rainbow=['#7c5cff','#ffbf3f','#ff8b3d','#ef5ca8','#b95bc5','#4aa4e8','#24bdb4','#64bf3f'];
+
+  function subsectionTagsV753(node,sub,index=0){
+    const direct=cleanTagsV752(sub?.kbTagsV753?.length?sub.kbTagsV753:(sub?.kbTagV753||sub?.label||''));
+    if(direct.length)return direct;
+    const inferred=String(sub?.label||sub?.rawTitle||'').match(/^([A-Za-z]?\d+(?:\.\d+)+)/)?.[1]||'';
+    if(inferred)return [cleanTag(inferred)];
+    return cleanTagsV752(node?.kbTagsV752?.length?node.kbTagsV752:node?.kbTag);
+  }
+  function filterRoadmapItemsV785(component,holder,source,tags){
+    const matching=source.items.filter(item=>{
+      if(item.kind==='global'){try{if(typeof kbItemHiddenByTagV597==='function'&&kbItemHiddenByTagV597(item.id))return false}catch{}}
+      const itemTags=array(item.tags).map(cleanTag);
+      return tags.length?tags.every(tag=>itemTags.includes(cleanTag(tag))):true;
+    });
+    if(component.sectionContentModeV785==='learned'){
+      if(source.mode!=='global')return []; // Day Logs reference the real KB only; never mislabel custom KB items as logged.
+      return matching.filter(item=>array(item.learnedDays).length>0);
+    }
+    if(component.sectionContentModeV785==='manual'){
+      const wanted=new Set(array(holder?.manualItemKeysV785).map(String));
+      return source.items.filter(item=>wanted.has(String(item.key)));
+    }
+    return matching;
+  }
+  function kbItemsForSubsectionV753(component,node,sub,tabId=''){
+    const source=resolveRoadmapSourceV750(component,tabId),tags=subsectionTagsV753(node,sub);
+    return filterRoadmapItemsV785(component,sub,source,tags);
+  }
+  // Node click sounds are independent from reward unlock sounds.
+  // Reuse a single audio context, and do not play until a user clicks a node.
+  let roadmapClickAudioV756;
+  function playRoadmapNodeClickV756(component){
+    const mode=String(component?.nodeClickSoundV756||'soft');
+    if(mode==='off')return;
+    try{
+      const Ctx=window.AudioContext||window.webkitAudioContext;
+      if(!Ctx)return;
+      const ctx=roadmapClickAudioV756||(roadmapClickAudioV756=new Ctx());
+      if(ctx.state==='suspended')void ctx.resume().catch(()=>{});
+      const now=ctx.currentTime+.008;
+      const notes=mode==='chime'?[[660,0,.13],[880,.10,.19]]:
+        mode==='pop'?[[360,0,.09],[520,.035,.07]]:
+        mode==='tap'?[[290,0,.045]]:[[570,0,.085]];
+      for(const [freq,offset,duration] of notes){
+        const oscillator=ctx.createOscillator(), gain=ctx.createGain();
+        oscillator.type=mode==='tap'?'triangle':'sine';
+        oscillator.frequency.setValueAtTime(freq,now+offset);
+        gain.gain.setValueAtTime(.0001,now+offset);
+        gain.gain.exponentialRampToValueAtTime(.055,now+offset+.008);
+        gain.gain.exponentialRampToValueAtTime(.0001,now+offset+duration);
+        oscillator.connect(gain);gain.connect(ctx.destination);
+        oscillator.start(now+offset);oscillator.stop(now+offset+duration+.02);
+      }
+    }catch{}
+  }
+  function currentRoadmapCompletionDayV756(){
+    const day=Number(currentDay);
+    return Number.isInteger(day)&&day>0&&db.days?.[day]?day:0;
+  }
+  function syncSectionDayReferenceV756(tab,component,node,sub,day,add){
+    if(!db.days?.[day])return false;
+    const refs=db.days[day].roadmapLinksV749=array(db.days[day].roadmapLinksV749);
+    const same=ref=>String(ref.tabId)===String(tab.id)&&String(ref.componentId)===String(component.id)&&String(ref.nodeId)===String(node.id)&&String(ref.subId||'')===String(sub.id);
+    const exists=refs.some(same);
+    if(!add){db.days[day].roadmapLinksV749=refs.filter(ref=>!same(ref));return exists;}
+    if(!exists)refs.push({tabId:tab.id,componentId:component.id,nodeId:node.id,subId:sub.id,label:sub.label||node.label,title:sub.title,chapterTitle:node.title,completedAt:new Date().toISOString()});
+    return true;
+  }
+  function recordSectionCompletionV756(tab,component,node,sub,completed){
+    if(!component.autoLinkSectionsToCurrentDayV753)return;
+    const day=currentRoadmapCompletionDayV756();
+    if(!day)return;
+    syncSectionDayReferenceV756(tab,component,node,sub,day,completed);
+  }
+
+  function roadmapLoggedMetricV788(holder,fallbackTags=[]){
+    const rule=holder?.autoCompleteRuleV788||{mode:'manual',tags:[],target:1};
+    const mode=String(rule.mode||'manual');if(mode==='manual')return {count:0,target:Math.max(1,Number(rule.target)||1),complete:false};
+    const tags=cleanTagsV752(array(rule.tags).length?rule.tags:fallbackTags), target=Math.max(1,Number(rule.target)||1);
+    const ids=array(db?.phrases).filter(id=>{const itemTags=itemTagsV750(id);return tags.length?tags.every(t=>itemTags.includes(cleanTag(t))):true});
+    const learned=ids.map(id=>({id,days:Object.keys(db?.days||{}).map(Number).filter(day=>array(db.days?.[day]?.phrases).some(x=>String(x)===String(id)))})).filter(x=>x.days.length);
+    const count=mode==='occurrences'?learned.reduce((n,x)=>n+x.days.length,0):learned.length;
+    return {count,target,complete:count>=target,tags,mode};
+  }
+  function applyRoadmapAutomaticCompletionV788(tab,component){
+    let changed=false;
+    for(const node of array(component?.nodes)){
+      for(const sub of array(node.subsections)){
+        const metric=roadmapLoggedMetricV788(sub,subsectionTagsV753(node,sub));
+        if(metric.mode!=='manual'&&sub.done!==metric.complete){sub.done=metric.complete;sub.completedAt=metric.complete?(sub.completedAt||new Date().toISOString()):'';changed=true;}
+      }
+      const metric=roadmapLoggedMetricV788(node,cleanTagsV752(node.kbTagsV752?.length?node.kbTagsV752:node.kbTag));
+      let desired=node.completed;
+      if(component.structureModeV753==='chapters'&&node.subsections.length) desired=node.subsections.every(s=>s.done);
+      else if(metric.mode!=='manual') desired=metric.complete;
+      else if(component.autoCompleteSubsectionsV749&&node.subsections.length) desired=node.subsections.every(s=>s.done);
+      if(node.completed!==desired){node.completed=desired;node.completedAt=desired?(node.completedAt||new Date().toISOString()):'';changed=true;}
+    }
+    if(changed){try{saveDb()}catch{}}
+    return changed;
+  }
+  function completionRuleSummaryV788(holder,fallbackTags=[]){
+    const metric=roadmapLoggedMetricV788(holder,fallbackTags);
+    if(metric.mode==='manual')return '';
+    const percent=Math.max(0,Math.min(100,Math.round(100*metric.count/Math.max(1,metric.target))));
+    return `<div class="roadmap-auto-progress-v788" role="group" aria-label="Section completion progress"><div class="roadmap-progress-meter-caption"><span>Progress</span><strong>${metric.count}/${metric.target} · ${percent}%</strong></div><div class="roadmap-progress-meter-track" role="progressbar" aria-valuemin="0" aria-valuemax="${metric.target}" aria-valuenow="${Math.min(metric.count,metric.target)}"><div class="roadmap-progress-meter-fill" style="width:${percent}%"></div></div></div>`;
+  }
+  function openSectionV753(tabId,componentId,nodeId,subId){
+    let foundV788=locate(tabId,componentId);if(foundV788.tab&&foundV788.component)applyRoadmapAutomaticCompletionV788(foundV788.tab,foundV788.component);
+    const {tab,component}=locate(tabId,componentId),node=nodeById(component,nodeId),sub=node?.subsections?.find(x=>String(x.id)===String(subId));if(!tab||!component||!node||!sub)return;
+    const modal=ensureNodeModal();delete modal.dataset.layoutEditV785;modal.dataset.roadmapTabV794=String(tab.id);modal.dataset.roadmapComponentV794=String(component.id);modal.dataset.roadmapNodeV794=String(node.id);modal.dataset.roadmapSubV794=String(sub.id);const head=modal.querySelector('.roadmap-node-heading-v749'),body=modal.querySelector('.roadmap-node-body-v749'),source=resolveRoadmapSourceV750(component,tab.id),tags=subsectionTagsV753(node,sub),items=kbItemsForSubsectionV753(component,node,sub,tab.id),layout=defaultModalLayoutV785(sub,'section');const visibleDays=[...new Set([...array(node.linkedDays),...items.flatMap(item=>array(item.learnedDays))].map(Number).filter(Number.isInteger))].sort((a,b)=>a-b);
+    head.innerHTML=`<div class="roadmap-node-kicker-v749">${esc(node.label)} · ${esc(sub.label||sub.rawTitle||sub.title||'Section')}</div><h2>${esc(sub.title)}</h2>${tags.length?`<span class="roadmap-tag-v749">${tags.map(t=>esc(displayTag(t))).join(' ')}</span>`:''}`;
+    body.innerHTML=`${sub.description&&!/^Learn the .+ concepts and record what you learn in a Day Log\.$/i.test(String(sub.description).trim())?`<p class="roadmap-node-description-v749">${esc(sub.description)}</p>`:''}${completionRuleSummaryV788(sub,tags)}<div class="roadmap-node-actions-v749">${roadmapLoggedMetricV788(sub,tags).mode==='manual'?`<button type="button" class="icon-btn roadmap-section-complete-v753"><i class="ph ${sub.done?'ph-arrow-counter-clockwise':'ph-check-circle'}"></i> ${sub.done?'Mark section incomplete':'Mark section complete'}</button>`:''}</div><section class="roadmap-detail-section-v749"><div class="roadmap-detail-title-v749"><strong>${esc(layout.knowledgeTitle==='Recommended Knowledge & Practice'?'Items':layout.knowledgeTitle)}</strong><span>${items.length} ${items.length===1?'item':'items'}</span></div>${layout.knowledgeDescription&&!['Items for this section.','Items for this node.'].includes(layout.knowledgeDescription)?`<p class="roadmap-empty-copy-v749">${esc(layout.knowledgeDescription)}</p>`:''}<div class="roadmap-kb-list-v749">${items.length?items.map(item=>`<button type="button" data-road-section-kb-v753="${esc(item.key)}"><strong>${esc(item.title)}</strong><span>${array(item.learnedDays).length?`Logged: ${item.learnedDays.map(d=>`Day ${d}`).join(', ')}`:'Not logged yet'}</span></button>`).join(''):'<div class="roadmap-kb-empty-v749">No items match this section yet.</div>'}</div></section><section class="roadmap-detail-section-v749"><div class="roadmap-detail-title-v749"><strong>${esc(layout.dayTitle)}</strong><span>${visibleDays.length}</span></div>${layout.dayDescription&&layout.dayDescription!=='Days connected to this section.'&&layout.dayDescription!=='Days connected to this node.'?`<p class="roadmap-empty-copy-v749">${esc(layout.dayDescription)}</p>`:''}<div class="roadmap-day-chips-v749">${visibleDays.map(day=>`<button type="button" data-road-open-day-v749="${day}">Day ${day}<i class="ph ph-arrow-square-out"></i></button>`).join('')||'<span class="roadmap-empty-copy-v749">No matching logged days yet.</span>'}</div></section>`;
+    body.querySelector('.roadmap-section-complete-v753')?.addEventListener('click',()=>{const fresh=locate(tabId,componentId),n=nodeById(fresh.component,nodeId),ss=n?.subsections?.find(x=>String(x.id)===String(subId));if(!fresh.tab||!fresh.component||!n||!ss)return;ss.done=!ss.done;ss.completedAt=ss.done?new Date().toISOString():'';recordSectionCompletionV756(fresh.tab,fresh.component,n,ss,ss.done);if(fresh.component.autoCompleteSubsectionsV749&&n.subsections.length){const complete=n.subsections.every(x=>x.done);n.completed=complete;n.completedAt=complete?new Date().toISOString():''}saveDb();renderCustomTabView(fresh.tab.id);try{renderDayRoadmapLinksV749(Number(currentDay))}catch{};openSectionV753(tabId,componentId,nodeId,subId)});
+    body.querySelector('.roadmap-section-quiz-v753')?.addEventListener('click',()=>{try{db.settings.quizSettingsV58||={};db.settings.quizSettingsV58.tagFiltersEnabledV749=true;saveDb();window.setQuizTagFilterV749?.(tags)}catch{};modal.classList.add('hidden');document.getElementById('open-quizzes-btn')?.click();setTimeout(()=>{try{window.setQuizTagFilterV749?.(tags);window.renderQuizTagFiltersV749?.()}catch{}},40)});
+    bindRoadmapKbButtonsV786(body,items,'[data-road-section-kb-v753]','roadSectionKbV753');body.querySelectorAll('[data-road-open-day-v749]').forEach(button=>button.onclick=()=>{closeRoadmapModalStackV842();openDayLog(Number(button.dataset.roadOpenDayV749))});renderRoadmapModalExtrasV785(tab,sub,body);bindRoadmapModalContextV785(tab,component,node,sub,modal);modal.classList.remove('hidden');
+  }
+
+  window.openRoadmapSectionV753=openSectionV753;
+
+  // V801 — rewritten chapter subsection orbit.
+  // The orbit is tethered to the exact stage coordinates already used by the
+  // clicked chapter node. It does not use viewport rectangles, fixed positioning,
+  // ResizeObserver corrections, or transformed offset-parent math.
+  function openChapterOrbitV753(tab,component,node,button,content){
+    const previous=document.getElementById('roadmap-section-orbit-v801');
+    const same=previous?.dataset.roadmapTabV801===String(tab.id)&&previous?.dataset.roadmapComponentV801===String(component.id)&&previous?.dataset.roadmapNodeV801===String(node.id);
+    previous?.__closeRoadmapOrbit?.();previous?.remove();
+    document.getElementById('roadmap-section-orbit-v755')?.remove();
+    if(same)return;
+    applyRoadmapAutomaticCompletionV788(tab,component);
+    if(!node?.subsections?.length){openNode(tab.id,component.id,node.id);return;}
+    const stage=button.closest('.skill-roadmap-stage-v749'),circle=button.querySelector('.skill-roadmap-node-circle-v749');
+    if(!stage||!circle)return;
+    const orbit=document.createElement('div');orbit.id='roadmap-section-orbit-v801';orbit.className='roadmap-section-orbit-v801';
+    orbit.dataset.roadmapTabV801=String(tab.id);orbit.dataset.roadmapComponentV801=String(component.id);orbit.dataset.roadmapNodeV801=String(node.id);
+    orbit.style.left=button.style.left||`${button.offsetLeft}px`;
+    orbit.style.top=`calc(${button.style.top||`${button.offsetTop}px`} + ${Math.round(circle.offsetHeight/2)}px)`;
+    const count=node.subsections.length,radius=Math.min(92,Math.max(64,58+count*4));
+    orbit.innerHTML=node.subsections.map((sub,index)=>{
+      const angle=(-90)+(360/count)*index,x=Math.round(Math.cos(angle*Math.PI/180)*radius),y=Math.round(Math.sin(angle*Math.PI/180)*radius);
+      return `<button type="button" class="roadmap-orbit-node-v801 ${sub.done?'is-done':''}" data-road-sub-node-v801="${esc(sub.id)}" style="--orbit-x:${x}px;--orbit-y:${y}px" title="${esc(sub.title)}" aria-label="${esc(sub.label||sub.title)}"><span>${esc(sub.label||String(index+1))}</span></button>`;
+    }).join('');stage.appendChild(orbit);
+    let menuOpen=false,closed=false;
+    const outside=e=>{if(!menuOpen&&!orbit.contains(e.target)&&!button.contains(e.target))close()};
+    const onKey=e=>{if(e.key==='Escape')close()};
+    const close=()=>{if(closed)return;closed=true;orbit.remove();document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',onKey,true)};
+    orbit.__closeRoadmapOrbit=close;
+    orbit.addEventListener('click',e=>{
+      const mini=e.target.closest('[data-road-sub-node-v801]');if(!mini)return;
+      e.preventDefault();e.stopPropagation();const id=String(mini.dataset.roadSubNodeV801);
+      close();playRoadmapNodeClickV756(component);openSectionV753(tab.id,component.id,node.id,id);
+    });
+    orbit.addEventListener('contextmenu',e=>{
+      const mini=e.target.closest('[data-road-sub-node-v801]');if(!mini)return;
+      e.preventDefault();e.stopImmediatePropagation();
+      const id=String(mini.dataset.roadSubNodeV801),t=String(tab.id),c=String(component.id),n=String(node.id);
+      menuOpen=true;showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit Node',icon:'ph-pencil-simple',action:()=>{close();openSubsectionEditorV848(t,c,n,id)}}]);
+      const menu=document.getElementById('custom-item-context-menu');
+      if(menu){const observer=new MutationObserver(()=>{if(!menu.isConnected){observer.disconnect();menuOpen=false;if(!closed)close()}});observer.observe(document.body,{childList:true})}
+    },true);
+    document.addEventListener('pointerdown',outside,true);
+    document.addEventListener('keydown',onKey,true);
+  }
+
+  // Shared subsection editor for the Chapter → Sections roadmap structure.
+  // The same editor instance is used by Curriculum and standalone roadmaps.
+  function openSubsectionEditorV848(tabId,componentId,nodeId,subId){
+    const found=locate(tabId,componentId);
+    const node=nodeById(found.component,nodeId);
+    const existing=node?.subsections?.find(section=>String(section.id)===String(subId));
+    if(!found.tab||!found.component||!node||!existing)return;
+    const modal=ensureEditor();
+    const body=modal.querySelector('.roadmap-editor-body-v749');
+    const title=modal.querySelector('.roadmap-editor-title-v749');
+    if(!body)return;
+    const index=node.subsections.indexOf(existing);
+    const draft=normalizeSubsection(JSON.parse(JSON.stringify(existing)),index);
+    if(title)title.textContent='Edit Section';
+    body.innerHTML=`
+      <div class="roadmap-editor-section-v749">
+        <div class="roadmap-detail-title-v749"><strong>Edit Section</strong><span>${esc(draft.label||'Section')}</span></div>
+        <label class="roadmap-field-v749"><span>Section label and title</span><input class="road-subtitle-v846" value="${esc(draft.rawTitle||[draft.label,draft.title].filter(Boolean).join(' '))}"></label>
+        <label class="roadmap-field-v749"><span>Knowledge Base tag(s)</span><input class="road-subtag-v846" value="${esc((draft.kbTagsV753||[draft.kbTagV753]).filter(Boolean).map(t=>'#'+String(t).replace(/^#/,'')).join(', '))}" placeholder="#1.1"></label>
+        <label class="roadmap-field-v749"><span>Description</span><textarea class="road-subdesc-v846" rows="3">${esc(draft.description||'')}</textarea></label>
+      </div>
+      <div class="roadmap-editor-section-v749 roadmap-auto-rule-editor-v788">
+        <div class="roadmap-detail-title-v749"><strong>Completion Rule</strong><span class="road-sub-rule-label-v846"></span></div>
+        <p class="roadmap-empty-copy-v749">Choose how many matching Knowledge Base items must be learned to complete this subsection.</p>
+        <div class="roadmap-sub-actions-v856">
+          <button type="button" class="icon-btn road-sub-configure-v846"><i class="ph ph-checks"></i> Configure Automatic Completion</button>
+          <button type="button" class="icon-btn road-sub-choose-v846"><i class="ph ph-list-checks"></i> Choose KB Items</button>
+        </div>
+      </div>
+      <div class="roadmap-editor-actions-v749"><button type="button" class="icon-btn ai-generate-btn road-sub-save-v846"><i class="ph ph-check"></i> Save Section</button></div>`;
+    const updateSummary=()=>{const rule=draft.autoCompleteRuleV788||{};
+      body.querySelector('.road-sub-rule-label-v846').textContent=rule.mode&&rule.mode!=='manual'?`${Math.max(1,Number(rule.target)||1)} logged`:'Manual';};
+    updateSummary();
+    body.querySelector('.road-sub-configure-v846').onclick=async()=>{
+      if(await editCompletionRuleV788(draft,draft.label||draft.title||'Section'))updateSummary();
+    };
+    body.querySelector('.road-sub-choose-v846').onclick=()=>openManualItemPickerV785(found.tab,found.component,draft,updateSummary);
+    body.querySelector('.road-sub-save-v846').onclick=()=>{
+      const raw=String(body.querySelector('.road-subtitle-v846')?.value||'').trim();
+      const parsed=raw.match(/^([A-Za-z]?\d+(?:\.\d+)+)\b\s*(.*)$/);
+      if(parsed){draft.label=parsed[1];draft.title=parsed[2]||parsed[1]}
+      else draft.title=raw||draft.title;
+      draft.rawTitle=raw||draft.rawTitle;
+      draft.kbTagsV753=cleanTagsV752(body.querySelector('.road-subtag-v846')?.value||draft.label);
+      draft.kbTagV753=draft.kbTagsV753[0]||cleanTag(draft.label);
+      draft.description=String(body.querySelector('.road-subdesc-v846')?.value||'');
+      const persistentNode=nodeById(found.component,nodeId);
+      const persistentSub=persistentNode?.subsections?.find(s=>String(s.id)===String(subId));
+      if(!persistentSub)return;
+      Object.assign(persistentSub,normalizeSubsection(draft,index));
+      saveDb();modal.classList.add('hidden');
+      renderCustomTabView(found.tab.id);
+      try{renderDayRoadmapLinksV749(Number(currentDay))}catch{}
+    };
+    document.getElementById('roadmap-node-modal-v749')?.classList.add('hidden');
+    modal.classList.remove('hidden');
+  }
+  window.openRoadmapSubsectionEditorV848=openSubsectionEditorV848;
+
+  if(!window.__loggyRoadmapInteractionAuthorityV786){
+    window.__loggyRoadmapInteractionAuthorityV786=true;
+    window.addEventListener('click',event=>{
+      const button=event.target?.closest?.('.skill-roadmap-node-v749');if(!button)return;
+      const shell=button.closest('.skill-roadmap-v749'),tabId=shell?.dataset?.roadmapTabV749,componentId=shell?.dataset?.roadmapComponentV749;
+      if(!tabId||!componentId)return;const found=locate(tabId,componentId),node=nodeById(found.component,button.dataset.roadNodeV749);
+      if(!found.tab||!found.component||!node||(found.component.structureModeV753!=='chapters'&&!node.subsections?.length))return;
+      event.preventDefault();event.stopImmediatePropagation();playRoadmapNodeClickV756(found.component);openChapterOrbitV753(found.tab,found.component,node,button,shell);
+    },true);
+    window.addEventListener('contextmenu',event=>{
+      const main=event.target?.closest?.('.skill-roadmap-node-v749');
+      if(main){const shell=main.closest('.skill-roadmap-v749'),tabId=shell?.dataset?.roadmapTabV749,componentId=shell?.dataset?.roadmapComponentV749,found=locate(tabId,componentId),node=nodeById(found.component,main.dataset.roadNodeV749);if(found.tab&&found.component&&node){event.preventDefault();event.stopImmediatePropagation();showCustomItemContextMenu(event.clientX,event.clientY,[{label:'Edit Node',icon:'ph-pencil-simple',action:()=>openNodeEditor(found.tab.id,found.component.id,node.id)}]);return;}}
+      // Mini nodes own their context menu at the element level so the orbit can
+      // close cleanly before Edit Node opens. Do not intercept them here.
+      const mini=event.target?.closest?.('#roadmap-section-orbit-v801 [data-road-sub-node-v801]');if(mini)return;
+    },true);
+  }
+
+  // Measure actual rendered circle centers and stop each connector exactly at
+  // the perimeter. Fixed path coordinates went through translucent circles and
+  // drifted when node labels, fonts, widths, or themes changed.
+  function drawRoadmapConnectionsV856(stage,component){
+    const svg=stage.querySelector('.skill-roadmap-path-v749');
+    if(!svg||!stage.isConnected)return;
+    const stageRect=stage.getBoundingClientRect();
+    if(stageRect.width<1||stageRect.height<1)return;
+    const circles=Array.from(stage.querySelectorAll('.skill-roadmap-node-v749 > .skill-roadmap-node-circle-v749'));
+    if(circles.length!==component.nodes.length)return;
+    const positions=circles.map(el=>{
+      const box=el.getBoundingClientRect();
+      return {x:box.left-stageRect.left+box.width/2,y:box.top-stageRect.top+box.height/2,r:Math.max(box.width,box.height)/2};
+    });
+    svg.setAttribute('viewBox',`0 0 ${stageRect.width} ${stageRect.height}`);
+    svg.setAttribute('preserveAspectRatio','none');
+    const segments=[];
+    for(let i=0;i<positions.length-1;i++){
+      const a=positions[i],b=positions[i+1];
+      const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy);
+      if(length<=a.r+b.r+1)continue;
+      const ux=dx/length,uy=dy/length;
+      const from={x:a.x+ux*a.r,y:a.y+uy*a.r};
+      const to={x:b.x-ux*b.r,y:b.y-uy*b.r};
+      const done=component.nodes[i]?.completed&&component.nodes[i+1]?.completed;
+      const color=done?component.completedColorV749:(component.pathModeV749==='single'?component.pathColorV749:rainbow[i%rainbow.length]);
+      segments.push(`<path d="${segmentPath(from,to)}" class="${done?'is-complete':''}" style="--segment:${esc(color)}"></path>`);
+    }
+    svg.innerHTML=segments.join('');
+  }
+  function observeRoadmapConnectionsV856(content,component){
+    const stage=content.querySelector('.skill-roadmap-stage-v749');
+    if(!stage)return;
+    const draw=()=>drawRoadmapConnectionsV856(stage,component);
+    if(typeof ResizeObserver==='function'){
+      const observer=new ResizeObserver(()=>{if(!stage.isConnected){observer.disconnect();return;}draw();});
+      observer.observe(stage);
+    }
+    requestAnimationFrame(()=>{draw();requestAnimationFrame(draw)});
+  }
+
+  function renderRoadmap(tab,component,content){
+    applyRoadmapAutomaticCompletionV788(tab,component);
+    normalize(component);
+    const {points,H}=pathPoints(component);
+    const amount=xp(component), next=nextReward(component);
+    const barMax=Math.max(1,next?.xp || Math.max(amount,(component.structureModeV753==='chapters'?component.nodes.reduce((sum,node)=>sum+Math.max(1,node.subsections.length),0):component.nodes.length)*component.xpPerSkillV749));
+    const pct=Math.min(100,(amount/barMax)*100);
+    const level=Math.floor(amount/Math.max(1,component.xpPerSkillV749*5))+1;
+    const cur=currentIndex(component);
+    const roadCurrentCss=String(component.currentColorV749||'').toLowerCase()==='#ffffff'?'var(--custom-theme-tab-item-background,var(--white,#fff))':component.currentColorV749;
+    const roadBorderCss=String(component.currentBorderV749||'').toLowerCase()==='#6f4bd8'?'var(--custom-theme-accent,#6f4bd8)':component.currentBorderV749;
+    const roadLockedCss=String(component.lockedColorV749||'').toLowerCase()==='#eeeeee'?'color-mix(in srgb,var(--custom-theme-tab-item-background,var(--white,#fff)) 84%,currentColor 16%)':component.lockedColorV749;
+    content.innerHTML=`
+      <section class="skill-roadmap-v749" data-roadmap-tab-v749="${esc(tab.id)}" data-roadmap-component-v749="${esc(component.id)}"
+        style="--road-complete:${esc(component.completedColorV749)};--road-complete-text:${esc(component.completedTextColorV749)};--road-current:${esc(roadCurrentCss)};--road-current-border:${esc(roadBorderCss)};--road-locked:${esc(roadLockedCss)}">
+        <div class="skill-roadmap-head-v749">
+          <div>
+            <h2>${esc(component.title)}</h2>
+            <div class="skill-roadmap-statline-v749"><span>${component.structureModeV753==='chapters'?'Chapter → Sections':'Skill Path'}</span><span>Level ${level}</span><span>${amount} XP</span><span>${component.structureModeV753==='chapters'?`${component.nodes.reduce((total,node)=>total+node.subsections.filter(sub=>sub.done).length,0)} sections completed · ${completedCount(component)} / ${component.nodes.length} chapters`:`${completedCount(component)} / ${component.nodes.length} skills`}</span></div>
+          </div>
+          <div class="skill-roadmap-head-actions-v749">
+            ${component.nodes.length&&(customTabEditMode||component.showFocusOutsideEditV785)?`<button type="button" class="small-icon-btn roadmap-focus-v749" title="Focus next skill"><i class="ph ph-crosshair"></i></button>`:''}
+            ${(customTabEditMode||component.showAddSkillOutsideEditV752)?`<button type="button" class="small-icon-btn roadmap-add-node-v749" title="Add skill" aria-label="Add skill"><i class="ph ph-plus"></i></button>`:''}
+          </div>
+        </div>
+        <div class="skill-roadmap-xp-v749">
+          <div class="skill-roadmap-xp-copy-v749"><strong>${amount} XP</strong><span>${next?`${next.xp-amount} XP to ${esc(next.title)}`:'All configured rewards reached'}</span></div>
+          <div class="skill-roadmap-xp-track-v749"><span style="width:${pct}%"></span></div>
+        </div>
+        ${component.nodes.length?`
+          <div class="skill-roadmap-stage-v749" style="height:${H}px">
+            <svg class="skill-roadmap-path-v749" aria-hidden="true"></svg>
+            ${component.nodes.map((node,index)=>{
+              const point=points[index], unlocked=isUnlocked(component,index), state=node.completed?'complete':(!unlocked?'locked':(index===cur?'current':''));
+              return `<button type="button" class="skill-roadmap-node-v749 ${state?`is-${state}`:''}" data-road-node-v749="${esc(node.id)}" style="left:${point.x/10}%;top:${point.y-35}px" ${!unlocked?'data-road-locked-v749="1"':''}>
+                <span class="skill-roadmap-node-circle-v749"><span>${esc(node.label)}</span>${node.completed?'<i class="ph ph-check"></i>':''}</span>
+                ${component.showTitlesV749?`<span class="skill-roadmap-node-title-v749">${esc(node.title)}</span>`:''}
+                ${node.subsections.length?`<small>${node.subsections.filter(s=>s.done).length}/${node.subsections.length}</small>`:''}
+              </button>`;
+            }).join('')}
+          </div>`:`<div class="skill-roadmap-empty-v749"><i class="ph ph-path"></i><strong>No skills yet</strong><span>${customTabEditMode?'Add your first skill to build the roadmap.':'Edit this tab to add skills.'}</span></div>`}
+      </section>`;
+
+    observeRoadmapConnectionsV856(content,component);
+    content.querySelectorAll('[data-road-node-v749]').forEach(button=>{
+      button.addEventListener('click',()=>{const node=nodeById(component,button.dataset.roadNodeV749);playRoadmapNodeClickV756(component);if(component.structureModeV753==='chapters'&&node)return openChapterOrbitV753(tab,component,node,button,content);openNode(tab.id,component.id,button.dataset.roadNodeV749)});
+      button.addEventListener('contextmenu',event=>{
+        event.preventDefault();event.stopPropagation();
+        const node=nodeById(component,button.dataset.roadNodeV749);if(!node)return;
+        const actions=[{label:'Edit Node',icon:'ph-pencil-simple',action:()=>openNodeEditor(tab.id,component.id,node.id)}];
+        try{showCustomItemContextMenu(event.clientX,event.clientY,actions)}catch{openNodeEditor(tab.id,component.id,node.id)}
+      });
+    });
+    content.querySelector('.roadmap-add-node-v749')?.addEventListener('click',()=>openNodeEditor(tab.id,component.id,''));
+    content.querySelector('.roadmap-focus-v749')?.addEventListener('click',()=>{
+      const node=component.nodes[currentIndex(component)];
+      if(node) openNode(tab.id,component.id,node.id);
+    });
+  }
+
+  function itemTagsV750(id){
+    try { return array(db.phrase_meta?.[id]?.tags).map(cleanTag).filter(Boolean); } catch { return []; }
+  }
+  function visibleTitleV750(id){
+    try {
+      const raw=db.phrase_meta?.[id]?.bulkOriginalTitleV739;
+      return String(raw || id).replace(/\r?\n/g,' ');
+    } catch { return String(id); }
+  }
+  function kbItemsForNode(component,node,tabId=''){
+    const tags=cleanTagsV752(node?.kbTagsV752?.length?node.kbTagsV752:node?.kbTag),source=resolveRoadmapSourceV750(component,tabId);
+    return filterRoadmapItemsV785(component,node,source,tags);
+  }
+  function closeRoadmapModalStackV842(){
+    const phrase=document.getElementById('phrase-modal');if(phrase){phrase.classList.add('hidden');phrase.classList.remove('roadmap-child-modal-v842')}
+    const roadmapModal=document.getElementById('roadmap-node-modal-v749');if(roadmapModal){delete roadmapModal.dataset.layoutEditV785;roadmapModal.classList.add('hidden')}document.getElementById('roadmap-manual-picker-v785')?.remove();document.getElementById('custom-item-context-menu')?.remove();
+  }
+  function promoteRoadmapChildV842(el){if(!el)return;document.body.appendChild(el);el.classList.add('roadmap-child-modal-v842');el.classList.remove('hidden')}
+  window.__loggyCloseRoadmapModalStackV842=closeRoadmapModalStackV842;
+  function openRoadmapKbItemV750(item){
+    if(!item)return;if(item.kind==='component'){try{window.__loggyOpenCustomKbItemV748?.(item.sourceTabId,item.sourceComponentId,item.id)}catch{};return;}
+    try{openItemModal(item.id,true);requestAnimationFrame(()=>promoteRoadmapChildV842(document.getElementById('phrase-modal')))}catch{}
+  }
+  function editRoadmapKbItemV786(item){
+    if(!item)return;if(item.kind==='component'){try{window.__loggyEditCustomKbItemV786?.(item.sourceTabId,item.sourceComponentId,item.id)}catch{};return;}
+    try{openItemModal(item.id,true,true);requestAnimationFrame(()=>promoteRoadmapChildV842(document.getElementById('phrase-modal')))}catch{}
+  }
+  function bindRoadmapKbButtonsV786(root,items,selector,keyAttr){
+    root.querySelectorAll(selector).forEach(button=>{
+      const item=items.find(entry=>String(entry.key)===String(button.dataset[keyAttr]||''));
+      button.onclick=()=>openRoadmapKbItemV750(item);
+      button.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit item',icon:'ph-pencil-simple',action:()=>editRoadmapKbItemV786(item)}])};
+    });
+  }
+
+  const ROADMAP_MODAL_COMPONENT_TYPES_V785=new Set(['heading','text','cards','polaroids','checklist','goalsV162','kanbanV239','lazyRecommendationV747','resources','divider','roadmapQuizLinkV860']);
+  function defaultModalLayoutV785(holder,kind='node'){
+    const base=kind==='section'?{knowledgeTitle:'Items',knowledgeDescription:'',dayTitle:'Day Log connection',dayDescription:'',subTitle:'',subDescription:''}:{knowledgeTitle:'Items',knowledgeDescription:'',dayTitle:'Connected Day Logs',dayDescription:'',subTitle:'Subsections',subDescription:''};
+    const current=holder?.modalLayoutV785&&typeof holder.modalLayoutV785==='object'?holder.modalLayoutV785:{};return {...base,...current,extras:Array.isArray(current.extras)?current.extras:[]};
+  }
+  function renderRoadmapModalExtrasV785(tab,holder,body){
+    const layout=defaultModalLayoutV785(holder,holder?.kbTagsV753?'section':'node');if(!layout.extras.length)return;const host=document.createElement('section');host.className='roadmap-modal-extras-v785';body.insertBefore(host,body.querySelector('.roadmap-auto-progress-v788')||body.firstChild);
+    layout.extras.forEach(component=>{const wrap=document.createElement('div');wrap.className='roadmap-modal-extra-component-v785';host.appendChild(wrap);try{if(component.type==='roadmapQuizLinkV860'){
+      const modal=body.closest('#roadmap-node-modal-v749');const found=locate(modal?.dataset.roadmapTabV794,modal?.dataset.roadmapComponentV794);
+      const node=nodeById(found.component,modal?.dataset.roadmapNodeV794);const sub=node?.subsections?.find(x=>String(x.id)===String(modal?.dataset.roadmapSubV794||''));
+      const tags=sub?subsectionTagsV753(node,sub):cleanTagsV752(node?.kbTagsV752?.length?node.kbTagsV752:node?.kbTag);
+      const source=resolveRoadmapSourceV750(found.component,found.tab?.id);
+      if(source.canQuiz&&tags.length){const button=document.createElement('button');button.type='button';button.className='icon-btn';button.innerHTML='<i class="ph ph-brain"></i> Open in Quizzes';button.onclick=()=>{try{db.settings.quizSettingsV58||={};db.settings.quizSettingsV58.tagFiltersEnabledV749=true;saveDb();window.setQuizTagFilterV749?.(tags)}catch{};modal?.classList.add('hidden');document.getElementById('open-quizzes-btn')?.click();setTimeout(()=>{try{window.setQuizTagFilterV749?.(tags);window.renderQuizTagFiltersV749?.()}catch{}},40)};wrap.appendChild(button)}
+      }else renderCustomComponentContent(tab,component,wrap)}catch{wrap.innerHTML='<p class="progress-hint">This component is not available in roadmap modals.</p>'}});
+  }
+  function openRoadmapModalLayoutEditorV785(tab,component,node,sub,modal){
+    const holder=sub||node,kind=sub?'section':'node',layout=defaultModalLayoutV785(holder,kind);holder.modalLayoutV785=layout;modal.dataset.layoutEditV785='1';const body=modal.querySelector('.roadmap-node-body-v749');const defs=[...array(CUSTOM_COMPONENT_LIBRARY).filter(d=>ROADMAP_MODAL_COMPONENT_TYPES_V785.has(d.type)),{type:'roadmapQuizLinkV860',label:'Open in Quizzes',icon:'ph-brain'}];
+    body.innerHTML=`<div class="roadmap-modal-layout-editor-v785"><section class="roadmap-editor-section-v749"><div class="roadmap-detail-title-v749"><strong>Add compatible custom components</strong><span>${layout.extras.length}</span></div><div class="roadmap-modal-component-picker-v785">${defs.map(d=>`<button type="button" data-add-modal-component-v785="${esc(d.type)}"><i class="ph ${esc(d.icon||'ph-square')}"></i><span>${esc(d.label)}</span></button>`).join('')}</div><div class="roadmap-modal-component-list-v785"></div></section>${kind==='node'?`<label class="roadmap-field-v749"><span>Subsections title</span><input data-layout-key="subTitle" value="${esc(layout.subTitle)}"></label><label class="roadmap-field-v749"><span>Subsections description</span><textarea data-layout-key="subDescription">${esc(layout.subDescription)}</textarea></label>`:''}<label class="roadmap-field-v749"><span>Knowledge / practice title</span><input data-layout-key="knowledgeTitle" value="${esc(layout.knowledgeTitle==='Recommended Knowledge & Practice'?'Items':layout.knowledgeTitle)}"></label><label class="roadmap-field-v749"><span>Knowledge / practice description</span><textarea data-layout-key="knowledgeDescription">${esc(layout.knowledgeDescription)}</textarea></label><label class="roadmap-field-v749"><span>Day Log title</span><input data-layout-key="dayTitle" value="${esc(layout.dayTitle)}"></label><label class="roadmap-field-v749"><span>Day Log description</span><textarea data-layout-key="dayDescription">${esc(layout.dayDescription)}</textarea></label><label class="roadmap-field-v749"><span>Apply this modal layout to</span><select class="roadmap-layout-scope-v810"><option value="this">Only this ${kind}</option><option value="all">Every ${kind} modal in this Learning Roadmap</option></select></label><button type="button" class="icon-btn ai-generate-btn roadmap-layout-save-v785"><i class="ph ph-check"></i> Save Modal Layout</button></div>`;
+    const draw=()=>{
+      const host=body.querySelector('.roadmap-modal-component-list-v785');host.replaceChildren();
+      if(!layout.extras.length){host.innerHTML='<p class="progress-hint">Drag components here or choose one below to add it.</p>';}
+      layout.extras.forEach((c,i)=>{
+        const row=document.createElement('article');row.className='roadmap-modal-live-component-v813';row.draggable=true;row.dataset.modalExtraRowV785=String(c.id);
+        const head=document.createElement('div');head.className='roadmap-modal-live-head-v813';
+        head.innerHTML=`<span class="roadmap-modal-drag-v813" title="Drag to reorder">⠿</span><strong>${esc((c.type==='roadmapQuizLinkV860'?'Open in Quizzes':CUSTOM_COMPONENT_LIBRARY.find(d=>d.type===c.type)?.label)||c.type)}</strong><button type="button" data-modal-action="edit" title="Edit component" aria-label="Edit component"><i class="ph ph-pencil-simple"></i></button><button type="button" data-modal-action="duplicate" title="Duplicate component" aria-label="Duplicate component"><i class="ph ph-copy"></i></button><button type="button" data-modal-action="remove" title="Remove component" aria-label="Remove component"><i class="ph ph-x"></i></button>`;
+        row.appendChild(head);
+        const preview=document.createElement('div');preview.className='roadmap-modal-live-preview-v813';row.appendChild(preview);
+        try{if(c.type==='roadmapQuizLinkV860')preview.innerHTML='<button type="button" class="icon-btn" disabled><i class="ph ph-brain"></i> Open in Quizzes</button>';else renderCustomComponentContent(tab,c,preview)}catch{preview.textContent='Preview unavailable for this component.'}
+        head.querySelector('[data-modal-action="remove"]').onclick=()=>{layout.extras.splice(i,1);draw()};
+        head.querySelector('[data-modal-action="duplicate"]').onclick=()=>{const copy=JSON.parse(JSON.stringify(c));copy.id=id('component');layout.extras.splice(i+1,0,copy);draw()};
+        head.querySelector('[data-modal-action="edit"]').onclick=async()=>{
+          const fields=[{name:'title',label:'Title / heading',value:c.title||c.text||''}];
+          if(c.type==='text')fields.push({name:'text',label:'Text',type:'textarea',value:c.text||''});
+          const values=await showAppFormModal({title:'Edit modal component',subtitle:`Component: ${(c.type==='roadmapQuizLinkV860'?'Open in Quizzes':CUSTOM_COMPONENT_LIBRARY.find(d=>d.type===c.type)?.label)||c.type}`,submitLabel:'Save',fields});
+          if(!values)return;
+          if(c.type==='heading')c.text=String(values.title||'');else c.title=String(values.title||'');
+          if(c.type==='text')c.text=String(values.text||'');draw();
+        };
+        row.ondragstart=e=>{e.dataTransfer.setData('text/roadmap-modal-index-v813',String(i));e.dataTransfer.effectAllowed='move'};
+        row.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect='move'};
+        row.ondrop=e=>{e.preventDefault();const from=Number(e.dataTransfer.getData('text/roadmap-modal-index-v813'));if(!Number.isInteger(from)||from<0||from>=layout.extras.length||from===i)return;const [moved]=layout.extras.splice(from,1);layout.extras.splice(i,0,moved);draw()};
+        host.appendChild(row);
+      });
+    };draw();
+    const section=body.querySelector('.roadmap-editor-section-v749');
+    section.querySelector('.roadmap-modal-component-picker-v785')?.before(body.querySelector('.roadmap-modal-component-list-v785'));
+    const addModalComponent=type=>{try{const c=type==='roadmapQuizLinkV860'?{id:id('component'),type,title:'Open in Quizzes'}:defaultCustomComponent(type);if(c){layout.extras.push(c);draw()}}catch(err){console.warn('Roadmap modal component',err)}};
+    body.querySelectorAll('[data-add-modal-component-v785]').forEach(btn=>{
+      btn.onclick=()=>addModalComponent(btn.dataset.addModalComponentV785);
+      btn.draggable=true;
+      btn.ondragstart=e=>{e.dataTransfer.setData('text/roadmap-modal-type-v813',btn.dataset.addModalComponentV785);e.dataTransfer.effectAllowed='copy'};
+    });
+    const liveHost=body.querySelector('.roadmap-modal-component-list-v785');
+    liveHost.ondragover=e=>{if(e.dataTransfer.types.includes('text/roadmap-modal-type-v813')){e.preventDefault();e.dataTransfer.dropEffect='copy'}};
+    liveHost.ondrop=e=>{const type=e.dataTransfer.getData('text/roadmap-modal-type-v813');if(type){e.preventDefault();addModalComponent(type)}};
+body.querySelector('.roadmap-layout-save-v785').onclick=()=>{body.querySelectorAll('[data-layout-key]').forEach(el=>layout[el.dataset.layoutKey]=String(el.value||''));holder.modalLayoutV785=layout;
+      if(body.querySelector('.roadmap-layout-scope-v810')?.value==='all'){
+        const targets=kind==='section'?component.nodes.flatMap(n=>array(n.subsections)):component.nodes;
+        targets.forEach(target=>{target.modalLayoutV785=JSON.parse(JSON.stringify(layout));});
+      }
+      saveDb();delete modal.dataset.layoutEditV785;sub?openSectionV753(tab.id,component.id,node.id,sub.id):openNode(tab.id,component.id,node.id)};
+  }
+  function showRoadmapModalContextMenuV802(event,modal){
+    if(!modal||modal.classList.contains('hidden'))return;
+    const found=locate(modal.dataset.roadmapTabV794,modal.dataset.roadmapComponentV794);
+    const node=nodeById(found.component,modal.dataset.roadmapNodeV794);
+    const sub=node?.subsections?.find(x=>String(x.id)===String(modal.dataset.roadmapSubV794||''));
+    if(!found.tab||!found.component||!node)return;
+    const editing=modal.dataset.layoutEditV785==='1'&&!!modal.querySelector('.roadmap-modal-layout-editor-v785');
+    showCustomItemContextMenu(event.clientX,event.clientY,[{
+      label:editing?'Exit Edit Mode':'Edit Layout',
+      icon:editing?'ph-arrow-left':'ph-layout',
+      action:()=>{
+        if(editing){
+          delete modal.dataset.layoutEditV785;
+          sub?openSectionV753(found.tab.id,found.component.id,node.id,sub.id):openNode(found.tab.id,found.component.id,node.id);
+        }else{
+          openRoadmapModalLayoutEditorV785(found.tab,found.component,node,sub,modal);
+        }
+      }
+    }]);
+  }
+  window.__loggyShowRoadmapModalContextMenuV802=showRoadmapModalContextMenuV802;
+
+  function bindRoadmapModalContextV785(tab,component,node,sub,modal){
+    const drawer=modal.querySelector('.roadmap-node-drawer-v749');if(!drawer)return;
+    if(drawer.__roadmapContextV786)drawer.removeEventListener('contextmenu',drawer.__roadmapContextV786,true);
+    const handler=e=>{
+      if(e.target.closest('[data-road-kb-item-v749],[data-road-section-kb-v753]'))return;
+      if(e.target.closest('input,textarea,select,[contenteditable="true"]'))return;
+      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+      const editing=modal.dataset.layoutEditV785==='1'&&!!modal.querySelector('.roadmap-modal-layout-editor-v785');
+      showCustomItemContextMenu(e.clientX,e.clientY,[{label:editing?'Exit Edit Mode':'Edit Layout',icon:editing?'ph-arrow-left':'ph-layout',action:()=>{if(editing){delete modal.dataset.layoutEditV785;sub?openSectionV753(tab.id,component.id,node.id,sub.id):openNode(tab.id,component.id,node.id)}else openRoadmapModalLayoutEditorV785(tab,component,node,sub,modal)}}]);
+    };
+    drawer.__roadmapContextV786=handler;drawer.addEventListener('contextmenu',handler,true);
+  }
+  if(!window.__loggyRoadmapModalContextV802){
+    window.__loggyRoadmapModalContextV802=true;
+    window.addEventListener('contextmenu',e=>{
+      const modal=e.target?.closest?.('#roadmap-node-modal-v749');if(!modal||modal.classList.contains('hidden'))return;
+      if(e.target.closest('[data-road-kb-item-v749],[data-road-section-kb-v753],input,textarea,select,[contenteditable="true"]'))return;
+      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+      showRoadmapModalContextMenuV802(e,modal);
+    },true);
+  }
+
+  function ensureNodeModal(){
+    let modal=document.getElementById('roadmap-node-modal-v749');
+    if(modal) return modal;
+    modal=document.createElement('div');
+    modal.id='roadmap-node-modal-v749';
+    modal.className='roadmap-modal-v749 hidden';
+    modal.innerHTML=`<aside class="roadmap-node-drawer-v749"><div class="roadmap-node-drawer-head-v749"><div class="roadmap-node-heading-v749"></div><button type="button" class="small-icon-btn roadmap-node-close-v749"><i class="ph ph-x"></i></button></div><div class="roadmap-node-body-v749"></div></aside>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.roadmap-node-close-v749').onclick=()=>{delete modal.dataset.layoutEditV785;modal.classList.add('hidden');};
+    modal.addEventListener('pointerdown',e=>{if(e.target===modal){delete modal.dataset.layoutEditV785;modal.classList.add('hidden');}});
+    return modal;
+  }
+
+  function openNode(tabId,componentId,nodeId){
+    let foundV788=locate(tabId,componentId);if(foundV788.tab&&foundV788.component)applyRoadmapAutomaticCompletionV788(foundV788.tab,foundV788.component);
+    const {tab,component}=locate(tabId,componentId);
+    const node=nodeById(component,nodeId);
+    if(!tab||!component||!node) return;
+    const index=component.nodes.indexOf(node), unlocked=isUnlocked(component,index);
+    const modal=ensureNodeModal();delete modal.dataset.layoutEditV785;modal.dataset.roadmapTabV794=String(tab.id);modal.dataset.roadmapComponentV794=String(component.id);modal.dataset.roadmapNodeV794=String(node.id);delete modal.dataset.roadmapSubV794;const head=modal.querySelector('.roadmap-node-heading-v749'), body=modal.querySelector('.roadmap-node-body-v749');
+    const source=resolveRoadmapSourceV750(component,tab.id), items=kbItemsForNode(component,node,tab.id);const visibleDays=[...new Set([...array(node.linkedDays),...items.flatMap(item=>array(item.learnedDays))].map(Number).filter(Number.isInteger))].sort((a,b)=>a-b);
+    const nodeTagsV752=cleanTagsV752(node?.kbTagsV752?.length?node.kbTagsV752:node.kbTag);
+    head.innerHTML=`<div class="roadmap-node-kicker-v749">${esc(node.label)}</div><h2>${esc(node.title)}</h2>${nodeTagsV752.length?`<span class="roadmap-tag-v749">${nodeTagsV752.map(tag=>esc(displayTag(tag))).join(' ')}</span>`:''}`;
+    body.innerHTML=`
+      ${node.description?`<p class="roadmap-node-description-v749">${esc(node.description)}</p>`:''}
+      ${completionRuleSummaryV788(node,nodeTagsV752)}
+      <div class="roadmap-node-actions-v749">
+        ${roadmapLoggedMetricV788(node,nodeTagsV752).mode==='manual'?`<button type="button" class="icon-btn roadmap-node-complete-v749" ${!unlocked&&!node.completed?'disabled':''}><i class="ph ${node.completed?'ph-arrow-counter-clockwise':'ph-check-circle'}"></i>${node.completed?'Mark Incomplete':'Mark Complete'}</button>`:''}
+        
+      </div>
+      ${!unlocked&&!node.completed?`<div class="roadmap-locked-note-v749"><i class="ph ph-lock"></i> Complete the earlier skills to unlock this node, or turn off sequential unlocking in Roadmap Settings.</div>`:''}
+      <section class="roadmap-detail-section-v749">
+        <div class="roadmap-detail-title-v749"><strong>${esc(defaultModalLayoutV785(node,'node').subTitle)}</strong><span>${node.subsections.filter(s=>s.done).length}/${node.subsections.length}</span></div>${defaultModalLayoutV785(node,'node').subDescription?`<p class="roadmap-empty-copy-v749">${esc(defaultModalLayoutV785(node,'node').subDescription)}</p>`:''}
+        ${node.subsections.length?`<div class="roadmap-subsections-v749">${node.subsections.map(sub=>`<label><input type="checkbox" data-road-sub-v749="${esc(sub.id)}" ${sub.done?'checked':''}><span>${esc(sub.title)}</span></label>`).join('')}</div>`:'<p class="roadmap-empty-copy-v749">No subsections yet. Use Edit Skill to add them.</p>'}
+      </section>
+      <section class="roadmap-detail-section-v749">
+        <div class="roadmap-detail-title-v749"><strong>${esc(defaultModalLayoutV785(node,'node').knowledgeTitle)}</strong><span>${items.length} ${items.length===1?'item':'items'}</span></div>
+        <p class="roadmap-empty-copy-v749">${esc(defaultModalLayoutV785(node,'node').knowledgeDescription||'Items connected to this roadmap node.')}</p>
+        <div class="roadmap-kb-list-v749">${items.length?items.map(item=>`<button type="button" data-road-kb-item-v749="${esc(item.key)}"><strong>${esc(item.title)}</strong><span>${array(item.learnedDays).length?`Logged: ${item.learnedDays.map(d=>`Day ${d}`).join(', ')} · `:''}${array(item.tags).slice(0,5).map(tag=>`#${esc(tag)}`).join(' ')}${item.category?` · ${esc(item.category)}`:''}</span></button>`).join(''):'<div class="roadmap-kb-empty-v749">No matching Knowledge Base items yet.</div>'}</div>
+      </section>
+      <section class="roadmap-detail-section-v749">
+        <div class="roadmap-detail-title-v749"><strong>${esc(defaultModalLayoutV785(node,'node').dayTitle)}</strong><span>${visibleDays.length}</span></div>${defaultModalLayoutV785(node,'node').dayDescription?`<p class="roadmap-empty-copy-v749">${esc(defaultModalLayoutV785(node,'node').dayDescription)}</p>`:''}
+        <div class="roadmap-day-chips-v749">${visibleDays.map(day=>`<button type="button" data-road-open-day-v749="${day}">Day ${day}<i class="ph ph-arrow-square-out"></i></button>`).join('')||'<span class="roadmap-empty-copy-v749">No Day Logs linked yet.</span>'}</div>
+        <div class="roadmap-day-linker-v749"><input type="number" min="1" class="roadmap-day-input-v749" placeholder="Day #"><button type="button" class="small-icon-btn roadmap-link-day-v749" title="Link Day Log"><i class="ph ph-link"></i></button><button type="button" class="icon-btn roadmap-link-current-v749"><i class="ph ph-calendar-check"></i> Link current day</button></div>
+      </section>`;
+
+    body.querySelector('.roadmap-node-complete-v749')?.addEventListener('click',()=>toggleComplete(tabId,componentId,nodeId));
+    body.querySelector('.roadmap-node-quiz-v749')?.addEventListener('click',()=>{
+      if(!nodeTagsV752.length || !source.canQuiz) return;
+      try { db.settings.quizSettingsV58 ||= {}; db.settings.quizSettingsV58.tagFiltersEnabledV749=true; saveDb(); } catch {}
+      try { window.setQuizTagFilterV749?.(nodeTagsV752); } catch {}
+      modal.classList.add('hidden');
+      document.getElementById('open-quizzes-btn')?.click();
+      setTimeout(()=>{ try { window.setQuizTagFilterV749?.(nodeTagsV752); window.renderQuizTagFiltersV749?.(); } catch {} },40);
+    });
+    bindRoadmapKbButtonsV786(body,items,'[data-road-kb-item-v749]','roadKbItemV749');
+    body.querySelectorAll('[data-road-open-day-v749]').forEach(button=>button.addEventListener('click',()=>{closeRoadmapModalStackV842();openDayLog(Number(button.dataset.roadOpenDayV749));}));
+    body.querySelectorAll('[data-road-sub-v749]').forEach(input=>input.addEventListener('change',()=>{
+      const fresh=locate(tabId,componentId), freshNode=nodeById(fresh.component,nodeId);
+      const sub=freshNode?.subsections?.find(entry=>entry.id===input.dataset.roadSubV749); if(!fresh.tab||!fresh.component||!freshNode||!sub)return;
+      sub.done=!!input.checked;sub.completedAt=sub.done?new Date().toISOString():'';
+      recordSectionCompletionV756(fresh.tab,fresh.component,freshNode,sub,sub.done);
+      let rewardDue=false;
+      if(fresh.component.autoCompleteSubsectionsV749 && freshNode.subsections.length){
+        const complete=freshNode.subsections.every(entry=>entry.done);
+        if(freshNode.completed!==complete){freshNode.completed=complete;freshNode.completedAt=complete?new Date().toISOString():'';rewardDue=complete;}
+      }
+      if(rewardDue && freshNode.completed && fresh.component.autoLinkSectionsToCurrentDayV753){const day=currentRoadmapCompletionDayV756();if(day)linkNodeDay(fresh.tab,fresh.component,freshNode,day);}
+      saveDb();if(rewardDue)checkRewards(fresh.tab,fresh.component);try{renderDayRoadmapLinksV749(Number(currentDay))}catch{}; renderCustomTabView(fresh.tab.id); openNode(tabId,componentId,nodeId);
+    }));
+    const currentRoadmapDayV752=()=>{
+      const direct=Number(currentDay);
+      if(Number.isInteger(direct)&&direct>0&&db.days?.[direct])return direct;
+      const hash=String(location.hash||'').match(/day\/(\d+)/i), fromHash=Number(hash?.[1]);
+      if(Number.isInteger(fromHash)&&fromHash>0&&db.days?.[fromHash])return fromHash;
+      return Object.keys(db.days||{}).map(Number).filter(n=>Number.isInteger(n)&&n>0&&db.days?.[n]).sort((a,b)=>b-a)[0]||0;
+    };
+    const linkDay=day=>{
+      if(!Number.isInteger(day)||day<1){try{showFeatureToast?.('Choose an existing Day Log number.')}catch{};return;}
+      const fresh=locate(tabId,componentId), freshNode=nodeById(fresh.component,nodeId);
+      if(!fresh.tab||!fresh.component||!freshNode)return;
+      if(!linkNodeDay(fresh.tab,fresh.component,freshNode,day))return;
+      saveDb(); try{renderDayRoadmapLinksV749(day)}catch{}; renderCustomTabView(fresh.tab.id); openNode(tabId,componentId,nodeId);
+    };
+    body.querySelector('.roadmap-link-day-v749')?.addEventListener('click',()=>linkDay(Number(body.querySelector('.roadmap-day-input-v749')?.value)));
+    body.querySelector('.roadmap-day-input-v749')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();linkDay(Number(e.currentTarget.value));}});
+    body.querySelector('.roadmap-link-current-v749')?.addEventListener('click',()=>linkDay(currentRoadmapDayV752()));
+    renderRoadmapModalExtrasV785(tab,node,body);bindRoadmapModalContextV785(tab,component,node,null,modal);
+    modal.classList.remove('hidden');
+  }
+  window.openRoadmapNodeV749=openNode;
+
+  function syncDayReference(tab,component,node,day,add){
+    if(!db.days?.[day]) return;
+    db.days[day].roadmapLinksV749=array(db.days[day].roadmapLinksV749);
+    const match=entry=>!entry.subId&&String(entry.tabId)===String(tab.id)&&String(entry.componentId)===String(component.id)&&String(entry.nodeId)===String(node.id);
+    db.days[day].roadmapLinksV749=db.days[day].roadmapLinksV749.filter(entry=>!match(entry));
+    if(add) db.days[day].roadmapLinksV749.push({tabId:tab.id,componentId:component.id,nodeId:node.id,label:node.label,title:node.title});
+  }
+  function linkNodeDay(tab,component,node,day){
+    if(!db.days?.[day]){ try{showFeatureToast?.(`Day ${day} does not exist yet.`)}catch{}; return false; }
+    if(!node.linkedDays.includes(day)) node.linkedDays.push(day);
+    node.linkedDays.sort((a,b)=>a-b); syncDayReference(tab,component,node,day,true); return true;
+  }
+  function unlinkNodeDay(tab,component,node,day){
+    node.linkedDays=node.linkedDays.filter(value=>value!==day); syncDayReference(tab,component,node,day,false);
+  }
+
+  function toggleComplete(tabId,componentId,nodeId){
+    const {tab,component}=locate(tabId,componentId), node=nodeById(component,nodeId); if(!tab||!component||!node)return;
+    const index=component.nodes.indexOf(node);
+    if(!node.completed && !isUnlocked(component,index)){ try{showFeatureToast?.('Complete the earlier roadmap skills first.')}catch{}; return; }
+    node.completed=!node.completed;
+    node.completedAt=node.completed?new Date().toISOString():'';
+    if(node.completed){
+      if(component.autoLinkSectionsToCurrentDayV753){const day=currentRoadmapCompletionDayV756();if(day)linkNodeDay(tab,component,node,day);}
+      checkRewards(tab,component);
+    }
+    saveDb(); renderCustomTabView(tab.id); try{renderDayRoadmapLinksV749(Number(currentDay))}catch{}; openNode(tab.id,component.id,node.id);
+  }
+
+  function playRewardSound(){
+    try{
+      const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx)return;
+      const ctx=new Ctx(), gain=ctx.createGain(); gain.connect(ctx.destination); gain.gain.setValueAtTime(.0001,ctx.currentTime); gain.gain.exponentialRampToValueAtTime(.16,ctx.currentTime+.02); gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.72);
+      [523.25,659.25,783.99,1046.5].forEach((freq,index)=>{const osc=ctx.createOscillator();osc.type='sine';osc.frequency.value=freq;osc.connect(gain);osc.start(ctx.currentTime+index*.09);osc.stop(ctx.currentTime+.7);});
+      setTimeout(()=>ctx.close?.(),900);
+    }catch{}
+  }
+  function showRewardModal(component,reward){
+    document.getElementById('roadmap-reward-modal-v749')?.remove();
+    const modal=document.createElement('div'); modal.id='roadmap-reward-modal-v749'; modal.className='roadmap-reward-modal-v749';
+    const pieces=component.confettiV749?Array.from({length:36},(_,i)=>`<i style="--i:${i};--delay:${i*-7}ms;--tx:${((i*37)%100)-50}vw;--ty:${-25+(i%9)*7}vh;--h:${(i*47)%360};--r:${(i*53)%360}deg"></i>`).join(''):'';
+    modal.innerHTML=`<div class="roadmap-confetti-v749">${pieces}</div><div class="roadmap-reward-card-v749"><div class="roadmap-reward-icon-v749"><i class="ph ${esc(reward.icon||'ph-gift')}"></i></div><div class="roadmap-reward-kicker-v749">${reward.xp} XP REWARD</div><h2>${esc(reward.title)}</h2><p>${esc(reward.message)}</p><button type="button" class="icon-btn roadmap-reward-close-v749"><i class="ph ph-confetti"></i> Keep Going</button></div>`;
+    document.body.appendChild(modal); modal.querySelector('.roadmap-reward-close-v749').onclick=()=>modal.remove(); modal.addEventListener('pointerdown',e=>{if(e.target===modal)modal.remove()});
+    if(component.rewardSoundV749) playRewardSound();
+  }
+  function checkRewards(tab,component){
+    const amount=xp(component), claimed=new Set(component.claimedRewardIdsV749);
+    const earned=component.rewardsV749.filter(reward=>reward.xp<=amount&&!claimed.has(reward.id));
+    if(!earned.length)return;
+    earned.forEach(reward=>claimed.add(reward.id)); component.claimedRewardIdsV749=[...claimed];
+    saveDb();
+    let delay=0; earned.forEach(reward=>{setTimeout(()=>showRewardModal(component,reward),delay); delay+=800;});
+  }
+
+  function ensureEditor(){
+    let modal=document.getElementById('roadmap-skill-editor-v749'); if(modal)return modal;
+    modal=document.createElement('div'); modal.id='roadmap-skill-editor-v749'; modal.className='roadmap-editor-modal-v749 hidden';
+    modal.innerHTML=`<div class="roadmap-editor-box-v749"><div class="modal-header"><h2 class="roadmap-editor-title-v749">Edit Skill</h2><button type="button" class="small-icon-btn roadmap-editor-close-v749"><i class="ph ph-x"></i></button></div><div class="roadmap-editor-body-v749"></div></div>`;
+    document.body.appendChild(modal); modal.querySelector('.roadmap-editor-close-v749').onclick=()=>modal.classList.add('hidden'); modal.addEventListener('pointerdown',e=>{if(e.target===modal){delete modal.dataset.layoutEditV785;modal.classList.add('hidden');}}); return modal;
+  }
+  function openManualItemPickerV785(tab,component,holder,onDone){
+    const source=resolveRoadmapSourceV750(component,tab.id),selected=new Set(array(holder.manualItemKeysV785).map(String));document.getElementById('roadmap-manual-picker-v785')?.remove();const modal=document.createElement('div');modal.id='roadmap-manual-picker-v785';modal.className='roadmap-manual-picker-v785';modal.innerHTML=`<div class="roadmap-manual-picker-box-v785"><div class="modal-header"><h2>Choose Representative KB Items</h2><button class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div><input class="roadmap-manual-search-v785" placeholder="Search Knowledge Base items"><div class="roadmap-manual-picker-list-v785"></div><button class="icon-btn ai-generate-btn" data-save><i class="ph ph-check"></i> Save Selected Items</button></div>`;document.body.appendChild(modal);const list=modal.querySelector('.roadmap-manual-picker-list-v785'),draw=()=>{const q=String(modal.querySelector('.roadmap-manual-search-v785').value||'').toLowerCase();list.innerHTML=source.items.filter(i=>!q||`${i.title} ${i.category} ${array(i.tags).join(' ')}`.toLowerCase().includes(q)).map(i=>`<label><input type="checkbox" value="${esc(i.key)}" ${selected.has(String(i.key))?'checked':''}><span><strong>${esc(i.title)}</strong><small>${esc(i.category||'')}${i.tags?.length?` · ${i.tags.map(t=>`#${t}`).join(' ')}`:''}</small></span></label>`).join('')||'<p class="progress-hint">No matching items.</p>';list.querySelectorAll('input').forEach(input=>input.onchange=()=>input.checked?selected.add(input.value):selected.delete(input.value))};draw();modal.querySelector('.roadmap-manual-search-v785').oninput=draw;modal.querySelector('[data-close]').onclick=()=>modal.remove();modal.querySelector('[data-save]').onclick=()=>{holder.manualItemKeysV785=[...selected];modal.remove();onDone?.()};modal.onclick=e=>{if(e.target===modal)modal.remove()}
+  }
+
+  async function editCompletionRuleV788(holder,label='section'){
+    const current=holder.autoCompleteRuleV788&&typeof holder.autoCompleteRuleV788==='object'?holder.autoCompleteRuleV788:{mode:'manual',tags:[],target:1};
+    document.getElementById('roadmap-completion-modal-v851')?.remove();
+    const underlays=[document.getElementById('roadmap-skill-editor-v749'),document.getElementById('roadmap-node-modal-v749')].filter(Boolean);
+    underlays.forEach(el=>el.classList.add('roadmap-completion-underlay-v852'));
+    const modal=document.createElement('div');
+    modal.id='roadmap-completion-modal-v851';
+    modal.className='roadmap-completion-modal-v851';
+    modal.innerHTML=`<div class="roadmap-completion-box-v851" role="dialog" aria-modal="true" aria-labelledby="roadmap-completion-title-v851">
+      <div class="modal-header"><h2 id="roadmap-completion-title-v851">Automatic Completion · ${esc(label)}</h2><button type="button" class="small-icon-btn" data-close><i class="ph ph-x"></i></button></div>
+      <label class="roadmap-field-v749"><span>Completion rule</span><select data-mode><option value="manual" ${String(current.mode||'manual')==='manual'?'selected':''}>Manual only</option><option value="distinct" ${String(current.mode)==='distinct'?'selected':''}>Complete after X different matching KB items have been logged</option><option value="occurrences" ${String(current.mode)==='occurrences'?'selected':''}>Complete after X matching Items Learned appearances</option></select></label>
+      <label class="roadmap-field-v749"><span>Required KB tag(s)</span><input data-tags value="${esc(array(current.tags).join(', '))}" placeholder="2.1, conversion-factors"></label>
+      <label class="roadmap-field-v749"><span>Target Count (X)</span><input data-target type="number" min="1" value="${Math.max(1,Number(current.target)||1)}"></label>
+      <div class="app-prompt-actions"><button type="button" class="icon-btn" data-cancel>Cancel</button><button type="button" class="icon-btn custom-tab-primary-btn" data-save><i class="ph ph-check"></i> Save Rule</button></div>
+    </div>`;
+    document.body.appendChild(modal);
+    return await new Promise(resolve=>{
+      let done=false;
+      const finish=value=>{if(done)return;done=true;modal.remove();underlays.forEach(el=>el.classList.remove('roadmap-completion-underlay-v852'));resolve(value)};
+      modal.querySelector('[data-close]').onclick=()=>finish(false);
+      modal.querySelector('[data-cancel]').onclick=()=>finish(false);
+      modal.addEventListener('pointerdown',e=>{if(e.target===modal)finish(false)});
+      modal.querySelector('[data-save]').onclick=()=>{
+        holder.autoCompleteRuleV788={mode:String(modal.querySelector('[data-mode]')?.value||'manual'),tags:cleanTagsV752(modal.querySelector('[data-tags]')?.value||''),target:Math.max(1,Math.round(Number(modal.querySelector('[data-target]')?.value)||1))};
+        finish(true);
+      };
+      requestAnimationFrame(()=>modal.querySelector('[data-mode]')?.focus());
+    });
+  }
+
+  function openNodeEditor(tabId,componentId,nodeId=''){
+    const {tab,component}=locate(tabId,componentId); if(!tab||!component)return;
+    const existing=nodeId?nodeById(component,nodeId):null;
+    const nextChapter=component.nodes.length+1;
+    const draft=existing?JSON.parse(JSON.stringify(existing)):(component.structureModeV753==='chapters'
+      ? normalizeNode({label:`CH${nextChapter}`,title:`Chapter ${nextChapter}`,kbTag:`CH${nextChapter}`,kbTagsV752:[`CH${nextChapter}`]},component.nodes.length)
+      : normalizeNode({label:`${Math.floor(component.nodes.length/5)+1}.${component.nodes.length%5+1}`},component.nodes.length));
+    const chapterMode=component.structureModeV753==='chapters';
+    const modal=ensureEditor(), body=modal.querySelector('.roadmap-editor-body-v749'); modal.querySelector('.roadmap-editor-title-v749').textContent=existing?(chapterMode?'Edit Chapter':'Edit Skill'):(chapterMode?'Add Chapter':'Add Skill');
+    body.innerHTML=`
+      <label class="roadmap-field-v749"><span>${chapterMode?'Chapter code':'Short label'}</span><input class="road-label-v749" value="${esc(draft.label)}" placeholder="${chapterMode?'CH1':'2.1'}"></label>
+      <label class="roadmap-field-v749"><span>${chapterMode?'Full chapter title':'Full skill title'}</span><input class="road-title-v749" value="${esc(draft.title)}" placeholder="${chapterMode?'Chapter 1':'Atomic Particles'}"></label>
+      <label class="roadmap-field-v749"><span>Knowledge Base tag(s)</span><input class="road-tag-v749" value="${esc(cleanTagsV752(draft.kbTagsV752?.length?draft.kbTagsV752:draft.kbTag).join(', '))}" placeholder="${chapterMode?'CH1':'2.1, atomic'}"><small>You do not need #. Separate multiple tags with spaces or commas.</small></label>
+      <label class="roadmap-field-v749"><span>Description</span><textarea class="road-desc-v749" rows="3">${esc(draft.description)}</textarea></label>
+      ${chapterMode?`<div class="roadmap-editor-section-v749 roadmap-chapter-completion-v843"><div class="roadmap-detail-title-v749"><strong>Chapter Completion</strong></div><p class="roadmap-empty-copy-v749">This chapter completes automatically when every subsection is complete.</p></div>`:`<div class="roadmap-editor-section-v749 roadmap-auto-rule-editor-v788"><div class="roadmap-detail-title-v749"><strong>Completion Rule</strong><span class="road-main-rule-label-v788">${esc((draft.autoCompleteRuleV788?.mode||'manual')==='manual'?'Manual':`${draft.autoCompleteRuleV788?.target||1} logged`)}</span></div><p class="roadmap-empty-copy-v749">Automatically mark this skill complete from Items Learned, or leave it manual.</p><button type="button" class="icon-btn road-main-auto-v788"><i class="ph ph-checks"></i> Configure Automatic Completion</button></div>`}
+      <div class="roadmap-editor-section-v749"><div class="roadmap-detail-title-v749"><strong>Manual representative items for this main node</strong><span>${draft.manualItemKeysV785?.length||0}</span></div><div class="roadmap-manual-item-list-v785"></div></div>
+      <div class="roadmap-editor-section-v749"><div class="roadmap-detail-title-v749"><strong>Subsections</strong><button type="button" class="small-icon-btn road-add-sub-v749"><i class="ph ph-plus"></i></button></div><p class="roadmap-empty-copy-v749">For Chapter → Sections mode, enter names like 2.1 Atomic Theory, 2.2 Structure of the Atom. Each section becomes a clickable circle and uses its matching KB tag.</p><div class="road-sub-edit-list-v749"></div></div>
+      <div class="roadmap-editor-section-v749"><div class="roadmap-detail-title-v749"><strong>Connected Day Logs</strong><span>Optional</span></div><div class="road-day-edit-list-v749"></div><div class="roadmap-day-linker-v749"><input type="number" min="1" class="road-edit-day-v749" placeholder="Existing Day #"><button type="button" class="small-icon-btn road-edit-add-day-v749"><i class="ph ph-plus"></i></button></div></div>
+      <div class="roadmap-editor-actions-v749">${existing?`<button type="button" class="delete-btn road-delete-v749"><i class="ph ph-trash"></i> Delete ${chapterMode?'Chapter':'Skill'}</button>`:''}<button type="button" class="icon-btn ai-generate-btn road-save-v749"><i class="ph ph-check"></i> Save ${chapterMode?'Chapter':'Skill'}</button></div>`;
+    const drawSubs=()=>{const host=body.querySelector('.road-sub-edit-list-v749');host.innerHTML=draft.subsections.map(sub=>`<div data-sub-edit-v749="${esc(sub.id)}"><input value="${esc(sub.rawTitle||([sub.label,sub.title].filter(Boolean).join(' '))||sub.title)}"><button type="button" class="small-icon-btn road-sub-items-v785" title="Choose representative KB items"><i class="ph ph-list-checks"></i></button><button type="button" class="small-icon-btn road-sub-auto-v788" title="Automatic completion rule"><i class="ph ph-checks"></i></button><button type="button" class="small-icon-btn road-sub-remove-v785" title="Remove subsection"><i class="ph ph-x"></i></button></div>`).join('')||'<p class="roadmap-empty-copy-v749">No subsections yet.</p>';host.querySelectorAll('[data-sub-edit-v749]').forEach(row=>{const sub=draft.subsections.find(x=>x.id===row.dataset.subEditV749);row.querySelector('input').oninput=e=>{
+        const oldAuto=cleanTag(sub.kbTagV753||'')===cleanTag(sub.label||'');
+        sub.rawTitle=e.target.value;sub.title=e.target.value;
+        const match=e.target.value.trim().match(/^([A-Za-z]?\d+(?:\.\d+)+)\b/);
+        if(match){sub.label=match[1];if(oldAuto){sub.kbTagV753=cleanTag(match[1]);sub.kbTagsV753=[cleanTag(match[1])];}}
+      };row.querySelector('.road-sub-items-v785').onclick=()=>openManualItemPickerV785(tab,component,sub,drawSubs);row.querySelector('.road-sub-auto-v788').onclick=async()=>{if(await editCompletionRuleV788(sub,sub.label||sub.title||'Section'))drawSubs()};row.querySelector('.road-sub-remove-v785').onclick=()=>{draft.subsections=draft.subsections.filter(x=>x!==sub);drawSubs();};});};
+    const drawDays=()=>{const host=body.querySelector('.road-day-edit-list-v749');host.innerHTML=draft.linkedDays.map(day=>`<button type="button" data-road-edit-day-chip-v749="${day}">Day ${day}<i class="ph ph-x"></i></button>`).join('')||'<span class="roadmap-empty-copy-v749">No linked days.</span>';host.querySelectorAll('[data-road-edit-day-chip-v749]').forEach(button=>button.onclick=()=>{draft.linkedDays=draft.linkedDays.filter(day=>day!==Number(button.dataset.roadEditDayChipV749));drawDays();});};
+    const drawManualV785=()=>{const host=body.querySelector('.roadmap-manual-item-list-v785');if(!host)return;const source=resolveRoadmapSourceV750(component,tab.id),wanted=new Set(array(draft.manualItemKeysV785).map(String)),picked=source.items.filter(i=>wanted.has(String(i.key)));host.innerHTML=`<button type="button" class="icon-btn road-main-items-v785"><i class="ph ph-list-checks"></i> Choose KB Items (${picked.length})</button>${picked.length?`<p class="progress-hint">${picked.slice(0,6).map(i=>esc(i.title)).join(' · ')}</p>`:''}`;host.querySelector('.road-main-items-v785').onclick=()=>openManualItemPickerV785(tab,component,draft,drawManualV785)};
+    drawSubs(); drawDays(); drawManualV785();
+    const mainAuto=body.querySelector('.road-main-auto-v788');if(mainAuto)mainAuto.onclick=async()=>{if(await editCompletionRuleV788(draft,draft.title||'Skill')){const label=body.querySelector('.road-main-rule-label-v788');if(label)label.textContent=(draft.autoCompleteRuleV788?.mode||'manual')==='manual'?'Manual':`${draft.autoCompleteRuleV788?.target||1} logged`;}};
+    body.querySelector('.road-add-sub-v749').onclick=()=>{draft.subsections.push(normalizeSubsection({title:`Subsection ${draft.subsections.length+1}`}));drawSubs();requestAnimationFrame(()=>body.querySelector('.road-sub-edit-list-v749 [data-sub-edit-v749]:last-child input')?.focus());};
+    const addDay=()=>{const input=body.querySelector('.road-edit-day-v749'),day=Number(input.value);if(!Number.isInteger(day)||day<1||!db.days?.[day]){try{showFeatureToast?.('Choose an existing Day Log number.')}catch{};return;}if(!draft.linkedDays.includes(day))draft.linkedDays.push(day);draft.linkedDays.sort((a,b)=>a-b);input.value='';drawDays();};
+    body.querySelector('.road-edit-add-day-v749').onclick=addDay; body.querySelector('.road-edit-day-v749').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addDay();}};
+    body.querySelector('.road-save-v749').onclick=()=>{
+      draft.label=String(body.querySelector('.road-label-v749').value||'').trim()||'Skill'; draft.title=String(body.querySelector('.road-title-v749').value||'').trim()||draft.label; draft.kbTagsV752=cleanTagsV752(body.querySelector('.road-tag-v749').value||draft.label); draft.kbTag=draft.kbTagsV752[0]||cleanTag(draft.label); draft.description=String(body.querySelector('.road-desc-v749').value||'');
+      draft.subsections=draft.subsections.filter(sub=>String(sub.title||'').trim()).map((sub,i)=>normalizeSubsection(sub,i));if(chapterMode)draft.autoCompleteRuleV788={mode:'manual',tags:[],target:1};
+      const previousDays=new Set(existing?.linkedDays||[]), nextDays=new Set(draft.linkedDays);
+      const latest=component.nodes.find(node=>String(node.id)===String(draft.id));
+      if(latest){Object.assign(latest,draft);previousDays.forEach(day=>{if(!nextDays.has(day))syncDayReference(tab,component,latest,day,false)});nextDays.forEach(day=>syncDayReference(tab,component,latest,day,true));}
+      else{component.nodes.push(draft);draft.linkedDays.forEach(day=>syncDayReference(tab,component,draft,day,true));}
+      saveDb(); modal.classList.add('hidden'); renderCustomTabView(tab.id); try{renderDayRoadmapLinksV749(Number(currentDay))}catch{}; openNode(tab.id,component.id,draft.id);
+    };
+    body.querySelector('.road-delete-v749')?.addEventListener('click',async()=>{const ok=await showAppConfirm({title:'Delete this skill?',message:`${draft.label} ${draft.title} will be removed from the roadmap. Linked Day Logs will be unlinked.`,confirmLabel:'Delete'});if(!ok)return;existing.linkedDays.forEach(day=>syncDayReference(tab,component,existing,day,false));component.nodes=component.nodes.filter(node=>node!==existing);saveDb();modal.classList.add('hidden');document.getElementById('roadmap-node-modal-v749')?.classList.add('hidden');renderCustomTabView(tab.id);try{renderDayRoadmapLinksV749(Number(currentDay))}catch{};});
+    modal.classList.remove('hidden');
+  }
+
+  function ensureSettings(){
+    let modal=document.getElementById('roadmap-settings-v749'); if(modal)return modal;
+    modal=document.createElement('div'); modal.id='roadmap-settings-v749'; modal.className='roadmap-settings-modal-v749 hidden';
+    modal.innerHTML=`<div class="roadmap-settings-box-v749"><div class="modal-header"><h2>Roadmap Settings</h2><button type="button" class="small-icon-btn roadmap-settings-close-v749"><i class="ph ph-x"></i></button></div><div class="roadmap-settings-body-v749"></div></div>`;
+    document.body.appendChild(modal);modal.querySelector('.roadmap-settings-close-v749').onclick=()=>modal.classList.add('hidden');modal.addEventListener('pointerdown',e=>{if(e.target===modal){delete modal.dataset.layoutEditV785;modal.classList.add('hidden');}});return modal;
+  }
+  function openSettings(tab,component){
+    normalize(component); const modal=ensureSettings(), body=modal.querySelector('.roadmap-settings-body-v749');
+    const draft=JSON.parse(JSON.stringify(component));
+    body.innerHTML=`
+      <label class="roadmap-field-v749"><span>Roadmap title</span><input data-road-setting-v749="title" value="${esc(draft.title)}"></label>
+      <label class="roadmap-field-v749"><span>Knowledge Base source</span><select data-road-setting-v749="kbSource">${roadmapSourceOptionsHtmlV750(draft,tab.id)}</select><small class="roadmap-empty-copy-v749">Use the real Knowledge Base or an independent Knowledge Base component from this or another custom tab.</small></label>
+      <label class="roadmap-field-v749"><span>Section Knowledge / Practice content</span><select data-road-setting-v749="sectionContentMode"><option value="tagged" ${draft.sectionContentModeV785==='tagged'?'selected':''}>All matching KB items by section tag</option><option value="learned" ${draft.sectionContentModeV785==='learned'?'selected':''}>Only matching real-KB items already logged in Day Logs</option><option value="manual" ${draft.sectionContentModeV785==='manual'?'selected':''}>Only manually selected representative KB items</option></select><small class="roadmap-empty-copy-v749">Use learned/logged mode as a curriculum record, or manual mode for hand-picked representative problems.</small></label>
+      <label class="roadmap-field-v749"><span>Roadmap structure</span><select data-road-setting-v749="structure"><option value="linear" ${draft.structureModeV753!=='chapters'?'selected':''}>Skill path · each node is one skill/section</option><option value="chapters" ${draft.structureModeV753==='chapters'?'selected':''}>Chapter path · click a chapter to orbit its sections</option></select><small class="roadmap-empty-copy-v749">Use Skill path for one chapter such as 2.1 → 2.2 → 2.3. Use Chapter path when each main node is a whole chapter and its sections should open around it.</small></label>
+      <div class="roadmap-settings-grid-v749"><label class="roadmap-field-v749"><span>XP per completed skill</span><input type="number" min="1" max="10000" data-road-setting-v749="xp" value="${draft.xpPerSkillV749}"></label><label class="roadmap-field-v749"><span>Nodes per row</span><select data-road-setting-v749="per">${[2,3,4,5,6].map(n=>`<option ${draft.nodesPerRowV749===n?'selected':''}>${n}</option>`).join('')}</select></label></div>
+      <label class="roadmap-toggle-row-v749"><span><strong>Sequential unlocking</strong><small>Keep future skills locked until earlier nodes are completed.</small></span><input type="checkbox" data-road-setting-v749="seq" ${draft.sequentialV749?'checked':''}></label>
+      <label class="roadmap-toggle-row-v749"><span><strong>Auto-complete from subsections</strong><small>Complete a skill when every subsection is checked.</small></span><input type="checkbox" data-road-setting-v749="auto" ${draft.autoCompleteSubsectionsV749?'checked':''}></label>
+      <label class="roadmap-toggle-row-v749"><span><strong>Record completed skills and sections in the current Day Log</strong><small>Automatically records each completed skill or individual section against the currently selected, existing Day Log. Completing all sections can also link the chapter.</small></span><input type="checkbox" data-road-setting-v749="autoLinkSections" ${draft.autoLinkSectionsToCurrentDayV753?'checked':''}></label>
+      <label class="roadmap-toggle-row-v749"><span><strong>Show titles below nodes</strong><small>Hide them for a cleaner compact path if you only want labels like 2.1.</small></span><input type="checkbox" data-road-setting-v749="titles" ${draft.showTitlesV749?'checked':''}></label>
+      <div class="roadmap-settings-grid-v749"><label class="roadmap-field-v749"><span>Path style</span><select data-road-setting-v749="pathMode"><option value="rainbow" ${draft.pathModeV749==='rainbow'?'selected':''}>Multicolor path</option><option value="single" ${draft.pathModeV749==='single'?'selected':''}>Single color</option></select></label><label class="roadmap-field-v749"><span>Single path color</span><input type="color" data-road-setting-v749="path" value="${esc(draft.pathColorV749)}"></label></div>
+      <div class="roadmap-settings-colors-v749">${[['complete','Completed node',draft.completedColorV749],['completeText','Completed text',draft.completedTextColorV749],['current','Current node',draft.currentColorV749],['currentBorder','Current border',draft.currentBorderV749],['locked','Locked node',draft.lockedColorV749]].map(([key,label,value])=>`<label><span>${label}</span><input type="color" data-road-setting-v749="${key}" value="${esc(value)}"></label>`).join('')}</div>
+      <label class="roadmap-toggle-row-v749"><span><strong>Show Focus button outside Edit Mode</strong><small>Keep the Focus crosshair visible during normal use.</small></span><input type="checkbox" data-road-setting-v749="showFocusOutside" ${draft.showFocusOutsideEditV785?'checked':''}></label>
+      <label class="roadmap-toggle-row-v749"><span><strong>Show + skill outside Edit Mode</strong><small>Keep the icon-only add-skill button visible while using the roadmap normally.</small></span><input type="checkbox" data-road-setting-v749="showAddOutside" ${draft.showAddSkillOutsideEditV752?'checked':''}></label>
+      <label class="roadmap-toggle-row-v749"><span><strong>Reward confetti</strong><small>Celebrate newly unlocked XP rewards.</small></span><input type="checkbox" data-road-setting-v749="confetti" ${draft.confettiV749?'checked':''}></label>
+      <label class="roadmap-field-v749"><span>Node click sound</span><select data-road-setting-v749="nodeClickSound">${[['off','Off'],['soft','Soft click'],['pop','Pop'],['chime','Chime'],['tap','Tap']].map(([value,label])=>`<option value="${value}" ${draft.nodeClickSoundV756===value?'selected':''}>${label}</option>`).join('')}</select><small>Plays when you click a main circle or expanded section circle. Independent of reward sounds.</small></label>
+      <label class="roadmap-toggle-row-v749"><span><strong>Reward sound</strong><small>Play a short local celebratory chime when a reward unlocks.</small></span><input type="checkbox" data-road-setting-v749="sound" ${draft.rewardSoundV749?'checked':''}></label>
+      <section class="roadmap-editor-section-v749"><div class="roadmap-detail-title-v749"><strong>XP Rewards</strong><button type="button" class="small-icon-btn road-add-reward-v749"><i class="ph ph-plus"></i></button></div><p class="roadmap-empty-copy-v749">Rewards pop above the entire page when their XP threshold is reached.</p><div class="road-reward-list-v749"></div></section>
+      <div class="roadmap-settings-actions-v749"><button type="button" class="icon-btn road-reset-rewards-v749"><i class="ph ph-arrow-counter-clockwise"></i> Reset reward unlocks</button><button type="button" class="icon-btn ai-generate-btn road-settings-save-v749"><i class="ph ph-check"></i> Save Settings</button></div>`;
+    const drawRewards=()=>{const host=body.querySelector('.road-reward-list-v749');host.innerHTML=draft.rewardsV749.map(reward=>`<div class="road-reward-row-v749" data-reward-v749="${esc(reward.id)}"><input type="number" min="1" value="${reward.xp}" title="XP"><input value="${esc(reward.title)}" placeholder="Reward title"><input value="${esc(reward.message)}" placeholder="Message"><input value="${esc(reward.icon)}" placeholder="ph-gift"><button type="button" class="small-icon-btn"><i class="ph ph-x"></i></button></div>`).join('')||'<p class="roadmap-empty-copy-v749">No rewards yet. Add one with +.</p>';host.querySelectorAll('[data-reward-v749]').forEach(row=>{const r=draft.rewardsV749.find(x=>x.id===row.dataset.rewardV749),inputs=row.querySelectorAll('input');inputs[0].oninput=()=>r.xp=Math.max(1,Number(inputs[0].value)||1);inputs[1].oninput=()=>r.title=inputs[1].value;inputs[2].oninput=()=>r.message=inputs[2].value;inputs[3].oninput=()=>r.icon=inputs[3].value;row.querySelector('button').onclick=()=>{draft.rewardsV749=draft.rewardsV749.filter(x=>x!==r);drawRewards();};});};
+    drawRewards(); body.querySelector('.road-add-reward-v749').onclick=()=>{draft.rewardsV749.push(normalizeReward({xp:Math.max(100,(draft.rewardsV749.at(-1)?.xp||0)+100),title:'New Reward'}));drawRewards();};
+    body.querySelector('.road-reset-rewards-v749').onclick=async()=>{const ok=await showAppConfirm({title:'Reset reward unlocks?',message:'Previously earned roadmap rewards will be allowed to pop up again when their XP threshold is reached.',confirmLabel:'Reset'});if(!ok)return;draft.claimedRewardIdsV749=[];try{showFeatureToast?.('Reward unlock history reset.')}catch{};};
+    // Logged-only is meaningful exclusively for the real Knowledge Base.
+    const kbSourceSelect=body.querySelector('[data-road-setting-v749="kbSource"]');
+    const contentSelect=body.querySelector('[data-road-setting-v749="sectionContentMode"]');
+    const syncContentOptions=()=>{
+      const isReal=kbSourceSelect?.value==='global';
+      const loggedOption=contentSelect?.querySelector('option[value="learned"]');
+      if(loggedOption)loggedOption.hidden=!isReal;
+      if(!isReal&&contentSelect?.value==='learned')contentSelect.value='tagged';
+    };
+    kbSourceSelect?.addEventListener('change',syncContentOptions);
+    syncContentOptions();
+    body.querySelector('.road-settings-save-v749').onclick=()=>{
+      draft.title=String(body.querySelector('[data-road-setting-v749="title"]').value||'Learning Roadmap').trim()||'Learning Roadmap';
+      const sourceValue=String(body.querySelector('[data-road-setting-v749="kbSource"]')?.value||'global');
+      if(sourceValue==='global'){
+        draft.roadmapKbSourceModeV750='global';draft.roadmapKbSourceTabIdV750='';draft.roadmapKbSourceComponentIdV750='';
+      }else{
+        const [,sourceTabId,sourceComponentId]=sourceValue.split('|');
+        draft.roadmapKbSourceModeV750='component';draft.roadmapKbSourceTabIdV750=String(sourceTabId||'');draft.roadmapKbSourceComponentIdV750=String(sourceComponentId||'');
+      }
+      draft.sectionContentModeV785=body.querySelector('[data-road-setting-v749="sectionContentMode"]')?.value||'tagged';draft.structureModeV753=body.querySelector('[data-road-setting-v749="structure"]')?.value==='chapters'?'chapters':'linear';draft.autoLinkSectionsToCurrentDayV753=body.querySelector('[data-road-setting-v749="autoLinkSections"]')?.checked!==false;
+      draft.xpPerSkillV749=Math.max(1,Number(body.querySelector('[data-road-setting-v749="xp"]').value)||25);draft.nodesPerRowV749=Number(body.querySelector('[data-road-setting-v749="per"]').value)||4;draft.sequentialV749=body.querySelector('[data-road-setting-v749="seq"]').checked;draft.autoCompleteSubsectionsV749=body.querySelector('[data-road-setting-v749="auto"]').checked;draft.showTitlesV749=body.querySelector('[data-road-setting-v749="titles"]').checked;draft.showFocusOutsideEditV785=body.querySelector('[data-road-setting-v749="showFocusOutside"]')?.checked!==false;draft.showAddSkillOutsideEditV752=body.querySelector('[data-road-setting-v749="showAddOutside"]').checked;draft.pathModeV749=body.querySelector('[data-road-setting-v749="pathMode"]').value;draft.pathColorV749=body.querySelector('[data-road-setting-v749="path"]').value;draft.completedColorV749=body.querySelector('[data-road-setting-v749="complete"]').value;draft.completedTextColorV749=body.querySelector('[data-road-setting-v749="completeText"]').value;draft.currentColorV749=body.querySelector('[data-road-setting-v749="current"]').value;draft.currentBorderV749=body.querySelector('[data-road-setting-v749="currentBorder"]').value;draft.lockedColorV749=body.querySelector('[data-road-setting-v749="locked"]').value;draft.confettiV749=body.querySelector('[data-road-setting-v749="confetti"]').checked;draft.rewardSoundV749=body.querySelector('[data-road-setting-v749="sound"]').checked;draft.nodeClickSoundV756=body.querySelector('[data-road-setting-v749="nodeClickSound"]').value;draft.rewardsV749=draft.rewardsV749.map(normalizeReward).sort((a,b)=>a.xp-b.xp);Object.assign(component,normalize(draft));saveDb();modal.classList.add('hidden');renderCustomTabView(tab.id);
+    };
+    modal.classList.remove('hidden');
+  }
+
+  function renderDayRoadmapLinksV749(dayNumber=Number(currentDay)){
+    const view=document.getElementById('log-view'); if(!view)return;
+    let section=document.getElementById('roadmap-day-links-v749');
+    const refs=array(db.days?.[dayNumber]?.roadmapLinksV749).filter(ref=>{
+      const found=locate(ref.tabId,ref.componentId),node=nodeById(found.component,ref.nodeId);
+      return !!node && (!ref.subId || node.subsections.some(sub=>String(sub.id)===String(ref.subId)));
+    });
+    if(!refs.length){section?.remove();return;}
+    if(!section){section=document.createElement('section');section.id='roadmap-day-links-v749';section.className='borderless-section mt-20 roadmap-day-section-v749';const anchor=document.getElementById('day-resources-section');anchor?.insertAdjacentElement('afterend',section);}
+    section.innerHTML=`<div class="section-header"><h2>Roadmap Skills & Sections</h2><span class="roadmap-day-count-v749">${refs.length}</span></div><div class="roadmap-day-ref-grid-v749">${refs.map((ref,index)=>{
+      const found=locate(ref.tabId,ref.componentId),node=nodeById(found.component,ref.nodeId);
+      const sub=ref.subId?node?.subsections?.find(entry=>String(entry.id)===String(ref.subId)):null;
+      const label=sub?(sub.label||ref.label):(node?.label||ref.label);
+      const title=sub?(sub.title||ref.title):(node?.title||ref.title);
+      const complete=sub?sub.done:node?.completed;
+      return `<button type="button" data-road-day-index-v756="${index}" class="${complete?'is-complete':''}"><span>${esc(label)}</span><strong>${esc(title)}</strong>${sub?`<small>${esc(node?.title||'Chapter')} · Section</small>`:''}<i class="ph ph-arrow-square-out"></i></button>`;
+    }).join('')}</div>`;
+    section.querySelectorAll('[data-road-day-index-v756]').forEach(button=>button.onclick=()=>{
+      const ref=refs[Number(button.dataset.roadDayIndexV756)];if(!ref)return;
+      openCustomTab(ref.tabId);
+      requestAnimationFrame(()=>ref.subId?openSectionV753(ref.tabId,ref.componentId,ref.nodeId,ref.subId):openNode(ref.tabId,ref.componentId,ref.nodeId));
+    });
+  }
+  window.renderDayRoadmapLinksV749=renderDayRoadmapLinksV749;
+
+  try{
+    const before=openDayLog;
+    openDayLog=function(dayNumber){const result=before.apply(this,arguments);requestAnimationFrame(()=>renderDayRoadmapLinksV749(Number(dayNumber)));return result;};
+  }catch{}
+
+  try{
+    for(let i=CUSTOM_COMPONENT_LIBRARY.length-1;i>=0;i--) if(CUSTOM_COMPONENT_LIBRARY[i]?.type===TYPE)CUSTOM_COMPONENT_LIBRARY.splice(i,1);
+    const anchor=CUSTOM_COMPONENT_LIBRARY.findIndex(def=>def?.type==='progressMeter');
+    CUSTOM_COMPONENT_LIBRARY.splice(anchor>=0?anchor+1:CUSTOM_COMPONENT_LIBRARY.length,0,{type:TYPE,label:'Learning Roadmap',icon:'ph-path'});
+  }catch{}
+  try{CUSTOM_TITLE_BACKGROUND_TYPES?.add?.(TYPE)}catch{}
+  try{
+    const before=defaultCustomComponent;
+    defaultCustomComponent=function(type){
+      if(type===TYPE)return normalize({id:customId('component'),type:TYPE,title:'Learning Roadmap',nodes:[],xpPerSkillV749:25,nodesPerRowV749:4,sequentialV749:true,showTitlesV749:true,showAddSkillOutsideEditV752:false,showFocusOutsideEditV785:true,structureModeV753:'chapters',sectionContentModeV785:'learned',roadmapKbSourceModeV750:'global',roadmapKbSourceTabIdV750:'',roadmapKbSourceComponentIdV750:'',rewardsV749:[{xp:100,title:'100 XP Reward',message:'You reached 100 XP!',icon:'ph-star'},{xp:250,title:'250 XP Reward',message:'Roadmap streak unlocked!',icon:'ph-trophy'}]});
+      return before.apply(this,arguments);
+    };
+  }catch{}
+  try{
+    const before=renderCustomComponentContent;
+    renderCustomComponentContent=function(tab,component,content){if(component?.type===TYPE)return renderRoadmap(tab,normalize(component),content);return before.apply(this,arguments);};
+  }catch{}
+  try{
+    const before=editCustomComponent;
+    editCustomComponent=async function(tabId,componentId){const {tab,component}=locate(tabId,componentId);if(component)return openSettings(tab,component);return before.apply(this,arguments);};
+  }catch{}
+  try{window.__loggyRefreshCustomComponentPaletteV746?.()}catch{}
+})();
+
+// ============================================================================
+// V749 — Random theme button in Log Settings
+// ============================================================================
+(() => {
+  'use strict';
+  if (window.__loggyRandomThemeButtonV749) return;
+  window.__loggyRandomThemeButtonV749 = true;
+  function install(){
+    const input=document.getElementById('theme-search-input');
+    const wrap=input?.closest('.theme-search-wrap');
+    const row=wrap?.closest('.theme-search-row-v161');
+    if(!row)return;
+    let button=row.querySelector('.theme-search-random-v749');
+    if(!button){
+      button=document.createElement('button');button.type='button';button.className='theme-search-random-v749';button.title='Apply a random theme';button.setAttribute('aria-label','Apply a random theme');button.innerHTML='<i class="ph ph-shuffle"></i>';
+      const plus=row.querySelector('.theme-search-create-v161');row.insertBefore(button,plus||null);
+      button.onclick=()=>{
+        const cards=Array.from(document.querySelectorAll('#theme-picker .theme-picker-card[data-theme]')).filter(card=>!card.classList.contains('theme-search-hidden')&&getComputedStyle(card).display!=='none');
+        if(!cards.length)return;
+        let current='';try{current=String(db?.settings?.theme||'')}catch{}
+        const pool=cards.filter(card=>String(card.dataset.theme)!==current);const choices=pool.length?pool:cards;
+        const chosen=choices[Math.floor(Math.random()*choices.length)];
+        if(chosen){chosen.scrollIntoView({block:'nearest'});chosen.click();}
+      };
+    }
+  }
+  const observer=new MutationObserver(()=>install());
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',e=>{if(e.target.closest?.('#open-daily-settings-btn'))requestAnimationFrame(install)},true);
+  requestAnimationFrame(install);
+})();
+
+// V813: an edit-layout session never persists after its node modal is closed.
+(() => {
+  document.addEventListener('click',event=>{
+    const modal=document.getElementById('roadmap-node-modal-v749');
+    if(!modal)return;
+    if(event.target.closest('#roadmap-node-modal-v749 .roadmap-node-close-v749, #roadmap-node-modal-v749 [data-close]'))delete modal.dataset.layoutEditV785;
+    if(event.target===modal)delete modal.dataset.layoutEditV785;
+  },true);
+  const watch=()=>{const modal=document.getElementById('roadmap-node-modal-v749');if(!modal||modal.dataset.editWatchV813)return;modal.dataset.editWatchV813='1';new MutationObserver(()=>{if(modal.classList.contains('hidden'))delete modal.dataset.layoutEditV785}).observe(modal,{attributes:true,attributeFilter:['class','style']})};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',watch,{once:true});else watch();
 })();

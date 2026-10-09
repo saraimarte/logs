@@ -1273,6 +1273,89 @@
             font-size:1.45rem!important;
             border-radius:11px!important;
         }
+
+        /* STACK — one thin full-width day per row; only the top search-row + adds days. */
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228{
+            display:flex!important;
+            flex-direction:column!important;
+            gap:8px!important;
+            width:100%!important;
+            max-width:none!important;
+            overflow:visible!important;
+        }
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228 > [data-day]{
+            display:block!important;
+            width:100%!important;
+            height:auto!important;
+            min-width:0!important;
+            max-width:none!important;
+            transform:none!important;
+        }
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228 .day-box.daily-stack-row-v228,
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228 > .day-box.daily-stack-row-v228{
+            width:100%!important;
+            height:38px!important;
+            min-height:38px!important;
+            max-height:38px!important;
+            aspect-ratio:auto!important;
+            display:flex!important;
+            flex-direction:row!important;
+            align-items:center!important;
+            justify-content:flex-start!important;
+            gap:10px!important;
+            padding:0 12px!important;
+            margin:0!important;
+            text-align:left!important;
+            font-size:13px!important;
+            font-weight:400!important;
+            border-width:1px!important;
+            border-radius:7px!important;
+            box-shadow:none!important;
+            overflow:hidden!important;
+            white-space:nowrap!important;
+        }
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228 .daily-stack-day-v228{
+            flex:0 0 auto!important;
+            font-weight:700!important;
+            font-size:13px!important;
+            text-align:left!important;
+            white-space:nowrap!important;
+        }
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228 .daily-stack-preview-v228{
+            display:block!important;
+            flex:1 1 auto!important;
+            min-width:0!important;
+            overflow:hidden!important;
+            text-overflow:ellipsis!important;
+            white-space:nowrap!important;
+            font-weight:400!important;
+            opacity:.76!important;
+        }
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228 > .daily-add-day-slot-v238,
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228 > [title="Add extra log day"],
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228 > .daily-stack-grid-plus-v228,
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228 > .add-extra-day-card,
+        #grid-view.view.active > #days-grid.daily-day-layout-stack-v228 > .add-day-card{
+            display:none!important;
+            visibility:hidden!important;
+            pointer-events:none!important;
+        }
+        #grid-view > #daily-log-search-wrap.has-stack-plus-v228,
+        #grid-view > .daily-log-search-wrap.has-stack-plus-v228{
+            grid-template-columns:minmax(0,1fr) minmax(0,1fr) 42px!important;
+        }
+        #daily-log-search-wrap .daily-stack-add-day-v228{
+            flex:0 0 42px!important;
+            width:42px!important;
+            min-width:42px!important;
+            height:42px!important;
+            padding:0!important;
+            display:grid!important;
+            place-items:center!important;
+            align-self:stretch!important;
+        }
+        #daily-log-search-wrap .daily-stack-add-day-v228.hidden{display:none!important}
+        #daily-log-search-wrap .daily-stack-add-day-v228 i{margin:0!important}
     `;
     document.head.appendChild(style);
 
@@ -1531,10 +1614,87 @@
         return { col: 1, row: 1 };
     }
 
+
+    function plainDailyPreviewV228(value) {
+        const div = document.createElement('div');
+        div.innerHTML = String(value || '');
+        return String(div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function dailyStackPreviewV228(day, maxWords = 15) {
+        const full = plainDailyPreviewV228(day?.notes || '');
+        if (!full) return '';
+        const words = full.split(/\s+/).filter(Boolean);
+        const text = words.slice(0, maxWords).join(' ');
+        return text ? `${text}${words.length > maxWords ? '…' : ''}` : '';
+    }
+
+    function isDailyStackLayoutV228() {
+        return (db.settings?.dailyViewType || 'default') === 'default' &&
+            String(db.settings?.dailyDayLayoutV228 || 'grid') === 'stack';
+    }
+
+    function ensureDailyStackTopPlusV228() {
+        const wrap = document.getElementById('daily-log-search-wrap');
+        if (!wrap) return;
+        let button = document.getElementById('daily-stack-add-day-v228');
+        if (!button) {
+            button = document.createElement('button');
+            button.type = 'button';
+            button.id = 'daily-stack-add-day-v228';
+            button.className = 'small-icon-btn daily-stack-add-day-v228';
+            button.title = 'Add another Day Log';
+            button.setAttribute('aria-label', 'Add another Day Log');
+            button.innerHTML = '<i class="ph ph-plus"></i>';
+            button.addEventListener('click', () => {
+                const grid = document.getElementById('days-grid');
+                const add = grid?.querySelector(
+                    ':scope > .daily-add-day-slot-v238 button[title="Add extra log day"],' +
+                    ':scope > button[title="Add extra log day"],' +
+                    ':scope > .polaroid-card[title="Add extra log day"]'
+                );
+                if (add) {
+                    add.click();
+                    return;
+                }
+                const nums = Object.keys(db?.days || {}).map(Number).filter(Number.isFinite);
+                const next = Math.max(0, ...nums) + 1;
+                try { openDayLog(next || 1); } catch {}
+            });
+            wrap.appendChild(button);
+        }
+        const active = isDailyStackLayoutV228();
+        if(button.parentElement!==wrap)wrap.appendChild(button);
+        button.classList.toggle('hidden', !active);
+        wrap.classList.toggle('has-stack-plus-v228', active);
+    }
+
+    // Keep the Stack Add Day action in the search row after any later grid renderer
+    // (including the ascending/descending rerender) mutates the day grid.
+    const stackSearchHostV820=document.getElementById('daily-log-search-wrap');
+    if(stackSearchHostV820&&!stackSearchHostV820.__stackPlusSyncV820){
+      stackSearchHostV820.__stackPlusSyncV820=true;
+      let queued=false;
+      const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;ensureDailyStackTopPlusV228()})};
+      const grid=document.getElementById('days-grid');
+      if(grid)new MutationObserver(schedule).observe(grid,{childList:true});
+      new MutationObserver(schedule).observe(stackSearchHostV820,{childList:true});
+      document.addEventListener('click',e=>{if(e.target.closest?.('[data-daily-stack-order-v775],[data-daily-layout-v228]'))schedule()},true);
+    }
+    function migrateLegacyDailyStackV228() {
+        db.settings ||= {};
+        if (String(db.settings.dailyViewType || 'default') === 'stacked') {
+            db.settings.dailyViewType = 'default';
+            db.settings.dailyDayLayoutV228 = 'stack';
+            try { saveDb(); } catch {}
+        }
+    }
+
     function applyDailyDayLayoutV228() {
+        migrateLegacyDailyStackV228();
         const grid = document.getElementById('days-grid');
         if (!grid) return;
-        const classes = ['daily-day-layout-compact-v228','daily-day-layout-strip-v228','daily-day-layout-periodic-v228'];
+        const classes = ['daily-day-layout-compact-v228','daily-day-layout-strip-v228','daily-day-layout-periodic-v228','daily-day-layout-stack-v228'];
         grid.classList.remove(...classes);
         grid.style.removeProperty('grid-template-columns');
         grid.style.removeProperty('grid-template-rows');
@@ -1545,8 +1705,35 @@
             child.style.removeProperty('grid-row');
         });
 
-        if ((db.settings?.dailyViewType || 'default') === 'polaroid') return;
+        if ((db.settings?.dailyViewType || 'default') !== 'default') return;
         const layout = db.settings?.dailyDayLayoutV228 || 'grid';
+        if (layout === 'stack') {
+            grid.classList.add('daily-day-layout-stack-v228');
+            qa(':scope > [data-day]', grid).forEach(wrapper => {
+                const dayNumber = Number(wrapper.dataset.day);
+                const button = wrapper.matches('.day-box') ? wrapper : q(':scope > .day-box', wrapper);
+                if (!button || !Number.isInteger(dayNumber)) return;
+                const preview = dailyStackPreviewV228(db.days?.[dayNumber]);
+                wrapper.classList.add('daily-stack-row-wrap-v228');
+                button.classList.add('daily-stack-row-v228');
+                button.innerHTML =
+                    `<strong class="daily-stack-day-v228">Day ${dayNumber}</strong>` +
+                    (preview ? `<span class="daily-stack-preview-v228">${escapeHtml(preview)}</span>` : '');
+            });
+            qa(
+                ':scope > .daily-add-day-slot-v238,' +
+                ':scope > button[title="Add extra log day"],' +
+                ':scope > .polaroid-card[title="Add extra log day"],' +
+                ':scope > .add-extra-day-card,' +
+                ':scope > .add-day-card',
+                grid
+            ).forEach(element => element.classList.add('daily-stack-grid-plus-v228'));
+            ensureDailyStackTopPlusV228();
+            return;
+        }
+
+        ensureDailyStackTopPlusV228();
+
         if (layout === 'compact') {
             grid.classList.add('daily-day-layout-compact-v228');
             return;
@@ -1585,6 +1772,7 @@
                     <button type="button" class="filter-tab" data-daily-layout-v228="grid">Grid</button>
                     <button type="button" class="filter-tab" data-daily-layout-v228="periodic">Periodic Table</button>
                     <button type="button" class="filter-tab" data-daily-layout-v228="compact">Compact</button>
+                    <button type="button" class="filter-tab" data-daily-layout-v228="stack">Stack</button>
                 </div>`;
             const viewSelect = q('#daily-logs-local-view-type', modal);
             const viewSection = viewSelect?.closest('.modal-section');
@@ -1596,6 +1784,7 @@
                 syncDailyDayLayoutSettingV228(modal);
                 try { saveDb(); } catch {}
                 try { initGrid(); } catch {}
+                ensureDailyStackTopPlusV228();
             }));
         }
         syncDailyDayLayoutSettingV228(modal);
@@ -1641,6 +1830,7 @@
     requestAnimationFrame(() => {
         try { applyDailyDayLayoutV228(); } catch {}
         try { ensureDailyDayLayoutSettingV228(document.getElementById('daily-logs-local-settings-modal')); } catch {}
+        try { ensureDailyStackTopPlusV228(); } catch {}
     });
 })();
 
@@ -1982,7 +2172,7 @@
         // for live setting changes or older wrappers that reuse the same nodes.
         qa(':scope > *', grid).forEach(child => child.style.removeProperty('transform'));
 
-        if ((db.settings?.dailyViewType || 'default') === 'polaroid') return;
+        if ((db.settings?.dailyViewType || 'default') !== 'default') return;
         const layout = db.settings?.dailyDayLayoutV228 || 'grid';
         if (!NEW_LAYOUTS.includes(layout)) return; // V228 remains authoritative for its original four.
         grid.classList.add(`daily-day-layout-${layout}-v229`);
@@ -2361,7 +2551,7 @@
     }
 
     function isPagedLayoutV231(layout = currentLayoutV231()) {
-        return PAGED_LAYOUTS_V231.has(layout) && (db?.settings?.dailyViewType || 'default') !== 'polaroid';
+        return PAGED_LAYOUTS_V231.has(layout) && (db?.settings?.dailyViewType || 'default') === 'default';
     }
 
     function childrenV231(grid) {
@@ -2702,7 +2892,7 @@
         if (!grid) return;
         const layout = currentLayoutV231();
         const config = PAGE_CONFIG_V231[layout];
-        if (!config || (db.settings?.dailyViewType || 'default') === 'polaroid') {
+        if (!config || (db.settings?.dailyViewType || 'default') !== 'default') {
             ensurePagerV231()?.classList.remove('visible-v231');
             return;
         }
@@ -2874,18 +3064,6 @@
         }
     }
 
-    function ensureShortcutRowV232() {
-        const list = document.querySelector('#global-shortcuts-section .global-shortcuts-list');
-        if (!list || list.querySelector('[data-shortcut-v232="new-day"]')) return;
-        const row = document.createElement('div');
-        row.className = 'global-shortcut-row';
-        row.dataset.shortcutV232 = 'new-day';
-        row.innerHTML = '<kbd>Ctrl</kbd><span>+</span><kbd>.</kbd><p>Jump to the New Day (+) tile in Daily Logs.</p>';
-        const rows = list.querySelectorAll('.global-shortcut-row');
-        if (rows.length > 2) rows[2].insertAdjacentElement('afterend', row);
-        else list.appendChild(row);
-    }
-
     function jumpToNewDayV232() {
         const gridView = document.getElementById('grid-view');
         const grid = document.getElementById('days-grid');
@@ -2916,16 +3094,11 @@
         return true;
     }
 
-    document.addEventListener('keydown', event => {
-        if (!event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) return;
-        if (!(event.key === '.' || event.code === 'Period')) return;
-        if (!document.getElementById('grid-view')?.classList.contains('active')) return;
-        if (jumpToNewDayV232()) event.preventDefault();
-    }, true);
+    // V1900: New Day keyboard triggering is owned by widgets-v239.js.
+    // jumpToNewDayV232 remains available to non-keyboard callers.
 
     document.addEventListener('click', event => {
         if (event.target.closest?.('#open-daily-settings-btn')) setTimeout(cleanDailyLayoutPickerV232, 0);
-        if (event.target.closest?.('#open-global-daily-settings-nav-btn')) setTimeout(ensureShortcutRowV232, 0);
     }, true);
 
     // V596: both jobs are driven by their actual Settings-open buttons above.
@@ -2933,7 +3106,6 @@
     // ordinary clicks, chip renders, notes, theme updates, and modal changes.
     requestAnimationFrame(() => {
         cleanDailyLayoutPickerV232();
-        ensureShortcutRowV232();
     });
 })();
 
@@ -2975,7 +3147,7 @@
     }
 
     function isDefaultTileViewV233() {
-        try { return (db?.settings?.dailyViewType || 'default') !== 'polaroid'; }
+        try { return (db?.settings?.dailyViewType || 'default') === 'default'; }
         catch { return true; }
     }
 
@@ -3289,22 +3461,8 @@
         return !!document.querySelector('.modal-overlay:not(.hidden), .modal:not(.hidden), .context-menu:not(.hidden)');
     }
 
-    document.addEventListener('keydown', event => {
-        if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
-        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-        if (typingTargetV237(event.target) || blockingOverlayV237()) return;
-        if (!document.getElementById('grid-view')?.classList.contains('active')) return;
-        const layout = currentLayoutV237();
-        if (!PAGED_LAYOUTS_V237.has(layout)) return;
-        try {
-            if ((db?.settings?.dailyViewType || 'default') === 'polaroid') return;
-        } catch {}
-        if (typeof window.__setDailyPageV231 !== 'function') return;
-        const current = Number.isFinite(Number(window.__dailyPageIndexV231)) ? Number(window.__dailyPageIndexV231) : 0;
-        window.__setDailyPageV231(current + (event.key === 'ArrowRight' ? 1 : -1), false);
-        event.preventDefault();
-        event.stopPropagation();
-    }, true);
+    // V1900: Previous/Next Day/Page keyboard triggering is owned by
+    // widgets-v239.js. Wheel paging below remains unchanged.
 
 
     // V590: mouse wheel paging mirrors the keyboard on discrete horizontal
@@ -3331,7 +3489,7 @@
         if (!(event.target instanceof Element) || !event.target.closest('#grid-view')) return false;
         const layout = currentLayoutV237();
         if (!PAGED_LAYOUTS_V237.has(layout) || !grid.classList.contains('daily-paged-layout-v231')) return false;
-        try { if ((db?.settings?.dailyViewType || 'default') === 'polaroid') return false; } catch {}
+        try { if ((db?.settings?.dailyViewType || 'default') !== 'default') return false; } catch {}
         if (typeof window.__setDailyPageV231 !== 'function') return false;
         if (verticallyScrollableV590(grid) || verticallyScrollableV590(view)) return false;
         return Math.abs(Number(event.deltaY) || 0) > Math.abs(Number(event.deltaX) || 0);
@@ -3435,7 +3593,7 @@
     function normalizeAddDayV238() {
         const grid = document.getElementById('days-grid');
         if (!grid) return false;
-        try { if ((db?.settings?.dailyViewType || 'default') === 'polaroid') return false; } catch {}
+        try { if ((db?.settings?.dailyViewType || 'default') !== 'default') return false; } catch {}
         if (currentLayoutV238() === 'grid') return false;
         const button = q(':scope > button.day-box[title="Add extra log day"]', grid);
         if (!button) return false;
@@ -3737,7 +3895,7 @@
       buttons.slice(0,-1).forEach(btn=>{const slot=btn.closest('.daily-add-day-slot-v238');if(slot&&slot.children.length===1)slot.remove();else btn.remove()});
       keep.innerHTML='<i class="ph ph-plus" aria-hidden="true"></i>';
       keep.setAttribute('aria-label','Add new day');
-      if((db?.settings?.dailyViewType||'default')!=='polaroid' && String(db?.settings?.dailyDayLayoutV228||'grid')!=='grid'){
+      if((db?.settings?.dailyViewType||'default')==='default' && String(db?.settings?.dailyDayLayoutV228||'grid')!=='grid'){
         let slot=keep.closest('.daily-add-day-slot-v238');
         if(!slot){slot=document.createElement('div');slot.className='daily-add-day-slot-v238';keep.before(slot);slot.appendChild(keep)}
         slot.setAttribute('aria-label','Add new day');
@@ -3756,6 +3914,54 @@
       try{window.__setDailyPageV231(Math.floor((plusDay-1)/size),false)}catch{}
     }
 
+    // Stack day ordering uses the same pill/radio design as New Day Date.
+    // It is placed immediately before that setting and hidden for other layouts.
+    function syncDailyStackOrderV775(){
+      const modal=document.getElementById('daily-logs-local-settings-modal');if(!modal)return;
+      const section=modal.querySelector('#daily-stack-order-setting-v775');if(!section)return;
+      const stack=String(db?.settings?.dailyDayLayoutV228||'grid')==='stack' &&
+        String(db?.settings?.dailyViewType||'default')==='default';
+      section.classList.toggle('hidden',!stack);
+      section.style.display=stack?'':'none';
+      const order=String(db?.settings?.dailyStackOrderV775||'ascending')==='descending'?'descending':'ascending';
+      qa('[data-daily-stack-order-v775]',section).forEach(btn=>{
+        const on=btn.dataset.dailyStackOrderV775===order;
+        btn.classList.toggle('active',on);
+        btn.setAttribute('aria-pressed',on?'true':'false');
+      });
+    }
+    function ensureDailyStackOrderSettingV775(){
+      const modal=document.getElementById('daily-logs-local-settings-modal');if(!modal)return;
+      let section=modal.querySelector('#daily-stack-order-setting-v775');
+      if(!section){
+        section=document.createElement('div');section.id='daily-stack-order-setting-v775';section.className='modal-section';
+        section.innerHTML=`<span class="field-label">Stack Order</span><div class="set-size-picker daily-stack-order-options-v775" role="radiogroup" aria-label="Stack day order"><button type="button" class="filter-tab" data-daily-stack-order-v775="ascending">Ascending (Day 1 first)</button><button type="button" class="filter-tab" data-daily-stack-order-v775="descending">Descending (Newest first)</button></div>`;
+        const date=modal.querySelector('#new-day-date-setting-v244');
+        const layout=modal.querySelector('.daily-day-layout-picker-v228')?.closest('.modal-section');
+        if(date)date.insertAdjacentElement('beforebegin',section);
+        else if(layout)layout.insertAdjacentElement('afterend',section);
+        else modal.querySelector('.modal-box')?.appendChild(section);
+        qa('[data-daily-stack-order-v775]',section).forEach(btn=>btn.addEventListener('click',()=>{
+          db.settings ||= {};
+          db.settings.dailyStackOrderV775=btn.dataset.dailyStackOrderV775;
+          try{saveDb()}catch{}
+          syncDailyStackOrderV775();
+          try{initGrid()}catch{}
+          requestAnimationFrame(()=>{try{ensureDailyStackTopPlusV228()}catch{}});
+        }));
+        // The layout chooser is built by an older layer; update visibility
+        // without requiring the Settings modal to be closed and reopened.
+        modal.addEventListener('click',event=>{
+          if(event.target.closest?.('[data-daily-layout-v228]'))queueMicrotask(syncDailyStackOrderV775);
+        });
+        modal.addEventListener('change',event=>{
+          if(event.target.matches?.('#daily-logs-local-view-type'))queueMicrotask(syncDailyStackOrderV775);
+        });
+      }
+      const date=modal.querySelector('#new-day-date-setting-v244');
+      if(date && section.nextElementSibling!==date) date.insertAdjacentElement('beforebegin',section);
+      syncDailyStackOrderV775();
+    }
     function ensureNewDayDateSettingV244(){
       const modal=document.getElementById('daily-logs-local-settings-modal');if(!modal)return;
       let section=modal.querySelector('#new-day-date-setting-v244');
@@ -3767,6 +3973,7 @@
         if(layoutPicker)layoutPicker.insertAdjacentElement('afterend',section);else box?.appendChild(section);
         qa('[data-new-day-date-v244]',section).forEach(btn=>btn.onclick=()=>{db.settings ||= {};db.settings.newDayDateModeV244=btn.dataset.newDayDateV244;try{saveDb()}catch{};syncNewDayDateV244()});
       }
+      ensureDailyStackOrderSettingV775();
       syncNewDayDateV244();
     }
     function syncNewDayDateV244(){
@@ -4141,7 +4348,7 @@
     let syncing = false;
 
     function isClean() {
-        try { return (db?.settings?.dailyDayLayoutV228 || 'grid') === 'clean' && (db?.settings?.dailyViewType || 'default') !== 'polaroid'; }
+        try { return (db?.settings?.dailyDayLayoutV228 || 'grid') === 'clean' && (db?.settings?.dailyViewType || 'default') === 'default'; }
         catch { return false; }
     }
 
@@ -4619,4 +4826,232 @@
     }
     openPractice();
   },true);
+})();
+
+/* ============================================================
+   V1914 — stable-size Numbered Days layouts.
+   Restores V1910 Bookshelf, adds 3-row Film Strip, removes
+   Vinyl/Train/Jigsaw/Honey/Conveyor/Tetris. Horizontally paged
+   layouts support wheel-to-horizontal and Left/Right Arrow paging.
+   ============================================================ */
+(() => {
+  'use strict';
+  if (window.__loggyNumberedLayoutsV1913) return;
+  window.__loggyNumberedLayoutsV1913 = true;
+
+  const q=(s,r=document)=>r?.querySelector?.(s)||null;
+  const qa=(s,r=document)=>Array.from(r?.querySelectorAll?.(s)||[]);
+  const CHOICES=[
+    ['bookshelf','Bookshelf'],
+    ['filmstrip','Film Strip'],
+    ['scrapbook','Scrapbook Page'],
+    ['maze','Maze'],
+    ['patchwork','Patchwork Quilt']
+  ];
+  const REMOVED=new Set(['vinylshelf','traincars','jigsaw','honeyjars','conveyor','tetris']);
+  const NAMES=new Set(CHOICES.map(x=>x[0]));
+  const CLASSES=CHOICES.map(([n])=>`daily-day-layout-${n}-v1913`);
+  const PAGED=new Set(['bookshelf','filmstrip','scrapbook','maze']);
+
+  const style=document.createElement('style');
+  style.id='loggy-numbered-layouts-v1913-style';
+  style.textContent=`
+    #grid-view.view.active>#days-grid[class*="-v1913"]{max-width:100%!important;min-width:0!important;box-sizing:border-box!important;scrollbar-width:none!important;background:transparent!important;background-color:transparent!important;background-image:none!important}
+    #grid-view.view.active>#days-grid[class*="-v1913"]::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+    #days-grid[class*="-v1913"] .day-box{position:relative!important;box-sizing:border-box!important;margin:0!important;box-shadow:none!important}
+
+    #grid-view.view.active>#days-grid.layout-paged-v1913{
+      display:flex!important;flex-wrap:nowrap!important;gap:0!important;
+      overflow-x:auto!important;overflow-y:hidden!important;
+      scroll-snap-type:x mandatory!important;overscroll-behavior-x:contain!important;
+      scroll-behavior:smooth!important;padding:0!important;align-items:stretch!important;
+      touch-action:pan-x!important;
+    }
+    .numbered-layout-page-v1913{
+      position:relative!important;flex:0 0 max(100%,900px)!important;width:max(100%,900px)!important;min-width:900px!important;
+      box-sizing:border-box!important;scroll-snap-align:start!important;scroll-snap-stop:always!important;overflow:hidden!important;
+    }
+
+    /* BOOKSHELF — restored to the V1910 library look. */
+    .bookshelf-page-v1913{height:var(--bookshelf-page-h-v1916,430px)!important;padding:18px 24px 26px!important;background:transparent!important;background-color:transparent!important;background-image:none!important}
+    .bookshelf-page-v1913:before{content:"";position:absolute;left:3%;right:3%;top:var(--bookshelf-first-shelf-v1916,132px);height:14px;border-radius:4px;background:color-mix(in srgb,var(--black) 15%,var(--white));box-shadow:0 4px 0 color-mix(in srgb,var(--black) 30%,transparent)}
+    .bookshelf-page-v1913:after{content:"";position:absolute;left:3%;right:3%;bottom:8px;height:14px;border-radius:4px;background:color-mix(in srgb,var(--black) 15%,var(--white));box-shadow:0 4px 0 color-mix(in srgb,var(--black) 30%,transparent)}
+    .bookshelf-dynamic-shelf-v1916{position:absolute;left:3%;right:3%;height:14px;border-radius:4px;background:color-mix(in srgb,var(--black) 15%,var(--white));box-shadow:0 4px 0 color-mix(in srgb,var(--black) 30%,transparent);pointer-events:none}
+    .bookshelf-page-v1913>[data-day],.bookshelf-page-v1913>.daily-add-day-slot-v238{position:absolute!important;width:8.4%!important;height:102px!important;display:flex!important;align-items:flex-end!important;justify-content:center!important}
+    #days-grid.daily-day-layout-bookshelf-v1913 .day-box{width:100%!important;height:var(--book-h,94px)!important;min-height:0!important;aspect-ratio:auto!important;border-radius:7px 7px 2px 2px!important;padding:0!important;font-size:1.05rem!important;transform:rotate(var(--book-rot,0deg));transform-origin:bottom center;box-shadow:inset 4px 0 0 rgba(255,255,255,.18),inset -3px 0 0 rgba(0,0,0,.08)!important;overflow:hidden!important}
+    #days-grid.daily-day-layout-bookshelf-v1913 .book-ornament-v1913{position:absolute;left:10%;right:10%;top:10px;bottom:10px;border-top:2px solid currentColor;border-bottom:2px solid currentColor;opacity:.35;z-index:2;pointer-events:none}
+    #days-grid.daily-day-layout-bookshelf-v1913 .book-ornament-v1913:after{content:"";position:absolute;left:12%;right:12%;top:32%;height:24%;border:1px solid currentColor;border-radius:2px;opacity:.8}
+    #days-grid.daily-day-layout-bookshelf-v1913 .layout-number-v1913{position:absolute;z-index:3;left:14%;right:14%;top:50%;height:30px;min-height:30px;transform:translateY(-50%);display:grid;place-items:center!important;align-content:center!important;justify-content:center!important;overflow:hidden;text-overflow:clip;white-space:nowrap;font-size:clamp(.72rem,1.7vw,1rem);line-height:30px!important;padding:0 2px;background:transparent!important;pointer-events:none}
+
+    /* FILM STRIP — three rows per page. */
+    .filmstrip-page-v1913{height:var(--film-page-h-v1916,430px)!important;padding:18px 20px!important;background:transparent!important}
+    .film-row-v1913{position:absolute;left:2%;right:2%;height:112px;background:#181818;border-radius:8px;display:flex;align-items:center;gap:10px;padding:21px 18px;box-sizing:border-box;overflow:hidden}
+    .film-row-v1913{top:var(--film-row-top-v1916,18px)!important}
+    .film-row-v1913:before,.film-row-v1913:after{content:"";position:absolute;left:10px;right:10px;height:9px;background:repeating-linear-gradient(90deg,#f3f3f3 0 13px,transparent 13px 27px);border-radius:2px;opacity:.92}
+    .film-row-v1913:before{top:5px}.film-row-v1913:after{bottom:5px}
+    .film-row-v1913>[data-day],.film-row-v1913>.daily-add-day-slot-v238{flex:1 1 0!important;min-width:0!important;height:70px!important;display:grid!important;place-items:center!important}
+    #days-grid.daily-day-layout-filmstrip-v1913 .day-box{width:100%!important;height:68px!important;min-height:0!important;aspect-ratio:auto!important;border-radius:3px!important;border:2px solid #eee!important;font-size:1.05rem!important;box-shadow:none!important;background:#fff!important;color:#111!important;overflow:hidden!important}
+
+    /* SCRAPBOOK — plain white page, horizontal pages only. */
+    .scrapbook-page-v1913{height:var(--scrap-page-h-v1917,500px)!important;padding:16px!important;background:transparent!important;background-color:transparent!important;background-image:none!important}
+    .scrapbook-page-v1913>[data-day],.scrapbook-page-v1913>.daily-add-day-slot-v238{position:absolute!important;display:grid!important;place-items:center!important;transform:rotate(var(--scrap-r,0deg))}
+    #days-grid.daily-day-layout-scrapbook-v1913 .day-box{width:100%!important;height:100%!important;min-height:0!important;aspect-ratio:auto!important;border:2px solid #111!important;border-radius:6px!important;background:#fff!important;color:#111!important;font-size:1rem!important;box-shadow:none!important;overflow:hidden!important}
+    #days-grid.daily-day-layout-scrapbook-v1913 .day-box:before{content:"";position:absolute;left:50%;top:-4px;transform:translateX(-50%) rotate(-3deg);width:32px;height:9px;border:1px solid #777;background:#eee;opacity:.8}
+
+    /* MAZE — unchanged from V1911. */
+    .maze-page-v1913{height:var(--maze-page-h-v1917,490px)!important;padding:18px 20px!important;background:transparent!important;background-color:transparent!important;background-image:none!important}
+    .maze-board-v1913{position:relative;width:100%;height:100%;display:grid;background:transparent!important;background-color:transparent!important;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(var(--maze-rows-v1917,6),1fr);gap:0}
+    .maze-board-v1913>[data-day],.maze-board-v1913>.daily-add-day-slot-v238{width:100%!important;height:100%!important;position:relative!important}
+    #days-grid.daily-day-layout-maze-v1913 .day-box{width:100%!important;height:100%!important;min-height:0!important;aspect-ratio:auto!important;border-style:solid!important;border-color:#111!important;border-top-width:var(--mt,2px)!important;border-right-width:var(--mr,2px)!important;border-bottom-width:var(--mb,2px)!important;border-left-width:var(--ml,2px)!important;background:#fff!important;border-radius:0!important;font-size:1rem!important}
+
+    /* PATCHWORK — V1909 visual pattern, one vertical scroll axis. */
+    #grid-view.view.active>#days-grid.daily-day-layout-patchwork-v1913{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(68px,68px))!important;grid-auto-rows:68px!important;gap:2px!important;justify-content:start!important;align-content:start!important;overflow-y:auto!important;overflow-x:hidden!important;max-height:min(78vh,760px)!important;padding:12px!important;scrollbar-width:none!important}
+    #grid-view.view.active>#days-grid.daily-day-layout-patchwork-v1913::-webkit-scrollbar{display:none!important}
+    #grid-view.view.active>#days-grid.daily-day-layout-patchwork-v1913>*{width:68px!important;height:68px!important}
+    #days-grid.daily-day-layout-patchwork-v1913 .day-box{width:68px!important;height:68px!important;min-height:68px!important;aspect-ratio:1!important;border-radius:2px!important;font-size:1rem!important;box-shadow:inset 0 0 0 3px color-mix(in srgb,currentColor 12%,transparent)!important;background:#fff!important;color:#111!important}
+    #days-grid.daily-day-layout-patchwork-v1913>*:nth-child(4n+2) .day-box{border-radius:16px 2px 16px 2px!important}
+    #days-grid.daily-day-layout-patchwork-v1913>*:nth-child(4n+3) .day-box{border-radius:2px 16px 2px 16px!important}
+  `;
+  document.head.appendChild(style);
+
+  function currentLayout(){try{return String(db?.settings?.dailyDayLayoutV228||'grid')}catch{return 'grid'}}
+  function rawNodes(grid){return qa('[data-day],.daily-add-day-slot-v238',grid).filter(n=>n.closest('#days-grid')===grid)}
+  function buttonOf(node){return node?.matches?.('.day-box,.polaroid-card')?node:q('.day-box,.polaroid-card',node)}
+  function labelFor(node,button){return node?.classList?.contains('daily-add-day-slot-v238')?'+':String(node?.dataset?.day||button?.dataset?.origLabelV1913||button?.textContent||'').trim()}
+  function restoreButton(button,node){if(!button)return;const label=labelFor(node,button);button.innerHTML='';button.textContent=label;button.style.removeProperty('--book-h');button.style.removeProperty('--book-rot')}
+  function decorateNumber(button,node){if(!button)return;const label=labelFor(node,button);button.dataset.origLabelV1913=label;button.innerHTML=`<span class="layout-number-v1913">${label}</span>`}
+  function clearLayout(grid){
+    if(!grid)return;
+    qa('.numbered-layout-page-v1913,.film-row-v1913,.maze-board-v1913',grid).forEach(w=>qa(':scope>[data-day],:scope>.daily-add-day-slot-v238',w).forEach(n=>grid.appendChild(n)));
+    qa('[data-day],.daily-add-day-slot-v238',grid).forEach(node=>{['--tx','--ty','--tw','--th','--scrap-r','--mt','--mr','--mb','--ml'].forEach(v=>node.style.removeProperty(v));restoreButton(buttonOf(node),node)});
+    qa('.numbered-layout-page-v1913,.film-row-v1913,.maze-board-v1913,.bookshelf-dynamic-shelf-v1916',grid).forEach(el=>el.remove());
+    grid.classList.remove('layout-paged-v1913');CLASSES.forEach(c=>grid.classList.remove(c));
+  }
+  function pageify(grid,nodes,perPage,cls){const pages=[];for(let i=0;i<nodes.length;i+=perPage){const page=document.createElement('div');page.className=`numbered-layout-page-v1913 ${cls}`;grid.appendChild(page);nodes.slice(i,i+perPage).forEach(n=>page.appendChild(n));pages.push(page)}return pages}
+
+  function usableLayoutHeightV1916(grid,rowHeight,minRows,maxRows,chrome=18){
+    const top=Math.max(0,grid?.getBoundingClientRect?.().top||0);
+    const available=Math.max(rowHeight*minRows,window.innerHeight-top-chrome);
+    return Math.max(minRows,Math.min(maxRows,Math.floor(available/rowHeight)));
+  }
+
+  function renderBookshelf(grid,nodes){
+    const rowHeight=132;
+    const rows=usableLayoutHeightV1916(grid,rowHeight,2,7,18);
+    const perPage=rows*10;
+    const pageHeight=rows*rowHeight+34;
+    pageify(grid,nodes,perPage,'bookshelf-page-v1913').forEach(page=>{
+      page.style.setProperty('--bookshelf-page-h-v1916',`${pageHeight}px`);
+      page.style.setProperty('--bookshelf-first-shelf-v1916',`${rowHeight}px`);
+      for(let r=1;r<rows-1;r++){
+        const shelf=document.createElement('div');
+        shelf.className='bookshelf-dynamic-shelf-v1916';
+        shelf.style.top=`${rowHeight*(r+1)}px`;
+        page.appendChild(shelf);
+      }
+      qa(':scope>[data-day],:scope>.daily-add-day-slot-v238',page).forEach((n,i)=>{
+        const row=Math.floor(i/10),col=i%10;
+        n.style.left=`${4+col*9.25}%`;
+        n.style.top=`${22+row*rowHeight}px`;
+        const b=buttonOf(n);if(!b)return;decorateNumber(b,n);
+        b.style.setProperty('--book-h',`${[92,102,86,98,106][i%5]}px`);
+        b.style.setProperty('--book-rot',`${[-1.4,.4,0,1.1,-.6][i%5]}deg`);
+        const art=document.createElement('span');art.className='book-ornament-v1913';b.appendChild(art);
+      });
+    });
+  }
+
+  function renderFilm(grid,nodes){
+    const rowPitch=141;
+    const rows=usableLayoutHeightV1916(grid,rowPitch,2,6,16);
+    const perRow=6;
+    const perPage=rows*perRow;
+    const pageHeight=rows*rowPitch+7;
+    pageify(grid,nodes,perPage,'filmstrip-page-v1913').forEach(page=>{
+      page.style.setProperty('--film-page-h-v1916',`${pageHeight}px`);
+      const ns=qa(':scope>[data-day],:scope>.daily-add-day-slot-v238',page);ns.forEach(n=>n.remove());
+      for(let r=0;r<rows;r++){
+        const row=document.createElement('div');row.className='film-row-v1913';row.style.setProperty('--film-row-top-v1916',`${18+r*rowPitch}px`);page.appendChild(row);ns.slice(r*perRow,(r+1)*perRow).forEach(n=>row.appendChild(n));
+      }
+    });
+  }
+
+  function renderScrap(grid,nodes){
+    const rowPitch=108;
+    const rows=usableLayoutHeightV1916(grid,rowPitch,2,6,18);
+    const cols=4;
+    const perPage=rows*cols;
+    const pageHeight=rows*rowPitch+28;
+    const rotations=[-2,1.5,-1.2,2,1,-2.2,.8,-1.4];
+    pageify(grid,nodes,perPage,'scrapbook-page-v1913').forEach(page=>{
+      page.style.setProperty('--scrap-page-h-v1917',`${pageHeight}px`);
+      qa(':scope>[data-day],:scope>.daily-add-day-slot-v238',page).forEach((n,i)=>{
+        const row=Math.floor(i/cols),col=i%cols;
+        const x=4+col*24;
+        const y=12+row*rowPitch;
+        n.style.left=`${x}%`;
+        n.style.top=`${y}px`;
+        n.style.width=`20%`;
+        n.style.height=`84px`;
+        n.style.setProperty('--scrap-r',`${rotations[i%rotations.length]}deg`);
+      });
+    });
+  }
+
+  function wallPattern(i,rows){const r=Math.floor(i/10),c=i%10;return[r===0?3:((r+c)%3===0?4:2),c===9?3:((r*2+c)%4===1?4:2),r===rows-1?3:((r+c)%4===2?4:2),c===0?3:((r+c)%5===1?4:2)]}
+  function renderMaze(grid,nodes){
+    const rowHeight=70;
+    const rows=usableLayoutHeightV1916(grid,rowHeight,3,9,20);
+    const perPage=rows*10;
+    const pageHeight=rows*rowHeight+36;
+    pageify(grid,nodes,perPage,'maze-page-v1913').forEach(page=>{
+      page.style.setProperty('--maze-page-h-v1917',`${pageHeight}px`);
+      const board=document.createElement('div');
+      board.className='maze-board-v1913';
+      board.style.setProperty('--maze-rows-v1917',String(rows));
+      const ns=qa(':scope>[data-day],:scope>.daily-add-day-slot-v238',page);
+      ns.forEach(n=>n.remove());
+      page.appendChild(board);
+      ns.forEach((n,i)=>{const [t,r,b,l]=wallPattern(i,rows),btn=buttonOf(n);if(btn){btn.style.setProperty('--mt',`${t}px`);btn.style.setProperty('--mr',`${r}px`);btn.style.setProperty('--mb',`${b}px`);btn.style.setProperty('--ml',`${l}px`)}board.appendChild(n)});
+    });
+  }
+
+  function renderPatch(){/* CSS owns the V1909 pattern. */}
+
+  function applyLayout(){
+    const grid=document.getElementById('days-grid');if(!grid)return;clearLayout(grid);
+    if((db?.settings?.dailyViewType||'default')!=='default')return;
+    let layout=currentLayout();
+    if(REMOVED.has(layout)){db.settings||={};db.settings.dailyDayLayoutV228='grid';try{saveDb()}catch{}layout='grid'}
+    if(!NAMES.has(layout))return;
+    const nodes=rawNodes(grid);grid.classList.add(`daily-day-layout-${layout}-v1913`);if(PAGED.has(layout))grid.classList.add('layout-paged-v1913');
+    if(layout==='bookshelf')renderBookshelf(grid,nodes);else if(layout==='filmstrip')renderFilm(grid,nodes);else if(layout==='scrapbook')renderScrap(grid,nodes);else if(layout==='maze')renderMaze(grid,nodes);else if(layout==='patchwork')renderPatch(grid,nodes);
+  }
+
+  function syncPicker(modal){if(!modal)return;let current=currentLayout();if(REMOVED.has(current))current='grid';qa('[data-daily-layout-v228]',modal).forEach(btn=>{if(REMOVED.has(btn.dataset.dailyLayoutV228)){btn.remove();return}const on=btn.dataset.dailyLayoutV228===current;btn.classList.toggle('active',on);btn.setAttribute('aria-pressed',on?'true':'false')})}
+  function ensureChoices(modal){if(!modal)return;const picker=q('.daily-day-layout-picker-v228',modal);if(!picker)return;REMOVED.forEach(v=>q(`[data-daily-layout-v228="${v}"]`,picker)?.remove());CHOICES.forEach(([value,label])=>{if(q(`[data-daily-layout-v228="${value}"]`,picker))return;const button=document.createElement('button');button.type='button';button.className='filter-tab';button.dataset.dailyLayoutV228=value;button.textContent=label;button.addEventListener('click',()=>{db.settings||={};db.settings.dailyDayLayoutV228=value;syncPicker(modal);try{saveDb()}catch{}try{initGrid()}catch{applyLayout()}applyLayout();requestAnimationFrame(applyLayout)});picker.appendChild(button)});syncPicker(modal)}
+
+  function pagedGrid(){const grid=document.getElementById('days-grid');return document.getElementById('grid-view')?.classList.contains('active')&&grid?.classList.contains('layout-paged-v1913')?grid:null}
+  function pageStep(grid,dir){if(!grid)return;const page=grid.querySelector('.numbered-layout-page-v1913');const amount=Math.max(1,page?.getBoundingClientRect?.().width||grid.clientWidth);grid.scrollBy({left:dir*amount,behavior:'smooth'})}
+  document.addEventListener('keydown',event=>{
+    if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;const grid=pagedGrid();if(!grid)return;
+    const target=event.target;if(target?.isContentEditable||target?.closest?.('input,textarea,select,[contenteditable="true"],[role="textbox"]')||document.querySelector('.modal-overlay:not(.hidden)'))return;
+    event.preventDefault();event.stopImmediatePropagation();pageStep(grid,event.key==='ArrowRight'?1:-1);
+  },true);
+  let wheelPageLockV1913=false;
+  document.addEventListener('wheel',event=>{
+    const grid=pagedGrid();if(!grid||!event.target?.closest?.('#days-grid'))return;if(Math.abs(event.deltaY)<Math.abs(event.deltaX))return;
+    event.preventDefault();
+    if(wheelPageLockV1913||Math.abs(event.deltaY)<8)return;
+    wheelPageLockV1913=true;pageStep(grid,event.deltaY>0?1:-1);
+    setTimeout(()=>{wheelPageLockV1913=false},260);
+  },{capture:true,passive:false});
+
+  try{const priorEnsure=ensureDailyLogsSettingsModal;ensureDailyLogsSettingsModal=function(...args){const modal=priorEnsure.apply(this,args);ensureChoices(modal);return modal}}catch{}
+  try{const priorOpen=openDailyLogsLocalSettings;openDailyLogsLocalSettings=function(...args){const result=priorOpen.apply(this,args);ensureChoices(document.getElementById('daily-logs-local-settings-modal'));return result}}catch{}
+  try{const priorInit=initGrid;initGrid=function(...args){const result=priorInit.apply(this,args);applyLayout();requestAnimationFrame(()=>requestAnimationFrame(applyLayout));return result}}catch{}
+  let resizeTimerV1916=0;
+  window.addEventListener('resize',()=>{clearTimeout(resizeTimerV1916);resizeTimerV1916=setTimeout(()=>{const layout=currentLayout();if(layout==='bookshelf'||layout==='filmstrip'||layout==='scrapbook'||layout==='maze')applyLayout()},120)});
+  window.__loggyApplyNumberedLayoutV1913=applyLayout;
+  ensureChoices(document.getElementById('daily-logs-local-settings-modal'));applyLayout();requestAnimationFrame(()=>requestAnimationFrame(applyLayout));
 })();

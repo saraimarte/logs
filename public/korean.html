@@ -361,7 +361,7 @@
             pointer-events: auto !important;
         }
     </style>
-<link rel="stylesheet" href="/korean.css?v=668">
+<link rel="stylesheet" href="/korean.css?v=2026100901">
 
     <script id="loggy-early-theme-warm-v578">
     (() => {
@@ -419,7 +419,7 @@
     })();
     </script>
 
-    <link rel="preload" href="/korean.js?v=669" as="script">
+    <link rel="preload" href="/korean.js?v=2026100901" as="script">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -546,6 +546,8 @@
         }
     </style>
 
+    <link rel="stylesheet" href="/loggy-screen-recorder.css?v=920">
+<script id="loggy-nav-prehide-v785">(()=>{try{const p=location.pathname;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'';if(k.startsWith('loggy-nav-state-v784:')&&k.endsWith(':'+p)){const x=JSON.parse(localStorage.getItem(k)||'null');if(x?.payload?.hiddenBuiltInTabsV52?.includes?.('tools')){document.documentElement.classList.add('loggy-toolbox-prehidden-v785');break}}}}catch{}})();</script>
 </head>
 <body>
     <!-- New Vertical Side Navigation -->
@@ -553,7 +555,6 @@
         <a href="/" class="icon-btn" title="Back to Dashboard" style="text-decoration: none;"><i class="ph ph-house"></i></a>
         <button id="open-phrases-btn" class="icon-btn" title="Knowledge Base"><i class="ph ph-books"></i></button>
         <button id="open-quizzes-btn" class="icon-btn" title="Quizzes"><i class="ph ph-cards"></i></button>
-        <button id="open-tools-btn" class="icon-btn" title="Toolbox"><i class="ph ph-wrench"></i></button>
     </nav>
 <div id="grid-view" class="view active">
         <header>
@@ -627,7 +628,7 @@
             </div>
 
             <div class="right-column">
-                <section class="borderless-section">
+                <section class="borderless-section legacy-log-tools-v816" hidden aria-hidden="true">
                     <div class="section-header">
                         <h2>Tools</h2>
                         <button id="add-tool-to-day-btn" class="small-icon-btn"><i class="ph ph-plus"></i></button>
@@ -728,6 +729,14 @@
                 </div>
                 <div class="filter-tabs" id="quiz-type-filters"></div>
 
+                <div id="quiz-tag-filter-section-v749" class="quiz-tag-filter-section-v749 hidden">
+                    <div class="quiz-tag-filter-heading-v749">
+                        <span class="modal-label">Filter by tag:</span>
+                        <small id="quiz-tag-match-label-v749"></small>
+                    </div>
+                    <div class="filter-tabs quiz-tag-filters-v749" id="quiz-tag-filters-v749"></div>
+                </div>
+
                 <div id="quizlet-learning-mode-section-v476" class="quizlet-learning-mode-section-v476 hidden">
                     <span class="modal-label">Choose Learning mode:</span>
                     <div class="quizlet-learning-mode-options-v476">
@@ -798,26 +807,23 @@
     </div>
 
     <!-- Add Item Modal -->
-    <div id="add-item-modal" class="modal-overlay hidden">
-        <div class="modal-box">
+    <div id="add-item-modal" class="modal-overlay hidden" data-kb-add-mode-v842="single">
+        <div class="modal-box kb-add-box-v842">
             <div class="modal-header">
-                <h2>Add New Item</h2>
-                <button id="add-item-close" class="small-icon-btn"><i class="ph ph-x"></i></button>
+                <h2>Add Knowledge Base Items</h2>
+                <button id="add-item-close" class="small-icon-btn kb-modal-close-v842" aria-label="Close"><i class="ph ph-x"></i></button>
             </div>
-            
-            <div class="modal-section">
-                <span class="field-label">Name (Unique ID)</span>
-                <input type="text" id="add-item-name" name="kb-new-item-title" placeholder="e.g. New Item" autocomplete="off" aria-autocomplete="none" data-form-type="other" data-lpignore="true" data-1p-ignore="true">
+            <div class="kb-add-mode-tabs-v842" role="tablist" aria-label="Add mode">
+                <button type="button" role="tab" data-kb-add-mode-v842="single" aria-selected="true"><i class="ph ph-plus-circle"></i><span>Individual Add</span></button>
+                <button type="button" role="tab" data-kb-add-mode-v842="bulk" aria-selected="false"><i class="ph ph-stack-plus"></i><span>Bulk Add</span></button>
             </div>
-
-            <div class="modal-section mt-10" style="display:flex; align-items:center; gap: 8px;">
-                <input type="checkbox" id="add-item-enable-parts" style="width:18px; height:18px; cursor:pointer;">
-                <label for="add-item-enable-parts" style="font-size:1.1rem; cursor:pointer;">Enable Parts Checklist</label>
+            <div id="kb-individual-pane-v842">
+                <div class="modal-section"><span class="field-label">Name (Unique ID)</span><input type="text" id="add-item-name" name="kb-new-item-title" placeholder="e.g. New Item" autocomplete="off" aria-autocomplete="none" data-form-type="other" data-lpignore="true" data-1p-ignore="true"></div>
+                <div class="modal-section mt-10" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="add-item-enable-parts" style="width:18px;height:18px;cursor:pointer;"><label for="add-item-enable-parts" style="font-size:1.1rem;cursor:pointer;">Enable Parts Checklist</label></div>
+                <div id="add-item-dynamic-fields"></div>
             </div>
-
-            <div id="add-item-dynamic-fields"></div>
-            
-            <button id="add-item-save" class="icon-btn ai-generate-btn mt-10"><i class="ph ph-check"></i> Save</button>
+            <div id="kb-bulk-pane-host-v842"></div>
+            <button id="add-item-save" class="icon-btn ai-generate-btn mt-10 kb-primary-save-v842"><i class="ph ph-check"></i><span>Save</span></button>
         </div>
     </div>
 
@@ -1114,7 +1120,9 @@
       },true);
     })();
     </script>
-    <script src="/korean.js?v=669"></script>
+    <script src="/korean.js?v=2026100901"></script>
+    <script src="/tab-template-catalog-v831.js?v=855"></script>
+    <script defer src="/loggy-mentions-v853.js?v=853"></script>
     <script>
 /* V389 - left-facing directional cursor parity for Log Settings + live cursor. */
 (()=>{
@@ -1148,7 +1156,7 @@
   window.addEventListener('loggy-extras-ready',patchV389,{once:true});
 })();
 </script>
-    <script src="/template-hotfix-v221.js?v=662"></script>
+    <script src="/template-hotfix-v221.js?v=1917"></script>
     <script>
     /* V645 — RESPONSIVE FEATURE HYDRATION.
        The six enhancement bundles are still all loaded; none of Loggy's features
@@ -1168,20 +1176,20 @@
     */
     (() => {
         const EXTRA_PARTS_V645 = [
-            '/template-extras-1.js?v=662',
-            '/template-extras-2.js?v=662',
-            '/template-extras-3.js?v=662',
-            '/template-extras-4.js?v=662',
-            '/template-extras-5.js?v=669',
-            '/template-extras-6.js?v=669'
+            '/template-extras-1.js?v=809',
+            '/template-extras-2.js?v=855',
+            '/template-extras-3.js?v=809',
+            '/template-extras-4.js?v=1700',
+            '/template-extras-5.js?v=1906',
+            '/template-extras-6.js?v=2026100901'
         ];
 
         let extrasPromise = null;
         let urgentRequestedV645 = false;
         let lastUserInputV645 = performance.now();
         const pageStartedV645 = performance.now();
-        const AUTO_EARLIEST_MS_V645 = 12000;
-        const BACKGROUND_QUIET_MS_V645 = 850;
+        const AUTO_EARLIEST_MS_V645 = 1250;
+        const BACKGROUND_QUIET_MS_V645 = 240;
 
         const noteUserInputV645 = () => { lastUserInputV645 = performance.now(); };
         window.addEventListener('pointerdown', noteUserInputV645, { capture:true, passive:true });
@@ -1293,7 +1301,7 @@
             } else {
                 const target = event.target;
                 if (!target?.closest?.(
-                    '#open-global-daily-settings-nav-btn, #add-custom-tab-btn, ' +
+                    '#open-global-daily-settings-nav-btn, .custom-tab-edit-btn, .custom-tab-nav-btn, ' +
                     '.theme-search-create-v161, .theme-picker-create-card, ' +
                     '[data-open-theme-builder], #open-theme-builder-btn, #theme-builder-v307-modal'
                 ) && event.type !== 'contextmenu') return;
@@ -1376,7 +1384,7 @@
         }
     })();
     </script>
-    <script defer src="/widgets-loader-v241.js?v=453"></script>
+    <script defer src="/widgets-loader-v241.js?v=1911"></script>
 <script id="loggy-v624-items-learned-keyboard">
 (()=>{
   'use strict';
@@ -1405,5 +1413,7 @@
   },true);
 })();
 </script>
+    <script src="/loggy-screen-recorder.js?v=920"></script>
+<script defer src="/loggy-multiples-graph-v854.js?v=873"></script>
 </body>
 </html>
