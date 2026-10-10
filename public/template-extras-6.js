@@ -21811,7 +21811,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   function syncButtons(section){
     const shape=currentShape();
     qa('[data-kb-polaroid-shape-v788]',section).forEach(button=>{
-      const active=button.dataset.kbPolaroidShapeV787===shape;
+      const active=button.getAttribute('data-kb-polaroid-shape-v788')===shape;
       button.classList.toggle('selected',active);
       button.setAttribute('aria-checked',active?'true':'false');
     });
@@ -21855,11 +21855,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         const button=event.target.closest?.('[data-kb-polaroid-shape-v788]');
         if(!button)return;
         db.settings ||= {};
-        db.settings.kbPolaroidCardShapeV787=norm(button.dataset.kbPolaroidShapeV787);
+        db.settings.kbPolaroidCardShapeV787=norm(button.getAttribute('data-kb-polaroid-shape-v788'));
         syncButtons(section);
         applyShape();
         try{saveDb()}catch{}
         try{renderPhrasesLibrary(q('#phrases-search-bar')?.value||'')}catch{}
+        requestAnimationFrame(()=>{applyShape();syncButtons(section);});
       });
     }
     section.classList.toggle('hidden',!isPolaroid());

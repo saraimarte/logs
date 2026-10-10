@@ -35118,3 +35118,55 @@ html body > #phrase-modal.roadmap-child-modal-v842 .modal-box{z-index:1!importan
   box-sizing:border-box;
 }
 .roadmap-editor-body-v749 .roadmap-sub-actions-v856 > .icon-btn i {font-size:17px;flex:0 0 auto;}
+
+
+/* KB POLAROID GRID — one layout owner; card shape changes both columns and media.
+   Prevents legacy absolute/masonry positions, fixed card heights, and stale grid
+   coordinates from stacking cards on top of one another after view changes. */
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid {
+  --kb-card-width: 210px;
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--kb-card-width)),1fr))!important;
+  grid-auto-flow:row!important;
+  grid-auto-rows:max-content!important;
+  align-items:start!important;
+  align-content:start!important;
+  justify-items:stretch!important;
+  gap:16px!important;
+  position:relative!important;
+  height:auto!important;
+  min-height:0!important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-portrait-v788{--kb-card-width:210px;}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-portrait-small-v788{--kb-card-width:105px;gap:10px!important;}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-square-v788{--kb-card-width:190px;}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-landscape-v788{--kb-card-width:270px;}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-wide-v788{--kb-card-width:315px;}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid > .polaroid-card {
+  position:relative!important;inset:auto!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;
+  grid-row:auto!important;grid-column:auto!important;
+  transform:none!important;float:none!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;display:flex!important;flex-direction:column!important;
+  align-self:start!important;justify-self:stretch!important;
+  overflow:hidden!important;box-sizing:border-box!important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){
+  display:flex!important;flex:0 0 auto!important;
+  width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;overflow:hidden!important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid > .polaroid-card:has(> .kb-primary-map-v171) > .polaroid-video{display:none!important;}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid > .polaroid-card > .polaroid-label{
+  position:relative!important;flex:0 0 auto!important;height:auto!important;
+  min-height:0!important;max-height:none!important;overflow-wrap:anywhere!important;
+}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-portrait-v788 > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){aspect-ratio:2/3!important;}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-portrait-small-v788 > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){aspect-ratio:4/5!important;}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-square-v788 > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){aspect-ratio:1!important;}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-landscape-v788 > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){aspect-ratio:16/10!important;}
+#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-wide-v788 > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){aspect-ratio:2!important;}
+@media(max-width:560px){
+  #phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid{grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--kb-card-width)),1fr))!important;}
+}

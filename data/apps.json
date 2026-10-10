@@ -1,9 +1,9 @@
 [
   {
-    "id": "test",
-    "name": "test",
-    "icon": "custom-skateboard",
-    "category": "School"
+    "id": "asl",
+    "name": "ASL",
+    "icon": "builtin-asl-gesture-v429",
+    "category": "Non-School"
   },
   {
     "id": "korean",
