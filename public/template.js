@@ -13946,6 +13946,12 @@ const CUSTOM_COMPONENT_LIBRARY = [
     { type: 'spacer', label: 'Spacer', icon: 'ph-arrows-out-line-vertical' }
 ];
 
+
+// Complete first-paint catalog metadata. Feature bundles subsequently install behavior.
+for (const [type,label,icon] of [['globalSearchV163', 'Global Search Bar', 'ph-magnifying-glass-plus'], ['qaV162', 'Questions & Answers', 'ph-question'], ['goalsV162', 'Goals', 'ph-target'], ['tableV162', 'Table', 'ph-table'], ['kbDynamicCollectionV162', 'Dynamic Collection', 'ph-stack'], ['customKnowledgeBaseV453', 'Knowledge Base', 'ph-books'], ['monthlyCalendarV341', 'Monthly Calendar', 'ph-calendar-blank'], ['priorityMatrixV788', 'Priority Matrix', 'ph-grid-four'], ['containerGroupV788', 'Container / Group', 'ph-selection-all'], ['dailyConnectionsGraph', 'Daily Log Connections', 'ph-graph'], ['logsReviewV536', 'Logs Review', 'ph-chart-bar'], ['tierMakerV718', 'Tier Maker', 'ph-list-numbers'], ['kbSortBoardV720', 'KB Sort Board', 'ph-kanban'], ['pageNavigatorV753', 'Pages', 'ph-folders'], ['lazyRecommendationV747', 'Recommendation Button', 'ph-moon-stars'], ['writerRelationshipsV812', 'Relationship Board', 'ph-graph'], ['writerStoryCalendarV812', 'Story Calendar', 'ph-calendar-dots'], ['writerReferencesV812', 'Linked References', 'ph-link']]) {
+    if (!CUSTOM_COMPONENT_LIBRARY.some(def => def.type === type)) CUSTOM_COMPONENT_LIBRARY.push({type,label,icon});
+}
+
 let activeCustomTabId = null;
 let customTabEditMode = false;
 let draggedCustomComponentId = null;
@@ -14740,6 +14746,8 @@ function openCustomTab(tabId) {
 
     activeCustomTabId = tabId;
     customTabEditMode = false;
+    ++customPaletteSessionV860;
+    customPalettePendingV860 = false;
     renderCustomTabView(tabId);
     switchView(view);
 
@@ -14768,6 +14776,17 @@ function openCustomTab(tabId) {
     });
 }
 
+// Render the whole available picker synchronously on edit-entry. The component
+// registry can be extended later, but loading extras must never gate visibility.
+let customPaletteSessionV860 = 0;
+let customPalettePendingV860 = false;
+function revealCustomPaletteV860(tabId, session) {
+    if (session !== customPaletteSessionV860 || !customTabEditMode ||
+        String(activeCustomTabId) !== String(tabId)) return;
+    const palette = document.querySelector(`#custom-tab-view-${CSS.escape(String(tabId))} .custom-component-palette`);
+    if (palette && !palette.classList.contains('hidden')) palette.style.removeProperty('visibility');
+}
+
 function renderCustomTabView(tabId) {
     const tab = getCustomTab(tabId);
     const view = document.getElementById(`custom-tab-view-${tabId}`);
@@ -14793,6 +14812,9 @@ function renderCustomTabView(tabId) {
         editBtn.classList.toggle('custom-tab-edit-active-v245', customTabEditMode);
     }
     view.classList.toggle('custom-tab-layout-editing-v759', customTabEditMode);
+    // No async visibility gate: the picker is built in the same synchronous
+    // render pass as the search bar and the surrounding panel.
+    palette.style.removeProperty('visibility');
     palette.classList.toggle('hidden', !customTabEditMode);
     canvas.classList.toggle('is-editing', customTabEditMode);
 
@@ -14823,36 +14845,57 @@ function renderCustomTabView(tabId) {
 
     renderCustomComponentPalette(palette);
     renderCustomCanvas(tab, canvas);
+    if (customTabEditMode && !customPalettePendingV860)
+        revealCustomPaletteV860(tabId, customPaletteSessionV860);
 }
 
 function renderCustomComponentPalette(palette) {
     if (!palette) return;
-    palette.innerHTML = '';
-
-    CUSTOM_COMPONENT_LIBRARY.forEach(def => {
+    const oldQuery = palette.querySelector('.custom-component-search-v764 input')?.value || '';
+    const fragment = document.createDocumentFragment();
+    const search = document.createElement('label');
+    search.className = 'custom-component-search-v764';
+    search.innerHTML = '<i class="ph ph-magnifying-glass" aria-hidden="true"></i><input type="search" autocomplete="off" spellcheck="false" placeholder="Search components..." aria-label="Search custom components">';
+    fragment.appendChild(search);
+    const defs = CUSTOM_COMPONENT_LIBRARY.slice().sort((a,b) => String(a.label||'').localeCompare(String(b.label||''),undefined,{sensitivity:'base'}));
+    const cards=[];
+    for (const def of defs) {
         const item = document.createElement('button');
-        item.type = 'button';
-        item.className = 'custom-component-palette-item';
-        item.draggable = true;
-        item.dataset.componentType = def.type;
-        item.innerHTML = `<i class="ph ${def.icon}"></i><span>${def.label}</span>`;
-
-        item.addEventListener('dragstart', e => {
-            e.dataTransfer.effectAllowed = 'copy';
-            e.dataTransfer.setData('text/custom-component-type', def.type);
+        item.type='button'; item.className='custom-component-palette-item';
+        item.draggable=true; item.dataset.componentType=def.type;
+        item.innerHTML=`<i class="ph ${escapeCustomHtml(def.icon||'ph-square')}"></i><span>${escapeCustomHtml(def.label||def.type)}</span>`;
+        item.addEventListener('dragstart',e=>{
+            e.dataTransfer.effectAllowed='copy';e.dataTransfer.setData('text/custom-component-type',def.type);
             item.classList.add('dragging');
         });
-
-        item.addEventListener('dragend', () => item.classList.remove('dragging'));
-
-        // Click is also supported for accessibility/touch.
-        item.addEventListener('click', () => {
-            if (!activeCustomTabId) return;
-            addCustomComponent(activeCustomTabId, def.type);
+        item.addEventListener('dragend',()=>item.classList.remove('dragging'));
+        item.addEventListener('click',async()=>{
+            if (!activeCustomTabId)return;
+            // A predeclared component may still be loading. Register runtime before insertion.
+            try { await window.ensureLoggyExtras?.({urgent:true}); } catch(_) {}
+            addCustomComponent(activeCustomTabId,def.type);
         });
-
-        palette.appendChild(item);
+        fragment.appendChild(item);cards.push({item,name:String(def.label||'').toLocaleLowerCase()});
+    }
+    const input=search.querySelector('input');
+    const filter=()=>{
+        const q=String(input.value||'').trim().toLocaleLowerCase();
+        for(const {item,name} of cards){
+            item.classList.toggle('custom-component-filtered-v764',!!q&&!name.includes(q));
+        }
+    };
+    input.addEventListener('input',filter);
+    // Enter inserts a sole visible search result exactly as a card click does.
+    input.addEventListener('keydown',event=>{
+        if(event.key!=='Enter' || event.isComposing)return;
+        const matches=cards.filter(({item})=>!item.classList.contains('custom-component-filtered-v764'));
+        if(!String(input.value||'').trim() || matches.length!==1)return;
+        event.preventDefault();event.stopPropagation();
+        matches[0].item.click();
     });
+    input.value=oldQuery;
+    palette.replaceChildren(fragment);
+    filter();
 }
 
 // V746 — FULL CUSTOM COMPONENT PALETTE READINESS
@@ -15131,7 +15174,7 @@ function renderCustomCanvas(tab, canvas) {
     if (!tab.components.length && !customTabEditMode) {
         const empty = document.createElement('div');
         empty.className = 'custom-tab-empty-state';
-        empty.innerHTML = '<i class="ph ph-layout"></i><strong>This tab is empty</strong><span>Click the layout button to start building it.</span>';
+        empty.innerHTML = '<i class="ph ph-layout"></i><strong>This tab is empty</strong><span>Right click anywhere on the screen and select Edit Tab Layout to start building it.</span>';
         canvas.appendChild(empty);
     }
 
@@ -16468,8 +16511,22 @@ function enterCustomTabLayoutEditorV759(tabId) {
     // because openCustomTab() deliberately clears customTabEditMode.
     activeCustomTabId = id;
     customTabEditMode = true;
+    const paletteSession = ++customPaletteSessionV860;
+    customPalettePendingV860 = false;
     switchView(view);
+    // Single synchronous render: outer box, search and all currently registered
+    // component cards appear together. Never await extras to reveal the picker.
     renderCustomTabView(id);
+    // Preloaded extras may register additional cards; refresh in place, without
+    // clearing or hiding the outer panel.
+    try { window.ensureLoggyExtras?.({ urgent:true })?.then?.(() => {
+        if (paletteSession === customPaletteSessionV860 && customTabEditMode &&
+            String(activeCustomTabId) === id) refreshOpenCustomComponentPaletteV746();
+    }).catch?.(() => {}); } catch (_) {}
+    try { window.__loggyLoadWidgetsRuntimeV241?.()?.then?.(() => {
+        if (paletteSession === customPaletteSessionV860 && customTabEditMode &&
+            String(activeCustomTabId) === id) refreshOpenCustomComponentPaletteV746();
+    }).catch?.(() => {}); } catch (_) {}
 
     // Reassert once after the current event/render stack. Deferred feature bundles
     // may polish the header, but they are not allowed to turn layout mode back off.
@@ -16481,12 +16538,11 @@ function enterCustomTabLayoutEditorV759(tabId) {
             liveView.querySelector('.custom-component-palette')?.classList.contains('hidden')) {
             renderCustomTabView(id);
         }
-        try { window.__loggyRefreshCustomComponentPaletteV746?.(); } catch (_) {}
+        if (!customPalettePendingV860) {
+            try { window.__loggyRefreshCustomComponentPaletteV746?.(); } catch (_) {}
+        }
     });
 
-    // Enhancers are optional and may load after edit mode is already visible.
-    try { window.ensureLoggyExtras?.({ urgent: true }); } catch (_) {}
-    try { window.__loggyLoadWidgetsRuntimeV241?.(); } catch (_) {}
     return true;
 }
 window.__loggyOpenLayoutEditorV759 = enterCustomTabLayoutEditorV759;
@@ -16539,12 +16595,40 @@ window.addEventListener('contextmenu', event => {
     }]);
 },true);
 
+// Table resizing must run before custom-tab drag/edit layout capture handlers.
+window.addEventListener('pointerdown', event => {
+    const host = event.composedPath?.().find(node => node?.classList?.contains?.('loggy-sheet-host'));
+    if (host?.__loggySheetResize?.(event)) event.stopImmediatePropagation();
+}, true);
+
+// Give Kanban cards their own context menu before the custom tab page menu.
+// The listener on each card is installed later by the Kanban renderer; dispatch
+// to that card's handler after suppressing the competing tab-level menu.
+window.addEventListener('contextmenu', event => {
+    const card = event.target instanceof Element ? event.target.closest('.v340-kanban-card') : null;
+    if (!card) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    card.dispatchEvent(new MouseEvent('loggy-kanban-card-context', {
+        bubbles:false, cancelable:true, clientX:event.clientX, clientY:event.clientY
+    }));
+}, true);
+
 // Window capture runs before later document/bundle context-menu handlers.
 window.addEventListener('contextmenu', event => {
     const active = document.querySelector('.custom-tab-view.view.active');
     if (!active || !active.dataset.customTabId) return;
     const target = event.target;
     if (!(target instanceof Element)) return;
+    const sheetHost = event.composedPath?.().find(node => node?.classList?.contains?.('loggy-sheet-host'));
+    if (sheetHost) {
+        // Table-owned menu must win over Edit Theme / Settings.
+        if (sheetHost.__loggySheetContext?.(event)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
+        return;
+    }
     if (target.closest('input, textarea, select, [contenteditable="true"], .side-nav, .modal-overlay, #custom-item-context-menu, .loggy-recorder-dock-v710, .page-card-v761, .skill-roadmap-node-v749, #roadmap-section-orbit-v755, .roadmap-section-orbit-v753, #roadmap-section-orbit-v801, .roadmap-section-orbit-v801, .roadmap-node-drawer-v749, .custom-kb-card-v461, .writer-scene-card-v804, .writer-beat-card-v804, .writer-character-card-v804, .writer-world-card-v804, .writer-session-row-v804, .learning-skill-row, .qa-row-v163, .qa-card-v162')) return;
     if (!active.contains(target) && target !== document.body && target !== document.documentElement) return;
     const id = String(active.dataset.customTabId);

@@ -35072,7 +35072,7 @@ html body > #phrase-modal.roadmap-child-modal-v842 .modal-box{z-index:1!importan
 /* v853 canonical Kanban sizing: column height and card height are independent. */
 .v340-kanban-board .v340-kanban-column{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;}
 .v340-kanban-board .v340-kanban-list{flex:1 1 auto;min-height:0;overflow-y:auto;align-content:start;}
-.v340-kanban-board .v340-kanban-card{box-sizing:border-box!important;height:var(--kanban-card-height)!important;min-height:var(--kanban-card-height)!important;max-height:var(--kanban-card-height)!important;overflow-y:auto!important;flex:none!important;align-content:start;}
+
 .v340-kanban-board .v340-kanban-add{margin-top:auto!important;flex:none!important;}
 .v340-kanban-description-v853{white-space:normal;overflow-wrap:anywhere;line-height:1.35;}
 #v340-record-editor .kb-item-field input[type="url"]{box-sizing:border-box;width:100%;min-height:44px;padding:10px 13px;border-radius:8px;}
@@ -35094,8 +35094,8 @@ html body > #phrase-modal.roadmap-child-modal-v842 .modal-box{z-index:1!importan
 #loggy-mention-picker-v853 button.selected,#loggy-mention-picker-v853 button:hover{background:color-mix(in srgb,currentColor 11%,transparent)}
 .loggy-mention-target-v853{outline:3px solid currentColor!important;outline-offset:2px}
 /* Board-height modes are resolved by this single canonical layout. */
-.v340-kanban-board.kanban-board-height-long{min-height:760px!important;align-items:stretch!important}
-.v340-kanban-board.kanban-board-height-long > .v340-kanban-column{height:760px!important;min-height:760px!important;max-height:760px!important}
+
+
 .v340-kanban-board.kanban-board-height-standard > .v340-kanban-column{height:auto!important;min-height:0!important;max-height:none!important}
 
 /* v856: consistent full-width subsection actions in every Learning Roadmap. */
@@ -35119,54 +35119,77 @@ html body > #phrase-modal.roadmap-child-modal-v842 .modal-box{z-index:1!importan
 }
 .roadmap-editor-body-v749 .roadmap-sub-actions-v856 > .icon-btn i {font-size:17px;flex:0 0 auto;}
 
+/* Kanban: board edit fields and fullscreen (single owner). */
+#kanban-component-edit-v761 .modal-box{width:min(740px,calc(100vw - 32px))!important;max-width:calc(100vw - 32px)!important;box-sizing:border-box!important;overflow-x:hidden!important}
+#kanban-component-edit-v761 .kanban-component-edit-body-v761{display:grid!important;gap:16px!important;min-width:0!important;width:100%!important}
+#kanban-component-edit-v761 .kanban-fields-section-v926{width:100%;min-width:0;border:1px solid #d5d9df;border-radius:10px;padding:12px;box-sizing:border-box}
+#kanban-component-edit-v761 .kanban-fields-section-v926>summary{cursor:pointer;font-size:1.1rem;font-weight:600;list-style:revert;white-space:normal}
+#kanban-component-edit-v761 .kanban-fields-section-v926>summary span{display:block;font-size:.85rem;font-weight:400;opacity:.65;margin:3px 0 0 16px}
+#kanban-component-edit-v761 .kanban-fields-heading-v761{margin:14px 0 10px}
+#kanban-component-edit-v761 .kanban-edit-field-row-v761{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 40px!important;align-items:center!important;gap:8px!important;max-width:100%!important;min-width:0!important;width:100%!important;box-sizing:border-box!important;padding:10px!important}
+#kanban-component-edit-v761 .kanban-edit-field-row-v761>*{min-width:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important;word-break:normal!important;overflow-wrap:normal!important;white-space:normal!important;writing-mode:horizontal-tb!important}
+#kanban-component-edit-v761 .kanban-edit-field-row-v761 .kanban-field-remove-v761{width:40px!important;height:40px!important;padding:0!important}
+#kanban-component-edit-v761 .kanban-edit-field-row-v761 .kanban-field-options-v761:not(.hidden){grid-column:1/-1!important}
+@media(max-width:560px){#kanban-component-edit-v761 .kanban-edit-field-row-v761{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 40px!important}#kanban-component-edit-v761 .kanban-field-area-v761{grid-column:1/3!important}#kanban-component-edit-v761 .kanban-field-remove-v761{grid-column:3!important;grid-row:1!important}}
+.v340-kanban-header-actions .kanban-fullscreen-toggle-v926{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;box-sizing:border-box!important;padding:8px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+html.kanban-fullscreen-open-v926{overflow:hidden!important}
+body>.custom-tab-component.kanban-fullscreen-v926,body>.kanban-fullscreen-v926{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-height:100dvh!important;max-width:none!important;z-index:2147483000!important;margin:0!important;padding:22px!important;background:#fff!important;color:#111!important;box-sizing:border-box!important;border:0!important;border-radius:0!important;box-shadow:none!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+body>.kanban-fullscreen-v926>.custom-component-content,body>.kanban-fullscreen-v926.custom-component-content{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;overflow:hidden!important}
+body>.kanban-fullscreen-v926 .v340-kanban-board{flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:auto!important}
+body>.kanban-fullscreen-v926 .v340-kanban-column{height:100%!important;max-height:none!important}
 
-/* KB POLAROID GRID — one layout owner; card shape changes both columns and media.
-   Prevents legacy absolute/masonry positions, fixed card heights, and stale grid
-   coordinates from stacking cards on top of one another after view changes. */
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid {
-  --kb-card-width: 210px;
-  display:grid!important;
-  grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--kb-card-width)),1fr))!important;
-  grid-auto-flow:row!important;
-  grid-auto-rows:max-content!important;
-  align-items:start!important;
-  align-content:start!important;
-  justify-items:stretch!important;
-  gap:16px!important;
-  position:relative!important;
-  height:auto!important;
-  min-height:0!important;
+/* Kanban board: compact, responsive editor and automatic card height. */
+.kanban-component-edit-modal-v761 .modal-box{width:min(690px,calc(100vw - 32px))!important;max-width:calc(100vw - 32px)!important;max-height:calc(100dvh - 32px)!important;overflow-x:hidden!important}
+.kanban-component-edit-modal-v761 .kanban-component-edit-body-v761{display:flex!important;flex-direction:column!important;gap:14px!important}
+.kanban-component-edit-modal-v761 .kanban-title-field-v761 select{width:100%!important;max-width:100%!important}
+.kanban-component-edit-modal-v761 .kanban-fields-section-v926{display:block;min-width:0;width:100%;box-sizing:border-box}
+.kanban-component-edit-modal-v761 .kanban-fields-section-v926>summary span{display:inline;margin-left:8px}
+.kanban-component-edit-modal-v761 .kanban-edit-fields-v761{display:flex!important;flex-direction:column!important;gap:8px!important;min-width:0!important}
+.kanban-component-edit-modal-v761 .kanban-field-editor-v930{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(100px,.85fr) minmax(110px,1fr) 38px!important;grid-auto-rows:auto!important;gap:8px!important;align-items:center!important;width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;padding:9px!important;border:1px solid #d8dce2!important;border-radius:8px!important;box-sizing:border-box!important}
+.kanban-component-edit-modal-v761 .kanban-field-editor-v930>input,.kanban-component-edit-modal-v761 .kanban-field-editor-v930>select{min-width:0!important;width:100%!important;max-width:100%!important;min-height:38px!important;height:38px!important;margin:0!important;padding:6px 9px!important;box-sizing:border-box!important;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;writing-mode:horizontal-tb!important}
+.kanban-component-edit-modal-v761 .kanban-field-editor-v930>.kanban-field-delete-v930{width:38px!important;min-width:38px!important;max-width:38px!important;height:50px!important;min-height:50px!important;max-height:50px!important;;padding:0!important;border:2px solid var(--black,#000)!important;border-radius:11px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;grid-column:4!important;grid-row:1!important;writing-mode:horizontal-tb!important;white-space:nowrap!important}
+.kanban-component-edit-modal-v761 .kanban-field-editor-v930 .kanban-field-options-v761:not(.hidden){grid-column:1/-1!important;grid-row:2!important}
+@media(max-width:560px){.kanban-component-edit-modal-v761 .kanban-field-editor-v930{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px!important}.kanban-component-edit-modal-v761 .kanban-field-editor-v930>.kanban-field-area-v761{grid-column:1/3!important;grid-row:2!important}.kanban-component-edit-modal-v761 .kanban-field-editor-v930>.kanban-field-delete-v930{grid-column:3!important;grid-row:1!important}}
+.v340-kanban-board .v340-kanban-card{height:auto!important;min-height:90px!important;max-height:none!important;overflow:visible!important}
+.v340-kanban-board.kanban-board-height-long{min-height:min(80dvh,850px)!important;align-items:stretch!important}
+.v340-kanban-board.kanban-board-height-long>.v340-kanban-column{height:min(80dvh,850px)!important;min-height:min(80dvh,850px)!important;max-height:min(80dvh,850px)!important}
+.v340-kanban-header-actions .kanban-fullscreen-toggle-v926{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;padding:8px!important;box-sizing:border-box!important;background:var(--white,#fff)!important;color:var(--black,#111)!important;border:1px solid #bcc4d0!important;border-radius:8px!important}
+
+/* Kanban fullscreen is an opaque white document-level surface. */
+html body .custom-tab-component.kanban-fullscreen-v926{background:#fff!important;background-image:none!important;opacity:1!important;isolation:isolate!important;z-index:2147483000!important;}
+html body .kanban-fullscreen-v926 .custom-tab-component-content,html body .kanban-fullscreen-v926 .v340-kanban-board{background:#fff!important;background-image:none!important;}
+
+.custom-tab-view.custom-tab-layout-editing-v759 .custom-component-palette{align-content:start!important;align-items:start!important;grid-auto-flow:row!important;row-gap:8px!important;}
+.custom-tab-view.custom-tab-layout-editing-v759 .custom-component-search-v764{grid-column:1/-1!important;margin:0!important;padding:4px 10px!important;height:40px!important;min-height:40px!important;}
+.custom-tab-view.custom-tab-layout-editing-v759 .custom-component-palette-item{align-self:start!important;margin-top:0!important;}
+
+/* Kanban fullscreen: opaque canvas, consistent top controls and columns. */
+html.kanban-fullscreen-open-v926 body #kanban-opaque-backdrop-v940 {position:fixed!important;inset:0!important;background-color:#fff!important;opacity:1!important;z-index:1999!important;}
+html body>.kanban-fullscreen-v926 {background:#fff!important;background-color:#fff!important;background-image:none!important;opacity:1!important;z-index:2000!important;}
+html body>.kanban-fullscreen-v926 .custom-component-content,html body>.kanban-fullscreen-v926 .custom-collection-header,html body>.kanban-fullscreen-v926 .v340-kanban-board {background-color:#fff!important;background-image:none!important;opacity:1!important;}
+html body>.kanban-fullscreen-v926 .v340-kanban-column {align-self:stretch!important;box-sizing:border-box!important;}
+.v340-kanban-header-actions .kanban-fullscreen-toggle-v926 {border:2px solid var(--black,#000)!important;color:var(--black,#000)!important;background:var(--white,#fff)!important;border-radius:8px!important;}
+
+/* Kanban editor: identical input/select control shapes and size. */
+.kanban-component-edit-modal-v761 .kanban-field-editor-v930 > :is(.kanban-field-name-v761,.kanban-field-kind-v761,.kanban-field-area-v761){
+    height:50px!important;min-height:50px!important;max-height:50px!important;
+    border:2px solid var(--black,#000)!important;border-radius:11px!important;
+    background:var(--white,#fff)!important;color:var(--black,#000)!important;
+    padding:9px 12px!important;font:inherit!important;line-height:1.3!important;
+    box-sizing:border-box!important;appearance:auto!important;
 }
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-portrait-v788{--kb-card-width:210px;}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-portrait-small-v788{--kb-card-width:105px;gap:10px!important;}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-square-v788{--kb-card-width:190px;}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-landscape-v788{--kb-card-width:270px;}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-wide-v788{--kb-card-width:315px;}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid > .polaroid-card {
-  position:relative!important;inset:auto!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;
-  grid-row:auto!important;grid-column:auto!important;
-  transform:none!important;float:none!important;
-  width:100%!important;min-width:0!important;max-width:100%!important;
-  height:auto!important;min-height:0!important;max-height:none!important;
-  margin:0!important;display:flex!important;flex-direction:column!important;
-  align-self:start!important;justify-self:stretch!important;
-  overflow:hidden!important;box-sizing:border-box!important;
+
+/* Canonical first-frame component picker geometry: search row is 40px, NOT a 74px component row. */
+.custom-tab-view.custom-tab-layout-editing-v759 .custom-component-palette {
+ display:grid!important;grid-template-rows:40px!important;grid-auto-rows:74px!important;
+ row-gap:8px!important;align-content:start!important;align-items:start!important;
+ padding:10px!important;max-height:405px!important;overflow-y:auto!important;
 }
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){
-  display:flex!important;flex:0 0 auto!important;
-  width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
-  margin:0!important;overflow:hidden!important;
+.custom-tab-view.custom-tab-layout-editing-v759 .custom-component-palette>.custom-component-search-v764 {
+ grid-row:1!important;grid-column:1/-1!important;align-self:start!important;
+ height:40px!important;min-height:40px!important;max-height:40px!important;
+ margin:0!important;padding:4px 10px!important;
 }
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid > .polaroid-card:has(> .kb-primary-map-v171) > .polaroid-video{display:none!important;}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid > .polaroid-card > .polaroid-label{
-  position:relative!important;flex:0 0 auto!important;height:auto!important;
-  min-height:0!important;max-height:none!important;overflow-wrap:anywhere!important;
-}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-portrait-v788 > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){aspect-ratio:2/3!important;}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-portrait-small-v788 > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){aspect-ratio:4/5!important;}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-square-v788 > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){aspect-ratio:1!important;}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-landscape-v788 > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){aspect-ratio:16/10!important;}
-#phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid.kb-polaroid-shape-wide-v788 > .polaroid-card > :is(.polaroid-video,.kb-primary-map-v171,.kb-primary-image-v721){aspect-ratio:2!important;}
-@media(max-width:560px){
-  #phrases-library-view #phrases-library-grid.polaroid-grid-container.kb-layout-v683-polaroid{grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--kb-card-width)),1fr))!important;}
+.custom-tab-view.custom-tab-layout-editing-v759 .custom-component-palette>.custom-component-palette-item {
+ margin:0!important;align-self:stretch!important;
 }

@@ -1217,48 +1217,222 @@
     // Table component.
     // ------------------------------------------------------------
     function renderTableV162(tab, component, content) {
-        component.columns ||= [];
-        component.rows ||= [];
-        if (!component.columns.length) component.columns.push({id:uid('col'),name:'Column 1'});
-        content.innerHTML = `<div class="custom-collection-header"><h2>${esc(component.title || 'Table')}</h2><div class="table-toolbar-v162"><button type="button" class="small-icon-btn table-add-row-v162"><i class="ph ph-plus"></i> Row</button><button type="button" class="small-icon-btn table-add-col-v162"><i class="ph ph-plus"></i> Column</button></div></div><div class="table-scroll-v162"><table class="custom-table-v162"><thead><tr></tr></thead><tbody></tbody></table></div>`;
-        const head = content.querySelector('thead tr');
-        component.columns.forEach(col => {
-            const th = document.createElement('th');
-            th.innerHTML = `<input class="table-header-input-v162" value="${attr(col.name || '')}" aria-label="Column name"><button type="button" class="table-delete-col-v162" title="Remove column"><i class="ph ph-x"></i></button>`;
-            th.querySelector('input').addEventListener('input', e => { col.name = e.target.value; scheduleSaveV162(); });
-            th.querySelector('input').addEventListener('blur', () => saveDb());
-            th.querySelector('button').onclick = () => {
-                if (component.columns.length <= 1) return;
-                component.columns = component.columns.filter(c => c.id !== col.id);
-                component.rows.forEach(row => { if (row.cells) delete row.cells[col.id]; });
-                saveDb(); renderCustomTabView(tab.id);
+        // One isolated spreadsheet implementation; saved schema stays compatible.
+        component.columns = Array.isArray(component.columns) ? component.columns : [];
+        component.rows = Array.isArray(component.rows) ? component.rows : [];
+        component.cellStyles ||= {};
+        component.rowHeights ||= {};
+        if (!component.columns.length) component.columns.push({id:uid('col'),name:'Column 1',width:180});
+        const clamp = (value,min,max,fallback) => Math.min(max,Math.max(min,Number(value)||fallback));
+        const width = col => clamp(col.width,90,1000,180);
+        const height = row => clamp(component.rowHeights[row.id],32,600,44);
+        const key = (row,col) => `${row.id}:${col.id}`;
+        content.replaceChildren();
+        const host = document.createElement('div');
+        host.className = 'loggy-sheet-host';
+        content.append(host);
+        const shadow = host.attachShadow({mode:'open'});
+        const style = document.createElement('style');
+        style.textContent = `
+            :host{position:relative;display:block;width:100%;min-width:0;box-sizing:border-box;color:inherit;font-family:'Patrick Hand',cursive,sans-serif}
+            *,*::before,*::after{box-sizing:border-box}
+            .sheet-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+            .sheet-top h2{font:700 25px 'Patrick Hand',cursive,sans-serif;margin:0;color:inherit}
+            .sheet-actions{display:flex;gap:8px;align-items:center}
+            .sheet-actions button{height:36px;min-height:36px;padding:0 12px;border:1px solid #b7bec9;border-radius:6px;background:white;color:#222;font:19px 'Patrick Hand',cursive,sans-serif;cursor:pointer;display:inline-flex;justify-content:center;align-items:center}
+            .sheet-actions button:hover{background:#f3f4f6}
+            .sheet-actions button:focus-visible{outline:2px solid #777;outline-offset:2px}
+            .sheet-actions button[hidden]{display:none}
+            .sheet-actions .sheet-fullscreen{width:36px;padding:0}
+            .sheet-scroll{overflow:auto;width:100%;max-width:100%;min-height:0;background:#fff;border:1px solid #d1d5db;border-radius:5px;scrollbar-width:thin;scrollbar-color:#b7bdc6 #f3f4f6}
+            table{table-layout:fixed;border-spacing:0;border-collapse:collapse;margin:0;padding:0;width:max-content;max-width:none;background:#fff;font:15px 'Patrick Hand',cursive,sans-serif}
+            tr{height:var(--row-height,44px)}
+            th,td{height:var(--row-height,44px);padding:0;margin:0;border:1px solid #d1d5db;border-radius:0;background:white;box-shadow:none;position:relative;vertical-align:middle}
+            th{background:#f4f5f7;font-weight:600}
+            th.corner,th.index{width:48px;min-width:48px;max-width:48px;text-align:center;color:#5e6570;font-size:13px;font-weight:400}
+            th.header{height:44px;min-height:44px}
+            th.header input,td textarea{display:block;width:100%;height:100%;margin:0;padding:7px 10px;border:0;outline:0;border-radius:0;box-shadow:none;resize:none;appearance:none;background:transparent;color:#202020;font:15px 'Patrick Hand',cursive,sans-serif;line-height:24px;min-width:0;min-height:0;max-width:100%;max-height:none;overflow:auto}
+            th.header input{text-align:center;font-weight:700;overflow:hidden;text-overflow:ellipsis}
+            td textarea:focus,th.header input:focus{outline:1px solid #999;outline-offset:-1px}
+            th.index .row-rename{width:100%;height:100%;border:0;background:white;text-align:center;font:inherit;outline:1px solid #888;padding:0 3px}
+            .resize-col{position:absolute;right:-6px;top:0;width:12px;height:100%;z-index:8;cursor:col-resize;touch-action:none}
+            .resize-row{position:absolute;bottom:-6px;left:0;width:100%;height:12px;z-index:8;cursor:row-resize;touch-action:none}
+            .resize-col:hover,.resize-col.dragging,.resize-row:hover,.resize-row.dragging{background:#9ca3af50}
+            .sheet-menu{position:absolute;z-index:2147483647;background:white;border:1px solid #cbd1d9;border-radius:7px;box-shadow:0 12px 34px #0003;padding:5px;width:235px;max-height:calc(100dvh - 16px);overflow:auto;color:#222;font:15px 'Patrick Hand',cursive,sans-serif}
+            .sheet-menu[hidden]{display:none}
+            .sheet-menu>button{display:block;width:100%;border:0;background:transparent;color:inherit;font:inherit;text-align:left;padding:7px 10px;border-radius:4px;cursor:pointer}
+            .sheet-menu>button:hover{background:#f2f3f5}
+            .sheet-menu>button:disabled{color:#999;cursor:default}
+            .separator{height:1px;margin:4px 5px;background:#e4e7eb}
+            .swatches{display:flex;gap:5px;flex-wrap:wrap;padding:6px 8px}
+            .swatches button{width:24px;height:24px;border:1px solid #bfc5cf;border-radius:3px;cursor:pointer}
+            .swatches input{width:30px;height:26px;border:0;padding:0;cursor:pointer}
+            :host(.fullscreen){position:fixed!important;inset:0!important;z-index:2147483640!important;width:100vw!important;height:100dvh!important;background:#fff!important;padding:18px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+            :host(.fullscreen) .sheet-scroll{flex:1;min-height:0}
+        `;
+        shadow.append(style);
+        const shell = document.createElement('div');
+        shell.innerHTML = `<div class="sheet-top"><h2>${esc(component.title||'Table')}</h2><div class="sheet-actions"><button class="sheet-fullscreen" type="button" title="Full screen" aria-label="Full screen">⛶</button><button class="sheet-add-row" type="button">+ R</button><button class="sheet-add-col" type="button">+ C</button></div></div><div class="sheet-scroll"><table><colgroup></colgroup><thead><tr><th class="corner"></th></tr></thead><tbody></tbody></table></div><div class="sheet-menu" hidden role="menu"></div>`;
+        while(shell.firstChild)shadow.append(shell.firstChild);
+        const table=shadow.querySelector('table'),colgroup=shadow.querySelector('colgroup');
+        const head=shadow.querySelector('thead tr'),body=shadow.querySelector('tbody');
+        const menu=shadow.querySelector('.sheet-menu'),scroller=shadow.querySelector('.sheet-scroll');
+        // Render menus at document level, outside every scrollable/transformed tab.
+        // A Shadow DOM child cannot escape its ancestor's clipping/stacking context.
+        menu.remove();
+        document.querySelectorAll('.loggy-sheet-portal-menu').forEach(node=>node.remove());
+        menu.classList.add('loggy-sheet-portal-menu');
+        menu.style.cssText='position:fixed!important;z-index:2147483647!important;display:none;background:#fff;border:1px solid #cbd1d9;border-radius:7px;box-shadow:0 12px 34px rgba(0,0,0,.2);padding:5px;width:260px;max-height:calc(100dvh - 16px);overflow:auto;color:#222;font:15px "Patrick Hand",cursive,sans-serif;box-sizing:border-box';
+        const menuCSS=document.createElement('style');
+        menuCSS.textContent='.loggy-sheet-portal-menu>button{display:block;width:100%;border:0;background:transparent;color:inherit;font:inherit;text-align:left;padding:7px 10px;border-radius:4px;cursor:pointer}.loggy-sheet-portal-menu>button:hover{background:#f2f3f5}.loggy-sheet-portal-menu>button:disabled{color:#999;cursor:default}.loggy-sheet-portal-menu .separator{height:1px;margin:4px 5px;background:#e4e7eb}.loggy-sheet-portal-menu .swatches{display:flex;gap:5px;flex-wrap:wrap;padding:6px 8px}.loggy-sheet-portal-menu .swatches button{width:24px;height:24px;border:1px solid #bfc5cf;border-radius:3px;cursor:pointer}.loggy-sheet-portal-menu .swatches input{width:30px;height:26px;border:0;padding:0;cursor:pointer}';
+        menu.append(menuCSS);
+        document.body.append(menu);
+
+        const fullButton=shadow.querySelector('.sheet-fullscreen'),rowButton=shadow.querySelector('.sheet-add-row'),colButton=shadow.querySelector('.sheet-add-col');
+        const save=()=>saveDb();
+        const rerender=()=>{save();renderCustomTabView(tab.id);};
+        const addRow=(index=component.rows.length)=>{const cells={};component.columns.forEach(c=>cells[c.id]='');component.rows.splice(index,0,{id:uid('row'),cells});rerender();};
+        const addCol=(index=component.columns.length)=>{const col={id:uid('col'),name:`Column ${component.columns.length+1}`,width:180};component.columns.splice(index,0,col);component.rows.forEach(r=>(r.cells||={})[col.id]='');rerender();};
+        const removeRow=row=>{component.rows=component.rows.filter(r=>r!==row);delete component.rowHeights[row.id];Object.keys(component.cellStyles).filter(k=>k.startsWith(`${row.id}:`)).forEach(k=>delete component.cellStyles[k]);rerender();};
+        const removeCol=col=>{if(component.columns.length===1)return;component.columns=component.columns.filter(c=>c!==col);component.rows.forEach(r=>{delete r.cells?.[col.id];delete component.cellStyles[key(r,col)];});rerender();};
+        const closeMenu=()=>{menu.hidden=true;menu.style.display='none';menu.replaceChildren(menuCSS);};
+        const showMenu=(event,items)=>{
+            event.preventDefault();event.stopPropagation();closeMenu();
+            for(const item of items){
+                if(item==='separator'){const div=document.createElement('div');div.className='separator';menu.append(div);continue;}
+                if(item.palette){
+                    const palette=document.createElement('div');palette.className='swatches';
+                    ['', '#ffffff','#fff2cc','#fce8e6','#e2f0d9','#dbeafe','#ede9fe','#f3f4f6'].forEach(hex=>{
+                        const button=document.createElement('button');button.type='button';button.title=hex||'No fill';button.style.background=hex||'#fff';if(!hex)button.textContent='×';
+                        button.addEventListener('click',()=>{item.palette(hex);closeMenu();});palette.append(button);
+                    });
+                    const picker=document.createElement('input');picker.type='color';picker.title='Custom color';picker.value='#ffffff';picker.addEventListener('input',()=>item.palette(picker.value));palette.append(picker);menu.append(palette);continue;
+                }
+                const button=document.createElement('button');button.type='button';button.textContent=item.label;button.disabled=!!item.disabled;button.addEventListener('click',()=>{closeMenu();item.run?.();});menu.append(button);
+            }
+            menu.hidden=false;
+            menu.style.display='block';
+            menu.style.left='0px';menu.style.top='0px';
+            const box=menu.getBoundingClientRect();
+            const x=Math.max(8,Math.min(event.clientX+3,window.innerWidth-box.width-8));
+            const y=Math.max(8,Math.min(event.clientY+3,window.innerHeight-110));
+            menu.style.left=`${x}px`;
+            menu.style.top=`${y}px`;
+            menu.style.maxHeight=`${Math.max(100,window.innerHeight-y-8)}px`;
+        };
+        const colMenu=(event,index)=>showMenu(event,[{label:'Insert column before',run:()=>addCol(index)},{label:'Insert column after',run:()=>addCol(index+1)},'separator',{label:'Delete column',disabled:component.columns.length===1,run:()=>removeCol(component.columns[index])}]);
+        const renameRow=index=>{
+            const row=component.rows[index];
+            const header=body.rows[index]?.querySelector('th.index');
+            if(!row||!header)return;
+            const existing=header.querySelector('input.row-rename');
+            if(existing){existing.focus();existing.select();return;}
+            const previous=String(row.label||index+1);
+            const edit=document.createElement('input');edit.type='text';edit.className='row-rename';
+            edit.value=previous;edit.setAttribute('aria-label','Row label');
+            header.replaceChildren(edit);
+            let finished=false;
+            const finish=commit=>{
+                if(finished)return;finished=true;
+                if(commit){row.label=edit.value.trim()||String(index+1);save();}
+                header.replaceChildren(document.createTextNode(String(row.label||index+1)));
+                const grip=document.createElement('span');grip.className='resize-row';grip.title='Drag to resize row';
+                grip.addEventListener('pointerdown',e=>drag(e,'y',height(row),next=>{
+                    component.rowHeights[row.id]=clamp(next,32,600,44);
+                    header.parentElement.style.setProperty('--row-height',`${component.rowHeights[row.id]}px`);
+                }));header.append(grip);
             };
-            head.appendChild(th);
-        });
-        const actions = document.createElement('th'); actions.className = 'table-actions-head-v162'; actions.textContent = '';
-        head.appendChild(actions);
-        const body = content.querySelector('tbody');
-        component.rows.forEach(row => {
-            row.cells ||= {};
-            const tr = document.createElement('tr'); tr.dataset.customItemId = row.id;
-            component.columns.forEach(col => {
-                const td = document.createElement('td');
-                td.innerHTML = `<textarea class="table-cell-v162" rows="1">${esc(row.cells[col.id] || '')}</textarea>`;
-                const input = td.querySelector('textarea');
-                input.addEventListener('input', () => { row.cells[col.id] = input.value; scheduleSaveV162(); });
-                input.addEventListener('blur', () => saveDb());
-                tr.appendChild(td);
-            });
-            const td = document.createElement('td'); td.className = 'table-row-actions-v162'; td.innerHTML = '<button type="button" class="small-icon-btn" title="Remove row"><i class="ph ph-trash"></i></button>';
-            td.querySelector('button').onclick = () => { component.rows = component.rows.filter(r => r.id !== row.id); saveDb(); renderCustomTabView(tab.id); };
-            tr.appendChild(td); body.appendChild(tr);
-        });
-        content.querySelector('.table-add-row-v162').onclick = () => {
-            const cells = {}; component.columns.forEach(col => cells[col.id] = ''); component.rows.push({id:uid('row'),cells}); saveDb(); renderCustomTabView(tab.id);
+            edit.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();finish(true);}else if(e.key==='Escape'){e.stopPropagation();finish(false);}});
+            edit.addEventListener('blur',()=>finish(true));edit.focus();edit.select();
         };
-        content.querySelector('.table-add-col-v162').onclick = () => {
-            const col = {id:uid('col'),name:`Column ${component.columns.length + 1}`}; component.columns.push(col); component.rows.forEach(row => { row.cells ||= {}; row.cells[col.id] = ''; }); saveDb(); renderCustomTabView(tab.id);
+        const rowMenu=(event,index)=>showMenu(event,[{label:'Rename row',run:()=>renameRow(index)},'separator',{label:'Insert row above',run:()=>addRow(index)},{label:'Insert row below',run:()=>addRow(index+1)},'separator',{label:'Delete row',run:()=>removeRow(component.rows[index])}]);
+        const cellMenu=(event,row,col)=>{
+            const set=(property,value)=>{component.cellStyles[key(row,col)]||={};component.cellStyles[key(row,col)][property]=value;const input=shadow.querySelector(`textarea[data-row-id="${CSS.escape(String(row.id))}"][data-col-id="${CSS.escape(String(col.id))}"]`);if(input){if(property==='align')input.style.textAlign=value;else input.style.background=value||'transparent';}save();};
+            const index=component.rows.indexOf(row),column=component.columns.indexOf(col);
+            showMenu(event,[{label:'Rename row',run:()=>renameRow(index)},'separator',{label:'Align left',run:()=>set('align','left')},{label:'Align center',run:()=>set('align','center')},{label:'Align right',run:()=>set('align','right')},'separator',{label:'Cell background color',disabled:true},{palette:color=>set('background',color)},'separator',{label:'Insert row above',run:()=>addRow(index)},{label:'Insert row below',run:()=>addRow(index+1)},{label:'Insert column before',run:()=>addCol(column)},{label:'Insert column after',run:()=>addCol(column+1)},'separator',{label:'Delete row',run:()=>removeRow(row)},{label:'Delete column',disabled:component.columns.length===1,run:()=>removeCol(col)}]);
         };
+        // Attach pointer listeners to document so drag keeps working even outside the handle.
+        const drag=(event,axis,start,update)=>{
+            if(event.button!==0)return;
+            event.preventDefault();event.stopPropagation();closeMenu();
+            const origin=axis==='x'?event.clientX:event.clientY;
+            const onMove=e=>{if(e.pointerId!==event.pointerId)return;update(start+(axis==='x'?e.clientX:e.clientY)-origin);};
+            const onEnd=e=>{if(e.pointerId!==event.pointerId)return;document.removeEventListener('pointermove',onMove,true);document.removeEventListener('pointerup',onEnd,true);document.removeEventListener('pointercancel',onEnd,true);save();};
+            document.addEventListener('pointermove',onMove,true);document.addEventListener('pointerup',onEnd,true);document.addEventListener('pointercancel',onEnd,true);
+        };
+        const corner=document.createElement('col');corner.style.width='48px';colgroup.append(corner);
+        const tracks=[];
+        component.columns.forEach((col,index)=>{
+            const track=document.createElement('col');track.style.width=`${width(col)}px`;colgroup.append(track);tracks.push(track);
+            const th=document.createElement('th');th.className='header';const input=document.createElement('input');input.type='text';input.value=col.name||'';input.setAttribute('aria-label',`Column ${index+1} name`);input.oninput=()=>{col.name=input.value;scheduleSaveV162();};input.onblur=save;
+            const grip=document.createElement('span');grip.className='resize-col';grip.title='Drag to resize column';grip.addEventListener('pointerdown',e=>drag(e,'x',width(col),newWidth=>{col.width=clamp(newWidth,90,1000,180);track.style.width=`${col.width}px`;sizeTable();}));
+            th.append(input,grip);th.oncontextmenu=e=>colMenu(e,index);head.append(th);
+        });
+        const sizeTable=()=>{const w=48+component.columns.reduce((sum,c)=>sum+width(c),0);table.style.width=`${w}px`;table.style.minWidth=`${w}px`;};
+        component.rows.forEach((row,index)=>{
+            row.cells||={};const tr=document.createElement('tr');tr.style.setProperty('--row-height',`${height(row)}px`);
+            const rowHead=document.createElement('th');rowHead.className='index';rowHead.textContent=String(row.label||index+1);rowHead.ondblclick=()=>renameRow(index);
+            const grip=document.createElement('span');grip.className='resize-row';grip.title='Drag to resize row';grip.addEventListener('pointerdown',e=>drag(e,'y',height(row),newHeight=>{component.rowHeights[row.id]=clamp(newHeight,32,600,44);tr.style.setProperty('--row-height',`${component.rowHeights[row.id]}px`);}));rowHead.append(grip);rowHead.oncontextmenu=e=>rowMenu(e,index);tr.append(rowHead);
+            component.columns.forEach(col=>{
+                const td=document.createElement('td'),input=document.createElement('textarea');input.rows=1;input.value=String(row.cells[col.id]??'');input.dataset.rowId=row.id;input.dataset.colId=col.id;
+                input.setAttribute('aria-label',`${col.name||'Column'} row ${index+1}`);
+                const meta=component.cellStyles[key(row,col)]||{};input.style.textAlign=['left','center','right'].includes(meta.align)?meta.align:'left';if(/^#[a-f0-9]{6}$/i.test(meta.background||''))input.style.background=meta.background;
+                input.oninput=()=>{row.cells[col.id]=input.value;scheduleSaveV162();};input.onblur=save;
+                td.oncontextmenu=e=>cellMenu(e,row,col);td.append(input);tr.append(td);
+            });body.append(tr);
+        });
+        // The custom-tab context menu runs in window capture, before shadow events.
+        // Expose one explicit routing entrypoint to that owner rather than relying
+        // on bubbling through a shadow boundary.
+        host.__loggySheetContext = event => {
+            const path = event.composedPath?.() || [];
+            const cell = path.find(node => node?.tagName === 'TD');
+            const header = path.find(node => node?.tagName === 'TH');
+            if (cell) {
+                const r = cell.parentElement?.rowIndex - 1;
+                const c = cell.cellIndex - 1;
+                if (r >= 0 && c >= 0 && component.rows[r] && component.columns[c]) cellMenu(event, component.rows[r], component.columns[c]);
+            } else if (header?.classList.contains('header')) {
+                const c = header.cellIndex - 1;
+                if (c >= 0) colMenu(event, c);
+            } else if (header?.classList.contains('index')) {
+                const r = header.parentElement?.rowIndex - 1;
+                if (r >= 0) rowMenu(event, r);
+            } else return false;
+            return true;
+        };
+        host.__loggySheetResize = event => {
+            const path = event.composedPath?.() || [];
+            const grip = path.find(node => node?.classList?.contains('resize-col') || node?.classList?.contains('resize-row'));
+            if (!grip) return false;
+            // Capturing pointerdown before the tab drag/layout manager prevents its
+            // competing gesture from taking the pointer away from the sheet.
+            const cell = grip.parentElement;
+            if (grip.classList.contains('resize-col')) {
+                const c = cell.cellIndex - 1, col = component.columns[c];
+                if (!col) return false;
+                drag(event,'x',width(col),next => {col.width=clamp(next,90,1000,180);tracks[c].style.width=`${col.width}px`;sizeTable();});
+            } else {
+                const r = cell.parentElement?.rowIndex - 1, row = component.rows[r];
+                if (!row) return false;
+                drag(event,'y',height(row),next => {component.rowHeights[row.id]=clamp(next,32,600,44);cell.parentElement.style.setProperty('--row-height',`${component.rowHeights[row.id]}px`);});
+            }
+            return true;
+        };
+        sizeTable();
+        rowButton.onclick=()=>addRow();colButton.onclick=()=>addCol();
+        const marker=document.createComment('sheet-original-position');
+        const setFull=on=>{
+            closeMenu();
+            if(on){if(host.parentNode)host.parentNode.insertBefore(marker,host);document.body.append(host);host.classList.add('fullscreen');}
+            else{host.classList.remove('fullscreen');if(marker.parentNode)marker.replaceWith(host);}
+            fullButton.textContent='⛶';fullButton.title=on?'Exit full screen':'Full screen';fullButton.setAttribute('aria-label',fullButton.title);
+        };
+        fullButton.onclick=e=>{e.stopPropagation();setFull(!host.classList.contains('fullscreen'));};
+        shadow.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!menu.hidden)closeMenu();else if(host.classList.contains('fullscreen'))setFull(false);}});
+        shadow.addEventListener('contextmenu',e=>{e.stopPropagation();});
+        document.addEventListener('pointerdown',e=>{if(!e.composedPath().includes(menu))closeMenu();},{capture:true});
+        scroller.addEventListener('scroll',closeMenu,{passive:true});
     }
 
     // ------------------------------------------------------------

@@ -10100,7 +10100,7 @@ Return the raw JSON object now and nothing else.`;
     q('.v340-fields-button',content).onclick=()=>openFieldsModalV340(tab,component,type);
     const grid=q('.v340-record-grid',content);
     component.items.forEach(item=>{ensureItemValuesV340(component,item,type);const card=document.createElement('article');card.className=`v340-record-card custom-searchable-item custom-content-editable ${polaroid?'v340-polaroid-card':''}`;card.dataset.customItemId=item.id;card.dataset.searchText=cardSearchV340(component,item,type);const visible=fields.filter(f=>f.areaV340!=='hidden');if(polaroid){const imageFields=visible.filter(f=>f.areaV340==='image'),bottomFields=visible.filter(f=>f.areaV340!=='image');card.innerHTML=`<div class="v340-polaroid-image">${imageFields.map(f=>displayFieldV340(f,readValueV340(item,f))).join('')||'<div class="custom-polaroid-placeholder"><i class="ph ph-image"></i></div>'}</div><div class="v340-polaroid-bottom">${bottomFields.map(f=>displayFieldV340(f,readValueV340(item,f))).join('')}</div>`}else card.innerHTML=visible.map(f=>displayFieldV340(f,readValueV340(item,f))).join('')||'<span>No fields yet.</span>';
-      card.oncontextmenu=e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit card',icon:'ph-pencil-simple',action:()=>createRecordModalV340('Edit Card',fields,item,async()=>{await save();renderCustomTabView(tab.id)})},{label:'Delete card',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Card',message:'Delete this card?',confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x.id!==item.id);await save();renderCustomTabView(tab.id)}}])};grid.appendChild(card)});
+      card.oncontextmenu=e=>{e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit Info',icon:'ph-pencil-simple',action:()=>createRecordModalV340('Edit Card',fields,item,async()=>{await save();renderCustomTabView(tab.id)})},{label:'Delete',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Card',message:'Delete this card?',confirmLabel:'Delete'});if(!ok)return;component.items=component.items.filter(x=>x.id!==item.id);await save();renderCustomTabView(tab.id)}}])};grid.appendChild(card)});
     q('.v340-add-record',content).onclick=()=>{const item={id:uid(type==='polaroids'?'polaroid':'card'),valuesV340:{}};createRecordModalV340(type==='polaroids'?'Add Polaroid':'Add Card',fields,item,async()=>{if(!component.items.includes(item))component.items.push(item);await save();renderCustomTabView(tab.id)})};
   }
 
@@ -10111,25 +10111,65 @@ Return the raw JSON object now and nothing else.`;
   }
   function renderKanbanV340(tab,component,content){
     const columns=normalizeKanbanV340(component),fields=fieldsForV340(component,'cards');
-    const cardHeight=['compact','tall','extra'].includes(component.cardHeightV839)?component.cardHeightV839:'normal';
     const boardHeight=component.boardHeightV849==='long'?'long':'standard';
     component.boardHeightV849=boardHeight;
-    content.innerHTML=`<div class="custom-collection-header"><h2>${esc(component.title||'Kanban Board')}</h2><div class="v340-kanban-header-actions"><button type="button" class="small-icon-btn v340-fields-button" title="Card fields"><i class="ph ph-list-plus"></i></button><button type="button" class="small-icon-btn v340-add-column" title="Add column"><i class="ph ph-plus"></i></button></div></div><div class="v340-kanban-board kanban-height-${cardHeight} kanban-board-height-${boardHeight}" data-kanban-card-height-v839="${cardHeight}" data-kanban-board-height-v849="${boardHeight}"></div>`;
-    q('.v340-fields-button',content).onclick=()=>openFieldsModalV340(tab,component,'cards');
-    q('.v340-add-column',content).onclick=async()=>{const name=await showAppPrompt({title:'Add Column',label:'Column name',value:'New Column'});if(name==null||!name.trim())return;columns.push({id:uid('column'),title:name.trim(),cards:[]});await save();renderCustomTabView(tab.id)};
+    content.innerHTML=`<div class="custom-collection-header"><h2>${esc(component.title||'Kanban Board')}</h2><div class="v340-kanban-header-actions"><button type="button" class="small-icon-btn kanban-fullscreen-toggle-v926" title="Toggle fullscreen" aria-label="Toggle fullscreen"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button><button type="button" class="small-icon-btn v340-add-column" title="Add column"><i class="ph ph-plus"></i></button></div></div><div class="v340-kanban-board kanban-board-height-${boardHeight}" data-kanban-board-height-v849="${boardHeight}"></div>`;
+    const host=content.closest('.custom-tab-component')||content;
+    const fullscreenActive=host.classList.contains('kanban-fullscreen-v926');
+    const refreshKanban=()=>{
+      if(host.isConnected && host.classList.contains('kanban-fullscreen-v926')) {
+        renderKanbanV340(tab,component,content);
+      } else renderCustomTabView(tab.id);
+    };
+    // The same component instance remains visible in fullscreen after saves.
+    if(fullscreenActive) window.__loggyKanbanFullscreenRefreshV940=()=>{refreshKanban();return true;};
+    const fullToggle=q('.kanban-fullscreen-toggle-v926',content);
+    if(fullToggle){
+      fullToggle.setAttribute('aria-pressed',String(fullscreenActive));
+      fullToggle.onclick=e=>{
+        e.preventDefault();e.stopPropagation();
+        if(host.classList.contains('kanban-fullscreen-v926')){
+          host.classList.remove('kanban-fullscreen-v926');
+          host.style.removeProperty('background');host.style.removeProperty('opacity');
+          host.style.removeProperty('z-index');
+          document.documentElement.classList.remove('kanban-fullscreen-open-v926');
+          document.getElementById('kanban-opaque-backdrop-v940')?.remove();
+          window.__loggyKanbanFullscreenRefreshV940=null;
+          if(host.__kanbanRestoreV926){host.__kanbanRestoreV926();delete host.__kanbanRestoreV926;}
+          fullToggle.setAttribute('aria-pressed','false');return;
+        }
+        const parent=host.parentNode;if(!parent)return;
+        const marker=document.createComment('Kanban original position');parent.insertBefore(marker,host);
+        let backdrop=document.getElementById('kanban-opaque-backdrop-v940');
+        if(!backdrop){backdrop=document.createElement('div');backdrop.id='kanban-opaque-backdrop-v940';
+          backdrop.style.cssText='position:fixed!important;inset:0!important;background:#fff!important;opacity:1!important;z-index:1999!important;pointer-events:auto!important;';
+          document.body.appendChild(backdrop);}
+        document.body.appendChild(host);
+        host.__kanbanRestoreV926=()=>{if(marker.parentNode)marker.replaceWith(host);else host.remove();};
+        host.classList.add('kanban-fullscreen-v926');
+        host.style.setProperty('background','#fff','important');
+        host.style.setProperty('opacity','1','important');
+        host.style.setProperty('z-index','2000','important');
+        document.documentElement.classList.add('kanban-fullscreen-open-v926');
+        window.__loggyKanbanFullscreenRefreshV940=()=>{refreshKanban();return true;};
+        fullToggle.setAttribute('aria-pressed','true');
+      };
+    }
+
+    q('.v340-add-column',content).onclick=async()=>{const name=await showAppPrompt({title:'Add Column',label:'Column name',value:'New Column'});if(name==null||!name.trim())return;columns.push({id:uid('column'),title:name.trim(),cards:[]});await save();refreshKanban()};
     const board=q('.v340-kanban-board',content);
-    board.style.minHeight=boardHeight==='long'?'760px':'';
+    board.style.minHeight=boardHeight==='long'?'min(80dvh, 850px)':'';
     columns.forEach(column=>{
       const col=document.createElement('section');col.className='v340-kanban-column';col.dataset.columnId=column.id;col.dataset.boardHeightV849=boardHeight;
-      col.style.setProperty('--kanban-column-height',boardHeight==='long'?'760px':'auto');col.style.height=boardHeight==='long'?'760px':'auto';col.style.minHeight=boardHeight==='long'?'760px':'0';col.style.maxHeight=boardHeight==='long'?'760px':'none';
+      col.style.setProperty('--kanban-column-height',boardHeight==='long'?'min(80dvh, 850px)':'auto');col.style.height=boardHeight==='long'?'min(80dvh, 850px)':'auto';col.style.minHeight=boardHeight==='long'?'min(80dvh, 850px)':'0';col.style.maxHeight=boardHeight==='long'?'min(80dvh, 850px)':'none';
       col.innerHTML=`<div class="v340-kanban-column-head"><strong>${esc(column.title)}</strong><span>${column.cards.length}</span></div><div class="v340-kanban-list"></div><button type="button" class="icon-btn v340-kanban-add"><i class="ph ph-plus"></i><span>Card</span></button>`;
-      col.oncontextmenu=e=>{if(e.target.closest('.v340-kanban-card,.v340-kanban-add'))return;e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Rename column',icon:'ph-pencil-simple',action:async()=>{const name=await showAppPrompt({title:'Rename Column',label:'Column name',value:column.title});if(name==null||!name.trim())return;column.title=name.trim();await save();renderCustomTabView(tab.id)}},{label:'Delete column',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Column',message:`Delete “${column.title}” and its ${column.cards.length} card${column.cards.length===1?'':'s'}?`,confirmLabel:'Delete'});if(!ok)return;component.columns=columns.filter(c=>c.id!==column.id);await save();renderCustomTabView(tab.id)}}])};
+      col.oncontextmenu=e=>{if(e.target.closest('.v340-kanban-card,.v340-kanban-add'))return;e.preventDefault();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Rename column',icon:'ph-pencil-simple',action:async()=>{const name=await showAppPrompt({title:'Rename Column',label:'Column name',value:column.title});if(name==null||!name.trim())return;column.title=name.trim();await save();refreshKanban()}},{label:'Delete column',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Column',message:`Delete “${column.title}” and its ${column.cards.length} card${column.cards.length===1?'':'s'}?`,confirmLabel:'Delete'});if(!ok)return;component.columns=columns.filter(c=>c.id!==column.id);await save();refreshKanban()}}])};
       const list=q('.v340-kanban-list',col);
       list.ondragover=e=>e.preventDefault();
-      list.ondrop=async e=>{e.preventDefault();const cardId=e.dataTransfer.getData('text/v340-kanban-card');if(!cardId)return;let moved=null;columns.forEach(c=>{const i=c.cards.findIndex(x=>String(x.id)===cardId);if(i>=0)moved=c.cards.splice(i,1)[0]});if(moved){column.cards.push(moved);await save();renderCustomTabView(tab.id)}};
+      list.ondrop=async e=>{e.preventDefault();const cardId=e.dataTransfer.getData('text/v340-kanban-card');if(!cardId)return;let moved=null;columns.forEach(c=>{const i=c.cards.findIndex(x=>String(x.id)===cardId);if(i>=0)moved=c.cards.splice(i,1)[0]});if(moved){column.cards.push(moved);await save();refreshKanban()}};
       column.cards.forEach(item=>{
         ensureItemValuesV340(component,item,'cards');
-        const card=document.createElement('article');card.className='v340-kanban-card custom-searchable-item custom-content-editable';card.draggable=true;card.dataset.customItemId=String(item.id);card.dataset.searchText=cardSearchV340(component,item,'cards');const cardMinHeight={compact:70,normal:110,tall:170,extra:245}[cardHeight]||110;card.style.setProperty('--kanban-card-height',`${cardMinHeight}px`);card.style.height=`${cardMinHeight}px`;card.style.minHeight=`${cardMinHeight}px`;card.style.maxHeight=`${cardMinHeight}px`;
+        const card=document.createElement('article');card.className='v340-kanban-card custom-searchable-item custom-content-editable';card.draggable=true;card.dataset.customItemId=String(item.id);card.dataset.searchText=cardSearchV340(component,item,'cards');
         const titleField=fields.find(f=>/^title$/i.test(f.name))||fields.find(f=>f.kind==='text');
         const linkFields=fields.filter(f=>f.kind==='link'&&f.areaV340!=='hidden'&&String(readValueV340(item,f)||'').trim());
         const other=fields.filter(f=>f!==titleField&&f.kind!=='link'&&f.areaV340!=='hidden').slice(0,3);
@@ -10137,10 +10177,11 @@ Return the raw JSON object now and nothing else.`;
         card.innerHTML=`${titleField?`<h3>${esc(readValueV340(item,titleField)||'Untitled Card')}</h3>`:''}${other.map(f=>/^description$/i.test(f.name)?(readValueV340(item,f)?`<div class="v340-kanban-description-v853">${esc(String(readValueV340(item,f))).replace(/\n/g,'<br>')}</div>`:''):displayFieldV340(f,readValueV340(item,f),true)).join('')}${linkIcons?`<div class="v340-kanban-card-links-v851">${linkIcons}</div>`:''}`;
         card.querySelectorAll('.v340-kanban-link-icon-v851').forEach(a=>{a.addEventListener('pointerdown',e=>e.stopPropagation());a.addEventListener('click',e=>e.stopPropagation());a.addEventListener('contextmenu',e=>e.stopPropagation())});
         card.ondragstart=e=>{if(e.target.closest?.('a')){e.preventDefault();return}e.dataTransfer.setData('text/v340-kanban-card',String(item.id));};
-        card.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit card',icon:'ph-pencil-simple',action:()=>createRecordModalV340('Edit Card',fields,item,async()=>{await save();renderCustomTabView(tab.id)})},{label:'Delete card',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Card',message:'Delete this card?',confirmLabel:'Delete'});if(!ok)return;column.cards=column.cards.filter(x=>String(x.id)!==String(item.id));await save();renderCustomTabView(tab.id)}}])},{capture:true});
+        card.addEventListener('loggy-kanban-card-context',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showCustomItemContextMenu(e.clientX,e.clientY,[{label:'Edit Info',icon:'ph-pencil-simple',action:()=>createRecordModalV340('Edit Card',fields,item,async()=>{await save();refreshKanban()})},{label:'Delete card',icon:'ph-trash',danger:true,action:async()=>{const ok=await showAppConfirm({title:'Delete Card',message:'Delete this card?',confirmLabel:'Delete'});if(!ok)return;column.cards=column.cards.filter(x=>String(x.id)!==String(item.id));await save();refreshKanban()}}])},{capture:true});
+        card.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();card.dispatchEvent(new MouseEvent('loggy-kanban-card-context',{bubbles:false,cancelable:true,clientX:e.clientX,clientY:e.clientY}))});
         list.appendChild(card)
       });
-      q('.v340-kanban-add',col).onclick=()=>{const item={id:uid('card'),valuesV340:{}};createRecordModalV340('Add Card',fields,item,async()=>{if(!column.cards.includes(item))column.cards.push(item);await save();renderCustomTabView(tab.id)})};
+      q('.v340-kanban-add',col).onclick=()=>{const item={id:uid('card'),valuesV340:{}};createRecordModalV340('Add Card',fields,item,async()=>{if(!column.cards.includes(item))column.cards.push(item);await save();refreshKanban()})};
       board.appendChild(col)
     });
   }
@@ -21235,7 +21276,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if(parent.templateIdV53==='youtube-studio-v822'){
         let pipeline;try{pipeline=defaultCustomComponent?.('kanbanV239')}catch{}
         pipeline=(pipeline&&typeof pipeline==='object')?JSON.parse(JSON.stringify(pipeline)):{id:uid('component'),type:'kanbanV239'};
-        pipeline.id=uid('component');pipeline.type='kanbanV239';pipeline.title='Video Pipeline';pipeline.showBorderV811=false;pipeline.cardHeightV839='tall';
+        pipeline.id=uid('component');pipeline.type='kanbanV239';pipeline.title='Video Pipeline';pipeline.showBorderV811=false;
         pipeline.columns=['Ideas','To Film','Filmed','To Edit','Editing','To Upload','Published'].map(title=>({id:uid('column'),title,name:title,cards:[]}));
         child.components=[pipeline];child.youtubeSubjectV839=true;child.pageWidthV724='wide';child.youtubeWideDefaultAppliedV853=true;
       }
@@ -21368,12 +21409,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     return component.recordFieldsV340;
   }
   function fieldRowHtml(field){
-    return `<div class="kanban-edit-field-row-v761" data-kanban-field-id-v761="${attr(field.id)}">
+    return `<div class="kanban-field-editor-v930" data-kanban-field-id-v761="${attr(field.id)}">
       <input type="text" class="kanban-field-name-v761" value="${attr(field.name)}" aria-label="Field name">
       <select class="kanban-field-kind-v761">${FIELD_KINDS.map(([id,label])=>`<option value="${attr(id)}" ${field.kind===id?'selected':''}>${esc(label)}</option>`).join('')}</select>
       <select class="kanban-field-area-v761"><option value="bottom" ${field.areaV340==='bottom'?'selected':''}>Show on card</option><option value="image" ${field.areaV340==='image'?'selected':''}>Image area</option><option value="hidden" ${field.areaV340==='hidden'?'selected':''}>Hidden</option></select>
-      <input type="text" class="kanban-field-options-v761 ${field.kind==='select'?'':'hidden'}" value="${attr(field.options.join(', '))}" placeholder="Select options, comma separated">
-      <button type="button" class="small-icon-btn kanban-field-remove-v761" title="Remove field"><i class="ph ph-trash"></i></button>
+      ${field.kind==='select'?`<input type="text" class="kanban-field-options-v761" value="${attr(field.options.join(', '))}" placeholder="Dropdown choices, separated by commas">`:''}
+      <button type="button" class="small-icon-btn kanban-field-delete-v930" title="Remove field" aria-label="Remove field"><i class="ph ph-trash"></i></button>
     </div>`;
   }
   function openKanbanEdit(tabId,componentId){
@@ -21381,31 +21422,32 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const fields=normalizeKanbanFields(c).map(f=>({...f,options:[...f.options]}));
     const modal=modalShell('kanban-component-edit-v761','Edit Kanban Board',`<div class="kanban-component-edit-body-v761">
       <label class="kanban-title-field-v761"><span>Component Name</span><input type="text" data-kanban-title-v761 value="${attr(c.title||'Kanban Board')}"></label>
-      <label class="kanban-title-field-v761"><span>Card height</span><select data-kanban-card-height-v839><option value="normal" ${!c.cardHeightV839||c.cardHeightV839==='normal'?'selected':''}>Normal</option><option value="compact" ${c.cardHeightV839==='compact'?'selected':''}>Compact</option><option value="tall" ${c.cardHeightV839==='tall'?'selected':''}>Tall</option><option value="extra" ${c.cardHeightV839==='extra'?'selected':''}>Extra tall</option></select></label>
       <label class="kanban-title-field-v761"><span>Board height</span><select data-kanban-board-height-v849><option value="standard" ${c.boardHeightV849!=='long'?'selected':''}>Standard</option><option value="long" ${c.boardHeightV849==='long'?'selected':''}>Long vertical</option></select></label>
-      <div class="kanban-fields-heading-v761"><div><strong>Card Fields</strong><span>Configure the fields used by every card on this board.</span></div><button type="button" class="small-icon-btn" data-kanban-add-field-v761 title="Add field"><i class="ph ph-plus"></i></button></div>
-      <div class="kanban-edit-fields-v761"></div>
+      <details class="kanban-fields-section-v926"><summary>Card Fields <span>Configure card fields</span></summary>
+        <div class="kanban-fields-heading-v761"><div><strong>Fields</strong><span>Fields shared by the cards on this board.</span></div><button type="button" class="small-icon-btn" data-kanban-add-field-v761 title="Add field"><i class="ph ph-plus"></i></button></div>
+        <div class="kanban-edit-fields-v761"></div>
+      </details>
       <button type="button" class="icon-btn kanban-edit-save-v761" data-kanban-save-v761><i class="ph ph-check"></i> Save</button>
     </div>`,'kanban-component-edit-modal-v761');
     const list=$('.kanban-edit-fields-v761',modal);
     const draw=()=>{
       list.innerHTML=fields.map(fieldRowHtml).join('')||'<p class="progress-hint">No fields yet.</p>';
-      $$('.kanban-edit-field-row-v761',list).forEach(row=>{
+      $$('.kanban-field-editor-v930',list).forEach(row=>{
         const field=fields.find(f=>String(f.id)===String(row.dataset.kanbanFieldIdV761));if(!field)return;
         const kind=$('.kanban-field-kind-v761',row),options=$('.kanban-field-options-v761',row);
-        kind.onchange=()=>{field.kind=kind.value;options.classList.toggle('hidden',field.kind!=='select')};
-        $('.kanban-field-remove-v761',row).onclick=()=>{const i=fields.indexOf(field);if(i>=0)fields.splice(i,1);draw()};
+        kind.onchange=()=>{field.name=String($('.kanban-field-name-v761',row)?.value||field.name);field.areaV340=$('.kanban-field-area-v761',row)?.value||field.areaV340;field.kind=kind.value;draw()};
+        $('.kanban-field-delete-v930',row).onclick=()=>{const i=fields.indexOf(field);if(i>=0)fields.splice(i,1);draw()};
       });
     };draw();
     $('[data-kanban-add-field-v761]',modal).onclick=()=>{fields.push({id:uid('field'),name:`Field ${fields.length+1}`,kind:'text',areaV340:'bottom',options:[],maxRating:5});draw()};
     $('[data-kanban-save-v761]',modal).onclick=async()=>{
-      $$('.kanban-edit-field-row-v761',modal).forEach(row=>{
+      $$('.kanban-field-editor-v930',modal).forEach(row=>{
         const f=fields.find(x=>String(x.id)===String(row.dataset.kanbanFieldIdV761));if(!f)return;
         f.name=String($('.kanban-field-name-v761',row)?.value||'').trim()||'Field';f.kind=$('.kanban-field-kind-v761',row)?.value||'text';f.areaV340=$('.kanban-field-area-v761',row)?.value||'bottom';
         f.options=f.kind==='select'?String($('.kanban-field-options-v761',row)?.value||'').split(',').map(x=>x.trim()).filter(Boolean):f.options;
       });
-      const title=String($('[data-kanban-title-v761]',modal)?.value||'').trim();if(title)c.title=title;c.recordFieldsV340=fields;c.cardHeightV839=$('[data-kanban-card-height-v839]',modal)?.value||'normal';c.boardHeightV849=$('[data-kanban-board-height-v849]',modal)?.value==='long'?'long':'standard';
-      try{await Promise.resolve(saveDb?.());renderCustomTabView?.(tab.id)}catch{}modal.remove();
+      const title=String($('[data-kanban-title-v761]',modal)?.value||'').trim();if(title)c.title=title;c.recordFieldsV340=fields;delete c.cardHeightV839;c.boardHeightV849=$('[data-kanban-board-height-v849]',modal)?.value==='long'?'long':'standard';
+      try{await Promise.resolve(saveDb?.());if(!window.__loggyKanbanFullscreenRefreshV940?.())renderCustomTabView?.(tab.id)}catch{}modal.remove();
     };
   }
 
@@ -21429,7 +21471,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const wrapped=function(tab,c,content){
       if(c?.type===PAGE_TYPE)return renderPages(tab,c,content);
       const result=before?.apply(this,arguments);
-      if(c?.type===KANBAN_TYPE){$('.v340-fields-button',content)?.remove()}
+
       return result;
     };
     wrapped.__v761=true;window.renderCustomComponentContent=wrapped;try{renderCustomComponentContent=wrapped}catch{}
@@ -21591,11 +21633,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     }
     const input = q('input', search);
     const filter = () => {
-      const term = String(input?.value || '').trim().toLowerCase();
-      qa(':scope > .custom-component-palette-item', palette).forEach(card => {
-        const label = String(card.textContent || '').replace(/\?/g,'').replace(/\s+/g,' ').trim().toLowerCase();
-        const type = String(card.dataset.componentType || '').toLowerCase();
-        card.classList.toggle('custom-component-filtered-v764', !!term && !label.includes(term) && !type.includes(term));
+      const term = String(input?.value || '').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+      const cards=qa(':scope > .custom-component-palette-item',palette);
+      cards.forEach((card,index)=>{
+        if(!card.dataset.paletteOrderV964)card.dataset.paletteOrderV964=String(index+1);
+        const name=String(q(':scope > span:not(.custom-palette-help-v164)',card)?.textContent||'').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+        // Do not match tooltip copy or hidden data; Recipe Tracker should not match "table".
+        const match=!term||name.includes(term);
+        card.classList.toggle('custom-component-filtered-v764',!match);
+        card.style.order=term&&match?(name===term?'0':name.startsWith(term)?'1':'2'):'';
       });
     };
     if (input && input.dataset.boundV764 !== '1') {
@@ -21811,7 +21857,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   function syncButtons(section){
     const shape=currentShape();
     qa('[data-kb-polaroid-shape-v788]',section).forEach(button=>{
-      const active=button.getAttribute('data-kb-polaroid-shape-v788')===shape;
+      const active=button.dataset.kbPolaroidShapeV787===shape;
       button.classList.toggle('selected',active);
       button.setAttribute('aria-checked',active?'true':'false');
     });
@@ -21855,12 +21901,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         const button=event.target.closest?.('[data-kb-polaroid-shape-v788]');
         if(!button)return;
         db.settings ||= {};
-        db.settings.kbPolaroidCardShapeV787=norm(button.getAttribute('data-kb-polaroid-shape-v788'));
+        db.settings.kbPolaroidCardShapeV787=norm(button.dataset.kbPolaroidShapeV787);
         syncButtons(section);
         applyShape();
         try{saveDb()}catch{}
         try{renderPhrasesLibrary(q('#phrases-search-bar')?.value||'')}catch{}
-        requestAnimationFrame(()=>{applyShape();syncButtons(section);});
       });
     }
     section.classList.toggle('hidden',!isPolaroid());
@@ -22781,7 +22826,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(isYoutube){
    for(const subject of ['Discrete Math','Calculus 1','Calculus 2']){
     const sub=makeId('tab'),pipeline=defaults(['kanbanV239','Video Pipeline'],'Production Pipeline');
-    pipeline.cardHeightV839='tall';pipeline.showBorderV811=false;
+    pipeline.showBorderV811=false;
     const child={id:sub,name:subject,icon:'ph-books',pinned:false,components:[pipeline],nestedParentV753:{tabId:tab.id,componentId:rootNav.id},youtubeSubjectV839:true,pageWidthV724:'wide',youtubeWideDefaultAppliedV853:true};
     tabs.push(child);rootNav.pagesV753.push({id:makeId('page'),tabId:sub,title:subject,icon:'ph-books'});
    }
